@@ -83,7 +83,7 @@ void CScreenSaver::Start()
 	status_clock = InfoClock->getStatus();
 	InfoClock->enableInfoClock(false);
 
-	m_viewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
+	m_viewer->SetScaling(CPictureViewer::SIMPLE);
 	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
 
 	if (g_settings.video_Format == 3)
