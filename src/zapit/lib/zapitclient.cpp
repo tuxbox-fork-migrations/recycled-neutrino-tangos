@@ -643,7 +643,7 @@ void CZapitClient::lockRc(const bool b)
 
 	msg.truefalse = b;
 
-	ScopedLock lock(mutex);
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_LOCKRC, (char*)&msg, sizeof(msg));
 
 	close_connection();
