@@ -162,6 +162,10 @@ install_DATA += \
 	important.png \
 	info.png \
 	info_small.png \
+	info_blue.png \
+	info_red.png \
+	info_green.png \
+	info_yellow.png \
 	information.png \
 	ird_green.png \
 	ird_white.png \
@@ -186,14 +190,6 @@ install_DATA += \
 	mp_play_repeat_track.png \
 	mp3.jpg \
 	mp3.png \
-	mp3-0.jpg \
-	mp3-1.jpg \
-	mp3-2.jpg \
-	mp3-3.jpg \
-	mp3-4.jpg \
-	mp3-5.jpg \
-	mp3-6.jpg \
-	mp3-7.jpg \
 	multimedia.png \
 	mute.png \
 	mute_small.png \

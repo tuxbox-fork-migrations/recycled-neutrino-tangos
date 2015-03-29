@@ -451,6 +451,18 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 	}
 
+#if 0
+	// Allow some tailoring for privat image bakers ;)
+	if (button == SNeutrinoSettings::BUTTON_RED) {
+	}
+	else if ( button == SNeutrinoSettings::BUTTON_GREEN) {
+	}
+	else if ( button == SNeutrinoSettings::BUTTON_YELLOW) {
+	}
+	else if ( button == SNeutrinoSettings::BUTTON_BLUE) {
+	}
+#endif
+
 	extern CInfoClock *InfoClock;
 	InfoClock->enableInfoClock(false);
 

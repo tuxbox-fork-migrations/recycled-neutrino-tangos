@@ -282,6 +282,7 @@ int  GetCurFontWidth()
 	int mx = (displaywidth)%(40-nofirst); // # of unused pixels
 	int abx = (mx == 0 ? displaywidth+1 : (displaywidth)/(mx+1));// distance between 'inserted' pixels
 	int nx= abx+1-((PosX-sx) % (abx+1)); // # of pixels to next insert
+
 	return fontwidth+(((PosX+fontwidth+1-sx) <= displaywidth && nx <= fontwidth+1) ? 1 : 0);
 }
 
@@ -1567,7 +1568,7 @@ static void* reader_thread(void * /*arg*/)
 void tuxtx_pause_subtitle(bool pause)
 {
 	if(!pause) {
-		printf("TuxTxt subtitle unpause, running %d pid %d page %d\n", reader_running, sub_pid, sub_page);
+		//printf("TuxTxt subtitle unpause, running %d pid %d page %d\n", reader_running, sub_pid, sub_page);
 		ttx_paused = 0;
 		if(!reader_running && sub_pid && sub_page)
 			tuxtx_main(0, sub_pid, sub_page);
@@ -1604,8 +1605,8 @@ void tuxtx_set_pid(int pid, int page, const char * cc)
 	sub_page = page;
 
 	cfg_national_subset = GetNationalSubset(cc);
-	printf("TuxTxt subtitle set pid %d page %d lang %s (%d)\n", sub_pid, sub_page, cc, cfg_national_subset);
 #if 0
+	printf("TuxTxt subtitle set pid %d page %d lang %s (%d)\n", sub_pid, sub_page, cc, cfg_national_subset);
 	ttx_paused = 1;
 	if(sub_pid && sub_page)
 		tuxtx_main(0, sub_pid, sub_page);
@@ -1687,7 +1688,6 @@ int tuxtx_main(int /*_rc*/, int pid, int page, int source)
 		perror("TuxTxt <FBIOGET_VSCREENINFO>");
 		return 0;
 	}
-
 #else
 	struct fb_var_screeninfo *var;
 	var = fbp->getScreenInfo();
@@ -4007,7 +4007,8 @@ void SwitchScreenMode(int newscreenmode)
 		setfontwidth(fw);
 
 		CFrameBuffer *f = CFrameBuffer::getInstance();
-		videoDecoder->Pig(tx, ty, tw, th, f->getScreenWidth(true), f->getScreenHeight(true));
+		videoDecoder->Pig(tx, ty, tw, th,
+				  f->getScreenWidth(true), f->getScreenHeight(true));
 #if 0
 		int sm = 0;
 		ioctl(pig, VIDIOC_OVERLAY, &sm);

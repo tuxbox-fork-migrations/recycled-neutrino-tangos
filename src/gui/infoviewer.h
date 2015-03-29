@@ -62,9 +62,8 @@ class CInfoViewer
 	int            InfoHeightY;
 	bool	       fileplay;
 
-	int            BoxStartX;
-	int            BoxStartY;
 	int            ButtonWidth;
+	int            spacer;
 
         // dimensions of radiotext window
         int             rt_dx;
@@ -77,9 +76,8 @@ class CInfoViewer
 	std::string ChannelName;
 
 	int            ChanNameX;
-	int            ChanNameY;
+	int            ChanNumWidth;
 	int            ChanWidth;
-	int            ChanHeight;
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
 	CSectionsdClient::CurrentNextInfo oldinfo;
@@ -88,7 +86,6 @@ class CInfoViewer
 	//uint32_t           fadeTimer;
 	COSDFader	fader;
 
-	int time_width;
 	int time_height;
 	int info_time_width;
 
@@ -145,11 +142,16 @@ class CInfoViewer
 	char     aspectRatio;
 	uint32_t sec_timer_id;
 
+	int      BoxStartX;
+	int      BoxStartY;
+	int      ChanHeight;
 	int      BoxEndX;
 	int      BoxEndY;
 	int      ChanInfoX;
 	bool     showButtonBar;
 	bool     isVolscale;
+	int      ChanNameY;
+	int      time_width;
 
 	CInfoViewer();
 	~CInfoViewer();

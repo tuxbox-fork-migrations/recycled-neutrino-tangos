@@ -1469,7 +1469,7 @@ void CTimeThread::run()
 			 * shutdown" hack on with libcoolstream... :-( */
 			rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
 #else
-			time_t start = time_monotonic_ms();
+			time_t m_start = time_monotonic_ms();
 			/* speed up shutdown by looping around Read() */
 			struct pollfd ufds;
 			ufds.events = POLLIN|POLLPRI|POLLERR;
@@ -1485,7 +1485,7 @@ void CTimeThread::run()
 						rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, 10);
 					DMX::unlock();
 				}
-			} while (running && rc == 0 && (time_monotonic_ms() < timeoutInMSeconds + start));
+			} while (running && rc == 0 && (time_monotonic_ms() < timeoutInMSeconds + m_start));
 #endif
 			xprintf("%s: getting DVB time done : %d messaging_neutrino_sets_time %d\n", name.c_str(), rc, messaging_neutrino_sets_time);
 			if (rc > 0) {
@@ -1500,6 +1500,9 @@ void CTimeThread::run()
 		sleep_time = ntprefresh * 60;
 		if(success) {
 			if(dvb_time) {
+#if HAVE_DUCKBOX_HARDWARE
+				if (dvb_time > (time_t) 1357002000) /*1357002000 - 01.01.2013*/
+#endif
 				setSystemTime(dvb_time);
 				/* retry a second time immediately after start, to get TOT ? */
 				if(first_time)
@@ -2177,7 +2180,7 @@ bool CEitManager::Start()
 	max_events = config.epg_max_events;
 	epg_save_frequently = config.epg_save_frequently;
 
-	if (find_executable("rdate").empty())
+	if (find_executable("ntpdate").empty())
 		ntp_system_cmd_prefix = "ntpd -n -q -p ";
 
 	printf("[sectionsd] Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time\n",

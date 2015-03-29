@@ -538,6 +538,9 @@ void CRemoteControl::processAPIDnames()
 			strncat(current_PIDs.APIDs[count].desc, " (EAC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 	}
 
+	if (! current_PIDs.APIDs.empty())
+		printf("\n");
+
 	if ( has_unresolved_ctags )
 	{
 		if ( current_EPGid != 0 )

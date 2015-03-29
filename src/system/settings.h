@@ -169,7 +169,6 @@ struct SNeutrinoSettings
 	int progressbar_timescale_yellow;
 	int progressbar_timescale_invert;
 	int casystem_display;
-	int dotmatrix;
 	int scrambled_message;
 	int volume_pos;
 	int volume_digits;
@@ -722,24 +721,12 @@ struct SNeutrinoSettings
 	//#define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a))
 #define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (isUTF8(a) ? (a) : ZapitTools::Latin1_to_UTF8(a))
 
-	// pictureviewer
-	int picviewer_slide_time;
-	int picviewer_scaling;
-
-	//audioplayer
-	int   audioplayer_display;
-	int   audioplayer_follow;
-	int   audioplayer_highprio;
-	int   audioplayer_select_title_by_name;
-	int   audioplayer_repeat_on;
-	int   audioplayer_show_playlist;
-	int   audioplayer_enable_sc_metadata;
-	std::string shoutcast_dev_id;
 	//Filebrowser
 	int filebrowser_showrights;
 	int filebrowser_sortmethod;
 	int filebrowser_denydirectoryleave;
 	int filebrowser_use_filter;
+	std::string shoutcast_dev_id;
 
 	//movieplayer
 	int   movieplayer_repeat_on;

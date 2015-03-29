@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
-	Copyright (C) 2012 Stefan Seyfried
+	Copyright (C) 2012,2013,2014 Stefan Seyfried
 
 	License: GPLv2
 
@@ -464,6 +464,9 @@ void CFEManager::linkFrontends(bool init)
 			if ((fe->fenumber + 1) < (int) MAX_DMX_UNITS)
 				demuxes[fe->fenumber + 1] = 1;
 		}
+		else {	/* unused -> no need to keep open */
+			fe->Close();
+		}
 	}
 	for(unsigned i = 0; i < MAX_DMX_UNITS; i++) {
 		if (demuxes[i] == 0) {
@@ -655,7 +658,6 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
-	fedebug = 1;
 	if (forrecord)
 		fedebug = 1;
 	CFrontend * frontend = getFrontend(channel);
