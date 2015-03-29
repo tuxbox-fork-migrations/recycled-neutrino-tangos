@@ -8,7 +8,6 @@ SUBDIRS = \
 	libnet \
 	xmltree \
 	libtuxtxt \
-	libiw \
 	libdvbsub \
 	luaclient
 

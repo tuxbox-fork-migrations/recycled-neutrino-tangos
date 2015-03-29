@@ -968,21 +968,19 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS);
 	menu_infobar->addItem(mc);
 
-	// Dotmatrix
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_DOTMATRIX_DISPLAY, &g_settings.dotmatrix, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_DOTMATRIX);
-	menu_infobar->addItem(mc);
-
+#if 0
 	// logo
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_DISP_LOG, &g_settings.infobar_show_channellogo, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_LOGO);
 	menu_infobar->addItem(mc);
+#endif
 
 	// logo directory
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR_LOGO_HDD_DIR, true, g_settings.logo_hdd_dir, this, "logo_dir");
 	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_LOGO_DIR);
 	menu_infobar->addItem(mf);
 
+#if 0
 	// satellite
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SAT_DISPLAY, &g_settings.infobar_sat_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_SAT);
@@ -993,6 +991,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	infobar_position = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION, &g_settings.infobar_progressbar, PROGRESSBAR_INFOBAR_POSITION_OPTIONS, PROGRESSBAR_INFOBAR_POSITION_COUNT, true);
 	infobar_position->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_INFOBAR_POSITION);
 	menu_infobar->addItem(infobar_position);
+#endif
 
 	// flash/hdd progress
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_SYSFS_HDD, &g_settings.infobar_show_sysfs_hdd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
@@ -1004,6 +1003,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->setHint("", LOCALE_MENU_HINT_HDD_STATFS);
 	menu_infobar->addItem(mc);
 
+#if 0
 	// resolution
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_RES, &g_settings.infobar_show_res, INFOBAR_SHOW_RES_MODE_OPTIONS, INFOBAR_SHOW_RES_MODE_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_RES);
@@ -1013,6 +1013,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_DD_AVAILABLE, &g_settings.infobar_show_dd_available, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_DD);
 	menu_infobar->addItem(mc);
+#endif
 
 	// tuner icon
 	bool mc_active = false;

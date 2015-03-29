@@ -183,7 +183,6 @@ audioplayer.shuffle Zufällig
 audioplayer.spectrum LCD Skala
 audioplayer.stop Stopp
 audioplayer.title_artist Titel, Interpret
-audioplayerpicsettings.general Audioplayer/Bildbetrachter/Movieplayer
 bookmarkmanager.delete Löschen
 bookmarkmanager.name Bookmarks
 bookmarkmanager.rename Umbenennen
@@ -291,7 +290,7 @@ colormenu.contrast_fonts Schriftkontrast
 colormenu.fade Ein-/Ausblenden
 colormenu.font Neutrino Schriftart
 colormenu.font_sub Untertitel-Schriftart
-colormenu.font_ttx Teletext Schriftart
+colormenu.font_ttx Teletext-Schriftart
 colormenu.hd_preset LCD
 colormenu.menucolors Farben
 colormenu.osd_preset Monitor Auswahl
@@ -430,8 +429,8 @@ extra.lodirection Längengrad-Ausrichtung
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
-extra.record_bufsize Schreib-Puffer-Größe
-extra.record_bufsize_dmx DMX-Puffer-Größe
+extra.record_bufsize Schreib-Puffer in MB
+extra.record_bufsize_dmx DMX-Puffer in MB
 extra.record_time Maximale Aufnahmedauer
 extra.record_time_ts Maximale Timeshiftdauer
 extra.rotor_swap Rotor dreht Ost/West
@@ -1195,8 +1194,6 @@ menu.hint_net_services Konfigurieren Sie Netzwerk-Dienste wie Telnet, FTP und UP
 menu.hint_net_setupnow Weisen Sie die aktuellen Einstellungen zu oder übernehmen Sie geänderte Einstellungen
 menu.hint_net_setuponstartup Startet das Netzwerk automatisch beim Starten der Box
 menu.hint_net_show Zeigen Ihnen die aktuellen Netzwerkeinstellungen
-menu.hint_net_ssid Geben Sie die SSID des WLAN ein, mit dem Sie eine Verbindung herstellen möchten
-menu.hint_net_ssid_scan Nach verfügbaren WLAN-Netzwerken suchen
 menu.hint_net_telnet Aktiviert Telnet auf Ihrer Box
 menu.hint_net_test Testet die Netzwerkverbindung:\nPing auf Gateway, Name-Server und externe IP-Adressen
 menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
@@ -1204,8 +1201,6 @@ menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
 menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gewählten Programm ausrichten
-menu.hint_opkg Hier können Sie neue Software-Pakete installieren oder vorhandene aktualisieren
-menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
@@ -1486,7 +1481,7 @@ miscsettings.epg_scan_always Immer
 miscsettings.epg_scan_bouquets Zu scannende Bouquets
 miscsettings.epg_scan_bq Aktuelles Bouquet
 miscsettings.epg_scan_fav Alle Favoriten
-miscsettings.epg_scan_live Bei eingeschaltener Box
+miscsettings.epg_scan_live Bei eingeschalteter Box
 miscsettings.epg_scan_sel Markierte Bouquets
 miscsettings.epg_scan_standby Im Standby Modus
 miscsettings.general Allgemein
@@ -1511,7 +1506,7 @@ miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen
 miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
-miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
+miscsettings.infobar_show_sysfs_hdd HDD Füllstandanzeige
 miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
 miscsettings.infoclock Uhr
 miscsettings.progressbar Fortschrittsbalken
@@ -1629,7 +1624,7 @@ moviebrowser.foot_options Optionen
 moviebrowser.foot_play Film starten
 moviebrowser.foot_refresh Liste neu laden
 moviebrowser.foot_sort Sortieren:
-moviebrowser.head Movie-Browser
+moviebrowser.head Meine Aufnahmen
 moviebrowser.head_filter Filme nach Kategorie filtern:
 moviebrowser.head_playlist Zuletzt gesehen:
 moviebrowser.head_recordlist Zuletzt aufgenommen:
@@ -1815,10 +1810,6 @@ networkmenu.services Netzwerkservice
 networkmenu.setupnow Einstellungen jetzt zuweisen
 networkmenu.setuponstartup Schnittstelle beim Start aktivieren
 networkmenu.show Aktive Einstellungen zeigen
-networkmenu.ssid Netzwerkname (SSID)
-networkmenu.ssid_scan WLAN-Netzwerke suchen
-networkmenu.ssid_scan_error Keine WLAN-Netzwerke gefunden.
-networkmenu.ssid_scan_wait WLAN-Netzwerke werden gesucht...
 networkmenu.test Netzwerk testen
 neutrino_starting Neutrino wird gestartet...
 nfs.alreadymounted Verzeichnis bereits gemountet.
@@ -1849,19 +1840,6 @@ nvod.starting (Beginn in %d min)
 nvodselector.directormode Bildregie-Modus
 nvodselector.head Anfangszeit auswählen
 nvodselector.subservice Perspektiven
-opkg.button.expert_off Standard-Modus
-opkg.button.expert_on Experten-Modus
-opkg.button.info Paket-Informationen
-opkg.button.install Paket installieren
-opkg.button.uninstall Paket entfernen
-opkg.failure.install Installation fehlgeschlagen (%d)
-opkg.failure.update Update fehlgeschlagen (%d)
-opkg.failure.upgrade Upgrade fehlgeschlagen (%d)
-opkg.messagebox.reinstall %s erneut installieren?
-opkg.messagebox.remove %s entfernen?
-opkg.success.install Installation erfolgreich, Neustart von Neutrino kann erforderlich sein.
-opkg.title Paketverwaltung
-opkg.upgrade Installierte Pakete aktualisieren
 options.default Voreinstellungen benutzen
 options.fb framebuffer
 options.hint_default Setzen Sie die Werte auf die Voreinstellung zurück.

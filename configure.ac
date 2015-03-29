@@ -180,6 +180,15 @@ if test "$enable_upnp" = "yes"; then
 	AC_DEFINE(ENABLE_UPNP,1,[include UPNP support - currently broken])
 fi
 
+AC_ARG_ENABLE(webif,
+	AS_HELP_STRING(--disable-webif,disable webif),
+	,[enable_webif=yes])
+
+AM_CONDITIONAL(ENABLE_WEBIF,test "$enable_webif" = "yes")
+if test "$enable_webif" = "yes"; then
+	AC_DEFINE(ENABLE_WEBIF,1,[include webif])
+fi
+
 AC_ARG_ENABLE(extupdate,
 	AS_HELP_STRING(--enable-extupdate,include extended update routine),
 	,[enable_extupdate=no])
@@ -292,7 +301,6 @@ lib/libcoolstream/Makefile
 lib/libtuxtxt/Makefile
 lib/libdvbsub/Makefile
 lib/libupnpclient/Makefile
-lib/libiw/Makefile
 lib/luaclient/Makefile
 src/lcddisplay/Makefile
 src/nhttpd/Makefile
@@ -309,7 +317,6 @@ src/nhttpd/nhttpd.conf
 src/Makefile
 src/daemonc/Makefile
 src/driver/pictureviewer/Makefile
-src/driver/audiodec/Makefile
 src/driver/Makefile
 src/gui/Makefile
 src/gui/bedit/Makefile

@@ -1195,8 +1195,6 @@ menu.hint_net_services Configure network services:\nTelnet, ftp, uPnp
 menu.hint_net_setupnow Apply current settings
 menu.hint_net_setuponstartup Start network at boot time
 menu.hint_net_show Show current network settings
-menu.hint_net_ssid Enter SSID of wireless network\nyou want to connect to
-menu.hint_net_ssid_scan Scan for available WLAN networks
 menu.hint_net_telnet Enable telnet login to your box
 menu.hint_net_test Test network connection: ping gateway,\n name server and external IP
 menu.hint_net_ushare Share connected HDD over uPnp
@@ -1204,8 +1202,6 @@ menu.hint_net_xupnpd Share live channels over UPNP
 menu.hint_network IP address, gateway, DNS, Time sync\nNetwork shares and services
 menu.hint_new_zap_mode Allow channel switch while browsing\n(toggle mode with 'mute' in channel list)
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
-menu.hint_opkg Install or update software packages
-menu.hint_opkg_upgrade Updates all installed packages to the most recent version available
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
@@ -1815,10 +1811,6 @@ networkmenu.services Network services
 networkmenu.setupnow Apply network settings now
 networkmenu.setuponstartup Setup interface on startup
 networkmenu.show Show active Network settings
-networkmenu.ssid Network name (SSID)
-networkmenu.ssid_scan WLAN network scan
-networkmenu.ssid_scan_error No WLAN networks are found.
-networkmenu.ssid_scan_wait WLAN network scan in progress...
 networkmenu.test Test network now
 neutrino_starting Neutrino starting...
 nfs.alreadymounted directory already mounted
@@ -1849,19 +1841,6 @@ nvod.starting (starting in %d min)
 nvodselector.directormode Direct-Mode
 nvodselector.head Select starting-time
 nvodselector.subservice Select Subservice
-opkg.button.expert_off Standard mode
-opkg.button.expert_on Expert mode
-opkg.button.info Package information
-opkg.button.install Install package
-opkg.button.uninstall Uninstall package
-opkg.failure.install Install failed (%d)
-opkg.failure.update Update failed (%d)
-opkg.failure.upgrade Upgrade failed (%d)
-opkg.messagebox.reinstall Re-install %s?
-opkg.messagebox.remove Remove %s?
-opkg.success.install Install successful, restart of Neutrino might be required.
-opkg.title Package Management
-opkg.upgrade Upgrade installed packages
 options.default Reset to defaults
 options.fb framebuffer
 options.hint_default Reset the values to their defaults

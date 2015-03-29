@@ -826,6 +826,19 @@ std::string CNeutrinoYParser::func_get_boxmodel(CyhookHandler *, std::string)
 			break;
 	}
 
+#if BOXMODEL_UFS910
+	boxmodel = "ufs910";
+#endif
+#if BOXMODEL_UFS922
+	boxmodel = "ufs922";
+#endif
+#if BOXTYPE_SPARK
+	boxmodel = "spark";
+#endif
+#if BOXMODEL_SPARK7162
+	boxmodel = "spark7162";
+#endif
+
 	return boxmodel;
 }
 //-------------------------------------------------------------------------

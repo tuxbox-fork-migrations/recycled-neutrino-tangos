@@ -42,8 +42,6 @@ libneutrino_gui_a_SOURCES = \
 	audio_select.cpp \
 	audio_setup.cpp \
 	audiomute.cpp \
-	audioplayer.cpp \
-	audioplayer_setup.cpp\
 	bookmarkmanager.cpp \
 	bouquetlist.cpp \
 	buildinfo.cpp \
@@ -69,14 +67,11 @@ libneutrino_gui_a_SOURCES = \
 	network_service.cpp \
 	network_setup.cpp \
 	nfs.cpp \
-	opkg_manager.cpp \
 	osd_progressbar_setup.cpp \
 	osd_setup.cpp \
 	osdlang_setup.cpp \
 	parentallock_setup.cpp \
 	personalize.cpp \
-	pictureviewer.cpp \
-	pictureviewer_setup.cpp \
 	pipsetup.cpp \
 	pluginlist.cpp \
 	plugins.cpp \
@@ -89,7 +84,6 @@ libneutrino_gui_a_SOURCES = \
 	screensetup.cpp \
 	settings_manager.cpp \
 	sleeptimer.cpp \
-	start_wizard.cpp \
 	streaminfo2.cpp \
 	subchannel_select.cpp \
 	themes.cpp \
@@ -102,7 +96,6 @@ libneutrino_gui_a_SOURCES = \
 	vfd_setup.cpp \
 	videosettings.cpp \
 	volumebar.cpp \
-	webtv_setup.cpp \
 	zapit_setup.cpp
 
 if BOXTYPE_SPARK
@@ -139,7 +132,6 @@ libneutrino_gui2_a_SOURCES = \
 	color.cpp \
 	hdd_menu.cpp \
 	infoclock.cpp \
-	kerneloptions.cpp \
 	motorcontrol.cpp
 
 if !BOXTYPE_SPARK

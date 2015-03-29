@@ -107,7 +107,6 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/types.h>
-#include <driver/audioplay.h>
 /*
 TODO:
 	- ICECAST support
@@ -217,7 +216,7 @@ void getOpts()
 
 #ifndef RADIOBOX //a not generic thing in a generic library
 	/* options which can be set from within neutrino */
-	enable_metadata = g_settings.audioplayer_enable_sc_metadata;
+	//enable_metadata = g_settings.audioplayer_enable_sc_metadata;
 #endif /* RADIOBOX */
 
 	if (got_opts) /* prevent reading in options multiple times */
@@ -671,7 +670,6 @@ int parse_response(URL *url, void * /*opt*/, CSTATE *state)
 		getHeaderVal("icy-br:", state->bitrate);
 	}
 #if 0
-	ID3 *id3 = (ID3*)opt;
 	/********************* dirty hack **********************/
 	/* we parse the stream header sent by the server and	*/
 	/* build based on this information an arteficial id3		*/
@@ -1500,7 +1498,7 @@ int pop(FILE *fd, char *buf, long len)
 #else
 			while(true) {
 				int lret = pthread_mutex_trylock(&cache[i].readable);
-				if((lret == 0) || (CAudioPlayer::getInstance()->getState() == CBaseDec::STOP_REQ))
+				if((lret == 0))
 					break;
 				usleep(100);
 			}
@@ -1574,7 +1572,7 @@ int pop(FILE *fd, char *buf, long len)
 			}
 			else
 				dprintf(stderr, "pop: buffer underrun; cache empty - leaving cache locked\n");
-		} while((rval < len) && (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP_REQ));
+		} while((rval < len));
 	}
 	else
 	{

@@ -43,9 +43,6 @@
 #include <gui/plugins.h>
 #include <gui/sleeptimer.h>
 #include <gui/zapit_setup.h>
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-#include <gui/kerneloptions.h>
-#endif
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
@@ -337,13 +334,6 @@ int CMiscMenue::showMiscSettingsMenu()
 	mf->setHint("", LOCALE_MENU_HINT_MISC_CPUFREQ);
 	misc_menue.addItem(mf);
 #endif /*CPU_FREQ*/
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	// kerneloptions
-	CKernelOptions kernelOptions;
-	mf = new CMenuForwarder(LOCALE_KERNELOPTIONS_HEAD, true, NULL, &kernelOptions, NULL, CRCInput::RC_5);
-	mf->setHint("", LOCALE_MENU_HINT_MISC_KERNELOPTIONS);
-	misc_menue.addItem(mf);
-#endif
 
 	int res = misc_menue.exec(NULL, "");
 

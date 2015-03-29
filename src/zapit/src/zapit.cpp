@@ -644,7 +644,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	if (startplayback /* && !we_playing*/)
 		StartPlayBack(current_channel);
 
-	printf("[zapit] sending capmt....\n");
+	//printf("[zapit] sending capmt....\n");
 
 	SendPMT(forupdate);
 	//play:
@@ -850,7 +850,7 @@ void CZapit::SetPidVolume(t_channel_id channel_id, int pid, int percent)
 	if (!channel_id)
 		channel_id = live_channel_id;
 
-	if ((pid < 0) && (channel_id == live_channel_id) && current_channel)
+	if (!pid && (channel_id == live_channel_id) && current_channel)
 		pid = current_channel->getAudioPid();
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
 INFO("############################### channel %" PRIx64 " pid %x map size %d percent %d", channel_id, pid, (int)vol_map.size(), percent);
@@ -872,7 +872,7 @@ int CZapit::GetPidVolume(t_channel_id channel_id, int pid, bool ac3)
 	if (!channel_id)
 		channel_id = live_channel_id;
 
-	if ((pid < 0) && (channel_id == live_channel_id) && current_channel)
+	if (!pid && (channel_id == live_channel_id) && current_channel)
 		pid = current_channel->getAudioPid();
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
@@ -1300,6 +1300,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_GET_DELIVERY_SYSTEM: {
 		CZapitMessages::responseDeliverySystem response;
+		VALGRIND_PARANOIA(response);
 		response.system = live_fe->getCurrentDeliverySystem();
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
@@ -1938,6 +1939,17 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 			audioDecoder->mute();
 		else
 			audioDecoder->unmute();
+		break;
+	}
+
+	case CZapitMessages::CMD_LOCKRC: {
+		CZapitMessages::commandBoolean msgBoolean;
+		CBasicServer::receive_data(connfd, &msgBoolean, sizeof(msgBoolean));
+		extern CRCInput *g_RCInput;
+		if (msgBoolean.truefalse)
+			g_RCInput->stopInput();
+		else
+			g_RCInput->restartInput();
 		break;
 	}
 
