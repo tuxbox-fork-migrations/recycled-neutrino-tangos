@@ -72,7 +72,8 @@ class CInfoViewerBB
 			ICON_CA		= 6,
 			ICON_TUNER	= 7,
 			ICON_UPDATE	= 8,
-			ICON_MAX	= 9
+			ICON_LOGO	= 9,
+			ICON_MAX	= 10
 		};
 
 		typedef struct
@@ -147,6 +148,7 @@ class CInfoViewerBB
 		void showIcon_Resolution();
 		void showIcon_Tuner(void);
 		void showIcon_Update(bool);
+		void showIcon_Logo();
 		void ShowRecDirScale();
 		void showBBButtons(const int modus=-1);
 		void paintshowButtonBar();

@@ -65,6 +65,8 @@ extern cVideo * videoDecoder;
 
 #define COL_INFOBAR_BUTTONS_BACKGROUND (COL_INFOBAR_SHADOW_PLUS_1)
 
+#define NEUTRINO_ICON_LOGO "/tmp/logo.png"
+
 CInfoViewerBB::CInfoViewerBB()
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -192,6 +194,10 @@ void CInfoViewerBB::getBBIconInfo()
 		case CInfoViewerBB::ICON_UPDATE:
 			if ((access("/tmp/.update_avail", F_OK) == 0))
 				iconView = checkBBIcon(NEUTRINO_ICON_UPDATE_AVAIL, &w, &h);
+			break;
+		case CInfoViewerBB::ICON_LOGO:
+			if ((access(NEUTRINO_ICON_LOGO, F_OK) == 0))
+				iconView = checkBBIcon(NEUTRINO_ICON_LOGO, &w, &h);
 			break;
 		default:
 			break;
@@ -430,6 +436,7 @@ void CInfoViewerBB::paintshowButtonBar()
 	showIcon_CA_Status(0);
 	showIcon_Resolution();
 	showIcon_Tuner();
+	showIcon_Logo();
 	//showSysfsHdd();
 	ShowRecDirScale();
 }
@@ -454,6 +461,11 @@ void CInfoViewerBB::paintFoot()
 void CInfoViewerBB::showIcon_Update(bool show)
 {
 	showBBIcons(CInfoViewerBB::ICON_UPDATE, show ? NEUTRINO_ICON_UPDATE_AVAIL : NEUTRINO_ICON_UPDATE_AVAIL_GREY);
+}
+
+void CInfoViewerBB::showIcon_Logo()
+{
+	showBBIcons(CInfoViewerBB::ICON_LOGO, NEUTRINO_ICON_LOGO);
 }
 
 void CInfoViewerBB::showIcon_SubT()
