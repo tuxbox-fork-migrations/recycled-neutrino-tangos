@@ -126,6 +126,8 @@ class CInfoViewerBB
 		void showBarSys(int percent = 0);
 		void showBarHdd(int percent = 0);
 
+		void paintFoot();
+
 		CInfoViewerBB();
 
 	public:
