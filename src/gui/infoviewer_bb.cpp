@@ -438,7 +438,8 @@ void CInfoViewerBB::paintshowButtonBar()
 	showIcon_Tuner();
 	showIcon_Logo();
 	//showSysfsHdd();
-	ShowRecDirScale();
+	if (!g_settings.casystem_display)
+		ShowRecDirScale();
 }
 
 void CInfoViewerBB::paintFoot()
