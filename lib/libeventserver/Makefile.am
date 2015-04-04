@@ -1,6 +1,7 @@
 noinst_LIBRARIES = libtuxbox-eventserver.a
 
-AM_CPPFLAGS = -fno-rtti -fno-exceptions
+AM_CPPFLAGS = -fno-rtti -fno-exceptions \
+	-I$(top_srcdir)/src
 
 AM_CPPFLAGS += \
 	-I$(top_srcdir)/src
