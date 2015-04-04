@@ -736,6 +736,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	if (timeset)
 		clock->paint(CC_SAVE_SCREEN_NO);
 	showRecordIcon (show_dot);
+	//infoViewerBB->show_clock(BoxEndX - 10 - (BoxEndY - (ChanNameY + time_height) - 6)/2,(BoxEndY + ChanNameY + time_height) / 2,(BoxEndY - (ChanNameY + time_height) - 6)/2);
 	show_dot = !show_dot;
 
 	if (showButtonBar) {
@@ -960,6 +961,7 @@ void CInfoViewer::loop(bool show_dot)
 			infoViewerBB->showIcon_Update (show_dot);
 			show_dot = !show_dot;
 			showInfoFile();
+			//infoViewerBB->show_clock(BoxEndX - 10 - (BoxEndY - (ChanNameY + time_height) - 6)/2,(BoxEndY + ChanNameY + time_height) / 2,(BoxEndY - (ChanNameY + time_height) - 6)/2);
 			if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio))
 				showRadiotext();
 

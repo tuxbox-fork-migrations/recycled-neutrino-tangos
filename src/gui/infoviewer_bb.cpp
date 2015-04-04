@@ -701,6 +701,52 @@ void CInfoViewerBB::showBarHdd(int percent)
 	}
 }
 
+#include <time.h>
+#include <math.h>
+void CInfoViewerBB::show_clock(int posx,int posy,int dia)
+{
+		int ts,tm,th,sx,sy,mx,my,hx,hy,x,y,in;
+		double pi = 3.1415926535897932384626433832795,AngleInRad,sAngleInRad,mAngleInRad,hAngleInRad;
+
+		time_t now = time(0);
+		struct tm *tm_p = localtime(&now);
+
+		ts = tm_p->tm_sec;
+		tm = tm_p->tm_min;
+		th = tm_p->tm_hour;
+
+		sAngleInRad = (((6 * ts)-90) * (pi / 180));
+
+		sx = int((dia * 0.9 * cos(sAngleInRad)));
+		sy = int((dia * 0.9 * sin(sAngleInRad)));
+
+		mAngleInRad = (((6 * tm)-90) * (pi / 180));
+
+		mx = int((dia * 0.7 * cos(mAngleInRad)));
+		my = int((dia * 0.7 * sin(mAngleInRad)));
+
+		hAngleInRad = (((30 * th)-90)* (pi / 180));
+
+		hx = int((dia * 0.6 * cos(hAngleInRad)));
+		hy = int((dia * 0.6 * sin(hAngleInRad)));
+
+		frameBuffer->paintBoxRel(posx-dia,posy-dia,2*dia,2*dia,COL_INFOBAR_PLUS_0);
+
+		for(in=1;in<361;in++)
+		{
+			AngleInRad = in * pi / 180;
+
+			x = int(dia * cos(AngleInRad));
+			y = int(dia * sin(AngleInRad));
+
+			frameBuffer->paintPixel(posx + x,posy + y, COL_INFOBAR_TEXT);
+		}
+
+		frameBuffer->paintLine(posx,posy,posx+hx,posy+hy,COL_COLORED_EVENTS_TEXT);
+		frameBuffer->paintLine(posx,posy,posx+mx,posy+my,COL_MENUHEAD_TEXT);
+		frameBuffer->paintLine(posx,posy,posx+sx,posy+sy,COL_INFOBAR_TEXT);
+}
+
 void CInfoViewerBB::ShowRecDirScale()
 {
 	if (g_settings.infobar_show_sysfs_hdd) {
