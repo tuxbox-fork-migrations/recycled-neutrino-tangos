@@ -36,7 +36,6 @@
 #include <gui/audio_select.h>
 #include <gui/epgview.h>
 #include <gui/eventlist.h>
-#include <gui/filebrowser.h>
 #include <gui/movieplayer.h>
 #include <gui/infoviewer.h>
 #include <gui/timeosd.h>
@@ -44,7 +43,6 @@
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
 #include <gui/videosettings.h>
-#include <gui/widget/messagebox.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 #include <driver/display.h>
@@ -68,15 +66,15 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <iconv.h>
 #include <libdvbsub/dvbsub.h>
 #include <audio.h>
 #ifdef ENABLE_GRAPHLCD
 #include <driver/nglcd.h>
 bool glcd_play = false;
 #endif
-#include <iconv.h>
 #include <gui/widget/stringinput_ext.h>
-
+#include <gui/widget/messagebox.h>
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #include <libavcodec/avcodec.h>
 #endif
@@ -345,6 +343,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 			break;
 		}
 		do {
+			is_file_player = true;
 			PlayFile();
 		}
 		while (repeat_mode || filelist_it != filelist.end());
@@ -1432,8 +1431,6 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 	if (restore)
 		restoreNeutrino();
 
-	CAudioMute::getInstance()->enableMuteIcon(false);
-	InfoClock->enableInfoClock(false);
 	stopped = true;
 	printf("%s: stopped\n", __func__);
 	if (!filelist.empty() && filelist_it != filelist.end()) {
@@ -1557,7 +1554,7 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 	}
 }
 
-void CMoviePlayerGui::getCurrentAudioName(bool file_player, std::string &audioname)
+void CMoviePlayerGui::getCurrentAudioName(bool /* file_player */, std::string &audioname)
 {
 	numpida = REC_MAX_APIDS;
 	playback->FindAllPids(apids, ac3flags, &numpida, language);
@@ -2613,7 +2610,7 @@ void CMoviePlayerGui::showFileInfos()
 			CMenuForwarder * mf = new CMenuForwarder(key.c_str(), false, isUTF8(values[i]) ? values[i].c_str() : convertLatin1UTF8(values[i]).c_str(), NULL);
 			sfimenu->addItem(mf);
 		}
-		int ret = sfimenu->exec(NULL, "");
+		sfimenu->exec(NULL, "");
 		sfimenu=NULL;
 		delete sfimenu;
 	}
