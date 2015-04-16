@@ -590,6 +590,7 @@ struct SNeutrinoSettings
 	int channellist_hdicon;
 	int channellist_numeric_adjust;
 	int channellist_show_channellogo;
+	int channellist_show_infobox;
 	int channellist_show_numbers;
 	int repeat_blocker;
 	int repeat_genericblocker;
@@ -622,6 +623,7 @@ struct SNeutrinoSettings
 
 	//Software-update
 	int softupdate_mode;
+	std::string image_settings_backup_path;
 	std::string softupdate_url_file;
 	std::string softupdate_proxyserver;
 	std::string softupdate_proxyusername;

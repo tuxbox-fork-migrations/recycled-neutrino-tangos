@@ -33,10 +33,10 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
-#include <driver/display.h>
 #include <gui/color.h>
 #include <gui/widget/icons.h>
 #include <gui/customcolor.h>
@@ -823,7 +823,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 					if (1 == sscanf(casys[ca_id].substr(last_pos, pos - last_pos).c_str(), "%X", &id) && acaid == id)
 						col = COL_MENUHEAD_TEXT;
 				}
-				g_Font[font_small]->RenderString(xpos + width_txt, ypos, box_width, casys[ca_id].substr(last_pos, pos - last_pos).c_str() , COL_INFOBAR_TEXT);
+				g_Font[font_small]->RenderString(xpos + width_txt, ypos, box_width, casys[ca_id].substr(last_pos, pos - last_pos).c_str() , col);
 				if(index == 0)
 					width_txt = spaceoffset;
 				else

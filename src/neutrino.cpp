@@ -818,6 +818,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat
 	g_settings.channellist_numeric_adjust  = configfile.getInt32("channellist_numeric_adjust", 0);
 	g_settings.channellist_show_channellogo = configfile.getInt32("channellist_show_channellogo", 1);
+	g_settings.channellist_show_infobox = configfile.getInt32("channellist_show_infobox", 1);
 	g_settings.channellist_show_numbers = configfile.getInt32("channellist_show_numbers", 1);
 
 	//screen configuration
@@ -876,6 +877,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.flashupdate_createimage_add_spare  = configfile.getInt32( "flashupdate_createimage_add_spare",  0);
 	g_settings.flashupdate_createimage_add_kernel = configfile.getInt32( "flashupdate_createimage_add_kernel", 1);
 
+	g_settings.image_settings_backup_path = configfile.getString("image_settings_backup_path", "/swap/backup");
 	g_settings.softupdate_url_file      = configfile.getString("softupdate_url_file", "/var/etc/update.urls");
 	g_settings.softupdate_proxyserver   = configfile.getString("softupdate_proxyserver", "" );
 	g_settings.softupdate_proxyusername = configfile.getString("softupdate_proxyusername", "" );
@@ -1371,6 +1373,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("channellist_sort_mode", g_settings.channellist_sort_mode);
 	configfile.setInt32("channellist_numeric_adjust", g_settings.channellist_numeric_adjust);
 	configfile.setInt32("channellist_show_channellogo", g_settings.channellist_show_channellogo);
+	configfile.setInt32("channellist_show_infobox", g_settings.channellist_show_infobox);
 	configfile.setInt32("channellist_show_numbers", g_settings.channellist_show_numbers);
 
 	//screen configuration
@@ -1392,6 +1395,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32 ("softupdate_mode"          , g_settings.softupdate_mode          );
 	configfile.setBool("apply_kernel", g_settings.apply_kernel);
 	configfile.setBool("apply_settings", g_settings.apply_settings);
+	configfile.setString("image_settings_backup_path", g_settings.image_settings_backup_path);
 	configfile.setString("softupdate_url_file"      , g_settings.softupdate_url_file      );
 	configfile.setInt32 ("softupdate_name_mode_apply", g_settings.softupdate_name_mode_apply);
 	configfile.setInt32 ("softupdate_name_mode_backup", g_settings.softupdate_name_mode_backup);
@@ -2259,7 +2263,7 @@ TIMER_START();
 	g_RemoteControl = new CRemoteControl;
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
-	g_EventList = new CNeutrinoEventList;
+	g_EventList = new CEventList;
 
 	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
 
