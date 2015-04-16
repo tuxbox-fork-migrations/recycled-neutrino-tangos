@@ -1670,7 +1670,7 @@ void CChannelList::clearItem2DetailsLine()
 
 void CChannelList::paintItem2DetailsLine (int pos)
 {
-	if (!g_settings.channellist_show_infobox)
+	if (!g_settings.channellist_show_infobox && pos != -1 )
 		return;
 
 	int xpos  = x - ConnectLineBox_Width;
