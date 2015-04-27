@@ -58,7 +58,7 @@ extern cVideo *videoDecoder;
 
 CCECSetup::CCECSetup()
 {
-	width = w_max (40, 10); //%
+	width = 40;
 	cec1 = NULL;
 	cec2 = NULL;
 }
