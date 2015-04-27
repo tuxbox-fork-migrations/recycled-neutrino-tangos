@@ -59,7 +59,7 @@ CMediaPlayerMenu::CMediaPlayerMenu()
 	setMenuTitel();
 	setUsageMode();
 
-	width = w_max (40, 10); //%
+	width = 40;
 	
 }
 
