@@ -364,7 +364,7 @@ void CInfoViewerBB::showBBButtons(const int modus)
 	}
 
 	if (paint) {
-		paintFoot(minX - g_InfoViewer->ChanInfoX);
+		paintFoot(g_InfoViewer->BoxEndX - g_InfoViewer->BoxStartX - g_InfoViewer->ChanInfoX);
 		int last_x = minX;
 
 		for (i = BUTTON_MAX; i > 0;) {
@@ -396,7 +396,7 @@ void CInfoViewerBB::showBBIcons(const int modus, const std::string & icon)
 		return;
 	if ((modus >= CInfoViewerBB::ICON_SUBT) && (modus < CInfoViewerBB::ICON_MAX) && (bbIconInfo[modus].x != -1) && (is_visible)) {
 		frameBuffer->paintIcon(icon, bbIconInfo[modus].x - g_InfoViewer->time_width, g_InfoViewer->ChanNameY + 8, 
-				       InfoHeightY_Info, 1, true, !g_settings.info_top_gradiant, COL_INFOBAR_BUTTONS_BACKGROUND);
+				       InfoHeightY_Info, 1, true, !g_settings.theme.infobar_gradient_top, COL_INFOBAR_BUTTONS_BACKGROUND);
 	}
 }
 
@@ -437,27 +437,6 @@ void CInfoViewerBB::paintshowButtonBar()
 		ShowRecDirScale();
 }
 
-void CInfoViewerBB::paintFoot()
-{
-  
-	CComponentsHeader foot(g_InfoViewer->ChanInfoX, BBarY, g_InfoViewer->BoxEndX - g_InfoViewer->BoxStartX, InfoHeightY_Info, "");
-
-	foot.setGradient(true);
-
-	foot.setSizeMode(CComponentsHeader::CC_HEADER_SIZE_SMALL);
-
-	foot.setHeight(InfoHeightY_Info);
-
-	foot.setUpsideDown(true);
-
-	foot.setCaption("");
-
-	foot.set2ndColor(COL_INFOBAR_PLUS_0);
-
-	foot.paint(CC_SAVE_SCREEN_NO);
-
-}
-
 void CInfoViewerBB::showIcon_Update(bool show)
 {
 	showBBIcons(CInfoViewerBB::ICON_UPDATE, show ? NEUTRINO_ICON_UPDATE_AVAIL : NEUTRINO_ICON_UPDATE_AVAIL_GREY);
@@ -474,7 +453,7 @@ void CInfoViewerBB::paintFoot(int w)
 
 	CComponentsShapeSquare foot(g_InfoViewer->ChanInfoX, BBarY, width, InfoHeightY_Info);
 
-	foot.setColorBody(COL_INFOBAR_BUTTONS_BACKGROUND);
+	foot.setColorBody(g_settings.theme.infobar_gradient_bottom ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_BUTTONS_BACKGROUND);
 	foot.enableColBodyGradient(g_settings.theme.infobar_gradient_bottom);
 	foot.setColBodyGradient(CColorGradient::gradientDark2Light, CFrameBuffer::gradientVertical);
 	foot.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
