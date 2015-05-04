@@ -968,12 +968,20 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 {
 	menu_infobar->addIntroItems(LOCALE_MISCSETTINGS_INFOBAR);
 
+	infobarNotifier = new COnOffNotifier(3);
+
 	CMenuOptionChooser * mc;
 
 	// CA system
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DISPLAY, &g_settings.casystem_display, INFOBAR_CASYSTEM_MODE_OPTIONS, INFOBAR_CASYSTEM_MODE_OPTION_COUNT, true, this);
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DISPLAY, &g_settings.casystem_display, INFOBAR_CASYSTEM_MODE_OPTIONS, INFOBAR_CASYSTEM_MODE_OPTION_COUNT, true, infobarNotifier);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS);
 	menu_infobar->addItem(mc);
+
+	// CA system frame
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_FRAME, &g_settings.casystem_frame, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.casystem_display < 2);
+	//mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS);
+	menu_infobar->addItem(mc);
+	infobarNotifier->addItem(mc);
 
 #if 0
 	// logo
