@@ -89,8 +89,6 @@ CInfoViewerBB::CInfoViewerBB()
 	bbIconInfo[0].h = 0;
 	BBarY = 0;
 	BBarFontY = 0;
-	hddscale 		= NULL;
-	sysscale 		= NULL;
 
 	Init();
 }
@@ -366,11 +364,8 @@ void CInfoViewerBB::showBBButtons(const int modus)
 	}
 
 	if (paint) {
+		paintFoot(minX - g_InfoViewer->ChanInfoX);
 		int last_x = minX;
-		if (g_settings.info_bottom_gradiant)
-			paintFoot();
-		else
-			frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, g_InfoViewer->BoxEndX - g_InfoViewer->BoxStartX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_LARGE, CORNER_BOTTOM); //round
 
 		for (i = BUTTON_MAX; i > 0;) {
 			--i;
@@ -418,7 +413,7 @@ void CInfoViewerBB::paintshowButtonBar()
 	if (g_settings.casystem_display < 2)
 		paintCA_bar(0,0);
 
-	//frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_LARGE, CORNER_BOTTOM); //round
+	paintFoot();
 
 	g_InfoViewer->showSNR();
 
@@ -471,6 +466,21 @@ void CInfoViewerBB::showIcon_Update(bool show)
 void CInfoViewerBB::showIcon_Logo()
 {
 	showBBIcons(CInfoViewerBB::ICON_LOGO, NEUTRINO_ICON_LOGO);
+}
+
+void CInfoViewerBB::paintFoot(int w)
+{
+	int width = (w == 0) ? g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX : w;
+
+	CComponentsShapeSquare foot(g_InfoViewer->ChanInfoX, BBarY, width, InfoHeightY_Info);
+
+	foot.setColorBody(COL_INFOBAR_BUTTONS_BACKGROUND);
+	foot.enableColBodyGradient(g_settings.theme.infobar_gradient_bottom);
+	foot.setColBodyGradient(CColorGradient::gradientDark2Light, CFrameBuffer::gradientVertical);
+	foot.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
+	foot.set2ndColor(COL_INFOBAR_PLUS_0);
+
+	foot.paint(CC_SAVE_SCREEN_NO);
 }
 
 void CInfoViewerBB::showIcon_SubT()
