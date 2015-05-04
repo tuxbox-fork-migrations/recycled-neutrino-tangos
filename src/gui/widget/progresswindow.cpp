@@ -59,6 +59,7 @@ void CProgressWindow::Init(bool global_only)
 	int h_txt = max(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), h_item);
 	status_txt->setDimensionsAll(x_item, y_item, w_item, h_txt);
 	status_txt->setColorBody(col_body);
+	status_txt->doPaintTextBoxBg(true);
 	addWindowItem(status_txt);
 	y_item += h_txt + 10;
 
