@@ -263,7 +263,6 @@ static int  GetCurFontWidth()
 	int mx = (displaywidth)%(40-nofirst); // # of unused pixels
 	int abx = (mx == 0 ? displaywidth+1 : (displaywidth)/(mx+1));// distance between 'inserted' pixels
 	int nx= abx+1-((PosX-sx) % (abx+1)); // # of pixels to next insert
-
 	return fontwidth+(((PosX+fontwidth+1-sx) <= displaywidth && nx <= fontwidth+1) ? 1 : 0);
 }
 
