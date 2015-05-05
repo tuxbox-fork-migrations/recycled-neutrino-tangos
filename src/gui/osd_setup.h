@@ -57,6 +57,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		COnOffNotifier* screensaverNotifier;
 		COnOffNotifier* channellistNotifier;
 		COnOffNotifier* infobarNotifier;
+		COnOffNotifier* infobarHddNotifier;
 
 		int width;
 		bool is_wizard;
