@@ -65,7 +65,6 @@ extern cVideo * videoDecoder;
 
 extern CPictureViewer * g_PicViewer;
 #define ICON_CACHE_SIZE 1024*1024*2 // 2mb
-#define ICONDIR_VAR "/var/tuxbox/icons/"
 
 #define BACKGROUNDIMAGEWIDTH 720
 
@@ -835,10 +834,10 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	uint16_t         width, height;
 	int              lfd;
 
-	lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
+	lfd = open((iconBasePath + "/" + filename).c_str(), O_RDONLY);
 
 	if (lfd == -1) {
-		printf("paintIcon8: error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
+		printf("paintIcon8: error while loading icon: %s/%s\n", iconBasePath.c_str(), filename.c_str());
 		return false;
 	}
 
@@ -878,12 +877,10 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 			     const int h, const unsigned char offset, bool paint, bool paintBg, const fb_pixel_t colBg)
 {
 	struct rawHeader header;
-	int         width, height;
-	int              lfd;
+	int	 width, height;
 	fb_pixel_t * data;
 	struct rawIcon tmpIcon;
 	std::map<std::string, rawIcon>::iterator it;
-	int dsize;
 
 	if (!getActive())
 		return false;
@@ -894,17 +891,17 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	/* we cache and check original name */
 	it = icon_cache.find(filename);
 	if(it == icon_cache.end()) {
-		std::string newname = std::string(ICONDIR_VAR) + filename + ".png";
+		std::string newname = std::string(ICONSDIR_VAR) + "/" + filename + ".png";
 		if (access(newname.c_str(), F_OK))
-			newname = iconBasePath + filename + ".png";
+			newname = iconBasePath + "/" + filename + ".png";
 		if (filename.find("/", 0) != std::string::npos)
 			newname = filename;
 		//printf("CFrameBuffer::paintIcon: check for %s\n", newname.c_str());fflush(stdout);
 
 		data = g_PicViewer->getIcon(newname, &width, &height);
 
-		if(data) {
-			dsize = width*height*sizeof(fb_pixel_t);
+		if(data) { //TODO: intercepting of possible full icon cache, that could cause strange behavior while painting of uncached icons
+			int dsize = width*height*sizeof(fb_pixel_t);
 			//printf("CFrameBuffer::paintIcon: %s found, data %x size %d x %d\n", newname.c_str(), data, width, height);fflush(stdout);
 			if(cache_size+dsize < ICON_CACHE_SIZE) {
 				cache_size += dsize;
@@ -917,11 +914,11 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 			goto _display;
 		}
 
-		newname = std::string(ICONDIR_VAR) + filename + ".raw";
+		newname = std::string(ICONSDIR_VAR) + "/" + filename + ".raw";
 		if (access(newname.c_str(), F_OK))
-			newname = iconBasePath + filename + ".raw";
+			newname = iconBasePath + "/" + filename + ".raw";
 
-		lfd = open(newname.c_str(), O_RDONLY);
+		int lfd = open(newname.c_str(), O_RDONLY);
 
 		if (lfd == -1) {
 			//printf("paintIcon: error while loading icon: %s\n", newname.c_str());
@@ -947,7 +944,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 			return false;
 		}
 
-		dsize = width*height*sizeof(fb_pixel_t);
+		int dsize = width*height*sizeof(fb_pixel_t);
 
 		tmpIcon.data = (fb_pixel_t*) cs_malloc_uncached(dsize);
 		data = tmpIcon.data;
@@ -1009,12 +1006,12 @@ void CFrameBuffer::loadPal(const std::string & filename, const unsigned char off
 //printf("%s()\n", __FUNCTION__);
 
 	struct rgbData rgbdata;
-	int            lfd;
+	int	    lfd;
 
-	lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
+	lfd = open((iconBasePath + "/" + filename).c_str(), O_RDONLY);
 
 	if (lfd == -1) {
-		printf("error while loading palette: %s%s\n", iconBasePath.c_str(), filename.c_str());
+		printf("error while loading palette: %s/%s\n", iconBasePath.c_str(), filename.c_str());
 		return;
 	}
 
@@ -1252,9 +1249,9 @@ void CFrameBuffer::Clear()
 
 void CFrameBuffer::showFrame(const std::string & filename)
 {
-	std::string picture = std::string(ICONDIR_VAR) + filename;
+	std::string picture = std::string(ICONSDIR_VAR) + "/" + filename;
 	if (access(picture.c_str(), F_OK))
-		picture = iconBasePath + filename;
+		picture = iconBasePath + "/" + filename;
 	if (filename.find("/", 0) != std::string::npos)
 		picture = filename;
 
