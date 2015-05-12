@@ -97,6 +97,7 @@ libneutrino_gui_a_SOURCES = \
 	vfd_setup.cpp \
 	videosettings.cpp \
 	volumebar.cpp \
+	webtv_setup.cpp \
 	zapit_setup.cpp
 
 if BOXTYPE_SPARK
