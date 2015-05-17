@@ -161,6 +161,7 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("mp4");
 	tsfilefilter.addFilter("mov");
 	tsfilefilter.addFilter("m3u");
+	tsfilefilter.addFilter("m3u8");
 	tsfilefilter.addFilter("pls");
 	tsfilefilter.addFilter("iso");
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
