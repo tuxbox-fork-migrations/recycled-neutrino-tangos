@@ -592,7 +592,7 @@ bool CMoviePlayerGui::prepareFile(CFile *file)
 	else {
 		file_name = file->Url;
 		pretty_name = file->Name;
-		}
+	}
 	if (isMovieBrowser) {
 		if (filelist_it != filelist.end()) {
 			unsigned idx = filelist_it - filelist.begin();

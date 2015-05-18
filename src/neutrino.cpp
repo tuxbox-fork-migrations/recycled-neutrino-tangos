@@ -669,7 +669,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #endif
 	g_settings.timeshiftdir = configfile.getString( "timeshiftdir", "" );
 	g_settings.downloadcache_dir = configfile.getString( "downloadcache_dir", g_settings.network_nfs_recordingdir.c_str());
-	g_settings.last_webtv_dir = configfile.getString( "last_webtv_dir", "/var/tuxbox/config");
+	g_settings.last_webtv_dir = configfile.getString( "last_webtv_dir", CONFIGDIR);
 
 	g_settings.temp_timeshift = configfile.getInt32( "temp_timeshift", 0 );
 	g_settings.auto_timeshift = configfile.getInt32( "auto_timeshift", 0 );
