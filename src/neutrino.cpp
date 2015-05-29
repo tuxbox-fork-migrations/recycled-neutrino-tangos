@@ -3029,11 +3029,14 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			delete [] (unsigned char*) data;
 		} else {
 			CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
-			CMoviePlayerGui::getInstance().stopPlayBack();
-			if (CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID()))
+			if (cc && (chid == cc->getChannelID())) {
+				CMoviePlayerGui::getInstance().stopPlayBack();
+				if (CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID()))
+					delete [] (unsigned char*) data;
+				else
+					g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, data);
+			} else
 				delete [] (unsigned char*) data;
-			else
-				g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, data);
 		}
 		return messages_return::handled;
 	}
@@ -4100,7 +4103,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if (my_system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_ENTER_STANDBY_SCRIPT " failed");
 		bool alive = recordingstatus || CEpgScan::getInstance()->Running() ||
-		CStreamManager::getInstance()->StreamStatus();
+			CStreamManager::getInstance()->StreamStatus();
 		if(!alive)
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 
@@ -4491,6 +4494,7 @@ void CNeutrinoApp::stopDaemonsForFlash()
 **************************************************************************************/
 void stop_daemons(bool stopall, bool for_flash)
 {
+	CMoviePlayerGui::getInstance().stopPlayBack();
 	if (for_flash) {
 		CVFD::getInstance()->Clear();
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
