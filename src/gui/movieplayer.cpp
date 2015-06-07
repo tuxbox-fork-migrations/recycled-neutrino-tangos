@@ -2595,6 +2595,7 @@ void CMoviePlayerGui::parsePlaylist(CFile *file)
 	std::ifstream infile;
 	char cLine[1024];
 	char name[1024] = { 0 };
+	std::string file_path = file->getPath();
 	infile.open(file->Name.c_str(), std::ifstream::in);
 	filelist_it = filelist.erase(filelist_it);
 	CFile tmp_file;
@@ -2616,6 +2617,22 @@ void CMoviePlayerGui::parsePlaylist(CFile *file)
 					tmp_file.Url = url;
 					filelist.push_back(tmp_file);
 				}
+			}
+			else
+			{
+				printf("name %s [%d] file: %s\n", name, dur, cLine);
+				std::string illegalChars = "\\/:?\"<>|";
+				std::string::iterator it;
+				std::string name_s = name;
+				for (it = name_s.begin() ; it < name_s.end() ; ++it){
+					bool found = illegalChars.find(*it) != string::npos;
+					if(found){
+						*it = ' ';
+					}
+				}
+				tmp_file.Name = name_s;
+				tmp_file.Url = file_path + cLine;
+				filelist.push_back(tmp_file);
 			}
 		}
 	}
