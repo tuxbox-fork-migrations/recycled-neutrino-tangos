@@ -6,7 +6,6 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib \
-	-I$(STB_HAL_INC) \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libconfigfile
 
