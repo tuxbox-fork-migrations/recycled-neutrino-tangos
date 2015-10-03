@@ -2354,7 +2354,6 @@ void CChannelList::paint_events()
 void CChannelList::paint_events(CChannelEventList &evtlist)
 {
 	ffheight = g_Font[eventFont]->getHeight();
-	readEvents((*chanlist)[index]->getEpgID());
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 
 	char startTime[10];
