@@ -3484,6 +3484,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				}
 			}
 			wakeup_hdd(recordingDir);
+			if (my_system(2, "wakeup_hdd", recordingDir) != 0)
+					perror("wakeup_hdd failed");
 		}
 
 		if( g_settings.recording_zap_on_announce && (mode != mode_standby) && (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID())) {
