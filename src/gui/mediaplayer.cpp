@@ -126,14 +126,16 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	CMenuForwarder *fw_upnp = NULL;
 #endif
 
+	bool enabled = !CMoviePlayerGui::getInstance().Playing();
+
 	if (usage_mode == MODE_DEFAULT)
 	{
 #if ENABLE_UPNP
 		//upnp browser
 		if (!upnpbrowsergui)
 			upnpbrowsergui = new CUpnpBrowserGui();
-		fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, upnpbrowsergui, NULL, CRCInput::RC_yellow);
-		fw_upnp->setHint(NEUTRINO_ICON_HINT_MEDIA, LOCALE_MENU_HINT_UPNP);
+		fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, enabled, NULL, upnpbrowsergui, NULL, CRCInput::RC_yellow);
+		fw_upnp->setHint(NEUTRINO_ICON_HINT_A_PIC, LOCALE_MENU_HINT_UPNP);
 #endif
 //		media->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, usage_mode == MODE_AUDIO ? CMenuWidget::BTN_TYPE_CANCEL : CMenuWidget::BTN_TYPE_BACK);
 	}
@@ -165,7 +167,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		
 		//add I_TYPE_MULTIMEDIA plugins
 		unsigned int nextShortcut = (unsigned int)media->getNextShortcut();
-		media->integratePlugins(CPlugins::I_TYPE_MULTIMEDIA, nextShortcut);
+		media->integratePlugins(CPlugins::I_TYPE_MULTIMEDIA, nextShortcut, enabled);
 
 		res = media->exec(NULL, "");
 		delete media;

@@ -241,7 +241,7 @@ CNeutrinoApp::CNeutrinoApp()
 
 	frameBuffer = CFrameBuffer::getInstance();
 	frameBuffer->setIconBasePath(ICONSDIR);
-#if HAVE_TRIPLEDRAGON || USE_STB_HAL
+#if USE_STB_HAL
 	/* this needs to happen before the framebuffer is set up */
 	init_td_api();
 #endif
@@ -303,7 +303,7 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 	{"lcd_show_volume"      , DEFAULT_LCD_SHOW_VOLUME      },
 	{"lcd_autodimm"         , DEFAULT_LCD_AUTODIMM         },
 	{"lcd_deepbrightness"   , DEFAULT_VFD_STANDBYBRIGHTNESS }
-#if HAVE_TRIPLEDRAGON || USE_STB_HAL
+#if USE_STB_HAL
 	,{ "lcd_epgmode"        , 0 /*DEFAULT_LCD_EPGMODE*/ }
 #endif
 #if HAVE_SPARK_HARDWARE
@@ -313,15 +313,18 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 };
 
 static SNeutrinoSettings::usermenu_t usermenu_default[] = {
-	{ CRCInput::RC_red,		"22,2,3,4,13,33,16,17,19",		"",	"red" 		},
-	{ CRCInput::RC_green,		"6",					"",	"green" 	},
-	{ CRCInput::RC_yellow,		"7",					"",	"yellow" 	},
-	{ CRCInput::RC_blue,		"35,34,21,20,11,22,8,26,27,19,12,25,5,27", "",	"blue"		},
-	{ CRCInput::RC_archive,		"30",					"",	"4" 		},
-	{ CRCInput::RC_play,		"9",					"",	"5" 		},
-	{ CRCInput::RC_usb,		"31",					"",	"6" 		},
-	{ CRCInput::RC_timer,		"19",					"",	"7" 		},
-	{ CRCInput::RC_nokey,		"",					"",	""		},
+	{ CRCInput::RC_red,             "2,3,4,13",                             "",     "red"           },
+	{ CRCInput::RC_green,           "6",                                    "",     "green"         },
+	{ CRCInput::RC_yellow,          "7",                                    "",     "yellow"        },
+	{ CRCInput::RC_blue,            "12,11,14,15,20,21,24,25,19",           "",     "blue"          },
+	{ CRCInput::RC_play,            "9",                                    "",     "5"             },
+	{ CRCInput::RC_audio,           "27",                                   "",     "6"             },
+#if HAVE_SPARK_HARDWARE
+	{ CRCInput::RC_timer,           "19",                                   "",     "7"             },
+	{ CRCInput::RC_usb,             "31",                                   "",     "6"             },
+	{ CRCInput::RC_archive,         "30",                                   "",     "4"             },
+#endif
+	{ CRCInput::RC_nokey,           "",                                     "",     ""              },
 };
 
 /**************************************************************************************
@@ -2444,6 +2447,38 @@ static void check_timer()
 }
 #endif
 
+void CNeutrinoApp::showMainMenu()
+{
+	StopSubtitles();
+	InfoClock->enableInfoClock(false);
+	int old_ttx = g_settings.cacheTXT;
+	int old_epg = g_settings.epg_scan;
+	int old_mode = g_settings.epg_scan_mode;
+	int old_save_mode = g_settings.epg_save_mode;
+	mainMenu->exec(NULL, "");
+#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
+	CVFD::getInstance()->UpdateIcons();
+#endif
+	InfoClock->enableInfoClock(true);
+	StartSubtitles();
+	saveSetup(NEUTRINO_SETTINGS_FILE);
+
+	if (old_save_mode != g_settings.epg_save_mode)
+		CEpgScan::getInstance()->ConfigureEIT();
+	if (old_epg != g_settings.epg_scan || old_mode != g_settings.epg_scan_mode) {
+		if (g_settings.epg_scan_mode != CEpgScan::MODE_OFF)
+			CEpgScan::getInstance()->Start();
+		else
+			CEpgScan::getInstance()->Clear();
+	}
+	if (old_ttx != g_settings.cacheTXT) {
+		if(g_settings.cacheTXT) {
+			tuxtxt_init();
+		} else
+			tuxtxt_close();
+	}
+}
+
 void CNeutrinoApp::screensaver(bool on)
 {
 	if (on)
@@ -2459,8 +2494,10 @@ void CNeutrinoApp::screensaver(bool on)
 	}
 }
 
-void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
+void CNeutrinoApp::RealRun(CMenuWidget &_mainMenu)
 {
+	mainMenu = &_mainMenu;
+
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 
@@ -2546,34 +2583,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			/* the only hardcoded key to check before key bindings */
 			else if( msg == CRCInput::RC_setup ) {
 				if(!g_settings.minimode) {
-					StopSubtitles();
-					InfoClock->enableInfoClock(false);
-					int old_ttx = g_settings.cacheTXT;
-					int old_epg = g_settings.epg_scan;
-					int old_mode = g_settings.epg_scan_mode;
-					int old_save_mode = g_settings.epg_save_mode;
-					mainMenu.exec(NULL, "");
-#if HAVE_DUCKBOX_HARDWARE || BOXMODEL_SPARK7162
-					CVFD::getInstance()->UpdateIcons();
-#endif
-					InfoClock->enableInfoClock(true);
-					StartSubtitles();
-					saveSetup(NEUTRINO_SETTINGS_FILE);
-
-					if (old_save_mode != g_settings.epg_save_mode)
-						CEpgScan::getInstance()->ConfigureEIT();
-					if (old_epg != g_settings.epg_scan || old_mode != g_settings.epg_scan_mode) {
-						if (g_settings.epg_scan_mode != CEpgScan::MODE_OFF)
-							CEpgScan::getInstance()->Start();
-						else
-							CEpgScan::getInstance()->Clear();
-					}
-					if (old_ttx != g_settings.cacheTXT) {
-						if(g_settings.cacheTXT) {
-							tuxtxt_init();
-						} else
-							tuxtxt_close();
-					}
+					showMainMenu();
 				}
 			}
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
@@ -3117,6 +3127,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		}
 #endif
 	}
+	if (msg == NeutrinoMessages::SHOW_MAINMENU) {
+		showMainMenu();
+		return messages_return::handled;
+	}
+
 
 	res = res | g_RemoteControl->handleMsg(msg, data);
 	res = res | g_InfoViewer->handleMsg(msg, data);
@@ -3160,6 +3175,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if (msg == CRCInput::RC_power_off) {
 		g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
+		return messages_return::cancel_all | messages_return::handled;
+	}
+	else if ((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) {
+		if (data == 0)
+			g_RCInput->postMsg(NeutrinoMessages::LEAVE_ALL, 0);
 		return messages_return::cancel_all | messages_return::handled;
 	}
 	else if (msg == (neutrino_msg_t) g_settings.key_power_off /*CRCInput::RC_standby*/) {
@@ -3546,6 +3566,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::STANDBY_TOGGLE ) {
 		standbyMode( !(mode & mode_standby) );
+		g_RCInput->clearRCMsg();
+		return messages_return::handled;
+	}
+	else if( msg == NeutrinoMessages::LEAVE_ALL ) {
 		g_RCInput->clearRCMsg();
 		return messages_return::handled;
 	}
@@ -3996,13 +4020,8 @@ void CNeutrinoApp::tvMode( bool rezap )
 
 	g_RemoteControl->tvMode();
 	SetChannelMode(g_settings.channel_mode);
-	if( rezap ) {
-		t_channel_id last_chid = CZapit::getInstance()->GetLastTVChannel();
-		if(CServiceManager::getInstance()->FindChannel(last_chid))
-			channelList->zapTo_ChannelID(last_chid, true); /* force re-zap */
-		else
-			channelList->zapTo(0, true);
-	}
+	if( rezap )
+		channelRezap();
 #ifdef USEACTIONLOG
 	g_ActionLog->println("mode: tv");
 #endif
@@ -4263,14 +4282,25 @@ void CNeutrinoApp::radioMode( bool rezap)
 	if (g_settings.radiotext_enable && !g_Radiotext)
 		g_Radiotext = new CRadioText;
 
-	if( rezap ) {
-		t_channel_id last_chid = CZapit::getInstance()->GetLastRADIOChannel();
-		if(CServiceManager::getInstance()->FindChannel(last_chid))
-			channelList->zapTo_ChannelID(last_chid, true); /* force re-zap */
-		else
-			channelList->zapTo(0, true); /* force re-zap */
-	}
+	if( rezap )
+		channelRezap();
 	frameBuffer->showFrame("radiomode.jpg");
+}
+
+void CNeutrinoApp::channelRezap()
+{
+	t_channel_id last_chid = 0;
+	if (mode == mode_tv)
+		last_chid = CZapit::getInstance()->GetLastTVChannel();
+	else if (mode == mode_radio)
+		last_chid = CZapit::getInstance()->GetLastRADIOChannel();
+	else
+		return;
+
+	if(CServiceManager::getInstance()->FindChannel(last_chid))
+		channelList->zapTo_ChannelID(last_chid, true);
+	else
+		channelList->zapTo(0, true);
 }
 
 //switching from current mode to tv or radio mode or to optional parameter prev_mode
@@ -4491,23 +4521,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
 		return menu_return::RETURN_EXIT_ALL;
 	}
-#if 0
-	else if(actionKey == "easyswitch") {
-		INFO("easyswitch\n");
-		CParentalSetup pin;
-		if (pin.checkPin()) {
-			if (parent)
-				parent->hide();
-
-			std::string text = "Easy menu switched " + string(g_settings.easymenu?"OFF":"ON") + string(", when restart box.\nRestart now?");
-			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, text, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO, 0) == CMessageBox::mbrYes) {
-				g_settings.easymenu = (g_settings.easymenu == 0) ? 1 : 0;
-				INFO("change easymenu to %d\n", g_settings.easymenu);
-				g_RCInput->postMsg(NeutrinoMessages::REBOOT, 0);
-			}
-		}
-	}
-#endif
 
 	return returnval;
 }
@@ -4578,8 +4591,9 @@ void stop_daemons(bool stopall, bool for_flash)
 	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 	}
 
-	CZapit::getInstance()->Stop();
 	delete &CMoviePlayerGui::getInstance();
+
+	CZapit::getInstance()->Stop();
 	printf("zapit shutdown done\n");
 	if (!for_flash) {
 		CVFD::getInstance()->Clear();
@@ -4716,8 +4730,8 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.mpkey_stop = tconfig.getInt32( "mpkey.stop", CRCInput::RC_stop );
 	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_play );
 	g_settings.mpkey_audio = tconfig.getInt32( "mpkey.audio", CRCInput::RC_green );
-	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_setup );
-	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_blue );
+	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_timeshift );
+	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_yellow );
 	g_settings.mpkey_next3dmode = tconfig.getInt32( "mpkey.next3dmode", CRCInput::RC_nokey );
 	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", (unsigned int)CRCInput::RC_nokey );
 	g_settings.mpkey_subtitle = tconfig.getInt32( "mpkey.subtitle", CRCInput::RC_sub );
