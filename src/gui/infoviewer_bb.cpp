@@ -230,7 +230,7 @@ void CInfoViewerBB::getBBButtonInfo()
 		std::string text, icon;
 		switch (i) {
 		case CInfoViewerBB::BUTTON_RED:
-			icon = NEUTRINO_ICON_BUTTON_RED;
+			icon = NEUTRINO_ICON_INFO_RED;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts) {
@@ -246,7 +246,7 @@ void CInfoViewerBB::getBBButtonInfo()
 				text = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
 			break;
 		case CInfoViewerBB::BUTTON_GREEN:
-			icon = NEUTRINO_ICON_BUTTON_GREEN;
+			icon = NEUTRINO_ICON_INFO_GREEN;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts) {
@@ -270,7 +270,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			}
 			break;
 		case CInfoViewerBB::BUTTON_YELLOW:
-			icon = NEUTRINO_ICON_BUTTON_YELLOW;
+			icon = NEUTRINO_ICON_INFO_YELLOW;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts) {
@@ -283,7 +283,7 @@ void CInfoViewerBB::getBBButtonInfo()
 				text = g_Locale->getText((g_RemoteControl->are_subchannels) ? LOCALE_INFOVIEWER_SUBSERVICE : LOCALE_INFOVIEWER_SELECTTIME);
 			break;
 		case CInfoViewerBB::BUTTON_BLUE:
-			icon = NEUTRINO_ICON_BUTTON_BLUE;
+			icon = NEUTRINO_ICON_INFO_BLUE;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts) {
