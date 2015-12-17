@@ -52,6 +52,8 @@ class CInfoViewer
 	CFrameBuffer * frameBuffer;
 	CInfoViewerBB* infoViewerBB;
 	CComponentsFrmClock *clock;
+	CComponentsShapeSquare *header , *numbox, *body, *rec;
+	CComponentsTextTransp *txt_cur_start, *txt_cur_event, *txt_cur_event_rest, *txt_next_start, *txt_next_event, *txt_next_in;
 
 	bool           gotTime;
 	bool           recordModeActive;
@@ -89,7 +91,7 @@ class CInfoViewer
 
 	int time_height;
 	int info_time_width;
-
+	int header_height;
 	bool newfreq ;
 	static const short bar_width = 72;
 	static event_id_t last_curr_id, last_next_id;
@@ -100,15 +102,18 @@ class CInfoViewer
 	CChannelEventList::iterator     eli;
 
 	int lastsnr, lastsig, lasttime;
-	CProgressBar *snrscale, *sigscale, *timescale;
+	CProgressBar *timescale;
+	CSignalBox *sigbox;
+
 	bool casysChange;
 	bool channellogoChange;
 	uint32_t lcdUpdateTimer;
 
 	void paintBackground(int col_Numbox);
 	void paintHead();
+	void paintBody();
 	void show_Data( bool calledFromEvent = false );
-	void display_Info(const char *current, const char *next, bool UTF8 = true,
+	void display_Info(const char *current, const char *next,
 			  bool starttimes = true, const int pb_pos = -1,
 			  const char *runningStart = NULL, const char *runningRest = NULL,
 			  const char *nextStart = NULL, const char *nextDuration = NULL,
@@ -182,6 +187,7 @@ class CInfoViewer
 	void	setUpdateTimer(uint64_t interval);
 	uint32_t getUpdateTimer(void) { return lcdUpdateTimer; }
 	inline t_channel_id get_current_channel_id(void) { return current_channel_id; }
+	void 	ResetModules();
 };
 #if 0
 class CInfoViewerHandler : public CMenuTarget

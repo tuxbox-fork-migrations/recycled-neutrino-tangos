@@ -90,7 +90,7 @@ CInfoViewerBB::CInfoViewerBB()
 	bbIconInfo[0].h = 0;
 	BBarY = 0;
 	BBarFontY = 0;
-
+	foot = cabar 		= NULL;
 	Init();
 }
 
@@ -110,7 +110,7 @@ void CInfoViewerBB::Init()
 	}
 
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 5;
-	setBBOffset();
+	initBBOffset();
 
 	changePB();
 }
@@ -121,10 +121,7 @@ CInfoViewerBB::~CInfoViewerBB()
 		pthread_cancel(scrambledT);
 		scrambledT = 0;
 	}
-	if (hddscale)
-		delete hddscale;
-	if (sysscale)
-		delete sysscale;
+	ResetModules();
 }
 
 CInfoViewerBB* CInfoViewerBB::getInstance()
@@ -481,15 +478,14 @@ void CInfoViewerBB::paintFoot(int w)
 {
 	int width = (w == 0) ? g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX : w;
 
-	CComponentsShapeSquare foot(g_InfoViewer->ChanInfoX, BBarY, width, InfoHeightY_Info);
+	if (foot == NULL)
+		foot = new CComponentsShapeSquare(g_InfoViewer->ChanInfoX, BBarY, width, InfoHeightY_Info, NULL, CC_SHADOW_ON);
 
-	foot.setColorBody(g_settings.theme.infobar_gradient_bottom ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_BUTTONS_BACKGROUND);
-	foot.enableColBodyGradient(g_settings.theme.infobar_gradient_bottom);
-	foot.setColBodyGradient(CColorGradient::gradientDark2Light, CFrameBuffer::gradientVertical);
-	foot.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
-	foot.set2ndColor(COL_INFOBAR_PLUS_0);
+	foot->setColorBody(g_settings.theme.infobar_gradient_bottom ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_BUTTONS_BACKGROUND);
+	foot->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_bottom_direction);
+	foot->setCorner(RADIUS_LARGE, CORNER_BOTTOM);
 
-	foot.paint(CC_SAVE_SCREEN_NO);
+	foot->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CInfoViewerBB::showIcon_SubT()
@@ -703,6 +699,7 @@ void CInfoViewerBB::showSysfsHdd()
 void CInfoViewerBB::showBarSys(int percent)
 {	
 	if (is_visible){
+		sysscale->doPaintBg(false);
 		sysscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6);
 		sysscale->setValues(percent, 100);
 		sysscale->paint();
@@ -712,6 +709,7 @@ void CInfoViewerBB::showBarSys(int percent)
 void CInfoViewerBB::showBarHdd(int percent)
 {
 	if (is_visible) {
+		hddscale->doPaintBg(false);
 		if (percent >= 0){
 			hddscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6);
 			hddscale->setValues(percent, 100);
@@ -960,6 +958,7 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 {
 	int xcnt = (g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX - (g_settings.casystem_frame ? 24 : 0)) / 4;
 	int ycnt = (bottom_bar_offset - (g_settings.casystem_frame ? 14 : 0)) / 4;
+	int ca_width = g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX;
 
 	if (right)
 		right = xcnt - ((right/4)+1);
@@ -968,21 +967,29 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 
 	if (g_settings.casystem_frame) { // with highlighted frame
 		if (!right || !left) { // paint full bar
-			// background
-			frameBuffer->paintBox(g_InfoViewer->ChanInfoX     , g_InfoViewer->BoxEndY    , g_InfoViewer->BoxEndX     , g_InfoViewer->BoxEndY + bottom_bar_offset     , COL_INFOBAR_PLUS_0);
-			// shadow
-			frameBuffer->paintBox(g_InfoViewer->ChanInfoX + 14, g_InfoViewer->BoxEndY + 4, g_InfoViewer->BoxEndX - 6 , g_InfoViewer->BoxEndY + bottom_bar_offset - 6 , COL_INFOBAR_SHADOW_PLUS_0 , RADIUS_SMALL, CORNER_ALL);
-			// ca bar
-			frameBuffer->paintBox(g_InfoViewer->ChanInfoX + 11, g_InfoViewer->BoxEndY + 1, g_InfoViewer->BoxEndX - 11, g_InfoViewer->BoxEndY + bottom_bar_offset - 11, COL_INFOBAR_CASYSTEM_PLUS_0, RADIUS_SMALL, CORNER_ALL);
-			// highlighed frame
-			frameBuffer->paintBoxFrame(g_InfoViewer->ChanInfoX + 10, g_InfoViewer->BoxEndY, g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX - 2*10, bottom_bar_offset - 10, 1, COL_INFOBAR_CASYSTEM_PLUS_2, RADIUS_SMALL, CORNER_ALL);
+			// framed ca bar
+			if (cabar == NULL)
+				cabar = new CComponentsShapeSquare(g_InfoViewer->ChanInfoX+11, g_InfoViewer->BoxEndY+1, ca_width-22 , bottom_bar_offset-11 , NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
+			//cabar->setCorner(RADIUS_SMALL, CORNER_ALL);
+			cabar->enableShadow(CC_SHADOW_ON, 3);
+			cabar->setFrameThickness(2);
+
+// 			cabar->paint(CC_SAVE_SCREEN_NO);
+		}else{  //TODO: remove this part, cabar object can do this
+			if (cabar == NULL)
+				cabar = new CComponentsShapeSquare(g_InfoViewer->ChanInfoX, g_InfoViewer->BoxEndY, ca_width , bottom_bar_offset-11, NULL, CC_SHADOW_OFF, COL_INFOBAR_CASYSTEM_PLUS_2);
+			//cabar->setCorner(RADIUS_SMALL, CORNER_ALL);
+			cabar->disableShadow();
+			cabar->setFrameThickness(2);
+			cabar->setColorBody(COL_INFOBAR_CASYSTEM_PLUS_0);
 		}
-		else
-			frameBuffer->paintBox(g_InfoViewer->ChanInfoX + 12 + (right*4), g_InfoViewer->BoxEndY + 2, g_InfoViewer->BoxEndX - 12 - (left*4), g_InfoViewer->BoxEndY + bottom_bar_offset - 12, COL_INFOBAR_CASYSTEM_PLUS_0);
+		cabar->setFrameThickness(2);
+		cabar->setCorner(RADIUS_SMALL, CORNER_ALL);
+		cabar->paint(CC_SAVE_SCREEN_NO);
 	}
 	else
-		frameBuffer->paintBox(g_InfoViewer->ChanInfoX + (right*4), g_InfoViewer->BoxEndY, g_InfoViewer->BoxEndX - (left*4), g_InfoViewer->BoxEndY + bottom_bar_offset, COL_INFOBAR_CASYSTEM_PLUS_0);
-
+		paintBoxRel(g_InfoViewer->ChanInfoX, g_InfoViewer->BoxEndY, ca_width , bottom_bar_offset, COL_INFOBAR_CASYSTEM_PLUS_0);
+#if 1
 	if (!g_settings.casystem_dotmatrix) //don't show dotmatrix
 		return;
 
@@ -994,6 +1001,7 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 			frameBuffer->paintBoxRel((g_InfoViewer->ChanInfoX + (g_settings.casystem_frame ? 14 : 2)) + i*4, g_InfoViewer->BoxEndY + (g_settings.casystem_frame ? 4 : 2) + j*4, 2, 2, COL_INFOBAR_PLUS_1);
 		}
 	}
+#endif
 }
 
 void CInfoViewerBB::changePB()
@@ -1017,7 +1025,21 @@ void CInfoViewerBB::reset_allScala()
 	//lasthdd = lastsys = -1;
 }
 
-void CInfoViewerBB::setBBOffset()
+void CInfoViewerBB::ResetModules()
+{
+	if (hddscale)
+		delete hddscale;
+		hddscale = NULL;
+	if (sysscale)
+		delete sysscale;
+	sysscale = NULL;
+	delete foot;
+	foot = NULL;
+	delete cabar;
+	cabar = NULL;
+}
+
+void CInfoViewerBB::initBBOffset()
 {
 	bottom_bar_offset = (g_settings.casystem_display < 2) ? (g_settings.casystem_frame ? 36 : 22) : 0;
 }

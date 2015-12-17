@@ -1149,6 +1149,11 @@ int CMovieBrowser::exec(const char* path)
 void CMovieBrowser::hide(void)
 {
 	//TRACE("[mb]->%s\n", __func__);
+	if (CChannelLogo){
+		delete CChannelLogo;
+		CChannelLogo = NULL;
+	}
+
 	framebuffer->paintBackground();
 	if (m_pcFilter != NULL)
 		m_currentFilterSelection = m_pcFilter->getSelectedLine();
@@ -1381,19 +1386,19 @@ void CMovieBrowser::refreshMovieInfo(void)
 	if (show_mode == MB_SHOW_YT)
 		pb_hdd_offset = 0;
 #endif
-	static uint64_t old_EpgId = 0;
-	if (CChannelLogo && (old_EpgId != m_movieSelectionHandler->epgEpgId >>16)) {
+	//static uint64_t old_EpgId = 0;
+	if (CChannelLogo /*&& (old_EpgId != m_movieSelectionHandler->epgEpgId >>16)*/) {
 		if (newHeader)
-			CChannelLogo->clearSavedScreen();
+			CChannelLogo->clearFbData(); // reset logo screen data
 		else
 			CChannelLogo->hide();
 		delete CChannelLogo;
 		CChannelLogo = NULL;
 	}
-	if (old_EpgId != m_movieSelectionHandler->epgEpgId >>16) {
-		CChannelLogo = new CComponentsChannelLogo(0, 0, m_movieSelectionHandler->epgChannel, m_movieSelectionHandler->epgEpgId >>16);
-		old_EpgId = m_movieSelectionHandler->epgEpgId >>16;
-	}
+	//if (old_EpgId != m_movieSelectionHandler->epgEpgId >>16) {
+		CChannelLogo = new CComponentsChannelLogoScalable(0, 0, m_movieSelectionHandler->epgChannel, m_movieSelectionHandler->epgEpgId >>16); //TODO: add logo into header as item
+	//	old_EpgId = m_movieSelectionHandler->epgEpgId >>16;
+	//}
 
 	if (CChannelLogo && CChannelLogo->hasLogo()) {
 		//scale image if required, TODO: move into an own handler, eg. header, so channel logo should be paint in header object
@@ -1740,7 +1745,7 @@ void CMovieBrowser::refreshTitle(void)
 
 	CComponentsHeader header(x, y, w, h, title.c_str(), icon);
 	header.paint(CC_SAVE_SCREEN_NO);
-	newHeader = true;
+	newHeader = header.isPainted();
 
 	info_hdd_level(true);
 }
