@@ -43,19 +43,19 @@ CComponentsFooter::CComponentsFooter(CComponentsForm* parent)
 CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const int& buttons,
 					CComponentsForm* parent,
-					bool has_shadow,
+					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow )
 {
 	//CComponentsFooter
-	initVarFooter(x_pos, y_pos, w, h, buttons, parent, has_shadow, color_frame, color_body, color_shadow);
+	initVarFooter(x_pos, y_pos, w, h, buttons, parent, shadow_mode, color_frame, color_body, color_shadow);
 }
 
 void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const int& buttons,
 					CComponentsForm* parent,
-					bool has_shadow,
+					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow )
@@ -72,11 +72,11 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	cch_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
 	height 		= max(h, cch_font->getHeight());
 
-	shadow		= has_shadow;
+	shadow		= shadow_mode;
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	col_body_gradient		= false; /*g_settings.theme.Foot_gradient*/; //TODO: not implemented at the moment
+	cc_body_gradient_enable		= cc_body_gradient_enable_old	= g_settings.theme.menu_ButtonBar_gradient; //TODO: not complete implemented at the moment
 	cc_body_gradient_direction	= CFrameBuffer::gradientVertical;
 	cc_body_gradient_mode		= CColorGradient::gradientDark2Light;
 	btn_auto_frame_col	= false;
