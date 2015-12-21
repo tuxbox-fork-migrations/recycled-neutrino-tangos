@@ -1888,6 +1888,9 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			iscurrent = SameTP((*chanlist)[curr]);
 	}
 
+	if(selected >= (*chanlist).size())
+		selected = (*chanlist).size()-1;
+
 	if (curr == selected) {
 		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
