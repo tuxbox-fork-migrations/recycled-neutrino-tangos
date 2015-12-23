@@ -96,7 +96,7 @@ int CLuaInstCurl::CurlProgressFunc(void *p, curl_off_t dltotal, curl_off_t dlnow
 	curl_easy_getinfo(_pgd->curl, CURLINFO_RESPONSE_CODE, &responseCode);
 
 	uint32_t MUL = 0x7FFF;
-	uint32_t dlFragment = (dlnow * MUL) / dltotal;
+	uint32_t dlFragment = (uint32_t)((dlnow * MUL) / dltotal);
 	if (responseCode != 200) {
 		dlFragment = 0;
 		dlSpeed    = 0;
@@ -170,6 +170,8 @@ Example:
 #define CURL_MSG_ERROR "[curl:download \33[1;31mERROR!\33[0m]"
 
 	lua_assert(lua_istable(L,1));
+	CLuaCurl *D = CurlCheckData(L, 1);
+	if (!D) return 0;
 
 	char errMsg[1024];
 	CURL *curl_handle = curl_easy_init();
@@ -356,6 +358,7 @@ Example:
 int CLuaInstCurl::CurlDelete(lua_State *L)
 {
 	CLuaCurl *D = CurlCheckData(L, 1);
+	if (!D) return 0;
 	delete D;
 	return 0;
 }
