@@ -26,12 +26,17 @@
 
 #include <global.h>
 #include <system/debug.h>
+#include <gui/widget/menue.h>
+#include <driver/volume.h>
+#include <gui/audiomute.h>
 #include <gui/infoclock.h>
 #include <cs_api.h>
 #include <neutrino.h>
 
 #include "luainstance.h"
 #include "lua_misc.h"
+
+extern CVolume* g_volume;
 
 CLuaInstMisc* CLuaInstMisc::getInstance()
 {
@@ -54,6 +59,11 @@ void CLuaInstMisc::LuaMiscRegister(lua_State *L)
 		{ "strFind",         CLuaInstMisc::strFind },
 		{ "strSub",          CLuaInstMisc::strSub },
 		{ "enableInfoClock", CLuaInstMisc::enableInfoClock },
+		{ "enableMuteIcon",  CLuaInstMisc::enableMuteIcon },
+		{ "setVolume",       CLuaInstMisc::setVolume },
+		{ "getVolume",       CLuaInstMisc::getVolume },
+		{ "AudioMute",       CLuaInstMisc::AudioMute },
+		{ "isMuted",         CLuaInstMisc::isMuted },
 		{ "runScript",       CLuaInstMisc::runScriptExt },
 		{ "GetRevision",     CLuaInstMisc::GetRevision },
 		{ "checkVersion",    CLuaInstMisc::checkVersion },
@@ -80,6 +90,8 @@ int CLuaInstMisc::MiscNew(lua_State *L)
 
 int CLuaInstMisc::strFind(lua_State *L)
 {
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
 	int numargs = lua_gettop(L);
 	if (numargs < 3) {
 		printf("CLuaInstMisc::%s: not enough arguments (%d, expected 2 (or 3 or 4))\n", __func__, numargs);
@@ -112,6 +124,8 @@ int CLuaInstMisc::strFind(lua_State *L)
 
 int CLuaInstMisc::strSub(lua_State *L)
 {
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
 	int numargs = lua_gettop(L);
 	if (numargs < 3) {
 		printf("CLuaInstMisc::%s: not enough arguments (%d, expected 2 (or 3))\n", __func__, numargs);
@@ -136,6 +150,8 @@ int CLuaInstMisc::strSub(lua_State *L)
 
 int CLuaInstMisc::enableInfoClock(lua_State *L)
 {
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
 	bool enable = true;
 	int numargs = lua_gettop(L);
 	if (numargs > 1)
@@ -144,8 +160,70 @@ int CLuaInstMisc::enableInfoClock(lua_State *L)
 	return 0;
 }
 
+int CLuaInstMisc::enableMuteIcon(lua_State *L)
+{
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
+	bool enable = true;
+	int numargs = lua_gettop(L);
+	if (numargs > 1)
+		enable = _luaL_checkbool(L, 2);
+	CAudioMute::getInstance()->enableMuteIcon(enable);
+	return 0;
+}
+
+int CLuaInstMisc::setVolume(lua_State *L)
+{
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
+	lua_Integer vol = luaL_checkint(L, 2);
+	if (vol < 0) vol = 0;
+	if (vol > 100) vol = 100;
+	g_settings.current_volume = vol;
+	g_volume->setvol(vol);
+	return 0;
+}
+
+int CLuaInstMisc::getVolume(lua_State *L)
+{
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
+	lua_pushinteger(L, g_settings.current_volume);
+	return 1;
+}
+
+int CLuaInstMisc::AudioMute(lua_State *L)
+{
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
+	int numargs = lua_gettop(L);
+	if (numargs < 2) {
+		printf("CLuaInstMisc::%s: not enough arguments (%d, expected 1 (or 2))\n", __func__, numargs);
+		return 0;
+	}
+
+	bool newValue = false;
+	bool isEvent  = false;
+	newValue = _luaL_checkbool(L, 2);
+	if (numargs > 2)
+		isEvent = _luaL_checkbool(L, 3);
+
+	CAudioMute::getInstance()->AudioMute(newValue, isEvent);
+	return 0;
+}
+
+int CLuaInstMisc::isMuted(lua_State *L)
+{
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
+	lua_pushboolean(L, CNeutrinoApp::getInstance()->isMuted());
+	return 1;
+}
+
 int CLuaInstMisc::runScriptExt(lua_State *L)
 {
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
 	int numargs = lua_gettop(L);
 	const char *script = luaL_checkstring(L, 2);
 	std::vector<std::string> args;
@@ -164,6 +242,8 @@ int CLuaInstMisc::runScriptExt(lua_State *L)
 
 int CLuaInstMisc::GetRevision(lua_State *L)
 {
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
 	unsigned int rev = 0;
 	std::string hw   = "";
 #if HAVE_COOL_HARDWARE
@@ -177,6 +257,8 @@ int CLuaInstMisc::GetRevision(lua_State *L)
 
 int CLuaInstMisc::checkVersion(lua_State *L)
 {
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
 	int numargs = lua_gettop(L);
 	if (numargs < 3) {
 		printf("CLuaInstMisc::%s: not enough arguments (%d, expected 2)\n", __func__, numargs);
@@ -201,6 +283,8 @@ int CLuaInstMisc::checkVersion(lua_State *L)
 
 int CLuaInstMisc::postMsg(lua_State *L)
 {
+	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
 	lua_Integer msg = 0;
 	neutrino_msg_t post_msg = 0;
 	msg = luaL_checkint(L, 2);
@@ -218,6 +302,7 @@ int CLuaInstMisc::postMsg(lua_State *L)
 int CLuaInstMisc::MiscDelete(lua_State *L)
 {
 	CLuaMisc *D = MiscCheckData(L, 1);
+	if (!D) return 0;
 	delete D;
 	return 0;
 }

@@ -4001,11 +4001,11 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	int returnval = menu_return::RETURN_REPAINT;
 
+	if (parent)
+		parent->hide();
+
 	if (actionKey.empty())
 	{
-		if (parent)
-			parent->hide();
-
 		changed = false;
 		return show();
 	}
