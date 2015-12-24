@@ -78,6 +78,7 @@ install_DATA += \
 	ca2.png \
 	ca2_gray.png \
 	checkmark.png \
+	clock_face.png \
 	colors.png \
 	conax_green.png \
 	conax_white.png \

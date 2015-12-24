@@ -78,6 +78,7 @@ class CInfoViewer
 	int            ChanNameX;
 	int            ChanNumWidth;
 	int            ChanWidth;
+	int            ana_clock_size;
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
 	CSectionsdClient::CurrentNextInfo oldinfo;

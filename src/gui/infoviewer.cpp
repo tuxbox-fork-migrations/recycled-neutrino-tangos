@@ -251,7 +251,7 @@ void CInfoViewer::start ()
 
 	initClock();
 	time_height = clock->getHeight();
-	time_width = min(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth("88:88"), clock->getWidth());
+	time_width = g_settings.infobar_anaclock && !g_settings.channellist_show_numbers ? 0 : g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth("88:88");
 	clock->setWidth(time_width);
 }
 
@@ -729,17 +729,19 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	paintBackground(col_NumBox);
 
 	bool show_dot = true;
-	if (timeset)
+	if (timeset && (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers))
 		clock->paint(CC_SAVE_SCREEN_NO);
 	showRecordIcon (show_dot);
-	//infoViewerBB->show_clock(BoxEndX - 10 - (BoxEndY - (ChanNameY + time_height) - 6)/2,(BoxEndY + ChanNameY + time_height) / 2,(BoxEndY - (ChanNameY + time_height) - 6)/2);
+	ana_clock_size = (BoxEndY - (ChanNameY + time_height) - 6);
+	if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
+		infoViewerBB->show_clock(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
 	show_dot = !show_dot;
 
 	if (showButtonBar) {
 		infoViewerBB->paintshowButtonBar();
 	}
 
-	ChanNumWidth = 0;
+	ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : 5;
 	int ChannelLogoMode = 0;
 	bool logo_ok = false;
 	if (ChanNum) /* !fileplay */
@@ -792,7 +794,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 				ChanInfoX + 10, ChanNumYPos,
 				ChanNumWidth, strChanNum, col_NumBoxText);
 			} else
-			ChanNumWidth = 5;
+			ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : 5;
 		}
 		if (ChannelLogoMode == 1 || ( g_settings.infobar_show_channellogo == 3 && !logo_ok) || g_settings.infobar_show_channellogo == 6 ) /* channel number besides channel name */
 		{
@@ -946,13 +948,14 @@ void CInfoViewer::loop(bool show_dot)
 			if (is_visible && showButtonBar)
 				infoViewerBB->showIcon_CA_Status(0);
 			showSNR ();
-			if (timeset)
+			if (timeset && (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers))
 				clock->paint(CC_SAVE_SCREEN_NO);
 			showRecordIcon (show_dot);
 			infoViewerBB->showIcon_Update (show_dot);
 			show_dot = !show_dot;
 			showInfoFile();
-			//infoViewerBB->show_clock(BoxEndX - 10 - (BoxEndY - (ChanNameY + time_height) - 6)/2,(BoxEndY + ChanNameY + time_height) / 2,(BoxEndY - (ChanNameY + time_height) - 6)/2);
+			if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
+				infoViewerBB->show_clock(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
 			if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio))
 				showRadiotext();
 
