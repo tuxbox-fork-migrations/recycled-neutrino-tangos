@@ -1184,6 +1184,10 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_INFOBAR_POSITION);
 	menu_infobar->addItem(mc);
 #endif
+	// Analog Clock
+	mc = new CMenuOptionChooser(LOCALE_INFOVIEWER_ANALOGCLOCK, &g_settings.infobar_anaclock, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	menu_infobar->addItem(mc);
+
 }
 
 //channellist

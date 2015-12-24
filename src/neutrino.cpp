@@ -527,6 +527,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.progressbar_timescale_green = configfile.getInt32("progressbar_timescale_green", 100);
 	g_settings.progressbar_timescale_yellow = configfile.getInt32("progressbar_timescale_yellow", 70);
 	g_settings.progressbar_timescale_invert = configfile.getBool("progressbar_timescale_invert", false);
+	g_settings.infobar_anaclock = configfile.getInt32("infobar_anaclock", 0);
 	g_settings.infobar_show = configfile.getInt32("infobar_show", configfile.getInt32("infobar_cn", 1));
 	g_settings.infobar_show_channellogo   = 2; //configfile.getInt32("infobar_show_channellogo"  , 2 );
 	g_settings.infobar_progressbar   = 3; //configfile.getInt32("infobar_progressbar"  , 3 ); // between epg
@@ -1168,6 +1169,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("progressbar_timescale_green", g_settings.progressbar_timescale_green);
 	configfile.setInt32("progressbar_timescale_yellow", g_settings.progressbar_timescale_yellow);
 	configfile.setInt32("progressbar_timescale_invert", g_settings.progressbar_timescale_invert);
+	configfile.setInt32("infobar_anaclock", g_settings.infobar_anaclock);
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setInt32("infobar_progressbar"  , g_settings.infobar_progressbar  );
