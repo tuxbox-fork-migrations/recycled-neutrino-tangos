@@ -242,11 +242,11 @@ Example:
 	lua_Integer maxRedirs = 20;
 	tableLookup(L, "maxRedirs", maxRedirs);
 	
-	std::string post-data = "";
-	tableLookup(L, "data", post-data) || tableLookup(L, "post-data", post-data);
+	std::string postdata = "";
+	tableLookup(L, "data", postdata) || tableLookup(L, "post-data", postdata);
 
-	std::string custom-header = "";
-	tableLookup(L, "header", custom-header) || tableLookup(L, "custom-header", custom-header);
+	std::string customheader = "";
+	tableLookup(L, "header", customheader) || tableLookup(L, "custom-header", customheader);
 
 	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
 	if (toFile) {
@@ -266,12 +266,12 @@ Example:
 	if (!userAgent.empty())
 		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
 
-	if (!post-data.empty())
-		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, post-data.c_str());
+	if (!postdata.empty())
+		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, postdata.c_str());
 	
-	if (!custom-header.empty()) {
+	if (!customheader.empty()) {
 		 struct curl_slist *chunk = NULL;
-		 chunk = curl_slist_append(chunk, custom-header.c_str());
+		 chunk = curl_slist_append(chunk, customheader.c_str());
 		 curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, chunk);
 	}
 		
