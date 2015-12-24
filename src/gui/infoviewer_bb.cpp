@@ -63,6 +63,7 @@
 
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern cVideo * videoDecoder;
+extern CPictureViewer * g_PicViewer;
 
 #define COL_INFOBAR_BUTTONS_BACKGROUND (COL_INFOBAR_SHADOW_PLUS_1)
 
@@ -752,17 +753,7 @@ void CInfoViewerBB::show_clock(int posx,int posy,int dia)
 		hx = int((dia * 0.6 * cos(hAngleInRad)));
 		hy = int((dia * 0.6 * sin(hAngleInRad)));
 
-		frameBuffer->paintBoxRel(posx-dia,posy-dia,2*dia,2*dia,COL_INFOBAR_PLUS_0);
-
-		for(in=1;in<361;in++)
-		{
-			AngleInRad = in * pi / 180;
-
-			x = int(dia * cos(AngleInRad));
-			y = int(dia * sin(AngleInRad));
-
-			frameBuffer->paintPixel(posx + x,posy + y, COL_INFOBAR_TEXT);
-		}
+		g_PicViewer->DisplayImage(ICONSDIR"/clock_face.png",posx-dia,posy-dia,2*dia,2*dia);
 
 		frameBuffer->paintLine(posx,posy,posx+hx,posy+hy,COL_COLORED_EVENTS_TEXT);
 		frameBuffer->paintLine(posx,posy,posx+mx,posy+my,COL_MENUHEAD_TEXT);
