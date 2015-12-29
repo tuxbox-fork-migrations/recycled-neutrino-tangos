@@ -829,7 +829,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 				if (dx-ofr-ofl == 0){
 					dprintf(DEBUG_INFO, "[CFrameBuffer] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx-ofr-ofl, y+line);
 				}else{
-					dprintf(DEBUG_INFO, "[CFrameBuffer] [%s - %04d]: Calculated width: %d\n                      (radius %d, dx %d, offsetLeft %d, offsetRight %d).\n                      Width can not be less than 0, abort.\n", 
+					dprintf(DEBUG_INFO, "[CFrameBuffer] [%s - %04d]: Calculated width: %d\n                      (radius %d, dx %d, offsetLeft %d, offsetRight %d).\n                      Width can not be less than 0, abort.\n",
 						__func__, __LINE__, dx-ofr-ofl, radius, dx, ofl, ofr);
 				}
 				line++;

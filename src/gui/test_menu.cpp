@@ -548,7 +548,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		else{
 			header->hide();
 		}
-			
+
 		return res;
 	}
 	else if (actionKey == "footer"){

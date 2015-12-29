@@ -308,7 +308,7 @@ class CAbstractMenuOptionChooser : public CMenuItem
 			optionValue = NULL;
 		}
 		~CAbstractMenuOptionChooser(){}
-		
+		sigc::signal<void> OnAfterChangeOption;
 };
 
 class CMenuOptionNumberChooser : public CAbstractMenuOptionChooser
@@ -444,7 +444,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 		int getWidth(void);
 		void setOptions(const struct keyval * const Options, const unsigned Number_Of_Options);
 		void setOptions(const struct keyval_ext * const Options, const unsigned Number_Of_Options);
-		sigc::signal<void> OnAfterChangeOption;
+
 		int paint(bool selected);
 
 		int exec(CMenuTarget* parent);

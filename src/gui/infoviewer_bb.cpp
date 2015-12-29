@@ -181,7 +181,7 @@ void CInfoViewerBB::getBBIconInfo()
 				iconView = checkBBIcon(NEUTRINO_ICON_RESOLUTION_1280, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_CA:
-			if (g_settings.casystem_display == 2)
+			if (g_settings.infobar_casystem_display == 2)
 				iconView = checkBBIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_TUNER:
@@ -392,7 +392,25 @@ void CInfoViewerBB::showBBButtons(const int modus)
 	}
 
 	if (paint) {
+#if 1
 		paintFoot(g_InfoViewer->BoxEndX - g_InfoViewer->BoxStartX - g_InfoViewer->ChanInfoX);
+#else
+		fb_pixel_t *pixbuf = NULL;
+		int buf_x = bbIconMinX - 5;
+		int buf_y = BBarY;
+		int buf_w = g_InfoViewer->BoxEndX-buf_x;
+		int buf_h = InfoHeightY_Info;
+		if (modus != -1) {
+			pixbuf = new fb_pixel_t[buf_w * buf_h];
+//printf("\nbuf_x: %d, buf_y: %d, buf_w: %d, buf_h: %d, pixbuf: %p\n \n", buf_x, buf_y, buf_w, buf_h, pixbuf);
+			frameBuffer->SaveScreen(buf_x, buf_y, buf_w, buf_h, pixbuf);
+			paintFoot();
+			if (pixbuf != NULL) {
+				frameBuffer->RestoreScreen(buf_x, buf_y, buf_w, buf_h, pixbuf);
+				delete [] pixbuf;
+			}
+		}
+#endif
 		int last_x = minX;
 
 		for (i = BUTTON_MAX; i > 0;) {
@@ -438,7 +456,7 @@ void CInfoViewerBB::paintshowButtonBar()
 	}
 	g_InfoViewer->sec_timer_id = g_RCInput->addTimer(1*1000*1000, false);
 
-	if (g_settings.casystem_display < 2)
+	if (g_settings.infobar_casystem_display < 2)
 		paintCA_bar(0,0);
 
 	paintFoot();
@@ -784,8 +802,8 @@ void CInfoViewerBB::ShowRecDirScale()
 void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_offset)
 {
 	char buf[20];
-	int endx = g_InfoViewer->BoxEndX - (g_settings.casystem_frame ? 20 : 10);
-	int py = g_InfoViewer->BoxEndY + (g_settings.casystem_frame ? 4 : 2); /* hand-crafted, should be automatic */
+	int endx = g_InfoViewer->BoxEndX - (g_settings.infobar_casystem_frame ? 20 : 10);
+	int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2); /* hand-crafted, should be automatic */
 	int px = 0;
 	static map<int, std::pair<int,const char*> > icon_map;
 	const int icon_space = 2, icon_number = 10;
@@ -826,7 +844,7 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 	if (icon_offset[icon_map[caid].first] == 0)
 		return;
 
-	if (g_settings.casystem_display == 0) {
+	if (g_settings.infobar_casystem_display == 0) {
 		px = endx - (icon_offset[icon_map[caid].first] - icon_space );
 	} else {
 		icon_space_offset += icon_sizeW[icon_map[caid].first];
@@ -846,10 +864,10 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
-	if (g_settings.casystem_display == 3)
+	if (g_settings.infobar_casystem_display == 3)
 		return;
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
-		if (g_settings.casystem_display == 2) {
+		if (g_settings.infobar_casystem_display == 2) {
 			fta = true;
 			showOne_CAIcon();
 		}
@@ -864,11 +882,11 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 	const char *ecm_info_f = "/tmp/ecm.info";
 
 	if(!g_InfoViewer->chanready) {
-		if (g_settings.casystem_display == 2) {
+		if (g_settings.infobar_casystem_display == 2) {
 			fta = true;
 			showOne_CAIcon();
 		}
-		else if(g_settings.casystem_display == 0) {
+		else if(g_settings.infobar_casystem_display == 0) {
 			for (int i = 0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
 				paint_ca_icons(caids[i], white, icon_space_offset);
 			}
@@ -880,7 +898,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 	if(!channel)
 		return;
 
-	if (g_settings.casystem_display == 2) {
+	if (g_settings.infobar_casystem_display == 2) {
 		fta = channel->camap.empty();
 		showOne_CAIcon();
 		return;
@@ -923,7 +941,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 		}
 #if 0
 		static int icon_space_offset = 0;
-		if ((g_settings.casystem_display == 1) && (icon_space_offset)) {
+		if ((g_settings.infobar_casystem_display == 1) && (icon_space_offset)) {
 			paintCA_bar(0,icon_space_offset);
 			icon_space_offset = 0;
 		}
@@ -937,7 +955,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 				if((found = (caid == caids[i])))
 					break;
 			}
-			if(g_settings.casystem_display == 0)
+			if(g_settings.infobar_casystem_display == 0)
 				paint_ca_icons(caids[i], (found ? (caids[i] == (ecm_caid & 0xFF00) ? green : yellow) : white), icon_space_offset);
 			else if(found)
 				paint_ca_icons(caids[i], (caids[i] == (ecm_caid & 0xFF00) ? green : yellow), icon_space_offset);
@@ -947,8 +965,8 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 
 void CInfoViewerBB::paintCA_bar(int left, int right)
 {
-	int xcnt = (g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX - (g_settings.casystem_frame ? 24 : 0)) / 4;
-	int ycnt = (bottom_bar_offset - (g_settings.casystem_frame ? 14 : 0)) / 4;
+	int xcnt = (g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX - (g_settings.infobar_casystem_frame ? 24 : 0)) / 4;
+	int ycnt = (bottom_bar_offset - (g_settings.infobar_casystem_frame ? 14 : 0)) / 4;
 	int ca_width = g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX;
 
 	if (right)
@@ -956,7 +974,7 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 	if (left)
 		left =  xcnt - ((left/4)-1);
 
-	if (g_settings.casystem_frame) { // with highlighted frame
+	if (g_settings.infobar_casystem_frame) { // with highlighted frame
 		if (!right || !left) { // paint full bar
 			// framed ca bar
 			if (cabar == NULL)
@@ -981,7 +999,7 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 	else
 		paintBoxRel(g_InfoViewer->ChanInfoX, g_InfoViewer->BoxEndY, ca_width , bottom_bar_offset, COL_INFOBAR_CASYSTEM_PLUS_0);
 #if 1
-	if (!g_settings.casystem_dotmatrix) //don't show dotmatrix
+	if (!g_settings.infobar_casystem_dotmatrix) //don't show dotmatrix
 		return;
 
 	if (left)
@@ -989,7 +1007,7 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 
 	for (int i = 0  + right; i < xcnt - left; i++) {
 		for (int j = 0; j < ycnt; j++) {
-			frameBuffer->paintBoxRel((g_InfoViewer->ChanInfoX + (g_settings.casystem_frame ? 14 : 2)) + i*4, g_InfoViewer->BoxEndY + (g_settings.casystem_frame ? 4 : 2) + j*4, 2, 2, COL_INFOBAR_PLUS_1);
+			frameBuffer->paintBoxRel((g_InfoViewer->ChanInfoX + (g_settings.infobar_casystem_frame ? 14 : 2)) + i*4, g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2) + j*4, 2, 2, COL_INFOBAR_PLUS_1);
 		}
 	}
 #endif
@@ -1018,21 +1036,23 @@ void CInfoViewerBB::reset_allScala()
 
 void CInfoViewerBB::ResetModules()
 {
-	if (hddscale)
-		delete hddscale;
-		hddscale = NULL;
-	if (sysscale)
-		delete sysscale;
-	sysscale = NULL;
-	delete foot;
-	foot = NULL;
-	delete cabar;
-	cabar = NULL;
+	if (hddscale){
+		delete hddscale; hddscale = NULL;
+	}
+	if (sysscale){
+		delete sysscale; sysscale = NULL;
+	}
+	if (foot){
+		delete foot; foot = NULL;
+	}
+	if (cabar){
+		delete cabar; cabar = NULL;
+	}
 }
 
 void CInfoViewerBB::initBBOffset()
 {
-	bottom_bar_offset = (g_settings.casystem_display < 2) ? (g_settings.casystem_frame ? 36 : 22) : 0;
+	bottom_bar_offset = (g_settings.infobar_casystem_display < 2) ? (g_settings.infobar_casystem_frame ? 36 : 22) : 0;
 }
 
 void* CInfoViewerBB::scrambledThread(void *arg)

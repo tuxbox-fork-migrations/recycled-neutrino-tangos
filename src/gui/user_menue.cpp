@@ -172,13 +172,13 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 
 	if (button < COL_BUTTONMAX)	
 		menu->setSelected(user_menu[button].selected);
-	
+
 	//show cancel button if configured
 	if (g_settings.personalize[SNeutrinoSettings::P_UMENU_SHOW_CANCEL])
 		menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 	else
 		menu->addItem(GenericMenuSeparator);
-	
+
 	bool _mode_ts = CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_ts;
 
 	std::string itemstr_last("1");

@@ -152,7 +152,7 @@ void CInfoViewer::Init()
 	/* after font size changes, Init() might be called multiple times */
 	changePB();
 
-	casysChange = g_settings.casystem_display;
+	casysChange = g_settings.infobar_casystem_display;
 	channellogoChange = g_settings.infobar_show_channellogo;
 
 	current_channel_id = CZapit::getInstance()->GetCurrentChannelID();;
@@ -198,9 +198,9 @@ void CInfoViewer::Init()
      |       |           | Channelname (header)              | clock |  | header height |
  ChanHeight--+-----------+-------------------------------------------+--+               |
                 |                 B---O---D---Y                      |                  |InfoHeightY
-                |01:23     Current Event                             |  |
-                |02:34     Next Event                                |  |
-                |                                                    |  |
+                |01:23     Current Event                             |                  |
+                |02:34     Next Event                                |                  |
+                |                                                    |                  |
      BoxEndY----+----------------------------------------------------+--+---------------+
                 |                     optional blinkenlights iconbar |  bottom_bar_offset
      BBarY------+----------------------------------------------------+--+
@@ -250,14 +250,22 @@ void CInfoViewer::start ()
 	clock->setWidth(time_width);
 }
 
+void CInfoViewer::ResetPB()
+{
+	if (sigbox){
+		delete sigbox;
+		sigbox = NULL;
+	}
+
+	if (timescale){
+		delete timescale;
+		timescale = NULL;
+	}
+}
+
 void CInfoViewer::changePB()
 {
-	if (sigbox)
-		delete sigbox;
-	sigbox = NULL;
-	
-	if (timescale)
-		delete timescale;
+	ResetPB();
 	timescale = new CProgressBar();
 	timescale->setType(CProgressBar::PB_TIMESCALE);
 }
@@ -388,17 +396,22 @@ void CInfoViewer::paintBackground(int col_NumBox)
 #endif
 	// background for channel name/logo and clock
 	paintHead();
+
+	// background for epg data
 	paintBody();
 
+#if 0
 	// number box
-	/*
-	frameBuffer->paintBoxRel(BoxStartX + SHADOW_OFFSET, BoxStartY + SHADOW_OFFSET,
-				 ChanWidth, ChanHeight,
-				 COL_INFOBAR_SHADOW_PLUS_0, c_rad_mid);
-	frameBuffer->paintBoxRel(BoxStartX, BoxStartY,
-				 ChanWidth, ChanHeight,
-				 col_NumBox, c_rad_mid);
-	*/
+	if (numbox == NULL) //TODO: move into an own member, paintNumBox() or so...
+		numbox = new CComponentsShapeSquare(BoxStartX, BoxStartY, ChanWidth, ChanHeight, NULL, CC_SHADOW_ON);
+	else
+		numbox->setDimensionsAll(BoxStartX, BoxStartY, ChanWidth, ChanHeight);
+
+	numbox->setColorBody(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_PLUS_0 : col_NumBox);
+	numbox->enableColBodyGradient(g_settings.theme.infobar_gradient_top, g_settings.theme.infobar_gradient_top ? COL_INFOBAR_PLUS_0 : col_NumBox, g_settings.theme.infobar_gradient_top_direction);
+	numbox->setCorner(c_rad_mid, CORNER_ALL);
+	numbox->paint(CC_SAVE_SCREEN_NO);
+#endif
 }
 
 void CInfoViewer::paintHead()
@@ -420,7 +433,7 @@ void CInfoViewer::paintHead()
 
 void CInfoViewer::paintBody()
 {
-	int h_body = InfoHeightY - header_height + (g_settings.casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
+	int h_body = InfoHeightY - header_height + (g_settings.infobar_casystem_display < 2 ? infoViewerBB->bottom_bar_offset : 0);
 	if (body == NULL)
 		body = new CComponentsShapeSquare(ChanInfoX, ChanNameY + header_height, BoxEndX-ChanInfoX, h_body, NULL, CC_SHADOW_RIGHT);
 	else
@@ -550,10 +563,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	if (g_settings.infobar_show_channellogo > 1)
 		ChannelLogoMode = showChannelLogo(current_channel_id, 0);
 	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanInfoX + 10,
-			ChanNameY + header_height,
-			BoxEndX - (ChanInfoX + 10) - time_width - LEFT_OFFSET - 5 - infoViewerBB->showBBIcons_width,
-			ChannelName, COL_INFOBAR_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanInfoX + 10 , ChanNameY + header_height,BoxEndX - (ChanInfoX + 10) - time_width - LEFT_OFFSET - 5 - infoViewerBB->showBBIcons_width,ChannelName, COL_INFOBAR_TEXT);
 
 	// show_Data
 	if (CMoviePlayerGui::getInstance().file_prozent > 100)
@@ -596,17 +606,14 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 		playicon = NEUTRINO_ICON_BUTTON_HELP;
 		break;
 	}
-
 	int icon_w = 0,icon_h = 0;
 	frameBuffer->getIconSize(playicon, &icon_w, &icon_h);
-
 	int speedw = 0;
 	if (speed) {
 		sprintf(runningRest, "%dx", speed);
 		speedw = 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest);
 		icon_w += speedw;
 	}
-
 	int icon_x = ChanInfoX + 10 + ChanNumWidth / 2 - icon_w / 2;
 	int icon_y = (BoxEndY + ChanNameY + time_height) / 2 - icon_h / 2;
 	if (speed) {
@@ -616,7 +623,6 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 		icon_x += speedw;
 	}
 	frameBuffer->paintIcon(playicon, icon_x, icon_y);
-
 	showLcdPercentOver ();
 	showInfoFile();
 
@@ -644,8 +650,8 @@ void CInfoViewer::reset_allScala()
 
 void CInfoViewer::check_channellogo_ca_SettingsChange()
 {
-	if (casysChange != g_settings.casystem_display || channellogoChange != g_settings.infobar_show_channellogo) {
-		casysChange = g_settings.casystem_display;
+	if (casysChange != g_settings.infobar_casystem_display || channellogoChange != g_settings.infobar_show_channellogo) {
+		casysChange = g_settings.infobar_casystem_display;
 		channellogoChange = g_settings.infobar_show_channellogo;
 		infoViewerBB->initBBOffset();
 		start();
@@ -1340,7 +1346,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	} else if ((msg == NeutrinoMessages::EVT_ZAP_COMPLETE) ||
 			(msg == NeutrinoMessages::EVT_ZAP_ISNVOD)) {
 		current_channel_id = (*(t_channel_id *)data);
-		killInfobarText();
+		//killInfobarText();
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_CA_ID) {
 		//chanready = 1;
@@ -1533,7 +1539,6 @@ void CInfoViewer::showSNR ()
 			sigbox = new CSignalBox(BoxStartX+4, BoxStartY+ChanHeight/2-4, ChanWidth-8, ChanHeight/2+2, CFEManager::getInstance()->getLiveFE());
 			sigbox->setTextColor(COL_INFOBAR_TEXT);
 			sigbox->doPaintBg(false);
-
 		}
 		sigbox->paint(CC_SAVE_SCREEN_NO);
 	}
@@ -1552,8 +1557,8 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	   bottom of box == BoxEndY
 	   height of box == BoxEndY - (ChanNameY + header_height)
 	   middle of box == top + height / 2
-			 == ChanNameY + time_height + (BoxEndY - (ChanNameY + header_height))/2
-			 == ChanNameY + time_height + (BoxEndY - ChanNameY - header_height)/2
+			 == ChanNameY + header_height + (BoxEndY - (ChanNameY + header_height))/2
+			 == ChanNameY + header_height + (BoxEndY - ChanNameY - header_height)/2
 			 == ChanNameY / 2 + header_height / 2 + BoxEndY / 2
 			 == (BoxEndY + ChanNameY + header_height)/2
 	   The bottom of current info and the top of next info is == middle of box.
@@ -1646,9 +1651,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 
 	int currTimeW = 0;
 	int nextTimeW = 0;
-	if (runningRest != NULL)
+	if (runningRest)
 		currTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest)+10;
-	if (nextDuration != NULL)
+	if (nextDuration)
 		nextTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(nextDuration)+10;
 	int currTimeX = BoxEndX - currTimeW - 10;
 	int nextTimeX = BoxEndX - nextTimeW - 10;
@@ -1729,6 +1734,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			txt_next_in = new CComponentsTextTransp(NULL, nextTimeX, NextInfoY, nextTimeW, height, nextDuration,
 													 CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO],
 													 CComponentsText::FONT_STYLE_REGULAR, colored_event_N ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
+
 			txt_next_in->paint(CC_SAVE_SCREEN_NO);
 		}
 	}
@@ -1959,7 +1965,7 @@ void CInfoViewer::killInfobarText()
 {
 	if (infobar_txt){
 		if (infobar_txt->isPainted())
-			infobar_txt->hide();
+			infobar_txt->kill();
 		delete infobar_txt;
 	}
 	infobar_txt = NULL;
@@ -1997,7 +2003,8 @@ void CInfoViewer::showInfoFile()
 		infobar_txt = new CComponentsInfoBox();
 
 	//get text from file and set it to info object, exit and delete object if failed
-	if (!infobar_txt->setTextFromFile(infobar_file, CTextBox::CENTER, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO])){
+	bool new_text = infobar_txt->setTextFromFile(infobar_file, CTextBox::CENTER, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]);
+	if (!new_text){
 		killInfobarText();
 		return;
 	}
@@ -2005,14 +2012,14 @@ void CInfoViewer::showInfoFile()
 	//set some properties for info object
 	infobar_txt->setDimensionsAll(xStart, yStart, width, height);
 	infobar_txt->setCorner(RADIUS_SMALL);
-	infobar_txt->enableShadow();
+	infobar_txt->enableShadow(CC_SHADOW_ON, 3);
 	infobar_txt->setTextColor(COL_INFOBAR_TEXT);
 	infobar_txt->setColorBody(COL_INFOBAR_PLUS_0);
 	infobar_txt->doPaintTextBoxBg(false);
 
 	//paint info, don't save background, if already painted, global hide is also done by killTitle()
 	bool save_bg = !infobar_txt->isPainted();
-	if (infobar_txt->textChanged() || virtual_zap_mode)
+	if (new_text || virtual_zap_mode)
 		infobar_txt->paint(save_bg);
 
 }
@@ -2036,30 +2043,9 @@ void CInfoViewer::killTitle()
 		//frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET, bottom);
 		if (infobar_txt)
 			infobar_txt->kill();
-#if 0 //not really required to kill sigbox, numbox does this
-		if (sigbox)
-			sigbox->kill();
-#endif
+		numbox->kill();
 		header->kill();
-#if 0 //not really required to kill clock, body does this
-		if (clock)
-			clock->kill();
-#endif
 		body->kill();
-#if 0 //not really required to kill epg infos, body does this
-		if (txt_cur_start)
-			txt_cur_start->kill();
-		if (txt_cur_event)
-			txt_cur_event->kill();
-		if (txt_cur_event_rest)
-			txt_cur_event_rest->kill();
-		if (txt_next_start)
-			txt_next_start->kill();
-		if (txt_next_event)
-			txt_next_event->kill();
-		if (txt_next_in)
-			txt_next_in->kill();
-#endif
 		if (timescale)
 			if (g_settings.infobar_progressbar == SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT)
 				timescale->kill();
@@ -2067,7 +2053,6 @@ void CInfoViewer::killTitle()
 			g_Radiotext->S_RtOsd = g_Radiotext->haveRadiotext() ? 1 : 0;
 			killRadiotext();
 		}
-
 		killInfobarText();
 		frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY - spacer - 5, BoxEndX + SHADOW_OFFSET, bottom);
 		frameBuffer->blit();
@@ -2324,10 +2309,7 @@ void CInfoViewer::ResetModules()
 	txt_next_in = NULL;
 	delete numbox;
 	numbox = NULL;
-	delete timescale;
-	timescale = NULL;
-	delete sigbox;
-	sigbox = NULL;
+	ResetPB();
 	delete rec;
 	rec = NULL;
 	infoViewerBB->ResetModules();

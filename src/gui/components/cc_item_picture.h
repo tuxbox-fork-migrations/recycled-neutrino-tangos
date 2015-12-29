@@ -50,6 +50,11 @@ class CComponentsPicture : public CComponentsItem
 		///possible image formats
 		std::vector<std::string> v_ext;
 
+		///option to enable disable cache, default = false
+		bool enable_cache;
+		///screen cache content for painted image
+		fb_pixel_t *image_cache;
+
 		///current original image dimensions
 		int dx, dy;
 
@@ -126,6 +131,10 @@ class CComponentsPicture : public CComponentsItem
 					fb_pixel_t color_background = 0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
 					int transparent = CFrameBuffer::TM_NONE);
+		virtual~CComponentsPicture()
+		{
+			delete[]image_cache;
+		}
 
 		///sets an image name (unscaled icons only), full image path or url to an image file
 		virtual void setPicture(const std::string& picture_name);
@@ -155,8 +164,15 @@ class CComponentsPicture : public CComponentsItem
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		///hide item, see also CComponents::hide();
 		virtual void hide();
-		
+
 		virtual bool hasChanges();
+
+		///remove possible cache
+		virtual void clearCache();
+		///enable/disable image cache
+		virtual void enableCache(bool enable = true){if (enable_cache == enable) return; enable_cache = enable; if (!enable_cache) clearCache();}
+		///disable image cache, makes clean up too
+		virtual void disableCache(){enableCache(false);}
 };
 
 class 	CComponentsPictureScalable : public CComponentsPicture
