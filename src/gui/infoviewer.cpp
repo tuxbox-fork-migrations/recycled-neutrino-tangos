@@ -547,15 +547,19 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 
 	/* showChannelLogo() changes this, so better reset it every time... */
 	ChanNameX = BoxStartX + ChanWidth + SHADOW_OFFSET;
-	ChanNumWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth("888") + 5;
 
 	paintBackground(COL_INFOBAR_PLUS_0);
 
 	bool show_dot = true;
-	if (timeset)
+	if (timeset && !g_settings.infobar_anaclock)
 		clock->paint(CC_SAVE_SCREEN_NO);
 	showRecordIcon (show_dot);
+	ana_clock_size = (BoxEndY - (ChanNameY + header_height) - 6);
+	if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
+		infoViewerBB->show_clock(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
 	show_dot = !show_dot;
+
+	ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth("888") + 5;
 
 	infoViewerBB->paintshowButtonBar();
 
