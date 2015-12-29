@@ -77,7 +77,7 @@ private:
 	bool edit_state;
 
 	CFrameBuffer		*frameBuffer;
-	CComponentsPIP		*cc_minitv;
+
 	unsigned int		selected, selected_in_new_mode;
 	unsigned int            origPosition;
 	unsigned int            newPosition;
@@ -134,7 +134,7 @@ private:
 
 	int ChannelList_Rec;
 
-	CComponentsChannelLogoScalable* CChannelLogo;
+
 	bool headerNew;
 
 	void paintDetails(int index);
@@ -252,5 +252,7 @@ public:
 	unsigned Size() { return (*chanlist).size(); }
 	ZapitChannelList &getChannels() { return channels; };
 	bool checkLockStatus(neutrino_msg_data_t data, bool pip = false);
+	CComponentsHeader* getHeaderObject();
+	void ResetModules();
 };
 #endif

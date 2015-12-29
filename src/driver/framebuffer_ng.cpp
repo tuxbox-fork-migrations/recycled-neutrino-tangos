@@ -563,6 +563,7 @@ void CFrameBuffer::paletteSet(struct fb_cmap *map)
 		realcolor[i] = make16color(cmap.red[i], cmap.green[i], cmap.blue[i], cmap.transp[i],
 					   rl, ro, gl, go, bl, bo, tl, to);
 	}
+	OnAfterSetPallette();
 	realcolor[(COL_BACKGROUND + 0)] = 0; // background, no alpha
 }
 
@@ -587,7 +588,7 @@ fb_pixel_t* CFrameBuffer::paintBoxRel2Buf(const int dx, const int dy, const fb_p
 	if (!getActive())
 		return buf;
 	if (dx == 0 || dy == 0) {
-		dprintf(DEBUG_INFO, "[%s - %d]: radius %d, dx %d dy %d\n", __func__, __LINE__, radius, dx, dy);
+		dprintf(DEBUG_INFO, "[CFrameBuffer] [%s - %d]: radius %d, dx %d dy %d\n", __func__, __LINE__, radius, dx, dy);
 		return buf;
 	}
 
@@ -700,6 +701,11 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	bool corner_tr = !!(type & CORNER_TOP_RIGHT);
 	bool corner_bl = !!(type & CORNER_BOTTOM_LEFT);
 	bool corner_br = !!(type & CORNER_BOTTOM_RIGHT);
+
+	if (dx == 0 || dy == 0) {
+		dprintf(DEBUG_NORMAL, "[CFrameBuffer] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx, y+dy);
+		return;
+	}
 
 	checkFbArea(x, y, dx, dy, true);
 
@@ -1609,7 +1615,7 @@ bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
 						break;
 					fb_no_check = true;
 					if (prev)
-						CAudioMute::getInstance()->hide(true);
+						CAudioMute::getInstance()->hide();
 					else
 						CAudioMute::getInstance()->paint();
 					fb_no_check = false;
