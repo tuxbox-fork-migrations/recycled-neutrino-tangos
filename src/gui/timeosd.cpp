@@ -58,7 +58,7 @@ void CTimeOSD::Init()
 	}
 
 	if (g_settings.infoClockSeconds)
-	setClockFormat("%H:%M:%S");
+		setClockFormat("%H:%M:%S");
 	else
 		setClockFormat("%H:%M", "%H %M");
 

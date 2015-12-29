@@ -610,7 +610,7 @@ int CChannelList::show()
 
 	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
-
+	CInfoClock::getInstance()->ClearDisplay();
 	paint();
 	frameBuffer->blit();
 
@@ -981,8 +981,11 @@ void CChannelList::hide()
 	}
 
 	header->kill();
-	if (CChannelLogo)
+	if (CChannelLogo){
 		CChannelLogo->kill();
+		delete CChannelLogo;
+		CChannelLogo = NULL;
+	}
 
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + info_height);
 	clearItem2DetailsLine();
@@ -2132,7 +2135,7 @@ void CChannelList::paintHead()
 
 	string header_txt 		= !edit_state ? name : string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name;
 	fb_pixel_t header_txt_col 	= (edit_state ? COL_RED : COL_MENUHEAD_TEXT);
-	header->setColorBody(COL_MENUHEAD_PLUS_0); 
+	header->setColorBody(COL_MENUHEAD_PLUS_0);
 
 	header->setCaption(header_txt, CTextBox::NO_AUTO_LINEBREAK, header_txt_col);
 

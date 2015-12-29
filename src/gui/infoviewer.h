@@ -182,6 +182,7 @@ class CInfoViewer
 	int     handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 	void    clearVirtualZapMode() {virtual_zap_mode = false;}
 	void    changePB();
+	void 	ResetPB();
 	void    showSNR();
 	void    Init(void);
 	bool    SDT_freq_update;

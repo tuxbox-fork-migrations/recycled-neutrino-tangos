@@ -47,7 +47,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		CComponentsTimer *cl_timer;
 		void ShowTime();
 		bool may_blit;
-	
+
 	protected:
 		///slot for timer event, reserved for ShowTime()
 		sigc::slot0<void> cl_sl;
@@ -108,7 +108,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		virtual ~CComponentsFrmClock();
 
 		/*! Sets font type for clock segments.
-		 * 1st parameter expects a pointer to font type, usually a type from the global g_Font collection, but also possible 
+		 * 1st parameter expects a pointer to font type, usually a type from the global g_Font collection, but also possible
 		 * are dynamic font.
 		 * The use of NULL pointer enforces dynamic font.
 		 * 2nd paramter is relevant for dynamic fonts only, you can use the enum types

@@ -574,7 +574,7 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 	frameBuffer = CFrameBuffer::getInstance();
 	iconfile = Icon;
 	details_line = NULL;
-	
+
 	info_box = NULL;
 	header	= NULL;
 	//handle select values
@@ -645,12 +645,12 @@ void CMenuWidget::ResetModules()
 	}
 	if (details_line){
 		details_line->hide();
-	delete details_line;
+		delete details_line;
 		details_line = NULL;
 	}
 	if (info_box){
 		info_box->kill();
-	delete info_box;
+		delete info_box;
 		info_box = NULL;
 	}
 }
@@ -1237,6 +1237,7 @@ void CMenuWidget::paint()
 		header->setOffset(10);
 	}
 	header->setColorBody(COL_MENUHEAD_PLUS_0);
+	header->setColorShadow(COL_MENUCONTENTDARK_PLUS_0);
 	header->setCaptionColor(COL_MENUHEAD_TEXT);
 	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0);
 	header->paint(CC_SAVE_SCREEN_NO);
@@ -1262,6 +1263,7 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	int real_h = full_height + fbutton_height + hint_height;
 	int x_old = x;
 	int y_old = y;
+
 	//configured positions 
 	switch(g_settings.menu_pos) 
 	{
@@ -1409,7 +1411,7 @@ void CMenuWidget::paintHint(int pos)
 		ResetModules(); //ensure clean up on changed setting
 		return;
 	}
-	
+
 	if (pos < 0 && !hint_painted)
 		return;
 
@@ -1455,33 +1457,33 @@ void CMenuWidget::paintHint(int pos)
 	if (details_line == NULL)
 		details_line = new CComponentsDetailLine();
 
-		details_line->setXPos(xpos);
-		details_line->setYPos(ypos1a);
-		details_line->setYPosDown(ypos2a);
-		details_line->setHMarkTop(imarkh);
-		details_line->setHMarkDown(markh);
-		details_line->syncSysColors();
+	details_line->setXPos(xpos);
+	details_line->setYPos(ypos1a);
+	details_line->setYPosDown(ypos2a);
+	details_line->setHMarkTop(imarkh);
+	details_line->setHMarkDown(markh);
+	details_line->syncSysColors();
 
 	//init infobox
 	std::string str = item->hintText.empty() ? g_Locale->getText(item->hint) : item->hintText;
 	if (info_box == NULL)
 		info_box = new CComponentsInfoBox();
 
-		info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
-		info_box->setFrameThickness(2);
-		info_box->removeLineBreaks(str);
-		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT], COL_MENUCONTENT_TEXT);
-		info_box->setCorner(RADIUS_LARGE);
+	info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
+	info_box->setFrameThickness(2);
+	info_box->removeLineBreaks(str);
+	info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT], COL_MENUCONTENT_TEXT);
+	info_box->setCorner(RADIUS_LARGE);
 	info_box->setColorAll(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENTDARK_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
 	info_box->enableShadow();
-		info_box->setPicture(item->hintIcon ? item->hintIcon : "");
+	info_box->setPicture(item->hintIcon ? item->hintIcon : "");
 	info_box->enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_INFOBAR_SHADOW_PLUS_1, g_settings.theme.menu_Hint_gradient_direction);// COL_INFOBAR_SHADOW_PLUS_1 is default footer color
-	
+
 	//paint result
 	if (details_line)
 		details_line->paint();
 	if (info_box)
-	info_box->paint(savescreen);
+		info_box->paint(savescreen);
 	
 	hint_painted = info_box ? info_box->isPainted() : false;
 }
@@ -1606,6 +1608,7 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 
 	// give the observer a chance to modify the value
 	paint(true);
+	OnAfterChangeOption();
 
 	if (wantsRepaint)
 		res = menu_return::RETURN_REPAINT;

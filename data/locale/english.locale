@@ -297,7 +297,7 @@ clock_switch_on Clock on
 color.gradient Color gradient
 color.gradient_a2b color A to B
 color.gradient_b2a color B to A
-color.gradient_d2l dark nach light
+color.gradient_d2l dark to light
 color.gradient_dld dark light dark
 color.gradient_l2d light to dark
 color.gradient_ldl light dark light
@@ -309,6 +309,9 @@ colorchooser.alpha alpha
 colorchooser.blue blue
 colorchooser.green green
 colorchooser.red red
+colorchooser.save Save
+colormenu.advanced_mode_off Default options
+colormenu.advanced_mode_on Advanced options
 colormenu.background Background
 colormenu.clock_textcolor Digit color
 colormenu.contrast_fonts Contrast fonts
@@ -1401,8 +1404,10 @@ menu.hint_scrambled_message Show scrambled message, when channel cannot be decod
 menu.hint_screen_setup Configure screen margins
 menu.hint_screensaver_delay Set the time (in minutes) after which the screensaver has to start or turn it off
 menu.hint_screensaver_dir Select directory in which the screensaver has to start
-menu.hint_screensaver_timeout Select the timeout to change pictures in screensavers
+menu.hint_screensaver_mode Select screensaver mode.
+menu.hint_screensaver_random Enable/disable random image selection.
 menu.hint_screensaver_setup Configure screensaver options for audioplayer and radio mode
+menu.hint_screensaver_timeout Select the timeout to changes in screensavers
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
 menu.hint_screenshot_cover ON: When playing record, overwrite single\nscreenshot to show inside MovieBrowser
 menu.hint_screenshot_dir Select directory to save screenshots
@@ -1496,6 +1501,7 @@ messagebox.back Back
 messagebox.cancel Cancel
 messagebox.discard Discard changes?
 messagebox.error Error
+messagebox.feature_not_supported Feature is not supported. Please contact your firmware provider!
 messagebox.info Information
 messagebox.no No
 messagebox.ok Ok
@@ -2198,8 +2204,12 @@ scrambled_channel Scrambled channel
 screensaver.delay Delay
 screensaver.dir Directory
 screensaver.menu Screensaver
+screensaver.mode Mode
+screensaver.mode_clock Clock
+screensaver.mode_image Images
 screensaver.off Screensaver off
-screensaver.timeout Change pictures
+screensaver.random Random Images
+screensaver.timeout Change interval
 screensetup.lowerright green = setup lower right
 screensetup.remove remove mask
 screensetup.upperleft red = setup upper left
