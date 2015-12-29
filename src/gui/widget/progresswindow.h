@@ -45,7 +45,7 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 
 		CProgressWindow(CComponentsForm *parent = NULL, bool global_only = false);
 		void setTitle(const neutrino_locale_t title);
-		virtual void hide(bool no_restore = false);
+		virtual void hide();
 
 		virtual int exec( CMenuTarget* parent, const std::string & actionKey );
 

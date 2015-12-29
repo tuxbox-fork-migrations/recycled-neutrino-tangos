@@ -96,12 +96,12 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 	if (alignment)
 		dprintf(DEBUG_NORMAL, "[CLuaInstance][%s - %d] invalid argument: 'alignment' has no effect!\n", __func__, __LINE__);
 
-	bool has_shadow = false;
-	if (!tableLookup(L, "has_shadow", has_shadow)) {
+	lua_Integer shadow_mode = CC_SHADOW_OFF;
+	if (!tableLookup(L, "shadow_mode", shadow_mode)) {
 		std::string tmp1 = "false";
-		if (tableLookup(L, "has_shadow", tmp1))
+		if (tableLookup(L, "shadow_mode", tmp1))
 			paramBoolDeprecated(L, tmp1.c_str());
-		has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+		shadow_mode = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
 	}
 	tableLookup(L, "color_frame",      color_frame);
 	tableLookup(L, "color_background", color_background);
@@ -117,9 +117,9 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 	CLuaCCPicture **udata = (CLuaCCPicture **) lua_newuserdata(L, sizeof(CLuaCCPicture *));
 	*udata = new CLuaCCPicture();
 	if (dx == 0 && dy == 0) /* NO_SCALE */
-		(*udata)->cp = new CComponentsPicture(x, y, image_name, pw, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow, transparency);
+		(*udata)->cp = new CComponentsPicture(x, y, image_name, pw, shadow_mode, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow, transparency);
 	else
-		(*udata)->cp = new CComponentsPicture(x, y, dx, dy, image_name, pw, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow, transparency);
+		(*udata)->cp = new CComponentsPicture(x, y, dx, dy, image_name, pw, shadow_mode, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow, transparency);
 	(*udata)->parent = pw;
 	luaL_getmetatable(L, "cpicture");
 	lua_setmetatable(L, -2);
@@ -149,18 +149,16 @@ int CLuaInstCCPicture::CCPictureHide(lua_State *L)
 	CLuaCCPicture *D = CCPictureCheck(L, 1);
 	if (!D) return 0;
 
-	bool no_restore = false;
-	if (!tableLookup(L, "no_restore", no_restore)) {
-		std::string tmp = "false";
-		if (tableLookup(L, "no_restore", tmp))
-			paramBoolDeprecated(L, tmp.c_str());
-		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
-	}
+	bool tmp1 = false;
+	std::string tmp2 = "false";
+	if ((tableLookup(L, "no_restore", tmp1)) || (tableLookup(L, "no_restore", tmp2)))
+		printf("[%s:hide] Warning, obsolete parameter in use, please remove!\n", "cpicture");
+
 	if (D->parent) {
 		D->cp->setPicture("");
 		D->cp->paint();
 	} else
-		D->cp->hide(no_restore);
+		D->cp->hide();
 	return 0;
 }
 

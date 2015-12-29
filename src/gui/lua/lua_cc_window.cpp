@@ -88,12 +88,12 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "icon", icon);
 
-	bool has_shadow = false;
-	if (!tableLookup(L, "has_shadow", has_shadow)) {
+	lua_Integer shadow_mode = CC_SHADOW_OFF;
+	if (!tableLookup(L, "shadow_mode", shadow_mode)) {
 		tmp1 = "false";
-		if (tableLookup(L, "has_shadow", tmp1))
+		if (tableLookup(L, "shadow_mode", tmp1))
 			paramBoolDeprecated(L, tmp1.c_str());
-		has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+		shadow_mode = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
 	}
 
 	tableLookup(L, "color_frame" , color_frame);
@@ -125,7 +125,7 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 
 	CLuaCCWindow **udata = (CLuaCCWindow **) lua_newuserdata(L, sizeof(CLuaCCWindow *));
 	*udata = new CLuaCCWindow();
-	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str(), 0, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
+	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str(), 0, shadow_mode, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
 
 	if (!show_header)
 		(*udata)->w->showHeader(false);
@@ -197,14 +197,12 @@ int CLuaInstCCWindow::CCWindowHide(lua_State *L)
 	CLuaCCWindow *D = CCWindowCheck(L, 1);
 	if (!D) return 0;
 
-	bool no_restore = false;
-	if (!tableLookup(L, "no_restore", no_restore)) {
-		std::string tmp = "false";
-		if (tableLookup(L, "no_restore", tmp))
-			paramBoolDeprecated(L, tmp.c_str());
-		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
-	}
-	D->w->hide(no_restore);
+	bool tmp1 = false;
+	std::string tmp2 = "false";
+	if ((tableLookup(L, "no_restore", tmp1)) || (tableLookup(L, "no_restore", tmp2)))
+		printf("[%s:hide] Warning, obsolete parameter in use, please remove!\n", "cwindow");
+
+	D->w->hide();
 	return 0;
 }
 

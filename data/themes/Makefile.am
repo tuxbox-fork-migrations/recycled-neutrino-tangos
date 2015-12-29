@@ -16,8 +16,10 @@ install_DATA = \
 	MonoChrom.theme \
         nesh.theme \
         NovaTux.theme \
+        Neutrino3.0.theme \
         olive.theme \
 	Olive.theme \
+	Olive-3.0.theme \
 	Red.theme \
         Sportster.theme \
 	VirginMedia.theme
