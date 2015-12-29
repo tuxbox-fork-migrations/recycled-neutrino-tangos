@@ -479,7 +479,7 @@ void CInfoViewerBB::paintshowButtonBar()
 	showIcon_Tuner();
 	showIcon_Logo();
 	//showSysfsHdd();
-	if (g_settings.casystem_display < 2)
+	if (g_settings.infobar_casystem_display < 2)
 		ShowRecDirScale();
 }
 
@@ -784,7 +784,7 @@ void CInfoViewerBB::ShowRecDirScale()
 		//if (get_fs_usage(g_settings.network_nfs_recordingdir.c_str(), t, u))
 		//	percent = (int)((u * 100ULL) / t);
 		percent = cHddStat::getInstance()->getPercent();
-		int py = g_InfoViewer->BoxEndY + (g_settings.casystem_frame ? 4 : 2);
+		int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2);
 		int px = (g_InfoViewer->BoxEndX - g_InfoViewer->BoxStartX)/2;
 		if (is_visible) {
 			if (percent >= 0){

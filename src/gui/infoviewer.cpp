@@ -1644,7 +1644,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	if (showButtonBar) {
 		if (!g_settings.theme.infobar_gradient_top)
 			frameBuffer->paintHLine(ChanInfoX + 10, BoxEndX - 10, CurrInfoY - height - 2, COL_INFOBAR_PLUS_3);
-		if ((g_settings.casystem_display < 2) && (!g_settings.casystem_frame))
+		if ((g_settings.infobar_casystem_display < 2) && (!g_settings.infobar_casystem_frame))
 			frameBuffer->paintHLine(ChanInfoX + 10, BoxEndX - 10, NextInfoY + height + 2, COL_INFOBAR_PLUS_3);
 	}
 
@@ -2043,7 +2043,7 @@ void CInfoViewer::killTitle()
 		//frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET, bottom);
 		if (infobar_txt)
 			infobar_txt->kill();
-		numbox->kill();
+		//numbox->kill();
 		header->kill();
 		body->kill();
 		if (timescale)
