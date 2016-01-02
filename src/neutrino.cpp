@@ -2123,14 +2123,14 @@ TIMER_START();
 	}
 
 	// default usermenu titles correspond to gui/user_menue_setup.h:struct usermenu_props_t usermenu
-	if (g_settings.usermenu[0]->title.empty())
-		g_settings.usermenu[0]->title = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
-	if (g_settings.usermenu[1]->title.empty())
-		g_settings.usermenu[1]->title = g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD);
-	if (g_settings.usermenu[2]->title.empty())
-		g_settings.usermenu[2]->title = g_Locale->getText(LOCALE_INFOVIEWER_SUBSERVICE);
-	if (g_settings.usermenu[3]->title.empty())
-		g_settings.usermenu[3]->title = g_Locale->getText(LOCALE_INFOVIEWER_STREAMINFO);
+	if (g_settings.usermenu[0]->title.empty() && !g_settings.usermenu[0]->items.empty())
+		g_settings.usermenu[0]->title = g_Locale->getText(LOCALE_USERMENU_TITLE_RED);
+	if (g_settings.usermenu[1]->title.empty() && !g_settings.usermenu[1]->items.empty())
+		g_settings.usermenu[1]->title = g_Locale->getText(LOCALE_USERMENU_TITLE_GREEN);
+	if (g_settings.usermenu[2]->title.empty() && !g_settings.usermenu[2]->items.empty())
+		g_settings.usermenu[2]->title = g_Locale->getText(LOCALE_USERMENU_TITLE_YELLOW);
+	if (g_settings.usermenu[3]->title.empty() && !g_settings.usermenu[3]->items.empty())
+		g_settings.usermenu[3]->title = g_Locale->getText(LOCALE_USERMENU_TITLE_BLUE);
 
 	/* setup GUI */
 	neutrinoFonts = CNeutrinoFonts::getInstance();
