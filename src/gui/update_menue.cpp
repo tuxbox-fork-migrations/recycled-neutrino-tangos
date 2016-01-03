@@ -103,6 +103,13 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_EXPERT);
 	softUpdate.addItem(mf);
 
+#if 0
+	//firmware update via opkg
+	mf = new CMenuForwarder(LOCALE_OPKG_TITLE, COPKGManager::hasOpkgSupport(), NULL, new COPKGManager());
+	mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG);
+	softUpdate.addItem(mf);
+#endif
+
 #ifdef BOXMODEL_APOLLO
 	softUpdate.addItem(GenericMenuSeparatorLine);
 
