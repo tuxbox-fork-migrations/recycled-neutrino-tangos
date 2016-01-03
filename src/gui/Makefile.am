@@ -135,6 +135,7 @@ libneutrino_gui2_a_SOURCES = \
 	color.cpp \
 	hdd_menu.cpp \
 	infoclock.cpp \
+	kerneloptions.cpp \
 	motorcontrol.cpp
 
 if !BOXTYPE_SPARK
