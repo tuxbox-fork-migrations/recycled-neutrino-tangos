@@ -223,8 +223,8 @@ void CThemes::saveFile(const char *themename)
 
 	if (themefile.getModifiedFlag()){
 		printf("[neutrino theme] save theme into %s\n", themename);
-	if (!themefile.saveConfig(themename))
-		printf("[neutrino theme] %s write error\n", themename);
+		if (!themefile.saveConfig(themename))
+			printf("[neutrino theme] %s write error\n", themename);
 	}
 }
 
