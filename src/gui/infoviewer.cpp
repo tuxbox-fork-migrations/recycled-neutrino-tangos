@@ -112,6 +112,7 @@ CInfoViewer::CInfoViewer ()
 	ChanNameY = 0;
 	ChanWidth = 0;
 	ChanHeight = 0;
+	numbox_offset = 0;
 	time_width = 0;
 	time_height = header_height = 0;
 	lastsnr = 0;
@@ -225,6 +226,7 @@ void CInfoViewer::start ()
 	ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/* * 9/8*/;
 	ChanHeight += g_SignalFont->getHeight()/2;
 	ChanHeight = max(75, ChanHeight);
+	numbox_offset = 3;
 
 	BoxStartX = g_settings.screen_StartX + 10;
 	BoxEndX = g_settings.screen_EndX - 10;
@@ -765,14 +767,13 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		logo_ok = ( g_settings.infobar_show_channellogo != 0 && ChannelLogoMode != 0);
 		//fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
 
-		int ChanNumYPos = (BoxEndY + ChanNameY + time_height) /2 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() /2;
-/*
+#if 0
 		if (g_settings.infobar_sat_display) {
 			std::string name = (IS_WEBTV(current_channel_id))? "WebTV" : CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
 			int satNameWidth = g_SignalFont->getRenderWidth (name);
 			std::string satname_tmp = name;
-			if (satNameWidth > (ChanWidth - 4)) {
-				satNameWidth = ChanWidth - 4;
+			if (satNameWidth > (ChanWidth - numbox_offset*2)) {
+				satNameWidth = ChanWidth - numbox_offset*2;
 				size_t pos1 = name.find("(") ;
 				size_t pos2 = name.find_last_of(")");
 				size_t pos0 = name.find(" ") ;
@@ -786,15 +787,14 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 					satname_tmp +=" ";
 					satname_tmp += name.substr( pos1,pos2-pos1 );
 					satNameWidth = g_SignalFont->getRenderWidth (satname_tmp);
-					if (satNameWidth > (ChanWidth - 4)) 
-						satNameWidth = ChanWidth - 4;
+					if (satNameWidth > (ChanWidth - numbox_offset*2))
+						satNameWidth = ChanWidth - numbox_offset*2;
 				}
 			}
-			int chanH = g_SignalFont->getHeight ();
-			g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2) , numbox->getYPos() + chanH, satNameWidth, satname_tmp, COL_INFOBAR_TEXT);
-			ChanNumYPos += 10;
+			int h_sfont = g_SignalFont->getHeight();
+			g_SignalFont->RenderString (BoxStartX + numbox_offset + ((ChanWidth - satNameWidth) / 2) , numbox->getYPos() + h_sfont, satNameWidth, satname_tmp, COL_INFOBAR_TEXT);
 		}
-*/
+#endif
 
 		/* TODO: the logic will get much easier once we decouple channellogo and signal bars */
 		if ((!logo_ok && g_settings.infobar_show_channellogo < 2) || g_settings.infobar_show_channellogo == 2 || g_settings.infobar_show_channellogo == 4) // no logo in numberbox
@@ -813,9 +813,9 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 				y_tmp += h_sfont;
 			}
 			y_tmp += h_tmp/2 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/2;
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->RenderString(BoxStartX + (ChanWidth-g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum))/2,
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->RenderString(BoxStartX + numbox_offset + (ChanWidth-g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum))/2,
 											y_tmp,
-											ChanWidth,
+											ChanWidth - 2*numbox_offset,
 											strChanNum,
 											col_NumBoxText);
 #endif
@@ -1552,7 +1552,9 @@ void CInfoViewer::showSNR ()
 	/* right now, infobar_show_channellogo == 3 is the trigger for signal bars etc.
 	   TODO: decouple this  */
 	if (!fileplay && !IS_WEBTV(current_channel_id) && ( g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6 )) {
-		int chanH = g_SignalFont->getHeight();
+		int y_freq = 2*g_SignalFont->getHeight();
+		if (!g_settings.infobar_sat_display)
+			y_freq -= g_SignalFont->getHeight()/2; //half line up to center freq vertically
 		int y_numbox = numbox->getYPos();
 		if ((newfreq && chanready) || SDT_freq_update) {
 			char freq[20];
@@ -1566,13 +1568,15 @@ void CInfoViewer::showSNR ()
 			int frequency = CFEManager::getInstance()->getLiveFE()->getFrequency();
 			snprintf (freq, sizeof(freq), "%d.%d MHz %s", frequency / 1000, frequency % 1000, polarisation.c_str());
 
-			int satNameWidth = g_SignalFont->getRenderWidth (freq);
-			g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2), y_numbox + 2 * chanH - 3, satNameWidth, freq, SDT_freq_update ? COL_COLORED_EVENTS_TEXT:COL_INFOBAR_TEXT);
+			int freqWidth = g_SignalFont->getRenderWidth(freq);
+			if (freqWidth > (ChanWidth - numbox_offset*2))
+				freqWidth = ChanWidth - numbox_offset*2;
+			g_SignalFont->RenderString(BoxStartX + numbox_offset + ((ChanWidth - freqWidth) / 2), y_numbox + y_freq - 3, ChanWidth - 2*numbox_offset, freq, SDT_freq_update ? COL_COLORED_EVENTS_TEXT:COL_INFOBAR_TEXT);
 			SDT_freq_update = false;
 		}
 		if (sigbox == NULL){
-			int sb_x = ChanWidth *10/100;
-			sigbox = new CSignalBox(BoxStartX+sb_x, y_numbox+ChanHeight/2, ChanWidth-2*sb_x, ChanHeight/2, CFEManager::getInstance()->getLiveFE(), true, NULL, "S", "Q");
+			int sigbox_offset = ChanWidth *10/100;
+			sigbox = new CSignalBox(BoxStartX + sigbox_offset, y_numbox+ChanHeight/2, ChanWidth - 2*sigbox_offset, ChanHeight/2, CFEManager::getInstance()->getLiveFE(), true, NULL, "S", "Q");
 			sigbox->setTextColor(COL_INFOBAR_TEXT);
 			sigbox->doPaintBg(false);
 		}
