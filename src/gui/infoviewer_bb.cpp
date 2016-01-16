@@ -745,36 +745,45 @@ void CInfoViewerBB::showBarHdd(int percent)
 #include <math.h>
 void CInfoViewerBB::show_clock(int posx,int posy,int dia)
 {
-		int ts,tm,th,sx,sy,mx,my,hx,hy,x,y,in;
-		double pi = 3.1415926535897932384626433832795,AngleInRad,sAngleInRad,mAngleInRad,hAngleInRad;
+    int ts,tm,th,sx,sy,mx,my,hx,hy;
+    double pi = 3.1415926535897932384626433832795, sAngleInRad, mAngleInRad, mAngleSave, hAngleInRad;
 
-		time_t now = time(0);
-		struct tm *tm_p = localtime(&now);
+    time_t now = time(0);
+    struct tm *tm_p = localtime(&now);
 
-		ts = tm_p->tm_sec;
-		tm = tm_p->tm_min;
-		th = tm_p->tm_hour;
+    ts = tm_p->tm_sec;
+    tm = tm_p->tm_min;
+    th = tm_p->tm_hour;
 
-		sAngleInRad = (((6 * ts)-90) * (pi / 180));
+    sAngleInRad = ((6 * ts) * (2*pi / 360));
+    sAngleInRad -= pi/2;
 
-		sx = int((dia * 0.9 * cos(sAngleInRad)));
-		sy = int((dia * 0.9 * sin(sAngleInRad)));
+    sx = int((dia * 0.9 * cos(sAngleInRad)));
+    sy = int((dia * 0.9 * sin(sAngleInRad)));
 
-		mAngleInRad = (((6 * tm)-90) * (pi / 180));
+    mAngleInRad = ((6 * tm) * (2*pi / 360));
+    mAngleSave = mAngleInRad;
+    mAngleInRad -= pi/2;
 
-		mx = int((dia * 0.7 * cos(mAngleInRad)));
-		my = int((dia * 0.7 * sin(mAngleInRad)));
+    mx = int((dia * 0.7 * cos(mAngleInRad)));
+    my = int((dia * 0.7 * sin(mAngleInRad)));
 
-		hAngleInRad = (((30 * th)-90)* (pi / 180));
+    hAngleInRad = ((30 * th)* (2*pi / 360));
+    hAngleInRad += mAngleSave / 12;
+    hAngleInRad -= pi/2;
 
-		hx = int((dia * 0.6 * cos(hAngleInRad)));
-		hy = int((dia * 0.6 * sin(hAngleInRad)));
+    hx = int((dia * 0.6 * cos(hAngleInRad)));
+    hy = int((dia * 0.6 * sin(hAngleInRad)));
 
-		g_PicViewer->DisplayImage(ICONSDIR"/clock_face.png",posx-dia,posy-dia,2*dia,2*dia);
+    std::string clock_face = ICONSDIR_VAR "/clock_face.png";
+    if (access(clock_face.c_str(), F_OK) != 0)
+        clock_face = ICONSDIR "/clock_face.png";
 
-		frameBuffer->paintLine(posx,posy,posx+hx,posy+hy,COL_COLORED_EVENTS_TEXT);
-		frameBuffer->paintLine(posx,posy,posx+mx,posy+my,COL_MENUHEAD_TEXT);
-		frameBuffer->paintLine(posx,posy,posx+sx,posy+sy,COL_INFOBAR_TEXT);
+    g_PicViewer->DisplayImage(clock_face, posx-dia, posy-dia, 2*dia, 2*dia);
+
+    frameBuffer->paintLine(posx,posy,posx+hx,posy+hy,COL_MENUHEAD_TEXT);
+    frameBuffer->paintLine(posx,posy,posx+mx,posy+my,COL_MENUHEAD_TEXT);
+    frameBuffer->paintLine(posx,posy,posx+sx,posy+sy,COL_COLORED_EVENTS_TEXT);
 }
 
 void CInfoViewerBB::ShowRecDirScale()
