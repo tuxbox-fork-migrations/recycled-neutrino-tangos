@@ -440,7 +440,6 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 	if (ioctl(fb->fd, STMFBIO_BLT, &bltData ) < 0)
 		fprintf(stderr, "blitRect FBIO_BLIT: %m x:%d y:%d w:%d h:%d s:%d\n", xx,yy,width,height,fb->stride);
 #else
-	if ( (x > fb->xRes) || (y > fb->yRes) ) return;
 	int line = 0;
 	int swidth = fb->stride / sizeof(fb_pixel_t);
 	fb_pixel_t *fbp = fb->getFrameBufferPointer() + (swidth * y);
