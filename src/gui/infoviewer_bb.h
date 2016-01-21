@@ -115,7 +115,6 @@ class CInfoViewerBB
 		void showBBIcons(const int modus, const std::string & icon);
 		void getBBIconInfo(void);
 		bool checkBBIcon(const char * const icon, int *w, int *h);
-		void showIcon_DD(void);
 
 		void paint_ca_icons(int, const char*, int&);
 		void paintCA_bar(int,int);
@@ -149,6 +148,7 @@ class CInfoViewerBB
 		void showIcon_Logo();
 		void show_clock(int posx,int posy,int dia);
 		void ShowRecDirScale();
+		void showIcon_DD(void);
 		void showBBButtons(const int modus=-1);
 		void paintshowButtonBar();
 		void getBBButtonInfo(void);
