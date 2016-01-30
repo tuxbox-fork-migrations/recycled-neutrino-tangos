@@ -149,7 +149,7 @@ class CInfoViewerBB
 		void show_clock(int posx,int posy,int dia);
 		void ShowRecDirScale();
 		void showIcon_DD(void);
-		void showBBButtons(const int modus=-1);
+		void showBBButtons(bool paintFooter = false);
 		void paintshowButtonBar();
 		void getBBButtonInfo(void);
 		void reset_allScala(void);
