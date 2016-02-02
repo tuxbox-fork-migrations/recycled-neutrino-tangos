@@ -1114,7 +1114,9 @@ void CMoviePlayerGui::PlayFileLoop(void)
 {
 	bool first_start = true;
 	bool update_lcd = true;
+	neutrino_msg_t lastmsg;
 	int ss,mm,hh;
+	int quickjump = 300;
 #if HAVE_COOL_HARDWARE
 	int eof = 0;
 #endif
@@ -1422,9 +1424,17 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		} else if (msg == CRCInput::RC_8) {	// goto end
 			SetPosition(duration - 60 * 1000, true);
 		} else if (msg == CRCInput::RC_page_up) {
-			SetPosition(10 * 1000);
+			if ((lastmsg == CRCInput::RC_page_down) || (lastmsg == CRCInput::RC_page_up)) {
+				quickjump = quickjump/2;
+			 } else
+				quickjump = 300;
+			SetPosition(quickjump * 1000);
 		} else if (msg == CRCInput::RC_page_down) {
-			SetPosition(-10 * 1000);
+			if ((lastmsg == CRCInput::RC_page_down) || (lastmsg == CRCInput::RC_page_up)) {
+				quickjump = quickjump/2;
+			 } else
+				quickjump = 300;
+			SetPosition(-1*quickjump * 1000);
 		} else if (msg == CRCInput::RC_0) {	// cancel bookmark jump
 			handleMovieBrowser(CRCInput::RC_0, position);
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_goto) {
@@ -1563,6 +1573,8 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #endif
 			}
 		}
+		if (msg < 0x4000) /*save only real keys */
+			lastmsg = msg;
 	}
 	printf("CMoviePlayerGui::PlayFile: exit, isMovieBrowser %d p_movie_info %p\n", isMovieBrowser, p_movie_info);
 	playstate = CMoviePlayerGui::STOPPED;
