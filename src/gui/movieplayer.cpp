@@ -2777,6 +2777,7 @@ bool CMoviePlayerGui::getAPID(unsigned int i, int &apid, unsigned int &is_ac3)
 
 void CMoviePlayerGui::selectAutoLang()
 {
+#if 0
 	if (!numsubs)
 		playback->FindAllSubs(spids, sub_supported, &numsubs, slanguage);
 
@@ -2788,6 +2789,7 @@ void CMoviePlayerGui::selectAutoLang()
 			}
 		}
 	}
+#endif
 	if (g_settings.auto_lang &&  (numpida > 1)) {
 		int pref_idx = -1;
 
@@ -2819,6 +2821,7 @@ void CMoviePlayerGui::selectAutoLang()
 			getCurrentAudioName(is_file_player, currentaudioname);
 		}
 	}
+#if 0
 	if (isWebTV && g_settings.auto_subs && numsubs > 0) {
 		for(int i = 0; i < 3; i++) {
 			if(g_settings.pref_subs[i].empty() || g_settings.pref_subs[i] == "none")
@@ -2847,6 +2850,7 @@ void CMoviePlayerGui::selectAutoLang()
 			}
 		}
 	}
+#endif
 }
 
 void CMoviePlayerGui::parsePlaylist(CFile *file)
