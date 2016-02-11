@@ -1858,12 +1858,12 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	}
 	else if (msg == CRCInput::RC_left)
 	{
-		if (show_mode != MB_SHOW_YT)
+		//if (show_mode != MB_SHOW_YT)
 			onSetGUIWindowPrev();
 	}
 	else if (msg == CRCInput::RC_right)
 	{
-		if (show_mode != MB_SHOW_YT)
+		//if (show_mode != MB_SHOW_YT)
 			onSetGUIWindowNext();
 	}
 	else if (msg == CRCInput::RC_green)
