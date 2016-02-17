@@ -145,6 +145,7 @@ bool CInfoViewerBB::checkBBIcon(const char * const icon, int *w, int *h)
 
 void CInfoViewerBB::getBBIconInfo()
 {
+	initBBOffset();
 	bbIconMaxH 		= 0;
 	showBBIcons_width = 0;
 	BBarY 			= g_InfoViewer->BoxEndY + bottom_bar_offset;
@@ -970,6 +971,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 
 void CInfoViewerBB::paintCA_bar(int left, int right)
 {
+	initBBOffset();
 	int xcnt = (g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX - (g_settings.infobar_casystem_frame ? 24 : 0)) / 4;
 	int ycnt = (bottom_bar_offset - (g_settings.infobar_casystem_frame ? 14 : 0)) / 4;
 	int ca_width = g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX;
