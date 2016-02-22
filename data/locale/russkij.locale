@@ -1847,7 +1847,7 @@ movieplayer.bookmarkname Название закладки
 movieplayer.bookmarkname_hint1 Введите название
 movieplayer.bookmarkname_hint2 для новой закладки
 movieplayer.chapters Раздел
-movieplayer.defplugin Старт плагина
+movieplayer.plugin Видеоплеер плагина
 movieplayer.fileplayback Просмотр медиа-файлов
 movieplayer.head Видеоплеер
 movieplayer.starting Включить воспроизведение ...
@@ -2072,6 +2072,7 @@ ping.unreachable Недоступен
 pinprotection.head Введите PIN-код
 pinprotection.wrongcode Неверный PIN-код! Повторите ввод
 plugins.hdd_dir Каталог плагинов на HDD
+plugins.no_plugin Отсутствует плагина
 plugins.result Вывод плагина
 plugintype.disabled Отключено
 plugintype.game Игра
