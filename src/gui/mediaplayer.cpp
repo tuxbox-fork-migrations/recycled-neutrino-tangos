@@ -52,7 +52,7 @@
 #include <system/debug.h>
 #include <video.h>
 extern cVideo * videoDecoder;
-extern CInfoClock *InfoClock;
+
 
 CMediaPlayerMenu::CMediaPlayerMenu()
 {
@@ -87,14 +87,14 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	
 	if (actionKey == "movieplayer")
 	{
-		InfoClock->enableInfoClock(false);
+		CInfoClock::getInstance()->enableInfoClock(false);
 		int mode = CNeutrinoApp::getInstance()->getMode();
 		if( mode == NeutrinoMessages::mode_radio )
 			CFrameBuffer::getInstance()->stopFrame();
 		int res = CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
 		if( mode == NeutrinoMessages::mode_radio )
 			CFrameBuffer::getInstance()->showFrame("radiomode.jpg");
-		InfoClock->enableInfoClock(true);
+		CInfoClock::getInstance()->enableInfoClock(true);
 		return res;
 	}
 	

@@ -201,3 +201,5 @@ neutrino_LDADD += \
 	@AVUTIL_LIBS@ \
 	@AVCODEC_LIBS@ \
 	@SWRESAMPLE_LIBS@
+
+neutrino_LDADD += -lfribidi
