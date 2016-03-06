@@ -2013,7 +2013,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			smsInput.resetOldKey();
 		}
 	}
-	else if (msg == CRCInput::RC_favorites)
+	else if (msg == (neutrino_msg_t) g_settings.key_screenshot)
 	{
 		if (m_movieSelectionHandler != NULL) {
 #if 0
