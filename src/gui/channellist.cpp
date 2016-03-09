@@ -1299,6 +1299,7 @@ int CChannelList::numericZap(int key)
 	bool showEPG = false;
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
+	g_InfoViewer->setSwitchMode(CInfoViewer::IV_MODE_NUMBER_ZAP);
 
 	while(1) {
 		if (lastchan != chn) {
@@ -1383,6 +1384,7 @@ int CChannelList::numericZap(int key)
 		if (chan && showEPG)
 			g_EventList->exec(chan->getChannelID(), chan->getName());
 	}
+	g_InfoViewer->resetSwitchMode();
 	return res;
 }
 
