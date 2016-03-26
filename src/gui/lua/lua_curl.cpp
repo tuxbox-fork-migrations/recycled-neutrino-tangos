@@ -223,7 +223,7 @@ Example:
 	tableLookup(L, "A", userAgent) || tableLookup(L, "userAgent", userAgent);
 
 	std::string postfields = "";//specify data to POST to server
-	tableLookup(L, "P", postfields) || tableLookup(L, "postfields", postfields ||
+	tableLookup(L, "P", postfields) || tableLookup(L, "postfields", postfields) ||
 	tableLookup(L, "data", postfields) || tableLookup(L, "post-data", postfields);
 
 	bool verbose = false;
