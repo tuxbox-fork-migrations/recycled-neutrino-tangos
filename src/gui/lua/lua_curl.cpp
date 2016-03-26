@@ -134,16 +134,20 @@ int CLuaInstCurl::CurlDownload(lua_State *L)
 	o, outputfile	string		when empty then save to string
 					as secund return value
 	A, userAgent	string		empty
+	P, postfields	string		empty
+	data, post-data	string		empty
 	v, verbose	bool		false
 	s, silent	bool		false
+	h, header	bool		false
 	connectTimeout	number		20
 	ipv4		bool		false
 	ipv6		bool		false
 	useProxy	bool		true (default)
 	followRedir	bool		true
 	maxRedirs	number		20
-	data		string		empty
-	header		string		empty 
+	data				string		empty
+	httpheader,
+	custom-header		string		empty 
 */
 
 /*
@@ -218,12 +222,19 @@ Example:
 	std::string userAgent = "";
 	tableLookup(L, "A", userAgent) || tableLookup(L, "userAgent", userAgent);
 
+	std::string postfields = "";//specify data to POST to server
+	tableLookup(L, "P", postfields) || tableLookup(L, "postfields", postfields ||
+	tableLookup(L, "data", postfields) || tableLookup(L, "post-data", postfields);
+
 	bool verbose = false;
 	tableLookup(L, "v", verbose) || tableLookup(L, "verbose", verbose);
 
 	bool silent = false;
 	if (!verbose)
 		tableLookup(L, "s", silent) || tableLookup(L, "silent", silent);
+
+	bool pass_header = false;//pass headers to the data stream
+	tableLookup(L, "header", pass_header);
 
 	lua_Integer connectTimeout = 20;
 	tableLookup(L, "connectTimeout", connectTimeout);
@@ -242,11 +253,8 @@ Example:
 	lua_Integer maxRedirs = 20;
 	tableLookup(L, "maxRedirs", maxRedirs);
 	
-	std::string postdata = "";
-	tableLookup(L, "data", postdata) || tableLookup(L, "post-data", postdata);
-
 	std::string customheader = "";
-	tableLookup(L, "header", customheader) || tableLookup(L, "custom-header", customheader);
+	tableLookup(L, "httpheader", customheader) || tableLookup(L, "custom-header", customheader);
 
 	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
 	if (toFile) {
@@ -266,15 +274,14 @@ Example:
 	if (!userAgent.empty())
 		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
 
-	if (!postdata.empty())
-		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, postdata.c_str());
-	
 	if (!customheader.empty()) {
 		 struct curl_slist *chunk = NULL;
 		 chunk = curl_slist_append(chunk, customheader.c_str());
 		 curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, chunk);
 	}
 		
+	if (!postfields.empty())
+		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, postfields.c_str());
 
 	if (ipv4 && ipv6)
 		curl_easy_setopt(curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_WHATEVER);
@@ -295,6 +302,7 @@ Example:
 	curl_easy_setopt(curl_handle, CURLOPT_MAXREDIRS, (long)maxRedirs);
 	curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, (silent)?1L:0L);
 	curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, (verbose)?1L:0L);
+	curl_easy_setopt(curl_handle, CURLOPT_HEADER, (pass_header)?1L:0L);
 
 	progressData pgd;
 
