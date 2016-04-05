@@ -3,6 +3,7 @@ installdir = $(THEMESDIR)
 install_DATA = \
 	adtheme.theme \
 	Blue.theme \
+	Bluemoon-3.0.theme \
 	Classic.theme \
 	colors.theme \
 	Crema.theme \

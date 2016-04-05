@@ -820,10 +820,13 @@ bool CStreamStream::Open()
 
 	if (avformat_open_input(&ifcx, url.c_str(), NULL, &options) != 0) {
 		printf("%s: Cannot open input [%s]!\n", __FUNCTION__, channel->getUrl().c_str());
-		av_dict_free(&options);
+		if (!headers.empty())
+			av_dict_free(&options);
 		av_log_set_level(AV_LOG_INFO);
 		return false;
 	}
+	if (!headers.empty())
+		av_dict_free(&options);
 
 	av_log_set_level(AV_LOG_INFO);
 	av_dict_free(&options);
