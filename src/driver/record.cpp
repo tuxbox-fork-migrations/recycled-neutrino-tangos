@@ -2132,13 +2132,15 @@ bool CStreamRec::Open(CZapitChannel * channel)
 
 	if (avformat_open_input(&ifcx, url.c_str(), NULL, &options) != 0) {
 		printf("%s: Cannot open input [%s]!\n", __FUNCTION__, url.c_str());
+		if (!headers.empty())
+			av_dict_free(&options);
 		av_log_set_level(AV_LOG_INFO);
-		av_dict_free(&options);
 		return false;
 	}
+	if (!headers.empty())
+		av_dict_free(&options);
 
 	av_log_set_level(AV_LOG_INFO);
-	av_dict_free(&options);
 
 	if (avformat_find_stream_info(ifcx, NULL) < 0) {
 		printf("%s: Cannot find stream info [%s]!\n", __FUNCTION__, channel->getUrl().c_str());
