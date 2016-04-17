@@ -84,7 +84,6 @@ private:
 	unsigned int            origPosition;
 	unsigned int            newPosition;
 	bool			channelsChanged;
-	bool			favoritesChanged;
 
 	unsigned int		tuned;
 	t_channel_id		selected_chid;
