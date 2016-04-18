@@ -236,7 +236,9 @@ public:
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	enum {
 		SHUTDOWN,
-		REBOOT
+		REBOOT,
+		NOTUSED,
+		CHANGEGUI
 	};
 	void ExitRun(const bool write_si = true, int retcode = SHUTDOWN);
 #endif

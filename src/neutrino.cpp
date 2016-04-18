@@ -4441,6 +4441,18 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		unlink("/tmp/.reboot");
 		returnval = menu_return::RETURN_NONE;
 	}
+	else if(actionKey=="changegui")
+	{
+		FILE *f = fopen("/var/etc/.e2", "w");
+		if (f)
+			fclose(f);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		ExitRun(true, CNeutrinoApp::CHANGEGUI);
+#else
+		ExitRun(true);
+#endif
+		returnval = menu_return::RETURN_NONE;
+	}
 	else if (actionKey=="clock_switch")
 	{
 		InfoClock->switchClockOnOff();

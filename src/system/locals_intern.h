@@ -982,6 +982,7 @@ const char * locale_real_names[] =
 	"lua.versionscheck1",
 	"lua.versionscheck2",
 	"mainmenu.audioplayer",
+	"mainmenu.changegui",
 	"mainmenu.channels",
 	"mainmenu.clearsectionsd",
 	"mainmenu.games",
