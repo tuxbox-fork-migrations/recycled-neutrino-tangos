@@ -955,6 +955,7 @@ lua.parameter_deprecated2 Der Parameter
 lua.versionscheck1 Ihre Lua API Version ist zu alt
 lua.versionscheck2 Erforderlich ist mindestens
 mainmenu.audioplayer Audioplayer
+mainmenu.changegui GUI wechseln
 mainmenu.channels Kanalliste
 mainmenu.clearsectionsd Lösche EPG Cache
 mainmenu.games Spiele
