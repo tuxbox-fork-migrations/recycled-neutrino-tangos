@@ -321,6 +321,7 @@ int CChannelList::doChannelMenu(void)
 
 	bool empty = (*chanlist).empty();
 	bool allow_edit = (bouquet && bouquet->zapitBouquet && !bouquet->zapitBouquet->bOther && !bouquet->zapitBouquet->bWebtv);
+	bool got_history = (CNeutrinoApp::getInstance()->channelList->getLastChannels().size() > 1);
 
 	int i = 0;
 	snprintf(cnt, sizeof(cnt), "%d", i);
@@ -337,6 +338,10 @@ int CChannelList::doChannelMenu(void)
 	bool reset_all = !empty && (name == g_Locale->getText(LOCALE_BOUQUETNAME_NEW));
 	snprintf(cnt, sizeof(cnt), "%d", i);
 	menu->addItem(new CMenuForwarder(LOCALE_CHANNELLIST_RESET_ALL, reset_all, NULL, selector, cnt, CRCInput::convertDigitToKey(shortcut++)), old_selected == i++);
+
+	menu->addItem(GenericMenuSeparator);
+	snprintf(cnt, sizeof(cnt), "%d", i);
+	menu->addItem(new CMenuForwarder(LOCALE_CHANNELLIST_HISTORY_CLEAR, got_history, NULL, selector, cnt, CRCInput::convertDigitToKey(shortcut++)), old_selected == i++);
 
 	menu->addItem(new CMenuSeparator(CMenuSeparator::LINE));
 	snprintf(cnt, sizeof(cnt), "%d", i);
@@ -421,7 +426,14 @@ int CChannelList::doChannelMenu(void)
 			if(g_settings.make_new_list)
 				CNeutrinoApp::getInstance()->MarkChannelsInit();
 			break;
-		case 5: // settings
+		case 5: // clear channel history
+			{
+				CNeutrinoApp::getInstance()->channelList->getLastChannels().clear();
+				printf("%s:%d lastChList cleared\n", __FUNCTION__, __LINE__);
+				ret = -2; // exit channellist
+			}
+			break;
+		case 6: // settings
 			{
 				previous_channellist_additional = g_settings.channellist_additional;
 				COsdSetup osd_setup;
@@ -728,10 +740,13 @@ int CChannelList::show()
 				if (selected + 1 < (*chanlist).size())
 					selected++;
 			}
-			if (ret != 0) {
-				paint();
+			if (ret == -2) // exit channellist
+				loop = false;
+			else {
+				if (ret != 0)
+					paint();
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 			}
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 		}
 		else if (!empty && msg == (neutrino_msg_t) g_settings.key_list_start) {
 			actzap = updateSelection(0);
