@@ -9,6 +9,7 @@ install_DATA = \
 	Crema.theme \
 	DarkBlue.theme \
 	DarkBrown.theme \
+	DarkOrange.theme \
 	DVB2000.theme \
 	GlassHD.theme \
 	Grey.theme \
