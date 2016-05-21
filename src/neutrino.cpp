@@ -381,6 +381,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 	parentallocked = !access(NEUTRINO_PARENTALLOCKED_FILE, R_OK);
 
+	g_settings.show_ecm = configfile.getInt32("show_ecm" , 0);
+	g_settings.show_ecm_pos = configfile.getInt32("show_ecm_pos" , 0);
+
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 
 	// video
@@ -1104,6 +1107,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	if(!scansettings.saveSettings(NEUTRINO_SCAN_SETTINGS_FILE)) {
 		dprintf(DEBUG_NORMAL, "error while saving scan-settings!\n");
 	}
+	configfile.setInt32("show_ecm" , g_settings.show_ecm);
+	configfile.setInt32("show_ecm_pos" , g_settings.show_ecm_pos);
 
 	//video
 	configfile.setInt32( "video_Mode", g_settings.video_Mode );
