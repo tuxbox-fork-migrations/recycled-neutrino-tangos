@@ -153,6 +153,8 @@ class CInfoViewer
 	void sendNoEpg(const t_channel_id channel_id);
 	bool showLivestreamInfo();
 
+	CComponentsWindowMax *ecmInfoBox;
+
  public:
 	bool     chanready;
 	bool	 is_visible;
@@ -170,6 +172,10 @@ class CInfoViewer
 	bool     isVolscale;
 	int      ChanNameY;
 	int      time_width;
+
+	std::string	md5_ecmInfo;
+	void ecmInfoBox_hide();
+	void ecmInfoBox_show(const char * txt, int w, int h, Font * font);
 
 	CInfoViewer();
 	~CInfoViewer();
