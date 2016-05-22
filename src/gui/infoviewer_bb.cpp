@@ -1084,8 +1084,21 @@ void CInfoViewerBB::scrambledCheck(bool force)
 	}
 }
 
+typedef  void* (CInfoViewerBB::*MemFuncPtr)(void);
+typedef  void* (*PthreadPtr)(void*);
+
 void CInfoViewerBB::paint_cam_icons()
 {
+	MemFuncPtr   t = &CInfoViewerBB::Thread_paint_cam_icons;
+	PthreadPtr   p = *(PthreadPtr*)&t;
+  	pthread_t thread_pci;
+	if (pthread_create(&thread_pci, NULL, p, this) == 0)
+		pthread_detach(thread_pci);
+}
+
+void* CInfoViewerBB::Thread_paint_cam_icons(void)
+{
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	std::ostringstream buf;
 	std::stringstream fpath;
 	int emu_pic_startx = g_InfoViewer->ChanInfoX + (g_settings.infobar_casystem_frame ? 20 : 10);
@@ -1127,7 +1140,7 @@ void CInfoViewerBB::paint_cam_icons()
 			}
 		}
 	}
-
+	pthread_exit(0);
 }
 
 int CInfoViewerBB::parse_ecmInfo(const char * file)
