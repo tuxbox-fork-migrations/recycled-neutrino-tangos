@@ -2081,7 +2081,7 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 		if(duration == 0)
 			UpdatePosition();
 
-		mi.clear();
+		mi->clear();
 		mi = p_movie_info;
 		if (!filelist.empty() && g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP)
 		{
