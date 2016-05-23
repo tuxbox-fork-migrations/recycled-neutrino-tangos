@@ -154,6 +154,9 @@
 
 #include <system/luaserver.h>
 
+#include "gui/lcd4l.h"
+CLCD4l  *LCD4l;
+
 int old_b_id = -1;
 
 CInfoClock      *InfoClock;
@@ -2419,6 +2422,9 @@ TIMER_START();
 	CVFD::getInstance()->showVolume(g_settings.current_volume);
 	CVFD::getInstance()->setMuted(current_muted);
 
+	LCD4l = new CLCD4l();
+	LCD4l->StartLCD4l();
+
 	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
 
 	InitZapper();
@@ -4001,6 +4007,12 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 
 			delete g_RCInput;
 			g_RCInput = NULL;
+			
+			if(LCD4l) {
+				LCD4l->StopLCD4l();
+				delete LCD4l;
+			}
+			LCD4l = NULL;
 			//fan speed
 			if (g_info.has_fan) {
 				CFanControlNotifier::setSpeed(0);
