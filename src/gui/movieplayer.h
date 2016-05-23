@@ -102,7 +102,6 @@ class CMoviePlayerGui : public CMenuTarget
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;	
 
-	std::string	pretty_name;
 	std::string	cookie_header;
 	std::string	info_1, info_2;
 	std::string    	currentaudioname;
@@ -268,8 +267,10 @@ class CMoviePlayerGui : public CMenuTarget
 
 	static CMoviePlayerGui& getInstance(bool background = false);
 
+	MI_MOVIE_INFO * mi;
 	MI_MOVIE_INFO * p_movie_info;
 	std::string	file_name;
+	std::string	pretty_name;
 
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
