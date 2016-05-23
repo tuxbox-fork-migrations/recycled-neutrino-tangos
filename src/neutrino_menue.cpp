@@ -38,6 +38,8 @@
 #include "neutrino.h"
 #include "mymenu.h"
 
+#include <unistd.h>
+
 #include <system/debug.h>
 
 #include <cs_api.h>
