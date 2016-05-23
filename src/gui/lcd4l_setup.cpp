@@ -140,7 +140,7 @@ int CLCD4Linux_Setup::show()
 	FILE *fh;
 
 	// lcd4l menu
-	CMenuWidget* lcd4lMenu = new CMenuWidget(LOCALE_LCD4L_SUPPORT, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_LCD4L_CONTROL);
+	CMenuWidget* lcd4lMenu = new CMenuWidget(LOCALE_LCD4L_SUPPORT, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_LCD4L_SETUP);
 	lcd4lMenu->addIntroItems();
 
 	int temp_lcd4l_skin	= g_settings.lcd4l_skin;
@@ -184,4 +184,51 @@ int CLCD4Linux_Setup::show()
 	}
 
 	return res;
+}
+
+bool CNITouchFileNotifier::changeNotify(const neutrino_locale_t, void * data)
+{
+	std::ostringstream buf;
+
+	buf << FLAG_DIR << "." << filename;
+	std::string flag = buf.str();
+
+	if ((*(int *)data) != 0)
+	{
+		FILE * fd = fopen(flag.c_str(), "w");
+		if (fd)
+		{
+			fclose(fd);
+			if (strstr(filename, "lcd-weather"))
+			{
+				// do nothing
+			}
+			else if (strstr(filename, "lcd-clock_a"))
+			{
+				// do nothing
+			}
+			else
+			{
+				// do nothing
+			}
+		}
+	}
+	else
+	{
+		buf.str("");
+		if (strstr(filename, "lcd-weather"))
+		{
+			// do nothing
+		}
+		else if (strstr(filename, "lcd-clock_a"))
+		{
+			// do nothing
+		}
+		else
+		{
+			// do nothing
+		}
+	remove(flag.c_str());
+	}
+	return menu_return::RETURN_REPAINT;
 }
