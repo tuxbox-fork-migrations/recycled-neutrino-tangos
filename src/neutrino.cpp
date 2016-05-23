@@ -384,6 +384,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 	parentallocked = !access(NEUTRINO_PARENTALLOCKED_FILE, R_OK);
 
+	g_settings.lcd4l_support = configfile.getInt32("lcd4l_support" , 0);
+	g_settings.lcd4l_logodir = configfile.getString("lcd4l_logodir", LOGODIR);
+	g_settings.lcd4l_skin = configfile.getInt32("lcd4l_skin" , 0);
+
 	g_settings.show_ecm = configfile.getInt32("show_ecm" , 0);
 	g_settings.show_ecm_pos = configfile.getInt32("show_ecm_pos" , 0);
 
@@ -1110,6 +1114,10 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	if(!scansettings.saveSettings(NEUTRINO_SCAN_SETTINGS_FILE)) {
 		dprintf(DEBUG_NORMAL, "error while saving scan-settings!\n");
 	}
+	configfile.setInt32("lcd4l_support" , g_settings.lcd4l_support);
+	configfile.setString("lcd4l_logodir" , g_settings.lcd4l_logodir);
+	configfile.setInt32("lcd4l_skin" , g_settings.lcd4l_skin);
+
 	configfile.setInt32("show_ecm" , g_settings.show_ecm);
 	configfile.setInt32("show_ecm_pos" , g_settings.show_ecm_pos);
 

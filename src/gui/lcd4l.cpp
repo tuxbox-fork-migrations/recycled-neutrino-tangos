@@ -205,9 +205,12 @@ void* CLCD4l::LCD4lProc(void* arg)
 	{
 		if ( (!access(PIDFILE, F_OK) == 0) && (!FirstRun) )
 		{
+			if (g_settings.lcd4l_support == 1) // automatic
+			{
 			//printf("[CLCD4l] %s: waiting for lcd4linux\n", __FUNCTION__);
 			sleep(10);
 			continue;
+			}
 		}
 
 		for (int i = 0; i < 10; i++)
@@ -477,13 +480,13 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			switch (g_settings.lcd4l_skin)
 			{
 			case 2:
-				Layout = "spf_small";
-				break;
-			case 1:
 				Layout = "spf_large";
 				break;
+			case 1:
+				Layout = "spf_middle";
+				break;
 			default:
-				Layout = "standard";
+				Layout = "spf_small";
 			}
 		}
 #endif
@@ -716,7 +719,7 @@ bool CLCD4l::GetLogoName(uint64_t channel_id, std::string channel_name, std::str
 
 	sprintf(str_channel_id, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
 	// the directorys to search in
-	std::string strLogoDir[3] = { LOGODIR_VAR, LOGODIR, g_settings.logo_hdd_dir };
+	std::string strLogoDir[4] = { g_settings.lcd4l_logodir, LOGODIR_VAR, LOGODIR, g_settings.logo_hdd_dir };
 	// first the channelname, then the upper channelname, then the lower channelname, then the channel-id
 	std::string strLogoName[4] = { channel_name, (std::string)upper_name, (std::string)lower_name, (std::string)str_channel_id };
 	// first png, then jpg, then gif

@@ -813,6 +813,10 @@ struct SNeutrinoSettings
 	std::string	ttx_font_file;
 	std::string	sub_font_file;
 
+	int		lcd4l_support;
+	std::string	lcd4l_logodir;
+	int		lcd4l_skin;
+
 	int		show_ecm;
 	int		show_ecm_pos;
 
