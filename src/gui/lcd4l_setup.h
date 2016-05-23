@@ -28,6 +28,8 @@
 
 #include <gui/widget/menue.h>
 
+#define FLAG_DIR		"/var/etc/"
+
 using namespace std;
 
 class CNITouchFileNotifier : public CChangeObserver
