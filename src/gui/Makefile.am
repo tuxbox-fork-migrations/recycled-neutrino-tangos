@@ -107,7 +107,8 @@ libneutrino_gui_a_SOURCES = \
 	volumebar.cpp \
 	webtv_setup.cpp \
 	zapit_setup.cpp \
-	lcd4l.cpp
+	lcd4l.cpp \
+	lcd4l_setup.cpp
 
 if BOXTYPE_SPARK
 libneutrino_gui_a_SOURCES += \
