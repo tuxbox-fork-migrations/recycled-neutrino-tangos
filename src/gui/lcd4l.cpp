@@ -176,7 +176,9 @@ void CLCD4l::Init()
 
 	m_Layout	= "n/a";
 
-	m_Event		= "n/a";
+	m_Ev_Desc	= "n/a";
+	m_Ev_Start	= "00:00";
+	m_Ev_End	= "00:00";
 	m_Progress	= -1;
 	for (int i = 0; i < (int)sizeof(m_Duration); i++)
 		m_Duration[i] = ' ';
@@ -555,57 +557,32 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	}
 	else if (parseID == MODE_TS)
 	{
-		if (!ModeTshift)
-			Progress = CMoviePlayerGui::getInstance().file_prozent;
+		Event = "Movieplayer";
 
-		if (CMoviePlayerGui::getInstance().mi)
-		{
-			Event = CMoviePlayerGui::getInstance().mi->epgTitle.c_str();
-
-			if (!ModeTshift)
-			{
-				int total = CMoviePlayerGui::getInstance().mi->length * (60 * 1000);
-				int done = total * Progress / 100;
-
-				snprintf(Duration, sizeof(Duration), "%d/%d", done / (60 * 1000), total / (60 * 1000));
-			}
-		}
-		else if (CMoviePlayerGui::getInstance().p_movie_info)
-		{
-			Event = CMoviePlayerGui::getInstance().p_movie_info->epgTitle.c_str();
-
-			if (!ModeTshift)
-			{
-				int total = CMoviePlayerGui::getInstance().p_movie_info->length * (60 * 1000);
-				int done = total * Progress / 100;
-
-				snprintf(Duration, sizeof(Duration), "%d/%d", done / (60 * 1000), total / (60 * 1000));
-			}
-		}
-		else if (!CMoviePlayerGui::getInstance().pretty_name.empty())
-		{
+		if (!CMoviePlayerGui::getInstance().pretty_name.empty())
 			Event = CMoviePlayerGui::getInstance().pretty_name;
-			int total = CMoviePlayerGui::getInstance().GetDuration() / 1000;
-			int done = total * (CMoviePlayerGui::getInstance().GetPosition()/1000) / 100;
-
-			snprintf(Duration, sizeof(Duration), "%d/%d", done / (60 * 1000), total / (60 * 1000));
-		}
-		else
-		{
-			Event = "Movieplayer";
-			int total = CMoviePlayerGui::getInstance().GetDuration() / 1000;
-			int done = total * (CMoviePlayerGui::getInstance().GetPosition()/1000) / 100;
-
-			snprintf(Duration, sizeof(Duration), "%d/%d", done / (60 * 1000), total / (60 * 1000));
-		}
+		else if (CMoviePlayerGui::getInstance().p_movie_info)
+			Event = CMoviePlayerGui::getInstance().p_movie_info->epgTitle.c_str();
+		else if (CMoviePlayerGui::getInstance().mi)
+			Event = CMoviePlayerGui::getInstance().mi->epgTitle.c_str();
 		
-		time_t sTime = time(NULL) - (CMoviePlayerGui::getInstance().GetPosition()/1000);
+		if (!ModeTshift)
+		{
+			int total = CMoviePlayerGui::getInstance().GetDuration();
+			int done = CMoviePlayerGui::getInstance().GetPosition();
+			snprintf(Duration, sizeof(Duration), "%d/%d", done / (60 * 1000), total / (60 * 1000));
+			Progress = CMoviePlayerGui::getInstance().file_prozent;
+		}
+
+		time_t sTime = time(NULL);
+		sTime -= (CMoviePlayerGui::getInstance().GetPosition()/1000);
 		tm_struct = localtime(&sTime);
 
 		snprintf(Start, sizeof(Start), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 
-		sTime = time(NULL) + (CMoviePlayerGui::getInstance().GetDuration()/1000) - (CMoviePlayerGui::getInstance().GetPosition()/1000);
-		tm_struct = localtime(&sTime);
+		time_t eTime = time(NULL);
+		eTime +=(CMoviePlayerGui::getInstance().GetDuration()/1000) - (CMoviePlayerGui::getInstance().GetPosition()/1000);
+		tm_struct = localtime(&eTime);
 
 		snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 	}
@@ -613,14 +590,22 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	/* ----------------------------------------------------------------- */
 
 	Event += "\n"; // make sure we have at least two lines in event-file
-	if (m_Event.compare(Event))
+	if (m_Ev_Desc.compare(Event))
 	{
 		WriteFile(EVENT, Event, true);
-		m_Event = Event;
+		m_Ev_Desc = Event;
+	}
 
+	if (m_Ev_Start.compare((std::string)Start))
+	{
 		WriteFile(START, (std::string)Start);
+		m_Ev_Start = (std::string)Start;
+	}
 
+	if (m_Ev_End.compare((std::string)End))
+	{
 		WriteFile(END, (std::string)End);
+		m_Ev_End = (std::string)End;
 	}
 
 	if (Progress > 100)

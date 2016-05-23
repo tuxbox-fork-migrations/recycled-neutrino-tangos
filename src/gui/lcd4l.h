@@ -88,7 +88,9 @@ private:
 
 	std::string	m_Layout;
 
-	std::string	m_Event;
+	std::string	m_Ev_Desc;
+	std::string	m_Ev_Start;
+	std::string	m_Ev_End;
 	int		m_Progress;
 	char		m_Duration[15];
 	std::string	m_font;
