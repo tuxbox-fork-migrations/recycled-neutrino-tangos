@@ -279,7 +279,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_Tuner != Tuner)
 	{
-		WriteFile(TUNER, Int2String(Tuner));
+		WriteFile(TUNER, to_string(Tuner));
 		m_Tuner = Tuner;
 	}
 
@@ -289,7 +289,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_Volume != Volume)
 	{
-		WriteFile(VOLUME, Int2String(Volume));
+		WriteFile(VOLUME, to_string(Volume));
 		m_Volume = Volume;
 	}
 
@@ -455,7 +455,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (m_ChannelNr != ChannelNr)
 		{
-			WriteFile(CHANNELNR, Int2String(ChannelNr));
+			WriteFile(CHANNELNR, to_string(ChannelNr));
 			m_ChannelNr = ChannelNr;
 		}
 
@@ -470,7 +470,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (m_ModeLogo != ModeLogo)
 		{
-			WriteFile(MODE_LOGO, Int2String(ModeLogo));
+			WriteFile(MODE_LOGO, to_string(ModeLogo));
 			m_ModeLogo = ModeLogo;
 		}
 
@@ -621,7 +621,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_Progress != Progress)
 	{
-		WriteFile(PROGRESS, Int2String(Progress));
+		WriteFile(PROGRESS, to_string(Progress));
 		m_Progress = Progress;
 	}
 
@@ -651,13 +651,6 @@ bool CLCD4l::WriteFile(const char *file, std::string content, bool convert)
 	}
 
 	return ret;
-}
-
-string CLCD4l::Int2String(int iConvert)
-{
-	std::stringstream strConvert;
-	strConvert << iConvert;
-	return strConvert.str();
 }
 
 uint64_t CLCD4l::GetParseID()
