@@ -48,6 +48,7 @@ extern CRemoteControl *g_RemoteControl;
 #define TUNER			LCD_DATADIR "tuner"
 #define VOLUME			LCD_DATADIR "volume"
 #define MODE_REC		LCD_DATADIR "mode_rec"
+#define MODE_REC_ICON	LCD_DATADIR "mode_rec_icon"
 #define MODE_TSHIFT		LCD_DATADIR "mode_tshift"
 #define MODE_TIMER		LCD_DATADIR "mode_timer"
 #define MODE_ECM		LCD_DATADIR "mode_ecm"
@@ -209,9 +210,9 @@ void* CLCD4l::LCD4lProc(void* arg)
 		{
 			if (g_settings.lcd4l_support == 1) // automatic
 			{
-			//printf("[CLCD4l] %s: waiting for lcd4linux\n", __FUNCTION__);
-			sleep(10);
-			continue;
+				//printf("[CLCD4l] %s: waiting for lcd4linux\n", __FUNCTION__);
+				sleep(10);
+				continue;
 			}
 		}
 
@@ -318,6 +319,12 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	if (m_ModeRec != ModeRec)
 	{
 		WriteFile(MODE_REC, ModeRec ? "on" : "off");
+		std::string rec_icon ="";
+		if (ModeRec)
+			rec_icon = ICONSDIR "/" NEUTRINO_ICON_REC ICONSEXT;
+		else
+			rec_icon = ICONSDIR "/" NEUTRINO_ICON_REC_GRAY ICONSEXT;
+		WriteFile(MODE_REC_ICON, rec_icon);
 		m_ModeRec = ModeRec;
 	}
 
@@ -406,7 +413,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				Service = g_Locale->getText(LOCALE_RECORDINGMENU_TIMESHIFT);
 			else if (!CMoviePlayerGui::getInstance().p_movie_info->epgChannel.empty())
 				Service = CMoviePlayerGui::getInstance().p_movie_info->epgChannel;
-			
+
 			if (Service.empty())
 				Service = g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD);
 
@@ -422,16 +429,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				Logo = ICONSDIR "/" NEUTRINO_ICON_PAUSE ICONSEXT;
 				break;
 			case 3: /* play */
-				if (ModeTshift) /* show channel-logo */
-				{
-					GetLogoName(
-					    CMoviePlayerGui::getInstance().p_movie_info->epgId,
-					    CMoviePlayerGui::getInstance().p_movie_info->epgChannel,
-					    Logo);
-				}
-				else /* show play-icon */
+				if (!GetLogoName(	CMoviePlayerGui::getInstance().p_movie_info->epgId,
+				                    CMoviePlayerGui::getInstance().p_movie_info->epgChannel, Logo))
 					Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
-
 				break;
 			default: /* show movieplayer-icon */
 				Logo = ICONSDIR "/" NEUTRINO_ICON_MOVIEPLAYER ICONSEXT;
@@ -474,7 +474,6 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		/* --- */
 
-#ifdef TODO
 		std::string Layout;
 		if (ModeStandby)
 		{
@@ -494,9 +493,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				Layout = "spf_small";
 			}
 		}
-#else
-		std::string Layout = "standard";
-#endif
+
 		if (m_Layout.compare(Layout))
 		{
 			WriteFile(LAYOUT, Layout);
@@ -521,6 +518,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	char Start[6] = {0};
 	char End[6] = {0};
+	int todo = 0;
 
 	if (m_ModeChannel)
 	{
@@ -538,7 +536,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 				int total = CurrentNext.current_zeit.dauer / 60;
 				int done = (abs(time(NULL) - CurrentNext.current_zeit.startzeit) + 30) / 60;
-				int todo = total - done;
+				todo = total - done;
 				if ((time(NULL) < CurrentNext.current_zeit.startzeit) && todo >= 0)
 				{
 					done = 0;
@@ -553,7 +551,10 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (CSectionsdClient::epgflags::has_next)
 		{
-			Event += "\n" + CurrentNext.next_name;
+			if (todo)
+				Event += "\nin "+ to_string(todo) + " min:" + CurrentNext.next_name;
+			else
+				Event += "\n"+ CurrentNext.next_name;
 			tm_struct = localtime(&CurrentNext.next_zeit.startzeit);
 			snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 		}
