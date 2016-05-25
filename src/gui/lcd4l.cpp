@@ -564,12 +564,13 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (!CMoviePlayerGui::getInstance().pretty_name.empty())
 			Event = CMoviePlayerGui::getInstance().pretty_name;
-		else if (CMoviePlayerGui::getInstance().p_movie_info && !CMoviePlayerGui::getInstance().p_movie_info->epgTitle.empty())
+
+		if (CMoviePlayerGui::getInstance().p_movie_info && !CMoviePlayerGui::getInstance().p_movie_info->epgTitle.empty())
 			Event = CMoviePlayerGui::getInstance().p_movie_info->epgTitle;
 
 		if (CMoviePlayerGui::getInstance().p_movie_info && !CMoviePlayerGui::getInstance().p_movie_info->epgInfo1.empty())
 			Event += "\n" + CMoviePlayerGui::getInstance().p_movie_info->epgInfo1;
-		
+
 		if (!ModeTshift)
 		{
 			int total = CMoviePlayerGui::getInstance().GetDuration();
