@@ -404,7 +404,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		{
 			if (ModeTshift)
 				Service = g_Locale->getText(LOCALE_RECORDINGMENU_TIMESHIFT);
-			else if (CMoviePlayerGui::getInstance().p_movie_info && !CMoviePlayerGui::getInstance().p_movie_info->epgChannel.empty())
+			else if (!CMoviePlayerGui::getInstance().p_movie_info->epgChannel.empty())
 				Service = CMoviePlayerGui::getInstance().p_movie_info->epgChannel;
 			
 			if (Service.empty())
@@ -565,10 +565,10 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		if (!CMoviePlayerGui::getInstance().pretty_name.empty())
 			Event = CMoviePlayerGui::getInstance().pretty_name;
 
-		if (CMoviePlayerGui::getInstance().p_movie_info && !CMoviePlayerGui::getInstance().p_movie_info->epgTitle.empty())
+		if (!CMoviePlayerGui::getInstance().p_movie_info->epgTitle.empty())
 			Event = CMoviePlayerGui::getInstance().p_movie_info->epgTitle;
 
-		if (CMoviePlayerGui::getInstance().p_movie_info && !CMoviePlayerGui::getInstance().p_movie_info->epgInfo1.empty())
+		if (!CMoviePlayerGui::getInstance().p_movie_info->epgInfo1.empty())
 			Event += "\n" + CMoviePlayerGui::getInstance().p_movie_info->epgInfo1;
 
 		if (!ModeTshift)
