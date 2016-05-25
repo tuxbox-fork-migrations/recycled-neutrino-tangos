@@ -267,7 +267,6 @@ class CMoviePlayerGui : public CMenuTarget
 
 	static CMoviePlayerGui& getInstance(bool background = false);
 
-	MI_MOVIE_INFO * mi;
 	MI_MOVIE_INFO * p_movie_info;
 	std::string	file_name;
 	std::string	pretty_name;
