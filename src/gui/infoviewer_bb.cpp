@@ -812,6 +812,8 @@ void CInfoViewerBB::ShowRecDirScale()
 
 void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_offset)
 {
+	if (g_settings.infobar_casystem_display == 3)
+		return;
 	char buf[20];
 	int endx = g_InfoViewer->BoxEndX - (g_settings.infobar_casystem_frame ? 20 : 10);
 	int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2); /* hand-crafted, should be automatic */
@@ -876,8 +878,6 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
-	if (g_settings.infobar_casystem_display == 3)
-		return;
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
 		if (g_settings.infobar_casystem_display == 2) {
 			fta = true;
