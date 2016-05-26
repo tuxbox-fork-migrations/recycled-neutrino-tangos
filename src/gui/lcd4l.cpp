@@ -411,8 +411,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		{
 			if (ModeTshift)
 				Service = g_Locale->getText(LOCALE_RECORDINGMENU_TIMESHIFT);
-			else if (!CMoviePlayerGui::getInstance().p_movie_info->epgChannel.empty())
-				Service = CMoviePlayerGui::getInstance().p_movie_info->epgChannel;
+			else if (CMoviePlayerGui::getInstance().p_movie_info)
+					if (!CMoviePlayerGui::getInstance().p_movie_info->epgChannel.empty())
+						Service = CMoviePlayerGui::getInstance().p_movie_info->epgChannel;
 
 			if (Service.empty())
 				Service = g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD);
@@ -429,8 +430,11 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				Logo = ICONSDIR "/" NEUTRINO_ICON_PAUSE ICONSEXT;
 				break;
 			case 3: /* play */
-				if (!GetLogoName(	CMoviePlayerGui::getInstance().p_movie_info->epgId,
-				                    CMoviePlayerGui::getInstance().p_movie_info->epgChannel, Logo))
+				if (CMoviePlayerGui::getInstance().p_movie_info)
+					if (!GetLogoName(	CMoviePlayerGui::getInstance().p_movie_info->epgId,
+				    	                CMoviePlayerGui::getInstance().p_movie_info->epgChannel, Logo))
+						Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
+				else
 					Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
 				break;
 			default: /* show movieplayer-icon */
@@ -561,16 +565,18 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	}
 	else if (parseID == MODE_TS)
 	{
-		Event = "Movieplayer";
+		Event = "Mediaplayer";
 
 		if (!CMoviePlayerGui::getInstance().pretty_name.empty())
 			Event = CMoviePlayerGui::getInstance().pretty_name;
 
-		if (!CMoviePlayerGui::getInstance().p_movie_info->epgTitle.empty())
-			Event = CMoviePlayerGui::getInstance().p_movie_info->epgTitle;
+		if (CMoviePlayerGui::getInstance().p_movie_info)
+			if (!CMoviePlayerGui::getInstance().p_movie_info->epgTitle.empty())
+				Event = CMoviePlayerGui::getInstance().p_movie_info->epgTitle;
 
-		if (!CMoviePlayerGui::getInstance().p_movie_info->epgInfo1.empty())
-			Event += "\n" + CMoviePlayerGui::getInstance().p_movie_info->epgInfo1;
+		if (CMoviePlayerGui::getInstance().p_movie_info)
+			if (!CMoviePlayerGui::getInstance().p_movie_info->epgInfo1.empty())
+				Event += "\n" + CMoviePlayerGui::getInstance().p_movie_info->epgInfo1;
 
 		if (!ModeTshift)
 		{
