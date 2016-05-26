@@ -1,9 +1,13 @@
 /*
-	ni_menu
+	lcd4l setup
 
-	(C) 2009-2016 NG-Team
-	(C) 2016 NI-Team
-	(C) 2016 TangoCash
+	Copyright (C) 2012 'defans'
+	Homepage: http://www.bluepeercrew.us/
+
+	Copyright (C) 2012-2016 'vanhofen'
+	Homepage: http://www.neutrino-images.de/
+
+	Modded    (C) 2016 'TangoCash'
 
 	License: GPL
 
@@ -23,24 +27,13 @@
 
 */
 
+
 #ifndef __lcd4l_setup__
 #define __lcd4l_setup__
 
 #include <gui/widget/menue.h>
 
-#define FLAG_DIR		"/var/etc/"
-
-using namespace std;
-
-class CNITouchFileNotifier : public CChangeObserver
-{
-	const char * filename;
-	public:
-		inline CNITouchFileNotifier(const char * file_name) { filename = file_name; };
-		bool changeNotify(const neutrino_locale_t, void * data);
-};
-
-class CLCD4Linux_Setup : public CMenuTarget, CChangeObserver
+class CLCD4lSetup : public CMenuTarget, CChangeObserver
 {
 	private:
 		CMenuOptionChooser *mc;
@@ -50,9 +43,8 @@ class CLCD4Linux_Setup : public CMenuTarget, CChangeObserver
 		int show();
 
 	public:
-		CLCD4Linux_Setup();
-		~CLCD4Linux_Setup();
-		static CLCD4Linux_Setup* getInstance();
+		CLCD4lSetup();
+		~CLCD4lSetup();
 		int exec(CMenuTarget* parent, const std::string &actionkey);
 		virtual bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 };
