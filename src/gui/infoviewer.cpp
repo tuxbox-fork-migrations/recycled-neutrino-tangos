@@ -1049,20 +1049,6 @@ void CInfoViewer::loop(bool show_dot)
 
 		showLivestreamInfo();
 
-		if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
-			if (g_settings.show_ecm_pos) {
-				if (g_settings.show_ecm) {
-					g_settings.show_ecm = 0;
-					ecmInfoBox_hide();
-				} else {
-					g_settings.show_ecm = 1;
-					infoViewerBB->showIcon_CA_Status(0);
-				}
-			}
-			g_RCInput->clearRCMsg();
-			setInfobarTimeout();
-			continue;
-		} else
 #ifdef ENABLE_PIP
 		if ((msg == (neutrino_msg_t) g_settings.key_pip_close) || 
 		    (msg == (neutrino_msg_t) g_settings.key_pip_setup) || 
@@ -1085,8 +1071,23 @@ void CInfoViewer::loop(bool show_dot)
 				hideIt = true;
 			}
 			else
-			g_RCInput->postMsg (NeutrinoMessages::SHOW_EPG, 0);
-			res = messages_return::cancel_info;
+				if (g_settings.show_ecm_pos)
+				{
+					if (g_settings.show_ecm) {
+						g_settings.show_ecm = 0;
+						ecmInfoBox_hide();
+						g_RCInput->postMsg (NeutrinoMessages::SHOW_EPG, 0);
+						res = messages_return::cancel_info;
+					} else {
+						g_settings.show_ecm = 1;
+						infoViewerBB->showIcon_CA_Status(0);
+					}
+				}
+				else
+				{
+					g_RCInput->postMsg (NeutrinoMessages::SHOW_EPG, 0);
+					res = messages_return::cancel_info;
+				}
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
 			if(fader.FadeDone())
 				res = messages_return::cancel_info;
