@@ -55,7 +55,7 @@
 #define LOGODIR		ICONSDIR "/logo"
 #define LOGODIR_VAR	ICONSDIR_VAR "/logo"
 
-#define FLAGDIR		"/var/etc" //NI
+#define FLAGDIR		CONFIGDIR
 
 NEUTRINO_CPP  SNeutrinoSettings	g_settings;
 NEUTRINO_CPP  SglobalInfo	g_info;
