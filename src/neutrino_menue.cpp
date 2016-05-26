@@ -366,7 +366,7 @@ void CNeutrinoApp::InitMenuSettings()
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
 
 	// lcd4linux
-	mf = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, true, NULL, new CLCD4Linux_Setup());
+	mf = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, true, NULL, new CLCD4lSetup());
 	mf->setHint("", LOCALE_MENU_HINT_LCD4L_SUPPORT);
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
 
