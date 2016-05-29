@@ -82,6 +82,7 @@ extern cVideo * videoDecoder;
 
 #define LEFT_OFFSET 10
 
+
 event_id_t CInfoViewer::last_curr_id = 0, CInfoViewer::last_next_id = 0;
 
 static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
@@ -1069,6 +1070,7 @@ void CInfoViewer::loop(bool show_dot)
 				CMoviePlayerGui::getInstance().setFromInfoviewer(true);
 				g_RCInput->postMsg (msg, data);
 				hideIt = true;
+				res = messages_return::cancel_info;
 			}
 			else
 				if (g_settings.show_ecm_pos)
