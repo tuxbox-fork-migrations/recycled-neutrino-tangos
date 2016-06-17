@@ -67,7 +67,7 @@ extern CRemoteControl * g_RemoteControl;
 
 extern const char * locale_real_names[];
 extern std::string ttx_font_file;
-extern std::string sub_font_file;
+extern std::string *sub_font_file;
 extern int sub_font_size;
 
 COsdSetup::COsdSetup(int wizard_mode)
@@ -257,7 +257,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (fileBrowser.exec(FONTDIR) == true)
 		{
 			g_settings.sub_font_file = fileBrowser.getSelectedFile()->Name;
-			sub_font_file = fileBrowser.getSelectedFile()->Name;
+			*sub_font_file = fileBrowser.getSelectedFile()->Name;
 			printf("[neutrino] sub font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
 			osdSubFontFile = getBaseName(fileBrowser.getSelectedFile()->Name);
 			mfSubFontFile->setOption(osdSubFontFile);
