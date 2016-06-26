@@ -106,6 +106,14 @@ extern int allow_flash;
 #define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd999"
 #endif
 #else
+#if HAVE_SPARK_HARDWARE
+#define LIST_OF_UPDATES_LOCAL_FILENAME "update.list"
+#define UPDATE_LOCAL_FILENAME          "update.zip"
+#define FILEBROWSER_UPDATE_FILTER      "zip"
+#define RELEASE_CYCLE                  "2.0"
+#define MTD_OF_WHOLE_IMAGE              999
+#define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd999"
+#else
 #define LIST_OF_UPDATES_LOCAL_FILENAME "coolstream.list"
 #define UPDATE_LOCAL_FILENAME          "update.img"
 #define RELEASE_CYCLE                  "2.0"
@@ -116,6 +124,7 @@ extern int allow_flash;
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd0"
 #else
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd3"
+#endif
 #endif
 #endif
 int pinghost  (const std::string &hostname, std::string *ip = NULL);
@@ -342,6 +351,14 @@ bool CFlashUpdate::selectHttpImage(void)
 	newVersion = versions[selected];
 	file_md5 = md5s[selected];
 	fileType = fileTypes[selected];
+	if(fileType < '3') {
+		char const * ptr = rindex(filename.c_str(), '.');
+		if(ptr) {
+			ptr++;
+			if(!strcmp(ptr, "zip"))
+				fileType = 'Z';
+		}
+	}
 #ifdef BOXMODEL_APOLLO
 	if(fileType < '3') {
 		int esize = CMTDInfo::getInstance()->getMTDEraseSize(sysfs);
@@ -489,6 +506,8 @@ printf("[update] mode is %d\n", softupdate_mode);
 				fileType = 'A';
 			else if(!strcmp(ptr, "txt"))
 				fileType = 'T';
+			else if(!strcmp(ptr, "zip"))
+				fileType = 'Z';
 			else if(!allow_flash)
 				return false;
 			else
@@ -556,7 +575,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	showGlobalStatus(40);
 
 	CFlashTool ft;
-#if HAVE_DUCKBOX_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
 	ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
 #else
 	//ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
@@ -571,7 +590,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	if(softupdate_mode==1) { //internet-update
-		if ( ShowMsg(LOCALE_MESSAGEBOX_INFO, (fileType < '3') ? LOCALE_FLASHUPDATE_INSTALL_IMAGE : LOCALE_FLASHUPDATE_INSTALL_PACKAGE, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes) // UTF-8
+		if ( ShowMsg(LOCALE_MESSAGEBOX_INFO, ((fileType < '3') || (fileType == 'Z')) ? LOCALE_FLASHUPDATE_INSTALL_IMAGE : LOCALE_FLASHUPDATE_INSTALL_PACKAGE, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes) // UTF-8
 		{
 			hide();
 			return menu_return::RETURN_REPAINT;
@@ -628,6 +647,17 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			buffer[filesize] = 0;
 			ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
 			free(buffer);
+		}
+	}
+	else if(fileType == 'Z') // zipped image for flasher
+	{
+		const char install_sh[] = "/bin/flashing.sh";
+		printf("[update] calling %s %s %s\n",install_sh, "zipped", filename.c_str() );
+		if (!my_system(3, install_sh, "zipped", filename.c_str())) {
+			showGlobalStatus(100);
+			ShowHint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_FLASHREADYREBOOT)); // UTF-8
+			sleep(2);
+			ft.reboot();
 		}
 	}
 	else // not image, install
