@@ -47,6 +47,7 @@
 
 #include "global.h"
 #include "neutrino.h"
+#include "neutrino_menue.h"
 #include "version_pseudo.h"
 
 #include <daemonc/remotecontrol.h>
@@ -2484,7 +2485,7 @@ TIMER_STOP("################################## after all #######################
 		}
 		delete hintBox;
 	}
-	RealRun(personalize.getWidget(0)/**main**/);
+	RealRun();
 
 	ExitRun(true, !can_deepstandby);
 
@@ -2591,9 +2592,9 @@ void CNeutrinoApp::screensaver(bool on)
 	}
 }
 
-void CNeutrinoApp::RealRun(CMenuWidget &_mainMenu)
+void CNeutrinoApp::RealRun()
 {
-	mainMenu = &_mainMenu;
+	mainMenu = &personalize.getWidget(MENU_MAIN);
 
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
