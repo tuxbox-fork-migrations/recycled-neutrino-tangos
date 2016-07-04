@@ -96,16 +96,6 @@ extern CCAMMenuHandler * g_CamHandler;
 // extern char current_timezone[50];
 // extern bool autoshift;
 
-enum
-{
-	MENU_MAIN,
-	MENU_SETTINGS,
-	MENU_SERVICE,
-//	MENU_SHUTDOWN,
-
-	MENU_MAX //3
-};
-
 #define MENU_WIDTH 35
 
 const mn_widget_struct_t menu_widgets[MENU_MAX] =
@@ -154,6 +144,8 @@ void CNeutrinoApp::InitMenuMain()
 
 	// Dynamic renumbering
 	personalize.setShortcut();
+
+	CMenuWidget &menu = personalize.getWidget(MENU_MAIN);
 
 	//top
 	personalize.addItem(MENU_MAIN, GenericMenuSeparator, NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
@@ -216,7 +208,7 @@ void CNeutrinoApp::InitMenuMain()
 	//2nd section***************************************************************************************************
 
 	// settings, also as pin protected option in personalize menu, as a result of parameter value CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION
-	mf = new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, &personalize.getWidget(MENU_SETTINGS)/**settings**/);
+	mf = new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, &personalize.getWidget(MENU_SETTINGS));
 	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SETTINGS);
 	personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SETTINGS], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
 
@@ -285,7 +277,7 @@ void CNeutrinoApp::InitMenuSettings()
 {
 	dprintf(DEBUG_DEBUG, "init settings menue...\n");
 
-	//CMenuWidget &menu = personalize.getWidget(MENU_SETTINGS)/**settings**/;
+	//CMenuWidget &menu = personalize.getWidget(MENU_SETTINGS);
 
 	// Dynamic renumbering
 	personalize.setShortcut();
@@ -401,7 +393,7 @@ void CNeutrinoApp::InitMenuService()
 {
 	dprintf(DEBUG_DEBUG, "init service menu...\n");
 
-	//CMenuWidget &menu = personalize.getWidget(MENU_SERVICE)/**service**/;
+	//CMenuWidget &menu = personalize.getWidget(MENU_SERVICE);
 
 	// Dynamic renumbering
 	personalize.setShortcut();
