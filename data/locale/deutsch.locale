@@ -741,6 +741,7 @@ fontsize.eventlist_title Titel
 fontsize.filebrowser_item Dateibrowsereinträge
 fontsize.hint Schriftart wird initialisiert,\nbitte warten...
 fontsize.infobar_channame Kanalname
+fontsize.infobar_clock Uhr
 fontsize.infobar_ecminfo ECM-Info
 fontsize.infobar_info Info
 fontsize.infobar_number Nummer

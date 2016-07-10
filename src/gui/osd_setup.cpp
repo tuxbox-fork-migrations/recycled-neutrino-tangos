@@ -123,13 +123,14 @@ const SNeutrinoSettings::FONT_TYPES eventlist_font_sizes[5] =
 	SNeutrinoSettings::FONT_TYPE_EVENTLIST_EVENT
 };
 
-const SNeutrinoSettings::FONT_TYPES infobar_font_sizes[5] =
+const SNeutrinoSettings::FONT_TYPES infobar_font_sizes[6] =
 {
 	SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER,
 	SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME,
 	SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO,
 	SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL,
-	SNeutrinoSettings::FONT_TYPE_INFOBAR_ECMINFO
+	SNeutrinoSettings::FONT_TYPE_INFOBAR_ECMINFO,
+	SNeutrinoSettings::FONT_TYPE_INFOBAR_CLOCK
 };
 
 const SNeutrinoSettings::FONT_TYPES epg_font_sizes[4] =
@@ -161,7 +162,7 @@ font_sizes_groups font_sizes_groups[FONT_GROUP_COUNT] =
 	{LOCALE_FONTMENU_CHANNELLIST, 5, channellist_font_sizes, "fontsize.dcha", LOCALE_MENU_HINT_CHANNELLIST_FONTS },
 	{LOCALE_FONTMENU_EVENTLIST  , 5, eventlist_font_sizes  , "fontsize.deve", LOCALE_MENU_HINT_EVENTLIST_FONTS },
 	{LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg", LOCALE_MENU_HINT_EPG_FONTS },
-	{LOCALE_FONTMENU_INFOBAR    , 4, infobar_font_sizes    , "fontsize.dinf", LOCALE_MENU_HINT_INFOBAR_FONTS },
+	{LOCALE_FONTMENU_INFOBAR    , 6, infobar_font_sizes    , "fontsize.dinf", LOCALE_MENU_HINT_INFOBAR_FONTS },
 	{LOCALE_FONTMENU_OTHER      , 2, other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_OTHER_FONTS }
 };
 
@@ -189,6 +190,7 @@ font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_INFOBAR_INFO       ,  20, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_INFOBAR_SMALL      ,  14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_INFOBAR_ECMINFO    ,  15, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
+	{LOCALE_FONTSIZE_INFOBAR_CLOCK      ,  30, CNeutrinoFonts::FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_FILEBROWSER_ITEM   ,  16, CNeutrinoFonts::FONT_STYLE_BOLD   , 1},
 	{LOCALE_FONTSIZE_MENU_HINT          ,  16, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
 	{LOCALE_FONTSIZE_SUBTITLES          ,  25, CNeutrinoFonts::FONT_STYLE_BOLD   , 0}

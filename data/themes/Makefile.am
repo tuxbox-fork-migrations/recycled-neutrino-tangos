@@ -24,4 +24,7 @@ install_DATA = \
 	Olive-3.0.theme \
 	Red.theme \
 	Sportster.theme \
-	VirginMedia.theme
+	VirginMedia.theme \
+	TangoCash.theme \
+	TangoCash.skin \
+	tc_infoviewer.png

@@ -51,10 +51,12 @@
 #include "themes.h"
 
 #define USERDIR "/var" THEMESDIR
-#define FILE_PREFIX ".theme"
+#define THEME_SUFFIX ".theme"
+#define SKIN_SUFFIX ".skin"
 static 	SNeutrinoTheme &t = g_settings.theme;
+static	SNeutrinoSkin &s = g_settings.skin;
 CThemes::CThemes()
-: themefile('\t')
+: themefile('\t'), skinfile('\t')
 {
 	width = 40;
 	notifier = NULL;
@@ -80,10 +82,10 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 			if ( strstr(themeFile.c_str(), "{U}") != 0 ) 
 			{
 				themeFile.erase(0, 3);
-				readFile(((std::string)THEMESDIR_VAR + "/" + themeFile + FILE_PREFIX).c_str());
+				readFile((std::string)THEMESDIR_VAR + "/" + themeFile);
 			} 
 			else
-				readFile(((std::string)THEMESDIR + "/" + themeFile + FILE_PREFIX).c_str());
+				readFile((std::string)THEMESDIR + "/" + themeFile);
 		}
 		return res;
 	}
@@ -176,7 +178,7 @@ int CThemes::Show()
 	int res = themes.exec(NULL, "");
 
 	if (!file_name.empty()) {
-		saveFile(((std::string)THEMESDIR_VAR + "/" + file_name + FILE_PREFIX).c_str());
+		saveFile((std::string)THEMESDIR_VAR + "/" + file_name + THEME_SUFFIX);
 	}
 
 	if (hasThemeChanged) {
@@ -202,8 +204,11 @@ void CThemes::rememberOldTheme(bool remember)
 	}
 }
 
-void CThemes::readFile(const char *themename)
+void CThemes::readFile(std::string filename)
 {
+	std::string themename = filename + THEME_SUFFIX;
+	std::string skinname = filename + SKIN_SUFFIX;
+
 	if(themefile.loadConfig(themename))
 	{
 		getTheme(themefile);
@@ -212,19 +217,52 @@ void CThemes::readFile(const char *themename)
 		notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 		hasThemeChanged = true;
 		delete notifier;
+
 	}
 	else
-		printf("[neutrino theme] %s not found\n", themename);
+		printf("[neutrino theme] %s not found\n", themename.c_str());
+
+	if(skinfile.loadConfig(skinname))
+	{
+		getSkin(skinfile);
+		g_settings.skinfile = filename;
+	}
+	else
+	{
+		printf("[neutrino skin] %s not found\n", skinname.c_str());
+		g_settings.skinfile = "none";
+	}
 }
 
-void CThemes::saveFile(const char *themename)
+void CThemes::readSkinFile(std::string skinname)
+{
+	if (skinname.compare("none") == 0)
+	{
+		CConfigFile empty(':');
+		getSkin(empty);
+		return;
+	}
+
+	if(skinfile.loadConfig(skinname + SKIN_SUFFIX))
+	{
+		getSkin(skinfile);
+		g_settings.skinfile = skinname;
+	}
+	else
+	{
+		printf("[neutrino readskin] %s not found\n", skinname.c_str());
+		g_settings.skinfile = "none";
+	}
+}
+
+void CThemes::saveFile(std::string themename)
 {
 	setTheme(themefile);
 
 	if (themefile.getModifiedFlag()){
-		printf("[neutrino theme] save theme into %s\n", themename);
+		printf("[neutrino theme] save theme into %s\n", themename.c_str());
 		if (!themefile.saveConfig(themename))
-			printf("[neutrino theme] %s write error\n", themename);
+			printf("[neutrino theme] %s write error\n", themename.c_str());
 	}
 }
 
@@ -390,6 +428,82 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.clock_Digit_red = configfile.getInt32( "clock_Digit_red", t.menu_Content_Text_red );
 	t.clock_Digit_green = configfile.getInt32( "clock_Digit_green", t.menu_Content_Text_green );
 	t.clock_Digit_blue = configfile.getInt32( "clock_Digit_blue", t.menu_Content_Text_blue );
+}
+
+void CThemes::getSkin(CConfigFile &configfile)
+{
+	s.ReloadSkin = configfile.getBool( "ReloadSkin", true );
+	s.skinEnabled = configfile.getBool( "skinEnabled", false );
+	s.bgpic = configfile.getString("bgpic","infoviewer.png");
+	s.bgX = configfile.getInt32( "bgX", 0 );
+	s.bgY = configfile.getInt32( "bgY", 0 );
+	s.bgW = configfile.getInt32( "bgW", 1280 );
+	s.bgH = configfile.getInt32( "bgH", 333 );
+	s.logoEnabled = configfile.getBool( "logoEnabled", true );
+	s.logoX = configfile.getInt32( "logoX", 0 );
+	s.logoY = configfile.getInt32( "logoY", 0 );
+	s.logoW = configfile.getInt32( "logoW", 220 );
+	s.logoH = configfile.getInt32( "logoH", 132 );
+	s.clockEnabled = configfile.getBool( "clockEnabled", true );
+	s.clockX = configfile.getInt32( "clockX", 0 );
+	s.clockY = configfile.getInt32( "clockY", 0 );
+	s.clockColor = configfile.getInt32( "clockColor", 0 );
+	s.satInfoEnabled = configfile.getBool( "satInfoEnabled", false );
+	s.satInfoX = configfile.getInt32( "satInfoX", 0 );
+	s.satInfoY = configfile.getInt32( "satInfoY", 0 );
+	s.satInfoColor = configfile.getInt32( "satInfoColor", 0 );
+	s.displayWithLogo = configfile.getBool( "displayWithLogo", true );
+	s.channelNameX = configfile.getInt32( "channelNameX", 0 );
+	s.channelNameY = configfile.getInt32( "channelNameY", 0 );
+	s.ChannelNameFontSize = configfile.getInt32( "ChannelNameFontSize", 20 );
+	s.channelNameColor = configfile.getInt32( "channelNameColor", 0 );
+	s.currEventX = configfile.getInt32( "currEventX", 0 );
+	s.currEventY = configfile.getInt32( "currEventY", 0 );
+	s.currEventW = configfile.getInt32( "currEventW", 1200 );
+	s.currEventFontSize = configfile.getInt32( "currEventFontSize", 14 );
+	s.currEventColor = configfile.getInt32( "currEventColor", 0 );
+	s.BbarEnabled = configfile.getBool( "BbarEnabled", true );
+	s.BbarOffset = configfile.getInt32( "BbarOffset", 35 );
+	s.IconsX = configfile.getInt32( "IconsX", 800 );
+	s.IconsY = configfile.getInt32( "IconsY", 10 );
+}
+
+void CThemes::setSkin(CConfigFile &configfile)
+{
+	configfile.setBool( "ReloadSkin", s.ReloadSkin );
+	configfile.setBool( "skinEnabled", s.skinEnabled );
+	configfile.setString("bgpic", s.bgpic );
+	configfile.setInt32( "bgX", s.bgX );
+	configfile.setInt32( "bgY", s.bgY );
+	configfile.setInt32( "bgW", s.bgW );
+	configfile.setInt32( "bgX", s.bgH );
+	configfile.setBool( "logoEnabled", s.logoEnabled );
+	configfile.setInt32( "logoX", s.logoX );
+	configfile.setInt32( "logoY", s.logoY );
+	configfile.setInt32( "logoW", s.logoW );
+	configfile.setInt32( "logoH", s.logoH );
+	configfile.setBool( "clockEnabled", s.clockEnabled );
+	configfile.setInt32( "clockX", s.clockX );
+	configfile.setInt32( "clockY", s.clockY );
+	configfile.setInt32( "clockColor", s.clockColor );
+	configfile.setBool( "satInfoEnabled", s.satInfoEnabled );
+	configfile.setInt32( "satInfoX", s.satInfoX );
+	configfile.setInt32( "satInfoY", s.satInfoY );
+	configfile.setInt32( "satInfoColor", s.satInfoColor );
+	configfile.setBool( "displayWithLogo", s.displayWithLogo );
+	configfile.setInt32( "channelNameX", s.channelNameX );
+	configfile.setInt32( "channelNameY", s.channelNameY );
+	configfile.setInt32( "ChannelNameFontSize", s.ChannelNameFontSize );
+	configfile.setInt32( "channelNameColor", s.channelNameColor );
+	configfile.setInt32( "currEventX", s.currEventX );
+	configfile.setInt32( "currEventY", s.currEventY );
+	configfile.setInt32( "currEventW", s.currEventW );
+	configfile.setInt32( "currEventFontSize", s.currEventFontSize );
+	configfile.setInt32( "currEventColor", s.currEventColor );
+	configfile.setBool( "BbarEnabled", s.BbarEnabled );
+	configfile.setInt32( "BbarOffset", s.BbarOffset );
+	configfile.setInt32( "IconsX", s.IconsX );
+	configfile.setInt32( "IconsY", s.IconsY );
 }
 
 void CThemes::move_userDir()

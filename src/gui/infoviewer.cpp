@@ -59,6 +59,7 @@
 #include <gui/customcolor.h>
 #include <gui/movieplayer.h>
 #include <gui/infoclock.h>
+#include <gui/themes.h>
 
 #include <system/helpers.h>
 
@@ -82,6 +83,16 @@ extern cVideo * videoDecoder;
 
 #define LEFT_OFFSET 10
 
+static bool logoShown = false;// just status, set when logo displayed
+
+static bool skinPaintBackground()
+{
+ 	/* we don't resize png has to be correct size to speedup */
+	if (g_settings.skin.skinEnabled && g_PicViewer->DisplayImage(g_settings.skinfile.substr(0,g_settings.skinfile.find_last_of('/')+1) + g_settings.skin.bgpic, g_settings.skin.bgX, g_settings.skin.bgY, g_settings.skin.bgW, g_settings.skin.bgH))
+		return 1;
+	else
+		return 0;
+}
 
 event_id_t CInfoViewer::last_curr_id = 0, CInfoViewer::last_next_id = 0;
 
@@ -222,6 +233,7 @@ void CInfoViewer::Init()
 */
 void CInfoViewer::start ()
 {
+	if (g_settings.skin.ReloadSkin) CThemes().readSkinFile(g_settings.skinfile.c_str());
 	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + 10;
 
 	InfoHeightY = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight() * 9/8 +
@@ -235,10 +247,10 @@ void CInfoViewer::start ()
 	ChanHeight = max(75, ChanHeight);
 	numbox_offset = 3;
 
-	BoxStartX = g_settings.screen_StartX + 10;
-	BoxEndX = g_settings.screen_EndX - 10;
+	BoxStartX = g_settings.skin.skinEnabled ? g_settings.skin.bgX: g_settings.screen_StartX + 10;
+	BoxEndX =  g_settings.skin.skinEnabled ? (g_settings.skin.bgX + g_settings.skin.bgW) : g_settings.screen_EndX - 10;
 	BoxEndY = g_settings.screen_EndY - 10 - infoViewerBB->InfoHeightY_Info - infoViewerBB->bottom_bar_offset;
-	BoxStartY = BoxEndY - InfoHeightY - ChanHeight / 2;
+	BoxStartY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.bgH) : BoxEndY - InfoHeightY - ChanHeight / 2;
 
 	ChanNameY = BoxStartY + (ChanHeight / 2)/* + SHADOW_OFFSET*/;	//oberkante schatten?
 	ChanInfoX = BoxStartX;
@@ -272,6 +284,10 @@ void CInfoViewer::changePB()
 void CInfoViewer::initClock()
 {
 
+	if (g_settings.skin.skinEnabled && !g_settings.skin.clockEnabled){
+	  printf("cancel initclock\n");
+	  return; }
+	
 	int gradient_top = g_settings.theme.infobar_gradient_top;
 
 	//basic init for clock object
@@ -286,9 +302,18 @@ void CInfoViewer::initClock()
 	clock->enableTboxSaveScreen(gradient_top);
 	clock->setColorBody(COL_INFOBAR_PLUS_0);
 	clock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
-	clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
+	clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CLOCK]);
+	if (g_settings.skin.skinEnabled)
+	{
+		clock->setPos(g_settings.skin.bgX + g_settings.skin.clockX, g_settings.skin.bgY + g_settings.skin.clockY);
+		clock->setTextColor(g_settings.skin.clockColor);
+		clock->doPaintBg(false);
+	}
+	else
+	{
 	clock->setPos(BoxEndX - 10 - clock->getWidth(), ChanNameY);
 	clock->setTextColor(COL_INFOBAR_TEXT);
+	}
 }
 
 void CInfoViewer::showRecordIcon (const bool show)
@@ -363,6 +388,7 @@ void CInfoViewer::showRecordIcon (const bool show)
 
 void CInfoViewer::paintBackground(int col_NumBox)
 {
+	if (skinPaintBackground()) return;
 	int c_rad_mid = RADIUS_MID;
 	int BoxEndInfoY = BoxEndY;
 	if (showButtonBar) // add button bar and blinkenlights
@@ -592,14 +618,21 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 
 	ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth("888") + 5;
 
-	if (!zap_mode)
+	if (!zap_mode && (g_settings.skin.skinEnabled && g_settings.skin.BbarEnabled))
 		infoViewerBB->paintshowButtonBar();
 
 	int ChannelLogoMode = 0;
 	if (g_settings.infobar_show_channellogo > 1)
 		ChannelLogoMode = showChannelLogo(current_channel_id, 0);
 	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
+		if (g_settings.skin.skinEnabled) {
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->setSize(g_settings.skin.ChannelNameFontSize);
+			if (g_settings.skin.displayWithLogo || !logoShown) {
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(g_settings.skin.bgX + g_settings.skin.channelNameX, g_settings.skin.bgY + g_settings.skin.channelNameY,g_settings.skin.bgX + g_settings.skin.bgW - time_width ,ChannelName, g_settings.skin.channelNameColor);
+			}
+		} else {
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanInfoX + 10 , ChanNameY + header_height,BoxEndX - (ChanInfoX + 10) - time_width - LEFT_OFFSET - 5 - infoViewerBB->showBBIcons_width,ChannelName, COL_INFOBAR_TEXT);
+		}
 
 	// show_Data
 	if (CMoviePlayerGui::getInstance().file_prozent > 100)
@@ -782,7 +815,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		infoViewerBB->show_clock(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
 	show_dot = !show_dot;
 
-	if (showButtonBar) {
+	if (showButtonBar || (g_settings.skin.skinEnabled && g_settings.skin.BbarEnabled)) {
 		infoViewerBB->paintshowButtonBar();
 	}
 
@@ -831,7 +864,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		if ((!logo_ok && g_settings.infobar_show_channellogo < 2) || g_settings.infobar_show_channellogo == 2 || g_settings.infobar_show_channellogo == 4) // no logo in numberbox
 		{
 			// show number in numberbox
-			if (g_settings.channellist_show_numbers)
+			if (g_settings.channellist_show_numbers && !g_settings.skin.skinEnabled)
 				PaintChanNumber();
 			else
 				ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : 5;
@@ -851,6 +884,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 											col_NumBoxText);
 #endif
 		}
+#if 0
 		if (ChannelLogoMode == 1 || ( g_settings.infobar_show_channellogo == 3 && !logo_ok) || g_settings.infobar_show_channellogo == 6 ) /* channel number besides channel name */
 		{
 			ChanNumWidth = 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (strChanNum);
@@ -858,17 +892,25 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 				ChanNameX + 5, ChanNameY + header_height,
 				ChanNumWidth, strChanNum, col_NumBoxText);
 		}
+#endif
 	}
 
 	if (g_settings.infobar_show_channellogo < 5 || !logo_ok) {
 		if (ChannelLogoMode != 2) {
 			//FIXME good color to display inactive for zap ?
 			//fb_pixel_t color = CNeutrinoApp::getInstance ()->channelList->SameTP(new_channel_id) ? COL_INFOBAR_TEXT : COL_INFOBAR_SHADOW_TEXT;
+			if (g_settings.skin.skinEnabled) {
+				if (g_settings.skin.displayWithLogo || !logoShown) {
+					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->setSize(g_settings.skin.ChannelNameFontSize);
+					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString( g_settings.skin.bgX + g_settings.skin.channelNameX, g_settings.skin.bgY + g_settings.skin.channelNameY,g_settings.skin.bgX + g_settings.skin.bgW,ChannelName, g_settings.skin.channelNameColor);
+				}
+			} else {
 			fb_pixel_t color = g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_TEXT : COL_INFOBAR_TEXT;
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
 				ChanInfoX + 10, ChanNameY + header_height,
 				BoxEndX - (ChanInfoX + 10) - time_width - LEFT_OFFSET - 5 - infoViewerBB->showBBIcons_width,
 				ChannelName, color , 0, true);	// UTF-8
+			}
 /*
 			//provider name
 			if(g_settings.infobar_show_channeldesc && channel->pname){
@@ -1759,9 +1801,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	 */
 
 	int height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
-	int CurrInfoY = (BoxEndY + ChanNameY + header_height) / 2;
+	int CurrInfoY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.currEventY) : (BoxEndY + ChanNameY + header_height) / 2;
 	int NextInfoY = CurrInfoY/* + height*/;	// lower end of next info box
-	int InfoX = ChanInfoX + ChanNumWidth + 20;
+	int InfoX = g_settings.skin.skinEnabled ? (g_settings.skin.bgX + g_settings.skin.currEventX) : ChanInfoX + ChanNumWidth + 20;
 
 	int xStart = InfoX;
 	if (starttimes)
@@ -1838,7 +1880,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			timescale->kill();
 	}
 
-	if (showButtonBar) {
+	if (showButtonBar && !g_settings.skin.skinEnabled) {
 		if (!g_settings.theme.infobar_gradient_top)
 			frameBuffer->paintHLine(ChanInfoX + 10, BoxEndX - 10, CurrInfoY - height - 2, COL_INFOBAR_PLUS_3);
 		if ((g_settings.infobar_casystem_display < 2) && (!g_settings.infobar_casystem_frame))
@@ -2033,7 +2075,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		timescale->paint();
 
 	//and finally paint channelnumber (again)
-	if (g_settings.channellist_show_numbers)
+	if (g_settings.channellist_show_numbers && !g_settings.skin.skinEnabled)
 		PaintChanNumber();
 }
 
@@ -2342,6 +2384,8 @@ void CInfoViewer::killTitle()
 			rec->kill();
 		//printf("killTitle(%d, %d, %d, %d)\n", BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET-BoxStartX, bottom-BoxStartY);
 		//frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET, bottom);
+		if (g_settings.skin.skinEnabled) frameBuffer->Clear();
+		
 		if (!(zap_mode & IV_MODE_VIRTUAL_ZAP)){
 			if (infobar_txt)
 				infobar_txt->kill();
@@ -2352,13 +2396,13 @@ void CInfoViewer::killTitle()
 		if (sigbox)
 			sigbox->kill();
 #endif
-		header->kill();
-#if 0 //not really required to kill clock, header does this
+		if (header) header->kill();
+#if 1 //not really required to kill clock, header does this
 		if (clock)
 			clock->kill();
 #endif
-		body->kill();
-#if 0 //not really required to kill epg infos, body does this
+		if (body) body->kill();
+#if 1 //not really required to kill epg infos, body does this
 		if (txt_cur_event)
 			txt_cur_event->kill();
 		if (txt_cur_event_rest)
@@ -2425,6 +2469,16 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 
 	if (! logo_available)
 		return 0;
+
+	if (g_settings.skin.skinEnabled){
+		if (g_PicViewer->DisplayImage(strAbsIconPath, g_settings.skin.bgX + g_settings.skin.logoX, g_settings.skin.bgY + g_settings.skin.logoY, g_settings.skin.logoW ? g_settings.skin.logoW : logo_w, g_settings.skin.logoH ? g_settings.skin.logoH : logo_h)) {
+			logoShown = true;
+			return 2; //logo shown
+		} else {
+			logoShown = false;
+			return 0; //no logo
+		}
+	}
 
 	if ((logo_w == 0) || (logo_h == 0)) // corrupt logo size?
 	{
