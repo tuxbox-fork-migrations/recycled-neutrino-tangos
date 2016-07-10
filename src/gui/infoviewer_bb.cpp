@@ -119,7 +119,7 @@ void CInfoViewerBB::Init()
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 5;
 	initBBOffset();
 
-	if ((g_settings.infobar_casystem_display < 2) && g_settings.skin.BbarEnabled)
+	if ((g_settings.infobar_casystem_display < 2) && g_settings.skin.skinEnabled && g_settings.skin.BbarEnabled)
 		bottom_bar_offset -= g_settings.skin.BbarOffset;
 
 	changePB();
