@@ -108,6 +108,9 @@ void CInfoViewerBB::Init()
 	DecEndx = 0;
 	decode = UNKNOWN;
 
+	if (g_settings.skin.skinEnabled)
+		g_settings.infobar_casystem_frame = 1;
+
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		tmp_bbButtonInfoText[i] = "";
 		bbButtonInfo[i].x   = -1;
@@ -116,7 +119,11 @@ void CInfoViewerBB::Init()
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 5;
 	initBBOffset();
 
+	if ((g_settings.infobar_casystem_display < 2) && g_settings.skin.BbarEnabled)
+		bottom_bar_offset -= g_settings.skin.BbarOffset;
+
 	changePB();
+
 }
 
 CInfoViewerBB::~CInfoViewerBB()
@@ -372,6 +379,8 @@ void CInfoViewerBB::showBBButtons(bool paintFooter)
 {
 	if (!is_visible)
 		return;
+	if ((g_settings.skin.skinEnabled) && (!g_settings.skin.BbarEnabled))
+		return;
 	int i;
 	bool paint = false;
 
@@ -393,7 +402,7 @@ void CInfoViewerBB::showBBButtons(bool paintFooter)
 
 	if (paint) {
 #if 1
-		paintFoot(g_InfoViewer->BoxEndX - g_InfoViewer->BoxStartX - g_InfoViewer->ChanInfoX);
+		paintFoot(); //g_InfoViewer->BoxEndX - g_InfoViewer->BoxStartX - g_InfoViewer->ChanInfoX);
 #else
 		fb_pixel_t *pixbuf = NULL;
 		int buf_x = bbIconMinX - 5;
@@ -440,6 +449,10 @@ void CInfoViewerBB::showBBIcons(const int modus, const std::string & icon)
 	if ((bbIconInfo[modus].x <= g_InfoViewer->ChanInfoX) || (bbIconInfo[modus].x >= g_InfoViewer->BoxEndX))
 		return;
 	if ((modus >= CInfoViewerBB::ICON_SUBT) && (modus < CInfoViewerBB::ICON_MAX) && (bbIconInfo[modus].x != -1) && (is_visible)) {
+		if (g_settings.skin.skinEnabled)
+		frameBuffer->paintIcon(icon, bbIconInfo[modus].x, g_settings.skin.bgY + g_settings.skin.IconsY, 
+				       InfoHeightY_Info, 1, true, !g_settings.theme.infobar_gradient_top, COL_INFOBAR_BUTTONS_BACKGROUND);
+		else
 		frameBuffer->paintIcon(icon, bbIconInfo[modus].x - g_InfoViewer->time_width, g_InfoViewer->ChanNameY + 8, 
 				       InfoHeightY_Info, 1, true, !g_settings.theme.infobar_gradient_top, COL_INFOBAR_BUTTONS_BACKGROUND);
 	}
@@ -458,7 +471,7 @@ void CInfoViewerBB::paintshowButtonBar()
 	if (g_settings.infobar_casystem_display < 2)
 		paintCA_bar(0,0);
 
-	paintFoot();
+	//paintFoot();
 
 	g_InfoViewer->showSNR();
 
@@ -503,7 +516,7 @@ void CInfoViewerBB::paintFoot(int w)
 
 	foot->setColorBody(g_settings.theme.infobar_gradient_bottom ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_BUTTONS_BACKGROUND);
 	foot->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_bottom_direction);
-	foot->setCorner(RADIUS_LARGE, CORNER_BOTTOM);
+	foot->setCorner(RADIUS_LARGE, g_settings.skin.skinEnabled ? CORNER_ALL : CORNER_BOTTOM);
 
 	foot->paint(CC_SAVE_SCREEN_NO);
 }
@@ -796,6 +809,8 @@ void CInfoViewerBB::ShowRecDirScale()
 		//	percent = (int)((u * 100ULL) / t);
 		percent = cHddStat::getInstance()->getPercent();
 		int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2);
+		if (g_settings.skin.skinEnabled && !g_settings.skin.BbarEnabled)
+			py += g_settings.skin.BbarOffset;
 		int px = (g_InfoViewer->BoxEndX - g_InfoViewer->BoxStartX)/2;
 		if (is_visible) {
 			if (percent >= 0){
@@ -817,6 +832,8 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 	char buf[20];
 	int endx = g_InfoViewer->BoxEndX - (g_settings.infobar_casystem_frame ? 20 : 10);
 	int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2); /* hand-crafted, should be automatic */
+	if (g_settings.skin.skinEnabled && !g_settings.skin.BbarEnabled)
+		py += g_settings.skin.BbarOffset;
 	int px = 0;
 	static map<int, std::pair<int,const char*> > icon_map;
 	const int icon_space = 10, icon_number = 11;
@@ -966,6 +983,7 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 	int xcnt = (g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX - (g_settings.infobar_casystem_frame ? 24 : 0)) / 4;
 	int ycnt = (bottom_bar_offset - (g_settings.infobar_casystem_frame ? 14 : 0)) / 4;
 	int ca_width = g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX;
+	int ca_offset = (g_settings.skin.skinEnabled && !g_settings.skin.BbarEnabled) ? g_settings.skin.BbarOffset : 0;
 
 	if (right)
 		right = xcnt - ((right/4)+1);
@@ -976,7 +994,7 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 		if (!right || !left) { // paint full bar
 			// framed ca bar
 			if (cabar == NULL)
-				cabar = new CComponentsShapeSquare(g_InfoViewer->ChanInfoX+11, g_InfoViewer->BoxEndY+1, ca_width-22 , bottom_bar_offset-11 , NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
+				cabar = new CComponentsShapeSquare(g_InfoViewer->ChanInfoX+11, g_InfoViewer->BoxEndY+1 + ca_offset, ca_width-22 , bottom_bar_offset-11 , NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
 			//cabar->setCorner(RADIUS_SMALL, CORNER_ALL);
 			cabar->enableShadow(CC_SHADOW_ON, 3, true);
 			cabar->setFrameThickness(2);
@@ -984,7 +1002,7 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 // 			cabar->paint(CC_SAVE_SCREEN_NO);
 		}else{  //TODO: remove this part, cabar object can do this
 			if (cabar == NULL)
-				cabar = new CComponentsShapeSquare(g_InfoViewer->ChanInfoX, g_InfoViewer->BoxEndY, ca_width , bottom_bar_offset-11, NULL, CC_SHADOW_OFF, COL_INFOBAR_CASYSTEM_PLUS_2);
+				cabar = new CComponentsShapeSquare(g_InfoViewer->ChanInfoX, g_InfoViewer->BoxEndY + ca_offset, ca_width , bottom_bar_offset-11, NULL, CC_SHADOW_OFF, COL_INFOBAR_CASYSTEM_PLUS_2);
 			//cabar->setCorner(RADIUS_SMALL, CORNER_ALL);
 			cabar->disableShadow();
 			cabar->setFrameThickness(2);
@@ -1103,6 +1121,8 @@ void* CInfoViewerBB::Thread_paint_cam_icons(void)
 	std::stringstream fpath;
 	int emu_pic_startx = g_InfoViewer->ChanInfoX + (g_settings.infobar_casystem_frame ? 20 : 10);
 	int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2);
+	if (g_settings.skin.skinEnabled && !g_settings.skin.BbarEnabled)
+		py += g_settings.skin.BbarOffset;
 	const char *icon_name[] = {"mgcamd","oscam","gbox"};
 	static int icon_space[] = {14,14,14};
 	int icon_sizeH = 0;

@@ -768,6 +768,7 @@ const char * locale_real_names[] =
 	"fontsize.filebrowser_item",
 	"fontsize.hint",
 	"fontsize.infobar_channame",
+	"fontsize.infobar_clock",
 	"fontsize.infobar_ecminfo",
 	"fontsize.infobar_info",
 	"fontsize.infobar_number",

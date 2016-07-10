@@ -468,6 +468,9 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 {
 	const bool utf8_encoded = flags & IS_UTF8;
 	const bool useFullBg = flags & FULLBG;
+
+	if (x < 1) x=width;
+	if (y < 1) y=height;
 /*
 	useFullBg (default = false)
 
