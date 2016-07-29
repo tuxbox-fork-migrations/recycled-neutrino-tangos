@@ -4498,6 +4498,15 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 #endif
 		returnval = menu_return::RETURN_NONE;
 	}
+	else if(actionKey=="n_restart")
+	{
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+		ExitRun(true, CNeutrinoApp::CHANGEGUI);
+#else
+		ExitRun(true);
+#endif
+		returnval = menu_return::RETURN_NONE;
+	}
 	else if (actionKey=="clock_switch")
 	{
 		InfoClock->switchClockOnOff();
