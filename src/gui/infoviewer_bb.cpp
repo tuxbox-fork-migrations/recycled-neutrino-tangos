@@ -58,6 +58,7 @@
 
 #include <zapit/femanager.h>
 #include <zapit/zapit.h>
+#include <zapit/capmt.h>
 
 #include <video.h>
 
@@ -107,6 +108,19 @@ void CInfoViewerBB::Init()
 
 	DecEndx = 0;
 	decode = UNKNOWN;
+	camCI = false;
+	useCI = false;
+	int CiSlots = cCA::GetInstance()->GetNumberCISlots();
+	int acc = 0;
+	while (acc < CiSlots && acc < 2) {
+		if (cCA::GetInstance()->ModulePresent(CA_SLOT_TYPE_CI, acc)) {
+			printf("CI: CAM found in Slot %i\n", acc);
+			camCI = true;
+		}
+		else
+			printf("CI: CAM not found\n");
+		acc++;
+	}
 
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		tmp_bbButtonInfoText[i] = "";
@@ -812,8 +826,6 @@ void CInfoViewerBB::ShowRecDirScale()
 
 void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_offset)
 {
-	if (g_settings.infobar_casystem_display == 3)
-		return;
 	char buf[20];
 	int endx = g_InfoViewer->BoxEndX - (g_settings.infobar_casystem_frame ? 20 : 10);
 	int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2); /* hand-crafted, should be automatic */
@@ -878,6 +890,12 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
+	int acaid = 0;
+	if (g_settings.show_ecm && (notfirst || g_settings.infobar_casystem_display > 1)) //bad mess :(
+		acaid = check_ecmInfo();
+
+	if (g_settings.infobar_casystem_display == 3)
+		return;
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
 		if (g_settings.infobar_casystem_display == 2) {
 			fta = true;
@@ -925,11 +943,13 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 			icon_space_offset = 0;
 		}
 #endif
-		int acaid = 0;
-		if (File_copy("/tmp/ecm.info", "/tmp/ecm.info.tmp")) {
-			g_InfoViewer->md5_ecmInfo = filehash((char *)"/tmp/ecm.info.tmp");
-			acaid = parse_ecmInfo("/tmp/ecm.info.tmp");
+		acaid = check_ecmInfo();
+		if (channel->scrambled && camCI && !useCI) {
+			useCI = cCA::GetInstance()->checkChannelID(channel->getChannelID());
 		}
+
+		if(useCI)
+			decode = CARD;
 
 		if((acaid & 0xFF00)== 0x1700 && (caids[3]& 0xFF00) == 0x1800)
 			acaid=0x1800;
@@ -947,16 +967,17 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 					break;
 				}
 			}
-
 			if(i == (int)(sizeof(caids)/sizeof(int))-1) {
 				paint_ca_icons(caids[i], fta ? "fta" : dec_icon_name[decode], icon_space_offset);
 				continue;
 			}
+
 			if(g_settings.infobar_casystem_display == 0)
 				paint_ca_icons(caids[i], (found ? (dcaid ? green : yellow) : white), icon_space_offset); //NI
 			else if(found)
-				paint_ca_icons(caids[i], (dcaid ? green : yellow), icon_space_offset); //NI
+				paint_ca_icons(caids[i], (dcaid ? green : yellow), icon_space_offset);
 		}
+
 	}
 }
 
@@ -1140,7 +1161,24 @@ void* CInfoViewerBB::Thread_paint_cam_icons(void)
 			}
 		}
 	}
+
+	if (camCI) {
+		if (useCI)
+			frameBuffer->paintIcon("ci+_green", emu_pic_startx, py);
+		else
+			frameBuffer->paintIcon("ci+_white", emu_pic_startx, py);
+	}
 	pthread_exit(0);
+}
+
+int CInfoViewerBB::check_ecmInfo()
+{
+	int caid = 0;
+	if (File_copy("/tmp/ecm.info", "/tmp/ecm.info.tmp")) {
+		g_InfoViewer->md5_ecmInfo = filehash((char *)"/tmp/ecm.info.tmp");
+		caid = parse_ecmInfo("/tmp/ecm.info.tmp");
+	}
+	return caid;
 }
 
 int CInfoViewerBB::parse_ecmInfo(const char * file)
@@ -1204,7 +1242,7 @@ int CInfoViewerBB::parse_ecmInfo(const char * file)
 			}
 		}
 		fclose(fh);
-		remove("/tmp/ecm.info.tmp");
+		remove(file);
 		if(buffer)
 			free(buffer);
 	}
