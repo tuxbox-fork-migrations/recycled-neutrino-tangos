@@ -94,6 +94,9 @@ class CInfoViewerBB
 		unsigned short int decode;
 		int		DecEndx;
 		int 		parse_ecmInfo(const char * file);
+		int		check_ecmInfo();
+		bool	camCI;
+		bool	useCI;
 
 		typedef struct
 		{
