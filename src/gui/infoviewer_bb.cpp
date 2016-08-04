@@ -855,7 +855,7 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 		icon_map[0x0900] = std::make_pair(index  ,"nds");
 
 		for (it=icon_map.begin(); it!=icon_map.end(); ++it) {
-			snprintf(buf, sizeof(buf), "%s_%s", (*it).second.second, (*it).second.first==0 ? "na" : "white");
+			snprintf(buf, sizeof(buf), "%s_%s", (*it).second.second, (*it).second.first==0 ? "int" : "white");
 			frameBuffer->getIconSize(buf, &icon_sizeW[(*it).second.first], &icon_sizeH);
 		}
 
