@@ -291,6 +291,10 @@ int CAudioSelectMenuHandler::doMenu ()
 	}
 #endif
 
+	//tonbug
+	AudioSelector->addItem(GenericMenuSeparatorLine);
+	AudioSelector->addItem(new CMenuForwarder(LOCALE_CI_RESET, true, NULL, CNeutrinoApp::getInstance(), "tonbug", CRCInput::convertDigitToKey(++shortcut_num)));
+
 	int res = AudioSelector->exec(NULL, "");
 
 	delete AudioSelector;
