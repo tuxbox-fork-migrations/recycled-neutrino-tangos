@@ -621,6 +621,7 @@ struct SNeutrinoSettings
 	int window_width;
 	int window_height;
 	int eventlist_additional;
+	int eventlist_epgplus;
 	int channellist_additional;
 	int channellist_epgtext_align_right;
 	int channellist_progressbar_design;
@@ -789,7 +790,9 @@ struct SNeutrinoSettings
 	//movieplayer
 	int   movieplayer_repeat_on;
 	std::string youtube_dev_id;
+	int youtube_enabled;
 	std::string tmdb_api_key;
+	int tmdb_enabled;
 
 	//zapit setup
 	std::string StartChannelTV;
