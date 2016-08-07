@@ -834,6 +834,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.spectrum         = configfile.getBool("spectrum"          , false);
 	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 1);
 	g_settings.eventlist_additional = configfile.getInt32("eventlist_additional", 1);
+	g_settings.eventlist_epgplus = configfile.getInt32("eventlist_epgplus", 1);
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_progressbar_design = configfile.getInt32("channellist_progressbar_design", g_settings.progressbar_design);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 2);//default next Event
@@ -975,6 +976,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #else
 	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 #endif
+	g_settings.youtube_enabled = ((g_settings.youtube_dev_id != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX") && !g_settings.youtube_dev_id.empty());
+	g_settings.tmdb_enabled = ((g_settings.tmdb_api_key != "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX") && !g_settings.tmdb_api_key.empty());
 
 	//Filebrowser
 	g_settings.filebrowser_showrights =  configfile.getInt32("filebrowser_showrights", 1);
@@ -1450,6 +1453,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "zapto_pre_time", g_settings.zapto_pre_time );
 	configfile.setBool("spectrum", g_settings.spectrum);
 	configfile.setInt32("eventlist_additional", g_settings.eventlist_additional);
+	configfile.setInt32("eventlist_epgplus", g_settings.eventlist_epgplus);
 	configfile.setInt32("channellist_additional", g_settings.channellist_additional);
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
 	configfile.setInt32("channellist_progressbar_design", g_settings.channellist_progressbar_design);
