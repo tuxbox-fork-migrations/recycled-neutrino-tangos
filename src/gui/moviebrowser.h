@@ -292,6 +292,9 @@ class CMovieBrowser : public CMenuTarget
 		CBox m_cBoxFrameFilter;
 		CBox m_cBoxFrameFootRel;
 		CBox m_cBoxFrameTitleRel;
+		CBox m_cBoxDetailInfo;
+
+		CComponentsDetailLine 	*dline;
 
 		LF_LINES m_browserListLines;
 		LF_LINES m_recordListLines;
@@ -332,6 +335,9 @@ class CMovieBrowser : public CMenuTarget
 
 		Font* m_pcFontFoot;
 		Font* m_pcFontTitle;
+		Font* m_pcFontDescription;
+		Font* m_pcFontEvent;
+		Font* m_pcFontDetails;
 		std::string m_textTitle;
 
 		MB_PARENTAL_LOCK m_parentalLock;
@@ -424,6 +430,9 @@ class CMovieBrowser : public CMenuTarget
 		void refreshTitle(void); //P2
 		void refreshInfo(void); // P2
 		void refreshLCD(void); // P2
+		void refreshDetails(void);
+		void clearItem2DetailsLine ();
+		void paintItem2DetailsLine (int pos);
 
 		///// Events ///////////////////////////
 		bool onButtonPress(neutrino_msg_t msg); // P1
