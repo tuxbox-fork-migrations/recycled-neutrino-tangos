@@ -605,6 +605,8 @@ void CMovieBrowser::initFrames(void)
 	m_pcFontEvent = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT];
 	m_pcFontDetails = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST];
 
+    int height_helper = m_pcFontDetails->getHeight()*2 + 10;
+
 	//TRACE("[mb]->%s\n", __func__);
 	m_cBoxFrame.iWidth = 		framebuffer->getScreenWidthRel() - 2*ConnectLineBox_Width;
 	m_cBoxFrame.iHeight = 		framebuffer->getScreenHeightRel();
@@ -619,25 +621,25 @@ void CMovieBrowser::initFrames(void)
 	const int pic_h = 39;
 	m_cBoxFrameTitleRel.iHeight = std::max(m_cBoxFrameTitleRel.iHeight, pic_h);
 
-	m_cBoxDetailInfo.iX = 			m_cBoxFrame.iX + RADIUS_LARGE;
-	m_cBoxDetailInfo.iHeight = 		m_pcFontDetails->getHeight()*2 + 10;
-	m_cBoxDetailInfo.iY = 			m_cBoxFrameTitleRel.iHeight + m_cBoxFrameBrowserList.iHeight + m_cBoxFrameFootRel.iHeight + INTER_FRAME_SPACE;
-	m_cBoxDetailInfo.iWidth = 		m_cBoxFrame.iWidth - 2* RADIUS_LARGE;
-
 	m_cBoxFrameBrowserList.iX = 		m_cBoxFrame.iX;
 	m_cBoxFrameBrowserList.iY = 		m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight;
 	m_cBoxFrameBrowserList.iWidth = 	m_cBoxFrame.iWidth/3*2;
-	m_cBoxFrameBrowserList.iHeight = 	m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight - m_cBoxFrameTitleRel.iHeight - m_cBoxDetailInfo.iHeight;
+	m_cBoxFrameBrowserList.iHeight = 	m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight - m_cBoxFrameTitleRel.iHeight - height_helper;
 
 	m_cBoxFrameFootRel.iX = 		0;
 	m_cBoxFrameFootRel.iHeight = 		refreshFoot(false);
-	m_cBoxFrameFootRel.iY = 		m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight - m_cBoxDetailInfo.iHeight;
+	m_cBoxFrameFootRel.iY = 		m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight - height_helper;
 	m_cBoxFrameFootRel.iWidth = 		m_cBoxFrame.iWidth;
 
 	m_cBoxFrameInfo.iX = 			m_cBoxFrameBrowserList.iX + m_cBoxFrameBrowserList.iWidth + INTER_FRAME_SPACE;
 	m_cBoxFrameInfo.iY = 			m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight;
 	m_cBoxFrameInfo.iWidth = 		m_cBoxFrame.iWidth/3 - INTER_FRAME_SPACE;
 	m_cBoxFrameInfo.iHeight = 		m_cBoxFrameBrowserList.iHeight;
+
+	m_cBoxDetailInfo.iX = 			m_cBoxFrame.iX + RADIUS_LARGE;
+	m_cBoxDetailInfo.iY = 			m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight + m_cBoxFrameBrowserList.iHeight + m_cBoxFrameFootRel.iHeight + INTER_FRAME_SPACE;
+	m_cBoxDetailInfo.iWidth = 		m_cBoxFrame.iWidth - 2* RADIUS_LARGE;
+	m_cBoxDetailInfo.iHeight = 		m_cBoxFrame.iY + m_cBoxFrame.iHeight - m_cBoxDetailInfo.iY;
 
 	m_cBoxFrameLastPlayList.iX = 		m_cBoxFrameBrowserList.iX;
 	m_cBoxFrameLastPlayList.iY = 		m_cBoxFrameBrowserList.iY ;
