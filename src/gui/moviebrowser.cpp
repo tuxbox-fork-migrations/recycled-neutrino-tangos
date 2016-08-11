@@ -1903,10 +1903,8 @@ int CMovieBrowser::refreshFoot(bool show)
 	button_label_ext footerButtons[] = {
 		{ NEUTRINO_ICON_BUTTON_RED,		NONEXISTANT_LOCALE,			sort_text.c_str(),	sort_text_len,	false  },
 		{ NEUTRINO_ICON_BUTTON_GREEN,		NONEXISTANT_LOCALE,			filter_text.c_str(),	0,		true  },
-#if 0
-		{ NEUTRINO_ICON_BUTTON_YELLOW,		LOCALE_MOVIEBROWSER_FOOT_FOCUS,		NULL,			0,		false },
-#endif
 		{ NEUTRINO_ICON_BUTTON_BLUE,		LOCALE_MOVIEBROWSER_FOOT_REFRESH,	NULL,			0,		false },
+		{ NEUTRINO_ICON_BUTTON_INFO_SMALL,	LOCALE_CHANNELLIST_ADDITIONAL,		NULL,			0,		false },
 		{ NEUTRINO_ICON_BUTTON_OKAY,		ok_loc,					NULL,			ok_loc_len,	false },
 		{ NEUTRINO_ICON_BUTTON_MUTE_SMALL,	LOCALE_FILEBROWSER_DELETE,		NULL,			0,		false },
 		{ NEUTRINO_ICON_BUTTON_PLAY,		LOCALE_FILEBROWSER_MARK,		NULL,			0,		false },
