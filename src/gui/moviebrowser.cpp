@@ -1564,7 +1564,7 @@ void CMovieBrowser::paintItem2DetailsLine (int pos)
 void CMovieBrowser::info_hdd_level(bool /* paint_hdd */)
 {
 #if 0
-	if (show_mode == MB_SHOW_YT)
+	if (show_mode == MB_SHOW_YT || !g_settings.infobar_show_sysfs_hdd)
 		return;
 #endif
 
@@ -1990,7 +1990,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 					std::string extension;
 					extension = fname.substr(ext_pos + 1, fname.length() - ext_pos);
 					extension = "." + extension;
-					strReplace(fname, extension.c_str(), ".jpg");
+					str_replace(extension, ".jpg", fname);
 					printf("TMDB: %s : %s\n",m_movieSelectionHandler->file.Name.c_str(),fname.c_str());
 					cTmdb* tmdb = new cTmdb(m_movieSelectionHandler->epgTitle);
 					if ((tmdb->getResults() > 0) && (tmdb->hasCover())) {
@@ -2077,7 +2077,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 		if (m_movieSelectionHandler != NULL)
 		{
 			framebuffer->paintBackground(); //clear whole screen
-			g_EpgData->show_mp(m_movieSelectionHandler, 0, 0);
+			g_EpgData->show_mp(m_movieSelectionHandler);
 			refresh();
 		}
 	}
