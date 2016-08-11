@@ -607,9 +607,9 @@ void CMovieBrowser::initFrames(void)
 
 	//TRACE("[mb]->%s\n", __func__);
 	m_cBoxFrame.iWidth = 		framebuffer->getScreenWidthRel() - 2*ConnectLineBox_Width;
-	m_cBoxFrame.iHeight = 		framebuffer->getScreenHeightRel() - m_pcFontDetails->getHeight()*2 + 10;
+	m_cBoxFrame.iHeight = 		framebuffer->getScreenHeightRel();
 	m_cBoxFrame.iX = 			getScreenStartX(m_cBoxFrame.iWidth);
-	m_cBoxFrame.iY = 			getScreenStartY(framebuffer->getScreenHeightRel());
+	m_cBoxFrame.iY = 			getScreenStartY(m_cBoxFrame.iHeight);
 
 	m_cBoxFrameTitleRel.iX =		0;
 	m_cBoxFrameTitleRel.iY = 		0;
@@ -619,15 +619,25 @@ void CMovieBrowser::initFrames(void)
 	const int pic_h = 39;
 	m_cBoxFrameTitleRel.iHeight = std::max(m_cBoxFrameTitleRel.iHeight, pic_h);
 
+	m_cBoxDetailInfo.iX = 			m_cBoxFrame.iX + RADIUS_LARGE;
+	m_cBoxDetailInfo.iHeight = 		m_pcFontDetails->getHeight()*2 + 10;
+	m_cBoxDetailInfo.iY = 			m_cBoxFrameTitleRel.iHeight + m_cBoxFrameBrowserList.iHeight + m_cBoxFrameFootRel.iHeight + INTER_FRAME_SPACE;
+	m_cBoxDetailInfo.iWidth = 		m_cBoxFrame.iWidth - 2* RADIUS_LARGE;
+
 	m_cBoxFrameBrowserList.iX = 		m_cBoxFrame.iX;
 	m_cBoxFrameBrowserList.iY = 		m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight;
 	m_cBoxFrameBrowserList.iWidth = 	m_cBoxFrame.iWidth/3*2;
-	m_cBoxFrameBrowserList.iHeight = 	m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight - m_cBoxFrameTitleRel.iHeight;
+	m_cBoxFrameBrowserList.iHeight = 	m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight - m_cBoxFrameTitleRel.iHeight - m_cBoxDetailInfo.iHeight;
 
 	m_cBoxFrameFootRel.iX = 		0;
 	m_cBoxFrameFootRel.iHeight = 		refreshFoot(false);
-	m_cBoxFrameFootRel.iY = 		m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight;
+	m_cBoxFrameFootRel.iY = 		m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight - m_cBoxDetailInfo.iHeight;
 	m_cBoxFrameFootRel.iWidth = 		m_cBoxFrame.iWidth;
+
+	m_cBoxFrameInfo.iX = 			m_cBoxFrameBrowserList.iX + m_cBoxFrameBrowserList.iWidth + INTER_FRAME_SPACE;
+	m_cBoxFrameInfo.iY = 			m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight;
+	m_cBoxFrameInfo.iWidth = 		m_cBoxFrame.iWidth/3 - INTER_FRAME_SPACE;
+	m_cBoxFrameInfo.iHeight = 		m_cBoxFrameBrowserList.iHeight;
 
 	m_cBoxFrameLastPlayList.iX = 		m_cBoxFrameBrowserList.iX;
 	m_cBoxFrameLastPlayList.iY = 		m_cBoxFrameBrowserList.iY ;
@@ -638,16 +648,6 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameLastRecordList.iY = 		m_cBoxFrameLastPlayList.iY;
 	m_cBoxFrameLastRecordList.iWidth = 	m_cBoxFrame.iWidth - m_cBoxFrameLastPlayList.iWidth - INTER_FRAME_SPACE;
 	m_cBoxFrameLastRecordList.iHeight =	m_cBoxFrameLastPlayList.iHeight;
-
-	m_cBoxFrameInfo.iX = 			m_cBoxFrameBrowserList.iX + m_cBoxFrameBrowserList.iWidth + INTER_FRAME_SPACE;
-	m_cBoxFrameInfo.iY = 			m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight;
-	m_cBoxFrameInfo.iWidth = 		m_cBoxFrame.iWidth/3 - INTER_FRAME_SPACE;
-	m_cBoxFrameInfo.iHeight = 		m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight - m_cBoxFrameTitleRel.iHeight;
-
-	m_cBoxDetailInfo.iX = 			m_cBoxFrame.iX + RADIUS_LARGE;
-	m_cBoxDetailInfo.iY = 			m_cBoxFrame.iY + m_cBoxFrame.iHeight + INTER_FRAME_SPACE;
-	m_cBoxDetailInfo.iWidth = 		m_cBoxFrame.iWidth - 2* RADIUS_LARGE;
-	m_cBoxDetailInfo.iHeight = 		m_pcFontDetails->getHeight()*2 + 10;
 
 	m_cBoxFrameFilter.iX = 			m_cBoxFrameInfo.iX;
 	m_cBoxFrameFilter.iY = 			m_cBoxFrameInfo.iY;
@@ -1496,7 +1496,7 @@ void CMovieBrowser::refreshDetails()
 	clearItem2DetailsLine();
 	framebuffer->paintBoxRel(m_cBoxDetailInfo.iX+1 - RADIUS_LARGE, m_cBoxDetailInfo.iY + 1, m_cBoxDetailInfo.iWidth-2 + 2*RADIUS_LARGE, m_cBoxDetailInfo.iHeight - 2, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
 	framebuffer->paintBoxFrame(m_cBoxDetailInfo.iX - RADIUS_LARGE, m_cBoxDetailInfo.iY, m_cBoxDetailInfo.iWidth + 2*RADIUS_LARGE, m_cBoxDetailInfo.iHeight, 2, COL_MENUCONTENT_PLUS_6, RADIUS_LARGE);
-	paintItem2DetailsLine(m_pcBrowser->getSelectedLine());
+	paintItem2DetailsLine(m_pcBrowser->getSelectedLineRel());
 
 	m_pcFontDetails->RenderString(m_cBoxDetailInfo.iX,m_cBoxDetailInfo.iY + 5 +   m_pcFontDetails->getHeight(),m_cBoxDetailInfo.iWidth,m_movieSelectionHandler->epgInfo1  ,COL_MENUCONTENTDARK_TEXT);
 	m_pcFontDetails->RenderString(m_cBoxDetailInfo.iX,m_cBoxDetailInfo.iY + 5 + 2*m_pcFontDetails->getHeight(),m_cBoxDetailInfo.iWidth,m_movieSelectionHandler->epgChannel,COL_MENUCONTENTDARK_TEXT);
