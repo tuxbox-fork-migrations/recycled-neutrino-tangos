@@ -349,7 +349,7 @@ void CInfoViewer::showRecordIcon (const bool show)
 			spacer = i*(chanH + 10);
 		if (show)
 		{
-				frameBuffer->paintBoxRel(box_posX + SHADOW_OFFSET, BoxStartY + box_posY - spacer + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_SMALL);
+				frameBuffer->paintBoxRel(box_posX + SHADOW_OFFSET, BoxStartY + box_posY - spacer + SHADOW_OFFSET, box_len, chanH, COL_SHADOW_PLUS_0, RADIUS_SMALL);
 				frameBuffer->paintBoxRel(box_posX, BoxStartY + box_posY - spacer, box_len, chanH, COL_INFOBAR_PLUS_0, RADIUS_SMALL);
 				frameBuffer->paintIcon(show_icon, box_posX + icon_space*2, BoxStartY + box_posY + (chanH - rec_icon_h)/2 - spacer);
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (box_posX + icon_width + icon_space*3, BoxStartY + box_posY + chanH - spacer, box_len, records_msg.c_str(), COL_INFOBAR_TEXT);
