@@ -356,6 +356,8 @@ class CMovieBrowser : public CMenuTarget
 		uint64_t old_EpgId;
 		int movieInfoUpdateAll[MB_INFO_MAX_NUMBER];
 		int movieInfoUpdateAllIfDestEmptyOnly;
+		int clock_off;
+		uint32_t sec_timer_id;
 
 		std::vector<std::string> PicExts;
 		std::string getScreenshotName(std::string movie, bool is_dir = false);

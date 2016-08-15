@@ -77,6 +77,7 @@
 #include <system/hddstat.h>
 
 extern CPictureViewer * g_PicViewer;
+extern bool timeset;
 
 #define my_scandir scandir64
 #define my_alphasort alphasort64
@@ -371,6 +372,7 @@ CMovieBrowser::~CMovieBrowser()
 
 	if (pic)
 		delete pic;
+
 }
 
 void CMovieBrowser::clearListLines()
@@ -523,6 +525,8 @@ void CMovieBrowser::init(void)
 	m_doLoadMovies = false;
 
 	dline = NULL;
+
+	sec_timer_id = g_RCInput->addTimer(1*1000*1000, false);
 }
 
 void CMovieBrowser::initGlobalSettings(void)
@@ -1073,6 +1077,11 @@ int CMovieBrowser::exec(const char* path)
 				TRACE("[mb] Timerevent\n");
 				loop = false;
 			}
+			else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == sec_timer_id))
+			{
+				if (timeset)
+					refreshTitle();
+			}
 			else if (msg == CRCInput::RC_ok)
 			{
 				for (unsigned int i = 0; i < m_vMovieInfo.size(); i++) {
@@ -1181,6 +1190,8 @@ void CMovieBrowser::hide(void)
 		delete CChannelLogo;
 		CChannelLogo = NULL;
 	}
+
+	g_RCInput->killTimer (sec_timer_id);
 
 	old_EpgId = 0;
 	framebuffer->paintBackground();
@@ -1412,7 +1423,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 	//printf("refreshMovieInfo: EpgId %llx id %llx y %d\n", m_movieSelectionHandler->epgEpgId, m_movieSelectionHandler->epgId, m_cBoxFrameTitleRel.iY);
 	int lx = 0;//never read m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
 	int ly = 0;//never read m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
-	short pb_hdd_offset = g_settings.infobar_show_sysfs_hdd ? 104 : 0;
+	short pb_hdd_offset = g_settings.infobar_show_sysfs_hdd ? 104+clock_off : clock_off;
 #if 0
 	if (show_mode == MB_SHOW_YT)
 		pb_hdd_offset = 0;
@@ -1587,7 +1598,7 @@ void CMovieBrowser::info_hdd_level(bool /* paint_hdd */)
 	if (g_settings.infobar_show_sysfs_hdd) {
 		const short pbw = 100;
 		const short border = m_cBoxFrameTitleRel.iHeight/4;
-		CProgressBar pb(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - pbw - border, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw, m_cBoxFrameTitleRel.iHeight/2);
+		CProgressBar pb(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - pbw - border - clock_off, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw, m_cBoxFrameTitleRel.iHeight/2);
 		pb.setType(CProgressBar::PB_REDRIGHT);
 		pb.setValues(cHddStat::getInstance()->getPercent(), 100);
 		pb.paint(false);
@@ -1856,6 +1867,7 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 void CMovieBrowser::refreshTitle(void)
 {
 	std::string title = m_textTitle.c_str();
+	title += " - " + std::string(g_Locale->getText(m_localizedItemName[m_settings.sorting.item]));
 	const char *icon = NEUTRINO_ICON_MOVIEPLAYER;
 #if 0
 	if (show_mode == MB_SHOW_YT) {
@@ -1877,6 +1889,15 @@ void CMovieBrowser::refreshTitle(void)
 	int h = m_cBoxFrameTitleRel.iHeight;
 
 	CComponentsHeader header(x, y, w, h, title.c_str(), icon);
+
+	if (timeset) {
+		header.enableClock(true, "%H:%M", "%H.%M", true);
+		clock_off = header.getClockObject()->getWidth() + 10;
+		header.getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
+	}
+	else
+		clock_off = 0;
+
 	header.paint(CC_SAVE_SCREEN_NO);
 	newHeader = header.isPainted();
 
@@ -2061,6 +2082,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			} while (sortBy[m_settings.sorting.item] == NULL);
 
 			TRACE("[mb]->new sorting %d,%s\n",m_settings.sorting.item,g_Locale->getText(m_localizedItemName[m_settings.sorting.item]));
+			refreshTitle();
 			refreshBrowserList();
 			refreshMovieInfo();
 			refreshFoot();
