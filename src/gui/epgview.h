@@ -65,8 +65,8 @@ class CEpgData
 		bool			bigFonts;
 		bool 			has_follow_screenings;
 		bool 			call_fromfollowlist;
-		bool			tmdbtoggle;
-		int				stars;
+		bool			tmdb_active;
+		int			stars;
 		time_t			tmp_curent_zeit;
 
 		uint64_t		prev_id;
@@ -81,18 +81,22 @@ class CEpgData
 		std::vector<epg_pair> epgText;
 		std::vector<epg_pair> epgText_saved;
 		std::string epgTextSwitch;
+		std::string extMovieInfo;
 		int			topheight,topboxheight;
 		int			buttonheight,botboxheight;
 		int			medlineheight,medlinecount;
+
+		MI_MOVIE_INFO *mp_movie_info;
 
 		void GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* startzeit, bool clear = true );
 		void GetPrevNextEPGData( uint64_t id, time_t* startzeit );
 		void addTextToArray( const std::string & text, int screening );
 		void processTextToArray(std::string text, int screening = 0, bool has_cover = false);
-		void showText( int startPos, int ypos, bool cover=false, bool fullClear=true );
+		void showText(int startPos, int ypos, bool has_cover = false, bool fullClear = true);
 		bool hasFollowScreenings(const t_channel_id channel_id, const std::string & title);
 		int FollowScreenings(const t_channel_id channel_id, const std::string & title);
 		void showTimerEventBar(bool show, bool adzap = false, bool mp_info = false);
+		void showProgressBar();
 		bool isCurrentEPG(const t_channel_id channel_id);
 
 	public:
@@ -101,7 +105,7 @@ class CEpgData
 		~CEpgData();
 		void start( );
 		int show(const t_channel_id channel_id, uint64_t id = 0, time_t* startzeit = NULL, bool doLoop = true, bool callFromfollowlist = false, bool mp_info = false );
-		int show_mp(MI_MOVIE_INFO *mp_movie_info, int mp_position = 1, int mp_duration = 1, bool doLoop = true);
+		int show_mp(MI_MOVIE_INFO *mi, int mp_position = 0, int mp_duration = 0, bool doLoop = true);
 		void hide();
 };
 

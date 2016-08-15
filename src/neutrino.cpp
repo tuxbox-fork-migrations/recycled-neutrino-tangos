@@ -836,6 +836,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.spectrum         = configfile.getBool("spectrum"          , false);
 	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 1);
 	g_settings.eventlist_additional = configfile.getInt32("eventlist_additional", 1);
+	g_settings.eventlist_epgplus = configfile.getInt32("eventlist_epgplus", 1);
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_progressbar_design = configfile.getInt32("channellist_progressbar_design", g_settings.progressbar_design);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 2);//default next Event
@@ -972,11 +973,15 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #else
 	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 #endif
+	g_settings.youtube_enabled = configfile.getInt32("youtube_enabled", 1);
+	g_settings.youtube_enabled = check_youtube_dev_id();
 #ifdef TMDB_API_KEY
 	g_settings.tmdb_api_key = TMDB_API_KEY;
 #else
 	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 #endif
+	g_settings.tmdb_enabled = configfile.getInt32("tmdb_enabled", 1);
+	g_settings.tmdb_enabled = check_tmdb_api_key();
 
 	//Filebrowser
 	g_settings.filebrowser_showrights =  configfile.getInt32("filebrowser_showrights", 1);
@@ -1453,6 +1458,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "zapto_pre_time", g_settings.zapto_pre_time );
 	configfile.setBool("spectrum", g_settings.spectrum);
 	configfile.setInt32("eventlist_additional", g_settings.eventlist_additional);
+	configfile.setInt32("eventlist_epgplus", g_settings.eventlist_epgplus);
 	configfile.setInt32("channellist_additional", g_settings.channellist_additional);
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
 	configfile.setInt32("channellist_progressbar_design", g_settings.channellist_progressbar_design);
@@ -1536,9 +1542,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 #ifndef YOUTUBE_DEV_ID
 	configfile.setString( "youtube_dev_id", g_settings.youtube_dev_id );
 #endif
+	configfile.setInt32( "youtube_enabled", g_settings.youtube_enabled );
 #ifndef TMDB_API_KEY
 	configfile.setString( "tmdb_api_key", g_settings.tmdb_api_key );
 #endif
+	configfile.setInt32( "tmdb_enabled", g_settings.tmdb_enabled );
 
 	//Filebrowser
 	configfile.setInt32("filebrowser_showrights", g_settings.filebrowser_showrights);
@@ -4514,6 +4522,15 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	{
 		InfoClock->switchClockOnOff();
 		returnval = menu_return::RETURN_EXIT_ALL;
+	}
+	else if (actionKey=="tonbug")
+	{
+		CZapitChannel * chan = CZapit::getInstance()->GetCurrentChannel();
+		if (chan)
+		{
+			CZapit::getInstance()->ChangeAudioPid(chan->getAudioChannelIndex());
+			returnval = menu_return::RETURN_EXIT_ALL;
+		}
 	}
 	else if (actionKey=="tv_radio_switch")//used in mainmenu
 	{

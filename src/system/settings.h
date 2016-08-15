@@ -98,6 +98,11 @@ struct SNeutrinoTheme
 	unsigned char menu_Content_inactive_Text_green;
 	unsigned char menu_Content_inactive_Text_blue;
 
+	unsigned char menu_Foot_alpha;
+	unsigned char menu_Foot_red;
+	unsigned char menu_Foot_green;
+	unsigned char menu_Foot_blue;
+
 	int menu_Hint_gradient;
 	int menu_Hint_gradient_direction;
 	int menu_ButtonBar_gradient;
@@ -670,6 +675,7 @@ struct SNeutrinoSettings
 	int window_width;
 	int window_height;
 	int eventlist_additional;
+	int eventlist_epgplus;
 	int channellist_additional;
 	int channellist_epgtext_align_right;
 	int channellist_progressbar_design;
@@ -839,7 +845,9 @@ struct SNeutrinoSettings
 	//movieplayer
 	int   movieplayer_repeat_on;
 	std::string youtube_dev_id;
+	int youtube_enabled;
 	std::string tmdb_api_key;
+	int tmdb_enabled;
 
 	//zapit setup
 	std::string StartChannelTV;

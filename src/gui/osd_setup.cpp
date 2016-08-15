@@ -738,6 +738,8 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 			&t.menu_Content_inactive_alpha, colorSetupNotifier);
 	CColorChooser* chContentInactiveTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &t.menu_Content_inactive_Text_red, &t.menu_Content_inactive_Text_green, &t.menu_Content_inactive_Text_blue,
 			NULL, colorSetupNotifier);
+	CColorChooser* chFootcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.menu_Foot_red, &t.menu_Foot_green, &t.menu_Foot_blue,
+			&t.menu_Foot_alpha, colorSetupNotifier);
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUHEAD));
 
@@ -795,6 +797,12 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chContentSelectedTextcolor );
 	mf->setHint("", LOCALE_MENU_HINT_SELECTED_TEXT);
+	menu_colors->addItem(mf);
+
+	// footer
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUFOOT));
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chFootcolor );
+	mf->setHint("", LOCALE_MENU_HINT_HEAD_BACK);
 	menu_colors->addItem(mf);
 
 	// hintbox color gradient
@@ -1281,6 +1289,11 @@ void COsdSetup::showOsdEventlistSetup(CMenuWidget *menu_eventlist)
 	// eventlist additional
 	mc = new CMenuOptionChooser(LOCALE_EVENTLIST_ADDITIONAL, &g_settings.eventlist_additional, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_EVENTLIST_ADDITIONAL);
+	menu_eventlist->addItem(mc);
+
+	// epgplus in eventlist
+	mc = new CMenuOptionChooser(LOCALE_EVENTLIST_EPGPLUS, &g_settings.eventlist_epgplus, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_EVENTLIST_EPGPLUS);
 	menu_eventlist->addItem(mc);
 }
 
