@@ -292,6 +292,9 @@ class CMovieBrowser : public CMenuTarget
 		CBox m_cBoxFrameFilter;
 		CBox m_cBoxFrameFootRel;
 		CBox m_cBoxFrameTitleRel;
+		CBox m_cBoxDetailInfo;
+
+		CComponentsDetailLine 	*dline;
 
 		LF_LINES m_browserListLines;
 		LF_LINES m_recordListLines;
@@ -332,6 +335,9 @@ class CMovieBrowser : public CMenuTarget
 
 		Font* m_pcFontFoot;
 		Font* m_pcFontTitle;
+		Font* m_pcFontDescription;
+		Font* m_pcFontEvent;
+		Font* m_pcFontDetails;
 		std::string m_textTitle;
 
 		MB_PARENTAL_LOCK m_parentalLock;
@@ -350,6 +356,8 @@ class CMovieBrowser : public CMenuTarget
 		uint64_t old_EpgId;
 		int movieInfoUpdateAll[MB_INFO_MAX_NUMBER];
 		int movieInfoUpdateAllIfDestEmptyOnly;
+		int clock_off;
+		uint32_t sec_timer_id;
 
 		std::vector<std::string> PicExts;
 		std::string getScreenshotName(std::string movie, bool is_dir = false);
@@ -424,6 +432,9 @@ class CMovieBrowser : public CMenuTarget
 		void refreshTitle(void); //P2
 		void refreshInfo(void); // P2
 		void refreshLCD(void); // P2
+		void refreshDetails(void);
+		void clearItem2DetailsLine ();
+		void paintItem2DetailsLine (int pos);
 
 		///// Events ///////////////////////////
 		bool onButtonPress(neutrino_msg_t msg); // P1
@@ -442,6 +453,7 @@ class CMovieBrowser : public CMenuTarget
 		void onSetGUIWindowNext(void);
 		void onSetGUIWindowPrev(void);
 		bool onDelete(bool cursor_only = false);
+		std::string formatDeleteMsg(MI_MOVIE_INFO *movieinfo, int msgFont, const int boxWidth = 450);
 		bool onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk = false);  // P4
 		bool onSortMovieInfoHandleList(std::vector<MI_MOVIE_INFO*>& pv_handle_list, MB_INFO_ITEM sort_type, MB_DIRECTION direction);
 

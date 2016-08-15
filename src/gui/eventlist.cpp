@@ -271,7 +271,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 
 	// Calculate iheight (we assume the red button is the largest one?)
 	struct button_label tmp_button[1] = { { NEUTRINO_ICON_BUTTON_RED, LOCALE_EVENTLISTBAR_RECORDEVENT } };
-	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 0, false);
+	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
 
 	// Calculate theight
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
@@ -601,10 +601,13 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 		}
 		else if (msg == CRCInput::RC_epg)
 		{
-			hide();
-			CEPGplusHandler eplus;
-			eplus.exec(NULL, "");
-			loop = false;
+			if (g_settings.eventlist_epgplus)
+			{
+				hide();
+				CEPGplusHandler eplus;
+				eplus.exec(NULL, "");
+				loop = false;
+			}
 		}
 		else if (msg==CRCInput::RC_help || msg==CRCInput::RC_ok || msg==CRCInput::RC_info)
 		{

@@ -1844,7 +1844,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				fromInfoviewer = false;
 			}
 			else
-			callInfoViewer();
+				callInfoViewer();
 			update_lcd = true;
 #if 0
 			clearSubtitle();
@@ -2088,7 +2088,7 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 		if(duration == 0)
 			UpdatePosition();
 
-		MI_MOVIE_INFO * mi;
+		MI_MOVIE_INFO *mi;
 		mi = p_movie_info;
 		if (!filelist.empty() && g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP)
 		{
@@ -2558,7 +2558,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 			CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
 		}
 		else if (p_movie_info)
-			cMovieInfo.showMovieInfo(*p_movie_info);
+			g_EpgData->show_mp(p_movie_info, position, duration);
 
 		CInfoClock::getInstance()->enableInfoClock(true);
 		if (restore) {
