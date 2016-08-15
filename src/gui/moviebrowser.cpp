@@ -525,8 +525,6 @@ void CMovieBrowser::init(void)
 	m_doLoadMovies = false;
 
 	dline = NULL;
-
-	sec_timer_id = g_RCInput->addTimer(1*1000*1000, false);
 }
 
 void CMovieBrowser::initGlobalSettings(void)
@@ -1077,7 +1075,7 @@ int CMovieBrowser::exec(const char* path)
 				TRACE("[mb] Timerevent\n");
 				loop = false;
 			}
-			else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == sec_timer_id))
+			else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == g_InfoViewer->sec_timer_id))
 			{
 				if (timeset)
 					refreshTitle();
@@ -1190,8 +1188,6 @@ void CMovieBrowser::hide(void)
 		delete CChannelLogo;
 		CChannelLogo = NULL;
 	}
-
-	g_RCInput->killTimer (sec_timer_id);
 
 	old_EpgId = 0;
 	framebuffer->paintBackground();
