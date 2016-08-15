@@ -66,7 +66,7 @@ extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern cVideo * videoDecoder;
 extern CPictureViewer * g_PicViewer;
 
-#define COL_INFOBAR_BUTTONS_BACKGROUND (COL_INFOBAR_SHADOW_PLUS_1)
+#define COL_INFOBAR_BUTTONS_BACKGROUND (COL_MENUFOOT_PLUS_0)
 
 #define NEUTRINO_ICON_LOGO "/tmp/logo.png"
 
