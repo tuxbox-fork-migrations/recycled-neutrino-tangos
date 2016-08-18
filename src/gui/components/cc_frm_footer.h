@@ -66,7 +66,7 @@ class CComponentsFooter : public CComponentsHeader
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUFOOT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///show button frame and background, default false
 		bool btn_contour;
@@ -87,7 +87,7 @@ class CComponentsFooter : public CComponentsHeader
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUFOOT_PLUS_0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///add button labels with string label type as content, count as size_t, chain_width as int, label width as int
 		void setButtonLabels(const struct button_label_s * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
@@ -136,7 +136,7 @@ class CComponentsFooter : public CComponentsHeader
 					const struct button_label * const content,
 					const int& label_width = 0,
 					const int& context_buttons = 0,
-					Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL],
+					Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT],
 					bool do_save_bg = CC_SAVE_SCREEN_NO
 				);
 

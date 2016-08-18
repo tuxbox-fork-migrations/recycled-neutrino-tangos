@@ -130,7 +130,7 @@ void CInfoViewerBB::Init()
 		bbButtonInfo[i].x   = -1;
 	}
 
-	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 5;
+	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 5;
 	initBBOffset();
 
 	if ((g_settings.infobar_casystem_display < 2) && g_settings.skin.skinEnabled && !g_settings.skin.BbarEnabled)
@@ -173,7 +173,7 @@ void CInfoViewerBB::getBBIconInfo()
 	bbIconMaxH 		= 0;
 	showBBIcons_width = 0;
 	BBarY 			= g_InfoViewer->BoxEndY + bottom_bar_offset;
-	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()) / 2; /* center in buttonbar */
+	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
 	bbIconMinX 		= g_InfoViewer->BoxEndX - 8; //should be 10px, but 2px will be reduced for each icon
 	CNeutrinoApp* neutrino	= CNeutrinoApp::getInstance();
 
@@ -318,7 +318,7 @@ void CInfoViewerBB::getBBButtonInfo()
 				text = CMoviePlayerGui::getInstance(false).CurrentAudioName(); // use instance_mp
 		}
 		bbButtonInfo[i].w = w;
-		bbButtonInfo[i].cx = std::min(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(text),w);
+		bbButtonInfo[i].cx = std::min(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(text),w);
 		bbButtonInfo[i].h = h;
 		bbButtonInfo[i].text = text;
 		bbButtonInfo[i].icon = icon;
@@ -445,8 +445,8 @@ void CInfoViewerBB::showBBButtons(bool paintFooter)
 			if (bbButtonInfo[i].x > 0) {
 					frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
 
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bbButtonInfo[i].x + (bbButtonInfo[i].w /2 - bbButtonInfo[i].cx /2), BBarFontY, 
-				       bbButtonInfo[i].w, bbButtonInfo[i].text, COL_INFOBAR_TEXT);
+				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->RenderString(bbButtonInfo[i].x + (bbButtonInfo[i].w /2 - bbButtonInfo[i].cx /2), BBarFontY, 
+				       bbButtonInfo[i].w, bbButtonInfo[i].text, COL_MENUFOOT_TEXT);
 			}
 		}
 
