@@ -63,12 +63,12 @@
 #include <sys/vfs.h> // for statfs
 #include <sys/mount.h>
 #include <utime.h>
-#if 0
 //#include <unistd.h>
 #include <gui/customcolor.h>
 #include <driver/record.h>
 #include <driver/display.h>
 //#include <system/helpers.h>
+#if 0
 #include <system/ytcache.h>
 #endif
 #include <zapit/debug.h>
