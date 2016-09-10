@@ -1313,7 +1313,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 #ifdef ENABLE_GRAPHLCD
 	nGLCD::MirrorOSD(false);
 	if (p_movie_info)
-		nGLCD::lockChannel(p_movie_info->epgChannel, p_movie_info->epgTitle);
+		nGLCD::lockChannel(p_movie_info->channelName, p_movie_info->epgTitle);
 	else {
 		glcd_play = true;
 		nGLCD::lockChannel(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD), file_name.c_str(), file_prozent);
@@ -1498,7 +1498,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 	{
 #ifdef ENABLE_GRAPHLCD
 		if (p_movie_info)
-			nGLCD::lockChannel(p_movie_info->epgChannel, p_movie_info->epgTitle, duration ? (100 * position / duration) : 0);
+			nGLCD::lockChannel(p_movie_info->channelName, p_movie_info->epgTitle, duration ? (100 * position / duration) : 0);
 		else {
 			glcd_play = true;
 			nGLCD::lockChannel(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD), file_name.c_str(), file_prozent);
@@ -2079,7 +2079,7 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 			p_movie_info = &movie_info;
 #ifdef ENABLE_GRAPHLCD
 		if (p_movie_info)
-			nGLCD::lockChannel(p_movie_info->epgChannel, p_movie_info->epgTitle);
+			nGLCD::lockChannel(p_movie_info->channelName, p_movie_info->epgTitle);
 #endif
 	}
 
