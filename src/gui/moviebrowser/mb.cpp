@@ -1395,7 +1395,7 @@ void CMovieBrowser::refreshDetails()
 	paintItem2DetailsLine(m_pcBrowser->getSelectedLineRel());
 
 	m_pcFontDetails->RenderString(m_cBoxDetailInfo.iX,m_cBoxDetailInfo.iY + 5 +   m_pcFontDetails->getHeight(),m_cBoxDetailInfo.iWidth,m_movieSelectionHandler->epgInfo1  ,COL_MENUCONTENTDARK_TEXT);
-	m_pcFontDetails->RenderString(m_cBoxDetailInfo.iX,m_cBoxDetailInfo.iY + 5 + 2*m_pcFontDetails->getHeight(),m_cBoxDetailInfo.iWidth,m_movieSelectionHandler->epgChannel,COL_MENUCONTENTDARK_TEXT);
+	m_pcFontDetails->RenderString(m_cBoxDetailInfo.iX,m_cBoxDetailInfo.iY + 5 + 2*m_pcFontDetails->getHeight(),m_cBoxDetailInfo.iWidth,m_movieSelectionHandler->channelName,COL_MENUCONTENTDARK_TEXT);
 
 	std::string datetime;
 	tm *date_tm = localtime(&m_movieSelectionHandler->dateOfLastPlay);
@@ -1414,7 +1414,7 @@ void CMovieBrowser::refreshDetails()
 		{
 			if (i)
 				audioinfo += ", ";
-			audioinfo += m_movieSelectionHandler->audioPids[i].epgAudioPidName;
+			audioinfo += m_movieSelectionHandler->audioPids[i].AudioPidName;
 		}
 		int a_width = m_pcFontDetails->getRenderWidth(audioinfo);
 		m_pcFontDetails->RenderString(m_cBoxDetailInfo.iX + m_cBoxDetailInfo.iWidth - a_width,m_cBoxDetailInfo.iY + 5 +   m_pcFontDetails->getHeight(),a_width,audioinfo ,COL_MENUCONTENTDARK_TEXT);
