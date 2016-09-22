@@ -61,7 +61,6 @@ extern CBouquetManager *g_bouquetManager;
 #if HAVE_DUCKBOX_HARDWARE
 #define EVENTDEV "/dev/input/event0"
 #elif HAVE_SPARK_HARDWARE
-#if HAVE_SPARK_HARDWARE
 #define EVENTDEV "/dev/input/nevis_ir"
 #else
 #define EVENTDEV "/dev/input/input0"
