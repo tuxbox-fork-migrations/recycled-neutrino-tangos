@@ -1379,8 +1379,8 @@ bool CTimerEvent_Record::adjustToCurrentEPG()
 	}
 
 	CTimerEvent_Record *event= new CTimerEvent_Record(_announceTime, _alarmTime, _stopTime,
-						          eventInfo.channel_id, eventInfo.epgID, first->startTime, eventInfo.apids,
-				       			  CTimerd::TIMERREPEAT_ONCE, 1, recordingDir, recordingSafety, autoAdjustToEPG);
+							  eventInfo.channel_id, eventInfo.epgID, first->startTime, eventInfo.apids,
+							  CTimerd::TIMERREPEAT_ONCE, 1, recordingDir, recordingSafety, autoAdjustToEPG);
 	CTimerManager::getInstance()->addEvent(event,false);
 	setState(CTimerd::TIMERSTATE_HASFINISHED);
 
