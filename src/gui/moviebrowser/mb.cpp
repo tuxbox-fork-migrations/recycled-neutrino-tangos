@@ -1460,7 +1460,7 @@ void CMovieBrowser::paintItem2DetailsLine (int pos)
 void CMovieBrowser::info_hdd_level(bool /* paint_hdd */)
 {
 #if 0
-	if (show_mode == MB_SHOW_YT || !g_settings.infobar_show_sysfs_hdd)
+	if (show_mode == MB_SHOW_YT)
 		return;
 #endif
 
