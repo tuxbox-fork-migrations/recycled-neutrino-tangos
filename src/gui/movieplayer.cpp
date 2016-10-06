@@ -906,11 +906,11 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 
 	std::vector<std::string> args;
 	args.push_back(file);
-
+#ifdef ENABLE_LUA
 	CLuaInstance *lua = new CLuaInstance();
 	lua->runScript(script.c_str(), &args, &result_code, &result_string);
 	delete lua;
-
+#endif
 	if ((result_code != "0") || result_string.empty()) {
 		if (box != NULL) {
 			box->hide();
@@ -1664,7 +1664,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		} else if (msg == (neutrino_msg_t) g_settings.key_quickzap_up || msg == (neutrino_msg_t) g_settings.key_quickzap_down) {
 			quickZap(msg);
 		} else if (fromInfoviewer && msg == CRCInput::RC_ok && !filelist.empty()) {
-			printf("CMoviePlayerGui::%s: start playlist movie #%d\n", __func__, vzap_it - filelist.begin());
+			printf("CMoviePlayerGui::%s: start playlist movie #%d\n", __func__, (int)(vzap_it - filelist.begin()));
 			fromInfoviewer = false;
 			playstate = CMoviePlayerGui::STOPPED;
 			filelist_it = vzap_it;
@@ -2026,7 +2026,7 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 
 void CMoviePlayerGui::set_vzap_it(bool up)
 {
-	//printf("CMoviePlayerGui::%s: vzap_it: %d count %s\n", __func__, vzap_it - filelist.begin(), up ? "up" : "down");
+	//printf("CMoviePlayerGui::%s: vzap_it: %d count %s\n", __func__, (int)(vzap_it - filelist.begin()), up ? "up" : "down");
 	if (up)
 	{
 		if (vzap_it < (filelist.end() - 1))
@@ -2037,7 +2037,7 @@ void CMoviePlayerGui::set_vzap_it(bool up)
 		if (vzap_it > filelist.begin())
 			--vzap_it;
 	}
-	//printf("CMoviePlayerGui::%s: vzap_it: %d\n", __func__, vzap_it - filelist.begin());
+	//printf("CMoviePlayerGui::%s: vzap_it: %d\n", __func__, (int)(vzap_it - filelist.begin()));
 }
 
 void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
@@ -2555,7 +2555,9 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 					yres = 1080;
 				aspectRatio = videoDecoder->getAspectRatio();
 			}
+#ifdef ENABLE_LUA
 			CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
+#endif
 		}
 		else if (p_movie_info)
 			g_EpgData->show_mp(p_movie_info, position, duration);
