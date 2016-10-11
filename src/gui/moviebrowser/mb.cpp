@@ -524,7 +524,7 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameInfo.iHeight = 		m_cBoxFrameBrowserList.iHeight;
 
 	m_cBoxDetailInfo.iX = 			m_cBoxFrame.iX + RADIUS_LARGE;
-	m_cBoxDetailInfo.iY = 			m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight + m_cBoxFrameBrowserList.iHeight + m_cBoxFrameFootRel.iHeight + INTER_FRAME_SPACE;
+	m_cBoxDetailInfo.iY = 			m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight + m_cBoxFrameBrowserList.iHeight + m_cBoxFrameFootRel.iHeight + OFFSET_INTER;
 	m_cBoxDetailInfo.iWidth = 		m_cBoxFrame.iWidth - 2* RADIUS_LARGE;
 	m_cBoxDetailInfo.iHeight = 		m_cBoxFrame.iY + m_cBoxFrame.iHeight - m_cBoxDetailInfo.iY;
 
