@@ -518,9 +518,9 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameFootRel.iY = 		m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight - height_helper;
 	m_cBoxFrameFootRel.iWidth = 		m_cBoxFrame.iWidth;
 
-	m_cBoxFrameInfo.iX = 			m_cBoxFrameBrowserList.iX + m_cBoxFrameBrowserList.iWidth + INTER_FRAME_SPACE;
+	m_cBoxFrameInfo.iX = 			m_cBoxFrameBrowserList.iX + m_cBoxFrameBrowserList.iWidth + OFFSET_INTER;
 	m_cBoxFrameInfo.iY = 			m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight;
-	m_cBoxFrameInfo.iWidth = 		m_cBoxFrame.iWidth/3 - INTER_FRAME_SPACE;
+	m_cBoxFrameInfo.iWidth = 		m_cBoxFrame.iWidth/3 - OFFSET_INTER;
 	m_cBoxFrameInfo.iHeight = 		m_cBoxFrameBrowserList.iHeight;
 
 	m_cBoxDetailInfo.iX = 			m_cBoxFrame.iX + RADIUS_LARGE;
@@ -538,14 +538,6 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameLastRecordList.iWidth = 	m_cBoxFrame.iWidth - m_cBoxFrameLastPlayList.iWidth - OFFSET_INTER;
 	m_cBoxFrameLastRecordList.iHeight =	m_cBoxFrameLastPlayList.iHeight;
 
-<<<<<<< HEAD
-=======
-	m_cBoxFrameInfo.iX = 			m_cBoxFrameBrowserList.iX;
-	m_cBoxFrameInfo.iY = 			m_cBoxFrameBrowserList.iY + m_cBoxFrameBrowserList.iHeight + OFFSET_INTER;
-	m_cBoxFrameInfo.iWidth = 		m_cBoxFrameBrowserList.iWidth;
-	m_cBoxFrameInfo.iHeight = 		m_cBoxFrame.iHeight - m_cBoxFrameBrowserList.iHeight - OFFSET_INTER - m_cBoxFrameFootRel.iHeight - m_cBoxFrameTitleRel.iHeight;
-
->>>>>>> 14b2c1cd3f4df2bbec40bf1bd0e7bce142cfe734
 	m_cBoxFrameFilter.iX = 			m_cBoxFrameInfo.iX;
 	m_cBoxFrameFilter.iY = 			m_cBoxFrameInfo.iY;
 	m_cBoxFrameFilter.iWidth = 		m_cBoxFrameInfo.iWidth;
