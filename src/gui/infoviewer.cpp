@@ -317,7 +317,7 @@ void CInfoViewer::showRecordIcon (const bool show)
 		int records		= crm->GetRecordCount();
 		
 
-		const int ChanName_X = BoxStartX + ChanWidth + SHADOW_OFFSET;
+		const int ChanName_X = BoxStartX + ChanWidth + OFFSET_SHADOW;
 		const int icon_space = 3;
 		const int box_posY = infobar_txt ? (infobar_txt->getHeight()*-1)-5: -5;
 		int box_len = 0, rec_icon_posX = 0, ts_icon_posX = 0;
@@ -329,7 +329,7 @@ void CInfoViewer::showRecordIcon (const bool show)
 		int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight () * (g_settings.screen_yres / 100);
 		if (chanH < rec_icon_h)
 			chanH = rec_icon_h;
-		const int box_posX = ChanInfoX;   //ChanName_X + SHADOW_OFFSET;
+		const int box_posX = ChanInfoX;   //ChanName_X + OFFSET_SHADOW;
 					
 		int i = 0;
 		recmap_t recmap = crm->GetRecordMap();
@@ -349,7 +349,7 @@ void CInfoViewer::showRecordIcon (const bool show)
 			spacer = i*(chanH + 10);
 		if (show)
 		{
-				frameBuffer->paintBoxRel(box_posX + SHADOW_OFFSET, BoxStartY + box_posY - spacer + SHADOW_OFFSET, box_len, chanH, COL_SHADOW_PLUS_0, RADIUS_SMALL);
+				frameBuffer->paintBoxRel(box_posX + OFFSET_SHADOW, BoxStartY + box_posY - spacer + OFFSET_SHADOW, box_len, chanH, COL_SHADOW_PLUS_0, RADIUS_SMALL);
 				frameBuffer->paintBoxRel(box_posX, BoxStartY + box_posY - spacer, box_len, chanH, COL_INFOBAR_PLUS_0, RADIUS_SMALL);
 				frameBuffer->paintIcon(show_icon, box_posX + icon_space*2, BoxStartY + box_posY + (chanH - rec_icon_h)/2 - spacer);
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (box_posX + icon_width + icon_space*3, BoxStartY + box_posY + chanH - spacer, box_len, records_msg.c_str(), COL_INFOBAR_TEXT);
@@ -2387,7 +2387,7 @@ void CInfoViewer::killTitle()
 		if (g_settings.show_ecm)
 			ecmInfoBox_hide();
 
-		frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY - spacer - 5, BoxEndX + SHADOW_OFFSET, bottom);
+		frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY - spacer - 5, BoxEndX + OFFSET_SHADOW, bottom);
 		frameBuffer->blit();
 	}
 	showButtonBar = false;
@@ -2677,7 +2677,7 @@ void CInfoViewer::ecmInfoBox_show(const char * txt, int w, int h, Font * font)
 	//calc available width (width of Infobar)
 	int max_w = BoxEndX - BoxStartX;
 	//calc available height (space between Top and Infobar)
-	int max_h = BoxStartY - frameBuffer->getScreenY() - 2*SHADOW_OFFSET;
+	int max_h = BoxStartY - frameBuffer->getScreenY() - 2*OFFSET_SHADOW;
 
 	//get window header object
 	CComponentsHeader* winheader = ecmInfoBox->getHeaderObject();
