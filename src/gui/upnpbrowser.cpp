@@ -35,9 +35,11 @@
 #include <upnpclient.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
+#if 0
 #include <driver/audioplay.h>
 #include <driver/audiofile.h>
 #include <driver/audiometadata.h>
+#endif
 #include <driver/screen_max.h>
 #include <driver/display.h>
 
@@ -166,7 +168,9 @@ CUpnpBrowserGui::~CUpnpBrowserGui()
 
 int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 {
+#if 0
 	CAudioPlayer::getInstance()->init();
+#endif
 
 	if (parent)
 		parent->hide();
@@ -633,7 +637,11 @@ void CUpnpBrowserGui::playnext(void)
 				if (mime.substr(0,6) == "audio/") {
 					m_playing_entry = (*entries)[0];
 					m_playing_entry_is_shown = false;
+#if 0
 					playAudio((*entries)[0].resources[preferred].url, (*entries)[0].type);
+#else
+					playVideo((*entries)[0].title, (*entries)[0].resources[preferred].url);
+#endif
 				}
 				else if (mime.substr(0,6) == "video/") {
 					playVideo((*entries)[0].title, (*entries)[0].resources[preferred].url);
@@ -641,7 +649,7 @@ void CUpnpBrowserGui::playnext(void)
 				}
 				else if (mime.substr(0,6) == "image/") {
 					if (m_folderplay)
-						timeout = time(NULL) + g_settings.picviewer_slide_time;
+						timeout = time(NULL) + 10; //g_settings.picviewer_slide_time;
 					showPicture((*entries)[0].resources[preferred].url);
 				}
 				return;
@@ -807,7 +815,14 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 					{
 						m_playing_entry = (*entries)[selected - liststart];
 						m_playing_entry_is_shown = false;
+#if 0
 						playAudio((*entries)[selected - liststart].resources[preferred].url, (*entries)[selected - liststart].type);
+#else
+						m_frameBuffer->Clear();
+						playVideo((*entries)[selected - liststart].title, (*entries)[selected - liststart].resources[preferred].url);
+						m_frameBuffer->showFrame("mp3.jpg");
+						refresh = true;
+#endif
 					}
 					else if (mime.substr(0,6) == "video/")
 					{
@@ -903,7 +918,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 			//refresh=true;
 		}
 
-		if (m_folderplay && ((!timeout || (timeout <= time(NULL))) && (CAudioPlayer::getInstance()->getState() == CBaseDec::STOP))) {
+		if (m_folderplay && ((!timeout || (timeout <= time(NULL))) /*&& (CAudioPlayer::getInstance()->getState() == CBaseDec::STOP)*/)) {
 			playnext();
 			m_playid++;
 		}
@@ -1253,6 +1268,7 @@ void CUpnpBrowserGui::paintItem2DetailsLine(int pos)
 
 void CUpnpBrowserGui::updateTimes(const bool force)
 {
+#if 0
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP){
 		bool updatePlayed = force;
 
@@ -1270,31 +1286,36 @@ void CUpnpBrowserGui::updateTimes(const bool force)
 			timebox.paint0();
 		}
 	}
+#endif
 }
 
 void CUpnpBrowserGui::playAudio(std::string name, int type)
 {
+#if 0
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_audio);
 
 	CAudiofile mp3(name, (CFile::FileType) type);
 	CAudioPlayer::getInstance()->play(&mp3, g_settings.audioplayer_highprio == 1);
 
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_upnp | NeutrinoMessages::norezap);
+#endif
 }
 
 void CUpnpBrowserGui::stopAudio()
 {
+#if 0
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
 	{
 		CAudioPlayer::getInstance()->stop();
 	}
+#endif
 }
 
 void CUpnpBrowserGui::showPicture(std::string name)
 {
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_pic);
 
-	g_PicViewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
+	g_PicViewer->SetScaling((CPictureViewer::ScalingMode) 1 /*g_settings.picviewer_scaling*/);
 	g_PicViewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
 
 	if (g_settings.video_Format==3)
@@ -1313,8 +1334,10 @@ void CUpnpBrowserGui::playVideo(std::string name, std::string url)
 {
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_ts);
 
+#if 0
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
 		CAudioPlayer::getInstance()->stop();
+#endif
 
 	m_frameBuffer->stopFrame();
 	CMoviePlayerGui::getInstance().SetFile(name, url);
