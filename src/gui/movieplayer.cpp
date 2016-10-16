@@ -3313,6 +3313,8 @@ void CMoviePlayerGui::showFileInfos()
 	size_t count = keys.size();
 	if (count > 0) {
 		CMenuWidget* sfimenu = new CMenuWidget("Fileinfos", NEUTRINO_ICON_SETTINGS);
+		sfimenu->addItem(GenericMenuBack);
+		sfimenu->addItem(GenericMenuSeparatorLine);
 		for (size_t i = 0; i < count; i++) {
 			std::string key = trim(keys[i]);
 			printf("key: %s - values: %s \n", key.c_str(), isUTF8(values[i]) ? values[i].c_str() : convertLatin1UTF8(values[i]).c_str());

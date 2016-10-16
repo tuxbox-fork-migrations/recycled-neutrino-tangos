@@ -277,7 +277,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
 			if (mode == NeutrinoMessages::mode_ts) {
-				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_yellow, active, g_settings.infobar_buttons_usertitle);
+				text = "Fileinfos"; //CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_yellow, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
 					break;
 			}
