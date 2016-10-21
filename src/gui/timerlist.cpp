@@ -563,17 +563,17 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		}*/
 }
 
-#define TimerListButtonsCount 7
-struct button_label TimerListButtons[TimerListButtonsCount] =
+struct button_label TimerListButtons[] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED   	, LOCALE_TIMERLIST_DELETE },
 	{ NEUTRINO_ICON_BUTTON_GREEN 	, LOCALE_TIMERLIST_NEW    },
 	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_TIMERLIST_RELOAD },
 	{ NEUTRINO_ICON_BUTTON_BLUE	, LOCALE_TIMERLIST_MODIFY },
 	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, NONEXISTANT_LOCALE     },
-	{ NEUTRINO_ICON_BUTTON_PLAY, NONEXISTANT_LOCALE     },
-	{ NEUTRINO_ICON_BUTTON_MENU_SMALL, NONEXISTANT_LOCALE     }
+	{ NEUTRINO_ICON_BUTTON_MENU_SMALL, NONEXISTANT_LOCALE     },
+	{ NEUTRINO_ICON_BUTTON_PLAY	, NONEXISTANT_LOCALE      }
 };
+size_t TimerListButtonsCount = sizeof(TimerListButtons)/sizeof(TimerListButtons[0]);
 
 #define RemoteBoxFooterButtonCount 3
 static const struct button_label RemoteBoxFooterButtons[RemoteBoxFooterButtonCount] = {
@@ -651,7 +651,7 @@ bool CTimerList::remoteChanExists(t_channel_id channel_id)
 	r_url += "/control/getchannel?format=json&id=";
 	r_url += string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id);
 	r_url = httpTool.downloadString(r_url);
-	
+
 	Json::Value root;
 	Json::Reader reader;
 	bool parsedSuccess = reader.parse(r_url, root, false);
@@ -659,7 +659,7 @@ bool CTimerList::remoteChanExists(t_channel_id channel_id)
 		printf("Failed to parse JSON\n");
 		printf("%s\n", reader.getFormattedErrorMessages().c_str());
 	}
-	
+
 	r_url = root.get("success","false").asString();
 
 	if (r_url == "false")
@@ -733,7 +733,7 @@ void CTimerList::remoteTimerList(CTimerd::TimerList &rtimerlist)
 				sscanf(remotetimers[i].get("channel_id","").asString().c_str(),	SCANF_CHANNEL_ID_TYPE, &rtimer.channel_id);
 				strncpy(rtimer.epgTitle,remotetimers[i].get("title","").asString().c_str(),51);
 				if (remotetimers[i]["audio"].get("apids_conf","").asString() == "true")
-					rtimer.apids = TIMERD_APIDS_CONF;				
+					rtimer.apids = TIMERD_APIDS_CONF;
 				//printf("[remotetimer] r-timer:%s - %s\n", remotetimers[i].get("channel_id","").asString().c_str(), remotetimers[i].get("title","").asString().c_str());
 				rtimerlist.push_back(rtimer);
 			}
@@ -1129,7 +1129,7 @@ void CTimerList::paintItem(int pos)
 			r_url += "/control/getchannel?format=json&id=";
 			r_url += string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer.channel_id);
 			r_url = httpTool.downloadString(r_url);
-	
+
 			Json::Value root;
 			Json::Reader reader;
 			bool parsedSuccess = reader.parse(r_url, root, false);
