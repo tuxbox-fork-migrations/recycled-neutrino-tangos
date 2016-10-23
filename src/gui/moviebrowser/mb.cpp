@@ -31,6 +31,7 @@
 		based on code of Steffen Hehn 'McClean'
 
 	(C) 2009-2015 Stefan Seyfried
+	(C) 2016      Sven Hoefer
 
 	outsourced:
 	(C) 2016, Thilo Graf 'dbt'
@@ -47,11 +48,11 @@
 //#include <cstdlib>
 #include "mb.h"
 #include "mb_functions.h"
+#include "mb_help.h"
 #include <gui/filebrowser.h>
 #include <gui/tmdb.h>
 #include <gui/epgview.h>
 #include <gui/widget/hintbox.h>
-#include <gui/widget/helpbox.h>
 #include <gui/widget/icons.h>
 #include <gui/components/cc.h>
 #include <gui/widget/messagebox.h>
@@ -66,7 +67,6 @@
 #include <sys/mount.h>
 #include <utime.h>
 //#include <unistd.h>
-#include <gui/customcolor.h>
 #include <driver/record.h>
 #include <driver/display.h>
 //#include <system/helpers.h>
@@ -92,7 +92,7 @@ typedef struct dirent64 dirent_struct;
 #define NUMBER_OF_MOVIES_LAST 40 // This is the number of movies shown in last recored and last played list
 #define MOVIE_SMSKEY_TIMEOUT 800
 
-#define MESSAGEBOX_BROWSER_ROW_ITEM_COUNT 21
+#define MESSAGEBOX_BROWSER_ROW_ITEM_COUNT 22
 const CMenuOptionChooser::keyval MESSAGEBOX_BROWSER_ROW_ITEM[MESSAGEBOX_BROWSER_ROW_ITEM_COUNT] =
 {
 	{ MB_INFO_FILENAME,		LOCALE_MOVIEBROWSER_INFO_FILENAME },
@@ -115,7 +115,8 @@ const CMenuOptionChooser::keyval MESSAGEBOX_BROWSER_ROW_ITEM[MESSAGEBOX_BROWSER_
 	{ MB_INFO_AUDIO,		LOCALE_MOVIEBROWSER_INFO_AUDIO },
 	{ MB_INFO_LENGTH,		LOCALE_MOVIEBROWSER_INFO_LENGTH },
 	{ MB_INFO_SIZE,			LOCALE_MOVIEBROWSER_INFO_SIZE },
-	{ MB_INFO_RATING,		LOCALE_MOVIEBROWSER_INFO_RATING }
+	{ MB_INFO_RATING,		LOCALE_MOVIEBROWSER_INFO_RATING },
+	{ MB_INFO_SPACER,		LOCALE_MOVIEBROWSER_INFO_SPACER }
 };
 
 #define MESSAGEBOX_YES_NO_OPTIONS_COUNT 2
@@ -150,8 +151,6 @@ const CMenuOptionChooser::keyval MESSAGEBOX_PARENTAL_LOCKAGE_OPTIONS[MESSAGEBOX_
 #define TITLE_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]
 #define FOOT_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]
 
-#define INTER_FRAME_SPACE 4  // space between e.g. upper and lower window
-
 const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 {
 	LOCALE_MOVIEBROWSER_SHORT_FILENAME,
@@ -175,6 +174,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 	LOCALE_MOVIEBROWSER_SHORT_LENGTH,
 	LOCALE_MOVIEBROWSER_SHORT_SIZE,
 	LOCALE_MOVIEBROWSER_SHORT_RATING,
+	LOCALE_MOVIEBROWSER_SHORT_SPACER,
 	NONEXISTANT_LOCALE
 };
 
@@ -200,6 +200,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 #define	MB_ROW_WIDTH_LENGTH		15
 #define	MB_ROW_WIDTH_SIZE 		12
 #define	MB_ROW_WIDTH_RATING		5
+#define	MB_ROW_WIDTH_SPACER		1
 
 const int m_defaultRowWidth[MB_INFO_MAX_NUMBER+1] =
 {
@@ -224,6 +225,7 @@ const int m_defaultRowWidth[MB_INFO_MAX_NUMBER+1] =
 	MB_ROW_WIDTH_LENGTH,
 	MB_ROW_WIDTH_SIZE,
 	MB_ROW_WIDTH_RATING,
+	MB_ROW_WIDTH_SPACER,
 	0 //MB_ROW_WIDTH_MAX_NUMBER
 };
 static MI_MOVIE_INFO* playing_info;
@@ -521,24 +523,24 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameFootRel.iY = 		m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight - height_helper;
 	m_cBoxFrameFootRel.iWidth = 		m_cBoxFrame.iWidth;
 
-	m_cBoxFrameInfo.iX = 			m_cBoxFrameBrowserList.iX + m_cBoxFrameBrowserList.iWidth + INTER_FRAME_SPACE;
+	m_cBoxFrameInfo.iX = 			m_cBoxFrameBrowserList.iX + m_cBoxFrameBrowserList.iWidth + OFFSET_INTER;
 	m_cBoxFrameInfo.iY = 			m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight;
-	m_cBoxFrameInfo.iWidth = 		m_cBoxFrame.iWidth/3 - INTER_FRAME_SPACE;
+	m_cBoxFrameInfo.iWidth = 		m_cBoxFrame.iWidth/3 - OFFSET_INTER;
 	m_cBoxFrameInfo.iHeight = 		m_cBoxFrameBrowserList.iHeight;
 
 	m_cBoxDetailInfo.iX = 			m_cBoxFrame.iX + RADIUS_LARGE;
-	m_cBoxDetailInfo.iY = 			m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight + m_cBoxFrameBrowserList.iHeight + m_cBoxFrameFootRel.iHeight + INTER_FRAME_SPACE;
+	m_cBoxDetailInfo.iY = 			m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight + m_cBoxFrameBrowserList.iHeight + m_cBoxFrameFootRel.iHeight + OFFSET_INTER;
 	m_cBoxDetailInfo.iWidth = 		m_cBoxFrame.iWidth - 2* RADIUS_LARGE;
 	m_cBoxDetailInfo.iHeight = 		m_cBoxFrame.iY + m_cBoxFrame.iHeight - m_cBoxDetailInfo.iY;
 
 	m_cBoxFrameLastPlayList.iX = 		m_cBoxFrameBrowserList.iX;
 	m_cBoxFrameLastPlayList.iY = 		m_cBoxFrameBrowserList.iY ;
-	m_cBoxFrameLastPlayList.iWidth = 	(m_cBoxFrameBrowserList.iWidth>>1) - (INTER_FRAME_SPACE>>1);
+	m_cBoxFrameLastPlayList.iWidth = 	(m_cBoxFrameBrowserList.iWidth>>1) - (OFFSET_INTER>>1);
 	m_cBoxFrameLastPlayList.iHeight = 	m_cBoxFrameBrowserList.iHeight;
 
-	m_cBoxFrameLastRecordList.iX = 		m_cBoxFrameLastPlayList.iX + m_cBoxFrameLastPlayList.iWidth + INTER_FRAME_SPACE;
+	m_cBoxFrameLastRecordList.iX = 		m_cBoxFrameLastPlayList.iX + m_cBoxFrameLastPlayList.iWidth + OFFSET_INTER;
 	m_cBoxFrameLastRecordList.iY = 		m_cBoxFrameLastPlayList.iY;
-	m_cBoxFrameLastRecordList.iWidth = 	m_cBoxFrame.iWidth - m_cBoxFrameLastPlayList.iWidth - INTER_FRAME_SPACE;
+	m_cBoxFrameLastRecordList.iWidth = 	m_cBoxFrame.iWidth - m_cBoxFrameLastPlayList.iWidth - OFFSET_INTER;
 	m_cBoxFrameLastRecordList.iHeight =	m_cBoxFrameLastPlayList.iHeight;
 
 	m_cBoxFrameFilter.iX = 			m_cBoxFrameInfo.iX;
@@ -3600,7 +3602,8 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 				*item_string = str_tmp;
 			}
 			break;
-		case MB_INFO_MAX_NUMBER: 			//		= 21
+		case MB_INFO_SPACER: 				// 		= 21,
+		case MB_INFO_MAX_NUMBER: 			//		= 22
 		default:
 			*item_string="";
 			result = false;
@@ -4128,24 +4131,7 @@ int CMenuSelector::paint(bool selected)
 	return y+height;
 }
 
-int CMovieHelp::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
-{
-	Helpbox helpbox;
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_RED,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_RED));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_GREEN,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_GREEN));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_YELLOW,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_YELLOW));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_BLUE,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_BLUE));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_MENU_SMALL,g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_MENU));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_PLAY,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_PLAY));
-	helpbox.addLine("");
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_OKAY,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_OKAY));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_MUTE_SMALL,g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_MUTE));
-	helpbox.addLine("");
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_LEFT,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_LEFT));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_RIGHT,	g_Locale->getText(LOCALE_MOVIEBROWSER_HELP_BUTTON_RIGHT));
-	helpbox.show(LOCALE_MESSAGEBOX_INFO);
-	return(0);
-}
+
 /////////////////////////////////////////////////
 // MenuTargets
 ////////////////////////////////////////////////
