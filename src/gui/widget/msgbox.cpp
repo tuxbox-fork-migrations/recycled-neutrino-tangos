@@ -398,9 +398,11 @@ int ShowMsg2UTF(	const char * const Title,
 	msgBox.enableDefaultResultOnTimeOut(returnDefaultOnTimeout);
 	msgBox.setTimeOut(Timeout);
 	msgBox.paint();
+	CFrameBuffer::getInstance()->blit();
 	msgBox.exec();
 	int  res = msgBox.getResult();
 	msgBox.hide();
+	CFrameBuffer::getInstance()->blit();
 	return res;
 }
 
