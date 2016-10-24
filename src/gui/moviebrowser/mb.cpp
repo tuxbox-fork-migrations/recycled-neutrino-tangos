@@ -55,7 +55,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/icons.h>
 #include <gui/components/cc.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 #include <gui/widget/keyboard_input.h>
@@ -822,7 +822,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 	else if (actionKey == "copy_onefile" || actionKey == "copy_several")
 	{
 		bool onefile = (actionKey == "copy_onefile");
-		if ((show_mode == MB_SHOW_RECORDS) && (ShowMsg(LOCALE_MESSAGEBOX_INFO, onefile ? LOCALE_MOVIEBROWSER_COPY : LOCALE_MOVIEBROWSER_COPIES, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes))
+		if ((show_mode == MB_SHOW_RECORDS) && (ShowMsg(LOCALE_MESSAGEBOX_INFO, onefile ? LOCALE_MOVIEBROWSER_COPY : LOCALE_MOVIEBROWSER_COPIES, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes))
 		{
 			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_COPYING);
 			hintBox->paint();
@@ -834,7 +834,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			bool res = mc.copyMovie(m_movieSelectionHandler, onefile);
 			//g_RCInput->clearRCMsg();
 			if (res == 0)
-				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_COPY_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_COPY_FAILED, CMsgBox::mbrCancel, CMsgBox::mbCancel, NEUTRINO_ICON_ERROR);
 			else
 				m_doLoadMovies = true;
 			m_doRefresh = true;
@@ -844,10 +844,10 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 	{
 #if 0
 		if ((m_movieSelectionHandler == playing_info) && (NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()))
-			ShowMsg(LOCALE_MESSAGEBOX_ERROR, "Impossible to cut playing movie.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+			ShowMsg(LOCALE_MESSAGEBOX_ERROR, "Impossible to cut playing movie.", CMsgBox::mbrCancel, CMsgBox::mbCancel, NEUTRINO_ICON_ERROR);
 		else
 #endif
-		if ((show_mode == MB_SHOW_RECORDS) && (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_CUT, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes))
+		if ((show_mode == MB_SHOW_RECORDS) && (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_CUT, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes))
 		{
 			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_CUTTING);
 			hintBox->paint();
@@ -859,7 +859,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			bool res = mc.cutMovie(m_movieSelectionHandler);
 			//g_RCInput->clearRCMsg();
 			if (!res)
-				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_CUT_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_CUT_FAILED, CMsgBox::mbrCancel, CMsgBox::mbCancel, NEUTRINO_ICON_ERROR);
 			else
 				m_doLoadMovies = true;
 			m_doRefresh = true;
@@ -870,12 +870,12 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 		if ((show_mode == MB_SHOW_RECORDS) && m_movieSelectionHandler != NULL)
 		{
 			if ((m_movieSelectionHandler == playing_info) && (NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()))
-				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_TRUNCATE_FAILED_PLAYING, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_TRUNCATE_FAILED_PLAYING, CMsgBox::mbrCancel, CMsgBox::mbCancel, NEUTRINO_ICON_ERROR);
 			else if (m_movieSelectionHandler->bookmarks.end == 0)
-				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_BOOK_NO_END, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_BOOK_NO_END, CMsgBox::mbrCancel, CMsgBox::mbCancel, NEUTRINO_ICON_ERROR);
 			else
 			{
-				if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_TRUNCATE, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
+				if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_TRUNCATE, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes)
 				{
 					CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_TRUNCATING);
 					hintBox->paint();
@@ -885,7 +885,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 					delete hintBox;
 					g_RCInput->clearRCMsg();
 					if (!res)
-						ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_TRUNCATE_FAILED, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+						ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_TRUNCATE_FAILED, CMsgBox::mbrCancel, CMsgBox::mbCancel, NEUTRINO_ICON_ERROR);
 					else
 						m_doLoadMovies = true;
 					m_doRefresh = true;
@@ -1359,9 +1359,15 @@ void CMovieBrowser::refreshMovieInfo(void)
 		lx = m_cBoxFrameInfo.iX - (m_cBoxFrameInfo.iWidth - flogo_w)/2 - 14;
 		ly = m_cBoxFrameInfo.iY + 10;
 		if (pic == NULL){ //TODO: paint custom covers with different ratio, currently only works with default ratio HD 16/9
-			pic = new CComponentsPicture(lx, ly, fname, NULL, CC_SHADOW_ON, COL_MENUCONTENTDARK_PLUS_0);
+			pic = new CComponentsPicture(lx, ly, fname, NULL, CC_SHADOW_ON, COL_MENUCONTENTDARK_PLUS_0, COL_MENUCONTENT_PLUS_0);
 			if (pic->getHeight() < flogo_h)
 				flogo_h = pic->getHeight();
+#if 0
+			if (pic->getHeight() < flogo_h/2){
+				flogo_h = flogo_h/2;
+				pic->setYPos(m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-flogo_h)/2);
+			}
+#endif
 			pic->setHeight(flogo_h, true);
 			pic->enableFrame(true, 2);
 			pic->doPaintBg(false);
@@ -1882,7 +1888,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			if (!fname.empty())
 			{
 				//delete Cover
-				if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_DELETE_SCREENSHOT, CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
+				if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_DELETE_SCREENSHOT, CMsgBox::mbrNo, CMsgBox:: mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes)
 				{
 					unlink(fname.c_str());
 					refresh();
@@ -2317,7 +2323,7 @@ bool CMovieBrowser::onDeleteFile(MI_MOVIE_INFO *movieinfo, bool skipAsk)
 	int msgBoxWidth = 450;
 
 	std::string msg = formatDeleteMsg(movieinfo, msgFont, msgBoxWidth);
-	if ((skipAsk || !movieinfo->delAsk) || (ShowMsg(LOCALE_FILEBROWSER_DELETE, msg, CMessageBox::mbrYes, CMessageBox::mbYes|CMessageBox::mbNo, NULL, msgBoxWidth)==CMessageBox::mbrYes))
+	if ((skipAsk || !movieinfo->delAsk) || (ShowMsg(LOCALE_FILEBROWSER_DELETE, msg, CMsgBox::mbrYes, CMsgBox::mbYes|CMsgBox::mbNo, NULL, msgBoxWidth)==CMsgBox::mbrYes))
 	{
 		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MOVIEBROWSER_DELETE_INFO));
 		hintBox->paint();
@@ -2393,7 +2399,7 @@ bool CMovieBrowser::onDelete(bool cursor_only)
 				char buf1[1024];
 				snprintf(buf1, sizeof(buf1), g_Locale->getText(LOCALE_MOVIEBROWSER_ASK_REC_TO_DELETE), delName.c_str());
 				if (ShowMsg(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
-						CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo)
+						CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30, false) == CMsgBox::mbrNo)
 					toDelete = false;
 				else {
 					CTimerd::RecordingStopInfo recinfo;
@@ -2414,7 +2420,7 @@ bool CMovieBrowser::onDelete(bool cursor_only)
 	if (!dellist.empty()) {
 		bool skipAsk = false;
 		if (dellist_cnt > 1)
-			skipAsk = (ShowMsg(LOCALE_FILEBROWSER_DELETE, LOCALE_MOVIEBROWSER_DELETE_ALL, CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes);
+			skipAsk = (ShowMsg(LOCALE_FILEBROWSER_DELETE, LOCALE_MOVIEBROWSER_DELETE_ALL, CMsgBox::mbrNo, CMsgBox:: mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes);
 		for (dellist_it = dellist.begin(); dellist_it != dellist.end(); ++dellist_it)
 			result |= onDeleteFile((MI_MOVIE_INFO *)&(*dellist_it), skipAsk);
 		dellist.clear();
@@ -3588,7 +3594,7 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 			*item_string = str_tmp;
 			break;
 		case MB_INFO_LENGTH: 				// 		= 18,
-			snprintf(str_tmp, sizeof(str_tmp),"%dh %dm", movie_info.length/60, movie_info.length%60);
+			snprintf(str_tmp, sizeof(str_tmp),"%dh %02dm", movie_info.length/60, movie_info.length%60);
 			*item_string = str_tmp;
 			break;
 		case MB_INFO_SIZE: 					// 		= 19,
@@ -3766,7 +3772,7 @@ int CYTCacheSelectorTarget::exec(CMenuTarget* /*parent*/, const std::string & ac
 		cYTCache::getInstance()->remove(&movieBrowser->yt_completed[selected - movieBrowser->yt_completed_offset]);
 	} else if (actionKey.empty()) {
 		if (movieBrowser->yt_pending_offset && selected >= movieBrowser->yt_pending_offset && selected < movieBrowser->yt_pending_end) {
-			if (ShowMsg (LOCALE_MOVIEBROWSER_YT_CACHE, g_Locale->getText(LOCALE_MOVIEBROWSER_YT_CANCEL_TRANSFER), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
+			if (ShowMsg (LOCALE_MOVIEBROWSER_YT_CACHE, g_Locale->getText(LOCALE_MOVIEBROWSER_YT_CANCEL_TRANSFER), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes)
 				cYTCache::getInstance()->cancel(&movieBrowser->yt_pending[selected - movieBrowser->yt_pending_offset]);
 			else
 				return menu_return::RETURN_NONE;
