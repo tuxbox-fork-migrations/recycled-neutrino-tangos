@@ -43,7 +43,7 @@
 #include <gui/movieplayer.h>
 #include <gui/nfs.h>
 #include <gui/widget/hintbox.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/mountchooser.h>
 #include <daemonc/remotecontrol.h>
 #include <system/setting_helpers.h>
@@ -67,6 +67,37 @@
 #include <eitd/sectionsd.h>
 #include <timerdclient/timerdclient.h>
 #include <cs_api.h>
+
+extern "C" {
+#include <libavformat/avformat.h>
+}
+
+class CStreamRec : public CRecordInstance, OpenThreads::Thread
+{
+	private:
+		AVFormatContext *ifcx;
+		AVFormatContext *ofcx;
+		AVBitStreamFilterContext *bsfc;
+		bool stopped;
+		bool interrupt;
+		time_t time_started;
+		int  stream_index;
+
+		void GetPids(CZapitChannel * channel);
+		void FillMovieInfo(CZapitChannel * channel, APIDList & apid_list);
+		bool Start();
+
+		void Close();
+		bool Open(CZapitChannel * channel);
+		void run();
+		void WriteHeader(uint32_t duration);
+	public:
+		CStreamRec(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
+		~CStreamRec();
+		record_error_msg_t Record();
+		bool Stop(bool remove_event = true);
+		static int Interrupt(void * data);
+};
 
 /* TODO:
  * nextRecording / pending recordings - needs testing
@@ -1393,7 +1424,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 		snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_ASK_STOP_ALL));
 		snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
 		if(ShowMsg(LOCALE_SHUTDOWN_RECORDING_QUERY, rec_msg,
-			CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
+			CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30) == CMsgBox::mbrYes)
 		{
 			snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_INFO_STOP_ALL));
 
@@ -1426,7 +1457,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			inst->GetRecordString(title, duration);
 			title += duration;
 			tostart = (ShowMsg(LOCALE_RECORDING_IS_RUNNING, title.c_str(),
-						CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes);
+						CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30) == CMsgBox::mbrYes);
 		}
 		if (tostart) {
 			CRecordManager::getInstance()->Record(live_channel_id);
@@ -1573,7 +1604,7 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 		return false;
 
 	if(ShowMsg(LOCALE_SHUTDOWN_RECORDING_QUERY, title.c_str(),
-				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
+				CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30) == CMsgBox::mbrYes) {
 		mutex.lock();
 		if (recid)
 			inst = FindInstanceID(recid);
@@ -1866,7 +1897,7 @@ bool CRecordManager::MountDirectory(const char *recordingDir)
 					strcat(msg,recordingDir);
 
 					ShowMsg(LOCALE_MESSAGEBOX_ERROR, msg,
-							CMessageBox::mbrBack, CMessageBox::mbBack,NEUTRINO_ICON_ERROR, 450, 10); // UTF-8
+							CMsgBox::mbrBack, CMsgBox::mbBack,NEUTRINO_ICON_ERROR, 450, 10); // UTF-8
 					ret = false;
 				}
 				break;
