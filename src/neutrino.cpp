@@ -2271,8 +2271,6 @@ TIMER_START();
 	bootstatus->paint();
 	bootstatus->showStatusMessageUTF("loading...");
 	bootstatus->showGlobalStatus(20);
-	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NEUTRINO_STARTING));
-	//hintBox->paint();
 
 	CVFD::getInstance()->init(neutrinoFonts->fontDescr.filename.c_str(), neutrinoFonts->fontDescr.name.c_str());
 	CVFD::getInstance()->Clear();
@@ -2503,8 +2501,6 @@ TIMER_START();
 
 	bootstatus->hide();
 	delete bootstatus;
-	//hintBox->hide(); // InitZapper also displays a hintbox
-	delete hintBox;
 
 	cCA::GetInstance()->Ready(true);
 	cCA::GetInstance()->setCheckLiveSlot(g_settings.ci_check_live);
@@ -2521,7 +2517,7 @@ TIMER_START();
 
 TIMER_STOP("################################## after all ##################################");
 	if (g_settings.softupdate_autocheck) {
-		hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET));
+		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET));
 		hintBox->paint();
 		CFlashUpdate flash;
 		if(flash.checkOnlineVersion()) {
