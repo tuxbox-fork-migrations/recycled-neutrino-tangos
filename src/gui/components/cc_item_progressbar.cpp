@@ -483,7 +483,6 @@ void CProgressBar::paintProgress(bool do_save_bg)
 		if (duration)
 			fprintf(stderr, "\033[33m[CProgressBar] %s: %" PRIu64 " ms to paint progress \033[0m\n",__func__, duration);
 	}
-	CFrameBuffer::getInstance()->blit();
 }
 
 
