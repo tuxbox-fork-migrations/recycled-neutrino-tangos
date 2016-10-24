@@ -440,10 +440,8 @@ int ShowHint(const char * const Caption, const char * const Text, const int Widt
 	CHintBox hintBox(Caption, Text, Width, Icon, Picon, header_buttons);
 	hintBox.setTimeOut(timeout);
 	hintBox.paint();
-	CFrameBuffer::getInstance()->blit();
 	res = hintBox.exec();
 	hintBox.hide();
-	CFrameBuffer::getInstance()->blit();
 
 	return res;
 }
