@@ -3081,8 +3081,8 @@ _repeat:
 	}
 	if (channels_changed || favorites_changed || bouquets_changed || channels_init) {
 		neutrino_locale_t loc = channels_init ? LOCALE_SERVICEMENU_RELOAD_HINT : LOCALE_BOUQUETEDITOR_SAVINGCHANGES;
-		CHintBox* hintBox= new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(loc));
-		hintBox->paint();
+		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(loc));
+		hintBox.paint();
 
 		if (favorites_changed) {
 			g_bouquetManager->saveUBouquets();
@@ -3110,7 +3110,7 @@ _repeat:
 		if(!live_channel_id)
 			live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		adjustToChannelID(live_channel_id);//FIXME what if deleted ?
-		delete hintBox;
+		hintBox.hide();
 	}
 
 	channelList_painted = false;
