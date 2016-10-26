@@ -83,7 +83,6 @@ bool glcd_play = false;
 #endif
 #include <gui/widget/stringinput_ext.h>
 #include <gui/screensetup.h>
-#include <gui/widget/messagebox.h>
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #include <libavcodec/avcodec.h>
 #endif
