@@ -347,7 +347,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		CMenuItem* item = remboxmenu->getItem(bselected);
 		CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
 		std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin();
-		std::advance(it,bselected-item_offset);		
+		std::advance(it,bselected-item_offset);
 		std::string port = to_string(it->port);
 		CKeyboardInput remotebox_name(LOCALE_REMOTEBOX_RBNAME  , &it->rbname, 25);
 		CKeyboardInput remotebox_address(LOCALE_REMOTEBOX_RBADDR  , &it->rbaddress, 50);
