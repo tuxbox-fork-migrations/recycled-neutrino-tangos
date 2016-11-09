@@ -480,7 +480,7 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.browserRowWidth[8] = m_defaultRowWidth[m_settings.browserRowItem[8]];
 
 	m_settings.ts_only = 0;
-	m_settings.browserAdditional = 0;
+	m_settings.browserAdditional = 1;
 #if 0
 	m_settings.ytmode = cYTFeedParser::MOST_POPULAR;
 	m_settings.ytorderby = cYTFeedParser::ORDERBY_PUBLISHED;
@@ -635,7 +635,7 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 		settings->browserRowItem[i] = (MB_INFO_ITEM)configfile.getInt32("mb_browserRowItem_" + to_string(i), MB_INFO_MAX_NUMBER);
 		settings->browserRowWidth[i] = configfile.getInt32("mb_browserRowWidth_" + to_string(i), 50);
 	}
-	settings->browserAdditional = configfile.getInt32("mb_browserAdditional", 0);
+	settings->browserAdditional = configfile.getInt32("mb_browserAdditional", 1);
 
 #if 0
 	settings->ytmode = configfile.getInt32("mb_ytmode", cYTFeedParser::MOST_POPULAR);
@@ -1371,11 +1371,13 @@ void CMovieBrowser::initMovieCover(void)
 	}
 
 	std::string cover_file;
+#if 0
 	if (show_mode == MB_SHOW_YT)
 	{
 		cover_file = m_movieSelectionHandler->tfile;
 	}
 	else
+#endif
 	{
 		cover_file = getScreenshotName(m_movieSelectionHandler->file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
 		if ((cover_file.empty()) && (m_movieSelectionHandler->file.Name.length() > 18))
@@ -2021,7 +2023,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 		else if (show_mode != MB_SHOW_YT)
 			onSetGUIWindowPrev();
 #else
-		m_pcInfo->scrollPageUp(1);
+		m_pcInfo2->scrollPageUp(1);
 #endif
 	}
 	else if (msg == CRCInput::RC_right)
@@ -2032,7 +2034,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 		else if (show_mode != MB_SHOW_YT)
 			onSetGUIWindowNext();
 #else
-		m_pcInfo->scrollPageDown(1);
+		m_pcInfo2->scrollPageDown(1);
 #endif
 	}
 	else if (msg == CRCInput::RC_green)
