@@ -92,7 +92,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		if (2*box_rad > dy)
 			box_rad -= max(0, 2*box_rad-dy);
 		if (2*box_rad > dx)
-			box_rad -= max(0, 2*box_rad-dy);
+			box_rad -= max(0, 2*box_rad-dx);
 
 		//Workaround: ensure radius values >= 0, framebuffer methode paintBoxRel() gets confused
 		box_rad = max(box_rad, 0);
@@ -133,11 +133,11 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		int sh_cbl_y = sh_cbr_y;
 
 		//handle general shadow bar dimensions
-		int sh_bdx = max(0, dx-sh_cdx-sh_cdx); /*ensure value is never < 0*/
+		int sh_bdx = max(0, dx-sh_cdx+1-sh_cdx+1); /*ensure value is never < 0*/
 		int sh_rdy = dy-sh_cdy-sh_cdy;
 
 		//...bar bottom
-		int sh_bx = sh_cbl_x+sh_cdx;
+		int sh_bx = sh_cbl_x+sh_cdx-1;
 		int sh_by = iy+dy;
 
 		//...bar right
