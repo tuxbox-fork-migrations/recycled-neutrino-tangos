@@ -835,8 +835,7 @@ void CTimerList::RemoteBoxTimerList(CTimerd::TimerList &rtimerlist)
 				rtimer.stopTime = (time_t) atoll(remotetimers[i]["stop"][0].get("digits","").asString().c_str());
 				rtimer.epgID = (event_id_t) atoi(remotetimers[i].get("epg_id","").asString());
 				sscanf(remotetimers[i].get("channel_id","").asString().c_str(),	SCANF_CHANNEL_ID_TYPE, &rtimer.channel_id);
-				strncpy(rtimer.epgTitle,remotetimers[i].get("title","").asString().c_str(),sizeof(rtimer.epgTitle));
-				rtimer.epgTitle[sizeof(rtimer.epgTitle) - 1] = 0;
+				strncpy(rtimer.epgTitle,remotetimers[i].get("title","").asString().c_str(),51);
 				if (remotetimers[i]["audio"].get("apids_conf","").asString() == "true")
 					rtimer.apids = TIMERD_APIDS_CONF;
 				//printf("[remotetimer] r-timer:%s - %s\n", remotetimers[i].get("channel_id","").asString().c_str(), remotetimers[i].get("title","").asString().c_str());
@@ -1864,7 +1863,7 @@ bool CTimerList::askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTi
 		struct tm *sTime = localtime(&(it->stopTime));
 		timerbuf += strftime("%d.%m. %H:%M\n",sTime);
 	}
-	if (!overlappingTimers.empty())
+	if (overlappingTimers.size() > 0)
 		return (ShowMsg(LOCALE_MESSAGEBOX_INFO,timerbuf,CMsgBox::mbrNo,CMsgBox::mbNo|CMsgBox::mbYes) == CMsgBox::mbrYes);
 	else
 		return true;
