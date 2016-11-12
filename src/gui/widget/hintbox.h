@@ -34,7 +34,7 @@
 
 #define HINTBOX_MIN_WIDTH 420
 #define HINTBOX_MIN_HEIGHT 125
-#define HINTBOX_MAX_HEIGHT 420
+#define HINTBOX_MAX_HEIGHT 520
 #define HINTBOX_DEFAULT_TIMEOUT 5
 //frame around hint container as indent
 #define W_FRAME std::max(HINTBOX_MIN_WIDTH, HINTBOX_MIN_HEIGHT) * 2/100
@@ -42,7 +42,7 @@
 #define HINTBOX_DEFAULT_FRAME_COLOR COL_FRAME
 #define TIMEOUT_BAR_HEIGHT  OFFSET_SHADOW/2
 
-#define DEFAULT_HINTBOX_TEXT_MODE (CTextBox::NO_AUTO_LINEBREAK)
+#define DEFAULT_HINTBOX_TEXT_MODE (CTextBox::CENTER)
 
 //! Sub class of CComponentsWindow. Shows a window as a hintbox with text and optional icon beside of text.
 /*!
@@ -80,7 +80,7 @@ class CHintBox : public CComponentsWindow
 
 		virtual void ReSize();
 		void showTimeOutBar(){enableTimeOutBar();}
-		int getMaxWidth(const std::string& Text, Font *font, const int& minWidth);
+		int getMaxWidth(const std::string& Text, const std::string& Title, Font *font, const int& minWidth);
 
 	public:
 		/**CHintBox Constructor
