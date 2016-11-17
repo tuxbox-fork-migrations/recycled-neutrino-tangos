@@ -230,7 +230,7 @@ if test "$BOXTYPE" != coolstream; then
 	if test "$STB_HAL_INC" = ""; then
 		AC_MSG_ERROR([need libstb-hal includes path with --with-stb-hal-includes=...])
 	fi
-	HWLIB_CFLAGS="-I$STB_HAL_INC -I$(top_srcdir)/src/zapit/include/private"
+	HWLIB_CFLAGS="-I$STB_HAL_INC"
 fi
 
 # Lua - embeddable scripting language
@@ -277,7 +277,7 @@ if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
 fi
-HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream -I$(top_srcdir)/src/zapit/include/private'
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream'
 
 if test "$BOXMODEL" = "apollo"; then
 HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2 -I$(top_srcdir)/src/zapit/include'
@@ -287,7 +287,7 @@ fi
 if test -e ${srcdir}/lib/libcoolstream2/cs_frontpanel.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H,1,[Define to 1 if you have the <cs_frontpanel.h> header file.])
 fi
-HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2 -I$(top_srcdir)/src/zapit/include/private'
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2'
 fi
 fi
 
