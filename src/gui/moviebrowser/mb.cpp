@@ -2577,6 +2577,8 @@ void CMovieBrowser::onSetGUIWindow(MB_GUI gui)
 	TRACE("[mb]->onSetGUIWindow: gui %d -> %d\n", m_settings.gui, gui);
 	m_settings.gui = gui;
 
+	hideDetailsLine();
+
 	m_showMovieInfo = true;
 	if (gui == MB_GUI_MOVIE_INFO) {
 		m_showBrowserFiles = true;
@@ -2633,7 +2635,6 @@ void CMovieBrowser::onSetGUIWindow(MB_GUI gui)
 			hideMovieCover();
 			m_pcInfo2->clear();
 		}
-		hideDetailsLine();
 		m_pcFilter->paint();
 
 		onSetFocus(MB_FOCUS_FILTER);
