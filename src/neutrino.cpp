@@ -2289,15 +2289,18 @@ TIMER_START();
 	g_PicViewer = new CPictureViewer();
 	CColorSetupNotifier::setPalette();
 
+	char start_text [100];
+	snprintf(start_text, sizeof(start_text), g_Locale->getText(LOCALE_NEUTRINO_STARTING), PACKAGE_NAME, PACKAGE_VERSION );
+	start_text[99] = '\0';
 	CProgressWindow * bootstatus = new CProgressWindow(NULL,true);
-	bootstatus->setTitle(LOCALE_NEUTRINO_STARTING);
+	bootstatus->setTitle(start_text);
 	bootstatus->paint();
 	bootstatus->showStatusMessageUTF("loading...");
 	bootstatus->showGlobalStatus(20);
 
 	CVFD::getInstance()->init(neutrinoFonts->fontDescr.filename.c_str(), neutrinoFonts->fontDescr.name.c_str());
 	CVFD::getInstance()->Clear();
-	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
+	CVFD::getInstance()->ShowText(start_text);
 	CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
 
 #if HAVE_DUCKBOX_HARDWARE
