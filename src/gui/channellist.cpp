@@ -60,10 +60,14 @@
 #include <gui/widget/keyboard_input.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
-#include <gui/widget/hintbox.h>
 #include <gui/movieplayer.h>
 #include <gui/infoclock.h>
+#if 0
+#include <gui/widget/messagebox.h>
+#include <gui/widget/hintbox.h>
+#else
+#include <gui/widget/msgbox.h>
+#endif
 #include <system/settings.h>
 #include <system/set_threadname.h>
 
@@ -969,14 +973,15 @@ int CChannelList::show()
 
 void CChannelList::hide()
 {
+	paint_events(-2); // cancel paint_events thread
 	if ((g_settings.channellist_additional == 2) || (previous_channellist_additional == 2)) // with miniTV
 	{
 		if (cc_minitv)
 			delete cc_minitv;
 		cc_minitv = NULL;
 	}
-
-	header->kill();
+	if(header)
+		header->kill();
 	if (CChannelLogo){
 		CChannelLogo->kill();
 		delete CChannelLogo;
@@ -1723,6 +1728,7 @@ void CChannelList::showChannelLogo() //TODO: move into an own handler, eg. heade
 		return;
 	if(g_settings.channellist_show_channellogo){
 		int logo_w_max = full_width / 4;
+		int logo_h_max = theight - 2*OFFSET_INNER_MIN;
 		if (CChannelLogo) {
 			if (headerNew)
 				CChannelLogo->clearSavedScreen();
@@ -1734,8 +1740,8 @@ void CChannelList::showChannelLogo() //TODO: move into an own handler, eg. heade
 
 		if (CChannelLogo->hasLogo()){
 			CChannelLogo->setWidth(min(CChannelLogo->getWidth(), logo_w_max), true);
-			if (CChannelLogo->getHeight() > theight) //scale image if required
-				CChannelLogo->setHeight(theight, true);
+			if (CChannelLogo->getHeight() > logo_h_max)
+				CChannelLogo->setHeight(logo_h_max, true);
 			CChannelLogo->setXPos(x + full_width - logo_off - CChannelLogo->getWidth());
 			CChannelLogo->setYPos(y + (theight - CChannelLogo->getHeight()) / 2);
 			CChannelLogo->paint();
@@ -2373,7 +2379,7 @@ void CChannelList::paint_events()
 		int current_index = paint_events_index;
 
 		CChannelEventList evtlist;
-		readEvents((*chanlist)[current_index]->getChannelID(), evtlist);
+		readEvents((*chanlist)[current_index]->getEpgID(), evtlist);
 		if (current_index == paint_events_index) {
 			pthread_mutex_lock(&paint_events_mutex);
 			if (current_index == paint_events_index)
@@ -2667,7 +2673,7 @@ void CChannelList::deleteChannel(bool ask)
 	if (!bouquet || !bouquet->zapitBouquet)
 		return;
 
-	if (ask && ShowMsg(LOCALE_FILEBROWSER_DELETE, (*chanlist)[selected]->getName(), CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
+	if (ask && ShowMsg(LOCALE_FILEBROWSER_DELETE, (*chanlist)[selected]->getName(), CMsgBox::mbrYes, CMsgBox::mbNoYes)!=CMsgBox::mbrYes)
 		return;
 
 	bouquet->zapitBouquet->removeService((*chanlist)[selected]->getChannelID());
@@ -2758,7 +2764,7 @@ bool CChannelList::addChannelToBouquet()
 				}
 			}
 		} else {
-			ShowMsg(LOCALE_EXTRA_ADD_TO_BOUQUET, LOCALE_EXTRA_CHALREADYINBQ, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+			ShowMsg(LOCALE_EXTRA_ADD_TO_BOUQUET, LOCALE_EXTRA_CHALREADYINBQ, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 			return false;
 		}
 	}

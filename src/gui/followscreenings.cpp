@@ -40,9 +40,9 @@
 #include <system/helpers.h>
 
 #include <gui/widget/buttons.h>
-#include <gui/widget/hintbox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+
 #include <gui/timerlist.h>
 
 #include <global.h>
@@ -66,6 +66,9 @@ CChannelEventList *CFollowScreenings::getFollowScreenings(void)
 			if (e->description != title)
 				continue;
 			followlist.push_back(*e);
+
+			if (followlist.size() == 1 && !g_settings.timer_followscreenings)
+				break;
 		}
 	}
 	return &followlist;
@@ -87,14 +90,12 @@ int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionK
 					if (i->eventType == CTimerd::TIMER_RECORD) {
 						if (channel_id == i->channel_id && e->startTime == i->epg_starttime) {
 							Timer.removeTimerEvent(i->eventID);
-#if 0
-							if (followlist.size() > 1)
+							if (!forwarders.empty() && followlist.size() > 1)
 								forwarders[ix]->iconName_Info_right = "";
+#if 0
 							else
 								ShowMsg(LOCALE_TIMER_EVENTREMOVED_TITLE, LOCALE_TIMER_EVENTREMOVED_MSG,
-									CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
-#else
-							forwarders[ix]->iconName_Info_right = "";
+									CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 #endif
 							return menu_return::RETURN_REPAINT;
 						}
@@ -108,15 +109,11 @@ int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionK
 								  e->startTime, e->startTime - (ANNOUNCETIME + 120 ), apids, true, e->startTime - (ANNOUNCETIME + 120) > time(NULL), recDir, true) == -1) {
 					//FIXME -- no error handling, but this shouldn't happen ...
 				} else {
-#if 0
-					if (followlist.size() > 1)
+					if (!forwarders.empty() && followlist.size() > 1)
 						forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_REC;
 					else
 						ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG,
-							CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
-#else
-					forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_REC;
-#endif
+							CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 					return menu_return::RETURN_REPAINT;
 				}
 				break; // for
@@ -152,12 +149,10 @@ void CFollowScreenings::show()
 
 	getFollowScreenings();
 
-#if 0
 	if (followlist.size() == 1) {
 		snprintf(actionstr, sizeof(actionstr), "%lu", followlist.front().startTime);
 		exec(NULL, actionstr);
 	} else {
-#endif
 		CMenuWidget m(LOCALE_EPGVIEWER_SELECT_SCREENING, NEUTRINO_ICON_SETTINGS);
 		const char *icon = NEUTRINO_ICON_BUTTON_RED;
 		neutrino_msg_t directKey = CRCInput::RC_red;
@@ -180,8 +175,6 @@ void CFollowScreenings::show()
 		}
 		m.enableSaveScreen(true);
 		m.exec(NULL, "");
-#if 0
 	}
-#endif
 }
 

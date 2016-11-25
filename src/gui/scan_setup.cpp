@@ -1485,11 +1485,11 @@ void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
 
 int CScanSetup::showFastscanDiseqcSetup()
 {
-	CHintBox * hintbox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC_WAIT));
-	hintbox->paint();
+	CHintBox hintbox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC_WAIT));
+	hintbox.paint();
 
 	CServiceScan::getInstance()->TestDiseqcConfig(scansettings.fast_op);
-	delete hintbox;
+	hintbox.hide();
 
 	CMenuWidget * sat_setup = new CMenuWidget(LOCALE_SATSETUP_DISEQC_INPUT, NEUTRINO_ICON_SETTINGS, width);
 	sat_setup->addIntroItems();
@@ -1960,7 +1960,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 	if(channel)
 		CServiceManager::getInstance()->GetTransponder(channel->getTransponderId(), ct);
 
-	int i = 0;
+	int i = menu.getItemsCount();
 	transponder_list_t &select_transponders = CServiceManager::getInstance()->GetSatelliteTransponders(position);
 	for (transponder_list_t::iterator tI = select_transponders.begin(); tI != select_transponders.end(); ++tI) {
 		sprintf(cnt, "%d", i);

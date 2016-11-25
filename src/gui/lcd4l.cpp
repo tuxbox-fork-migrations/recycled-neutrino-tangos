@@ -714,7 +714,7 @@ std::string CLCD4l::hexStr(unsigned char* data)
 	std::stringstream ss;
 	ss << std::hex;
 	for(int i=0; i<1; ++i)
-		ss << std::setw(2) << std::setfill('0') << (int)data[i];
+		ss << std::setw(2) << std::setfill('0') << (int)data[i]*2.55;
 	return ss.str();
 }
 

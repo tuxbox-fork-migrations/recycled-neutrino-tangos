@@ -445,7 +445,7 @@ void CInfoViewer::paintHead()
 	int head_x = BoxStartX;
 	int head_w = BoxEndX-head_x;
 	if (header == NULL){
-		header = new CComponentsShapeSquare(head_x, ChanNameY, head_w, time_height, NULL, CC_SHADOW_RIGHT);
+		header = new CComponentsShapeSquare(head_x, ChanNameY, head_w, time_height, NULL, CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 		header->setCorner(RADIUS_LARGE, CORNER_TOP);
 	}else
 		header->setDimensionsAll(head_x, ChanNameY, head_w, time_height);
@@ -462,6 +462,9 @@ void CInfoViewer::paintHead()
 void CInfoViewer::paintBody()
 {
 	int h_body = InfoHeightY - header_height;// - OFFSET_SHADOW;
+	if(h_body < 0)
+		h_body = 0;
+
 	infoViewerBB->initBBOffset();
 	if (!zap_mode)
 		h_body += infoViewerBB->bottom_bar_offset;
@@ -489,7 +492,7 @@ void CInfoViewer::paintBody()
 
 	//set corner and shadow modes, consider virtual zap mode
 	body->setCorner(RADIUS_LARGE, (zap_mode) ? CORNER_BOTTOM : CORNER_NONE);
-	body->enableShadow(zap_mode ? CC_SHADOW_ON : CC_SHADOW_RIGHT);
+	body->enableShadow(zap_mode ? CC_SHADOW_ON : CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 
 	body->setColorBody(g_settings.theme.infobar_gradient_body ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
 	body->enableColBodyGradient(g_settings.theme.infobar_gradient_body, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_body_direction);
@@ -1873,7 +1876,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		timescale->setDimensionsAll(pb_startx, pb_starty, pb_w, pb_h);
 		timescale->setActiveColor(COL_INFOBAR_PLUS_7);
 		timescale->setPassiveColor(g_settings.infobar_progressbar ? COL_INFOBAR_PLUS_1 : COL_INFOBAR_PLUS_0);
-		timescale->enableShadow(!g_settings.infobar_progressbar);
+		timescale->enableShadow(!g_settings.infobar_progressbar ? CC_SHADOW_ON : CC_SHADOW_OFF, OFFSET_SHADOW/2);
 		timescale->setValues(pb_p, pb_w);
 
 		//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - OFFSET_SHADOW, ChanNameY - (pb_h + 10) , pb_w, pb_h);
@@ -2511,7 +2514,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 */
 	{
 		// check logo dimensions
-		g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, chan_w, header_height);
+		g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, chan_w, header_height - 2*OFFSET_INNER_MIN);
 		// hide channel name
 // this is too ugly...		ChannelName = "";
 		// calculate logo position
@@ -2528,7 +2531,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 	{
 		// check logo dimensions
 		int Logo_max_width = chan_w - logo_w - 10;
-		g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, Logo_max_width, header_height);
+		g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, Logo_max_width, header_height - 2*OFFSET_INNER_MIN);
 		// calculate logo position
 		y_mid = ChanNameY + header_height / 2;
 		logo_x = start_x + 10;

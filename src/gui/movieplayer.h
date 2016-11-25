@@ -270,7 +270,6 @@ class CMoviePlayerGui : public CMenuTarget
 	MI_MOVIE_INFO * p_movie_info;
 	std::string	file_name;
 	std::string	pretty_name;
-
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
 	bool osdTimeVisible() { return FileTime.IsVisible(); };
