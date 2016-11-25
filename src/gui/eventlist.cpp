@@ -39,7 +39,7 @@
 #include <gui/user_menue.h>
 
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/mountchooser.h>
 
 #include "widget/hintbox.h"
@@ -475,13 +475,13 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 						printf("already found in moviebrowser: %s\n", rec_title);
 						char message[1024];
 						snprintf(message, sizeof(message)-1, g_Locale->getText(LOCALE_RECORDING_ALREADY_FOUND), rec_title);
-						doRecord = (ShowMsg(LOCALE_RECORDING_ALREADY_FOUND_CHECK, message, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes);
+						doRecord = (ShowMsg(LOCALE_RECORDING_ALREADY_FOUND_CHECK, message, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes);
 					}
 				}
 				t_channel_id used_id = IS_WEBTV(channel_id) ? channel_id : evtlist[selected].channelID;
 				if (!recDir.empty() && doRecord) //add/remove recording timer events and check/warn for conflicts
 				{
-					CFollowScreenings m(channel_id,
+					CFollowScreenings m(used_id,
 						evtlist[selected].startTime,
 						evtlist[selected].startTime + evtlist[selected].duration,
 						evtlist[selected].description, evtlist[selected].eventID, TIMERD_APIDS_CONF, true, "", &evtlist);
@@ -511,7 +511,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					evtlist[selected].startTime - (g_settings.zapto_pre_time * 60),
 					evtlist[selected].startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
 					evtlist[selected].eventID, evtlist[selected].startTime, 0);
-			//ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+			//ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 			timerlist.clear();
 			g_Timerd->getTimerList (timerlist);
 			paint(evtlist[selected].channelID );
@@ -849,36 +849,32 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	int font_mid = SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE;
 	int font_lr  = SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE;
 
-	if (!header){
-		header = new CComponentsFrmChain(x, y, full_width, theight);
-		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
-		header->setCorner(RADIUS_LARGE, CORNER_TOP);
-		header->set2ndColor(COL_MENUCONTENT_PLUS_0);
-	}
+	if (!header)
+		header = new CComponentsFrmChain();
+
+	header->setDimensionsAll(x, y, full_width, theight);
+	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+	header->setCorner(RADIUS_LARGE, CORNER_TOP);
+	header->set2ndColor(COL_MENUCONTENT_PLUS_0);
 	header->clear();
 
-	int x_off = 10;
+	int x_off = OFFSET_INNER_MID;
 	int mid_width = full_width * 40 / 100; // 40%
+	int max_height = theight - 2*OFFSET_INNER_MIN;
 	int side_width = ((full_width - mid_width) / 2) - (2 * x_off);
 
 	//create an logo object
 	CComponentsChannelLogoScalable* midLogo = new CComponentsChannelLogoScalable(0, 0, _channelname, _channel_id, header);
-	if (midLogo->hasLogo()) {
-		//if logo object has found a logo and was ititialized, the hand  it's size
- 		int w_logo = midLogo->getWidth();
+	if (midLogo->hasLogo())
+	{
+		midLogo->setWidth(min(midLogo->getWidth(), mid_width), true);
+		if (midLogo->getHeight() > max_height)
+			midLogo->setHeight(max_height, true);
 
-		//scale image if required, TODO: move into an own handler, eg. header, so channel logo should be paint in header object
-		int h_logo = midLogo->getHeight();
-		if (h_logo > theight){
-			uint8_t h_ratio = uint8_t(theight*100/h_logo);
-			midLogo->setHeight(theight);
-			w_logo = h_ratio*w_logo/100;
-			midLogo->setWidth(w_logo);
-		}	
 		midLogo->setPos(CC_CENTERED, CC_CENTERED);
 
 		// recalc widths
-		side_width = ((full_width - w_logo) / 2) - (4 * x_off);
+		side_width = ((full_width - midLogo->getWidth()) / 2) - (4 * x_off);
 	}
 	else {
 		header->removeCCItem(midLogo); //remove/destroy logo object, if it is not available
@@ -892,9 +888,8 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 	}
 
 	if (!_channelname_next.empty()) {
-		int name_w = std::min(g_Font[font_lr]->getRenderWidth(_channelname_next), side_width);
-		int x_pos = full_width - name_w - x_off;
-		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, name_w, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
+		int x_pos = full_width - side_width - x_off;
+		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, side_width, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, g_Font[font_lr], CComponentsText::FONT_STYLE_REGULAR, header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		rText->doPaintBg(false);
 	}
 

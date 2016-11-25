@@ -38,7 +38,7 @@
 
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 
 #include <system/helpers.h>
 
@@ -150,6 +150,8 @@ void CStringInput::init()
 	y = getScreenStartY(height);
 	selected = 0;
 	smstimer = 0;
+	force_saveScreen = false;
+	pixBuf = NULL;
 }
 
 void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
@@ -377,6 +379,15 @@ std::string &CStringInput::getValue(void)
 	return *valueString;
 }
 
+void CStringInput::forceSaveScreen(bool enable)
+{
+	force_saveScreen = enable;
+	if (!enable && pixBuf) {
+		delete[] pixBuf;
+		pixBuf = NULL;
+	}
+}
+
 int CStringInput::exec( CMenuTarget* parent, const std::string & )
 {
 	neutrino_msg_t      msg;
@@ -392,11 +403,12 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	if (size > (int) valueString->length())
 		valueString->append(size - valueString->length(), ' ');
 
-	fb_pixel_t * pixbuf = NULL;
-	if (!parent) {
-		pixbuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
-		if (pixbuf)
-			frameBuffer->SaveScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixbuf);
+	if (pixBuf)
+		delete[] pixBuf;
+	if (!parent || force_saveScreen) {
+		pixBuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
+		if (pixBuf)
+			frameBuffer->SaveScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixBuf);
 	}
 
 	paint();
@@ -485,7 +497,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
 		{
 			if ((*valueString != oldval) &&
-			     (ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel) == CMessageBox::mbrCancel)) {
+			     (ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				continue;
 			}
@@ -517,10 +529,11 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		}
 	}
 
-	if (pixbuf)
+	if (pixBuf)
 	{
-		frameBuffer->RestoreScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixbuf);
-		delete[] pixbuf;//Mismatching allocation and deallocation: pixbuf
+		frameBuffer->RestoreScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixBuf);
+		delete[] pixBuf;
+		pixBuf = NULL;
 		frameBuffer->blit();
 	} else
 		hide();

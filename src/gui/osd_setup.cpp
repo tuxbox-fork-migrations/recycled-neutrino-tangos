@@ -156,12 +156,27 @@ const SNeutrinoSettings::FONT_TYPES menu_font_sizes[] =
 };
 size_t menu_font_items = sizeof(menu_font_sizes)/sizeof(menu_font_sizes[0]);
 
+const SNeutrinoSettings::FONT_TYPES moviebrowser_font_sizes[] =
+{
+	SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_HEAD,
+	SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST,
+	SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_INFO
+};
+size_t moviebrowser_font_items = sizeof(moviebrowser_font_sizes)/sizeof(moviebrowser_font_sizes[0]);
+
 const SNeutrinoSettings::FONT_TYPES other_font_sizes[] =
 {
 	SNeutrinoSettings::FONT_TYPE_SUBTITLES,
 	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM
 };
 size_t other_font_items = sizeof(other_font_sizes)/sizeof(other_font_sizes[0]);
+
+const SNeutrinoSettings::FONT_TYPES msgtext_font_sizes[] =
+{
+	SNeutrinoSettings::FONT_TYPE_MESSAGE_TEXT
+};
+size_t msgtext_font_items = sizeof(msgtext_font_sizes)/sizeof(msgtext_font_sizes[0]);
+
 
 font_sizes_groups font_sizes_groups[] =
 {
@@ -170,6 +185,8 @@ font_sizes_groups font_sizes_groups[] =
 	{LOCALE_FONTMENU_EVENTLIST  , eventlist_font_items  , eventlist_font_sizes  , "fontsize.deve", LOCALE_MENU_HINT_EVENTLIST_FONTS },
 	{LOCALE_FONTMENU_EPG        , epg_font_items        , epg_font_sizes        , "fontsize.depg", LOCALE_MENU_HINT_EPG_FONTS },
 	{LOCALE_FONTMENU_INFOBAR    , infobar_font_items    , infobar_font_sizes    , "fontsize.dinf", LOCALE_MENU_HINT_INFOBAR_FONTS },
+	{LOCALE_FONTMENU_MOVIEBROWSER,moviebrowser_font_items,moviebrowser_font_sizes,"fontsize.dmbr", LOCALE_MENU_HINT_MOVIEBROWSER_FONTS },
+	{LOCALE_FONTMENU_MESSAGES   , msgtext_font_items    , msgtext_font_sizes    , "fontsize.msg",  LOCALE_MENU_HINT_MESSAGE_FONTS },
 	{LOCALE_FONTMENU_OTHER      , other_font_items      , other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_OTHER_FONTS }
 };
 #define FONT_GROUP_COUNT (sizeof(font_sizes_groups)/sizeof(font_sizes_groups[0]))
@@ -202,7 +219,11 @@ font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_INFOBAR_CLOCK      ,  30, CNeutrinoFonts::FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_FILEBROWSER_ITEM   ,  16, CNeutrinoFonts::FONT_STYLE_BOLD   , 1},
 	{LOCALE_FONTSIZE_MENU_HINT          ,  16, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
-	{LOCALE_FONTSIZE_SUBTITLES          ,  25, CNeutrinoFonts::FONT_STYLE_BOLD   , 0}
+	{LOCALE_FONTSIZE_MOVIEBROWSER_HEAD  ,  15, CNeutrinoFonts::FONT_STYLE_REGULAR, 2},
+	{LOCALE_FONTSIZE_MOVIEBROWSER_LIST  ,  17, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
+	{LOCALE_FONTSIZE_MOVIEBROWSER_INFO  ,  17, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
+	{LOCALE_FONTSIZE_SUBTITLES          ,  25, CNeutrinoFonts::FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_MESSAGE_TEXT       ,  20, CNeutrinoFonts::FONT_STYLE_BOLD   , 0}
 };
 
 #if HAVE_GENERIC_HARDWARE
@@ -954,6 +975,7 @@ public:
 		while (value.length() < 3)
 			value = " " + value;
 		CStringInput input(name, &value, 3, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2, "0123456789 ", this);
+		input.forceSaveScreen(true);
 		return input.exec(parent, action_Key);
 	}
 
@@ -1475,7 +1497,7 @@ int COsdSetup::showContextChanlistMenu(CChannelList *parent_channellist)
 	CMenuWidget * menu_chanlist = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 
 	//using native callback to ensure stop header clock in parent channellist before paint this menu window
-	if (parent_channellist && g_settings.menu_pos == CMenuWidget::MENU_POS_TOP_RIGHT)
+	if (parent_channellist && parent_channellist->getHeaderObject()->getClockObject())
 		menu_chanlist->OnBeforePaint.connect(sigc::mem_fun(parent_channellist->getHeaderObject()->getClockObject(), &CComponentsFrmClock::block));
 
 	menu_chanlist->enableSaveScreen(true);

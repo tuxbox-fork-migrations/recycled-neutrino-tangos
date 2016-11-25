@@ -47,6 +47,7 @@
 #include <string>
 #include <vector>
 #include <neutrino_menue.h>
+#include "menue_target.h"
 extern "C" {
 #include <lua.h>
 #include <lauxlib.h>
@@ -100,19 +101,6 @@ class CActivateObserver
 		virtual void activateNotify(const neutrino_locale_t /*OptionName*/) {}
 };
 
-class CMenuTarget
-{
-	protected:
-		std::string *valueString;
-		std::string valueStringTmp;
-	public:
-		CMenuTarget(){ valueString = &valueStringTmp; }
-		virtual ~CMenuTarget(){}
-		virtual void hide(){}
-		virtual int exec(CMenuTarget* parent, const std::string & actionKey) = 0;
-		virtual std::string &getValue(void) { return *valueString; }
-		virtual fb_pixel_t getColor(void) { return 0; }
-};
 
 class CMenuItem : public  CComponentsSignals
 {
@@ -506,6 +494,10 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		CComponentsInfoBox	*info_box;
 		int			hint_height;
 		CComponentsHeader 	*header;
+		unsigned int saveScreen_width ;
+		unsigned int saveScreen_height;
+		unsigned int saveScreen_y;
+		unsigned int saveScreen_x;
 	protected:
 		std::string		nameString;
 		neutrino_locale_t	name;

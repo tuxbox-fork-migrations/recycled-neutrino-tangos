@@ -83,7 +83,7 @@ bool glcd_play = false;
 #endif
 #include <gui/widget/stringinput_ext.h>
 #include <gui/screensetup.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 #include <libavcodec/avcodec.h>
 #endif
@@ -257,8 +257,6 @@ void CMoviePlayerGui::cutNeutrino()
 		return;
 
 	g_Zapit->lockPlayBack();
-	if (!isWebTV)
-		g_Sectionsd->setPauseScanning(true);
 
 #ifdef HAVE_AZBOX_HARDWARE
 	/* we need sectionsd to get idle and zapit to release the demuxes
@@ -293,7 +291,6 @@ void CMoviePlayerGui::restoreNeutrino()
 
 	g_Zapit->unlockPlayBack();
 	//CZapit::getInstance()->EnablePlayback(true);
-	g_Sectionsd->setPauseScanning(false);
 
 	printf("%s: restore mode %x\n", __func__, m_LastMode);fflush(stdout);
 #if 0
@@ -1350,6 +1347,12 @@ bool CMoviePlayerGui::PlayFileStart(void)
 					pids.AudioPidName = language[i];
 					p_movie_info->audioPids.push_back(pids);
 				}
+			}
+		else
+			for (unsigned int i = 0; i < numpida; i++)
+				if (apids[i] == playback->GetAPid()) {
+				CZapit::getInstance()->SetVolumePercent((ac3flags[i] == 1) ? g_settings.audio_volume_percent_ac3 : g_settings.audio_volume_percent_pcm);
+				break;
 			}
 		repeat_mode = (repeat_mode_enum) g_settings.movieplayer_repeat_on;
 		playstate = CMoviePlayerGui::PLAY;
@@ -2585,7 +2588,7 @@ void CMoviePlayerGui::UpdatePosition()
 
 void CMoviePlayerGui::showHelpTS()
 {
-	Helpbox helpbox;
+	Helpbox helpbox(g_Locale->getText(LOCALE_MESSAGEBOX_INFO));
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_RED, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP1));
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_GREEN, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP2));
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_YELLOW, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP3));
@@ -2598,7 +2601,7 @@ void CMoviePlayerGui::showHelpTS()
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_7, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP10));
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_9, g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP11));
 	helpbox.addLine(g_Locale->getText(LOCALE_MOVIEPLAYER_TSHELP12));
-	helpbox.show(LOCALE_MESSAGEBOX_INFO);
+	helpbox.show();
 }
 
 void CMoviePlayerGui::StopSubtitles(bool enable_glcd_mirroring __attribute__((unused)))
@@ -2986,6 +2989,7 @@ bool CMoviePlayerGui::setAPID(unsigned int i) {
 		currentapid = apids[i];
 		currentac3 = ac3flags[i];
 		playback->SetAPid(currentapid, currentac3);
+		CZapit::getInstance()->SetVolumePercent((ac3flags[i] == 1) ? g_settings.audio_volume_percent_ac3 : g_settings.audio_volume_percent_pcm);
 	}
 	return (i < numpida);
 }

@@ -42,9 +42,11 @@
 #include <OpenThreads/Mutex>
 #include <OpenThreads/Thread>
 
+#if 0
 extern "C" {
 #include <libavformat/avformat.h>
 }
+#endif
 
 #define REC_MAX_APIDS 20
 #define REC_MAX_DPIDS 20
@@ -207,6 +209,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool StopAutoRecord(bool lock = true);
 		void StopAutoTimer();
 		bool CheckRecordingId_if_Timeshift(int recid);
+		recmap_t GetRecordMap()const{return recmap;}
 
 		MI_MOVIE_INFO * GetMovieInfo(const t_channel_id channel_id, bool timeshift = true);
 		const std::string GetFileName(const t_channel_id channel_id, bool timeshift = true);
@@ -244,6 +247,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 #endif
 };
 
+#if 0
 class CStreamRec : public CRecordInstance, OpenThreads::Thread
 {
 	private:
@@ -270,5 +274,6 @@ class CStreamRec : public CRecordInstance, OpenThreads::Thread
 		bool Stop(bool remove_event = true);
 		static int Interrupt(void * data);
 };
+#endif
 
 #endif

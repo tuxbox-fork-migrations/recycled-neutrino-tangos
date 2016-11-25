@@ -48,6 +48,7 @@
 #include "debug.h"
 #include <global.h>
 #include <neutrino.h>
+#include <driver/fontrenderer.h>
 #include <system/helpers.h>
 #include <gui/update_ext.h>
 #include <driver/framebuffer.h>
@@ -1137,6 +1138,7 @@ std::vector<std::string> split(const std::string &s, char delim)
 	return vec;
 }
 
+#if __cplusplus < 201103L
 std::string to_string(int i)
 {
 	std::stringstream s;
@@ -1178,6 +1180,7 @@ std::string to_string(unsigned long long i)
 	s << i;
 	return s.str();
 }
+#endif
 
 /**
  * C++ version 0.4 std::string style "itoa":

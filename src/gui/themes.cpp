@@ -42,7 +42,7 @@
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 #include <gui/widget/keyboard_input.h>
-#include <gui/widget/messagebox.h>
+#include <gui/widget/msgbox.h>
 #include <driver/screen_max.h>
 
 #include <sys/stat.h>
@@ -152,8 +152,6 @@ int CThemes::Show()
 	std::string file_name = "";
 
 	CMenuWidget themes (LOCALE_COLORMENU_MENUCOLORS, NEUTRINO_ICON_SETTINGS, width);
-	sigc::slot0<void> slot_repaint = sigc::mem_fun(themes, &CMenuWidget::hide); //we want to clean screen before repaint after changed Option
-	themes.OnBeforePaint.connect(slot_repaint);
 	
 	themes.addIntroItems(LOCALE_COLORTHEMEMENU_HEAD2);
 	
@@ -184,7 +182,7 @@ int CThemes::Show()
 	}
 
 	if (hasThemeChanged) {
-		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_COLORTHEMEMENU_QUESTION, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_SETTINGS) != CMessageBox::mbrYes)
+		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_COLORTHEMEMENU_QUESTION, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_SETTINGS) != CMsgBox::mbrYes)
 			rememberOldTheme( false );
 		else
 			hasThemeChanged = false;

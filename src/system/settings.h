@@ -194,6 +194,15 @@ struct SNeutrinoSkin
 	int  IconsY;
 };
 
+struct timer_remotebox_item
+{
+		unsigned int port;
+		std::string user;
+		std::string pass;
+		std::string rbname;
+		std::string rbaddress;
+};
+
 struct SNeutrinoSettings
 {
 	std::string version_pseudo;
@@ -341,6 +350,7 @@ struct SNeutrinoSettings
 	int epg_save_standby;
 	int epg_save_frequently;
 	int epg_read;
+	int epg_read_frequently;
 	int epg_cache;
 	int epg_old_events;
 	int epg_max_events;
@@ -489,6 +499,7 @@ struct SNeutrinoSettings
 		TIMING_VOLUMEBAR	= 6,
 		TIMING_FILEBROWSER	= 7,
 		TIMING_NUMERICZAP	= 8,
+		TIMING_POPUP_MESSAGES	= 9,
 
 		TIMING_SETTING_COUNT
 	};
@@ -550,7 +561,8 @@ struct SNeutrinoSettings
 	int recording_slow_warning;
 	int recording_startstop_msg;
 	int shutdown_timer_record_type;
-	std::list<std::string> timer_remotebox_ip;
+	std::vector<timer_remotebox_item> timer_remotebox_ip;
+	int timer_followscreenings;
 	std::string recording_filename_template;
 	int recording_already_found_check;
 
@@ -791,7 +803,11 @@ struct SNeutrinoSettings
 		FONT_TYPE_INFOBAR_CLOCK,
 		FONT_TYPE_FILEBROWSER_ITEM,
 		FONT_TYPE_MENU_HINT,
+		FONT_TYPE_MOVIEBROWSER_HEAD,
+		FONT_TYPE_MOVIEBROWSER_LIST,
+		FONT_TYPE_MOVIEBROWSER_INFO,
 		FONT_TYPE_SUBTITLES,
+		FONT_TYPE_MESSAGE_TEXT,
 		FONT_TYPE_COUNT
 	};
 
@@ -985,7 +1001,8 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
  	{ 6,	LOCALE_TIMING_INFOBAR_MOVIEPLAYER},
  	{ 3,	LOCALE_TIMING_VOLUMEBAR   },
 	{ 60,	LOCALE_TIMING_FILEBROWSER },
-	{ 3,	LOCALE_TIMING_NUMERICZAP  }
+	{ 3,	LOCALE_TIMING_NUMERICZAP  },
+	{ 6,	LOCALE_TIMING_POPUP_MESSAGES}
 };
 
 // lcdd
@@ -1025,7 +1042,7 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define OFFSET_INNER_LARGE	20
 #define OFFSET_INNER_MID	10
 #define OFFSET_INNER_SMALL	5
-
+#define OFFSET_INNER_MIN	2
 
 struct SglobalInfo
 {
