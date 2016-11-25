@@ -187,9 +187,6 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	// remember last mode
 	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode());
 
-	// Stop sectionsd
-	g_Sectionsd->setPauseScanning(true);
-
 	m_deviceliststart=0;
 	m_selecteddevice=0;
 	timeout = 0;
@@ -198,8 +195,6 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 
 	stopAudio();
 
-	// Start Sectionsd
-	g_Sectionsd->setPauseScanning(false);
 	m_frameBuffer->stopFrame();
 	m_frameBuffer->Clear();
 	g_Zapit->startPlayBack();
