@@ -440,5 +440,5 @@ void CComponentsWindow::paint(bool do_save_bg)
 	//paint form contents
 	paintForm(do_save_bg);
 
-	CFrameBuffer::getInstance()->blit();
+	frameBuffer->blit();
 }

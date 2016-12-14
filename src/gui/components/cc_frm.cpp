@@ -655,7 +655,7 @@ void CComponentsForm::ScrollPage(int direction, bool do_paint)
 		cur_page = (uint8_t)target_page;
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	CFrameBuffer::getInstance()->blit();
+	frameBuffer->blit();
 #endif
 	OnAfterScrollPage();
 }
