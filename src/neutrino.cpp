@@ -3730,9 +3730,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::SLEEPTIMER) {
 		if(data) {//INACTIVITY SLEEPTIMER
-			skipShutdownTimer =
-				(ShowMsg(LOCALE_MESSAGEBOX_INFO, g_settings.shutdown_real ? LOCALE_SHUTDOWNTIMER_ANNOUNCE:LOCALE_SLEEPTIMERBOX_ANNOUNCE,
-				      CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30, true) == CMsgBox::mbrYes);//FIXME
+			int msgbox = ShowMsg(LOCALE_MESSAGEBOX_INFO, g_settings.shutdown_real ? LOCALE_SHUTDOWNTIMER_ANNOUNCE:LOCALE_SLEEPTIMERBOX_ANNOUNCE,
+				      CMsgBox::mbrCancel, CMsgBox::mbCancel, NULL, 450, 60);
+			skipShutdownTimer = !(msgbox & CMsgBox::mbrTimeout);
 			if(skipShutdownTimer) {
 				printf("NeutrinoMessages::INACTIVITY SLEEPTIMER: skiping\n");
 				skipShutdownTimer = false;
@@ -4700,7 +4700,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			saveSetup(NEUTRINO_SETTINGS_FILE);
 
 			/* this is an ugly mess :-( */
-			delete g_RCInput;
 			delete g_Sectionsd;
 			delete g_RemoteControl;
 			delete g_fontRenderer;
@@ -4710,6 +4709,8 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 
 			stop_daemons(true);
 			stop_video();
+			/* g_RCInput is used in stop_daemons if a web-tv channel is running */
+			delete g_RCInput;
 			/* g_Timerd, g_Zapit and CVFD are used in stop_daemons */
 			delete g_Timerd;
 			delete g_Zapit; //do we really need this?
