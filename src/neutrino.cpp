@@ -2518,10 +2518,6 @@ TIMER_START();
 
 	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
 
-	InitZapper();
-
-	bootstatus->showGlobalStatus(100);
-
 	if(loadSettingsErg) {
 		bootstatus->hide();
 		//hintBox->hide();
@@ -2531,6 +2527,10 @@ TIMER_START();
 		configfile.setModifiedFlag(true);
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 	}
+
+	InitZapper();
+
+	bootstatus->showGlobalStatus(100);
 
 	CHDDDestExec * hdd = new CHDDDestExec();
 	hdd->exec(NULL, "");
