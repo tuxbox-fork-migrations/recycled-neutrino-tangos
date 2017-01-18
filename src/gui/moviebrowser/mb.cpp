@@ -269,7 +269,7 @@ CMovieBrowser::~CMovieBrowser()
 		delete m_movieCover;
 
 	if (m_header)
-		delete m_header; m_header = NULL;
+		delete m_header;
 }
 
 void CMovieBrowser::clearListLines()
