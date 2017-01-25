@@ -893,7 +893,7 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
 	int acaid = 0;
-	if (g_settings.show_ecm && (notfirst || g_settings.infobar_casystem_display > 1)) //bad mess :(
+	if (g_InfoViewer->ecminfo_toggle && (notfirst || g_settings.infobar_casystem_display > 1)) //bad mess :(
 		acaid = check_ecmInfo();
 
 	if (g_settings.infobar_casystem_display == 3)
@@ -1179,7 +1179,7 @@ int CInfoViewerBB::parse_ecmInfo(const char * file)
 	{
 		while ((read = getline(&buffer, &len, fh)) != -1)
 		{
-			if (g_settings.show_ecm)
+			if (g_InfoViewer->ecminfo_toggle)
 			{
 				w = ecm_font->getRenderWidth(buffer);
 				ecm_width = std::max(w, ecm_width);
@@ -1226,7 +1226,7 @@ int CInfoViewerBB::parse_ecmInfo(const char * file)
 			free(buffer);
 	}
 
-	if (g_settings.show_ecm)
+	if (g_InfoViewer->ecminfo_toggle)
 	{
 		if(decode == UNKNOWN || decode == NA || ecm_txt.empty()) {
 			g_InfoViewer->ecmInfoBox_hide();

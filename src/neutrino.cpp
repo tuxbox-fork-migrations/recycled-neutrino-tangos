@@ -394,7 +394,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.lcd4l_logodir = configfile.getString("lcd4l_logodir", LOGODIR);
 	g_settings.lcd4l_skin = configfile.getInt32("lcd4l_skin" , 0);
 
-	g_settings.show_ecm = configfile.getInt32("show_ecm" , 0);
 	g_settings.show_ecm_pos = configfile.getInt32("show_ecm_pos" , 0);
 
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
@@ -1178,7 +1177,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("lcd4l_logodir" , g_settings.lcd4l_logodir);
 	configfile.setInt32("lcd4l_skin" , g_settings.lcd4l_skin);
 
-	configfile.setInt32("show_ecm" , g_settings.show_ecm);
 	configfile.setInt32("show_ecm_pos" , g_settings.show_ecm_pos);
 
 	//theme/color options

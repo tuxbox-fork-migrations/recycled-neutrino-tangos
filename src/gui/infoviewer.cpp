@@ -132,6 +132,7 @@ CInfoViewer::CInfoViewer ()
 	timeoutEnd = 0;
 	sec_timer_id = 0;
 	spacer = 0;
+	ecminfo_toggle = false;
 }
 
 CInfoViewer::~CInfoViewer()
@@ -1078,15 +1079,14 @@ void CInfoViewer::loop(bool show_dot)
 			else
 				if (g_settings.show_ecm_pos)
 				{
-					if (g_settings.show_ecm) {
-						g_settings.show_ecm = 0;
+					if (ecminfo_toggle) {
 						ecmInfoBox_hide();
 						g_RCInput->postMsg (NeutrinoMessages::SHOW_EPG, 0);
 						res = messages_return::cancel_info;
 					} else {
-						g_settings.show_ecm = 1;
 						infoViewerBB->showIcon_CA_Status(0);
 					}
+					ecminfo_toggle = !ecminfo_toggle;
 				}
 				else
 				{
@@ -2387,7 +2387,7 @@ void CInfoViewer::killTitle()
 		if (infobar_txt) spacer += infobar_txt->getHeight();
 		killInfobarText();
 
-		if (g_settings.show_ecm)
+		if (ecminfo_toggle)
 			ecmInfoBox_hide();
 
 		frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY - spacer - 5, BoxEndX + OFFSET_SHADOW, bottom);
