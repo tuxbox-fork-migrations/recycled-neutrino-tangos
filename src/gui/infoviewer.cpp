@@ -711,6 +711,8 @@ void CInfoViewer::showTitle(t_channel_id chid, const bool calledFromNumZap, int 
 
 void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap, int epgpos)
 {
+	ecminfo_toggle = false;
+
 	if(!calledFromNumZap && !(zap_mode & IV_MODE_DEFAULT))
 		resetSwitchMode();
 
@@ -2739,6 +2741,5 @@ void CInfoViewer::ecmInfoBox_hide()
 		ecmInfoBox->kill();
 		delete ecmInfoBox;
 		ecmInfoBox = NULL;
-		ecminfo_toggle = false;
 	}
 }
