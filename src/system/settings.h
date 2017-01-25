@@ -853,7 +853,6 @@ struct SNeutrinoSettings
 	std::string	lcd4l_logodir;
 	int		lcd4l_skin;
 
-	int		show_ecm;
 	int		show_ecm_pos;
 
 	int		livestreamResolution;
