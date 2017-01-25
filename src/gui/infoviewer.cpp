@@ -2739,5 +2739,6 @@ void CInfoViewer::ecmInfoBox_hide()
 		ecmInfoBox->kill();
 		delete ecmInfoBox;
 		ecmInfoBox = NULL;
+		ecminfo_toggle = false;
 	}
 }
