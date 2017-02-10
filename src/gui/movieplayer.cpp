@@ -336,6 +336,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 
 	FileTimeOSD->kill();
 	FileTimeOSD->setMode(CTimeOSD::MODE_HIDE);
+	FileTimeOSD->setMpTimeForced(false);
 	time_forced = false;
 
 	if (actionKey == "tsmoviebrowser") {
@@ -1267,6 +1268,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 {
 	menu_ret = menu_return::RETURN_REPAINT;
 
+	FileTimeOSD->setMpTimeForced(false);
 	time_forced = false;
 
 	position = 0, duration = 0;
@@ -1426,6 +1428,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 				FileTimeOSD->switchMode(position, duration);
 				time_forced = true;
 			}
+			FileTimeOSD->setMpTimeForced(true);
 		} else if (timeshift == TSHIFT_MODE_OFF || !g_settings.timeshift_pause) {
 			playback->SetSpeed(1);
 		}
@@ -1705,6 +1708,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				time_forced = false;
 				FileTimeOSD->kill();
 			}
+			FileTimeOSD->setMpTimeForced(false);
 			if (playstate > CMoviePlayerGui::PLAY) {
 				playstate = CMoviePlayerGui::PLAY;
 #if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
@@ -1745,6 +1749,11 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				enableOsdElements(MUTE);
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
+			if (time_forced) {
+				time_forced = false;
+				FileTimeOSD->kill();
+			}
+			FileTimeOSD->setMpTimeForced(false);
 			if (playstate == CMoviePlayerGui::PAUSE) {
 				playstate = CMoviePlayerGui::PLAY;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
@@ -1789,6 +1798,8 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			update_lcd = true;
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_time) {
 			FileTimeOSD->switchMode(position, duration);
+			time_forced = false;
+			FileTimeOSD->setMpTimeForced(false);
 		} else if (msg == (neutrino_msg_t) g_settings.mbkey_cover) {
 			makeScreenShot(false, true);
 		} else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
@@ -1826,6 +1837,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				FileTimeOSD->switchMode(position, duration);
 				time_forced = true;
 			}
+			FileTimeOSD->setMpTimeForced(true);
 			if (timeshift == TSHIFT_MODE_OFF)
 				callInfoViewer();
 		} else if (msg == CRCInput::RC_1) {	// Jump Backward 1 minute
