@@ -62,7 +62,7 @@ extern CPictureViewer * g_PicViewer;
 
 #define BACKGROUNDIMAGEWIDTH 720
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 #ifndef FB_HW_ACCELERATION
 #define FB_HW_ACCELERATION
 #endif
@@ -586,7 +586,7 @@ void CFrameBuffer::setBlendLevel(int level)
 
 	if (ioctl(fd, FBIO_SETOPACITY, value))
 		printf("FBIO_SETOPACITY failed.\n");
-#ifndef BOXMODEL_APOLLO
+#ifndef BOXMODEL_CS_HD2
 	   if(level == 100) // TODO: sucks.
 		   usleep(20000);
 #endif
@@ -739,7 +739,7 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 	int w_align;
 	int offs_align;
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	if (_dx%4 != 0) {
 		w_align = GetWidth4FB_HW_ACC(x, _dx, true);
 		if (w_align < _dx)
