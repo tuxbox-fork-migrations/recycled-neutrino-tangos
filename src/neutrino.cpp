@@ -87,6 +87,7 @@
 #include "gui/movieplayer.h"
 #include "gui/osd_setup.h"
 #include "gui/osdlang_setup.h"
+#include "gui/pictureviewer.h"
 #include "gui/plugins.h"
 #include "gui/rc_lock.h"
 #include "gui/scan_setup.h"
@@ -622,17 +623,13 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.language = configfile.getString("language", "");
 	g_settings.timezone = configfile.getString("timezone", "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna");
 	//epg dir
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	g_settings.epg_cache            = configfile.getInt32("epg_cache_time", 3);
-	g_settings.epg_extendedcache    = configfile.getInt32("epg_extendedcache_time", 3);
-	g_settings.epg_old_events       = configfile.getInt32("epg_old_events", 3);
-	g_settings.epg_max_events       = configfile.getInt32("epg_max_events", 20000);
-	g_settings.epg_dir              = configfile.getString("epg_dir", "/hdd/epg");
-#else
 	g_settings.epg_cache            = configfile.getInt32("epg_cache_time", 14);
 	g_settings.epg_extendedcache    = configfile.getInt32("epg_extendedcache_time", 360);
 	g_settings.epg_old_events       = configfile.getInt32("epg_old_events", 1);
 	g_settings.epg_max_events       = configfile.getInt32("epg_max_events", 30000);
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	g_settings.epg_dir              = configfile.getString("epg_dir", "/hdd/epg");
+#else
 	g_settings.epg_dir              = configfile.getString("epg_dir", "/media/sda1/epg");
 #endif
 	// NTP-Server for sectionsd
