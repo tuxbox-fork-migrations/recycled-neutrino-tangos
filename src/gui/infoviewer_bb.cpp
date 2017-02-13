@@ -54,6 +54,7 @@
 #include <daemonc/remotecontrol.h>
 #include <driver/radiotext.h>
 #include <driver/volume.h>
+#include <driver/fontrenderer.h>
 
 #include <zapit/femanager.h>
 #include <zapit/zapit.h>
