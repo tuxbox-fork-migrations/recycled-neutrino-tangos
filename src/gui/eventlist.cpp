@@ -53,6 +53,7 @@
 #include <driver/fade.h>
 #include <driver/record.h>
 #include <driver/fontrenderer.h>
+#include <gui/pictureviewer.h>
 
 #include <system/helpers.h>
 #include <zapit/client/zapittools.h>
