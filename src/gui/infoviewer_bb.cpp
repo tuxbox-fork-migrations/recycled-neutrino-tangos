@@ -49,6 +49,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/movieplayer.h>
+#include <gui/pictureviewer.h>
 #include <system/helpers.h>
 #include <system/hddstat.h>
 #include <daemonc/remotecontrol.h>
