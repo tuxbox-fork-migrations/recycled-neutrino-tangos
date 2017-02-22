@@ -1757,6 +1757,10 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "pos";
 			case RC_sleep:
 				return "sleep";
+			case RC_media:
+				return "media";
+			case RC_search:
+				return "search";
 			default:
 				printf("unknown key: %d (0x%x) \n", key, key);
 				return "unknown";
@@ -1793,6 +1797,8 @@ int CRCInput::translate(int code)
 		case KEY_EXIT:
 		case KEY_HOME:
 			return RC_home;
+		case KEY_FASTFORWARD:
+			return RC_forward;
 #endif
 		case 0x100: // FIXME -- needed?
 			return RC_up;

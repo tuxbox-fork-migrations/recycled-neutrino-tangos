@@ -250,8 +250,6 @@ class CRCInput
 			RC_sub		= KEY_SUBTITLE,
 			RC_pos		= KEY_MOVE,
 			RC_sleep	= KEY_SLEEP,
-
-			/* SPARK keys */
 			RC_find		= KEY_FIND,
 			RC_pip		= KEY_PRESENTATION,
 			RC_archive	= KEY_ARCHIVE,
@@ -267,6 +265,8 @@ class CRCInput
 			RC_prog2	= KEY_PROG2,
 			RC_prog3	= KEY_PROG3,
 			RC_prog4	= KEY_PROG4,
+			RC_media	= KEY_MEDIA,
+			RC_search	= KEY_SEARCH,
 
 			RC_power_on	= KEY_POWERON,
 			RC_power_off	= KEY_POWEROFF,
