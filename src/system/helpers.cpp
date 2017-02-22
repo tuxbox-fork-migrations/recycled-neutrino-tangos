@@ -1395,6 +1395,7 @@ std::string get_path(const char *path)
 	}
 
 	return path;
+}
 
 std::string readLink(std::string lnk)
 {
