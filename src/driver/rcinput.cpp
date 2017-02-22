@@ -1768,13 +1768,10 @@ int CRCInput::translate(int code)
 		return RC_help;
 	switch(code)
 	{
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		case KEY_EXIT:
-		case KEY_HOME:
 			return RC_home;
 		case KEY_FASTFORWARD:
 			return RC_forward;
-#endif
 		case 0x100: // FIXME -- needed?
 			return RC_up;
 		case 0x101: // FIXME -- needed?
