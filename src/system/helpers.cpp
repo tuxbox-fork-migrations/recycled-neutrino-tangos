@@ -1395,4 +1395,13 @@ std::string get_path(const char *path)
 	}
 
 	return path;
+
+std::string readLink(std::string lnk)
+{
+	char buf[PATH_MAX];
+	memset(buf, 0, sizeof(buf)-1);
+	if (readlink(lnk.c_str(), buf, sizeof(buf)-1) != -1)
+		return std::string(buf);
+
+	return "";
 }
