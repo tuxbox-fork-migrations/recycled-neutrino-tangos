@@ -148,6 +148,7 @@ bool split_config_string(const std::string &str, std::map<std::string,std::strin
 
 std::string getJFFS2MountPoint(int mtdPos);
 std::string Lang2ISO639_1(std::string& lang);
+std::string readLink(std::string lnk);
 
 bool	File_copy(std::string rstr, std::string wstr);
 int	getpidof(const char *process);
