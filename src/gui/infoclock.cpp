@@ -72,7 +72,7 @@ void CInfoClock::initCCLockItems()
 	if (g_settings.infoClockSeconds)
 		setClockFormat("%H:%M:%S");
 	else
-		setClockFormat("%H:%M", "%H %M");
+		setClockFormat("%H:%M", "%H.%M");
 
 	//set height, NOTE: height is strictly bound to settings
 	height = g_settings.infoClockFontSize;

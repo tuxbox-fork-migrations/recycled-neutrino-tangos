@@ -2199,7 +2199,7 @@ void CChannelList::paintHead()
 			if (header->getContextBtnObject())
 				if (!header->getContextBtnObject()->empty())
 					header->removeContextButtons();
-			header->enableClock(true, "%H:%M", "%H %M", true);
+			header->enableClock(true, "%H:%M", "%H.%M", true);
 			logo_off = header->getClockObject()->getWidth() + 10;
 
 			header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
