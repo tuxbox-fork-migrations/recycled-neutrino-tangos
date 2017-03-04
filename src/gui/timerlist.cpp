@@ -675,6 +675,11 @@ void CTimerList::updateEvents(void)
 
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+
+	// calculate header height
+	const int pic_h = 39;
+	theight = std::max(theight, pic_h);
+
 	//get footerHeight from paintButtons
 	footerHeight = ::paintButtons(TimerListButtons, TimerListButtonsCount, 0, 0, 0, 0, 0, false);
 
