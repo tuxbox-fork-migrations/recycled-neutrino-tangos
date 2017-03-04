@@ -85,6 +85,7 @@
 #include <eitd/sectionsd.h>
 
 extern CBouquetManager *g_bouquetManager;
+static CComponentsHeaderLocalized *header = NULL;
 
 #include <string.h>
 
@@ -1086,6 +1087,11 @@ void CTimerList::hide()
 {
 	if (visible)
 	{
+		if(header) {
+			header->kill();
+			delete header;
+			header = NULL;
+		}
 		frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 		frameBuffer->blit();
 		visible = false;
@@ -1380,9 +1386,11 @@ void CTimerList::paintItem(int pos)
 
 void CTimerList::paintHead()
 {
-	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER, CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT, NULL, CC_SHADOW_ON);
-	header.enableClock(true, "%d.%m.%Y  %H:%M");
-	header.paint(CC_SAVE_SCREEN_NO);
+	if (header == NULL) {
+		header = new CComponentsHeaderLocalized(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER, CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT, NULL, CC_SHADOW_ON);
+		header->enableClock(true, "%d.%m.%Y  %H:%M", "%d.%m.%Y  %H.%M", true);
+	}
+	header->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CTimerList::paintFoot()
