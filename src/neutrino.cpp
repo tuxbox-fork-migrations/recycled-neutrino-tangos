@@ -151,6 +151,8 @@
 #include <linux/reboot.h>
 #include <sys/reboot.h>
 
+#include <compatibility.h>
+
 #include <lib/libdvbsub/dvbsub.h>
 #include <lib/libtuxtxt/teletext.h>
 #include <eitd/sectionsd.h>
@@ -5354,11 +5356,8 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup 6\n");fflush(stdout);
 #if HAVE_COOL_HARDWARE
 	delete CVFD::getInstance();
-#ifdef __UCLIBC__
-	malloc_stats(NULL);
-#else
-	malloc_stats();
-#endif
+
+	comp_malloc_stats(NULL);
 #endif
 #endif
 }
