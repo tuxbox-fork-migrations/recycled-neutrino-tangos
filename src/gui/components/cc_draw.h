@@ -27,8 +27,8 @@
 
 #include "cc_types.h"
 #include "cc_signals.h"
-#include "cc_timer.h"
 #include <driver/colorgradient.h>
+#include <driver/framebuffer.h>
 #include <driver/fade.h>
 #include <gui/color.h>
 
@@ -37,6 +37,7 @@
 Basic paint attributes and member functions for component classes
 */
 
+class CComponentsTimer;
 class CCDraw : public COSDFader, public CComponentsSignals
 {
 	protected:
@@ -115,6 +116,8 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		bool firstPaint;
 		///status: true=component was rendered
 		bool is_painted;
+		///status: true= value is_painted would be ignored
+		bool force_paint_bg;
 		///mode: true=activate rendering of basic elements (frame, shadow and body)
 		bool paint_bg;
 		///mode: true=activate rendering of frame
@@ -268,7 +271,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		virtual void disablePaintCache(){enablePaintCache(false);}
 
 		///returns paint mode, true=item was painted
-		virtual bool isPainted(){return is_painted;}
+		virtual bool isPainted();
 		///allows paint of elementary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form, returns true, if mode has changed, also cleans screnn buffer
 		virtual bool doPaintBg(bool do_paint);
 		///allows paint frame around body, default true , NOTE: ignored if frame width = 0
@@ -317,6 +320,17 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		 *
 		 * @return bool			returns true if effect is successful started
 		 *
+		 * @param[in] CComponentsTimer*	pointer to timer object, Note: This object must be created and distroy outside
+		 * 				of this methode.
+		 * @see				overloaded version of paintBlink()
+		*/
+		virtual bool paintBlink(CComponentsTimer* Timer);
+
+		/**paint item with blink effect
+		 * This should work with all cc item types.
+		 *
+		 * @return bool			returns true if effect is successful started
+		 *
 		 * @param[in] interval		optional, interval time as int, default =  1
 		 * @param[in] is_nano		optional, time mode as bool, default = false means as seconds, true means nano seconds.
 		 *
@@ -342,10 +356,12 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		*/
 		bool cancelBlink(bool keep_on_screen = false);
 
-		///signal on before paint fb layers, called inside paintFbItems()
+		///signal on before paint fb layers, called before paint fb layers inside paintFbItems()
 		sigc::signal<void> OnBeforePaintLayers;
-		///signal on after paint fb layers, called inside paintFbItems()
+		///signal on after paint fb layers, called after paint fb layers inside paintFbItems()
 		sigc::signal<void> OnAfterPaintLayers;
+		///signal on after paint background, called after paint of background box inside paintFbItems()
+		sigc::signal<void> OnAfterPaintBg;
 
 		/*!
 		 Removes current item from screen and

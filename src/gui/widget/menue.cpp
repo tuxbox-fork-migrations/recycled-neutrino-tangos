@@ -534,49 +534,57 @@ CMenuGlobal* CMenuGlobal::getInstance()
 
 CMenuWidget::CMenuWidget()
 {
-	nameString 	= g_Locale->getText(NONEXISTANT_LOCALE);
-	name 		= NONEXISTANT_LOCALE;
-	iconfile 	= "";
-	selected 	= -1;
+	Init("", "", 0, 0);
+}
+
+CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
+{
+	Init(g_Locale->getText(Name), Icon, mwidth, w_index);
+}
+
+CMenuWidget::CMenuWidget(const std::string &Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
+{
+	Init(Name, Icon, mwidth, w_index);
+}
+
+void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, const int mwidth, const mn_widget_id_t &w_index)
+{
+	//pos
+	x = y		= 0;
+
+	//caption and icon
+	nameString 	= NameString;
+	iconfile 	= Icon;
+
+	//basic attributes
 	iconOffset 	= 0;
 	offx = offy 	= 0;
 	from_wizard 	= SNeutrinoSettings::WIZARD_OFF;
 	fade 		= true;
 	sb_width	= 0;
 	savescreen	= false;
-	background	= NULL;
 	preselected 	= -1;
+	nextShortcut	= 1;
+	current_page	= 0;
+	has_hints	= false;
+	brief_hints	= BRIEF_HINT_NO;
+	hint_painted	= false;
+	hint_height	= 0;
+	fbutton_count	= 0;
+	fbutton_labels	= NULL;
+	fbutton_width	= 0;
+	fbutton_height	= 0;
+	saveScreen_width = 0;
+	saveScreen_height = 0;
+
+	//objects
+	background	= NULL;
 	details_line	= NULL;
 	info_box	= NULL;
 	header 		= NULL;
-	nextShortcut	= 1;
-}
+	frameBuffer 	= CFrameBuffer::getInstance();
+	mglobal 	= CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
 
-CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
-{
-	name = Name;
-	nameString = g_Locale->getText(Name);
-	preselected 	= -1;
-	Init(Icon, mwidth, w_index);
-}
-
-CMenuWidget::CMenuWidget(const std::string &Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
-{
-	name = NONEXISTANT_LOCALE;
-	nameString = Name;
-	preselected 	= -1;
-	Init(Icon, mwidth, w_index);
-}
-
-void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widget_id_t &w_index)
-{
-	mglobal = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
-	frameBuffer = CFrameBuffer::getInstance();
-	iconfile = Icon;
-	details_line = NULL;
-
-	info_box = NULL;
-	header	= NULL;
 	//handle select values
 	if(w_index > MN_WIDGET_ID_MAX){
 		//error
@@ -591,39 +599,18 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 	//overwrite preselected value with global select value
 	selected = (widget_index == NO_WIDGET_ID ? preselected : mglobal->v_selected[widget_index]);
 
-	
+	//dimension
 	min_width = 0;
 	width = 0; /* is set in paint() */
-	
-	if (mwidth > 100) 
-	{
+	if (mwidth > 100){
 		/* warn about abuse until we found all offenders... */
 		fprintf(stderr, "Warning: %s (%s) (%s) mwidth over 100%%: %d\n", __FUNCTION__, nameString.c_str(), Icon.c_str(), mwidth);
 	}
-	else 
-	{
+	else{
 		min_width = frameBuffer->getScreenWidth(true) * mwidth / 100;
 		if(min_width > (int) frameBuffer->getScreenWidth())
 			min_width = frameBuffer->getScreenWidth();
 	}
-
-	current_page	= 0;
-	offx = offy 	= 0;
-	from_wizard 	= SNeutrinoSettings::WIZARD_OFF;
-	fade 		= true;
-	savescreen	= false;
-	background	= NULL;
-	has_hints	= false;
-	brief_hints	= BRIEF_HINT_NO;
-	hint_painted	= false;
-	hint_height	= 0;
-	fbutton_count	= 0;
-	fbutton_labels	= NULL;
-	fbutton_width	= 0;
-	fbutton_height	= 0;
-	nextShortcut	= 1;
-	saveScreen_width = 0;
-	saveScreen_height = 0;
 }
 
 void CMenuWidget::move(int xoff, int yoff)
@@ -727,8 +714,6 @@ CMenuItem* CMenuWidget::getItem(const uint& item_id)
 
 const char *CMenuWidget::getName()
 {
-	if (name != NONEXISTANT_LOCALE)
-		return g_Locale->getText(name);
 	return nameString.c_str();
 }
 
@@ -1044,21 +1029,21 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut, bool enabled)
 {
 	bool separatorline = false;
-	unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
+	unsigned int number_of_plugins = (unsigned int) g_Plugins->getNumberOfPlugins();
 	unsigned int sc = shortcut;
 	for (unsigned int count = 0; count < number_of_plugins; count++)
 	{
-		if ((g_PluginList->getIntegration(count) == integration) && !g_PluginList->isHidden(count))
+		if ((g_Plugins->getIntegration(count) == integration) && !g_Plugins->isHidden(count))
 		{
 			if (!separatorline)
 			{
 				addItem(GenericMenuSeparatorLine);
 				separatorline = true;
 			}
-			printf("[neutrino] integratePlugins: add %s\n", g_PluginList->getName(count));
+			printf("[neutrino] integratePlugins: add %s\n", g_Plugins->getName(count));
 			neutrino_msg_t dk = (shortcut != CRCInput::RC_nokey) ? CRCInput::convertDigitToKey(sc++) : CRCInput::RC_nokey;
-			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), enabled, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), dk);
-			fw_plugin->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
+			CMenuForwarder *fw_plugin = new CMenuForwarder(g_Plugins->getName(count), enabled, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), dk);
+			fw_plugin->setHint(g_Plugins->getHintIcon(count), g_Plugins->getDescription(count));
 			addItem(fw_plugin);
 		}
 	}
@@ -1073,6 +1058,8 @@ void CMenuWidget::hide()
 			header->kill();
 		if (info_box)
 			info_box->kill();
+		if (details_line)
+			details_line->hide();
 		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height + fbutton_height);
 		//paintHint(-1);
 	}
@@ -1194,7 +1181,7 @@ void CMenuWidget::calcSize()
 	//scrollbar width
 	sb_width=0;
 	if(total_pages > 1)
-		sb_width=15;
+		sb_width=SCROLLBAR_WIDTH;
 
 	full_width = /*ConnectLineBox_Width+*/width+sb_width+OFFSET_SHADOW;
 	full_height = height+RADIUS_LARGE+OFFSET_SHADOW*2 /*+hint_height+OFFSET_INTER*/;
@@ -1248,6 +1235,7 @@ void CMenuWidget::paint()
 		header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 		header->setOffset(10);
 	}
+	header->setCaption(getName());
 	header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
 	header->setCaptionColor(COL_MENUHEAD_TEXT);
 	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0);
@@ -1326,8 +1314,7 @@ void CMenuWidget::paintItems()
 	if(total_pages>1)
 	{
 		int item_height=height-(item_start_y-y);
-		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_SCROLLBAR_PASSIVE_PLUS_0, RADIUS_MIN);
-		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_SCROLLBAR_ACTIVE_PLUS_0, RADIUS_MIN);
+		paintScrollBar(x+ width, item_start_y, sb_width, item_height, total_pages, current_page);
 		/* background of menu items, paint every time because different items can have
 		 * different height and this might leave artifacts otherwise after changing pages */
 		frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
@@ -1453,6 +1440,8 @@ void CMenuWidget::paintHint(int pos)
 		if (info_box) {
 			savescreen ? info_box->hide() : info_box->kill();
 			hint_painted = info_box->isPainted();
+			if (details_line)
+				details_line->hide();
 		}
 		return;
 	}

@@ -39,7 +39,10 @@
 #include <string>
 #include <vector>
 
-#ifdef BOXMODEL_APOLLO
+#include <OpenThreads/Mutex>
+#include <OpenThreads/ScopedLock>
+
+#ifdef BOXMODEL_CS_HD2
 #ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
 #include <cs_ir_generic.h>
 #endif
@@ -138,6 +141,12 @@ class CRCInput
 			bool			correct_time;
 		};
 
+		struct in_dev
+		{
+			int fd;
+			std::string path;
+		};
+
 		uint32_t               timerid;
 		std::vector<timer> timers;
 
@@ -147,30 +156,18 @@ class CRCInput
 		int 		fd_pipe_high_priority[2];
 		int 		fd_pipe_low_priority[2];
 		int         	fd_gamerc;
-#if HAVE_SPARK_HARDWARE
-#define NUMBER_OF_EVENT_DEVICES 1
-#else
-#ifdef HAVE_DUCKBOX_HARDWARE
-#if defined (BOXMODEL_IPBOX9900) || defined (BOXMODEL_IPBOX99) || defined (BOXMODEL_IPBOX55) || defined (BOXMODEL_HL101)
-#define NUMBER_OF_EVENT_DEVICES 2
-#else
-#define NUMBER_OF_EVENT_DEVICES 1 // this is currently valid for all supported platforms
-#endif
-#else
-#define NUMBER_OF_EVENT_DEVICES 1 // this is currently valid for all supported platforms
-#endif
-#endif
-		int         	fd_rc[NUMBER_OF_EVENT_DEVICES];
+		std::vector<in_dev> indev;
 		int		fd_keyb;
 		int		fd_event;
 
 		int		fd_max;
-		int		clickfd;
 		bool		*timer_wakeup;
 		__u16 rc_last_key;
-		void set_dsp();
+		OpenThreads::Mutex mutex;
 
-		void open(int dev = -1);
+		void open(bool recheck = false);
+		bool checkpath(in_dev id);
+		bool checkdev();
 		void close();
 		int translate(int code);
 		void calculateMaxFd(void);
@@ -211,7 +208,7 @@ class CRCInput
 			RC_plus		= KEY_VOLUMEUP,     /* /include/linux/input.h: #define KEY_VOLUMEUP		115   */
 			RC_standby	= KEY_POWER,	    /* /include/linux/input.h: #define KEY_POWER		116   */
 			RC_help		= KEY_HELP,	    /* /include/linux/input.h: #define KEY_HELP			138   */
-			RC_home		= KEY_EXIT,	    /* /include/linux/input.h: #define KEY_HOME			102   */
+			RC_home		= KEY_HOME,	    /* /include/linux/input.h: #define KEY_HOME			102   */
 			RC_setup	= KEY_MENU,	    /* /include/linux/input.h: #define KEY_SETUP		141   */
 			RC_topleft	= KEY_TOPLEFT,	
 			RC_topright	= KEY_TOPRIGHT,	
@@ -253,8 +250,6 @@ class CRCInput
 			RC_sub		= KEY_SUBTITLE,
 			RC_pos		= KEY_MOVE,
 			RC_sleep	= KEY_SLEEP,
-
-			/* SPARK keys */
 			RC_find		= KEY_FIND,
 			RC_pip		= KEY_PRESENTATION,
 			RC_archive	= KEY_ARCHIVE,
@@ -270,6 +265,8 @@ class CRCInput
 			RC_prog2	= KEY_PROG2,
 			RC_prog3	= KEY_PROG3,
 			RC_prog4	= KEY_PROG4,
+			RC_media	= KEY_MEDIA,
+			RC_search	= KEY_SEARCH,
 
 			RC_power_on	= KEY_POWERON,
 			RC_power_off	= KEY_POWEROFF,
@@ -304,12 +301,9 @@ class CRCInput
 		};
 		void set_rc_hw(void);
 
-		inline int getFileHandle(void) /* used for plugins (i.e. games) only */
-		{
-			return fd_rc[0];
-		}
-		void stopInput();
-		void restartInput();
+		void stopInput(const bool ext = false);
+		void restartInput(const bool ext = false);
+		bool isLocked(void);
 
 		uint64_t repeat_block;
 		uint64_t repeat_block_generic;
@@ -345,12 +339,9 @@ class CRCInput
 		void clearRCMsg();
 
 		int messageLoop( bool anyKeyCancels = false, int timeout= -1 );
-		void open_click();
-		void close_click();
-		void play_click();
-		void reset_dsp(int rate);
 
 		void setLongPressAny(bool b) { longPressAny = b; };
+		void setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms);
 };
 
 

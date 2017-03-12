@@ -62,6 +62,10 @@
 
 #include <cs_api.h>
 
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57, 8, 0 ))
+#define av_packet_unref	av_free_packet
+#endif
+
 /* experimental mode:
  * stream not possible, if record running
  * pids in url ignored, and added from channel, with fake PAT/PMT
@@ -391,9 +395,11 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 	bp = &cbuf[0];
 
 	/* read one line */
-	while (bp - &cbuf[0] < (int) sizeof(cbuf)) {
+	while (bp - &cbuf[0] < (int) sizeof(cbuf) - 1) {
 		unsigned char c;
 		int res = read(fd, &c, 1);
+		if (res == 0)
+			break;
 		if (res < 0) {
 			perror("read");
 			return false;
@@ -401,11 +407,10 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 		if ((*bp++ = c) == '\n')
 			break;
 	}
+	*bp = 0;
 
-	*bp++ = 0;
+	printf("CStreamManager::Parse: got %d bytes '%s'", (int)(bp-&cbuf[0]), cbuf);
 	bp = &cbuf[0];
-
-	printf("CStreamManager::Parse: got %s\n", cbuf);
 
 	/* send response to http client */
 	if (!strncmp(cbuf, "GET /", 5)) {
@@ -775,8 +780,13 @@ void CStreamStream::Close()
 	if (avio_ctx)
 		av_free(avio_ctx);
 
-	if (bsfc)
+	if (bsfc){
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
 		av_bitstream_filter_close(bsfc);
+#else
+		av_bsf_free(&bsfc);
+#endif
+	}
 
 	ifcx = NULL;
 	ofcx = NULL;
@@ -796,7 +806,7 @@ bool CStreamStream::Open()
 		return false;
 
 	std::string pretty_name, livestreamInfo1, livestreamInfo2, headers;
-	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getChannelID(), channel->getUrl(), channel->getScriptName(), url, pretty_name, livestreamInfo1, livestreamInfo2,headers)) {
+	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getUrl(), channel->getScriptName(), url, pretty_name, livestreamInfo1, livestreamInfo2,headers)) {
 		printf("%s: getLiveUrl() [%s] failed!\n", __FUNCTION__, url.c_str());
 		return false;
 	}
@@ -867,21 +877,35 @@ bool CStreamStream::Open()
 	av_dict_copy(&ofcx->metadata, ifcx->metadata, 0);
 	int stid = 0x200;
 	for (unsigned i = 0; i < ifcx->nb_streams; i++) {
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
 		AVCodecContext * iccx = ifcx->streams[i]->codec;
-
 		AVStream *ost = avformat_new_stream(ofcx, iccx->codec);
 		avcodec_copy_context(ost->codec, iccx);
+#else
+		AVCodecParameters * iccx = ifcx->streams[i]->codecpar;
+		AVStream *ost = avformat_new_stream(ofcx, NULL);
+		avcodec_parameters_copy(ost->codecpar, iccx);
+#endif
 		av_dict_copy(&ost->metadata, ifcx->streams[i]->metadata, 0);
-		ost->time_base = iccx->time_base;
+		ost->time_base = ifcx->streams[i]->time_base;
 		ost->id = stid++;
 	}
 	av_log_set_level(AV_LOG_VERBOSE);
 	av_dump_format(ofcx, 0, ofcx->filename, 1);
-	av_log_set_level(AV_LOG_INFO);
+	av_log_set_level(AV_LOG_WARNING);
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
 	bsfc = av_bitstream_filter_init("h264_mp4toannexb");
 	if (!bsfc)
 		printf("%s: av_bitstream_filter_init h264_mp4toannexb failed!\n", __FUNCTION__);
-
+#else
+	const AVBitStreamFilter *bsf = av_bsf_get_by_name("h264_mp4toannexb");
+	if(!bsf) {
+		return false;
+	}
+	if ((av_bsf_alloc(bsf, &bsfc))) {
+		return false;
+	}
+#endif
 	return true;
 }
 
@@ -928,10 +952,14 @@ void CStreamStream::run()
 		if (pkt.stream_index < 0)
 			continue;
 
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
 		AVCodecContext *codec = ifcx->streams[pkt.stream_index]->codec;
+#else
+		AVCodecParameters *codec = ifcx->streams[pkt.stream_index]->codecpar;
+#endif
 		if (bsfc && codec->codec_id == AV_CODEC_ID_H264 ) {
 			AVPacket newpkt = pkt;
-
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
 			if (av_bitstream_filter_filter(bsfc, codec, NULL, &newpkt.data, &newpkt.size, pkt.data, pkt.size, pkt.flags & AV_PKT_FLAG_KEY) >= 0) {
 #if (LIBAVFORMAT_VERSION_MAJOR == 57 && LIBAVFORMAT_VERSION_MINOR == 25)
  				av_packet_unref(&pkt);
@@ -940,7 +968,22 @@ void CStreamStream::run()
 #endif
 				newpkt.buf = av_buffer_create(newpkt.data, newpkt.size, av_buffer_default_free, NULL, 0);
 				pkt = newpkt;
-			}       
+			}
+#else
+			int ret = av_bsf_send_packet(bsfc, &pkt);
+			if (ret < 0){
+				break;
+			}
+			ret = av_bsf_receive_packet(bsfc, &newpkt);
+			if (ret == AVERROR(EAGAIN)){
+				break;
+			}
+			if(ret != AVERROR_EOF){
+				av_packet_unref(&pkt);
+				newpkt.buf = av_buffer_create(newpkt.data, newpkt.size, av_buffer_default_free, NULL, 0);
+				pkt = newpkt;
+			}
+#endif
 		}
 		pkt.pts = av_rescale_q(pkt.pts, ifcx->streams[pkt.stream_index]->time_base, ofcx->streams[pkt.stream_index]->time_base);
 		pkt.dts = av_rescale_q(pkt.dts, ifcx->streams[pkt.stream_index]->time_base, ofcx->streams[pkt.stream_index]->time_base);

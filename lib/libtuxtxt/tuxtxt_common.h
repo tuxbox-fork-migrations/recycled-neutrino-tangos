@@ -15,8 +15,8 @@
 #include <zlib.h>
 #endif
 
-#include <system/set_threadname.h>
 #include <zapit/include/dmx.h>
+#include <system/set_threadname.h>
 
 tuxtxt_cache_struct tuxtxt_cache;
 static pthread_mutex_t tuxtxt_cache_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -315,7 +315,7 @@ void tuxtxt_decode_adip() /* additional information table */
 #endif
 	} /* next adip page i */
 
-	while (!tuxtxt_cache.adippg[tuxtxt_cache.maxadippg] && (tuxtxt_cache.maxadippg >= 0)) /* and shrink table */
+	while ((tuxtxt_cache.maxadippg >= 0) && !tuxtxt_cache.adippg[tuxtxt_cache.maxadippg]) /* and shrink table */
 		tuxtxt_cache.maxadippg--;
 }
 /******************************************************************************
@@ -548,6 +548,7 @@ void tuxtxt_allocate_cache(int magazine)
 	// Lock here as we have a possible race here with
 	// tuxtxt_clear_cache(). We should not be allocating and
 	// freeing at the same time.
+	// *** this is probably worked around by tuxtxt_cacehe_biglock now *** --seife
 	pthread_mutex_lock(&tuxtxt_cache_lock);
 
 	/* check cachetable and allocate memory if needed */
@@ -695,7 +696,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 	sem_init(&inject_sem, 0, 0);
 #endif
 	printf("TuxTxt running thread...(%04x)\n",tuxtxt_cache.vtxtpid);
-	set_threadname("tuxtxt_CacheThread");
+	set_threadname("tuxtxt:cache");
 	tuxtxt_cache.receiving = 1;
 	nice(3);
 	while (!stop_cache)

@@ -32,6 +32,7 @@
 #include <neutrino.h>
 
 #include <gui/widget/icons.h>
+#include <driver/fontrenderer.h>
 
 CListBox::CListBox(const char * const Caption)
 {
@@ -176,8 +177,7 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 	{
 		g_RCInput->getMsg(&msg, &data, g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 
-		if (( msg == (neutrino_msg_t)g_settings.key_channelList_cancel) ||
-				( msg == CRCInput::RC_home))
+		if	( msg == CRCInput::RC_home)
 		{
 			loop = false;
 		}

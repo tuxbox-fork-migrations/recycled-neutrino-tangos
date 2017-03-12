@@ -91,7 +91,7 @@ void CEpgScan::ConfigureEIT()
 			count++;
 		}
 	}
-	INFO("added %d channels to EIT white list\n", count);
+	INFO("added %d channels to EIT white list", count);
 }
 
 void CEpgScan::Clear()
@@ -160,7 +160,7 @@ bool CEpgScan::AddSelected()
 
 void CEpgScan::AddTransponders()
 {
-	if(bouquetList->Bouquets.empty())
+	if(!bouquetList || bouquetList->Bouquets.empty())
 		return;
 
 	if (current_mode != g_settings.epg_scan) {

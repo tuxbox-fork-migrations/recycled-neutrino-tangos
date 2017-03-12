@@ -125,19 +125,19 @@ void CBEChannelWidget::paintItem(int pos)
 	frameBuffer->paintBoxRel(x, ypos, width- 15, iheight, bgcolor, i_radius);
 
 	if ((current == selected) && (state == beMoving)) {
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 5, ypos, iheight);
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + OFFSET_INNER_MID, ypos, iheight);
 	}
 	if (current < Channels->size())	{
 		if ((*Channels)[current]->bLocked) {
-			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + 22, ypos, iheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + OFFSET_INNER_MID + iconoffset, ypos, iheight);
 		}
 		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15, (*Channels)[current]->getName(), color);
 		//FIXME numwidth ? we not show chan numbers
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 22 + iconoffset, ypos + iheight - (iheight-fheight)/2, width- iconoffset- 20, (*Channels)[current]->getName(), color);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 2*OFFSET_INNER_MID + 2*iconoffset, ypos + iheight - (iheight-fheight)/2, width - 3*OFFSET_INNER_MID - 2*iconoffset, (*Channels)[current]->getName(), color);
 		if((*Channels)[current]->scrambled)
-			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos, fheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x + width - 15 - OFFSET_INNER_MID - iconoffset, ypos, fheight);
 		else if (!(*Channels)[current]->getUrl().empty())
-			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x+width- 15 - 28, ypos, fheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x + width - 15 - OFFSET_INNER_MID - iconoffset, ypos, fheight);
 	}
 }
 
@@ -194,7 +194,7 @@ const struct button_label CBEChannelWidgetButtons[6] =
 void CBEChannelWidget::paintFoot()
 {
 	size_t numbuttons = sizeof(CBEChannelWidgetButtons)/sizeof(CBEChannelWidgetButtons[0]);
-	footer.paintButtons(x, y + (height-footerHeight), width, footerHeight, numbuttons, CBEChannelWidgetButtons, width/numbuttons-20);
+	footer.paintButtons(x, y + (height-footerHeight), width, footerHeight, numbuttons, CBEChannelWidgetButtons, width/numbuttons-2*OFFSET_INNER_MID, 0, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]);
 }
 
 std::string CBEChannelWidget::getInfoText(int index)
@@ -349,7 +349,7 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 
 		if ((msg == CRCInput::RC_timeout) ||
-		    (msg == (neutrino_msg_t)g_settings.key_channelList_cancel))
+		    (msg == CRCInput::RC_home))
 		{
 			if (state == beDefault)
 			{

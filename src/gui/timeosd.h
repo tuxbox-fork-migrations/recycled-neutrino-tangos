@@ -42,10 +42,11 @@ class CTimeOSD : public CComponentsFrmClock
 	
 	private:
 		CProgressBar		timescale;
-		mode m_mode;
+		mode m_mode, tmp_mode;
+		bool m_restore;
+		bool mp_time_forced;
 		time_t m_time_show;
 
-		void Init();
 		void initTimeString();
 		void updatePos(int position, int duration);
 		void KillAndResetTimescale();
@@ -53,6 +54,8 @@ class CTimeOSD : public CComponentsFrmClock
 	public:
 		CTimeOSD();
 // 		~CTimeOSD(); is inherited
+		void Init();
+		static CTimeOSD* getInstance();
 		void show(time_t time_show, bool force = true);
 		void kill();
 		bool IsVisible() {return m_mode != MODE_HIDE;}
@@ -60,6 +63,12 @@ class CTimeOSD : public CComponentsFrmClock
 		void switchMode(int position, int duration);
 		mode getMode() { return m_mode; };
 		void setMode (mode mode_) { m_mode = mode_; };
+		mode getTmpMode() { return tmp_mode; };
+		void setTmpMode () { tmp_mode = m_mode; };
+		bool getRestore() { return m_restore; };
+		void setRestore(bool m) { m_restore = m; };
 		void setHeight(const int){}//NOTE: dummy member, height is strictly bound to settings
+		bool getMpTimeForced() { return mp_time_forced; };
+		void setMpTimeForced(bool m) { mp_time_forced = m; };
 };
 #endif

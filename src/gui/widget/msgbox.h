@@ -33,11 +33,11 @@
 #endif
 
 #include "hintbox.h"
-#include <gui/widget/drawable.h>
 
 #define MSGBOX_MIN_WIDTH HINTBOX_MIN_WIDTH
-#define MSGBOX_MIN_HEIGHT HINTBOX_MIN_HEIGHT + 75
+#define MSGBOX_MIN_HEIGHT HINTBOX_MIN_HEIGHT
 
+#define MSGBOX_DEFAULT_TIMEOUT g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES]
 #define DEFAULT_MSGBOX_TEXT_MODE (CMsgBox::CENTER | CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH)
 
 //! Sub class of CHintBox. Shows a window as a messagebox
@@ -55,14 +55,14 @@ class CMsgBox : public CHintBox
 		/* enum definition */
 		enum msg_result_t
 		{
-			mbrYes    = 0,
-			mbrNo     = 1,
-			mbrCancel = 2,
-			mbrBack   = 3,
-			mbrOk     = 4,
-			mbrTimeout = 5,
+			mbrYes    	= 0x01,
+			mbrNo     	= 0x02,
+			mbrCancel 	= 0x04,
+			mbrBack   	= 0x08,
+			mbrOk     	= 0x10,
+			mbrTimeout 	= 0x20,
 
-			mbrNone = -1
+			mbrNone 	= 0x00
 		};
 		enum button_define_t
 		{
@@ -125,7 +125,7 @@ class CMsgBox : public CHintBox
 		* @param[in]	Title
 		* 	@li 	optional: exepts type const char*, default = NULL, this causes default title "Information"
 		* @param[in]	Icon
-		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = NULL (non Icon)
+		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = DEFAULT_HEADER_ICON
 		* @param[in]	Picon
 		* 	@li 	optional: exepts type const char*, defines the picon name on the left side of message text, default = NULL (non Icon)
 		* @param[in]	Width
@@ -165,12 +165,12 @@ class CMsgBox : public CHintBox
 		*/
 		CMsgBox(const char* Text,
 			const char* Title = NULL,
-			const char* Icon = NULL,
+			const char* Icon = DEFAULT_HEADER_ICON,
 			const char* Picon = NULL,
 			const int& Width = MSGBOX_MIN_WIDTH,
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
-			const msg_result_t& Default_result = mbrCancel,
+			const msg_result_t& Default_result = mbrNone,
 			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
 
 		/**CMsgBox Constructor
@@ -179,7 +179,7 @@ class CMsgBox : public CHintBox
 		* @param[in]	Title
 		* 	@li 	optional: exepts type neutrino_locale_t with locale entry from /system/locals.h default = NONEXISTANT_LOCALE, this causes default title "Information"
 		* @param[in]	Icon
-		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = NULL (non Icon)
+		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = DEFAULT_HEADER_ICON
 		* @param[in]	Picon
 		* 	@li 	optional: exepts type const char*, defines the picon name on the left side of message text, default = NULL (non Icon)
 		* @param[in]	Width
@@ -219,12 +219,12 @@ class CMsgBox : public CHintBox
 		*/
 		CMsgBox(const char* Text,
 			const neutrino_locale_t locale_Title = NONEXISTANT_LOCALE,
-			const char* Icon = NULL,
+			const char* Icon = DEFAULT_HEADER_ICON,
 			const char* Picon = NULL,
 			const int& Width = MSGBOX_MIN_WIDTH,
 			const int& Height = MSGBOX_MIN_HEIGHT,
 			const int& ShowButtons = mbCancel,
-			const msg_result_t& Default_result = mbrCancel,
+			const msg_result_t& Default_result = mbrNone,
 			const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE);
 
 // 		~CMsgBox(); //inherited
@@ -392,10 +392,21 @@ int ShowMsg(	const std::string & Title,
 						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
 						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
 
-void DisplayErrorMessage(const char * const ErrorMsg, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
-void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
-void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
-void DisplayInfoMessage(const char * const InfoMsg, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
-void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
-void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
+int ShowMsg(	const std::string & Title,
+						const neutrino_locale_t Text,
+						const CMsgBox::msg_result_t Default,
+						const uint32_t ShowButtons,
+						const char * const Icon = NULL,
+						const int Width = MSGBOX_MIN_WIDTH,
+						const int Timeout = NO_TIMEOUT,
+						bool returnDefaultOnTimeout = false,
+						const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE,
+						fb_pixel_t color_frame = HINTBOX_DEFAULT_FRAME_COLOR); // UTF-8
+
+void DisplayErrorMessage(const char * const ErrorMsg, const int& Timeout = NO_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int& Timeout = NO_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int& Timeout = NO_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const int& Timeout = DEFAULT_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Timeout = DEFAULT_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Timeout = DEFAULT_TIMEOUT, const int& Text_mode = DEFAULT_MSGBOX_TEXT_MODE, fb_pixel_t color_frame = COL_DARK_GRAY); // UTF-8
 #endif

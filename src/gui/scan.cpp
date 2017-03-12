@@ -36,6 +36,7 @@
 #include <driver/record.h>
 #include <driver/volume.h>
 #include <driver/display.h>
+#include <driver/fontrenderer.h>
 
 #include <gui/color.h>
 
@@ -275,7 +276,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	success = false;
 
 	if(!manual) {
-		g_RCInput->close_click();
                 if (my_system(NEUTRINO_SCAN_START_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_START_SCRIPT " failed");
 	}
@@ -345,7 +345,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	if(!manual) {
                 if (my_system(NEUTRINO_SCAN_STOP_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_STOP_SCRIPT " failed");
-		g_RCInput->open_click();
 	}
 	if(!test) {
 		CComponentsHeaderLocalized header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED);
@@ -458,9 +457,13 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			break;
 		case CRCInput::RC_plus:
 		case CRCInput::RC_minus:
+			CVolume::getInstance()->setVolume(msg);
+			break;
 		case CRCInput::RC_left:
 		case CRCInput::RC_right:
-			CVolume::getInstance()->setVolume(msg);
+			if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
+				CVolume::getInstance()->setVolume(msg);
+			}
 			break;
 		default:
 			break;

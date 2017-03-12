@@ -34,7 +34,6 @@
 
 #include <config.h>
 #include <configfile.h>
-#include <driver/framebuffer.h>
 #include <gui/filebrowser.h>
 #include <gui/bookmarkmanager.h>
 #include <gui/widget/menue.h>
@@ -60,6 +59,7 @@ extern "C" {
 #include <lualib.h>
 }
 
+class CFrameBuffer;
 class CMoviePlayerGui : public CMenuTarget
 {
  public:
@@ -117,7 +117,6 @@ class CMoviePlayerGui : public CMenuTarget
 	int startposition;
 	int position;
 	int duration;
-	CTimeOSD FileTime;
 
 	unsigned int numpida;
 	int vpid;
@@ -225,7 +224,7 @@ class CMoviePlayerGui : public CMenuTarget
 	bool StartWebtv();
 
 	void quickZap(neutrino_msg_t msg);
-	void showHelpTS(void);
+	void showHelp(void);
 	void callInfoViewer(bool init_vzap_it = true);
 	void fillPids();
 	bool getAudioName(int pid, std::string &apidtitle);
@@ -252,7 +251,8 @@ class CMoviePlayerGui : public CMenuTarget
 	void Cleanup();
 	void ClearFlags();
 	void ClearQueue();
-	void EnableClockAndMute(bool enable);
+	void enableOsdElements(bool mute);
+	void disableOsdElements(bool mute);
 	static void *ShowStartHint(void *arg);
 	static void* bgPlayThread(void *arg);
 	static bool sortStreamList(livestream_info_t info1, livestream_info_t info2);
@@ -272,7 +272,6 @@ class CMoviePlayerGui : public CMenuTarget
 	std::string	pretty_name;
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
-	bool osdTimeVisible() { return FileTime.IsVisible(); };
 	std::string CurrentAudioName() { return currentaudioname; };
 	int GetSpeed() { return speed; }
 	int GetPosition() { return position; }
@@ -317,7 +316,7 @@ class CMoviePlayerGui : public CMenuTarget
 	bool getBlockedFromPlugin() { return blockedFromPlugin; };
 	void setLuaInfoFunc(lua_State* L, bool func) { luaState = L; haveLuaInfoFunc = func; };
 	void getLivestreamInfo(std::string *i1, std::string *i2) { *i1=livestreamInfo1; *i2=livestreamInfo2; };
-	bool getLiveUrl(const t_channel_id chan, const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header);
+	bool getLiveUrl(const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header);
 };
 
 #endif

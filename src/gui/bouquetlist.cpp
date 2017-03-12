@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Copyright (C) 2009,2011,2013,2015-2016 Stefan Seyfried
+	Copyright (C) 2009,2011,2013,2015-2017 Stefan Seyfried
 
 	License: GPL
 
@@ -467,7 +467,7 @@ int CBouquetList::show(bool bShowChannelList)
 				loop = false;
 		}
 		else if ((msg == CRCInput::RC_timeout                             ) ||
-				(msg == (neutrino_msg_t)g_settings.key_channelList_cancel) ||
+				(msg == CRCInput::RC_home) ||
 				((msg == CRCInput::RC_favorites) && (CNeutrinoApp::getInstance()->GetChannelMode() == LIST_MODE_FAV)))
 		{
 			selected = oldselected;
@@ -580,7 +580,7 @@ int CBouquetList::show(bool bShowChannelList)
 			g_RCInput->postMsg(msg, data);
 			loop = false;
 			res = CHANLIST_CANCEL_ALL;
-		} else if (msg > CRCInput::RC_MaxRC) {
+		} else {
 			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
 				loop = false;
 				res = CHANLIST_CANCEL_ALL;
@@ -636,7 +636,7 @@ void CBouquetList::paintItem(int pos)
 		i_radius = RADIUS_LARGE;
 
 	if (i_radius)
-		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor);
+		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
 	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, i_radius);
 
 	if (npos < (int) Bouquets.size())
@@ -693,7 +693,8 @@ void CBouquetList::paintItem(int pos)
 
 void CBouquetList::paintHead()
 {
-	CComponentsHeader header(x, y, width, theight, name);
+	std::string icon("");
+	CComponentsHeader header(x, y, width, theight, name, icon, CComponentsHeader::CC_BTN_LEFT | CComponentsHeader::CC_BTN_RIGHT | CComponentsHeader::CC_BTN_MENU);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 

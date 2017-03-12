@@ -216,6 +216,9 @@ class CComponentsForm : public CComponentsItem
 		virtual bool clearPaintCache();
 		///cleanup old gradient buffers include from sub items, returns true if any gradient buffer data was removed
 		virtual bool clearFbGradientData();
+
+		///slot for repaint event, reserved for actions before repaint if paint() already was done.
+		sigc::slot0<void> sl_form_repaint;
 };
 
 #endif

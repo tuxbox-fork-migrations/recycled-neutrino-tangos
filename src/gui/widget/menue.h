@@ -36,12 +36,10 @@
 #ifndef __MENU__
 #define __MENU__
 
-#include <driver/framebuffer.h>
 #include <driver/rcinput.h>
 #include <system/localize.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/color.h>
 #include <gui/plugins.h>
 #include <gui/components/cc.h>
 #include <string>
@@ -58,6 +56,8 @@ extern "C" {
 
 typedef int mn_widget_id_t;
 typedef int menu_item_disable_cond_t;
+
+class CFrameBuffer;
 class CMenuWidget;
 struct menu_return
 {
@@ -85,6 +85,10 @@ class CChangeObserver
 	public:
 		virtual ~CChangeObserver(){}
 		virtual bool changeNotify(const neutrino_locale_t /*OptionName*/, void * /*Data*/)
+		{
+			return false;
+		}
+		virtual bool changeNotify(const std::string & /*OptionName*/, void * /*Data*/)
 		{
 			return false;
 		}
@@ -500,7 +504,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		unsigned int saveScreen_x;
 	protected:
 		std::string		nameString;
-		neutrino_locale_t	name;
+
 		CFrameBuffer		*frameBuffer;
 		std::vector<CMenuItem*>	items;
 		std::vector<int>	page_start;
@@ -540,7 +544,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		bool			washidden;
 		int			nextShortcut;
 
-		void Init(const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
+		void Init(const std::string &NameString, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
 		virtual void paintItems();
 		void checkHints();
 		void calcSize();

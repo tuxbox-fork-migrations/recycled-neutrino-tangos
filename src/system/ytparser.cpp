@@ -151,7 +151,7 @@ bool cYTFeedParser::getUrl(std::string &url, std::string &answer, CURL *_curl_ha
 		}
 	}
 
-	char cerror[CURL_ERROR_SIZE];
+	char cerror[CURL_ERROR_SIZE] = {0};
 	curl_easy_setopt(_curl_handle, CURLOPT_ERRORBUFFER, cerror);
 
 	printf("try to get [%s] ...\n", url.c_str());
@@ -192,7 +192,7 @@ bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file, CURL *_curl
 		}
 	}
 
-	char cerror[CURL_ERROR_SIZE];
+	char cerror[CURL_ERROR_SIZE] = {0};
 	curl_easy_setopt(_curl_handle, CURLOPT_ERRORBUFFER, cerror);
 
 	printf("try to get [%s] ...\n", url.c_str());
@@ -323,6 +323,7 @@ bool cYTFeedParser::parseFeedJSON(std::string &answer)
 	Json::Value elements = root["items"];
 	for(unsigned int i=0; i<elements.size();++i)
 	{
+		OnLoadVideoInfo(i, elements.size(), g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
 #ifdef DEBUG_PARSER
 		printf("=========================================================\n");
 		printf("Element %d in elements\n", i);

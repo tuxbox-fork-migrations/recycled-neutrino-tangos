@@ -40,11 +40,12 @@ Handling of text parts based up CTextBox attributes and methodes.
 CComponentsText provides a interface to the embedded CTextBox object.
 */
 
-class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
+class CComponentsText : public CCTextScreen, public CComponentsItem
 {
 	protected:
 		///object: CTextBox object
 		CTextBox 	* ct_textbox;
+		CBox		ct_box;
 		///object: Fontrenderer object
 		Font		* ct_font;
 		///property: font style
@@ -96,6 +97,9 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 
 		///initialize all required attributes for text and send to the CTextBox object
 		void initCCText();
+		///init internal CBox object required by CTextBox object
+		void initCBox();
+
 		///paint CCItem backckrond (if paint_bg=true), apply initCCText() and send paint() to the CTextBox object
 		void paintText(bool do_save_bg = CC_SAVE_SCREEN_YES);
 	public:
@@ -105,7 +109,7 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 			FONT_STYLE_ITALIC	= 2
 		};
 
-		CComponentsText(	const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
+		CComponentsText(	const int x_pos = 10, const int y_pos = 10, const int w = 0, const int h = 0,
 					std::string text = "",
 					const int mode = CTextBox::AUTO_WIDTH,
 					Font* font_text = NULL,
@@ -134,6 +138,8 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 		///default members to paint a text box and hide painted text
 		///hide textbox
 		void hide();
+		///remove textbox from screen
+		void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = CC_FBDATA_TYPES);
 		///paint text box, parameter do_save_bg: default = true, causes fill of backckrond pixel buffer
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
@@ -190,7 +196,6 @@ class CComponentsText : public CCTextScreen, public CComponentsItem, public CBox
 
 		///force paint of text even if text was changed or not
 		virtual void forceTextPaint(bool force_text_paint = true){ct_force_text_paint = force_text_paint;};
-
 		///gets the embedded CTextBox object, so it's possible to get access directly to its methods and properties
 		virtual CTextBox* getCTextBoxObject() { return ct_textbox; };
 
@@ -264,6 +269,22 @@ class CComponentsLabel : public CComponentsText
 					Font* font_text = NULL,
 					const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
 					CComponentsForm *parent = NULL,
+					int shadow_mode = CC_SHADOW_OFF,
+					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE_TEXT,
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, shadow_mode, color_text, color_frame, color_body, color_shadow)
+		{
+			cc_item_type 	= CC_ITEMTYPE_LABEL;
+		};
+
+		CComponentsLabel(	CComponentsForm *parent,
+					const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
+					std::string text = "",
+					const int mode = CTextBox::AUTO_WIDTH,
+					Font* font_text = NULL,
+					const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE_TEXT,
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0,

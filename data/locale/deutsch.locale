@@ -325,7 +325,6 @@ colormenu.advanced_mode_off Standard-Optionen
 colormenu.advanced_mode_on Erweiterte Optionen
 colormenu.background Hintergrundfarbe
 colormenu.clock_textcolor Ziffernfarbe
-colormenu.contrast_fonts Schriftkontrast
 colormenu.fade Ein-/Ausblenden
 colormenu.font Verwendete Schriftart
 colormenu.font_sub Untertitel-Schriftart
@@ -699,6 +698,15 @@ flashupdate.selectimage Verfügbare Images/Files
 flashupdate.settings Update-Einstellungen
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
+flashupdate.type_addon Erweiterung
+flashupdate.type_beta Beta
+flashupdate.type_internal Intern
+flashupdate.type_locale Sprachdatei
+flashupdate.type_release Release
+flashupdate.type_settings Einstellungen
+flashupdate.type_text Text
+flashupdate.type_unknown Unbekannt
+flashupdate.type_update Aktualisierung
 flashupdate.update_with_settings_del_skipped Ordner [%s] kann nicht gelöscht werden. Eintrag wird übersprungen.
 flashupdate.update_with_settings_error Error Flashspeicher!\n \nIm neuen Image sind nur noch %ld KB (von %ld KB) frei,\ndas ist zu wenig, um einen sicheren Betrieb zu gewährleisten.\n \nDer Vorgang wird abgebrochen!
 flashupdate.update_with_settings_processed Image wird bearbeitet ...
@@ -728,6 +736,7 @@ fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
 fontmenu.scaling_y Vertikal (in %)
 fontmenu.scaling_y_hint2 Vertikal (in %) min 50 / max 200
 fontmenu.sizes Schriftgrößen
+fontsize.button_text Schaltflächen-Text
 fontsize.channel_num_zap Direktauswahl
 fontsize.channellist Kanalliste
 fontsize.channellist_descr Beschreibung
@@ -1111,7 +1120,6 @@ menu.hint_colored_events_textcolor Ändern Sie die Farbe für farbige Events in 
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
-menu.hint_contrast_fonts Wählen Sie einen höheren Schriftkontrast
 menu.hint_dboxinfo Informationen über CPU und Arbeitsspeicher der Box
 menu.hint_delete_channels Löschen aller Kanäle
 menu.hint_delete_removed Lösche das Bouquet 'Gelöschte Kanäle'
@@ -1123,6 +1131,7 @@ menu.hint_epg_max_events Maxiale Anzahl der Events im Zwischenspeicher
 menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden) verworfen
 menu.hint_epg_read Liest nach einem Neustart die EPG-Daten von einem externen Datenträger wieder ein
 menu.hint_epg_read_frequently Liest die EPG-Daten in regelmäßigen Abständen von einem externen Datenträger
+menu.hint_epg_read_now Liest die EPG-Daten von einem externen Datenträger ein
 menu.hint_epg_save Speichert die EPG-Daten beim Herunterfahren auf einem externen Datenträger
 menu.hint_epg_save_frequently Speichert die EPG-Daten in regelmäßigen Abständen auf einem externen Datenträger
 menu.hint_epg_save_mode Speichert die EPG-Daten nur für Sender, die in die Favoriten aufgenommen sind
@@ -1528,7 +1537,8 @@ menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, 
 menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
 menu.hint_sw_update System aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
-menu.hint_timeouts Gibt an, nach welcher Zeit in Sekunden die Menüs oder Infofenster sich automatisch schließen (0 deaktiviert)
+menu.hint_timeouts Anzeigedauer für Menüs oder Infofenster, die sich automatisch schließen (0 deaktiviert)
+menu.hint_timeouts_static_messages Anzeigedauer für bestimmte Meldungen mit Benutzerinteraktion
 menu.hint_timer_followscreenings Zeige Terminauswahl mit Folge-Events zur Timerprogrammierung
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
@@ -1621,6 +1631,7 @@ miscsettings.epg_old_events_hint1 Wie lange abgelaufene EPG-Daten aufheben?
 miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_read Gespeicherte EPG-Daten einlesen
 miscsettings.epg_read_frequently EPG regelmäßig einlesen
+miscsettings.epg_read_now Gespeichterte EPG-Daten jetzt einlesen
 miscsettings.epg_save EPG zwischenspeichern
 miscsettings.epg_save_frequently EPG regelmäßig speichern
 miscsettings.epg_save_mode Nur Favoriten
@@ -1789,7 +1800,7 @@ moviebrowser.head_recordlist Zuletzt aufgenommen:
 moviebrowser.help_button_blue Filminfos neu laden
 moviebrowser.help_button_green Filterfenster einblenden
 moviebrowser.help_button_left Ansicht ändern
-moviebrowser.help_button_menu Hauptmenü öffnen
+moviebrowser.help_button_menu Filminfos und Einstellungen
 moviebrowser.help_button_mute Filme löschen
 moviebrowser.help_button_okay Filme abspielen
 moviebrowser.help_button_play Filme markieren
@@ -1932,22 +1943,25 @@ movieplayer.bookmarkname_hint2
 movieplayer.chapters Kapitel
 movieplayer.fileplayback Abspielen (Multiformat)
 movieplayer.head Movieplayer
+movieplayer.help_additional Weitere benutzerdefinierte Tastenbelegungen sind unter "Hauptmenü" > "Einstellungen" > "Tasten" > "Bearbeiten" > "Movieplayer" zu finden.\n\nWährend der Wiedergabe von Filmen sind im Hauptmenü einige Menüpunkte deaktiviert.
+movieplayer.help_button_1 1 Minute zurück
+movieplayer.help_button_2 Zum Filmanfang springen
+movieplayer.help_button_3 1 Minute vor
+movieplayer.help_button_4 3 Minuten zurück
+movieplayer.help_button_5 Zur Filmmitte springen
+movieplayer.help_button_6 3 Minuten vor
+movieplayer.help_button_7 10 Minuten zurück
+movieplayer.help_button_8 Zum Filmende springen
+movieplayer.help_button_9 10 Minuten vor
+movieplayer.help_button_backward Schneller Rücklauf
+movieplayer.help_button_forward Schneller Vorlauf
+movieplayer.help_button_menu Hauptmenü öffnen
+movieplayer.help_button_pause Pause / Weiter
+movieplayer.help_button_stop Stopp
 movieplayer.plugin Movieplayer-Plugin
 movieplayer.starting Wiedergabe starten ...
 movieplayer.titles Titel
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
-movieplayer.tshelp1 Stopp
-movieplayer.tshelp10 ca. 10 Minuten zurück
-movieplayer.tshelp11 ca. 10 Minuten vor
-movieplayer.tshelp12 Hilfe: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.tshelp2 Auswahl der Tonspur
-movieplayer.tshelp3 Pause/Weiter
-movieplayer.tshelp4 Bookmark setzen
-movieplayer.tshelp5 Zeit einblenden
-movieplayer.tshelp6 ca. 1 Minute zurück
-movieplayer.tshelp7 ca. 1 Minute vor
-movieplayer.tshelp8 ca. 5 Minuten zurück
-movieplayer.tshelp9 ca. 5 Minuten vor
 movieplayer.tsplayback Abspielen
 movieplayer.ytplayback YouTube-Feed Wiedergabe
 mpkey.audio Tonspuren
@@ -2469,8 +2483,8 @@ timerlist.repeat.wednesday Mi
 timerlist.repeat.weekdays An Wochentagen
 timerlist.repeat.weekly wöchentlich
 timerlist.repeatcount Wiederholungen
-timerlist.repeatcount.help1 Anzahl der Timerausführungen
-timerlist.repeatcount.help2 0 für unbegrenzte Anzahl
+timerlist.repeatcount.hint_1 Anzahl der Timerausführungen
+timerlist.repeatcount.hint_2 0 für unbegrenzte Anzahl
 timerlist.save Timer speichern
 timerlist.standby Aktion
 timerlist.standby.off Aufwachen aus Standby
@@ -2509,6 +2523,7 @@ timing.infobar_radio Infobar (Radiobetrieb)
 timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
 timing.popup_messages Popup Meldungen
+timing.static_messages Interaktive Meldungen
 timing.volumebar Lautstärkeanzeige
 tmdb.api_key TMDb API Schlüssel
 tmdb.enabled TMDb-Unterstützung
@@ -2548,6 +2563,7 @@ usermenu.title_blue Erweiterungen
 usermenu.title_green Tonwahl
 usermenu.title_red EPG
 usermenu.title_yellow Bildoptionen
+usermenus.head Benutzermenüs
 video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten
 videomenu.analog_auto AUTO

@@ -32,11 +32,12 @@
 
 #include <gui/components/cc.h>
 
-#define HINTBOX_MIN_WIDTH 420
+#define HINTBOX_MIN_WIDTH 320
 #define HINTBOX_MIN_HEIGHT 125
 #define HINTBOX_MAX_HEIGHT 520
 #define HINTBOX_DEFAULT_TIMEOUT g_settings.timing[SNeutrinoSettings::TIMING_POPUP_MESSAGES]
-#define NO_TIMEOUT -1
+#define NO_TIMEOUT 0
+#define DEFAULT_TIMEOUT -1
 //frame around hint container as indent
 #define W_FRAME std::max(HINTBOX_MIN_WIDTH, HINTBOX_MIN_HEIGHT) * 2/100
 //frame color around hint/message box
@@ -44,6 +45,7 @@
 #define TIMEOUT_BAR_HEIGHT  OFFSET_SHADOW/2
 
 #define DEFAULT_HINTBOX_TEXT_MODE (CTextBox::CENTER)
+#define DEFAULT_HEADER_ICON NEUTRINO_ICON_INFO
 
 //! Sub class of CComponentsWindow. Shows a window as a hintbox with text and optional icon beside of text.
 /*!
@@ -58,6 +60,7 @@ class CHintBox : public CComponentsWindow
 		int y_hint_obj;
 		int h_hint_obj;
 		int w_indentation;
+		bool enable_txt_scroll;
 
 		Font* hb_font;
 
@@ -92,11 +95,11 @@ class CHintBox : public CComponentsWindow
 		* @param[in]	Width
 		* 	@li 	optional: exepts type int, defines box width, default value = HINTBOX_MIN_WIDTH
 		* @param[in]	Icon
-		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = NULL (non Icon)
+		* 	@li 	optional: exepts type const char*, defines the icon name on the left side of titlebar, default = DEFAULT_HEADER_ICON
 		* @param[in]	Picon
 		* 	@li 	optional: exepts type const char*, defines the picon name on the left side of message text, default = NULL (non Icon)
 		* @param[in]	header_buttons
-		* 	@li 	optional: exepts type int, defines the icon name on the left side of titlebar, default = 0 (non Icon)
+		* 	@li 	optional: exepts type int, defines the icon name on the right side of titlebar, default = 0 (non Icon)
 		* 	@see	class CComponentsWindow()
 		* @param[in]	text_mode
 		* 	@li 	optional: exepts type int, defines the text modes for embedded text lines
@@ -118,7 +121,7 @@ class CHintBox : public CComponentsWindow
 		CHintBox(	const neutrino_locale_t Caption,
 				const char * const Text,
 				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = NULL,
+				const char * const Icon = DEFAULT_HEADER_ICON,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
@@ -132,7 +135,7 @@ class CHintBox : public CComponentsWindow
 		CHintBox(	const char * const Caption,
 				const char * const Text,
 				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = NULL,
+				const char * const Icon = DEFAULT_HEADER_ICON,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
@@ -148,7 +151,7 @@ class CHintBox : public CComponentsWindow
 		CHintBox(	const neutrino_locale_t Caption,
 				const neutrino_locale_t Text,
 				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = NULL,
+				const char * const Icon = DEFAULT_HEADER_ICON,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
@@ -164,7 +167,7 @@ class CHintBox : public CComponentsWindow
 		CHintBox(	const char * const Caption,
 				const neutrino_locale_t Text,
 				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = NULL,
+				const char * const Icon = DEFAULT_HEADER_ICON,
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
@@ -178,7 +181,9 @@ class CHintBox : public CComponentsWindow
 		int exec();
 
 		/**
-		* Defines timeout, timeout is enabled if parameter1 > -1
+		* Defines timeout for message window.
+		* Timeout is enabled with parameter1 = DEFAULT_TIMEOUT (-1) or any other value > 0
+		* To disable timeout use NO_TIMEOUT (0)
 		* @param[in]	Timeout as int as seconds
 		*/
 		virtual void setTimeOut(const int& Timeout){timeout = Timeout;}
@@ -281,6 +286,12 @@ class CHintBox : public CComponentsWindow
 		*		FONT_STYLE_ITALIC
 		*/
 		void setMsgText(const std::string& Text,
+				const uint& hint_id = 0,
+				const int& mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER,
+				Font* font_text = NULL,
+				const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
+				const int& style = CComponentsText::FONT_STYLE_REGULAR);
+		void setMsgText(const neutrino_locale_t& locale,
 				const uint& hint_id = 0,
 				const int& mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER,
 				Font* font_text = NULL,

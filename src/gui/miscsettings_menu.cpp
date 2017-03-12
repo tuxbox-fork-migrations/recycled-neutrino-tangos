@@ -61,7 +61,9 @@
 #include <cs_api.h>
 #include <video.h>
 
-extern CPlugins       * g_PluginList;
+#include <sectionsdclient/sectionsdclient.h>
+
+extern CPlugins       * g_Plugins;
 extern cVideo *videoDecoder;
 
 CMiscMenue::CMiscMenue()
@@ -72,6 +74,7 @@ CMiscMenue::CMiscMenue()
 	epg_save_standby = NULL;
 	epg_save_frequently = NULL;
 	epg_read = NULL;
+	epg_read_now = NULL;
 	epg_read_frequently = NULL;
 	epg_dir = NULL;
 }
@@ -99,7 +102,7 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		const char *action_str = "plugin";
 		if(chooserDir(g_settings.plugin_hdd_dir, false, action_str))
-			g_PluginList->loadPlugins();
+			g_Plugins->loadPlugins();
 
 		return menu_return::RETURN_REPAINT;
 	}
@@ -111,13 +114,13 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		MoviePluginSelector.addItem(GenericMenuSeparatorLine);
 		char id[5];
 		int enabled_count = 0;
-		for(unsigned int count=0;count < (unsigned int) g_PluginList->getNumberOfPlugins();count++)
+		for(unsigned int count=0;count < (unsigned int) g_Plugins->getNumberOfPlugins();count++)
 		{
-			if (!g_PluginList->isHidden(count))
+			if (!g_Plugins->isHidden(count))
 			{
 				sprintf(id, "%d", count);
 				enabled_count++;
-				MoviePluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new CMoviePluginChangeExec(), id, CRCInput::convertDigitToKey(count)));
+				MoviePluginSelector.addItem(new CMenuForwarder(g_Plugins->getName(count), true, NULL, new CMoviePluginChangeExec(), id, CRCInput::convertDigitToKey(count)));
 			}
 		}
 
@@ -149,6 +152,12 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey == "onlineservices")
 	{
 		return showMiscSettingsMenuOnlineServices();
+	}
+	else if(actionKey == "epg_read_now")
+	{
+		printf("Reading epg cache from %s....\n", g_settings.epg_dir.c_str());
+		g_Sectionsd->readSIfromXML(g_settings.epg_dir.c_str());
+		return menu_return::RETURN_REPAINT;
 	}
 
 	return showMiscSettingsMenu();
@@ -474,6 +483,9 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	epg_dir = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, (g_settings.epg_save || g_settings.epg_read), g_settings.epg_dir, this, "epgdir");
 	epg_dir->setHint("", LOCALE_MENU_HINT_EPG_DIR);
 
+	epg_read_now = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_READ_NOW, g_settings.epg_read, NULL, this, "epg_read_now");
+	epg_read_now->setHint("", LOCALE_MENU_HINT_EPG_READ_NOW);
+
 	epg_cache = to_string(g_settings.epg_cache);
 	if (epg_cache.length() < 2)
 		epg_cache.insert(0, 2 - epg_cache.length(), ' ');
@@ -520,6 +532,7 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	ms_epg->addItem(epg_read);
 	ms_epg->addItem(epg_read_frequently);
 	ms_epg->addItem(epg_dir);
+	ms_epg->addItem(epg_read_now);
 	ms_epg->addItem(GenericMenuSeparatorLine);
 	ms_epg->addItem(mf);
 	ms_epg->addItem(mf1);
@@ -704,6 +717,7 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_READ))
 	{
 		epg_read_frequently->setActive(g_settings.epg_read);
+		epg_read_now->setActive(g_settings.epg_read);
 		epg_dir->setActive(g_settings.epg_read || g_settings.epg_save);
 
 		CNeutrinoApp::getInstance()->SendSectionsdConfig();

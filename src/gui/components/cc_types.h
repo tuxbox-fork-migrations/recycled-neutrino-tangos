@@ -26,12 +26,12 @@
 #ifndef __CC_TYPES__
 #define __CC_TYPES__
 
-#include <driver/framebuffer.h>
 #include <system/localize.h>
-#include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <gui/color_custom.h>
 
+struct gradientData_t;
+class Font;
 class CComponentsForm;
 class CComponentsScrollBar;
 
@@ -145,14 +145,6 @@ enum
 {
 	CC_ALONG_X 		= 1,
 	CC_ALONG_Y 		= 2
-};
-
-enum
-{
-	CC_ITEMBOX_ICON,
-	CC_ITEMBOX_PICTURE,
-	CC_ITEMBOX_TEXT,
-	CC_ITEMBOX_CLOCK
 };
 
 typedef struct cc_element_data_t

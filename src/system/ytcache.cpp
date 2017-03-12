@@ -70,7 +70,7 @@ std::string cYTCache::getName(MI_MOVIE_INFO *mi, std::string ext)
 		case MI_MOVIE_INFO::NK:
 			return g_settings.downloadcache_dir + "/nk-" + mi->ytid + "." + ext;
 		default:
-			return "";
+			return g_settings.downloadcache_dir + "/error-" + mi->ytid + "." + ext;;
 	}
 }
 
@@ -148,7 +148,7 @@ bool cYTCache::download(MI_MOVIE_INFO *mi)
 	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, (long)0); 
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 
-	char cerror[CURL_ERROR_SIZE];
+	char cerror[CURL_ERROR_SIZE] = {0};
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, cerror);
 
 	if(!g_settings.softupdate_proxyserver.empty()) {
