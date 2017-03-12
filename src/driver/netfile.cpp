@@ -107,6 +107,7 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/types.h>
+#include <system/set_threadname.h>
 /*
 TODO:
 	- ICECAST support
@@ -1601,6 +1602,7 @@ void CacheFillThread(void *c)
 	if(scache->closed)
 		return;
 
+	set_threadname("netfile:cache");
 	dprintf(stderr, "CacheFillThread: thread started, using stream %p\n", scache->fd);
 
 	buf = (char*)malloc(CACHEBTRANS);

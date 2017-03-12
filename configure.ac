@@ -1,4 +1,4 @@
-AC_INIT(Tuxbox-Neutrino,3.4.0)
+AC_INIT(Tuxbox-Neutrino,3.4.2)
 AM_INIT_AUTOMAKE([1.0.1 nostdinc])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
@@ -89,7 +89,18 @@ AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 
 # TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_PKGCONFIG(CURL,libcurl)
-TUXBOX_APPS_LIB_PKGCONFIG(FREETYPE,freetype2)
+
+## For the check you must use the corresponding libtool number as version number,
+## see freetype source code docs/VERSIONS.TXT
+PKG_CHECK_MODULES([FREETYPE], [freetype2 >= 16.2.10],
+	[echo "freetype2 >= 2.5.0 found"], [
+	## If freetype is not found:
+	## Activate this line if you want to search with freetype-config instead
+	[echo "freetype2 >= 2.5.0 not found, use alternative search method with freetype-config"]
+	## Activate this line if you want to abort
+#	AC_MSG_ERROR([freetype2 >= 2.5.0 not found])
+	])
+
 # fallback to curl-config (which is ugly for cross-compilation)
 if test -z "$CURL_LIBS" -a -z "$CURL_CFLAGS"; then
 	TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
@@ -97,6 +108,18 @@ fi
 # fallback to freetype-config (which is ugly for cross-compilation)
 if test -z "$FREETYPE_LIBS" -a -z "$FREETYPE_CFLAGS"; then
 	TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
+	CPPFLAGS+=" $FREETYPE_CFLAGS"
+	AC_MSG_CHECKING([whether FreeType version is 2.5.0 or higher])
+		AC_TRY_CPP([
+			#include <ft2build.h>
+			#include FT_FREETYPE_H
+			#if FREETYPE_MAJOR < 2 || (FREETYPE_MAJOR == 2 && FREETYPE_MINOR < 5)
+			#error Freetype version too low.
+			#endif
+			],
+			[AC_MSG_RESULT(yes)],
+			[AC_MSG_ERROR([Need FreeType library version 2.5.0 or higher])
+		])
 fi
 
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
@@ -124,10 +147,6 @@ TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 AC_ARG_ENABLE(keyboard-no-rc,
          [  --enable-keyboard-no-rc             enable keyboard control, disable rc control],
          [AC_DEFINE(KEYBOARD_INSTEAD_OF_REMOTE_CONTROL,1,[enable keyboard control, disable rc control])])
-
-AC_ARG_ENABLE(restore-prev-mode,
-         [  --enable-restore-prev-mode          enable return from graphics mode],
-         [AC_DEFINE(RETURN_FROM_GRAPHICS_MODE,1,[enable return from graphics mode])])
 
 AC_ARG_ENABLE(mdev,
 	[  --enable-mdev disable broken neutrino mount hack, use with mdev],
@@ -274,22 +293,26 @@ if test "$enable_testing" = "yes"; then
 fi
 
 if test "$BOXTYPE" = "coolstream"; then
-if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
+if test -e ${srcdir}/lib/hardware/coolstream/hd1/libcoolstream/nevis_ir.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
 fi
-HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream'
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd1/libcoolstream'
 
-if test "$BOXMODEL" = "apollo"; then
-HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2 -I$(top_srcdir)/src/zapit/include'
-if test -e ${srcdir}/lib/libcoolstream2/cs_ir_generic.h; then
+if test "$BOXMODEL" = "hd2"; then
+if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_ir_generic.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H,1,[Define to 1 if you have the <cs_ir_generic.h> header file.])
 fi
-if test -e ${srcdir}/lib/libcoolstream2/cs_frontpanel.h; then
+if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_frontpanel.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H,1,[Define to 1 if you have the <cs_frontpanel.h> header file.])
 fi
-HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2'
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd2/libcoolstream'
 fi
+HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/src/zapit/include/private'
+HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/lib/hardware/coolstream'
 fi
+
+# hack, so that framebuffer.h does not need to be included everywhere...
+AC_DEFINE(fb_pixel_t, uint32_t, [hack, so that framebuffer.h does not need to be included everywhere...])
 
 # hack to define a short filename also for out-of-tree build
 if test `dirname $0` = `pwd` || test "$0" = ./configure; then
@@ -313,62 +336,82 @@ AC_SUBST(BLURAY_LIBS)
 
 AC_OUTPUT([
 Makefile
+data/Makefile
+data/fonts/Makefile
+data/icons/Makefile
+data/icons/buttons/Makefile
+data/icons/filetypes/Makefile
+data/icons/headers/Makefile
+data/icons/hints/Makefile
+data/icons/locale/Makefile
+data/icons/movieplayer/Makefile
+data/icons/radar/Makefile
+data/icons/slider/Makefile
+data/icons/status/Makefile
+data/icons/status/ca/Makefile
+data/icons/status/camd/Makefile
+data/icons/status/channel/Makefile
+data/icons/status/markers/Makefile
+data/icons/status/various/Makefile
+data/icons/various/Makefile
+data/inetradio/Makefile
+data/initial/Makefile
+data/iso-codes/Makefile
+data/lcd/Makefile
+data/lcd/clock/Makefile
+data/lcd/icons/Makefile
+data/license/Makefile
+data/locale/Makefile
+data/neutrino-scripts/Makefile
+data/pictures/Makefile
+data/pictures/backgrounds/Makefile
+data/pictures/screensaver/Makefile
+data/scripts/Makefile
+data/themes/Makefile
+data/y-web/Makefile
+data/y-web/images/Makefile
+data/y-web/languages/Makefile
+data/y-web/scripts/Makefile
+data/y-web/styles/Makefile
 lib/Makefile
-lib/libconfigfile/Makefile
 lib/connection/Makefile
+lib/hardware/coolstream/Makefile
+lib/jsoncpp/Makefile
+lib/libconfigfile/Makefile
+lib/libdvbsub/Makefile
 lib/libeventserver/Makefile
+lib/libiw/Makefile
 lib/libmd5sum/Makefile
 lib/libnet/Makefile
-lib/xmltree/Makefile
-lib/jsoncpp/Makefile
-lib/sectionsdclient/Makefile
-lib/timerdclient/Makefile
 lib/libtuxtxt/Makefile
-lib/libdvbsub/Makefile
 lib/libupnpclient/Makefile
 lib/luaclient/Makefile
-src/lcddisplay/Makefile
-src/nhttpd/Makefile
-src/nhttpd/web/Makefile
-src/nhttpd/web/images/Makefile
-src/nhttpd/web/scripts/Makefile
-src/nhttpd/web/languages/Makefile
-src/nhttpd/web/styles/Makefile
-src/nhttpd/tuxboxapi/Makefile
-src/nhttpd/yhttpd_core/Makefile
-src/nhttpd/yhttpd_mods/Makefile
-src/nhttpd/nhttpd.conf
+lib/sectionsdclient/Makefile
+lib/timerdclient/Makefile
+lib/xmltree/Makefile
 src/Makefile
 src/daemonc/Makefile
-src/driver/pictureviewer/Makefile
 src/driver/Makefile
+src/driver/pictureviewer/Makefile
+src/eitd/Makefile
 src/gui/Makefile
 src/gui/bedit/Makefile
 src/gui/components/Makefile
 src/gui/lua/Makefile
 src/gui/moviebrowser/Makefile
 src/gui/widget/Makefile
+src/lcddisplay/Makefile
+src/nhttpd/Makefile
+src/nhttpd/nhttpd.conf
+src/nhttpd/tuxboxapi/Makefile
+src/nhttpd/yhttpd_core/Makefile
+src/nhttpd/yhttpd_mods/Makefile
 src/system/Makefile
 src/system/mtdutils/Makefile
 src/system/mtdutils/lib/Makefile
-data/Makefile
-data/fonts/Makefile
-data/icons/Makefile
-data/inetradio/Makefile
-data/initial/Makefile
-data/iso-codes/Makefile
-data/lcd/Makefile
-data/lcd/icons/Makefile
-data/lcd/clock/Makefile
-data/license/Makefile
-data/locale/Makefile
-data/neutrino-scripts/Makefile
-data/scripts/Makefile
-data/themes/Makefile
-src/eitd/Makefile
 src/timerd/Makefile
 src/zapit/Makefile
+src/zapit/data/Makefile
 src/zapit/lib/Makefile
 src/zapit/src/Makefile
-src/zapit/data/Makefile
 ])

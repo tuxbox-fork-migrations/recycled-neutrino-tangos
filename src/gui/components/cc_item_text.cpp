@@ -31,10 +31,12 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_item_text.h"
+#include <driver/fontrenderer.h>
 #include <sstream>
 #include <fstream>
 #include <errno.h>
 #include <system/debug.h>
+
 using namespace std;
 
 //sub class CComponentsText from CComponentsItem
@@ -78,7 +80,7 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 					int shadow_mode,
 					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	cc_item_type 	= CC_ITEMBOX_TEXT;
+	cc_item_type 	= CC_ITEMTYPE_TEXT;
 	ct_font 	= font_text;
 	ct_textbox	= NULL;
 	ct_text 	= text;
@@ -86,15 +88,13 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 	ct_text_mode	= mode;
 	ct_text_style 	= font_style;
 
-	iX = x 		= x_old = x_pos; //TODO: equalize inhertited member names
-	iY = y 		= y_old = y_pos;
-	iWidth		= width_old = width 	= w;
-	iHeight		= height_old = height 	= h;
+	fr_thickness	= 0;
+	x 		= x_old 	= x_pos;
+	y 		= y_old 	= y_pos;
+	width 		= width_old 	= w;
+	height		= height_old 	= h;
 
-	/* we need a minimal borderwith of 1px because the edge-smoothing
-	(or fontrenderer?) otherwise will paint single pixels outside the
-	defined area. e.g. 'j' is leaving such residues */
-	ct_text_Hborder	= 1;
+	ct_text_Hborder	= 0;
 	ct_text_Vborder	= 0;
 
 	shadow		= shadow_mode;
@@ -103,7 +103,7 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 	col_frame 	= color_frame;
 	col_body 	= color_body;
 	col_shadow	= color_shadow;
-	fr_thickness	= 0;
+
 	ct_text_sent	= false;
 	ct_paint_textbg = false;
 	ct_force_text_paint = false;
@@ -114,6 +114,27 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 }
 
 
+void CComponentsText::initCBox()
+{
+	x = max(0, x);
+	y = max(0, y);
+
+	int x_box = x + fr_thickness;
+	int y_box = y + fr_thickness;
+
+	if (cc_parent){
+		ct_box.iX = cc_xr;
+		ct_box.iY = cc_yr;
+	}else{
+		ct_box.iX = x_box;
+		ct_box.iY = y_box;
+	}
+
+	ct_box.iWidth	= width - 2*fr_thickness;
+	ct_box.iHeight	= height - 2*fr_thickness;
+}
+
+
 void CComponentsText::initCCText()
 {
 	//set default font, if is no font definied
@@ -121,39 +142,31 @@ void CComponentsText::initCCText()
 		ct_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
 
 	//define height from font size
-	height 	= max(height, ct_font->getHeight());
-
-	//init CBox dimensions
-	iWidth 	= width-2*fr_thickness;
-	iHeight	= height-2*fr_thickness;
-
-	//using of real x/y values to paint textbox if this text object is bound in a parent form
-	if (cc_parent){
-		int th_parent_fr = cc_parent->getFrameThickness();
-		iX = cc_xr + (x <= th_parent_fr ? th_parent_fr : 0);
-		iY = cc_yr - (y <= th_parent_fr ? th_parent_fr : 0);
-	}else{
-		iX = x;
-		iY = y;
-	}
-	iX += fr_thickness;
-	iY += fr_thickness;
+	int h_tmp = ct_font->getHeight();
+	height 	= max(height, h_tmp-2*fr_thickness);
+	if (width == 0)
+		width 	= max(width, CTextBox::getMaxLineWidth(ct_text, ct_font)-2*fr_thickness);
 
 	//init textbox
+	initCBox();
+
 	if (ct_textbox == NULL)
 		ct_textbox = new CTextBox();
 
-	//set text box properties
+	//set text properties
 	ct_textbox->setTextFont(ct_font);
 	ct_textbox->setTextMode(ct_text_mode);
-	ct_textbox->setWindowPos(this);
+	ct_textbox->setTextColor(ct_col_text);
+	ct_textbox->enableUTF8(ct_utf8_encoded);
+
+	//set text box properties
+	ct_textbox->setWindowPos(&ct_box);
+	ct_textbox->setWindowMaxDimensions(ct_box.iWidth, ct_box.iHeight);
+	ct_textbox->setWindowMinDimensions(ct_box.iWidth, ct_box.iHeight);
 	ct_textbox->setTextBorderWidth(ct_text_Hborder, ct_text_Vborder);
 	ct_textbox->enableBackgroundPaint(ct_paint_textbg && !cc_txt_save_screen);
 	ct_textbox->setBackGroundColor(col_body);
-	ct_textbox->setBackGroundRadius(corner_rad-fr_thickness, corner_type);
-	ct_textbox->setTextColor(ct_col_text);
-	ct_textbox->setWindowMaxDimensions(iWidth, iHeight);
-	ct_textbox->setWindowMinDimensions(iWidth, iHeight);
+	ct_textbox->setBackGroundRadius(0/*(corner_type ? corner_rad-fr_thickness : 0), corner_type*/);
 	ct_textbox->enableSaveScreen(cc_txt_save_screen && !ct_paint_textbg);
 	ct_textbox->enableUTF8(ct_utf8_encoded);
 	ct_textbox->blit(false);
@@ -170,8 +183,8 @@ void CComponentsText::initCCText()
 #endif
 	//send text to CTextBox object, but force text paint text if force_text_paint option is enabled
 	//this is managed by CTextBox object itself
-	ct_text_sent = ct_textbox->setText(&ct_text, this->iWidth, force_text_paint);
-	
+	ct_text_sent = ct_textbox->setText(&ct_text, ct_box.iWidth, force_text_paint);
+
 	//set current text status, needed by textChanged()
 	if (ct_text_sent){
 		ct_old_text 	= ct_text;
@@ -181,7 +194,7 @@ void CComponentsText::initCCText()
 	//ensure clean font rendering on transparency background
 	ct_textbox->setTextRenderModeFullBG(!paint_bg);
 
-// 	dprintf(DEBUG_NORMAL, "[CComponentsText]   [%s - %d] init text: %s [x %d x_old %d, y %d y_old %d, w %d, h %d]\n", __func__, __LINE__, ct_text.c_str(), this->x, x_old, this->y, y_old, this->iWidth, this->iHeight);
+// 	dprintf(DEBUG_NORMAL, "[CComponentsText]   [%s - %d] ct_text = %s, x = %d , x_old = %d , y = %d , y_old = %d , \nct_box.iWidth = %d , ct_box.iHeight = %d , width = %d , height = %d, corner_rad = %d\n", __func__, __LINE__, ct_text.c_str(), x, x_old, y, y_old, ct_box.iWidth, ct_box.iHeight, width, height, corner_rad);
 }
 
 void CComponentsText::clearCCText()
@@ -264,16 +277,25 @@ bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int 
 
 void CComponentsText::paintText(bool do_save_bg)
 {
-	paintInit(do_save_bg);
+	if (cc_parent){
+		if(!cc_parent->OnAfterPaintBg.empty())
+			cc_parent->OnAfterPaintBg.clear();
+		//init slot to handle repaint of text if background was repainted
+		cc_parent->OnAfterPaintBg.connect(sigc::bind(sigc::mem_fun(*this, &CComponentsText::forceTextPaint), true));
+	}
 	initCCText();
+	if (!is_painted)
+		paintInit(do_save_bg);
 
 	if (ct_text_sent && cc_allow_paint)
 		ct_textbox->paint();
+
 	ct_text_sent = false;
 }
 
 void CComponentsText::paint(bool do_save_bg)
 {
+	OnBeforePaint();
 	paintText(do_save_bg);
 }
 
@@ -281,32 +303,45 @@ void CComponentsText::hide()
 {
 	if (ct_textbox)
 		ct_textbox->hide();
-	ct_old_text = "";
-	CComponents::hide();
+
+	ct_old_text.clear();
+	CCDraw::hide();
+	ct_force_text_paint = true;
+}
+
+void CComponentsText::kill(const fb_pixel_t& bg_color, const int& corner_radius, const int& fblayer_type)
+{
+	if (ct_textbox)
+		ct_textbox->hide();
+
+	ct_old_text.clear();
+	force_paint_bg = true;
+	CCDraw::kill(bg_color, corner_radius, fblayer_type);
+	ct_force_text_paint = true;
 }
 
 void CComponentsText::setXPos(const int& xpos)
 {
 	CCDraw::setXPos(xpos);
-	iX = x;
+	initCBox();
 }
 
 void CComponentsText::setYPos(const int& ypos)
 {
 	CCDraw::setYPos(ypos);
-	iY = y;
+	initCBox();
 }
 
 void CComponentsText::setHeight(const int& h)
 {
 	CCDraw::setHeight(h);
-	iHeight = height;
+	initCBox();
 }
 
 void CComponentsText::setWidth(const int& w)
 {
 	CCDraw::setWidth(w);
-	iWidth = width;
+	initCBox();
 }
 
 //small helper to remove excessiv linbreaks

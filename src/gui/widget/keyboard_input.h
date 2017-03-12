@@ -26,7 +26,6 @@
 
 #include "menue.h"
 
-#include <driver/framebuffer.h>
 #include <system/localize.h>
 
 #include <string>
@@ -41,6 +40,7 @@ struct keyboard_layout
         std::string (*keys)[KEY_ROWS][KEY_COLUMNS];
 };
 
+class CFrameBuffer;
 class CInputString
 {
 	private:
@@ -92,8 +92,7 @@ class CKeyboardInput : public CMenuTarget
 		std::string (*keyboard)[KEY_COLUMNS];
 		CInputString * inputString;
 
-		std::string  head;
-		neutrino_locale_t name;
+		std::string  title;
 		neutrino_locale_t hint_1, hint_2;
 		std::string hintText_1, hintText_2;
 		std::string iconfile;
@@ -103,6 +102,8 @@ class CKeyboardInput : public CMenuTarget
 		CChangeObserver * observ;
 		bool force_saveScreen;
 		fb_pixel_t *pixBuf;
+
+		void keyDigiPressed(const neutrino_msg_t key);
 
 		virtual void init();
 

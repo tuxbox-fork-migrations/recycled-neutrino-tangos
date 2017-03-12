@@ -33,11 +33,13 @@
 #include <errno.h>
 #include <system/helpers.h>
 #include <system/debug.h>
+#include <system/set_threadname.h>
 
 using namespace std;
 
 CComponentsTimer::CComponentsTimer(const int& interval, bool is_nano)
 {
+	name			= "unnamed";
 	tm_thread 		= 0;
 	tm_interval 		= interval;
 	tm_enable_nano		= is_nano;
@@ -56,7 +58,8 @@ CComponentsTimer::~CComponentsTimer()
 void CComponentsTimer::runSharedTimerAction()
 {
 	//start loop
-
+	string tn = "cc:"+name;
+	set_threadname(tn.c_str());
 	while(tm_enable && tm_interval > 0) {
 		tm_mutex.lock();
 		OnTimer();
@@ -98,7 +101,8 @@ void CComponentsTimer::initThread()
 		if (res != 0){
 			dprintf(DEBUG_NORMAL,"\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_create\033[0m\n", __func__, __LINE__);
 			return;
-		}
+		}else
+			dprintf(DEBUG_DEBUG,"\033[33m[CComponentsTimer] [%s - %d] started thread ID:%ld \033[0m\n", __func__, __LINE__, pthread_self());
 
 		if (res == 0)
 			CNeutrinoApp::getInstance()->OnBeforeRestart.connect(sl_stop_timer);
@@ -107,22 +111,22 @@ void CComponentsTimer::initThread()
 
 void CComponentsTimer::stopThread()
 {
-	if(tm_thread) {
+	//ensure disconnecting possible slots
+	while (!sl_stop_timer.empty())
+		sl_stop_timer.disconnect();
+
+	while(tm_thread) {
 		int thres = pthread_cancel(tm_thread);
 		if (thres != 0)
-			dprintf(DEBUG_NORMAL,"\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_cancel\033[0m\n", __func__, __LINE__);
+			dprintf(DEBUG_NORMAL,"\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_cancel, error [%d] %s\033[0m\n", __func__, __LINE__, thres, strerror(thres));
 
-		thres = pthread_join(tm_thread, NULL);
+		void* res;
+		thres = pthread_join(tm_thread, &res);
 
-		if (thres != 0)
-			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_join\033[0m\n", __func__, __LINE__);
-
-		if (thres == 0){
+		if (res != PTHREAD_CANCELED)
+			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsTimer] [%s - %d] ERROR! pthread_join, thread ID:%ld, error [%d] %s\033[0m\n", __func__, __LINE__, pthread_self(), thres, strerror(thres));
+		else
 			tm_thread = 0;
-			//ensure disconnect of unused slot
-			while (!sl_stop_timer.empty())
-				sl_stop_timer.disconnect();
-		}
 	}
 }
 

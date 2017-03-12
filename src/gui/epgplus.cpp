@@ -51,6 +51,7 @@
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
 #include <driver/fade.h>
+#include <driver/fontrenderer.h>
 #include <zapit/satconfig.h>
 #include <zapit/getservices.h>
 #include <eitd/sectionsd.h>
@@ -826,7 +827,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				if(fader.FadeDone())
 					loop = false;
 			}
-			else if ((msg == CRCInput::RC_timeout) || (msg == (neutrino_msg_t) g_settings.key_channelList_cancel)) {
+			else if ((msg == CRCInput::RC_timeout) || (msg == CRCInput::RC_home)) {
 				if(fader.StartFadeOut()) {
 					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
 					msg = 0;

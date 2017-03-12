@@ -33,7 +33,7 @@
 #include "cc_item_picture.h"
 #include <unistd.h>
 #include <system/debug.h>
-#include <system/helpers.h>
+#include <driver/pictureviewer/pictureviewer.h>
 
 extern CPictureViewer * g_PicViewer;
 
@@ -221,10 +221,9 @@ void CComponentsPicture::initCCItem()
 	{
 		float h_ratio = float(height)*100/(float)dy;
 		width = int(h_ratio*(float)dx/100);
-#ifdef BOXMODEL_APOLLO
-		if (do_scale && (width > 10 || height > 10))
-			width = GetWidth4FB_HW_ACC(x+fr_thickness, width-2*fr_thickness)+2*fr_thickness;
-#endif
+		if (frameBuffer->needAlign4Blit() &&
+		    do_scale && (width > 10 || height > 10))
+			width = frameBuffer->getWidth4FB_HW_ACC(x+fr_thickness, width-2*fr_thickness)+2*fr_thickness;
 		keep_dx_aspect = false;
 	}
 	if (keep_dy_aspect && dx)
@@ -387,6 +386,8 @@ CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_p
 
 void CComponentsChannelLogo::init(const uint64_t& channelId, const std::string& channelName, bool allow_scale)
 {
+	channel_name = "";
+	channel_id = 0;
 	alt_pic_name = "";
 	setChannel(channelId, channelName);
 	do_scale = allow_scale;

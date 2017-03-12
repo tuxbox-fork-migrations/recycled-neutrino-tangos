@@ -228,7 +228,6 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_KEYBINDINGMENU_VOLUMEDOWN,	&g_settings.key_volumedown, 		LOCALE_MENU_HINT_KEY_VOLUMEDOWN },
 	{LOCALE_EXTRA_KEY_LIST_START, 		&g_settings.key_list_start, 		LOCALE_MENU_HINT_KEY_LIST_START },
 	{LOCALE_EXTRA_KEY_LIST_END,	 	&g_settings.key_list_end,		LOCALE_MENU_HINT_KEY_LIST_END },
-	{LOCALE_KEYBINDINGMENU_CANCEL,		&g_settings.key_channelList_cancel,	LOCALE_MENU_HINT_KEY_CANCEL },
 	{LOCALE_KEYBINDINGMENU_SORT,		&g_settings.key_channelList_sort,	LOCALE_MENU_HINT_KEY_SORT },
 	{LOCALE_KEYBINDINGMENU_ADDRECORD,	&g_settings.key_channelList_addrecord,	LOCALE_MENU_HINT_KEY_ADDRECORD },
 	{LOCALE_KEYBINDINGMENU_ADDREMIND,	&g_settings.key_channelList_addremind,	LOCALE_MENU_HINT_KEY_ADDREMIND },
@@ -382,7 +381,7 @@ int CKeybindSetup::showKeySetup()
 #endif
 
 	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_REPEATBLOCK,
-		&g_settings.repeat_blocker, true, 0, 999, NULL,
+		&g_settings.repeat_blocker, true, 0, 999, this,
 		CRCInput::convertDigitToKey(shortcut++), NULL, 0, 0, LOCALE_OPTIONS_OFF);
 	cc->setNumberFormat(ms_number_format);
 	cc->setNumericInput(true);
@@ -390,7 +389,7 @@ int CKeybindSetup::showKeySetup()
 	keySettings->addItem(cc);
 
 	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC,
-		&g_settings.repeat_genericblocker, true, 0, 999, NULL,
+		&g_settings.repeat_genericblocker, true, 0, 999, this,
 		CRCInput::convertDigitToKey(shortcut++), NULL, 0, 0, LOCALE_OPTIONS_OFF);
 	cc->setNumberFormat(ms_number_format);
 	cc->setNumericInput(true);
@@ -653,28 +652,7 @@ bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* d
 
 		g_RCInput->repeat_block = fdelay * 1000;
 		g_RCInput->repeat_block_generic = xdelay * 1000;
-
-		int fd = g_RCInput->getFileHandle();
-#ifdef HAVE_COOL_HARDWARE
-		ioctl(fd, IOC_IR_SET_F_DELAY, fdelay);
-		ioctl(fd, IOC_IR_SET_X_DELAY, xdelay);
-#else
-		/* if we have a good input device, we don't need the private ioctl above */
-		struct input_event ie;
-		memset(&ie, 0, sizeof(ie));
-		ie.type = EV_REP;
-		/* increase by 10 ms to trick the repeat checker code in the
-		 * rcinput loop into accepting the key event... */
-		ie.value = fdelay + 10;
-		ie.code = REP_DELAY;
-		if (write(fd, &ie, sizeof(ie)) == -1)
-			perror("CKeySetupNotifier::changeNotify REP_DELAY");
-
-		ie.value = xdelay + 10;
-		ie.code = REP_PERIOD;
-		if (write(fd, &ie, sizeof(ie)) == -1)
-			perror("CKeySetupNotifier::changeNotify REP_PERIOD");
-#endif
+		g_RCInput->setKeyRepeatDelay(fdelay, xdelay);
 	}
 	return false;
 }

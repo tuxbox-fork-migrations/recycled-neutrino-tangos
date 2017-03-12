@@ -32,9 +32,11 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/volumebar.h>
+#include <gui/movieplayer.h>
 #include <gui/infoclock.h>
+#include <gui/timeosd.h>
 
-
+extern CTimeOSD *FileTimeOSD;
 
 CInfoClock::CInfoClock():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON)
 {
@@ -70,20 +72,15 @@ void CInfoClock::initCCLockItems()
 	if (g_settings.infoClockSeconds)
 		setClockFormat("%H:%M:%S");
 	else
-		setClockFormat("%H:%M", "%H %M");
+		setClockFormat("%H:%M", "%H.%M");
 
 	//set height, NOTE: height is strictly bound to settings
-	if (g_settings.infoClockFontSize != height){
-		height = g_settings.infoClockFontSize;
-		int dx = 0;
-		int dy = height;
-		setClockFont(*CNeutrinoFonts::getInstance()->getDynFont(dx, dy, cl_format_str, cl_font_style));
-	}
+	height = g_settings.infoClockFontSize;
+	initClockFont(0, height);
 
 	// set corner radius depending on clock height
 	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
 
-	CComponentsFrmClock::initCCLockItems();
 	CVolumeHelper::getInstance()->refresh(cl_font);
 	CVolumeHelper::getInstance()->getInfoClockDimensions(&x, &y, &width, &height);
 }
@@ -110,6 +107,7 @@ bool CInfoClock::StopInfoClock()
 {
 	bool ret = Stop();
 	kill();
+	clear();
 	frameBuffer->blit();
 
 	return ret;
@@ -128,6 +126,26 @@ bool CInfoClock::enableInfoClock(bool enable)
 				ret = StopInfoClock();
 		}
 	}
+
+	if (!FileTimeOSD->getMpTimeForced()) {
+		if (enable) {
+			if (FileTimeOSD->getRestore()) {
+				FileTimeOSD->setRestore(false);
+				FileTimeOSD->setMode(FileTimeOSD->getTmpMode());
+				FileTimeOSD->update(CMoviePlayerGui::getInstance().GetPosition(),
+						      CMoviePlayerGui::getInstance().GetDuration());
+			}
+		}
+		else {
+			if (FileTimeOSD->getMode() != CTimeOSD::MODE_HIDE) {
+				FileTimeOSD->setTmpMode();
+				FileTimeOSD->setRestore(true);
+				if (FileTimeOSD->getRestore())
+					FileTimeOSD->kill();
+			}
+		}
+	}
+
 	return ret;
 }
 

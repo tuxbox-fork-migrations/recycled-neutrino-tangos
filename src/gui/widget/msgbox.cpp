@@ -81,8 +81,6 @@ CMsgBox::CMsgBox(	const char* Text,
 
 void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t& Default_result)
 {
-	dprintf(DEBUG_NORMAL, "[CMsgBox]   [%s - %d] \n", __func__, __LINE__);
-
 	initTimeOut();
 
 	//enable footer and add its height
@@ -103,8 +101,7 @@ void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t
 	shadow = CC_SHADOW_ON;
 
 	//set result
-	if (Default_result != mbrNone)
-		result = default_result = Default_result;
+	result = default_result = Default_result;
 
 	//add and initialize footer buttons with required buttons and basic properties
 	if (ShowButtons > -1)
@@ -114,7 +111,7 @@ void CMsgBox::init(const int& Height, const int& ShowButtons, const msg_result_t
 
 void CMsgBox::initTimeOut()
 {
-	timeout		= -1;
+	timeout		= NO_TIMEOUT;
 	enable_timeout_result = false;
 }
 
@@ -239,6 +236,8 @@ int CMsgBox::exec()
 	int selected = ccw_footer->getSelectedButton();
 	if (timeout == NO_TIMEOUT)
 		timeout = 0;
+	if (timeout == DEFAULT_TIMEOUT)
+		timeout = g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES];
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
@@ -258,7 +257,7 @@ int CMsgBox::exec()
 		}
 #if 0
 		else if (((msg == CRCInput::RC_timeout && timeout > 0) ||
-			  (msg  == (neutrino_msg_t)g_settings.key_channelList_cancel)) &&
+			  (msg  == CRCInput::RC_home)) &&
 			  (mb_show_button & (mbCancel | mbBack)))
 		{
 			result = (mb_show_button & mbCancel) ? mbrCancel : (mb_show_button & mbOk) ? mbrOk: mbrBack;
@@ -274,46 +273,45 @@ int CMsgBox::exec()
 		{
 			scroll_down();
 		}
-		else if (msg){
-			//***navi buttons for button selection***
-			if(msg==CRCInput::RC_right || msg==CRCInput::RC_left)
-			{
-				if(msg==CRCInput::RC_right){
-					ccw_footer->setSelectedButton(selected+1,COL_MENUCONTENTSELECTED_PLUS_2,COL_MENUCONTENT_TEXT);
-					mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
-				}
-				if(msg==CRCInput::RC_left){
-					ccw_footer->setSelectedButton(selected-1,COL_MENUCONTENTSELECTED_PLUS_2,COL_MENUCONTENT_TEXT);
-					mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
-				}
-				selected = ccw_footer->getSelectedButton();
+		//***navi buttons for button selection***
+		else if(msg == CRCInput::RC_right || msg == CRCInput::RC_left)
+		{
+			if (msg == CRCInput::RC_right)
+				ccw_footer->setSelectedButton(selected+1);
+			else
+				ccw_footer->setSelectedButton(selected-1);
+			mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
+			selected = ccw_footer->getSelectedButton();
+
+			//***refresh buttons only if we have more than one button, this avoids unnecessary repaints with possible flicker effects***
+			if (ccw_footer->getButtonChainObject()->size()>1)
 				refreshFoot();
 
-				//refresh timeout on any pressed navi key! This resets current timeout end to the initial value
-				if (timeout > 0){
-					timeout_pb->setValues(0, timeout);
-					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
-				}
+			//***refresh timeout on any pressed navi key! This resets current timeout end to initial value***
+			if (timeout > 0) {
+				timeout_pb->setValues(0, timeout);
+				timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+			}
+			dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
+		}
+
+		//***action buttons without preselection***
+		for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++){
+			CComponentsButton* btn_action = static_cast<CComponentsButton*>(ccw_footer->getButtonChainObject()->getCCItem(i));
+			if (msg == btn_action->getButtonDirectKey() || msg == btn_action->getButtonDirectKeyA()){
+				result = (msg_result_t)btn_action->getButtonResult();
 				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
-			}
-			//***action buttons without preselection***
-			for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++){
-				CComponentsButton* btn_action = static_cast<CComponentsButton*>(ccw_footer->getButtonChainObject()->getCCItem(i));
-				if (msg == btn_action->getButtonDirectKey() || msg == btn_action->getButtonDirectKeyA()){
-					result = (msg_result_t)btn_action->getButtonResult();
-					dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
-					loop = false;
-				}
-			}
-			//***action button ok with preselected button***
-			if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button)){
-				result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
 				loop = false;
 			}
-			//***ignore***
-			else if (CNeutrinoApp::getInstance()->listModeKey(msg)){
-				// do nothing //TODO: if passed rc messages are ignored rc messaages: has no effect here too!!
-			}
+		}
+		//***action button ok with preselected button***
+		if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button)){
+			result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
+			loop = false;
+		}
+		//***ignore***
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg)){
+			// do nothing //TODO: if passed rc messages are ignored rc messaages: has no effect here too!!
 		}
 		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 		{
@@ -522,32 +520,48 @@ int ShowMsg(	const std::string & Title,
 	return (result);
 }
 
-void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int& Text_mode)
+int ShowMsg(	const std::string & Title,
+			const neutrino_locale_t Text,
+			const CMsgBox::msg_result_t Default,
+			const uint32_t ShowButtons,
+			const char * const Icon,
+			const int Width,
+			const int Timeout,
+			bool returnDefaultOnTimeout,
+			const int& Text_mode,
+			fb_pixel_t color_frame)
 {
-	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, -1, false, Text_mode, COL_RED);
+	int result = ShowMsg2UTF(Title.c_str(), g_Locale->getText(Text), Default, ShowButtons, Icon, Width, Timeout, returnDefaultOnTimeout, Text_mode, color_frame);
+
+	return (result);
 }
 
-void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int& Text_mode)
+void DisplayErrorMessage(const char * const ErrorMsg, const neutrino_locale_t& caption, const int &Timeout , const int& Text_mode)
 {
-	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, -1, false, Text_mode, COL_RED);
+	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, Timeout, false, Text_mode, COL_RED);
 }
 
-void DisplayErrorMessage(const char * const ErrorMsg, const int& Text_mode)
+void DisplayErrorMessage(const char * const ErrorMsg, const std::string& caption, const int &Timeout , const int& Text_mode)
 {
-	DisplayErrorMessage(ErrorMsg, LOCALE_MESSAGEBOX_ERROR, Text_mode);
+	ShowMsg(caption, ErrorMsg, CMsgBox::mbrCancel, CMsgBox::mbBack, NEUTRINO_ICON_ERROR, 500, Timeout, false, Text_mode, COL_RED);
 }
 
-void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Text_mode, fb_pixel_t color_frame)
+void DisplayErrorMessage(const char * const ErrorMsg, const int &Timeout, const int& Text_mode)
 {
-	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, -1, false, Text_mode, color_frame);
+	DisplayErrorMessage(ErrorMsg, LOCALE_MESSAGEBOX_ERROR, Timeout, Text_mode);
 }
 
-void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Text_mode, fb_pixel_t color_frame)
+void DisplayInfoMessage(const char * const InfoMsg, const neutrino_locale_t& caption, const int& Timeout, const int& Text_mode, fb_pixel_t color_frame)
 {
-	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, -1, false, Text_mode, color_frame);
+	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, Timeout, false, Text_mode, color_frame);
 }
 
-void DisplayInfoMessage(const char * const InfoMsg, const int& Text_mode, fb_pixel_t color_frame)
+void DisplayInfoMessage(const char * const InfoMsg, const std::string& caption, const int& Timeout, const int& Text_mode, fb_pixel_t color_frame)
 {
-	DisplayInfoMessage(InfoMsg, LOCALE_MESSAGEBOX_INFO, Text_mode, color_frame);
+	ShowMsg(caption, InfoMsg, CMsgBox::mbrBack, CMsgBox::mbOk, NEUTRINO_ICON_INFO, 500, Timeout, false, Text_mode, color_frame);
+}
+
+void DisplayInfoMessage(const char * const InfoMsg, const int& Timeout, const int& Text_mode, fb_pixel_t color_frame)
+{
+	DisplayInfoMessage(InfoMsg, LOCALE_MESSAGEBOX_INFO, Timeout, Text_mode, color_frame);
 }

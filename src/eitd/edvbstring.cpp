@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <map>
 #include <set>
+#include <string.h>
 
 #include "SIutils.hpp"
 #include "debug.h"
@@ -197,7 +198,7 @@ static unsigned long iso6937[96]={
 	0x0138, 0x00E6, 0x0111, 0x00F0, 0x0127, 0x0131, 0x0133, 0x0140, 0x0142, 0x00F8, 0x0153, 0x00DF, 0x00FE, 0x0167, 0x014B, 0x00AD
 };
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 const unsigned short cGB2312UNI[] = {
 	// Start at 0xA100.so index have to be reduced. Maybe this can be optimized by removing the starts but for
 	// now just 'make it work' :).
@@ -2019,7 +2020,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 {
 	int newtable = 0;
 	bool twochar = false;
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	bool gb2312 = false;
 #endif
 	if (!len)
@@ -2069,7 +2070,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 		break;
 	case 0x13:
 		++i;
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
                 //printf("GB-2312-1980 enc.\n");
 		gb2312 = true;
 #endif
@@ -2105,6 +2106,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 
 //dprintf("recode:::: tsidonid %X table %d two-char %d len %d\n", tsidonid, table, twochar, len);
 	unsigned char res[2048];
+	memset(res,0,sizeof(res));
 	while (i < len)
 	{
 		unsigned long code=0;
@@ -2114,7 +2116,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 //dprintf("recode:::: doVideoTexSuppl code %lX\n", code);
 		}
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 		// GB2312 -> Unicode
 		if (gb2312 && !code) {
 			if (data[i] >= 0xA1) {
@@ -2267,6 +2269,7 @@ const std::string convertLatin1UTF8(const std::string &string)
 	unsigned int t=0, i=0, len=string.size();
 
 	unsigned char res[2048];
+	memset(res,0,sizeof(res));
 
 	while (i < len)
 	{
@@ -2302,28 +2305,31 @@ const std::string convertLatin1UTF8(const std::string &string)
 int isUTF8(const std::string &string)
 {
 	unsigned int len=string.size();
+	unsigned char c;
 
 	for (unsigned int i=0; i < len;)
 	{
 		int trailing = 0;
-		if (string[i] >> 7 == 0)		// 0xxxxxxx
+		c = string[i] & 0xFF;
+
+		if (c >> 7 == 0)		// 0xxxxxxx
 		{
 			i++;
 			continue;
 		}
-		if (string[i] >> 5 == 6)		// 110xxxxx 10xxxxxx
+		if (c >> 5 == 6)		// 110xxxxx 10xxxxxx
 		{
 			if (++i >= len)
 				return 0;
 			trailing = 1;
 		}
-		else if (string[i] >> 4 == 14)		// 1110xxxx 10xxxxxx 10xxxxxx
+		else if (c >> 4 == 14)		// 1110xxxx 10xxxxxx 10xxxxxx
 		{
 			if (++i >= len)
 				return 0;
 			trailing = 2;
 		}
-		else if ((string[i] >> 3) == 30)	// 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+		else if (c >> 3 == 30)		// 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 		{
 			if (++i >= len)
 				return 0;
@@ -2332,7 +2338,7 @@ int isUTF8(const std::string &string)
 			return 0;
 
 		while (trailing) {
-			if (i >= len || string[i] >> 6 != 2)
+			if (i >= len || (string[i] & 0xFF) >> 6 != 2)
 				return 0;
 			trailing--;
 			i++;

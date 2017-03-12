@@ -33,6 +33,7 @@
 #include <neutrino.h>
 
 #include <driver/rcinput.h>
+#include <driver/fontrenderer.h>
 
 #include <sys/utsname.h>
 #include <string>
@@ -48,7 +49,6 @@
 #include <nhttpd/yconfig.h>
 
 #define VERSION_FILE TARGET_PREFIX "/.version"
-#define Y_VERSION_FILE DATADIR "/neutrino/httpd/Y_Version.txt"
 
 using namespace std;
 
@@ -72,7 +72,7 @@ void CImageInfo::Init(void)
 	item_offset	= 10;
 	item_font 	= NULL;
 	item_height 	= 0;
-	
+	y_tmp 		= 0;
 	license_txt	= "";
 	v_info.clear();
 	config.loadConfig(VERSION_FILE);
@@ -174,7 +174,8 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 			btn_red->setCaption(new_btn_cap);
 			
 			//paint items
-			cc_sub_caption->paint(false);
+			cc_sub_caption->hide();
+			cc_sub_caption->paint();
 			cc_lic->paint(false);
 			btn_red->kill();
 			btn_red->paint(false);
@@ -315,7 +316,7 @@ void CImageInfo::InitInfoData()
 	s_api	+= ", ";
 #endif
 	s_api	+= "yWeb ";
-	s_api	+= getYApi();
+	s_api	+= getYWebVersion();
 	s_api	+= ", ";
 	s_api	+= HTTPD_NAME;
 	s_api	+= + " ";
@@ -358,8 +359,9 @@ void CImageInfo::InitInfos()
 	cc_info->setWidth(cc_win->getWidth() - cc_tv->getWidth() - 2*item_offset);
 	
 	//create label and text items
+	y_tmp = 0;
 	for (size_t i=0; i<v_info.size(); i++) {
-		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, CC_APPEND, cc_info->getWidth(), 0, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
+		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, y_tmp, cc_info->getWidth(), 0, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
 		item->setLabelWidthPercent(20);
 
 		if (!item_font){
@@ -370,16 +372,13 @@ void CImageInfo::InitInfos()
 		item->setHeight(item_height);
 		cc_info->setHeight(v_info.size()*item_height);
 
-		if ((i == 0) && (item->getYPos() == CC_APPEND))
-			item->setYPos(1);
-
 		//add ext-text object to window body
 		if (!item->isAdded())
 			cc_info->addCCItem(item);
 
 		//add an offset before homepage and license and at the end
 		if (v_info[i].caption == LOCALE_IMAGEINFO_CREATOR || v_info[i].caption == LOCALE_IMAGEINFO_FORUM){
-			CComponentsShapeSquare *spacer = new CComponentsShapeSquare(1, CC_APPEND, 1, item_offset);
+			CComponentsShapeSquare *spacer = new CComponentsShapeSquare(1, y_tmp+=item_offset, 1, item_offset);
 			//spacer ist not visible!
 			spacer->allowPaint(false);
 			cc_info->addCCItem(spacer);
@@ -387,6 +386,7 @@ void CImageInfo::InitInfos()
 			int tmp_h = cc_info->getHeight();
 			cc_info->setHeight(tmp_h + item_offset);
 		}
+		y_tmp += item->getHeight();
 	}
 }
 
@@ -420,8 +420,9 @@ void CImageInfo::InitInfoText(const std::string& text)
 	//add a caption for info contents
 	Font * caption_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
 	int caption_height = caption_font->getHeight();
+	y_tmp = max(y_tmp, cc_tv->getYPos()+cc_tv->getHeight());
 	if (cc_sub_caption == NULL)
-		cc_sub_caption = new CComponentsLabel(cc_info->getXPos(), CC_APPEND, cc_info->getWidth(), caption_height, 
+		cc_sub_caption = new CComponentsLabel(cc_info->getXPos(), y_tmp, cc_info->getWidth(), caption_height,
 						     g_Locale->getText(LOCALE_IMAGEINFO_LICENSE), CTextBox::AUTO_WIDTH, item_font);
 	if (!cc_sub_caption->isAdded())
 		cc_win->addWindowItem(cc_sub_caption);
@@ -430,9 +431,9 @@ void CImageInfo::InitInfoText(const std::string& text)
 	int h_txt = h_body - item_offset - cc_info->getHeight() - cc_sub_caption->getHeight() - item_offset;
 
 	if (cc_lic == NULL)
-		cc_lic = new CComponentsInfoBox(CC_CENTERED, CC_APPEND, w_body-2*item_offset, h_txt);
+		cc_lic = new CComponentsInfoBox(CC_CENTERED, y_tmp+=cc_sub_caption->getHeight(), w_body-2*item_offset, h_txt);
 	cc_lic->setSpaceOffset(1);
-	cc_lic->setText(text, CTextBox::TOP | CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+	cc_lic->setText(text, CTextBox::TOP | CTextBox::AUTO_WIDTH | CTextBox::SCROLL, item_font);
 	cc_lic->doPaintTextBoxBg(true);
 
 	//add text to container
@@ -468,12 +469,9 @@ void CImageInfo::hide()
 	}
 }
 
-string CImageInfo::getYApi()
+string CImageInfo::getYWebVersion()
 {
-	string ret;
-	config.loadConfig(Y_VERSION_FILE);
-	ret = config.getString("version", "n/a");
-	config.loadConfig(VERSION_FILE);
-	return ret;
+	CConfigFile yV('=', false);
+	yV.loadConfig(PRIVATE_HTTPDDIR "/Y_Version.txt");
+	return yV.getString("version", "n/a");
 }
-

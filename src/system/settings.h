@@ -44,7 +44,7 @@
 #include <string>
 #include <list>
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 16
 #else
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 13
@@ -147,6 +147,14 @@ struct SNeutrinoTheme
 	unsigned char clock_Digit_red;
 	unsigned char clock_Digit_green;
 	unsigned char clock_Digit_blue;
+
+	int progressbar_design;
+	int progressbar_design_channellist;
+	int progressbar_gradient;
+	int progressbar_timescale_red;
+	int progressbar_timescale_green;
+	int progressbar_timescale_yellow;
+	int progressbar_timescale_invert;
 };
 
 struct SNeutrinoSkin
@@ -201,6 +209,7 @@ struct timer_remotebox_item
 		std::string pass;
 		std::string rbname;
 		std::string rbaddress;
+		bool online;
 };
 
 struct SNeutrinoSettings
@@ -224,7 +233,7 @@ struct SNeutrinoSettings
 	uint32_t video_mixer_color;
 #endif
 
-#ifdef BOXMODEL_APOLLO
+#ifdef BOXMODEL_CS_HD2
 	int brightness;
 	int contrast;
 	int saturation;
@@ -256,12 +265,6 @@ struct SNeutrinoSettings
 	int infobar_show;
 	int infobar_show_channellogo;
 	int infobar_progressbar;
-	int progressbar_design;
-	int progressbar_gradient;
-	int progressbar_timescale_red;
-	int progressbar_timescale_green;
-	int progressbar_timescale_yellow;
-	int progressbar_timescale_invert;
 	int infobar_casystem_display;
 	int infobar_casystem_dotmatrix;
 	int infobar_casystem_frame;
@@ -500,6 +503,7 @@ struct SNeutrinoSettings
 		TIMING_FILEBROWSER	= 7,
 		TIMING_NUMERICZAP	= 8,
 		TIMING_POPUP_MESSAGES	= 9,
+		TIMING_STATIC_MESSAGES	= 10,
 
 		TIMING_SETTING_COUNT
 	};
@@ -514,8 +518,6 @@ struct SNeutrinoSettings
 	SNeutrinoSkin skin;
 	std::string skinfile;
 	bool osd_colorsettings_advanced_mode;
-
-	int contrast_fonts;
 
 	//network
 #define NETWORK_NFS_NR_OF_ENTRIES 8
@@ -585,7 +587,6 @@ struct SNeutrinoSettings
 	int key_pageup;
 	int key_pagedown;
 
-	int key_channelList_cancel;
 	int key_channelList_sort;
 	int key_channelList_addrecord;
 	int key_channelList_addremind;
@@ -604,7 +605,6 @@ struct SNeutrinoSettings
 	int key_power_off;
 	int menu_left_exit;
 	int audio_run_player;
-	int key_click;
 	int timeshift_pause;
 	int auto_timeshift;
 	int temp_timeshift;
@@ -696,7 +696,6 @@ struct SNeutrinoSettings
 	int eventlist_epgplus;
 	int channellist_additional;
 	int channellist_epgtext_align_right;
-	int channellist_progressbar_design;
 	int channellist_foot;
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
@@ -737,8 +736,6 @@ struct SNeutrinoSettings
 	int screen_preset;
 	int screen_width;
 	int screen_height;
-	int screen_xres;
-	int screen_yres;
 
 	//Software-update
 	int softupdate_mode;
@@ -808,6 +805,7 @@ struct SNeutrinoSettings
 		FONT_TYPE_MOVIEBROWSER_INFO,
 		FONT_TYPE_SUBTITLES,
 		FONT_TYPE_MESSAGE_TEXT,
+		FONT_TYPE_BUTTON_TEXT,
 		FONT_TYPE_COUNT
 	};
 
@@ -892,6 +890,7 @@ struct SNeutrinoSettings
 	int	zap_cycle;
 	int	sms_channel;
 	int	sms_movie;
+
 	std::string	font_file;
 	std::string	ttx_font_file;
 	std::string	sub_font_file;
@@ -900,8 +899,10 @@ struct SNeutrinoSettings
 	std::string	lcd4l_logodir;
 	int		lcd4l_skin;
 
-	int		show_ecm;
 	int		show_ecm_pos;
+
+	int font_scaling_x;
+	int font_scaling_y;
 
 	int		livestreamResolution;
 	std::string	livestreamScriptPath;
@@ -909,15 +910,18 @@ struct SNeutrinoSettings
 	// USERMENU
 	typedef enum
 	{
-		BUTTON_RED = 0,  // Do not change ordering of members, add new item just before BUTTON_MAX!!!
+		// Do not change ordering of members, add new item just before BUTTON_MAX!!!
+		BUTTON_RED = 0,
 		BUTTON_GREEN = 1,
 		BUTTON_YELLOW = 2,
 		BUTTON_BLUE = 3,
-		BUTTON_MAX   // MUST be always the last in the list
+		BUTTON_MAX // MUST be always the last in the list
 	} USER_BUTTON;
+
 	typedef enum
 	{
-		ITEM_NONE = 0, // Do not change ordering of members, add new item just before ITEM_MAX!!!
+		// Do not change ordering of members, add new item just before ITEM_MAX!!!
+		ITEM_NONE = 0,
 		ITEM_BAR = 1,
 		ITEM_EPG_LIST = 2,
 		ITEM_EPG_SUPER = 3,
@@ -943,21 +947,19 @@ struct SNeutrinoSettings
 		ITEM_FILEPLAY = 23,
 		ITEM_TOOLS = 24,
 		ITEM_LUA = 25,
-
 		ITEM_HDDMENU = 26,
 		ITEM_AUDIOPLAY = 27,
 		ITEM_INETPLAY = 28,
 		ITEM_NETSETTINGS = 29,
 		ITEM_SWUPDATE = 30,
-		ITEM_TUNER_RESTART = 34,
-		ITEM_THREE_D_MODE = 35,
-		ITEM_RASS = 33,
-
 		ITEM_LIVESTREAM_RESOLUTION = 31,
 		ITEM_ADZAP = 32,
-
-		ITEM_MAX   // MUST be always the last in the list
+		ITEM_RASS = 33,
+		ITEM_TUNER_RESTART = 34,
+		ITEM_THREE_D_MODE = 35,
+		ITEM_MAX // MUST be always the last in the list
 	} USER_ITEM;
+
 	typedef struct {
 		unsigned int key;
 		std::string items;
@@ -989,20 +991,22 @@ typedef struct time_settings_t
 {
 	const int default_timing;
 	const neutrino_locale_t name;
+	const neutrino_locale_t hint;
 } time_settings_struct_t;
 
 const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_COUNT] =
 {
-	{ 0,	LOCALE_TIMING_MENU        },
-	{ 60,	LOCALE_TIMING_CHANLIST    },
-	{ 240,	LOCALE_TIMING_EPG         },
-	{ 6,	LOCALE_TIMING_INFOBAR     },
- 	{ 0,	LOCALE_TIMING_INFOBAR_RADIO },
- 	{ 6,	LOCALE_TIMING_INFOBAR_MOVIEPLAYER},
- 	{ 3,	LOCALE_TIMING_VOLUMEBAR   },
-	{ 60,	LOCALE_TIMING_FILEBROWSER },
-	{ 3,	LOCALE_TIMING_NUMERICZAP  },
-	{ 6,	LOCALE_TIMING_POPUP_MESSAGES}
+	{ 0,	LOCALE_TIMING_MENU,			LOCALE_MENU_HINT_OSD_TIMING},//TODO: add hint locales
+	{ 60,	LOCALE_TIMING_CHANLIST,			LOCALE_MENU_HINT_OSD_TIMING},
+	{ 240,	LOCALE_TIMING_EPG,			LOCALE_MENU_HINT_OSD_TIMING},
+	{ 6,	LOCALE_TIMING_INFOBAR,			LOCALE_MENU_HINT_OSD_TIMING},
+	{ 0,	LOCALE_TIMING_INFOBAR_RADIO,		LOCALE_MENU_HINT_OSD_TIMING},
+	{ 6,	LOCALE_TIMING_INFOBAR_MOVIEPLAYER,	LOCALE_MENU_HINT_OSD_TIMING},
+	{ 3,	LOCALE_TIMING_VOLUMEBAR,		LOCALE_MENU_HINT_OSD_TIMING},
+	{ 60,	LOCALE_TIMING_FILEBROWSER,		LOCALE_MENU_HINT_OSD_TIMING},
+	{ 3,	LOCALE_TIMING_NUMERICZAP,		LOCALE_MENU_HINT_OSD_TIMING},
+	{ 6,	LOCALE_TIMING_POPUP_MESSAGES,		LOCALE_MENU_HINT_OSD_TIMING},
+	{ 60,	LOCALE_TIMING_STATIC_MESSAGES,		LOCALE_MENU_HINT_TIMEOUTS_STATIC_MESSAGES}
 };
 
 // lcdd
@@ -1037,12 +1041,15 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define RADIUS_NONE	0
 
 // offsets
-#define OFFSET_SHADOW	6
-#define OFFSET_INTER	6
+#define OFFSET_SHADOW		6
+#define OFFSET_INTER		6
 #define OFFSET_INNER_LARGE	20
 #define OFFSET_INNER_MID	10
 #define OFFSET_INNER_SMALL	5
 #define OFFSET_INNER_MIN	2
+#define OFFSET_INNER_NONE	0
+
+#define SCROLLBAR_WIDTH		OFFSET_INNER_MID + 2*OFFSET_INNER_MIN
 
 struct SglobalInfo
 {

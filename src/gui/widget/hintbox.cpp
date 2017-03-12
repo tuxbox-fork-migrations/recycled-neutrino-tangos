@@ -34,6 +34,8 @@
 #include <global.h>
 #include <neutrino.h>
 #include "hintbox.h"
+#include <gui/components/cc_timer.h>
+#include <driver/fontrenderer.h>
 #include <system/debug.h>
 
 #define MSG_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MESSAGE_TEXT]
@@ -65,7 +67,7 @@ CHintBox::CHintBox(	const neutrino_locale_t Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent): CComponentsWindow(	1, 1, width,
+			const int& indent): CComponentsWindow(	0, 0, width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
@@ -82,7 +84,7 @@ CHintBox::CHintBox(	const char * const Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	1, 1, width,
+			const int& indent):CComponentsWindow(	0, 0, width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
@@ -99,7 +101,7 @@ CHintBox::CHintBox(	const neutrino_locale_t  Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	1, 1, width,
+			const int& indent):CComponentsWindow(	0, 0, width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
@@ -116,7 +118,7 @@ CHintBox::CHintBox(	const char * const Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	1, 1, width,
+			const int& indent):CComponentsWindow(	0, 0, width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
@@ -133,6 +135,8 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 	w_indentation	= indent;
 
 	hb_font		= MSG_FONT;
+
+	enable_txt_scroll = false;
 
 	//enable shadow
 	shadow = CC_SHADOW_ON;
@@ -186,8 +190,10 @@ void CHintBox::enableTimeOutBar(bool enable)
 		timeout_pb = new CProgressBar();
 		timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
 		timeout_pb->setValues(0, 100*timeout);
-		if (!timeout_pb_timer)
+		if (!timeout_pb_timer) {
 			timeout_pb_timer = new CComponentsTimer(1, true);
+			timeout_pb_timer->setThreadName("hb:tmoutbar");
+		}
 		timeout_pb_timer->OnTimer.connect(sigc::mem_fun0(this, &CHintBox::showTimeOutBar));
 		timeout_pb_timer->startTimer();
 	}
@@ -198,8 +204,7 @@ int CHintBox::exec()
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
 	int res = messages_return::none;
-
-	if (timeout == NO_TIMEOUT || timeout == 0)
+	if (timeout == NO_TIMEOUT || timeout == DEFAULT_TIMEOUT)
 		timeout = HINTBOX_DEFAULT_TIMEOUT;
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
@@ -219,8 +224,9 @@ int CHintBox::exec()
 		{
 			res = messages_return::cancel_all;
 		}
-		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))
+		else if (enable_txt_scroll && (msg == CRCInput::RC_up || msg == CRCInput::RC_down))
 		{
+			/* if ! enable_txt_scroll, fall through to last else branch instead */
 			if (msg == CRCInput::RC_up)
 				this->scroll_up();
 			else
@@ -275,7 +281,8 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	/* add scroll mode if needed */
 	if (h_lines > h_hint_obj){
 		txt_mode = text_mode | CTextBox::SCROLL;
-		ccw_buttons = ccw_buttons | CComponentsHeader::CC_BTN_TOP | CComponentsHeader::CC_BTN_DOWN;
+		ccw_buttons = ccw_buttons | CComponentsHeader::CC_BTN_UP | CComponentsHeader::CC_BTN_DOWN;
+		enable_txt_scroll = true;
 	}
 
 	/* define y start position of infobox inside body */
@@ -330,6 +337,11 @@ void CHintBox::setMsgText(const std::string& Text, const uint& hint_id, const in
 	Font* font = font_text == NULL ? MSG_FONT : font_text;
 	if (obj_text)
 		obj_text->setText(Text, mode, font, color_text, style);
+}
+
+void CHintBox::setMsgText(const neutrino_locale_t& locale, const uint& hint_id, const int& mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
+{
+	setMsgText(g_Locale->getText(locale), hint_id, mode, font_text, color_text, style);
 }
 
 void CHintBox::ReSize()

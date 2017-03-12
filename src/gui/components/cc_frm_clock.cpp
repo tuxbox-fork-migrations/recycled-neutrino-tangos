@@ -29,6 +29,7 @@
 #include <neutrino.h>
 
 #include "cc_frm_clock.h"
+#include "cc_timer.h"
 #include <time.h>
 
 #include <unistd.h>
@@ -37,6 +38,7 @@
 #include <ctype.h>
 #include <system/helpers.h>
 #include <system/debug.h>
+#include <driver/fontrenderer.h>
 
 using namespace std;
 
@@ -76,11 +78,8 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	//init default font
 	cl_font 	= font;
 	cl_font_style	= font_style;
-	if (cl_font == NULL){
-		int dx = 0;
-		int dy = 30;
-		setClockFont(*CNeutrinoFonts::getInstance()->getDynFont(dx, dy, cl_format_str, cl_font_style));
-	}
+	if (cl_font == NULL)
+		initClockFont(0, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight());
 
 	//init general clock dimensions
 	height 		= cl_font->getHeight();
@@ -101,7 +100,7 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	initParent(parent);
 
 	//init slot for running clock
-	cl_sl = sigc::mem_fun0(*this, &CComponentsFrmClock::ShowTime);
+	cl_sl_show = sigc::mem_fun0(*this, &CComponentsFrmClock::ShowTime);
 
 	//run clock already if required
 	if (activ)
@@ -112,6 +111,11 @@ CComponentsFrmClock::~CComponentsFrmClock()
 {
 	if (cl_timer)
 		delete cl_timer;
+}
+
+void CComponentsFrmClock::initClockFont(int dx, int dy)
+{
+	setClockFont(*CNeutrinoFonts::getInstance()->getDynFont(dx, dy, cl_format_str, cl_font_style));
 }
 
 
@@ -260,12 +264,12 @@ void CComponentsFrmClock::initCCLockItems()
 		lbl->doPaintTextBoxBg(paint_bg);
 		bool save_txt_screen = cc_txt_save_screen || (!paint_bg || cc_body_gradient_enable);
 		lbl->enableTboxSaveScreen(save_txt_screen);
-
+#if 0
 		//use matching height for digits for better vertical centerring into form
 		CTextBox* ctb = lbl->getCTextBoxObject();
 		if (ctb)
 			ctb->setFontUseDigitHeight();
-#if 0
+
 		//ensure paint of text and label bg on changed text or painted form background
 		bool force_txt_and_bg = (lbl->textChanged() || this->paint_bg);
 		lbl->forceTextPaint(force_txt_and_bg);
@@ -317,9 +321,11 @@ bool CComponentsFrmClock::startClock()
 
 	if (cl_timer == NULL){
 		cl_timer = new CComponentsTimer(0);
+		cl_timer->setThreadName("frmClock");
 		if (cl_timer->OnTimer.empty()){
 			dprintf(DEBUG_INFO,"\033[33m[CComponentsFrmClock]\t[%s] init slot...\033[0m\n", __func__);
-			cl_timer->OnTimer.connect(cl_sl);
+			cl_timer->OnTimer.connect(cl_sl_show);
+			force_paint_bg = true;
 		}
 	}
 	cl_timer->setTimerInterval(cl_interval);
@@ -336,6 +342,7 @@ bool CComponentsFrmClock::stopClock()
 	if (cl_timer){
 		if (cl_timer->stopTimer()){
 			dprintf(DEBUG_INFO, "[CComponentsFrmClock]    [%s]  stopping clock...\n", __func__);
+			clear();
 			delete cl_timer;
 			cl_timer = NULL;
 			return true;
@@ -370,6 +377,9 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 	//prepare items before paint
 	initCCLockItems();
 
+	if (!is_painted)
+		force_paint_bg = false;
+
 	//paint form contents
 	CComponentsForm::paint(do_save_bg);
 
@@ -379,14 +389,12 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 
 void CComponentsFrmClock::setClockFont(Font *font, const int& style)
 {
-	if (cl_font != font)
-		cl_font = font;
-
-	if (style != -1)
-		cl_font_style = style;
-
-// 	setHeight(cl_font->getHeight());
-// 	setWidth(cl_font->getRenderWidth(cl_format_str));
+	if (cl_font != font || (cl_font != font)){
+		if (cl_font != font)
+			cl_font = font;
+		if (style != -1)
+			cl_font_style = style;
+	}
 	initCCLockItems();
 }
 

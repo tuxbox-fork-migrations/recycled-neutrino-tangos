@@ -4,7 +4,7 @@
 	License: GPL
 
 	(C) 2012-2013 the neutrino-hd developers
-	(C) 2012-2015 Stefan Seyfried
+	(C) 2012-2017 Stefan Seyfried
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pty.h>	/* forkpty*/
 #include <inttypes.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -49,6 +50,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <driver/fontrenderer.h>
+//#include <driver/framebuffer.h>
 #include <system/helpers.h>
 #include <gui/update_ext.h>
 #include <driver/framebuffer.h>
@@ -229,6 +231,22 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 	}
 	return(fp);
 }
+
+int run_pty(pid_t &pid, const char *cmdstring)
+{
+	int master = -1;
+	if ((pid = forkpty(&master, NULL, NULL, NULL)) < 0)
+		return -1;
+	else if (pid == 0) {
+		int maxfd = getdtablesize();
+		for(int i = 3; i < maxfd; i++)
+			close(i);
+		execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
+		exit(0);
+	}
+	return master;
+}
+
 #if 0
 int mkdirhier(const char *pathname, mode_t mode)
 {
@@ -1108,6 +1126,7 @@ bool split_config_string(const std::string &str, std::map<std::string,std::strin
 	return !smap.empty();
 }
 
+#if 0
 /* align for hw blit */
 uint32_t GetWidth4FB_HW_ACC(const uint32_t _x, const uint32_t _w, const bool max)
 {
@@ -1127,6 +1146,7 @@ uint32_t GetWidth4FB_HW_ACC(const uint32_t _x, const uint32_t _w, const bool max
 
 	return ret;
 }
+#endif
 
 std::vector<std::string> split(const std::string &s, char delim)
 {
@@ -1375,4 +1395,14 @@ std::string get_path(const char *path)
 	}
 
 	return path;
+}
+
+std::string readLink(std::string lnk)
+{
+	char buf[PATH_MAX];
+	memset(buf, 0, sizeof(buf)-1);
+	if (readlink(lnk.c_str(), buf, sizeof(buf)-1) != -1)
+		return std::string(buf);
+
+	return "";
 }

@@ -48,6 +48,7 @@
 #include <driver/abstime.h>
 #include <system/set_threadname.h>
 #include <system/helpers.h>
+#include <system/set_threadname.h>
 #include <OpenThreads/ScopedLock>
 
 #include "eitd.h"
@@ -55,6 +56,8 @@
 #include "edvbstring.h"
 #include "xmlutil.h"
 #include "debug.h"
+
+#include <compatibility.h>
 
 //#define ENABLE_SDT //FIXME
 
@@ -1065,11 +1068,7 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		 //    resourceUsage.ru_maxrss, resourceUsage.ru_ixrss, resourceUsage.ru_idrss, resourceUsage.ru_isrss,
 		);
 	printf("%s\n", stati);
-#ifdef __UCLIBC__
-	malloc_stats(NULL);
-#else
-	malloc_stats();
-#endif
+	comp_malloc_stats(NULL);
 	return ;
 }
 
@@ -1198,11 +1197,7 @@ static void FreeMemory()
 
 	unlockEvents();
 
-#ifdef __UCLIBC__
-	malloc_stats(NULL);
-#else
-	malloc_stats();
-#endif
+	comp_malloc_stats(NULL);
 	xprintf("[sectionsd] free memory done\n");
 	//wakeupAll(); //FIXME should we re-start eit here ?
 }
@@ -1224,7 +1219,7 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 
 	writeLockMessaging();
 	data[dataLength] = '\0';
-	epg_dir = (std::string)data + "/";
+	static std::string epg_dir_tmp = (std::string)data + "/";
 	unlockMessaging();
 
 
@@ -1232,7 +1227,7 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-	if (pthread_create (&thrInsert, &attr, insertEventsfromFile, (void *)epg_dir.c_str() ))
+	if (pthread_create (&thrInsert, &attr, insertEventsfromFile, (void *)epg_dir_tmp.c_str() ))
 	{
 		perror("sectionsd: pthread_create()");
 	}
@@ -2080,11 +2075,7 @@ static void print_meminfo(void)
 	if (!sections_debug)
 		return;
 
-#ifdef __UCLIBC__
-	malloc_stats(NULL);
-#else
-	malloc_stats();
-#endif
+	comp_malloc_stats(NULL);
 }
 
 //---------------------------------------------------------------------
@@ -2094,6 +2085,7 @@ static void print_meminfo(void)
 static void *houseKeepingThread(void *)
 {
 	int count = 0, scount = 0, ecount = 0;
+	set_threadname("sd:housekeeping");
 
 	dprintf("housekeeping-thread started.\n");
 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
