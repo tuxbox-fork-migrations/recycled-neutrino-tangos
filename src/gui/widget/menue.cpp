@@ -1235,6 +1235,10 @@ void CMenuWidget::paint()
 		header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 		header->setOffset(10);
 	}
+
+	if (g_settings.skin.skinEnabled && !g_settings.skin.header_bgpic.empty())
+		header->setBodyBGImage(g_settings.skinfiles + g_settings.skin.header_bgpic);
+
 	header->setCaption(getName());
 	header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
 	header->setCaptionColor(COL_MENUHEAD_TEXT);

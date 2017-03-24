@@ -207,6 +207,9 @@ void CComponentsWindow::initHeader()
 		ccw_head->setContextButton(ccw_buttons);
 		ccw_head->setCorner(corner_rad, CORNER_TOP);
 		ccw_head->setColorBody(ccw_col_head);
+		if (g_settings.skin.skinEnabled && !g_settings.skin.header_bgpic.empty())
+			ccw_head->setBodyBGImage(g_settings.skinfiles + g_settings.skin.header_bgpic);
+
 	}
 }
 

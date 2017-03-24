@@ -877,6 +877,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		header->setCorner(RADIUS_LARGE, CORNER_TOP);
 	}
 	header->setDimensionsAll(sx, sy, ox, header_h);
+
+	if (g_settings.skin.skinEnabled && !g_settings.skin.header_bgpic.empty())
+		header->setBodyBGImage(g_settings.skinfiles + g_settings.skin.header_bgpic);
+
 	header->setColorBody(COL_MENUHEAD_PLUS_0);
 	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 
