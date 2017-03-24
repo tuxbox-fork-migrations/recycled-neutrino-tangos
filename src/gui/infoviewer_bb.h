@@ -133,6 +133,8 @@ class CInfoViewerBB
 		void showBarSys(int percent = 0);
 		void showBarHdd(int percent = 0);
 
+		int ca_y_offset;
+
 		CInfoViewerBB();
 
 	public:
