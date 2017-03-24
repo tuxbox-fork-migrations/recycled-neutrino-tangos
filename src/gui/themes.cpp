@@ -52,7 +52,7 @@
 
 #define USERDIR "/var" THEMESDIR
 #define THEME_SUFFIX ".theme"
-#define SKIN_SUFFIX ".skin"
+#define SKIN_SUFFIX "skin.conf"
 static 	SNeutrinoTheme &t = g_settings.theme;
 static	SNeutrinoSkin &s = g_settings.skin;
 CThemes::CThemes()
@@ -207,7 +207,7 @@ void CThemes::rememberOldTheme(bool remember)
 void CThemes::readFile(std::string filename)
 {
 	std::string themename = filename + THEME_SUFFIX;
-	std::string skinname = filename + SKIN_SUFFIX;
+	std::string skinname = filename + "/" + SKIN_SUFFIX;
 
 	if(themefile.loadConfig(themename))
 	{
@@ -225,33 +225,35 @@ void CThemes::readFile(std::string filename)
 	if(skinfile.loadConfig(skinname))
 	{
 		getSkin(skinfile);
-		g_settings.skinfile = filename;
+		g_settings.skinfiles = filename + "/";
 	}
 	else
 	{
 		printf("[neutrino skin] %s not found\n", skinname.c_str());
-		g_settings.skinfile = "none";
+		g_settings.skinfiles = "none";
 	}
 }
 
-void CThemes::readSkinFile(std::string skinname)
+void CThemes::readSkinFile(std::string filename)
 {
-	if (skinname.compare("none") == 0)
+	if (filename.compare("none") == 0)
 	{
 		CConfigFile empty(':');
 		getSkin(empty);
 		return;
 	}
 
-	if(skinfile.loadConfig(skinname + SKIN_SUFFIX))
+	std::string skinname = filename + SKIN_SUFFIX;
+
+	if(skinfile.loadConfig(skinname))
 	{
 		getSkin(skinfile);
-		g_settings.skinfile = skinname;
+		g_settings.skinfiles = filename;
 	}
 	else
 	{
 		printf("[neutrino readskin] %s not found\n", skinname.c_str());
-		g_settings.skinfile = "none";
+		g_settings.skinfiles = "none";
 	}
 }
 
@@ -471,6 +473,7 @@ void CThemes::getSkin(CConfigFile &configfile)
 	s.ReloadSkin = configfile.getBool( "ReloadSkin", true );
 	s.skinEnabled = configfile.getBool( "skinEnabled", false );
 	s.bgpic = configfile.getString("bgpic","infoviewer.png");
+	s.header_bgpic = configfile.getString("header_bgpic","");
 	s.bgX = configfile.getInt32( "bgX", 0 );
 	s.bgY = configfile.getInt32( "bgY", 0 );
 	s.bgW = configfile.getInt32( "bgW", 1280 );
@@ -509,6 +512,7 @@ void CThemes::setSkin(CConfigFile &configfile)
 	configfile.setBool( "ReloadSkin", s.ReloadSkin );
 	configfile.setBool( "skinEnabled", s.skinEnabled );
 	configfile.setString("bgpic", s.bgpic );
+	configfile.setString("header_bgpic", s.header_bgpic );
 	configfile.setInt32( "bgX", s.bgX );
 	configfile.setInt32( "bgY", s.bgY );
 	configfile.setInt32( "bgW", s.bgW );

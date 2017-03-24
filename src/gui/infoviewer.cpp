@@ -90,7 +90,7 @@ static bool logoShown = false;// just status, set when logo displayed
 static bool skinPaintBackground()
 {
  	/* we don't resize png has to be correct size to speedup */
-	if (g_settings.skin.skinEnabled && g_PicViewer->DisplayImage(g_settings.skinfile.substr(0,g_settings.skinfile.find_last_of('/')+1) + g_settings.skin.bgpic, g_settings.skin.bgX, g_settings.skin.bgY, g_settings.skin.bgW, g_settings.skin.bgH))
+	if (g_settings.skin.skinEnabled && g_PicViewer->DisplayImage(g_settings.skinfiles + g_settings.skin.bgpic, g_settings.skin.bgX, g_settings.skin.bgY, g_settings.skin.bgW, g_settings.skin.bgH))
 		return 1;
 	else
 		return 0;
@@ -236,7 +236,7 @@ void CInfoViewer::Init()
 */
 void CInfoViewer::start ()
 {
-	if (g_settings.skin.ReloadSkin) CThemes().readSkinFile(g_settings.skinfile.c_str());
+	if (g_settings.skin.ReloadSkin) CThemes().readSkinFile(g_settings.skinfiles);
 	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + 10;
 
 	InfoHeightY = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight() * 9/8 +

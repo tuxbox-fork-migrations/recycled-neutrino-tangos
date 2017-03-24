@@ -51,7 +51,7 @@ class CThemes : public CMenuTarget, CChangeObserver
 		CThemes();
 		void setupDefaultColors();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
-		void readSkinFile(std::string skinname);
+		void readSkinFile(std::string filename);
 		static void setTheme(CConfigFile &configfile);
 		static void getTheme(CConfigFile &configfile);
 		static void setSkin(CConfigFile &configfile);
