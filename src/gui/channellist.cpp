@@ -2180,6 +2180,9 @@ void CChannelList::paintHead()
 
 	header->setDimensionsAll(x, y, full_width, theight);
 
+	if (g_settings.skin.skinEnabled && !g_settings.skin.header_bgpic.empty())
+		header->setBodyBGImage(g_settings.skinfiles + g_settings.skin.header_bgpic);
+
 	if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked)
 		header->setIcon(NEUTRINO_ICON_LOCK);
 

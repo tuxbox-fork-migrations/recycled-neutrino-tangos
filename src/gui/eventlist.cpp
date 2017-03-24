@@ -900,6 +900,10 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 
 	if (header->isPainted()) //clean up background of header for new captions
 		header->kill(header->getColorBody());
+
+	if (g_settings.skin.skinEnabled && !g_settings.skin.header_bgpic.empty())
+		header->setBodyBGImage(g_settings.skinfiles + g_settings.skin.header_bgpic);
+
 	header->paint(CC_SAVE_SCREEN_NO);
 }
 
