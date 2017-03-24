@@ -167,6 +167,7 @@ struct SNeutrinoSkin
 	int bgW;
 	int bgH;
 	std::string bgpic;
+	std::string header_bgpic;
 	// -- all following coords relativly to background.
 	// -- logo
 	bool logoEnabled;
@@ -516,7 +517,7 @@ struct SNeutrinoSettings
 	//theme/color options
 	SNeutrinoTheme theme;
 	SNeutrinoSkin skin;
-	std::string skinfile;
+	std::string skinfiles;
 	bool osd_colorsettings_advanced_mode;
 
 	//network

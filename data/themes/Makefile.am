@@ -1,3 +1,6 @@
+SUBDIRS = \
+	TangoCash
+
 installdir = $(THEMESDIR)
 
 install_DATA = \
@@ -25,6 +28,4 @@ install_DATA = \
 	Red.theme \
 	Sportster.theme \
 	VirginMedia.theme \
-	TangoCash.theme \
-	TangoCash.skin \
-	tc_infoviewer.png
+	TangoCash.theme
