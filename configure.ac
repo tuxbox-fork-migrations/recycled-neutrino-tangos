@@ -367,7 +367,8 @@ data/pictures/backgrounds/Makefile
 data/pictures/screensaver/Makefile
 data/scripts/Makefile
 data/themes/Makefile
-data/themes/TangoCash/Makefile
+data/themes/TangoCash-Skin1/Makefile
+data/themes/TangoCash-Skin2/Makefile
 data/y-web/Makefile
 data/y-web/images/Makefile
 data/y-web/languages/Makefile

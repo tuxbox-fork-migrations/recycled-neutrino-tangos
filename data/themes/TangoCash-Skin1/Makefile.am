@@ -1,4 +1,4 @@
-installdir = $(THEMESDIR)/TangoCash
+installdir = $(THEMESDIR)/TangoCash-Skin1
 
 install_DATA = \
 	skin.conf \
