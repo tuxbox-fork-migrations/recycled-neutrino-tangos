@@ -502,7 +502,7 @@ void CThemes::getSkin(CConfigFile &configfile)
 	s.currEventFontSize = configfile.getInt32( "currEventFontSize", 14 );
 	s.currEventColor = configfile.getInt32( "currEventColor", 0 );
 	s.BbarEnabled = configfile.getBool( "BbarEnabled", true );
-	s.BbarOffset = configfile.getInt32( "BbarOffset", 35 );
+	s.BbarOffset = configfile.getInt32( "BbarOffset", 5 );
 	s.IconsX = configfile.getInt32( "IconsX", 800 );
 	s.IconsY = configfile.getInt32( "IconsY", 10 );
 }
