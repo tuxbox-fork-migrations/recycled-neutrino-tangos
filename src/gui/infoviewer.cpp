@@ -252,8 +252,8 @@ void CInfoViewer::start ()
 
 	BoxStartX = g_settings.skin.skinEnabled ? g_settings.skin.bgX: g_settings.screen_StartX + 10;
 	BoxEndX =  g_settings.skin.skinEnabled ? (g_settings.skin.bgX + g_settings.skin.bgW) : g_settings.screen_EndX - 10;
-	BoxEndY = g_settings.screen_EndY - 10 - infoViewerBB->InfoHeightY_Info - infoViewerBB->bottom_bar_offset;
-	BoxStartY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.bgH) : BoxEndY - InfoHeightY - ChanHeight / 2;
+	BoxEndY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.bgH) : g_settings.screen_EndY - 10 - infoViewerBB->InfoHeightY_Info - infoViewerBB->bottom_bar_offset;
+	BoxStartY = g_settings.skin.skinEnabled ? g_settings.skin.bgY : BoxEndY - InfoHeightY - ChanHeight / 2;
 
 	ChanNameY = BoxStartY + (ChanHeight / 2)/* + OFFSET_SHADOW*/;	//oberkante schatten?
 	ChanInfoX = BoxStartX;
