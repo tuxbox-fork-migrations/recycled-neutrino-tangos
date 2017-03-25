@@ -1814,9 +1814,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	 */
 
 	int height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
-	int CurrInfoY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.currEventY) : (BoxEndY + ChanNameY + header_height) / 2;
+	int CurrInfoY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.EventsY) : (BoxEndY + ChanNameY + header_height) / 2;
 	int NextInfoY = CurrInfoY/* + height*/;	// lower end of next info box
-	int InfoX = g_settings.skin.skinEnabled ? (g_settings.skin.bgX + g_settings.skin.currEventX) : ChanInfoX + ChanNumWidth + 20;
+	int InfoX = g_settings.skin.skinEnabled ? (g_settings.skin.bgX + g_settings.skin.EventsX) : ChanInfoX + ChanNumWidth + 20;
 
 	int xStart = InfoX;
 	if (starttimes)
