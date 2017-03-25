@@ -473,7 +473,6 @@ void CThemes::getSkin(CConfigFile &configfile)
 	s.ReloadSkin = configfile.getBool( "ReloadSkin", true );
 	s.skinEnabled = configfile.getBool( "skinEnabled", false );
 	s.bgpic = configfile.getString("bgpic","infoviewer.png");
-	s.header_bgpic = configfile.getString("header_bgpic","");
 	s.bgX = configfile.getInt32( "bgX", 0 );
 	s.bgY = configfile.getInt32( "bgY", 0 );
 	s.bgW = configfile.getInt32( "bgW", 1280 );
@@ -496,15 +495,19 @@ void CThemes::getSkin(CConfigFile &configfile)
 	s.channelNameY = configfile.getInt32( "channelNameY", 0 );
 	s.ChannelNameFontSize = configfile.getInt32( "ChannelNameFontSize", 20 );
 	s.channelNameColor = configfile.getInt32( "channelNameColor", 0 );
-	s.currEventX = configfile.getInt32( "currEventX", 0 );
-	s.currEventY = configfile.getInt32( "currEventY", 0 );
-	s.currEventW = configfile.getInt32( "currEventW", 1200 );
-	s.currEventFontSize = configfile.getInt32( "currEventFontSize", 14 );
-	s.currEventColor = configfile.getInt32( "currEventColor", 0 );
-	s.BbarEnabled = configfile.getBool( "BbarEnabled", true );
-	s.BbarOffset = configfile.getInt32( "BbarOffset", 5 );
+	s.EventsX = configfile.getInt32( "EventsX", 0 );
+	s.EventsY = configfile.getInt32( "EventsY", 0 );
+	s.EventsW = configfile.getInt32( "EventsW", 1200 );
+	s.EventsFontSize = configfile.getInt32( "EventsFontSize", 14 );
+	s.EventsColor = configfile.getInt32( "EventsColor", 0 );
 	s.IconsX = configfile.getInt32( "IconsX", 800 );
 	s.IconsY = configfile.getInt32( "IconsY", 10 );
+	s.BbarEnabled = configfile.getBool( "BbarEnabled", true );
+	s.BbarOffset = configfile.getInt32( "BbarOffset", 5 );
+	s.CabarEnabled = configfile.getBool( "CabarEnabled", true );
+	s.CabarOffset = configfile.getInt32( "CabarOffset", 5 );
+	s.header_bgpic = configfile.getString("header_bgpic","");
+	s.header_h = configfile.getInt32( "header_h", 39 );
 }
 
 void CThemes::setSkin(CConfigFile &configfile)
@@ -512,7 +515,6 @@ void CThemes::setSkin(CConfigFile &configfile)
 	configfile.setBool( "ReloadSkin", s.ReloadSkin );
 	configfile.setBool( "skinEnabled", s.skinEnabled );
 	configfile.setString("bgpic", s.bgpic );
-	configfile.setString("header_bgpic", s.header_bgpic );
 	configfile.setInt32( "bgX", s.bgX );
 	configfile.setInt32( "bgY", s.bgY );
 	configfile.setInt32( "bgW", s.bgW );
@@ -535,15 +537,19 @@ void CThemes::setSkin(CConfigFile &configfile)
 	configfile.setInt32( "channelNameY", s.channelNameY );
 	configfile.setInt32( "ChannelNameFontSize", s.ChannelNameFontSize );
 	configfile.setInt32( "channelNameColor", s.channelNameColor );
-	configfile.setInt32( "currEventX", s.currEventX );
-	configfile.setInt32( "currEventY", s.currEventY );
-	configfile.setInt32( "currEventW", s.currEventW );
-	configfile.setInt32( "currEventFontSize", s.currEventFontSize );
-	configfile.setInt32( "currEventColor", s.currEventColor );
-	configfile.setBool( "BbarEnabled", s.BbarEnabled );
-	configfile.setInt32( "BbarOffset", s.BbarOffset );
+	configfile.setInt32( "EventsX", s.EventsX );
+	configfile.setInt32( "EventsY", s.EventsY );
+	configfile.setInt32( "EventsW", s.EventsW );
+	configfile.setInt32( "EventsFontSize", s.EventsFontSize );
+	configfile.setInt32( "EventsColor", s.EventsColor );
 	configfile.setInt32( "IconsX", s.IconsX );
 	configfile.setInt32( "IconsY", s.IconsY );
+	configfile.setBool( "BbarEnabled", s.BbarEnabled );
+	configfile.setInt32( "BbarOffset", s.BbarOffset );
+	configfile.setBool( "CabarEnabled", s.CabarEnabled );
+	configfile.setInt32( "CabarOffset", s.CabarOffset );
+	configfile.setString("header_bgpic", s.header_bgpic );
+	configfile.setInt32( "header_h", s.header_h );
 }
 
 void CThemes::move_userDir()

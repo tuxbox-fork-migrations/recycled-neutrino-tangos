@@ -126,8 +126,8 @@ void CInfoViewerBB::Init()
 	}
 
 	if (g_settings.skin.skinEnabled) {
-		g_settings.infobar_casystem_frame = 1;
-		ca_y_offset = g_settings.skin.BbarEnabled ? OFFSET_INNER_MID : g_settings.skin.BbarOffset;
+		g_settings.infobar_casystem_frame = g_settings.skin.CabarEnabled;
+		ca_y_offset = g_settings.skin.CabarOffset;
 	}
 
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
@@ -179,7 +179,7 @@ void CInfoViewerBB::getBBIconInfo()
 	showBBIcons_width = 0;
 	BBarY 			= g_InfoViewer->BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
-	bbIconMinX 		= g_InfoViewer->BoxEndX - OFFSET_INNER_MID;
+	bbIconMinX 		= g_settings.skin.skinEnabled ? g_settings.skin.bgX + g_settings.skin.IconsX : g_InfoViewer->BoxEndX - OFFSET_INNER_MID;
 	CNeutrinoApp* neutrino	= CNeutrinoApp::getInstance();
 
 	for (int i = 0; i < CInfoViewerBB::ICON_MAX; i++) {
