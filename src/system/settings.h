@@ -167,7 +167,6 @@ struct SNeutrinoSkin
 	int bgW;
 	int bgH;
 	std::string bgpic;
-	std::string header_bgpic;
 	// -- all following coords relativly to background.
 	// -- logo
 	bool logoEnabled;
@@ -193,14 +192,20 @@ struct SNeutrinoSkin
 	int ChannelNameFontSize;
 	fb_pixel_t channelNameColor;
 	// -- curr Next events area
-	int currEventX, currEventY, currEventW, currEventFontSize;
-	fb_pixel_t currEventColor;
+	int EventsX, EventsY, EventsW, EventsFontSize;
+	fb_pixel_t EventsColor;
+
+	int  IconsX;
+	int  IconsY;
 
 	bool BbarEnabled;
 	int  BbarOffset;
 
-	int  IconsX;
-	int  IconsY;
+	bool CabarEnabled;
+	int  CabarOffset;
+
+	std::string header_bgpic;
+	int  header_h;
 };
 
 struct timer_remotebox_item

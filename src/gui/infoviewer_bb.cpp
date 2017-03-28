@@ -107,6 +107,7 @@ void CInfoViewerBB::Init()
 	bbButtonMaxX 		= 0;
 	fta			= true;
 	minX			= 0;
+	ca_y_offset		= 0;
 
 	DecEndx = 0;
 	decode = UNKNOWN;
@@ -124,8 +125,10 @@ void CInfoViewerBB::Init()
 		acc++;
 	}
 
-	if (g_settings.skin.skinEnabled)
-		g_settings.infobar_casystem_frame = 1;
+	if (g_settings.skin.skinEnabled) {
+		g_settings.infobar_casystem_frame = g_settings.skin.CabarEnabled;
+		ca_y_offset = g_settings.skin.CabarOffset;
+	}
 
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		tmp_bbButtonInfoText[i] = "";
@@ -176,7 +179,7 @@ void CInfoViewerBB::getBBIconInfo()
 	showBBIcons_width = 0;
 	BBarY 			= g_InfoViewer->BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
-	bbIconMinX 		= g_InfoViewer->BoxEndX - OFFSET_INNER_MID;
+	bbIconMinX 		= g_settings.skin.skinEnabled ? g_settings.skin.bgX + g_settings.skin.IconsX : g_InfoViewer->BoxEndX - OFFSET_INNER_MID;
 	CNeutrinoApp* neutrino	= CNeutrinoApp::getInstance();
 
 	for (int i = 0; i < CInfoViewerBB::ICON_MAX; i++) {
@@ -827,8 +830,7 @@ void CInfoViewerBB::ShowRecDirScale()
 		//	percent = (int)((u * 100ULL) / t);
 		percent = cHddStat::getInstance()->getPercent();
 		int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2);
-		if (g_settings.skin.skinEnabled && !g_settings.skin.BbarEnabled)
-			py += g_settings.skin.BbarOffset;
+			py += ca_y_offset;
 		int px = (g_InfoViewer->BoxEndX - g_InfoViewer->BoxStartX)/2;
 		if (is_visible) {
 			if (percent >= 0){
@@ -848,8 +850,7 @@ void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_o
 	char buf[20];
 	int endx = g_InfoViewer->BoxEndX - (g_settings.infobar_casystem_frame ? 20 : 10);
 	int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2); /* hand-crafted, should be automatic */
-	if (g_settings.skin.skinEnabled && !g_settings.skin.BbarEnabled)
-		py += g_settings.skin.BbarOffset;
+		py += ca_y_offset;
 	int px = 0;
 	static map<int, std::pair<int,const char*> > icon_map;
 	const int icon_space = 10, icon_number = 11;
@@ -999,12 +1000,14 @@ void CInfoViewerBB::paint_ca_bar()
 {
 	initBBOffset();
 	int ca_width = g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX;
-	int ca_offset = (g_settings.skin.skinEnabled && !g_settings.skin.BbarEnabled) ? g_settings.skin.BbarOffset : 0;
+	int ca_width_offset = g_settings.skin.skinEnabled ? 0 : OFFSET_INNER_MID;
 
 	if (g_settings.infobar_casystem_frame)
 	{
 		if (ca_bar == NULL)
-			ca_bar = new CComponentsShapeSquare(g_InfoViewer->ChanInfoX + OFFSET_INNER_MID, g_InfoViewer->BoxEndY, ca_width - 2*OFFSET_INNER_MID, bottom_bar_offset - OFFSET_INNER_MID, NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
+			ca_bar = new CComponentsShapeSquare(g_InfoViewer->ChanInfoX + ca_width_offset, g_InfoViewer->BoxEndY + ca_y_offset, ca_width - 2*ca_width_offset, bottom_bar_offset - OFFSET_INNER_MID, NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
+		else
+			ca_bar->setDimensionsAll(g_InfoViewer->ChanInfoX + ca_width_offset, g_InfoViewer->BoxEndY + ca_y_offset, ca_width - 2*ca_width_offset, bottom_bar_offset - OFFSET_INNER_MID);
 		ca_bar->enableShadow(CC_SHADOW_ON, OFFSET_SHADOW/2, true);
 		ca_bar->setFrameThickness(2);
 		ca_bar->setCorner(RADIUS_SMALL, CORNER_ALL);
@@ -1123,8 +1126,7 @@ void* CInfoViewerBB::Thread_paint_cam_icons(void)
 	std::stringstream fpath;
 	int emu_pic_startx = g_InfoViewer->ChanInfoX + (g_settings.infobar_casystem_frame ? 20 : 10);
 	int py = g_InfoViewer->BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2);
-	if (g_settings.skin.skinEnabled && !g_settings.skin.BbarEnabled)
-		py += g_settings.skin.BbarOffset;
+		py += ca_y_offset;
 	const char *icon_name[] = {"mgcamd","oscam","gbox"};
 	static int icon_space[] = {14,14,14};
 	int icon_sizeH = 0;
