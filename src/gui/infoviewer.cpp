@@ -252,8 +252,8 @@ void CInfoViewer::start ()
 
 	BoxStartX = g_settings.skin.skinEnabled ? g_settings.skin.bgX: g_settings.screen_StartX + 10;
 	BoxEndX =  g_settings.skin.skinEnabled ? (g_settings.skin.bgX + g_settings.skin.bgW) : g_settings.screen_EndX - 10;
-	BoxEndY = g_settings.screen_EndY - 10 - infoViewerBB->InfoHeightY_Info - infoViewerBB->bottom_bar_offset;
-	BoxStartY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.bgH) : BoxEndY - InfoHeightY - ChanHeight / 2;
+	BoxEndY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.bgH) : g_settings.screen_EndY - 10 - infoViewerBB->InfoHeightY_Info - infoViewerBB->bottom_bar_offset;
+	BoxStartY = g_settings.skin.skinEnabled ? g_settings.skin.bgY : BoxEndY - InfoHeightY - ChanHeight / 2;
 
 	ChanNameY = BoxStartY + (ChanHeight / 2)/* + OFFSET_SHADOW*/;	//oberkante schatten?
 	ChanInfoX = BoxStartX;
@@ -1814,9 +1814,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	 */
 
 	int height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
-	int CurrInfoY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.currEventY) : (BoxEndY + ChanNameY + header_height) / 2;
+	int CurrInfoY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.EventsY) : (BoxEndY + ChanNameY + header_height) / 2;
 	int NextInfoY = CurrInfoY/* + height*/;	// lower end of next info box
-	int InfoX = g_settings.skin.skinEnabled ? (g_settings.skin.bgX + g_settings.skin.currEventX) : ChanInfoX + ChanNumWidth + 20;
+	int InfoX = g_settings.skin.skinEnabled ? (g_settings.skin.bgX + g_settings.skin.EventsX) : ChanInfoX + ChanNumWidth + 20;
 
 	int xStart = InfoX;
 	if (starttimes)
