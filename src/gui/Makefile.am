@@ -94,6 +94,7 @@ libneutrino_gui_a_SOURCES = \
 	streaminfo2.cpp \
 	subchannel_select.cpp \
 	themes.cpp \
+	skins.cpp \
 	timeosd.cpp \
 	tmdb.cpp \
 	update.cpp \

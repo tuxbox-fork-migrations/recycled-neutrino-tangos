@@ -60,6 +60,7 @@
 #include <gui/movieplayer.h>
 #include <gui/infoclock.h>
 #include <gui/themes.h>
+#include <gui/skins.h>
 #include <gui/pictureviewer.h>
 
 #include <system/helpers.h>
@@ -236,7 +237,7 @@ void CInfoViewer::Init()
 */
 void CInfoViewer::start ()
 {
-	if (g_settings.skin.ReloadSkin) CThemes().readSkinFile(g_settings.skinfiles);
+	if (g_settings.skin.ReloadSkin) CSkins().readSkinFile(g_settings.skinfiles);
 	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + 10;
 
 	InfoHeightY = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight() * 9/8 +

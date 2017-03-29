@@ -109,6 +109,7 @@
 #include "gui/pipsetup.h"
 #endif
 #include "gui/themes.h"
+#include "gui/skins.h"
 #include "gui/timerlist.h"
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
@@ -662,7 +663,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//theme/color options
 	CThemes::getTheme(configfile);
 	g_settings.skinfiles = configfile.getString("skinfiles" , "none" );
-	CThemes().readSkinFile(g_settings.skinfiles.c_str());
+	CSkins().readSkinFile(g_settings.skinfiles.c_str());
 	g_settings.osd_colorsettings_advanced_mode = configfile.getBool("osd_colorsettings_advanced_mode", false);
 
 #ifdef ENABLE_GRAPHLCD
