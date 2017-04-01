@@ -1,6 +1,4 @@
 /*
-	$port: themes.h,v 1.6 2010/06/01 19:58:38 tuxbox-cvs Exp $
-	
 	Neutrino-GUI  -   DBoxII-Project
 
 	License: GPL
@@ -19,39 +17,26 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-	Copyright (C) 2007, 2008, 2009 (flasher) Frank Liebelt
+	Copyright (C) 2017 TangoCash
 */
 
-#ifndef __cthemes__
-#define __cthemes__
+#ifndef __cskins__
+#define __cskins__
 #include <string>
 #include <configfile.h>
 #include <system/setting_helpers.h>
 
-class CThemes : public CMenuTarget, CChangeObserver
+class CSkins
 {
 	private:
-		CConfigFile themefile;
-		CColorSetupNotifier *notifier;
-
-		int width;
-		SNeutrinoTheme oldTheme;
-
-		bool hasThemeChanged;
-
-		int Show();
-		void readFile(std::string filename);
-		void saveFile(std::string themename);
-		void readThemes(CMenuWidget &);
-		void rememberOldTheme(bool remember);
-		void move_userDir();
+		CConfigFile skinfile;
 
 	public:
-		CThemes();
-		void setupDefaultColors();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-		static void setTheme(CConfigFile &configfile);
-		static void getTheme(CConfigFile &configfile);
+		CSkins();
+		void readFile(std::string filename);
+		void readSkinFile(std::string filename);
+		static void setSkin(CConfigFile &configfile);
+		static void getSkin(CConfigFile &configfile);
 };
 
 #endif
