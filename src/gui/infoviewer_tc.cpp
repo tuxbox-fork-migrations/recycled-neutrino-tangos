@@ -91,7 +91,6 @@ extern cVideo * videoDecoder;
 #define COL_INFOBAR_BUTTONS_BACKGROUND (COL_MENUFOOT_PLUS_0)
 #define NEUTRINO_ICON_LOGO "/tmp/logo.png"
 #define INFOFILE "/tmp/infobar.txt"
-#define LEFT_OFFSET 10
 
 event_id_t CInfoViewer::last_curr_id = 0, CInfoViewer::last_next_id = 0;
 
@@ -604,9 +603,9 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
 	int ChannelLogoMode = 0;
 	if (g_settings.infobar_show_channellogo > 1)
-		ChannelLogoMode = showChannelLogo(current_channel_id, BoxEndX - (ChanInfoX + 10) - time_width - LEFT_OFFSET - 5 - showBBIcons_width);
+		ChannelLogoMode = showChannelLogo(current_channel_id, BoxEndX - (ChanInfoX + 10) - time_width - OFFSET_INNER_MID - 5 - showBBIcons_width);
 	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanInfoX + 10 , ChanNameY + header_height,BoxEndX - (ChanInfoX + 10) - time_width - LEFT_OFFSET - 5 - showBBIcons_width,ChannelName, COL_INFOBAR_TEXT, 0, renderFlag);
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanInfoX + 10 , ChanNameY + header_height,BoxEndX - (ChanInfoX + 10) - time_width - OFFSET_INNER_MID - 5 - showBBIcons_width,ChannelName, COL_INFOBAR_TEXT, 0, renderFlag);
 
 	// show_Data
 	if (CMoviePlayerGui::getInstance().file_prozent > 100)
@@ -811,7 +810,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	{
 		//char strChanNum[10];
 		snprintf (strChanNum, sizeof(strChanNum), "%d", ChanNum);
-		ChannelLogoMode = showChannelLogo(current_channel_id, BoxEndX - (ChanInfoX + 10) - time_width - LEFT_OFFSET - 5 - showBBIcons_width);
+		ChannelLogoMode = showChannelLogo(current_channel_id, BoxEndX - (ChanInfoX + 10) - time_width - OFFSET_INNER_MID - 5 - showBBIcons_width);
 		logo_ok = ( g_settings.infobar_show_channellogo != 0 && ChannelLogoMode != 0);
 		//fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
 
@@ -842,7 +841,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 			fb_pixel_t color = g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_TEXT : COL_INFOBAR_TEXT;
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
 				ChanInfoX + 10, ChanNameY + header_height,
-				BoxEndX - (ChanInfoX + 10) - time_width - LEFT_OFFSET - 5 - showBBIcons_width,
+				BoxEndX - (ChanInfoX + 10) - time_width - OFFSET_INNER_MID - 5 - showBBIcons_width,
 				ChannelName, color , 0, renderFlag);	// UTF-8
 		}
 	}
@@ -1984,6 +1983,7 @@ void CInfoViewer::killInfobarText()
 			infobar_txt->kill();
 		delete infobar_txt;
 		infobar_txt = NULL;
+		showRecords();
 	}
 }
 
@@ -2345,7 +2345,7 @@ void CInfoViewer::getIconInfo()
 	showBBIcons_width = 0;
 	BBarY 			= BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
-	bbIconMinX 		= BoxEndX - OFFSET_INNER_MID;
+	bbIconMinX 		= BoxEndX - 2*OFFSET_INNER_MID;
 	CNeutrinoApp* neutrino	= CNeutrinoApp::getInstance();
 
 	for (int i = 0; i < CInfoViewer::ICON_MAX; i++)
