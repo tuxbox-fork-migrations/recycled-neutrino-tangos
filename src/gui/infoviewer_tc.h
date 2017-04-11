@@ -92,7 +92,6 @@ private:
     int            ChanNameX;
     int            ChanNumWidth;
     int            ChanWidth;
-    int            numbox_offset;
 
     int            ana_clock_size;
     char		   strChanNum[10];
@@ -120,6 +119,7 @@ private:
 
     int lasttime;
     CProgressBar *timescale;
+	CProgressBar *hddscale;
 
     bool casysChange;
     bool channellogoChange;
@@ -138,7 +138,6 @@ private:
                       bool update_current = true, bool update_next = true);
     void initClock();
     void showRecordIcon(const bool show);
-    void showIcon_Tuner() const;
 
     void showFailure();
     void showMotorMoving(int duration);
@@ -222,11 +221,10 @@ private:
     bool scrambledNoSig, scrambledNoSigSave;
     pthread_t scrambledT;
 
-    CProgressBar *hddscale, *sysscale;
     void paintFoot(int w = 0);
-    void showBBIcons(const int modus, const std::string & icon);
-    void getBBIconInfo(void);
-    bool checkBBIcon(const char * const icon, int *w, int *h);
+    void showIcons(const int modus, const std::string & icon);
+    bool checkIcon(const char * const icon, int *w, int *h);
+    void getIconInfo(void);
 
     void paint_ca_icons(int, const char*, int&);
     void paint_ca_bar();
@@ -234,9 +232,6 @@ private:
 
     static void* scrambledThread(void *arg);
     void scrambledCheck(bool force=false);
-
-    void showBarSys(int percent = 0);
-    void showBarHdd(int percent = 0);
 
 public:
     bool     chanready;
@@ -341,11 +336,13 @@ public:
     void showIcon_Update(bool);
     void showIcon_Logo();
     void showIcon_DD(void);
-    void show_clock(int posx,int posy,int dia);
+	void showIcon_Tuner() const;
+
+    void showClock_analog(int posx,int posy,int dia);
     void showScale_RecordingDir();
-    void showBBButtons(bool paintFooter = false);
+    void showButtons(bool paintFooter = false);
     void paintshowButtonBar();
-    void getBBButtonInfo(void);
+    void getButtonInfo(void);
     void initBBOffset(void);
     // modules
     CComponentsShapeSquare* getFooter(void)
