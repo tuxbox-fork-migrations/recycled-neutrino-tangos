@@ -54,10 +54,10 @@ public:
     {
         // The order of icons from left to right. Here nothing changes!
         BUTTON_RED	= 0,
-        BUTTON_GREEN	= 1,
-        BUTTON_YELLOW	= 2,
-        BUTTON_BLUE	= 3,
-        BUTTON_MAX	= 4
+        BUTTON_GREEN,
+        BUTTON_YELLOW,
+        BUTTON_BLUE,
+        BUTTON_MAX
     };
 private:
 
@@ -65,6 +65,8 @@ private:
     CComponentsFrmClock *clock;
     CComponentsShapeSquare *header, *body, *rec, *foot, *ca_bar;
     CComponentsTextTransp *txt_cur_start, *txt_cur_event, *txt_cur_event_rest, *txt_next_start, *txt_next_event, *txt_next_in;
+    CComponentsInfoBox *infobar_txt;
+    CComponentsWindowMax *ecmInfoBox;
 
     bool           gotTime;
     bool           recordModeActive;
@@ -90,11 +92,12 @@ private:
     std::string ChannelName;
 
     int            ChanNameX;
-    int            ChanNumWidth;
     int            ChanWidth;
 
     int            ana_clock_size;
+
     char		   strChanNum[10];
+    int            ChanNumWidth;
     void           PaintChanNumber();
 
     CSectionsdClient::CurrentNextInfo info_CurrentNext;
@@ -102,7 +105,6 @@ private:
     t_channel_id   current_channel_id;
     t_channel_id   current_epg_id;
 
-    //uint32_t           fadeTimer;
     COSDFader	fader;
 
     int time_height;
@@ -117,7 +119,6 @@ private:
     CChannelEventList               evtlist;
     CChannelEventList::iterator     eli;
 
-    int lasttime;
     CProgressBar *timescale;
 	CProgressBar *hddscale;
 
@@ -146,9 +147,6 @@ private:
     void showRadiotext();
     void killRadiotext();
 
-    //small infobox, shows a small textbox with a short message text,
-    //text must be located in a file named /tmp/infobar.txt
-    CComponentsInfoBox *infobar_txt;
     void showInfoFile();
     void killInfobarText();
 
@@ -160,8 +158,6 @@ private:
     void check_channellogo_ca_SettingsChange();
     void sendNoEpg(const t_channel_id channel_id);
     bool showLivestreamInfo();
-
-    CComponentsWindowMax *ecmInfoBox;
 
     enum
     {

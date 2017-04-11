@@ -123,7 +123,6 @@ CInfoViewer::CInfoViewer ()
     ChanHeight = 0;
     time_width = 0;
     time_height = header_height = 0;
-    lasttime = 0;
     aspectRatio = 0;
     ChanInfoX = 0;
     oldinfo.current_uniqueKey = 0;
@@ -338,8 +337,6 @@ void CInfoViewer::showRecordIcon (const bool show)
         std::string Icon_Rec = NEUTRINO_ICON_REC_GRAY, Icon_Ts = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
         t_channel_id cci	= g_RemoteControl->current_channel_id;
 
-        /* global record mode */
-        int rec_mode 		= crm->GetRecordMode();
         /* channel record mode */
         int ccrec_mode 		= crm->GetRecordMode(cci);
 
@@ -350,13 +347,9 @@ void CInfoViewer::showRecordIcon (const bool show)
         if (ccrec_mode & CRecordManager::RECMODE_REC)
             Icon_Rec	= NEUTRINO_ICON_REC;
 
-        int records		= crm->GetRecordCount();
-
-
-        const int ChanName_X = BoxStartX + ChanWidth + OFFSET_SHADOW;
         const int icon_space = 3;
         const int box_posY = infobar_txt ? (infobar_txt->getHeight()*-1)-5: -5;
-        int box_len = 0, rec_icon_posX = 0, ts_icon_posX = 0;
+        int box_len = 0;
 
         int rec_icon_w = 0, rec_icon_h = 0, ts_icon_w = 0, ts_icon_h = 0;
         frameBuffer->getIconSize(Icon_Rec.c_str(), &rec_icon_w, &rec_icon_h);
@@ -713,7 +706,6 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
     int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
 
     std::string Channel = channel->getName();
-    t_satellite_position satellitePosition = channel->getSatellitePosition();
     t_channel_id new_channel_id = channel->getChannelID();
     int ChanNum = channel->number;
 
@@ -746,7 +738,6 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
     is_visible = true;
 
     fb_pixel_t col_NumBoxText = COL_INFOBAR_TEXT;
-    fb_pixel_t col_NumBox = COL_INFOBAR_PLUS_0;
     ChannelName = Channel;
     bool new_chan = false;
 
@@ -801,7 +792,6 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
     {
         //char strChanNum[10];
         snprintf (strChanNum, sizeof(strChanNum), "%d", ChanNum);
-        const int channel_number_width =(g_settings.infobar_show_channellogo == 6) ? 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (strChanNum) : 0;
         ChannelLogoMode = showChannelLogo(current_channel_id, BoxEndX - (ChanInfoX + 10) - time_width - LEFT_OFFSET - 5 - showBBIcons_width);
         logo_ok = ( g_settings.infobar_show_channellogo != 0 && ChannelLogoMode != 0);
         //fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
@@ -1694,8 +1684,6 @@ void CInfoViewer::display_Info(const char *current, const char *next,
             pb_startx = xStart;
             pb_w = BoxEndX - 10 - xStart;
         }
-        int tmpY = CurrInfoY - height - ChanNameY + header_height -
-                   g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset()/3+OFFSET_SHADOW;
 
         pb_starty = CurrInfoY + ((pb_h / 3)-(pb_h/5)) ;
         pb_h = (pb_h/5);
@@ -1993,9 +1981,6 @@ void CInfoViewer::showInfoFile()
         killInfobarText();
         return;
     }
-
-    //get width of progressbar timescale
-    int pb_w = 0;
 
     //set position of info area
     const int xStart	= ChanInfoX;
@@ -2533,7 +2518,7 @@ void CInfoViewer::getButtonInfo()
     }
 }
 
-void CInfoViewer::showButtons(bool paintFooter)
+void CInfoViewer::showButtons(bool)
 {
     if (!is_visible)
         return;
@@ -2561,8 +2546,6 @@ void CInfoViewer::showButtons(bool paintFooter)
     if (paint)
     {
         paintFoot(BoxEndX - BoxStartX - ChanInfoX);
-
-        int last_x = minX;
 
         for (i = BUTTON_MAX; i > 0;)
         {
@@ -2873,11 +2856,7 @@ void CInfoViewer::showScale_RecordingDir()
 {
     if (g_settings.infobar_show_sysfs_hdd)
     {
-        int percent = 0;
-        uint64_t t, u;
-        //if (get_fs_usage(g_settings.network_nfs_recordingdir.c_str(), t, u))
-        //	percent = (int)((u * 100ULL) / t);
-        percent = cHddStat::getInstance()->getPercent();
+        int percent = cHddStat::getInstance()->getPercent();
         int py = BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2);
         int px = (BoxEndX - BoxStartX)/2;
         if (is_visible)
