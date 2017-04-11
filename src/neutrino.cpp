@@ -2569,7 +2569,8 @@ TIMER_START();
 	SHTDCNT::getInstance()->init();
 
 	cSysLoad::getInstance();
-	//cHddStat::getInstance();
+	if ((g_settings.infobar_casystem_display < 2) && g_settings.infobar_show_sysfs_hdd)
+		cHddStat::getInstance();
 
 TIMER_STOP("################################## after all ##################################");
 	if (g_settings.softupdate_autocheck) {
@@ -4030,7 +4031,7 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 	frameBuffer->paintBackground();
 	frameBuffer->showFrame("shutdown.jpg");
 
-	//delete cHddStat::getInstance();
+	delete cHddStat::getInstance();
 	delete CRecordManager::getInstance();
 
 	CEpgScan::getInstance()->Stop();
@@ -4889,7 +4890,7 @@ void stop_daemons(bool stopall, bool for_flash)
 	}
 
 	if (for_flash) {
-		//delete cHddStat::getInstance();
+		delete cHddStat::getInstance();
 		delete CRecordManager::getInstance();
 		delete videoDemux;
 		int ret = my_system(4, "mount", "-no", "remount,ro", "/");
@@ -4911,7 +4912,7 @@ void sighandler (int signum)
 	switch (signum) {
 	case SIGTERM:
 	case SIGINT:
-		//delete cHddStat::getInstance();
+		delete cHddStat::getInstance();
 		delete CRecordManager::getInstance();
 		//CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		stop_daemons();
