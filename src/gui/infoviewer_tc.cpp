@@ -1460,7 +1460,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
         {
             if (is_visible && showButtonBar)
             {
-                showIcon_VTXT();
                 showIcon_SubT();
                 //showIcon_CA_Status(0);
                 showIcon_Resolution();
@@ -2355,10 +2354,6 @@ void CInfoViewer::getBBIconInfo()
             if (neutrino->getMode() != NeutrinoMessages::mode_radio)
                 iconView = checkBBIcon(NEUTRINO_ICON_SUBT, &w, &h);
             break;
-        case CInfoViewer::ICON_VTXT:  //no radio
-            if (neutrino->getMode() != NeutrinoMessages::mode_radio)
-                iconView = checkBBIcon(NEUTRINO_ICON_VTXT, &w, &h);
-            break;
         case CInfoViewer::ICON_RT:
             if ((neutrino->getMode() == NeutrinoMessages::mode_radio) && g_settings.radiotext_enable)
                 iconView = checkBBIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
@@ -2634,16 +2629,14 @@ void CInfoViewer::paintshowButtonBar()
         paint_cam_icons();
     // Icons, starting from right
     showIcon_SubT();
-    showIcon_VTXT();
     showIcon_DD();
     showIcon_16_9();
     showIcon_CA_Status(0);
     showIcon_Resolution();
     showIcon_Tuner();
     showIcon_Logo();
-    //showSysfsHdd();
     if (g_settings.infobar_casystem_display < 2)
-        ShowRecDirScale();
+        showScale_RecordingDir();
 }
 
 void CInfoViewer::showIcon_Update(bool show)
@@ -2672,7 +2665,6 @@ void CInfoViewer::paintFoot(int w)
 
 void CInfoViewer::showIcon_SubT()
 {
-    return;
     if (!is_visible)
         return;
     bool have_sub = false;
@@ -2681,13 +2673,6 @@ void CInfoViewer::showIcon_SubT()
         have_sub = true;
 
     showBBIcons(CInfoViewer::ICON_SUBT, (have_sub) ? NEUTRINO_ICON_SUBT : NEUTRINO_ICON_SUBT_GREY);
-}
-
-void CInfoViewer::showIcon_VTXT()
-{
-    if (!is_visible)
-        return;
-    showBBIcons(CInfoViewer::ICON_VTXT, (g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0) ? NEUTRINO_ICON_VTXT : NEUTRINO_ICON_VTXT_GREY);
 }
 
 void CInfoViewer::showIcon_DD()
@@ -2849,26 +2834,6 @@ void CInfoViewer::showIcon_Tuner()
     showBBIcons(CInfoViewer::ICON_TUNER, icon_name);
 }
 
-void CInfoViewer::showSysfsHdd()
-{
-    return;
-    if (g_settings.infobar_show_sysfs_hdd)
-    {
-        //sysFS info
-        int percent = 0;
-        uint64_t t, u;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-        if (get_fs_usage("/var", t, u))
-#else
-        if (get_fs_usage("/", t, u))
-#endif
-            percent = (int)((u * 100ULL) / t);
-        showBarSys(percent);
-
-        showBarHdd(cHddStat::getInstance()->getPercent());
-    }
-}
-
 void CInfoViewer::showBarSys(int percent)
 {
     if (is_visible)
@@ -2945,7 +2910,7 @@ void CInfoViewer::show_clock(int posx,int posy,int dia)
     frameBuffer->paintLine(posx,posy,posx+sx,posy+sy,COL_COLORED_EVENTS_TEXT);
 }
 
-void CInfoViewer::ShowRecDirScale()
+void CInfoViewer::showScale_RecordingDir()
 {
     if (g_settings.infobar_show_sysfs_hdd)
     {

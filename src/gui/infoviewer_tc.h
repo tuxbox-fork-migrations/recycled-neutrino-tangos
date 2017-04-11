@@ -168,16 +168,15 @@ private:
     {
         // The order of icons from right to left. Here nothing changes!
         ICON_SUBT	= 0,
-        ICON_VTXT	= 1,
-        ICON_RT		= 2,
-        ICON_DD		= 3,
-        ICON_16_9	= 4,
-        ICON_RES	= 5,
-        ICON_CA		= 6,
-        ICON_TUNER	= 7,
-        ICON_UPDATE	= 8,
-        ICON_LOGO	= 9,
-        ICON_MAX	= 10
+        ICON_RT,
+        ICON_DD,
+        ICON_16_9,
+        ICON_RES,
+        ICON_CA,
+        ICON_TUNER,
+        ICON_UPDATE,
+        ICON_LOGO,
+        ICON_MAX
     };
 
     typedef struct
@@ -333,19 +332,17 @@ public:
 
     int bottom_bar_offset, InfoHeightY_Info, showBBIcons_width;
 
-    void showSysfsHdd(void);
     void showIcon_CA_Status(int);
     void showIcon_16_9();
     void showIcon_RadioText(bool rt_available);
-    void showIcon_VTXT();
     void showIcon_SubT();
     void showIcon_Resolution();
     void showIcon_Tuner(void);
     void showIcon_Update(bool);
     void showIcon_Logo();
-    void show_clock(int posx,int posy,int dia);
-    void ShowRecDirScale();
     void showIcon_DD(void);
+    void show_clock(int posx,int posy,int dia);
+    void showScale_RecordingDir();
     void showBBButtons(bool paintFooter = false);
     void paintshowButtonBar();
     void getBBButtonInfo(void);
