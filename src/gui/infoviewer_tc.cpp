@@ -40,6 +40,8 @@
 #include "infoviewer_tc.h"
 
 #include <algorithm>
+#include <time.h>
+#include <math.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -119,7 +121,6 @@ CInfoViewer::CInfoViewer ()
     ChanNameY = 0;
     ChanWidth = 0;
     ChanHeight = 0;
-    numbox_offset = 0;
     time_width = 0;
     time_height = header_height = 0;
     lasttime = 0;
@@ -140,7 +141,6 @@ CInfoViewer::CInfoViewer ()
     scrambledNoSigSave	= false;
     scrambledT		= 0;
     hddscale 		= NULL;
-    sysscale 		= NULL;
     bbIconInfo[0].x = 0;
     bbIconInfo[0].h = 0;
     BBarY = 0;
@@ -281,7 +281,6 @@ void CInfoViewer::start ()
     ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/* * 9/8*/;
     ChanHeight += g_SignalFont->getHeight()/2;
     ChanHeight = max(75, ChanHeight);
-    numbox_offset = 3;
 
     BoxStartX = g_settings.screen_StartX + 10;
     BoxEndX = g_settings.screen_EndX - 10;
@@ -582,7 +581,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
     showRecordIcon (show_dot);
     ana_clock_size = (BoxEndY - (ChanNameY + header_height) - 6);
     if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
-        show_clock(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
+        showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
     show_dot = !show_dot;
 
     ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth("888") + 5;
@@ -682,8 +681,6 @@ void CInfoViewer::reset_allScala()
 {
     changePB();
     hddscale->reset();
-    sysscale->reset();
-    //lasthdd = lastsys = -1;
     if(!clock)
         initClock();
 }
@@ -789,7 +786,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
     showRecordIcon (show_dot);
     ana_clock_size = (BoxEndY - (ChanNameY + header_height) - 6);
     if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
-        show_clock(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
+        showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
     show_dot = !show_dot;
 
     if (showButtonBar)
@@ -965,7 +962,7 @@ bool CInfoViewer::showLivestreamInfo()
             display_Info(livestreamInfo1.c_str(), livestreamInfo2.c_str(), false);
             _livestreamInfo1 = livestreamInfo1;
             _livestreamInfo2 = livestreamInfo2;
-            showBBButtons(true /*paintFooter*/);
+            showButtons(true /*paintFooter*/);
         }
         return true;
     }
@@ -1096,7 +1093,7 @@ void CInfoViewer::loop(bool show_dot)
                 show_dot = !show_dot;
                 showInfoFile();
                 if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
-                    show_clock(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
+                    showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
                 if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio))
                     showRadiotext();
 
@@ -1532,7 +1529,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
             {
                 showIcon_DD();
                 showLivestreamInfo();
-                showBBButtons(true /*paintFooter*/); // in case button text has changed
+                showButtons(true /*paintFooter*/); // in case button text has changed
             }
             if (g_settings.radiotext_enable && g_Radiotext && !g_RemoteControl->current_PIDs.APIDs.empty() && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio))
                 g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
@@ -1544,7 +1541,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
         if ((*(t_channel_id *) data) == current_channel_id)
         {
             if (is_visible && showButtonBar)
-                showBBButtons(true /*paintFooter*/); // in case button text has changed
+                showButtons(true /*paintFooter*/); // in case button text has changed
         }
         return messages_return::handled;
     }
@@ -1912,7 +1909,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 
     if (showButtonBar)
     {
-        showBBButtons(calledFromEvent);
+        showButtons(calledFromEvent);
     }
 
     if ((info_CurrentNext.flags & CSectionsdClient::epgflags::not_broadcast) ||
@@ -2228,11 +2225,6 @@ void CInfoViewer::ResetModules(bool kill)
         delete hddscale;
         hddscale = NULL;
     }
-    if (sysscale)
-    {
-        delete sysscale;
-        sysscale = NULL;
-    }
     if (foot)
     {
         delete foot;
@@ -2326,7 +2318,7 @@ void CInfoViewer::ecmInfoBox_hide()
 
 /*#############################################################################*/
 
-bool CInfoViewer::checkBBIcon(const char * const icon, int *w, int *h)
+bool CInfoViewer::checkIcon(const char * const icon, int *w, int *h)
 {
     frameBuffer->getIconSize(icon, w, h);
     if ((*w != 0) && (*h != 0))
@@ -2334,7 +2326,7 @@ bool CInfoViewer::checkBBIcon(const char * const icon, int *w, int *h)
     return false;
 }
 
-void CInfoViewer::getBBIconInfo()
+void CInfoViewer::getIconInfo()
 {
     initBBOffset();
     bbIconMaxH 		= 0;
@@ -2352,39 +2344,39 @@ void CInfoViewer::getBBIconInfo()
         {
         case CInfoViewer::ICON_SUBT:  //no radio
             if (neutrino->getMode() != NeutrinoMessages::mode_radio)
-                iconView = checkBBIcon(NEUTRINO_ICON_SUBT, &w, &h);
+                iconView = checkIcon(NEUTRINO_ICON_SUBT, &w, &h);
             break;
         case CInfoViewer::ICON_RT:
             if ((neutrino->getMode() == NeutrinoMessages::mode_radio) && g_settings.radiotext_enable)
-                iconView = checkBBIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
+                iconView = checkIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
             break;
         case CInfoViewer::ICON_DD:
             if( g_settings.infobar_show_dd_available )
-                iconView = checkBBIcon(NEUTRINO_ICON_DD, &w, &h);
+                iconView = checkIcon(NEUTRINO_ICON_DD, &w, &h);
             break;
         case CInfoViewer::ICON_16_9:  //no radio
             if (neutrino->getMode() != NeutrinoMessages::mode_radio)
-                iconView = checkBBIcon(NEUTRINO_ICON_16_9, &w, &h);
+                iconView = checkIcon(NEUTRINO_ICON_16_9, &w, &h);
             break;
         case CInfoViewer::ICON_RES:  //no radio
             if ((g_settings.infobar_show_res < 2) && (neutrino->getMode() != NeutrinoMessages::mode_radio))
-                iconView = checkBBIcon(NEUTRINO_ICON_RESOLUTION_1280, &w, &h);
+                iconView = checkIcon(NEUTRINO_ICON_RESOLUTION_1280, &w, &h);
             break;
         case CInfoViewer::ICON_CA:
             if (g_settings.infobar_casystem_display == 2)
-                iconView = checkBBIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
+                iconView = checkIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
             break;
         case CInfoViewer::ICON_TUNER:
             if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBTV(get_current_channel_id()))
-                iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
+                iconView = checkIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
             break;
         case CInfoViewer::ICON_UPDATE:
             if ((access("/tmp/.update_avail", F_OK) == 0))
-                iconView = checkBBIcon(NEUTRINO_ICON_UPDATE_AVAIL, &w, &h);
+                iconView = checkIcon(NEUTRINO_ICON_UPDATE_AVAIL, &w, &h);
             break;
         case CInfoViewer::ICON_LOGO:
             if ((access(NEUTRINO_ICON_LOGO, F_OK) == 0))
-                iconView = checkBBIcon(NEUTRINO_ICON_LOGO, &w, &h);
+                iconView = checkIcon(NEUTRINO_ICON_LOGO, &w, &h);
             break;
         default:
             break;
@@ -2410,7 +2402,7 @@ void CInfoViewer::getBBIconInfo()
         bbIconMinX -= hddwidth + OFFSET_INNER_MIN;
 }
 
-void CInfoViewer::getBBButtonInfo()
+void CInfoViewer::getButtonInfo()
 {
     bbButtonMaxH = 0;
     bbButtonMaxX = ChanInfoX;
@@ -2541,7 +2533,7 @@ void CInfoViewer::getBBButtonInfo()
     }
 }
 
-void CInfoViewer::showBBButtons(bool paintFooter)
+void CInfoViewer::showButtons(bool paintFooter)
 {
     if (!is_visible)
         return;
@@ -2556,7 +2548,7 @@ void CInfoViewer::showBBButtons(bool paintFooter)
     else
         isVolscale = false;
 
-    getBBButtonInfo();
+    getButtonInfo();
     for (i = 0; i < CInfoViewer::BUTTON_MAX; i++)
     {
         if (tmp_bbButtonInfoText[i] != bbButtonInfo[i].text)
@@ -2595,7 +2587,7 @@ void CInfoViewer::showBBButtons(bool paintFooter)
         CVolume::getInstance()->showVolscale();
 }
 
-void CInfoViewer::showBBIcons(const int modus, const std::string & icon)
+void CInfoViewer::showIcons(const int modus, const std::string & icon)
 {
     if ((bbIconInfo[modus].x <= ChanInfoX) || (bbIconInfo[modus].x >= BoxEndX))
         return;
@@ -2610,7 +2602,7 @@ void CInfoViewer::paintshowButtonBar()
 {
     if (!is_visible)
         return;
-    getBBIconInfo();
+    getIconInfo();
     for (int i = 0; i < CInfoViewer::BUTTON_MAX; i++)
     {
         tmp_bbButtonInfoText[i] = "";
@@ -2623,7 +2615,7 @@ void CInfoViewer::paintshowButtonBar()
     paintFoot();
 
     // Buttons
-    showBBButtons();
+    showButtons();
 
     if (g_settings.infobar_casystem_display < 2)
         paint_cam_icons();
@@ -2641,12 +2633,12 @@ void CInfoViewer::paintshowButtonBar()
 
 void CInfoViewer::showIcon_Update(bool show)
 {
-    showBBIcons(CInfoViewer::ICON_UPDATE, show ? NEUTRINO_ICON_UPDATE_AVAIL : NEUTRINO_ICON_UPDATE_AVAIL_GREY);
+    showIcons(CInfoViewer::ICON_UPDATE, show ? NEUTRINO_ICON_UPDATE_AVAIL : NEUTRINO_ICON_UPDATE_AVAIL_GREY);
 }
 
 void CInfoViewer::showIcon_Logo()
 {
-    showBBIcons(CInfoViewer::ICON_LOGO, NEUTRINO_ICON_LOGO);
+    showIcons(CInfoViewer::ICON_LOGO, NEUTRINO_ICON_LOGO);
 }
 
 void CInfoViewer::paintFoot(int w)
@@ -2672,7 +2664,7 @@ void CInfoViewer::showIcon_SubT()
     if (cc && cc->getSubtitleCount())
         have_sub = true;
 
-    showBBIcons(CInfoViewer::ICON_SUBT, (have_sub) ? NEUTRINO_ICON_SUBT : NEUTRINO_ICON_SUBT_GREY);
+    showIcons(CInfoViewer::ICON_SUBT, (have_sub) ? NEUTRINO_ICON_SUBT : NEUTRINO_ICON_SUBT_GREY);
 }
 
 void CInfoViewer::showIcon_DD()
@@ -2686,7 +2678,7 @@ void CInfoViewer::showIcon_DD()
     else
         dd_icon = g_RemoteControl->has_ac3 ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
 
-    showBBIcons(CInfoViewer::ICON_DD, dd_icon);
+    showIcons(CInfoViewer::ICON_DD, dd_icon);
 }
 
 void CInfoViewer::showIcon_RadioText(bool rt_available)
@@ -2700,7 +2692,7 @@ void CInfoViewer::showIcon_RadioText(bool rt_available)
     else
         rt_icon = NEUTRINO_ICON_RADIOTEXTOFF;
 
-    showBBIcons(CInfoViewer::ICON_RT, rt_icon);
+    showIcons(CInfoViewer::ICON_RT, rt_icon);
 }
 
 void CInfoViewer::showIcon_16_9()
@@ -2716,7 +2708,7 @@ void CInfoViewer::showIcon_16_9()
         else
             aspectRatio = 0;
 
-        showBBIcons(CInfoViewer::ICON_16_9, (aspectRatio > 2) ? NEUTRINO_ICON_16_9 : NEUTRINO_ICON_16_9_GREY);
+        showIcons(CInfoViewer::ICON_16_9, (aspectRatio > 2) ? NEUTRINO_ICON_16_9 : NEUTRINO_ICON_16_9_GREY);
     }
 }
 
@@ -2799,14 +2791,14 @@ void CInfoViewer::showIcon_Resolution()
                 icon_name = NEUTRINO_ICON_RESOLUTION_000;
         }
     }
-    showBBIcons(CInfoViewer::ICON_RES, icon_name);
+    showIcons(CInfoViewer::ICON_RES, icon_name);
 }
 
 void CInfoViewer::showOne_CAIcon()
 {
     std::string sIcon = "";
     sIcon = (fta) ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2;
-    showBBIcons(CInfoViewer::ICON_CA, sIcon);
+    showIcons(CInfoViewer::ICON_CA, sIcon);
 }
 
 void CInfoViewer::showIcon_Tuner()
@@ -2831,43 +2823,10 @@ void CInfoViewer::showIcon_Tuner()
         icon_name = NEUTRINO_ICON_TUNER_1;
         break;
     }
-    showBBIcons(CInfoViewer::ICON_TUNER, icon_name);
+    showIcons(CInfoViewer::ICON_TUNER, icon_name);
 }
 
-void CInfoViewer::showBarSys(int percent)
-{
-    if (is_visible)
-    {
-        sysscale->reset();
-        sysscale->doPaintBg(false);
-        sysscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6);
-        sysscale->setValues(percent, 100);
-        sysscale->paint();
-    }
-}
-
-void CInfoViewer::showBarHdd(int percent)
-{
-    if (is_visible)
-    {
-        hddscale->reset();
-        hddscale->doPaintBg(false);
-        if (percent >= 0)
-        {
-            hddscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6);
-            hddscale->setValues(percent, 100);
-            hddscale->paint();
-        }
-        else
-        {
-            frameBuffer->paintBoxRel(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, COL_INFOBAR_BUTTONS_BACKGROUND);
-        }
-    }
-}
-
-#include <time.h>
-#include <math.h>
-void CInfoViewer::show_clock(int posx,int posy,int dia)
+void CInfoViewer::showClock_analog(int posx,int posy,int dia)
 {
     int ts,tm,th,sx,sy,mx,my,hx,hy;
     double pi = 3.1415926535897932384626433832795, sAngleInRad, mAngleInRad, mAngleSave, hAngleInRad;
@@ -3135,12 +3094,6 @@ void CInfoViewer::changePB()
     {
         hddscale = new CProgressBar();
         hddscale->setType(CProgressBar::PB_REDRIGHT);
-    }
-
-    if (!sysscale)
-    {
-        sysscale = new CProgressBar();
-        sysscale->setType(CProgressBar::PB_REDRIGHT);
     }
 
     ResetPB();
