@@ -64,8 +64,6 @@ libneutrino_gui_a_SOURCES = \
 	followscreenings.cpp \
 	imageinfo.cpp \
 	info_menue.cpp \
-	infoviewer.cpp \
-	infoviewer_bb.cpp \
 	keybind_setup.cpp \
 	mediaplayer.cpp \
 	mediaplayer_setup.cpp \
@@ -108,6 +106,15 @@ libneutrino_gui_a_SOURCES = \
 	zapit_setup.cpp \
 	lcd4l.cpp \
 	lcd4l_setup.cpp
+
+if ENABLE_TANGOS
+libneutrino_gui_a_SOURCES += \
+	infoviewer_tc.cpp
+else
+libneutrino_gui_a_SOURCES += \
+	infoviewer.cpp \
+	infoviewer_bb.cpp
+endif
 
 if BOXTYPE_SPARK
 libneutrino_gui_a_SOURCES += \
