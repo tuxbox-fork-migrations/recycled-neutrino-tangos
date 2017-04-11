@@ -4,6 +4,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	rejoin/cleanup (C) 2017 TangoCash
+
 	Kommentar:
 
 	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -28,9 +30,7 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#if ENABLE_TANGOS
-#include "infoviewer_tc.h"
-#else
+
 
 #ifndef __infoview__
 #define __infoview__
@@ -42,16 +42,26 @@
 #include <string>
 #include <zapit/channel.h>
 #include <gui/components/cc.h>
+#include <driver/fade.h>
+#include "widget/menue.h"
 
 class CFrameBuffer;
 class COSDFader;
-class CInfoViewerBB;
 class CInfoViewer
 {
+ public:
+ 	enum
+	{
+		// The order of icons from left to right. Here nothing changes!
+		BUTTON_RED	= 0,
+		BUTTON_GREEN	= 1,
+		BUTTON_YELLOW	= 2,
+		BUTTON_BLUE	= 3,
+		BUTTON_MAX	= 4
+	};
  private:
 
 	CFrameBuffer * frameBuffer;
-	CInfoViewerBB* infoViewerBB;
 	CComponentsFrmClock *clock;
 	CComponentsShapeSquare *header , *numbox, *body, *rec;
 	CComponentsTextTransp *txt_cur_start, *txt_cur_event, *txt_cur_event_rest, *txt_next_start, *txt_next_event, *txt_next_in;
@@ -156,7 +166,83 @@ class CInfoViewer
 
 	CComponentsWindowMax *ecmInfoBox;
 
- public:
+ 		enum
+		{
+			// The order of icons from right to left. Here nothing changes!
+			ICON_SUBT	= 0,
+			ICON_VTXT	= 1,
+			ICON_RT		= 2,
+			ICON_DD		= 3,
+			ICON_16_9	= 4,
+			ICON_RES	= 5,
+			ICON_CA		= 6,
+			ICON_TUNER	= 7,
+			ICON_UPDATE	= 8,
+			ICON_LOGO	= 9,
+			ICON_MAX	= 10
+		};
+
+		typedef struct
+		{
+			bool paint;
+			int w;
+			int x;
+			int cx;
+			int h;
+			std::string icon;
+			std::string text;
+			bool active;
+		} bbButtonInfoStruct;
+
+		enum CAM_DECODE_NUM {UNKNOWN, NA, FTA, LOCAL, CARD, REMOTE};
+		void 		paint_cam_icons();
+		void*		Thread_paint_cam_icons(void);
+		unsigned short int decode;
+		int		DecEndx;
+		int 		parse_ecmInfo(const char * file);
+		int		check_ecmInfo();
+		bool	camCI;
+		bool	useCI;
+
+		typedef struct
+		{
+			int x;
+			int h;
+		} bbIconInfoStruct;
+
+		bbIconInfoStruct bbIconInfo[ICON_MAX];
+		bbButtonInfoStruct bbButtonInfo[BUTTON_MAX];
+		std::string tmp_bbButtonInfoText[BUTTON_MAX];
+		int bbIconMinX, bbButtonMaxX, bbIconMaxH, bbButtonMaxH;
+
+		int BBarY, BBarFontY;
+		int hddwidth;
+		//int lasthdd, lastsys;
+		bool fta;
+		int minX;
+
+		bool scrambledErr, scrambledErrSave;
+		bool scrambledNoSig, scrambledNoSigSave;
+		pthread_t scrambledT;
+
+		CProgressBar *hddscale, *sysscale;
+		CComponentsShapeSquare *foot, *ca_bar;
+		void paintFoot(int w = 0);
+		void showBBIcons(const int modus, const std::string & icon);
+		void getBBIconInfo(void);
+		bool checkBBIcon(const char * const icon, int *w, int *h);
+
+		void paint_ca_icons(int, const char*, int&);
+		void paint_ca_bar();
+		void showOne_CAIcon();
+
+		static void* scrambledThread(void *arg);
+		void scrambledCheck(bool force=false);
+
+		void showBarSys(int percent = 0);
+		void showBarHdd(int percent = 0);
+
+public:
 	bool     chanready;
 	bool	 is_visible;
 
@@ -229,16 +315,28 @@ class CInfoViewer
 	inline t_channel_id get_current_channel_id(void) { return current_channel_id; }
 	void 	ResetModules(bool kill = false);
 	void	KillModules() {ResetModules(true); };
-};
-#if 0
-class CInfoViewerHandler : public CMenuTarget
-{
-	public:
-		int  exec( CMenuTarget* parent,  const std::string &actionkey);
-		int  doMenu();
 
+	int bottom_bar_offset, InfoHeightY_Info, showBBIcons_width;
+
+	void showSysfsHdd(void);
+	void showIcon_CA_Status(int);
+	void showIcon_16_9();
+	void showIcon_RadioText(bool rt_available);
+	void showIcon_VTXT();
+	void showIcon_SubT();
+	void showIcon_Resolution();
+	void showIcon_Tuner(void);
+	void showIcon_Update(bool);
+	void showIcon_Logo();
+	void show_clock(int posx,int posy,int dia);
+	void ShowRecDirScale();
+	void showIcon_DD(void);
+	void showBBButtons(bool paintFooter = false);
+	void paintshowButtonBar();
+	void getBBButtonInfo(void);
+	void initBBOffset(void);
+	// modules
+	CComponentsShapeSquare* getFooter(void){return foot;}
+	CComponentsShapeSquare* getCABar(void){return ca_bar;}
 };
 #endif
-#endif
-
-#endif //ENABLE_TANGOS
