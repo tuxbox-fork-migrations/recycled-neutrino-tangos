@@ -118,9 +118,8 @@ private:
     CChannelEventList               evtlist;
     CChannelEventList::iterator     eli;
 
-    int lastsnr, lastsig, lasttime;
+    int lasttime;
     CProgressBar *timescale;
-    CSignalBox *sigbox;
 
     bool casysChange;
     bool channellogoChange;
@@ -129,7 +128,6 @@ private:
     std::string _livestreamInfo1;
     std::string _livestreamInfo2;
 
-    void paintBackground(int col_Numbox);
     void paintHead();
     void paintBody();
     void show_Data( bool calledFromEvent = false );
@@ -316,7 +314,6 @@ public:
 
     void    changePB();
     void 	ResetPB();
-    void    showSNR();
     void    Init(void);
     bool    SDT_freq_update;
     void	setUpdateTimer(uint64_t interval);

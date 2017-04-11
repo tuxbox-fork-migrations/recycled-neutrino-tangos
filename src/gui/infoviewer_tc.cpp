@@ -101,8 +101,7 @@ extern bool timeset;
 CInfoViewer::CInfoViewer ()
     : fader(g_settings.theme.infobar_alpha)
 {
-    sigbox = NULL;
-    header = numbox = body = rec = NULL;
+    header = body = rec = NULL;
     txt_cur_start = txt_cur_event = txt_cur_event_rest = txt_next_start = txt_next_event = txt_next_in = NULL;
     timescale = NULL;
     info_CurrentNext.current_zeit.startzeit = 0;
@@ -123,8 +122,6 @@ CInfoViewer::CInfoViewer ()
     numbox_offset = 0;
     time_width = 0;
     time_height = header_height = 0;
-    lastsnr = 0;
-    lastsig = 0;
     lasttime = 0;
     aspectRatio = 0;
     ChanInfoX = 0;
@@ -208,15 +205,6 @@ void CInfoViewer::Init()
     g_settings.infobar_show_dd_available=1;
     g_settings.infobar_show_res=1;
     g_settings.infobar_show_sysfs_hdd=0;
-    // these should be
-    g_settings.infobar_Text_alpha=0;
-    g_settings.infobar_Text_blue=100;
-    g_settings.infobar_Text_green=100;
-    g_settings.infobar_Text_red=100;
-    g_settings.infobar_alpha=20;
-    g_settings.infobar_blue=15;
-    g_settings.infobar_green=15;
-    g_settings.infobar_red=15;
     */
 
     hddwidth		= 0;
@@ -300,7 +288,7 @@ void CInfoViewer::start ()
     BoxEndY = g_settings.screen_EndY - 10 - InfoHeightY_Info - bottom_bar_offset;
     BoxStartY = BoxEndY - InfoHeightY - ChanHeight / 2;
 
-    ChanNameY = BoxStartY + (ChanHeight / 2)/* + OFFSET_SHADOW*/;	//oberkante schatten?
+    ChanNameY = BoxStartY + (ChanHeight / 2);	//oberkante schatten?
     ChanInfoX = BoxStartX;
 
     initClock();
@@ -310,12 +298,6 @@ void CInfoViewer::start ()
 
 void CInfoViewer::ResetPB()
 {
-    if (sigbox)
-    {
-        delete sigbox;
-        sigbox = NULL;
-    }
-
     if (timescale)
     {
         timescale->reset();
@@ -417,21 +399,6 @@ void CInfoViewer::showRecordIcon (const bool show)
             i++;
         }
     }
-}
-
-void CInfoViewer::paintBackground(int col_NumBox)
-{
-    int c_rad_mid = RADIUS_MID;
-    int BoxEndInfoY = BoxEndY;
-    if (showButtonBar) // add button bar and blinkenlights
-        BoxEndInfoY += InfoHeightY_Info + bottom_bar_offset;
-
-    // background for channel name/logo and clock
-    paintHead();
-
-    // background for epg data
-    paintBody();
-
 }
 
 void CInfoViewer::paintHead()
@@ -606,7 +573,8 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
     /* showChannelLogo() changes this, so better reset it every time... */
     ChanNameX = BoxStartX + ChanWidth + OFFSET_SHADOW;
 
-    paintBackground(COL_INFOBAR_PLUS_0);
+    paintHead();
+    paintBody();
 
     bool show_dot = true;
     if (timeset && !g_settings.infobar_anaclock)
@@ -713,7 +681,6 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 void CInfoViewer::reset_allScala()
 {
     changePB();
-    lastsig = lastsnr = -1;
     hddscale->reset();
     sysscale->reset();
     //lasthdd = lastsys = -1;
@@ -813,8 +780,8 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
     /* showChannelLogo() changes this, so better reset it every time... */
     ChanNameX = BoxStartX + ChanWidth + OFFSET_SHADOW;
 
-
-    paintBackground(col_NumBox);
+    paintHead();
+    paintBody();
 
     bool show_dot = true;
     if (timeset && (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers))
@@ -1122,7 +1089,6 @@ void CInfoViewer::loop(bool show_dot)
                 // doesn't belong here, but easiest way to check for a change ...
                 if (is_visible && showButtonBar)
                     showIcon_CA_Status(0);
-                showSNR ();
                 if (timeset && (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers))
                     clock->paint(CC_SAVE_SCREEN_NO);
                 showRecordIcon (show_dot);
@@ -1512,8 +1478,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
     }
     else if (msg == NeutrinoMessages::EVT_ZAP_CA_ID)
     {
-        //chanready = 1;
-        showSNR ();
         if (is_visible && showButtonBar)
             showIcon_CA_Status(0);
         //Set_CA_Status (data);
@@ -1553,7 +1517,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
         }
         else if (data == sec_timer_id)
         {
-            showSNR ();
             return messages_return::handled;
         }
     }
@@ -1588,8 +1551,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
     }
     else if (msg == NeutrinoMessages::EVT_ZAP_SUB_COMPLETE)
     {
-        //chanready = 1;
-        showSNR ();
         //if ((*(t_channel_id *)data) == current_channel_id)
         {
             if (is_visible && showButtonBar && (!g_RemoteControl->are_subchannels))
@@ -1600,8 +1561,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
     }
     else if (msg == NeutrinoMessages::EVT_ZAP_SUB_FAILED)
     {
-        //chanready = 1;
-        showSNR ();
         // show failure..!
         CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')', g_RemoteControl->getCurrentChannelNumber());
         printf ("zap failed!\n");
@@ -1611,8 +1570,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
     }
     else if (msg == NeutrinoMessages::EVT_ZAP_FAILED)
     {
-        //chanready = 1;
-        showSNR ();
         if ((*(t_channel_id *) data) == current_channel_id)
         {
             // show failure..!
@@ -1632,7 +1589,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
     else if (msg == NeutrinoMessages::EVT_TUNE_COMPLETE)
     {
         chanready = 1;
-        showSNR ();
         return messages_return::handled;
     }
     else if (msg == NeutrinoMessages::EVT_MODECHANGED)
@@ -1699,57 +1655,6 @@ void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::Cu
         }
         oldinfo = info;
     }
-}
-
-void CInfoViewer::showSNR ()
-{
-    return;
-    if (! is_visible)
-        return;
-    int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
-    /* right now, infobar_show_channellogo == 3 is the trigger for signal bars etc.
-       TODO: decouple this  */
-    if (!fileplay && !IS_WEBTV(current_channel_id) && ( g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6 ))
-    {
-        int y_freq = 2*g_SignalFont->getHeight();
-        if (!g_settings.infobar_sat_display)
-            y_freq -= g_SignalFont->getHeight()/2; //half line up to center freq vertically
-        int y_numbox = numbox->getYPos();
-        if ((newfreq && chanready) || SDT_freq_update)
-        {
-            char freq[20];
-            newfreq = false;
-
-            std::string polarisation = "";
-
-            if (CFrontend::isSat(CFEManager::getInstance()->getLiveFE()->getCurrentDeliverySystem()))
-                polarisation = transponder::pol(CFEManager::getInstance()->getLiveFE()->getPolarization());
-
-            int frequency = CFEManager::getInstance()->getLiveFE()->getFrequency();
-            snprintf (freq, sizeof(freq), "%d.%d MHz %s", frequency / 1000, frequency % 1000, polarisation.c_str());
-
-            int freqWidth = g_SignalFont->getRenderWidth(freq);
-            if (freqWidth > (ChanWidth - numbox_offset*2))
-                freqWidth = ChanWidth - numbox_offset*2;
-            g_SignalFont->RenderString(BoxStartX + numbox_offset + ((ChanWidth - freqWidth) / 2), y_numbox + y_freq - 3, ChanWidth - 2*numbox_offset, freq, SDT_freq_update ? COL_COLORED_EVENTS_TEXT:COL_INFOBAR_TEXT, 0, renderFlag);
-            SDT_freq_update = false;
-        }
-        if (sigbox == NULL)
-        {
-            int sigbox_offset = ChanWidth *10/100;
-            sigbox = new CSignalBox(BoxStartX + sigbox_offset, y_numbox+ChanHeight/2, ChanWidth - 2*sigbox_offset, ChanHeight/2, NULL, true, NULL, "S", "Q");
-            sigbox->setTextColor(COL_INFOBAR_TEXT);
-            sigbox->setActiveColor(COL_INFOBAR_PLUS_7);
-            sigbox->setPassiveColor(COL_INFOBAR_PLUS_3);
-            sigbox->setColorBody(numbox->getColorBody());
-            sigbox->doPaintBg(false);
-            sigbox->enableTboxSaveScreen(numbox->getColBodyGradientMode());
-        }
-        sigbox->setFrontEnd(CFEManager::getInstance()->getLiveFE());
-        sigbox->paint(CC_SAVE_SCREEN_NO);
-    }
-    if(showButtonBar)
-        showSysfsHdd();
 }
 
 void CInfoViewer::display_Info(const char *current, const char *next,
@@ -2161,7 +2066,6 @@ void CInfoViewer::killTitle()
         {
             if (infobar_txt)
                 infobar_txt->kill();
-            //numbox->kill();
         }
 
         header->kill();
@@ -2316,8 +2220,6 @@ void CInfoViewer::ResetModules(bool kill)
     txt_next_event = NULL;
     delete txt_next_in;
     txt_next_in = NULL;
-    delete numbox;
-    numbox = NULL;
     ResetPB();
     delete rec;
     rec = NULL;
@@ -2724,8 +2626,6 @@ void CInfoViewer::paintshowButtonBar()
         paint_ca_bar();
 
     paintFoot();
-
-    showSNR();
 
     // Buttons
     showBBButtons();
