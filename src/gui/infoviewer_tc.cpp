@@ -64,6 +64,7 @@
 #include <gui/infoclock.h>
 #include <gui/pictureviewer.h>
 #include <gui/keybind_setup.h>
+#include <gui/components/cc_timer.h>
 
 #include <system/helpers.h>
 #include <system/hddstat.h>
@@ -89,6 +90,7 @@ extern cVideo * videoDecoder;
 
 #define COL_INFOBAR_BUTTONS_BACKGROUND (COL_MENUFOOT_PLUS_0)
 #define NEUTRINO_ICON_LOGO "/tmp/logo.png"
+#define INFOFILE "/tmp/infobar.txt"
 #define LEFT_OFFSET 10
 
 event_id_t CInfoViewer::last_curr_id = 0, CInfoViewer::last_next_id = 0;
@@ -131,7 +133,6 @@ CInfoViewer::CInfoViewer ()
     info_time_width = 0;
     timeoutEnd = 0;
     sec_timer_id = 0;
-    spacer = 0;
     ecminfo_toggle = false;
     is_visible		= false;
     scrambledErr		= false;
@@ -146,7 +147,8 @@ CInfoViewer::CInfoViewer ()
     BBarFontY = 0;
     foot			= NULL;
     ca_bar			= NULL;
-
+    recordsbox = NULL;
+    recordsblink = NULL;
     Init();
 }
 
@@ -326,70 +328,87 @@ void CInfoViewer::initClock()
     clock->setTextColor(COL_INFOBAR_TEXT);
 }
 
-void CInfoViewer::showRecordIcon (const bool show)
+void CInfoViewer::showRecords()
 {
-    CRecordManager * crm		= CRecordManager::getInstance();
+    CRecordManager * crm	= CRecordManager::getInstance();
 
-    recordModeActive		= crm->RecordingStatus();
-    /* FIXME if record or timeshift stopped while infobar visible, artifacts */
-    if (recordModeActive)
+    int box_posX = BoxStartX;
+    int box_posY = BoxStartY - OFFSET_SHADOW;
+
+    if (!(access(INFOFILE, F_OK) == 0))
+        box_posY += g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2 + OFFSET_SHADOW;
+
+    if (!recordsblink)
+        recordsblink = new CComponentsTimer(1);
+
+    if (crm->RecordingStatus())
     {
-        std::string Icon_Rec = NEUTRINO_ICON_REC_GRAY, Icon_Ts = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
-        t_channel_id cci	= g_RemoteControl->current_channel_id;
+        if (recordsbox)
+        {
+            recordsbox->kill();
+            delete recordsbox;
+            recordsbox = NULL;
+        }
+        recordsbox = new CComponentsForm();
+        recordsbox->setWidth(0);
+        recordsbox->doPaintBg(false);
+        recordsbox->setCornerType(CORNER_NONE);
+        //recordsbox->setColorBody(COL_BACKGROUND_PLUS_0);
 
-        /* channel record mode */
-        int ccrec_mode 		= crm->GetRecordMode(cci);
-
-        /* set 'active' icons for current channel */
-        if (ccrec_mode & CRecordManager::RECMODE_TSHIFT)
-            Icon_Ts		= NEUTRINO_ICON_AUTO_SHIFT;
-
-        if (ccrec_mode & CRecordManager::RECMODE_REC)
-            Icon_Rec	= NEUTRINO_ICON_REC;
-
-        const int icon_space = 3;
-        const int box_posY = infobar_txt ? (infobar_txt->getHeight()*-1)-5: -5;
-        int box_len = 0;
-
-        int rec_icon_w = 0, rec_icon_h = 0, ts_icon_w = 0, ts_icon_h = 0;
-        frameBuffer->getIconSize(Icon_Rec.c_str(), &rec_icon_w, &rec_icon_h);
-        frameBuffer->getIconSize(Icon_Ts.c_str(), &ts_icon_w, &ts_icon_h);
-
-        int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight () * (g_settings.font_scaling_y / 100);
-        if (chanH < rec_icon_h)
-            chanH = rec_icon_h;
-        const int box_posX = ChanInfoX;   //ChanName_X + OFFSET_SHADOW;
-
-        int i = 0;
         recmap_t recmap = crm->GetRecordMap();
+        std::vector<CComponentsPicture*> images;
+        CComponentsForm *recline = NULL;
+        CComponentsText *rec_name = NULL;
+        int y_recline = 0;
+        int w_recbox = 0;
+        int w_shadow = OFFSET_SHADOW/2;
+
         for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
         {
             CRecordInstance * inst = it->second;
-            std::string show_icon = Icon_Rec;
-            int icon_width = rec_icon_w;
-            if (inst->Timeshift())
-            {
-                icon_width = ts_icon_w;
-                show_icon = Icon_Ts;
-            }
+
+            recline = new CComponentsForm(0, y_recline, 0);
+            recline->doPaintBg(true);
+            recline->setColorBody(COL_INFOBAR_PLUS_0);
+            recline->enableShadow(CC_SHADOW_ON, w_shadow);
+            recline->setCorner(CORNER_RADIUS_MID);
+            recordsbox->addCCItem(recline);
+
+            CComponentsPicture *iconf = new CComponentsPicture(OFFSET_INNER_MID, 0, NEUTRINO_ICON_REC, recline, CC_SHADOW_OFF, COL_RED, COL_INFOBAR_PLUS_0);
+            iconf->setCornerType(CORNER_NONE);
+            iconf->doPaintBg(true);
+            iconf->SetTransparent(CFrameBuffer::TM_BLACK);
+            images.push_back(iconf);
+            recline->setHeight(iconf->getHeight());
+
             std::string records_msg = inst->GetEpgTitle();
-            int TextWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(records_msg)
-                            * (g_settings.font_scaling_x / 100);
-            box_len = icon_width + TextWidth + icon_space*5;
-            spacer = i*(chanH + 10);
-            if (show)
-            {
-                frameBuffer->paintBoxRel(box_posX + OFFSET_SHADOW, BoxStartY + box_posY - spacer + OFFSET_SHADOW, box_len, chanH, COL_SHADOW_PLUS_0, RADIUS_SMALL);
-                frameBuffer->paintBoxRel(box_posX, BoxStartY + box_posY - spacer, box_len, chanH, COL_INFOBAR_PLUS_0, RADIUS_SMALL);
-                frameBuffer->paintIcon(show_icon, box_posX + icon_space*2, BoxStartY + box_posY + (chanH - rec_icon_h)/2 - spacer);
-                g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (box_posX + icon_width + icon_space*3, BoxStartY + box_posY + chanH - spacer, box_len, records_msg.c_str(), COL_INFOBAR_TEXT);
-            }
-            else
-            {
-                frameBuffer->paintBoxRel(box_posX + icon_space*2, BoxStartY + box_posY + (chanH - rec_icon_h)/2 - spacer, icon_width, chanH, COL_INFOBAR_PLUS_0);
-            }
-            i++;
+
+            rec_name = new CComponentsText(iconf->getWidth()+2*OFFSET_INNER_MID, 0, 0, 0, records_msg, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
+            rec_name->doPaintBg(false);
+            rec_name->setTextColor(COL_INFOBAR_TEXT);
+
+            recline->setHeight(std::max(rec_name->getHeight(), iconf->getHeight()));
+            recline->setWidth(OFFSET_INNER_MIN+iconf->getWidth()+OFFSET_INNER_MID+rec_name->getWidth()+OFFSET_INNER_MID);
+            w_recbox = (std::max(recline->getWidth(), recordsbox->getWidth()));
+            recordsbox->setWidth(w_recbox);
+            recline->addCCItem(rec_name);
+
+            y_recline += recline->getHeight() + OFFSET_SHADOW;
         }
+
+        int h_rbox = 0;
+        for(size_t i = 0; i< recordsbox->size(); i++)
+            h_rbox += recordsbox->getCCItem(i)->getHeight() + OFFSET_SHADOW;
+
+        recordsbox->setDimensionsAll(box_posX, box_posY-h_rbox, w_recbox+w_shadow, h_rbox);
+        recordsbox->paint0();
+
+        for(size_t j = 0; j< images.size(); j++)
+        {
+            images[j]->kill();
+            images[j]->paintBlink(recordsblink);
+        }
+
     }
 }
 
@@ -571,7 +590,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
     bool show_dot = true;
     if (timeset && !g_settings.infobar_anaclock)
         clock->paint(CC_SAVE_SCREEN_NO);
-    showRecordIcon (show_dot);
+    showRecords();
     ana_clock_size = (BoxEndY - (ChanNameY + header_height) - 6);
     if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
         showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
@@ -774,7 +793,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
     bool show_dot = true;
     if (timeset && (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers))
         clock->paint(CC_SAVE_SCREEN_NO);
-    showRecordIcon (show_dot);
+    showRecords();
     ana_clock_size = (BoxEndY - (ChanNameY + header_height) - 6);
     if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
         showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
@@ -1078,7 +1097,6 @@ void CInfoViewer::loop(bool show_dot)
                     showIcon_CA_Status(0);
                 if (timeset && (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers))
                     clock->paint(CC_SAVE_SCREEN_NO);
-                showRecordIcon (show_dot);
                 showIcon_Update (show_dot);
                 show_dot = !show_dot;
                 showInfoFile();
@@ -1509,7 +1527,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
     else if (msg == NeutrinoMessages::EVT_RECORDMODE)
     {
         recordModeActive = data;
-        if (is_visible) showRecordIcon(true);
+        if (is_visible) showRecords();
     }
     else if (msg == NeutrinoMessages::EVT_ZAP_GOTAPIDS)
     {
@@ -1973,7 +1991,7 @@ void CInfoViewer::killInfobarText()
 void CInfoViewer::showInfoFile()
 {
     //read textcontent from this file
-    std::string infobar_file = "/tmp/infobar.txt";
+    std::string infobar_file = INFOFILE;
 
     //exit if file not found, don't create an info object, delete old instance if required
     if (!file_size(infobar_file.c_str()))
@@ -2022,7 +2040,10 @@ void CInfoViewer::showInfoFile()
     if (has_text || (zap_mode & IV_MODE_VIRTUAL_ZAP))
     {
         if ((old_txt != new_txt) || !infobar_txt->isPainted())
+        {
+            showRecords();
             infobar_txt->paint(CC_SAVE_SCREEN_NO);
+        }
     }
 }
 
@@ -2066,13 +2087,19 @@ void CInfoViewer::killTitle()
             g_Radiotext->S_RtOsd = g_Radiotext->haveRadiotext() ? 1 : 0;
             killRadiotext();
         }
-        if (infobar_txt) spacer += infobar_txt->getHeight();
+
         killInfobarText();
 
         if (ecminfo_toggle)
             ecmInfoBox_hide();
 
-        frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY - spacer - 5, BoxEndX + OFFSET_SHADOW, bottom);
+        if (recordsbox)
+        {
+            recordsbox->kill();
+            delete recordsbox;
+            recordsbox = NULL;
+        }
+
         frameBuffer->blit();
     }
     showButtonBar = false;

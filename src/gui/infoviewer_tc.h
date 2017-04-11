@@ -67,6 +67,8 @@ private:
     CComponentsTextTransp *txt_cur_start, *txt_cur_event, *txt_cur_event_rest, *txt_next_start, *txt_next_event, *txt_next_in;
     CComponentsInfoBox *infobar_txt;
     CComponentsWindowMax *ecmInfoBox;
+    CComponentsForm *recordsbox;
+    CComponentsTimer *recordsblink;
 
     bool           gotTime;
     bool           recordModeActive;
@@ -79,7 +81,6 @@ private:
     bool	       fileplay;
 
     int            ButtonWidth;
-    int            spacer;
 
     // dimensions of radiotext window
     int             rt_dx;
@@ -120,7 +121,7 @@ private:
     CChannelEventList::iterator     eli;
 
     CProgressBar *timescale;
-	CProgressBar *hddscale;
+    CProgressBar *hddscale;
 
     bool casysChange;
     bool channellogoChange;
@@ -332,11 +333,13 @@ public:
     void showIcon_Update(bool);
     void showIcon_Logo();
     void showIcon_DD(void);
-	void showIcon_Tuner() const;
+    void showIcon_Tuner() const;
 
     void showClock_analog(int posx,int posy,int dia);
     void showScale_RecordingDir();
     void showButtons(bool paintFooter = false);
+    void showRecords();
+
     void paintshowButtonBar();
     void getButtonInfo(void);
     void initBBOffset(void);
