@@ -151,11 +151,9 @@ private:
 	void showInfoFile();
 	void killInfobarText();
 
-	//void loop(int fadeValue, bool show_dot ,bool fadeIn);
-	void loop(bool show_dot);
+	void loop();
 	std::string eventname;
 	void show_current_next(bool new_chan, int  epgpos);
-	void reset_allScala();
 	void check_channellogo_ca_SettingsChange();
 	void sendNoEpg(const t_channel_id channel_id);
 	bool showLivestreamInfo();
@@ -303,8 +301,7 @@ public:
 		setSwitchMode(IV_MODE_DEFAULT);
 	}
 
-	void    changePB();
-	void 	ResetPB();
+	void    ResetPBars();
 	void    Init(void);
 	bool    SDT_freq_update;
 	void	setUpdateTimer(uint64_t interval);
@@ -352,5 +349,8 @@ public:
 	{
 		return ca_bar;
 	}
+	
+	// This functions used outside.
+	void changePB() { ResetPBars(); };
 };
 #endif

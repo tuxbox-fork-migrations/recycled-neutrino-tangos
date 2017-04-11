@@ -179,7 +179,7 @@ void CInfoViewer::Init()
 	/* maybe we should not tie this to the blinkenlights settings? */
 	initBBOffset();
 	/* after font size changes, Init() might be called multiple times */
-	changePB();
+	ResetPBars();
 
 	casysChange = g_settings.infobar_casystem_display;
 	channellogoChange = g_settings.infobar_show_channellogo;
@@ -242,7 +242,7 @@ void CInfoViewer::Init()
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 5;
 	initBBOffset();
 
-	changePB();
+	ResetPBars();
 }
 
 /*
@@ -250,23 +250,23 @@ void CInfoViewer::Init()
  *
 
               ___BoxStartX
-             |-ChanWidth-|
-             |           |  _recording icon                 _progress bar
- BoxStartY---+-----------+ |                               |
-     |       |           | *                              #######____
-     |       |           |-------------------------------------------+--+-ChanNameY-----+
-     |       |           | Channelname (header)              | clock |  | header height |
- ChanHeight--+-----------+-------------------------------------------+--+               |
-                |                 B---O---D---Y                      |                  |InfoHeightY
-                |01:23     Current Event                             |                  |
-                |02:34     Next Event                                |                  |
-                |                                                    |                  |
-     BoxEndY----+----------------------------------------------------+--+---------------+
-                |                     optional blinkenlights iconbar |  bottom_bar_offset
-     BBarY------+----------------------------------------------------+--+
-                | * red   * green  * yellow  * blue ====== [DD][16:9]|  InfoHeightY_Info
-                +----------------------------------------------------+--+
-                |              asize               |                 |
+             |           |
+             | recording icons                
+ BoxStartY---+-ChanWidth-+                                
+     |       | ##################### infobar_txt ###################
+     |       +-------------------------------------------------------+--+-ChanNameY-----+
+     |       | Channelname (header)                [DD][16:9]| clock |  | header height |
+ ChanHeight--|-------------------------------------------------------+--+               |
+             |                    B---O---D---Y                      |                  |InfoHeightY
+             |   01:23     Current Event                             |                  |
+             |   02:34     Next Event                                |                  |
+             |                                                       |                  |
+     BoxEndY-+-------------------------------------------------------+--+---------------+
+             |                        ca_bar                         |  bottom_bar_offset
+     BBarY---+-------------------------------------------------------+--+
+             | * red         * green      * yellow            * blue |  InfoHeightY_Info
+             +-------------------------------------------------------+--+
+             |                         asize                         |
                                                              BoxEndX-/
 */
 void CInfoViewer::start ()
@@ -293,14 +293,6 @@ void CInfoViewer::start ()
 	initClock();
 	time_height = max(ChanHeight / 2, clock->getHeight());
 	time_width = g_settings.infobar_anaclock && !g_settings.channellist_show_numbers ? 0 : clock->getWidth();
-}
-
-void CInfoViewer::ResetPB()
-{
-	if (timescale)
-	{
-		timescale->reset();
-	}
 }
 
 void CInfoViewer::initClock()
@@ -561,7 +553,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	showButtonBar = true;
 	fileplay = true;
 	zap_mode = _zap_mode;
-	reset_allScala();
+	ResetPBars();
 	if (!gotTime)
 		gotTime = timeset;
 
@@ -586,14 +578,12 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	paintHead();
 	paintBody();
 
-	bool show_dot = true;
 	if (timeset && !g_settings.infobar_anaclock)
 		clock->paint(CC_SAVE_SCREEN_NO);
 	showRecords();
 	ana_clock_size = (BoxEndY - (ChanNameY + header_height) - 6);
 	if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
 		showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
-	show_dot = !show_dot;
 
 	ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth("888") + 5;
 
@@ -681,19 +671,10 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 		g_PicViewer->DisplayImage("/tmp/cover.jpg", icon_x, icon_y, icon_w, icon_h, 1);
 	}
 
-	//loop(fadeValue, show_dot , fadeIn);
-	loop(show_dot);
+	loop();
 	aspectRatio = 0;
 	fileplay = 0;
 	current_channel_id = old_channel_id;
-}
-
-void CInfoViewer::reset_allScala()
-{
-	changePB();
-	hddscale->reset();
-	if(!clock)
-		initClock();
 }
 
 void CInfoViewer::check_channellogo_ca_SettingsChange()
@@ -745,7 +726,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	fileplay = (ChanNum == 0);
 	newfreq = true;
 
-	reset_allScala();
+	ResetPBars();
 	if (!gotTime)
 		gotTime = timeset;
 
@@ -789,14 +770,12 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	paintHead();
 	paintBody();
 
-	bool show_dot = true;
 	if (timeset && (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers))
 		clock->paint(CC_SAVE_SCREEN_NO);
 	showRecords();
 	ana_clock_size = (BoxEndY - (ChanNameY + header_height) - 6);
 	if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
 		showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
-	show_dot = !show_dot;
 
 	if (showButtonBar)
 	{
@@ -869,8 +848,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 
 	if (!calledFromNumZap)
 	{
-		//loop(fadeValue, show_dot , fadeIn);
-		loop(show_dot);
+		loop();
 	}
 	else
 		frameBuffer->blit();
@@ -977,7 +955,7 @@ bool CInfoViewer::showLivestreamInfo()
 	return false;
 }
 
-void CInfoViewer::loop(bool show_dot)
+void CInfoViewer::loop()
 {
 	bool hideIt = true;
 	resetSwitchMode(); //no virtual zap
@@ -994,6 +972,8 @@ void CInfoViewer::loop(bool show_dot)
 
 	_livestreamInfo1.clear();
 	_livestreamInfo2.clear();
+	
+	bool blink = true;
 
 	while (!(res & (messages_return::cancel_info | messages_return::cancel_all)))
 	{
@@ -1096,8 +1076,8 @@ void CInfoViewer::loop(bool show_dot)
 					showIcon_CA_Status(0);
 				if (timeset && (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers))
 					clock->paint(CC_SAVE_SCREEN_NO);
-				showIcon_Update (show_dot);
-				show_dot = !show_dot;
+				showIcon_Update (blink);
+				blink = !blink;
 				showInfoFile();
 				if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
 					showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
@@ -2228,7 +2208,6 @@ void CInfoViewer::ResetModules(bool kill)
 	txt_next_event = NULL;
 	delete txt_next_in;
 	txt_next_in = NULL;
-	ResetPB();
 	delete rec;
 	rec = NULL;
 
@@ -2410,8 +2389,6 @@ void CInfoViewer::getIconInfo()
 		if (bbIconInfo[i].x != -1)
 			bbIconMaxH = std::max(bbIconMaxH, bbIconInfo[i].h);
 	}
-	if (g_settings.infobar_show_sysfs_hdd)
-		bbIconMinX -= hddwidth + OFFSET_INNER_MIN;
 }
 
 void CInfoViewer::getButtonInfo()
@@ -2881,11 +2858,12 @@ void CInfoViewer::showClock_analog(int posx,int posy,int dia)
 
 void CInfoViewer::showScale_RecordingDir()
 {
+	hddwidth = (BoxEndX - ChanInfoX) * 0.2;
 	if (g_settings.infobar_show_sysfs_hdd)
 	{
 		int percent = cHddStat::getInstance()->getPercent();
 		int py = BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2);
-		int px = (BoxEndX - BoxStartX)/2;
+		int px = ChanInfoX + (((BoxEndX - ChanInfoX) - hddwidth)/2);
 		if (is_visible)
 		{
 			if (percent >= 0)
@@ -3093,21 +3071,26 @@ void CInfoViewer::paint_ca_bar()
 	}
 }
 
-void CInfoViewer::changePB()
+void CInfoViewer::ResetPBars()
 {
-	hddwidth = frameBuffer->getScreenWidth(true) * ((g_settings.screen_preset == 1) ? 10 : 8) / 128; /* 80(CRT)/100(LCD) pix if screen is 1280 wide */
 	if (!hddscale)
 	{
 		hddscale = new CProgressBar();
 		hddscale->setType(CProgressBar::PB_REDRIGHT);
 	}
 
-	ResetPB();
+	hddscale->reset();
+
 	if (!timescale)
 	{
 		timescale = new CProgressBar();
 		timescale->setType(CProgressBar::PB_TIMESCALE);
 	}
+
+	timescale->reset();
+	
+	if(!clock)
+		initClock();
 }
 
 void CInfoViewer::initBBOffset()
