@@ -2351,14 +2351,14 @@ void CInfoViewer::getIconInfo()
 			break;
 		case CInfoViewer::ICON_RES:  //no radio
 			if ((g_settings.infobar_show_res < 2) && (neutrino->getMode() != NeutrinoMessages::mode_radio))
-				iconView = checkIcon(NEUTRINO_ICON_RESOLUTION_1280, &w, &h);
+				iconView = checkIcon(g_settings.infobar_show_res ? NEUTRINO_ICON_RESOLUTION_HD : NEUTRINO_ICON_RESOLUTION_1280, &w, &h);
 			break;
 		case CInfoViewer::ICON_CA:
-			if (g_settings.infobar_casystem_display == 2)
+			if (g_settings.infobar_casystem_display == 2 && neutrino->getMode() != NeutrinoMessages::mode_ts)
 				iconView = checkIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
 			break;
 		case CInfoViewer::ICON_TUNER:
-			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBTV(get_current_channel_id()))
+			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBTV(get_current_channel_id()) && neutrino->getMode() != NeutrinoMessages::mode_ts)
 				iconView = checkIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 			break;
 		case CInfoViewer::ICON_UPDATE:
@@ -2888,7 +2888,7 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 	int py = BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2); /* hand-crafted, should be automatic */
 	int px = 0;
 	static map<int, std::pair<int,const char*> > icon_map;
-	const int icon_space = 10, icon_number = 11;
+	const int icon_number = 11;
 
 	static int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0,0};
 	static int icon_sizeW [icon_number] = {0,0,0,0,0,0,0,0,0,0,0};
@@ -2922,7 +2922,7 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 		{
 			for (int i = j; i < icon_number; i++)
 			{
-				icon_offset[j] += icon_sizeW[i] + icon_space;
+				icon_offset[j] += icon_sizeW[i] + OFFSET_INNER_MIN;
 			}
 		}
 	}
@@ -2933,7 +2933,7 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 
 	if (g_settings.infobar_casystem_display == 0)
 	{
-		px = endx - (icon_offset[icon_map[caid].first] - icon_space );
+		px = endx - (icon_offset[icon_map[caid].first] - OFFSET_INNER_MIN );
 	}
 	else
 	{
@@ -3152,7 +3152,6 @@ void* CInfoViewer::Thread_paint_cam_icons(void)
 	int emu_pic_startx = ChanInfoX + (g_settings.infobar_casystem_frame ? 20 : 10);
 	int py = BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2);
 	const char *icon_name[] = {"mgcamd","oscam","gbox"};
-	static int icon_space[] = {14,14,14};
 	int icon_sizeH = 0;
 	int icon_sizeW = 0;
 
@@ -3164,8 +3163,7 @@ void* CInfoViewer::Thread_paint_cam_icons(void)
 			buf << icon_name[i] << "_green";
 			frameBuffer->paintIcon(buf.str().c_str(), emu_pic_startx, py );
 			frameBuffer->getIconSize(buf.str().c_str(), &icon_sizeW, &icon_sizeH);
-			emu_pic_startx += icon_space[i];
-			emu_pic_startx += icon_sizeW;
+			emu_pic_startx += icon_sizeW + OFFSET_INNER_MIN;
 		}
 		else
 		{
@@ -3177,8 +3175,7 @@ void* CInfoViewer::Thread_paint_cam_icons(void)
 				buf << icon_name[i] << "_yellow";
 				frameBuffer->paintIcon(buf.str().c_str(), emu_pic_startx, py );
 				frameBuffer->getIconSize(buf.str().c_str(), &icon_sizeW, &icon_sizeH);
-				emu_pic_startx += icon_space[i];
-				emu_pic_startx += icon_sizeW;
+				emu_pic_startx += icon_sizeW + OFFSET_INNER_MIN;
 			}
 			else if(g_settings.infobar_casystem_display == 0)
 			{
@@ -3186,8 +3183,7 @@ void* CInfoViewer::Thread_paint_cam_icons(void)
 				buf << icon_name[i] << "_white";
 				frameBuffer->paintIcon(buf.str().c_str(), emu_pic_startx, py );
 				frameBuffer->getIconSize(buf.str().c_str(), &icon_sizeW, &icon_sizeH);
-				emu_pic_startx += icon_space[i];
-				emu_pic_startx += icon_sizeW;
+				emu_pic_startx += icon_sizeW + OFFSET_INNER_MIN;
 			}
 		}
 	}
