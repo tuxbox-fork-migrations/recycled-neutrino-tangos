@@ -2251,6 +2251,7 @@ bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
 				}
 			}
 		}
+	}
 	return false;
 }
 
