@@ -2192,7 +2192,7 @@ void CChannelList::paintHead()
 		header->getChannelLogoObject()->allowPaint(false);
 	}
 	header->paint(CC_SAVE_SCREEN_NO);
-	showChannelLogo();
+	//showChannelLogo();
 }
 
 CComponentsHeader* CChannelList::getHeaderObject()
