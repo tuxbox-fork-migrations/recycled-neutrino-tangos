@@ -19,8 +19,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -111,14 +110,16 @@ void EpgPlus::Header::paint(const char * Name)
 	std::string caption = Name ? Name : g_Locale->getText(LOCALE_EPGPLUS_HEAD);
 
 	if (this->head == NULL)
+	{
 		this->head = new CComponentsHeader();
+		this->head->setContextButton(CComponentsHeader::CC_BTN_HELP);
+		this->head->enableClock(true, "%H:%M", "%H %M", true);
+	}
 
 	if (this->head)
 	{
 		this->head->setDimensionsAll(this->x, this->y, this->width, this->font->getHeight());
 		this->head->setCaption(caption, CTextBox::NO_AUTO_LINEBREAK);
-		this->head->setContextButton(CComponentsHeader::CC_BTN_HELP);
-		this->head->enableClock(true, "%H:%M", "%H.%M", true);
 		this->head->paint(CC_SAVE_SCREEN_NO);
 	}
 }
