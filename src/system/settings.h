@@ -225,6 +225,7 @@ struct SNeutrinoSettings
 	int volume_pos;
 	int volume_digits;
 	int volume_size;
+	bool volume_external;
 	int show_mute_icon;
 	int menu_pos;
 	int show_menu_hints;

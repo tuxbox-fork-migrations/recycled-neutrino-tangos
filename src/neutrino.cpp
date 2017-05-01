@@ -586,6 +586,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.volume_pos = configfile.getInt32("volume_pos", CVolumeBar::VOLUMEBAR_POS_TOP_RIGHT );
 	g_settings.volume_digits = configfile.getBool("volume_digits", true);
 	g_settings.volume_size = configfile.getInt32("volume_size", 26 );
+	g_settings.volume_external = configfile.getBool("volume_external", (access(CONFIGDIR "/.ext_vol", F_OK) == 0) );
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
 	g_settings.show_menu_hints = configfile.getBool("show_menu_hints", false);
 	g_settings.infobar_show_sysfs_hdd   = configfile.getBool("infobar_show_sysfs_hdd"  , false );
@@ -2818,7 +2819,13 @@ void CNeutrinoApp::RealRun()
 								showInfo();
 							break;
 						case SNeutrinoSettings::VOLUME:
-							g_volume->setVolume(msg);
+							if (g_settings.volume_external)
+							{
+								if (my_system((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT) != 0)
+									perror((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT " failed");
+							}
+							else
+								g_volume->setVolume(msg);
 							break;
 						default: /* SNeutrinoSettings::ZAP */
 							quickZap(msg);
@@ -2941,7 +2948,13 @@ void CNeutrinoApp::RealRun()
 							showInfo();
 						break;
 					case SNeutrinoSettings::VOLUME:
-						g_volume->setVolume(msg);
+						if (g_settings.volume_external)
+						{
+							if (my_system((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT) != 0)
+								perror((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT " failed");
+						}
+						else
+							g_volume->setVolume(msg);
 						break;
 					default: /* SNeutrinoSettings::ZAP */
 						quickZap(msg);
@@ -3483,7 +3496,13 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus))
 	{
-		g_volume->setVolume(msg);
+		if (g_settings.volume_external)
+		{
+			if (my_system((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT) != 0)
+				perror((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT " failed");
+		}
+		else
+			g_volume->setVolume(msg);
 #if HAVE_DUCKBOX_HARDWARE
 		if((mode == mode_tv) || (mode == mode_radio)) {
 			CVFD::getInstance()->showServicename(channelList->getActiveChannelName());
@@ -3498,16 +3517,40 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		}
 		else {
 			//mute
-			g_audioMute->AudioMute(!current_muted, true);
+			if (g_settings.volume_external)
+			{
+				if (my_system(!current_muted ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT) != 0)
+					perror(!current_muted ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT " failed");
+				else
+					setCurrentMuted(!current_muted);
+			}
+			else
+				g_audioMute->AudioMute(!current_muted, true);
 		}
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mute_on ) {
-		g_audioMute->AudioMute(true, true);
+		if (g_settings.volume_external)
+		{
+			if (my_system(MUTE_ON_SCRIPT) != 0)
+				perror(MUTE_ON_SCRIPT " failed");
+			else
+				setCurrentMuted(true);
+		}
+		else
+			g_audioMute->AudioMute(true, true);
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mute_off ) {
-		g_audioMute->AudioMute(false, true);
+		if (g_settings.volume_external)
+		{
+			if (my_system(MUTE_OFF_SCRIPT) != 0)
+				perror(MUTE_OFF_SCRIPT " failed");
+			else
+				setCurrentMuted(false);
+		}
+		else
+			g_audioMute->AudioMute(false, true);
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_analog_on ) {

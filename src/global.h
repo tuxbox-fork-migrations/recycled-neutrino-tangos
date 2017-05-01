@@ -42,6 +42,10 @@
 #define MOVIEPLAYER_START_SCRIPT        CONFIGDIR "/movieplayer.start"
 #define MOVIEPLAYER_END_SCRIPT          CONFIGDIR "/movieplayer.end"
 #define NEUTRINO_ENTER_FLASH_SCRIPT	CONFIGDIR "/flash.start"
+#define VOLUME_UP_SCRIPT                CONFIGDIR "/volume.up"
+#define VOLUME_DOWN_SCRIPT              CONFIGDIR "/volume.down"
+#define MUTE_ON_SCRIPT                  CONFIGDIR "/mute.on"
+#define MUTE_OFF_SCRIPT                 CONFIGDIR "/mute.off"
 
 #define NEUTRINO_SCAN_SETTINGS_FILE     CONFIGDIR "/scan.conf"
 #define NEUTRINO_PARENTALLOCKED_FILE    DATADIR   "/neutrino/.plocked"
