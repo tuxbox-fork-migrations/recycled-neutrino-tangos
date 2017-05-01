@@ -841,15 +841,13 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	// show the epg
 	// header + logo
-	if (header) {
-		header->kill();
-		delete header;
-		header = NULL;
+	if (header == NULL){
+		header = new CComponentsHeader();
+		header->getTextObject()->enableTboxSaveScreen(g_settings.theme.menu_Head_gradient);//enable screen save for title text if color gradient is in use
 	}
 
-	header = new CComponentsHeader(sx, sy, ox, toph);
-	header->setCorner(RADIUS_LARGE, CORNER_TOP);
 	header->setDimensionsAll(sx, sy, ox, toph);
+	header->setCorner(RADIUS_LARGE, CORNER_TOP);
 	header->setColorBody(COL_MENUHEAD_PLUS_0);
 	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 
