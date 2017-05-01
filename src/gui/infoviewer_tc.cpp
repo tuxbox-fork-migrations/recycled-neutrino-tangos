@@ -104,13 +104,13 @@ extern bool timeset;
 CInfoViewer::CInfoViewer ()
 	: fader(g_settings.theme.infobar_alpha)
 {
-	header = body = rec = NULL;
+	header = NULL;
+	body = rec = NULL;
 	txt_cur_start = txt_cur_event = txt_cur_event_rest = txt_next_start = txt_next_event = txt_next_in = NULL;
 	timescale = NULL;
 	info_CurrentNext.current_zeit.startzeit = 0;
 	info_CurrentNext.current_zeit.dauer = 0;
 	info_CurrentNext.flags = 0;
-	clock = NULL;
 	frameBuffer = CFrameBuffer::getInstance();
 	ecmInfoBox = NULL;
 	md5_ecmInfo = "0";
@@ -123,7 +123,7 @@ CInfoViewer::CInfoViewer ()
 	ChanWidth = 0;
 	ChanHeight = 0;
 	time_width = 0;
-	time_height = header_height = 0;
+	header_height = 0;
 	aspectRatio = 0;
 	ChanInfoX = 0;
 	oldinfo.current_uniqueKey = 0;
@@ -148,6 +148,7 @@ CInfoViewer::CInfoViewer ()
 	ca_bar			= NULL;
 	recordsbox = NULL;
 	recordsblink = NULL;
+	showBBIcons_width = 0;
 	Init();
 }
 
@@ -164,7 +165,6 @@ CInfoViewer::~CInfoViewer()
 void CInfoViewer::Init()
 {
 	BoxStartX = BoxStartY = BoxEndX = BoxEndY = 0;
-	initClock();
 	recordModeActive = false;
 	is_visible = false;
 	showButtonBar = false;
@@ -176,13 +176,9 @@ void CInfoViewer::Init()
 	fileplay = 0;
 	SDT_freq_update = false;
 
-	/* maybe we should not tie this to the blinkenlights settings? */
-	initBBOffset();
+	getIconInfo();
 	/* after font size changes, Init() might be called multiple times */
 	ResetPBars();
-
-	casysChange = g_settings.infobar_casystem_display;
-	channellogoChange = g_settings.infobar_show_channellogo;
 
 	current_channel_id = CZapit::getInstance()->GetCurrentChannelID();;
 	current_epg_id = 0;
@@ -198,10 +194,6 @@ void CInfoViewer::Init()
 	// Hardcoded some Settings in neutrino.cpp
 	/*
 	// these has to be
-	g_settings.infobar_progressbar=3;
-	g_settings.infobar_sat_display=false;
-	g_settings.infobar_show_channeldesc=false;
-	g_settings.infobar_show_channellogo=2;
 	g_settings.infobar_show_dd_available=1;
 	g_settings.infobar_show_res=1;
 	g_settings.infobar_show_sysfs_hdd=0;
@@ -290,33 +282,6 @@ void CInfoViewer::start ()
 	ChanNameY = BoxStartY + (ChanHeight / 2);	//oberkante schatten?
 	ChanInfoX = BoxStartX;
 
-	initClock();
-	time_height = max(ChanHeight / 2, clock->getHeight());
-	time_width = g_settings.infobar_anaclock && !g_settings.channellist_show_numbers ? 0 : clock->getWidth();
-}
-
-void CInfoViewer::initClock()
-{
-
-	int gradient_top = g_settings.theme.infobar_gradient_top;
-
-	//basic init for clock object
-	if (clock == NULL)
-	{
-		clock = new CComponentsFrmClock();
-		clock->setClockFormat("%H:%M", "%H.%M");
-	}
-
-	CInfoClock::getInstance()->disableInfoClock();
-	clock->clear();
-	clock->enableColBodyGradient(gradient_top, COL_INFOBAR_PLUS_0);
-	clock->doPaintBg(!gradient_top);
-	clock->enableTboxSaveScreen(gradient_top);
-	clock->setColorBody(COL_INFOBAR_PLUS_0);
-	clock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
-	clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
-	clock->setPos(BoxEndX - 10 - clock->getWidth(), ChanNameY);
-	clock->setTextColor(COL_INFOBAR_TEXT);
 }
 
 void CInfoViewer::showRecords()
@@ -403,22 +368,39 @@ void CInfoViewer::showRecords()
 	}
 }
 
-void CInfoViewer::paintHead()
+void CInfoViewer::paintHead(t_channel_id channel_id,std::string channel_name)
 {
 	int head_x = BoxStartX;
 	int head_w = BoxEndX-head_x;
+	int head_h = max(ChanHeight / 2,g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight());
 	if (header == NULL)
 	{
-		header = new CComponentsShapeSquare(head_x, ChanNameY, head_w, time_height, NULL, CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
+		header = new CComponentsHeader(head_x, ChanNameY, head_w, head_h);
+		header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 		header->setCorner(RADIUS_LARGE, CORNER_TOP);
 	}
 	else
-		header->setDimensionsAll(head_x, ChanNameY, head_w, time_height);
+		header->setDimensionsAll(head_x, ChanNameY, head_w, head_h);
 
+	header->setCaptionFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
 	header->setColorBody(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
 	header->enableColBodyGradient(g_settings.theme.infobar_gradient_top, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_top_direction);
-	clock->setTextColor(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_TEXT : COL_INFOBAR_TEXT);
-	clock->setColorBody(header->getColorBody());
+	if (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers)
+	{
+		header->enableClock(true, "%H:%M ", "%H.%M ", true);
+		header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
+		header->getClockObject()->setTextColor(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_TEXT : COL_INFOBAR_TEXT);
+		header->getClockObject()->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
+		time_width = header->getClockObject()->getWidth();
+	}
+
+	header->setChannelLogo(channel_id,channel_name,CComponentsHeader::CC_LOGO_LEFT);
+	header->setCaptionMaxWidth(header->getWidth() - time_width - 3*OFFSET_INNER_MID - showBBIcons_width);
+
+	if (!header->getChannelLogoObject()->hasLogo())
+		header->setCaption(channel_name);
+	else
+		header->setCaption("");
 
 	header->paint(CC_SAVE_SCREEN_NO);
 	header_height = header->getHeight();
@@ -547,7 +529,8 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	else
 		isVolscale = false;
 
-	check_channellogo_ca_SettingsChange();
+	initBBOffset();
+	start();
 	aspectRatio = 0;
 	last_curr_id = last_next_id = 0;
 	showButtonBar = true;
@@ -572,14 +555,11 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	t_channel_id old_channel_id = current_channel_id;
 	current_channel_id = Channel_Id;
 
-	/* showChannelLogo() changes this, so better reset it every time... */
 	ChanNameX = BoxStartX + ChanWidth + OFFSET_SHADOW;
 
-	paintHead();
+	paintHead(current_channel_id,ChannelName);
 	paintBody();
 
-	if (timeset && !g_settings.infobar_anaclock)
-		clock->paint(CC_SAVE_SCREEN_NO);
 	showRecords();
 	ana_clock_size = (BoxEndY - (ChanNameY + header_height) - 6);
 	if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
@@ -591,11 +571,6 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 		paintshowButtonBar();
 
 	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
-	int ChannelLogoMode = 0;
-	if (g_settings.infobar_show_channellogo > 1)
-		ChannelLogoMode = showChannelLogo(current_channel_id, BoxEndX - (ChanInfoX + 10) - time_width - OFFSET_INNER_MID - 5 - showBBIcons_width);
-	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanInfoX + 10 , ChanNameY + header_height,BoxEndX - (ChanInfoX + 10) - time_width - OFFSET_INNER_MID - 5 - showBBIcons_width,ChannelName, COL_INFOBAR_TEXT, 0, renderFlag);
 
 	// show_Data
 	if (CMoviePlayerGui::getInstance().file_prozent > 100)
@@ -650,11 +625,11 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 		icon_w += speedw;
 	}
 	int icon_x = ChanInfoX + 10 + ChanNumWidth / 2 - icon_w / 2;
-	int icon_y = (BoxEndY + ChanNameY + time_height) / 2 - icon_h / 2;
+	int icon_y = (BoxEndY + ChanNameY + header_height) / 2 - icon_h / 2;
 	if (speed)
 	{
 		int sh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
-		int sy = (BoxEndY + ChanNameY + time_height) / 2 - sh/2 + sh;
+		int sy = (BoxEndY + ChanNameY + header_height) / 2 - sh/2 + sh;
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(icon_x, sy, ChanHeight, runningRest, COL_INFOBAR_TEXT, 0, renderFlag);
 		icon_x += speedw;
 	}
@@ -665,9 +640,9 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	if ((access("/tmp/cover.jpg", F_OK) == 0))
 	{
 		icon_w = ChanNumWidth;
-		icon_h = BoxEndY - (ChanNameY + time_height) - 6 ;
+		icon_h = BoxEndY - (ChanNameY + header_height) - 6 ;
 		icon_x =  ChanInfoX + 10 + ChanNumWidth / 2 - icon_w / 2;
-		icon_y = (BoxEndY + ChanNameY + time_height) / 2 - icon_h / 2;
+		icon_y = (BoxEndY + ChanNameY + header_height) / 2 - icon_h / 2;
 		g_PicViewer->DisplayImage("/tmp/cover.jpg", icon_x, icon_y, icon_w, icon_h, 1);
 	}
 
@@ -675,17 +650,6 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	aspectRatio = 0;
 	fileplay = 0;
 	current_channel_id = old_channel_id;
-}
-
-void CInfoViewer::check_channellogo_ca_SettingsChange()
-{
-	if (casysChange != g_settings.infobar_casystem_display || channellogoChange != g_settings.infobar_show_channellogo)
-	{
-		casysChange = g_settings.infobar_casystem_display;
-		channellogoChange = g_settings.infobar_show_channellogo;
-		initBBOffset();
-		start();
-	}
 }
 
 void CInfoViewer::showTitle(t_channel_id chid, const bool calledFromNumZap, int epgpos)
@@ -702,11 +666,11 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 
 	if(!calledFromNumZap && !(zap_mode & IV_MODE_DEFAULT))
 		resetSwitchMode();
-	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
 
 	std::string Channel = channel->getName();
 	t_channel_id new_channel_id = channel->getChannelID();
 	int ChanNum = channel->number;
+	char strChanNum[10];
 
 	current_epg_id = channel->getEpgID();
 
@@ -718,7 +682,8 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	else
 		isVolscale = false;
 
-	check_channellogo_ca_SettingsChange();
+	initBBOffset();
+	start();
 	aspectRatio = 0;
 	last_curr_id = last_next_id = 0;
 	showButtonBar = !calledFromNumZap;
@@ -736,16 +701,11 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	is_visible = true;
 	is_visible = true;
 
-	fb_pixel_t col_NumBoxText = COL_INFOBAR_TEXT;
 	ChannelName = Channel;
 	bool new_chan = false;
 
 	if (zap_mode & IV_MODE_VIRTUAL_ZAP)
 	{
-		if (g_RemoteControl->current_channel_id != new_channel_id)
-		{
-			col_NumBoxText = COL_MENUHEAD_TEXT;
-		}
 		if ((current_channel_id != new_channel_id) || (evtlist.empty()))
 		{
 			CEitManager::getInstance()->getEventsServiceKey(current_epg_id, evtlist);
@@ -764,14 +724,11 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		current_channel_id = new_channel_id;
 	}
 
-	/* showChannelLogo() changes this, so better reset it every time... */
 	ChanNameX = BoxStartX + ChanWidth + OFFSET_SHADOW;
 
-	paintHead();
+	paintHead(current_channel_id,ChannelName);
 	paintBody();
 
-	if (timeset && (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers))
-		clock->paint(CC_SAVE_SCREEN_NO);
 	showRecords();
 	ana_clock_size = (BoxEndY - (ChanNameY + header_height) - 6);
 	if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
@@ -782,48 +739,13 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		paintshowButtonBar();
 	}
 
-	ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : 5;
-	int ChannelLogoMode = 0;
-	bool logo_ok = false;
-	if (ChanNum) /* !fileplay */
+	if ((ChanNum) && (g_settings.channellist_show_numbers))
 	{
-		//char strChanNum[10];
 		snprintf (strChanNum, sizeof(strChanNum), "%d", ChanNum);
-		ChannelLogoMode = showChannelLogo(current_channel_id, BoxEndX - (ChanInfoX + 10) - time_width - OFFSET_INNER_MID - 5 - showBBIcons_width);
-		logo_ok = ( g_settings.infobar_show_channellogo != 0 && ChannelLogoMode != 0);
-		//fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
-
-		/* TODO: the logic will get much easier once we decouple channellogo and signal bars */
-		if ((!logo_ok && g_settings.infobar_show_channellogo < 2) || g_settings.infobar_show_channellogo == 2 || g_settings.infobar_show_channellogo == 4) // no logo in numberbox
-		{
-			// show number in numberbox
-			if (g_settings.channellist_show_numbers)
-				PaintChanNumber();
+		ChanNumWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum) + 5;
+	}
 			else
 				ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : 5;
-		}
-		if (ChannelLogoMode == 1 || ( g_settings.infobar_show_channellogo == 3 && !logo_ok) || g_settings.infobar_show_channellogo == 6 ) /* channel number besides channel name */
-		{
-			ChanNumWidth = 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (strChanNum);
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
-				ChanNameX + 5, ChanNameY + header_height,
-				ChanNumWidth, strChanNum, col_NumBoxText, 0, renderFlag);
-		}
-	}
-
-	if (g_settings.infobar_show_channellogo < 5 || !logo_ok)
-	{
-		if (ChannelLogoMode != 2)
-		{
-			//FIXME good color to display inactive for zap ?
-			//fb_pixel_t color = CNeutrinoApp::getInstance ()->channelList->SameTP(new_channel_id) ? COL_INFOBAR_TEXT : COL_MENUFOOT_TEXT;
-			fb_pixel_t color = g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_TEXT : COL_INFOBAR_TEXT;
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
-				ChanInfoX + 10, ChanNameY + header_height,
-				BoxEndX - (ChanInfoX + 10) - time_width - OFFSET_INNER_MID - 5 - showBBIcons_width,
-				ChannelName, color , 0, renderFlag);	// UTF-8
-		}
-	}
 
 	if (fileplay)
 	{
@@ -836,6 +758,13 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 
 	showLcdPercentOver ();
 	showInfoFile();
+
+	int ChanNumYPos = (BoxEndY + ChanNameY + header_height) /2 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() /2;
+
+	if ((g_settings.channellist_show_numbers) && (ChanNum))
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->RenderString(
+			ChanInfoX + 10, ChanNumYPos,
+			ChanNumWidth, strChanNum, COL_INFOBAR_TEXT);
 
 	// Radiotext
 	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio)
@@ -854,20 +783,6 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		frameBuffer->blit();
 	aspectRatio = 0;
 	fileplay = 0;
-}
-
-void CInfoViewer::PaintChanNumber()
-{
-	int ChanNumYPos = (BoxEndY + ChanNameY + header_height) /2 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() /2;
-	if (g_settings.channellist_show_numbers)
-	{
-		ChanNumWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum) + 5;
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->RenderString(
-			ChanInfoX + 10, ChanNumYPos,
-			ChanNumWidth, strChanNum, COL_INFOBAR_TEXT);
-	}
-	else
-		ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : 5;
 }
 
 void CInfoViewer::setInfobarTimeout(int timeout_ext)
@@ -1074,8 +989,6 @@ void CInfoViewer::loop()
 				// doesn't belong here, but easiest way to check for a change ...
 				if (is_visible && showButtonBar)
 					showIcon_CA_Status(0);
-				if (timeset && (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers))
-					clock->paint(CC_SAVE_SCREEN_NO);
 				showIcon_Update (blink);
 				blink = !blink;
 				showInfoFile();
@@ -1676,11 +1589,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		int pb_w = 112;
 		int pb_startx = BoxEndX - pb_w - OFFSET_SHADOW;
 		int pb_starty = ChanNameY - (pb_h + 10);
-		if (g_settings.infobar_progressbar)
-		{
+
 			pb_startx = xStart;
 			pb_w = BoxEndX - 10 - xStart;
-		}
 
 		pb_starty = CurrInfoY + ((pb_h / 3)-(pb_h/5)) ;
 		pb_h = (pb_h/5);
@@ -1691,16 +1602,11 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 
 		timescale->setDimensionsAll(pb_startx, pb_starty, pb_w, pb_h);
 		timescale->setActiveColor(COL_INFOBAR_PLUS_7);
-		timescale->setPassiveColor(g_settings.infobar_progressbar ? COL_INFOBAR_PLUS_1 : COL_INFOBAR_PLUS_0);
-		timescale->enableShadow(!g_settings.infobar_progressbar ? CC_SHADOW_ON : CC_SHADOW_OFF, OFFSET_SHADOW/2);
+		timescale->setPassiveColor(COL_INFOBAR_PLUS_1);
+		timescale->enableShadow(CC_SHADOW_OFF, OFFSET_SHADOW/2);
 		timescale->setValues(pb_p, pb_w);
 
 		//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - OFFSET_SHADOW, ChanNameY - (pb_h + 10) , pb_w, pb_h);
-	}
-	else
-	{
-		if (g_settings.infobar_progressbar == SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT)
-			timescale->kill();
 	}
 
 	if (showButtonBar)
@@ -1820,9 +1726,6 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	if (pb_pos > -1)
 		timescale->paint();
 
-	//and finally paint channelnumber (again)
-	if (g_settings.channellist_show_numbers)
-		PaintChanNumber();
 }
 
 void CInfoViewer::show_Data (bool calledFromEvent)
@@ -2051,17 +1954,9 @@ void CInfoViewer::killTitle()
 		}
 
 		header->kill();
-		if (clock)
-		{
-			clock->kill();
-			delete clock;
-			clock = NULL;
-		}
+
 		body->kill();
 
-		if (timescale)
-			if (g_settings.infobar_progressbar == SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT)
-				timescale->kill();
 		if (g_settings.radiotext_enable && g_Radiotext)
 		{
 			g_Radiotext->S_RtOsd = g_Radiotext->haveRadiotext() ? 1 : 0;
@@ -2084,46 +1979,6 @@ void CInfoViewer::killTitle()
 	}
 	showButtonBar = false;
 	CInfoClock::getInstance()->enableInfoClock();
-}
-
-/******************************************************************************
-returns mode of painted channel logo,
-0 = no logo painted
-1 = in number box
-2 = in place of channel name
-3 = beside channel name
-*******************************************************************************/
-int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int logo_max_width)
-{
-	int res = 0;
-
-	if (!g_settings.infobar_show_channellogo) // show logo only if configured
-		return res;
-
-	int logo_x = ChanInfoX + 15;
-	int logo_y = ChanNameY + OFFSET_INNER_MIN;
-
-	CComponentsChannelLogoScalable logo = CComponentsChannelLogoScalable(logo_x, logo_y, ChannelName, logo_channel_id);
-
-	if (! logo.hasLogo())
-		return res;
-
-	logo.setWidth(min(logo.getWidth(), logo_max_width - 2*OFFSET_INNER_MID), true);
-	if (logo.getHeight() > header_height - OFFSET_INNER_MIN)
-		logo.setHeight(header_height - OFFSET_INNER_MIN, true);
-
-	logo_y = logo_y + (header_height - logo.getHeight())/2;
-
-	logo.setYPos(logo_y);
-
-	logo.paint(false);
-
-	if (g_settings.infobar_show_channellogo == 2)
-		res = 2;
-	else
-		res = 5;
-
-	return res;
 }
 
 void CInfoViewer::showLcdPercentOver ()
@@ -2191,11 +2046,6 @@ void CInfoViewer::ResetModules(bool kill)
 	body = NULL;
 	delete infobar_txt;
 	infobar_txt = NULL;
-	if (clock)
-	{
-		delete clock;
-		clock = NULL;
-	}
 	delete txt_cur_start;
 	txt_cur_start = NULL;
 	delete txt_cur_event;
@@ -2580,7 +2430,7 @@ void CInfoViewer::showIcons(const int modus, const std::string & icon)
 		return;
 	if ((modus >= CInfoViewer::ICON_SUBT) && (modus < CInfoViewer::ICON_MAX) && (bbIconInfo[modus].x != -1) && (is_visible))
 	{
-		frameBuffer->paintIcon(icon, bbIconInfo[modus].x - time_width, ChanNameY + 8,
+		frameBuffer->paintIcon(icon, bbIconInfo[modus].x - time_width, ChanNameY + (header_height - bbIconMaxH)/2,
 							   InfoHeightY_Info, 1, true, !g_settings.theme.infobar_gradient_top, COL_INFOBAR_BUTTONS_BACKGROUND);
 	}
 }
@@ -3089,8 +2939,6 @@ void CInfoViewer::ResetPBars()
 
 	timescale->reset();
 	
-	if(!clock)
-		initClock();
 }
 
 void CInfoViewer::initBBOffset()
