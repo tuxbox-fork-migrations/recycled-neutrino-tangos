@@ -68,9 +68,7 @@ class CInfoViewerBB
 			ICON_RES	= 5,
 			ICON_CA		= 6,
 			ICON_TUNER	= 7,
-			ICON_UPDATE	= 8,
-			ICON_LOGO	= 9,
-			ICON_MAX	= 10
+			ICON_MAX	= 8
 		};
 
 		typedef struct
@@ -84,16 +82,6 @@ class CInfoViewerBB
 			std::string text;
 			bool active;
 		} bbButtonInfoStruct;
-
-		enum CAM_DECODE_NUM {UNKNOWN, NA, FTA, LOCAL, CARD, REMOTE};
-		void 		paint_cam_icons();
-		void*		Thread_paint_cam_icons(void);
-		unsigned short int decode;
-		int		DecEndx;
-		int 		parse_ecmInfo(const char * file);
-		int		check_ecmInfo();
-		bool	camCI;
-		bool	useCI;
 
 		typedef struct
 		{
@@ -140,7 +128,7 @@ class CInfoViewerBB
 		static CInfoViewerBB* getInstance();
 		void Init(void);
 
-		int bottom_bar_offset, InfoHeightY_Info, showBBIcons_width;
+		int bottom_bar_offset, InfoHeightY_Info;
 		bool is_visible;
 
 		void showSysfsHdd(void);
@@ -151,10 +139,6 @@ class CInfoViewerBB
 		void showIcon_SubT();
 		void showIcon_Resolution();
 		void showIcon_Tuner(void);
-		void showIcon_Update(bool);
-		void showIcon_Logo();
-		void show_clock(int posx,int posy,int dia);
-		void ShowRecDirScale();
 		void showIcon_DD(void);
 		void showBBButtons(bool paintFooter = false);
 		void paintshowButtonBar();

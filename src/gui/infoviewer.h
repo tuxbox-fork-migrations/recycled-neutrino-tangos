@@ -67,7 +67,6 @@ class CInfoViewer
 	bool	       fileplay;
 
 	int            ButtonWidth;
-	int            spacer;
 
         // dimensions of radiotext window
         int             rt_dx;
@@ -80,13 +79,10 @@ class CInfoViewer
 	std::string ChannelName;
 
 	int            ChanNameX;
-	int            ChanNumWidth;
+	int            ChanNameY;
 	int            ChanWidth;
+	int            ChanHeight;
 	int            numbox_offset;
-
-	int            ana_clock_size;
-	char		   strChanNum[10];
-	void           PaintChanNumber();
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
 	CSectionsdClient::CurrentNextInfo oldinfo;
@@ -96,6 +92,7 @@ class CInfoViewer
 	//uint32_t           fadeTimer;
 	COSDFader	fader;
 
+	int time_width;
 	int time_height;
 	int info_time_width;
 	int header_height;
@@ -154,8 +151,6 @@ class CInfoViewer
 	void sendNoEpg(const t_channel_id channel_id);
 	bool showLivestreamInfo();
 
-	CComponentsWindowMax *ecmInfoBox;
-
  public:
 	bool     chanready;
 	bool	 is_visible;
@@ -163,21 +158,13 @@ class CInfoViewer
 	char     aspectRatio;
 	uint32_t sec_timer_id;
 
-	int      BoxStartX;
-	int      BoxStartY;
-	int      ChanHeight;
+	int	BoxStartX;
+	int	BoxStartY;
 	int      BoxEndX;
 	int      BoxEndY;
 	int      ChanInfoX;
 	bool     showButtonBar;
 	bool     isVolscale;
-	int      ChanNameY;
-	int      time_width;
-
-	std::string	md5_ecmInfo;
-	bool ecminfo_toggle;
-	void ecmInfoBox_hide();
-	void ecmInfoBox_show(const char * txt, int w, int h, Font * font);
 
 	CInfoViewer();
 	~CInfoViewer();
