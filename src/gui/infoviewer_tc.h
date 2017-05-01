@@ -131,10 +131,10 @@ private:
 	void paintBody();
 	void show_Data( bool calledFromEvent = false );
 	void display_Info(const char *current, const char *next,
-					  bool starttimes = true, const int pb_pos = -1,
-					  const char *runningStart = NULL, const char *runningRest = NULL,
-					  const char *nextStart = NULL, const char *nextDuration = NULL,
-					  bool update_current = true, bool update_next = true);
+	                  bool starttimes = true, const int pb_pos = -1,
+	                  const char *runningStart = NULL, const char *runningRest = NULL,
+	                  const char *nextStart = NULL, const char *nextDuration = NULL,
+	                  bool update_current = true, bool update_next = true);
 	void initClock();
 	void showRecordIcon(const bool show);
 
@@ -251,8 +251,8 @@ public:
 	~CInfoViewer();
 
 	void	showMovieTitle(const int playState, const t_channel_id &channel_id, const std::string &title,
-						   const std::string &g_file_epg, const std::string &g_file_epg1,
-						   const int duration, const int curr_pos, const int repeat_mode, const int _zap_mode = IV_MODE_DEFAULT);
+	                       const std::string &g_file_epg, const std::string &g_file_epg1,
+	                       const int duration, const int curr_pos, const int repeat_mode, const int _zap_mode = IV_MODE_DEFAULT);
 
 	void	start();
 	void	showEpgInfo();
@@ -345,8 +345,11 @@ public:
 	{
 		return ca_bar;
 	}
-	
+
 	// This functions used outside.
-	void changePB() { ResetPBars(); };
+	void changePB()
+	{
+		ResetPBars();
+	};
 };
 #endif
