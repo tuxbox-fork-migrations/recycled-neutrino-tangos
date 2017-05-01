@@ -62,8 +62,8 @@ public:
 private:
 
 	CFrameBuffer *frameBuffer;
-	CComponentsFrmClock *clock;
-	CComponentsShapeSquare *header, *body, *rec, *foot, *ca_bar;
+	CComponentsHeader *header;
+	CComponentsShapeSquare *body, *rec, *foot, *ca_bar;
 	CComponentsTextTransp *txt_cur_start, *txt_cur_event, *txt_cur_event_rest, *txt_next_start, *txt_next_event, *txt_next_in;
 	CComponentsInfoBox *infobar_txt;
 	CComponentsWindowMax *ecmInfoBox;
@@ -97,7 +97,6 @@ private:
 
 	int            ana_clock_size;
 
-	char		   strChanNum[10];
 	int            ChanNumWidth;
 	void           PaintChanNumber();
 
@@ -108,7 +107,6 @@ private:
 
 	COSDFader	fader;
 
-	int time_height;
 	int info_time_width;
 	int header_height;
 	bool newfreq ;
@@ -124,13 +122,12 @@ private:
 	CProgressBar *hddscale;
 
 	bool casysChange;
-	bool channellogoChange;
 	uint32_t lcdUpdateTimer;
 	int	 zap_mode;
 	std::string _livestreamInfo1;
 	std::string _livestreamInfo2;
 
-	void paintHead();
+	void paintHead(t_channel_id channel_id,std::string channel_name);
 	void paintBody();
 	void show_Data( bool calledFromEvent = false );
 	void display_Info(const char *current, const char *next,
@@ -144,7 +141,6 @@ private:
 	void showFailure();
 	void showMotorMoving(int duration);
 	void showLcdPercentOver();
-	int showChannelLogo(const t_channel_id logo_channel_id, const int channel_number_width);
 	void showRadiotext();
 	void killRadiotext();
 
