@@ -373,6 +373,9 @@ void CInfoViewer::paintHead(t_channel_id channel_id,std::string channel_name)
 	int head_x = BoxStartX;
 	int head_w = BoxEndX-head_x;
 	int head_h = max(ChanHeight / 2,g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight());
+
+	CInfoClock::getInstance()->disableInfoClock();
+
 	if (header == NULL)
 	{
 		header = new CComponentsHeader(head_x, ChanNameY, head_w, head_h);
