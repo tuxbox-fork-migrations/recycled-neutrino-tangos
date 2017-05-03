@@ -2184,6 +2184,7 @@ void CChannelList::paintHead()
 
 	if(g_settings.channellist_show_channellogo){
 		//ensure to have clean background
+		header->getChannelLogoObject()->disableSaveBg();
 		header->getChannelLogoObject()->hide();
 		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
 		header->getChannelLogoObject()->allowPaint(false);
