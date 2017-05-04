@@ -874,6 +874,7 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 		header->getTextObject()->enableTboxSaveScreen(g_settings.theme.menu_Head_gradient);//enable screen save for title text if color gradient is in use
 		header->enableClock(true, "%H:%M", "%H.%M", true);
 		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+		header->set2ndColor(COL_MENUCONTENT_PLUS_0);
 		header->setDimensionsAll(x, y, full_width, theight);
 	}
 	//header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
