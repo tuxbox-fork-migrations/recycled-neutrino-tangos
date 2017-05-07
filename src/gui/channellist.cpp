@@ -124,7 +124,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 	dline = NULL;
-	cc_minitv = NULL;
+
 	minitv_is_active = false;
 	headerNew = true;
 	bouquet = NULL;
@@ -2202,13 +2202,17 @@ void CChannelList::paintHead()
 
 CComponentsHeader* CChannelList::getHeaderObject()
 {
-	return header;
+	if (header)
+		return header;
+	return NULL;
 }
 
 void CChannelList::ResetModules()
 {
-	delete header;
-	header = NULL;
+	if (header){
+		delete header;
+		header = NULL;
+	}
 	if(dline){
 		delete dline;
 		dline = NULL;
