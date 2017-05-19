@@ -2154,6 +2154,9 @@ void CChannelList::paint()
 	paintHead();
 	TIMER_STOP("CChannelList::paint() after paint head");
 	paintBody();
+	showChannelLogo();
+	if(!edit_state && header)
+			header->getClockObject()->setBlit();
 	TIMER_STOP("CChannelList::paint() after paint body");
 	updateVfd();
 	TIMER_STOP("CChannelList::paint() paint total");
@@ -2185,6 +2188,7 @@ void CChannelList::paintHead()
 					header->removeContextButtons();
 			header->enableClock(true, "%H:%M", "%H.%M", true);
 			header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
+			header->getClockObject()->setBlit(false);
 		}else{
 			if (header->getClockObject()){
 				header->disableClock();
@@ -2196,14 +2200,14 @@ void CChannelList::paintHead()
 	if(g_settings.channellist_show_channellogo){
 		//ensure to have clean background
 		header->getChannelLogoObject()->disableSaveBg();
-		header->getChannelLogoObject()->hide();
-		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
+		//header->getChannelLogoObject()->hide();
+		//header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
 		header->getChannelLogoObject()->allowPaint(false);
 	}
 	else
 		header->setChannelLogo(0, string());
 	header->paint(CC_SAVE_SCREEN_NO);
-	showChannelLogo();
+	//showChannelLogo();
 }
 
 CComponentsHeader* CChannelList::getHeaderObject()
