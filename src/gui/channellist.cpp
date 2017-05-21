@@ -125,6 +125,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 	dline = NULL;
 
+	channelsPainted = false;
 	minitv_is_active = false;
 	headerNew = true;
 	bouquet = NULL;
@@ -555,8 +556,12 @@ bool CChannelList::updateSelection(int newpos)
 
 		liststart = (selected/listmaxshow)*listmaxshow;
 		if (oldliststart != liststart) {
+			if(!edit_state && header)
+				header->getClockObject()->setBlit(false);
 			paintBody();
 			showChannelLogo();
+			if(!edit_state && header)
+				header->getClockObject()->setBlit();
 			updateVfd();
 		} else {
 			paintItem(prev_selected - liststart);
@@ -2260,8 +2265,10 @@ void CChannelList::paintBody()
 
 	unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 
+	channelsPainted = false;
 	for(unsigned int count = 0; count < listmaxshow; count++)
 		paintItem(count, true);
+	channelsPainted = true;
 
 	const int ypos = y+ theight;
 	const int sb = height - theight - footerHeight; // paint scrollbar over full height of main box
@@ -2480,7 +2487,8 @@ void CChannelList::paint_events(CChannelEventList &evtlist)
 		}
 		i++;
 	}
-	frameBuffer->blit();
+	if(	channelsPainted)
+		frameBuffer->blit();
 }
 
 static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
