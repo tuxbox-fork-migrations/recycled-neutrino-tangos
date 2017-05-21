@@ -850,7 +850,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 		header->enableClock(true, "%H:%M", "%H.%M", true);
 		header->getClockObject()->setBlit(false);
-	}else
+	} else {
 		header->setDimensionsAll(sx, sy, ox, toph);
 		header->getClockObject()->setBlit(false);
 	}
