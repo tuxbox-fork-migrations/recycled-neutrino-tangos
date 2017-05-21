@@ -296,7 +296,11 @@ int CAudioSelectMenuHandler::doMenu ()
 
 	//tonbug
 	AudioSelector->addItem(GenericMenuSeparatorLine);
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	AudioSelector->addItem(new CMenuForwarder(LOCALE_CI_RESET, true, NULL, CNeutrinoApp::getInstance(), "tonbug", CRCInput::convertDigitToKey(++shortcut_num)));
+#else
+	AudioSelector->addItem(new CMenuForwarder(LOCALE_CI_RESET, true, NULL, CNeutrinoApp::getInstance(), "tonbug", CRCInput::RC_green));
+#endif
 
 	int res = AudioSelector->exec(NULL, "");
 
