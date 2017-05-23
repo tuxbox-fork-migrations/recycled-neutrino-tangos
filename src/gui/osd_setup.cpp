@@ -624,6 +624,13 @@ int COsdSetup::showOsdSetup()
 	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR);
 	osd_menu->addItem(mf);
 
+	//NI channellogos
+	CMenuWidget osd_menu_channellogos(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_CHANNELLOGOS);
+	showOsdChannellogosSetup(&osd_menu_channellogos);
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLOGOS, true, NULL, &osd_menu_channellogos, NULL, CRCInput::convertDigitToKey(shortcut++));
+	mf->setHint("", LOCALE_MENU_HINT_CHANNELLOGOS_SETUP);
+	osd_menu->addItem(mf);
+
 	//infobar
 	CMenuWidget osd_menu_infobar(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_INFOBAR);
 	showOsdInfobarSetup(&osd_menu_infobar);
@@ -1130,6 +1137,19 @@ const CMenuOptionChooser::keyval INFOVIEWER_ECMINFO_OPTIONS[] =
 };
 #define INFOVIEWER_ECMINFO_OPTION_COUNT (sizeof(INFOVIEWER_ECMINFO_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
+//NI channellogos
+void COsdSetup::showOsdChannellogosSetup(CMenuWidget *menu_channellogos)
+{
+	menu_channellogos->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLOGOS);
+
+	CMenuForwarder * mf;
+
+	// logo directory
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR_LOGO_HDD_DIR, true, g_settings.logo_hdd_dir, this, "logo_dir");
+	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_LOGO_DIR);
+	menu_channellogos->addItem(mf);
+}
+
 //infobar
 void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 {
@@ -1140,12 +1160,14 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	sigc::slot0<void> slot_ibar = sigc::mem_fun(g_InfoViewer, &CInfoViewer::KillModules);
 
 	CMenuOptionChooser * mc;
-	CMenuForwarder * mf;
+	//NI CMenuForwarder * mf;
 
+#if 0
 	// logo directory
 	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR_LOGO_HDD_DIR, true, g_settings.logo_hdd_dir, this, "logo_dir");
 	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_LOGO_DIR);
 	menu_infobar->addItem(mf);
+#endif
 
 #if 0
 	// resolution
