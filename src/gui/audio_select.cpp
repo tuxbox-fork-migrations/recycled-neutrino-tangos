@@ -150,7 +150,9 @@ int CAudioSelectMenuHandler::doMenu ()
 	AudioSelector->addKey(CRCInput::RC_right, this, "+");
 	AudioSelector->addKey(CRCInput::RC_left, this, "-");
 	AudioSelector->addKey(CRCInput::RC_red, this, "x");
+#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
 	AudioSelector->addKey(CRCInput::RC_green, this, "x");
+#endif
 	AudioSelector->addKey(CRCInput::RC_yellow, this, "x");
 	AudioSelector->addKey(CRCInput::RC_blue, this, "x");
 
