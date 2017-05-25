@@ -56,6 +56,7 @@
 #include <driver/movieinfo.h>
 #include <driver/file.h>
 #include <driver/fb_window.h>
+#include <gui/widget/progresswindow.h>
 #if 0
 #include <system/ytparser.h>
 #endif
@@ -139,7 +140,7 @@ class CYTCacheSelectorTarget : public CMenuTarget
 #endif
 
 // Priorities for Developmemt: P1: critical feature, P2: important feature, P3: for next release, P4: looks nice, lets see
-class CMovieBrowser : public CMenuTarget
+class CMovieBrowser : public CMenuTarget, public CProgressSignals
 {
 #if 0
 	friend class CYTCacheSelectorTarget;
@@ -375,7 +376,6 @@ class CMovieBrowser : public CMenuTarget
 		void clearSelection();
 		bool supportedExtension(CFile &file);
 		bool addFile(CFile &file, int dirItNr);
-		sigc::signal<void, size_t, size_t, std::string> OnLoadFile;
 };
 
 // I tried a lot to use the menu.cpp as ListBox selection, and I got three solution which are all garbage.
