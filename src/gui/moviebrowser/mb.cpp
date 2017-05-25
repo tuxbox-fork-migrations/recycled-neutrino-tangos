@@ -2830,7 +2830,7 @@ void CMovieBrowser::updateDir(void)
 void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 {
 	//TRACE("[mb]->loadAllTsFileNamesFromStorage \n");
-	int i,size;
+	size_t i,size;
 
 	m_movieSelectionHandler = NULL;
 	m_dirNames.clear();
@@ -2841,8 +2841,10 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 	size = m_dir.size();
 	for (i=0; i < size;i++)
 	{
-		if (*m_dir[i].used == true)
+		if (*m_dir[i].used == true){
+			OnGlobalProgress(i, size, m_dir[i].name);
 			loadTsFileNamesFromDir(m_dir[i].name);
+		}
 	}
 
 	TRACE("[mb] Dir%d, Files:%d\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size());
@@ -2950,7 +2952,8 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 	CFileList flist;
 	if (readDir(dirname, &flist) == true)
 	{
-		for (size_t i = 0; i < flist.size(); i++)
+		size_t count = flist.size();
+		for (size_t i = 0; i < count; i++)
 		{
 			if (S_ISDIR(flist[i].Mode)) {
 				if (m_settings.ts_only || !CFileBrowser::checkBD(flist[i])) {
@@ -2961,7 +2964,10 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 			} else {
 				result |= addFile(flist[i], dirItNr);
 			}
-			OnLoadFile(i, flist.size(), g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
+#if 0
+			if (result)
+				OnLocalProgress(i, count, dirname );
+#endif
 		}
 		//result = true;
 	}
@@ -3201,9 +3207,9 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 	TRACE("[mb] loadMovies: \n");
 
 #if 0
-	CProgressWindow loadBox((show_mode == MB_SHOW_YT) ? LOCALE_MOVIEPLAYER_YTPLAYBACK : LOCALE_MOVIEBROWSER_HEAD, 500, 150, show_mode == MB_SHOW_YT ? &ytparser.OnLoadVideoInfo : &OnLoadFile);
+	CProgressWindow loadBox((show_mode == MB_SHOW_YT) ? LOCALE_MOVIEPLAYER_YTPLAYBACK : LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES, CCW_PERCENT 50, CCW_PERCENT 10, NULL, show_mode == MB_SHOW_YT ? &ytparser.OnProgress : &OnGlobalProgress);
 #else
-	CProgressWindow loadBox(LOCALE_MOVIEBROWSER_HEAD, 500, 150, &OnLoadFile);
+	CProgressWindow loadBox(LOCALE_MOVIEBROWSER_HEAD, CCW_PERCENT 50, CCW_PERCENT 10, NULL, &OnGlobalProgress);
 #endif 
 	loadBox.enableShadow();
 	loadBox.paint();
