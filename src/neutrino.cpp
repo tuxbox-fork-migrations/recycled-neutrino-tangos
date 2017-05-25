@@ -2340,7 +2340,7 @@ TIMER_START();
 	bootstatus->enableShadow();
 	bootstatus->paint();
 	bootstatus->showStatusMessageUTF("loading...");
-	bootstatus->showGlobalStatus(20);
+	bootstatus->showStatus(20);
 
 	CVFD::getInstance()->init(neutrinoFonts->fontDescr.filename.c_str(), neutrinoFonts->fontDescr.name.c_str());
 	CVFD::getInstance()->Clear();
@@ -2356,7 +2356,7 @@ TIMER_START();
 	if (!scanSettings.loadSettings(NEUTRINO_SCAN_SETTINGS_FILE))
 		dprintf(DEBUG_NORMAL, "Loading of scan settings failed. Using defaults.\n");
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+10);
+	bootstatus->showStatus(30);
 
 	/* set service manager options before starting zapit */
 	CServiceManager::getInstance()->KeepNumbers(g_settings.keep_channel_numbers);
@@ -2376,7 +2376,7 @@ TIMER_START();
 	//get zapit config for writeChannelsNames
 	CZapit::getInstance()->GetConfig(zapitCfg);
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+20);
+	bootstatus->showStatus(40);
 
 	// init audio settings
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
@@ -2389,7 +2389,7 @@ TIMER_START();
 	if(g_settings.avsync != (AVSYNC_TYPE) AVSYNC_ENABLED)
 		audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
+	bootstatus->showStatus(45);
 
 	//init video settings
 	g_videoSettings = new CVideoSettings;
@@ -2397,11 +2397,11 @@ TIMER_START();
 
 	g_RCInput = new CRCInput(timer_wakeup);
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
+	bootstatus->showStatus(50);
 
 	InitZapitClient();
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
+	bootstatus->showStatus(55);
 
 	g_Zapit->setStandby(false);
 
@@ -2409,7 +2409,7 @@ TIMER_START();
 	CheckFastScan();
 #endif
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
+	bootstatus->showStatus(60);
 
 #if HAVE_COOL_HARDWARE
 	// init hw_caps *after* zapit start!
@@ -2432,7 +2432,7 @@ TIMER_START();
 	timer_wakeup = (timer_wakeup && g_settings.shutdown_timer_record_type);
 	g_settings.shutdown_timer_record_type = false;
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
+	bootstatus->showStatus(65);
 
 	/* todo: check if this is necessary
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) (timer_wakeup && g_settings.shutdown_timer_record_type));
@@ -2444,7 +2444,7 @@ TIMER_START();
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *)&timer_wakeup);
 	timerd_thread_started = true;
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
+	bootstatus->showStatus(70);
 
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG, &g_settings.audio_mixer_volume_analog);
@@ -2466,7 +2466,7 @@ TIMER_START();
 
 	dvbsub_init();
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
+	bootstatus->showStatus(75);
 
 #if ENABLE_WEBIF
 	pthread_t nhttpd_thread;
@@ -2490,7 +2490,7 @@ TIMER_START();
 	g_InfoViewer = new CInfoViewer;
 	g_EventList = new CEventList;
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
+	bootstatus->showStatus(80);
 
 #if !HAVE_SPARK_HARDWARE
 	g_CamHandler = new CCAMMenuHandler();
@@ -2516,7 +2516,7 @@ TIMER_START();
 	//load Pluginlist before main menu (only show script menu if at least one script is available
 	g_Plugins->loadPlugins();
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
+	bootstatus->showStatus(85);
 
 	// setup recording device
 	setupRecordingDevice();
@@ -2525,7 +2525,7 @@ TIMER_START();
 	//init Menues
 	InitMenu();
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
+	bootstatus->showStatus(90);
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
 
@@ -2554,7 +2554,7 @@ TIMER_START();
 	LCD4l = new CLCD4l();
 	LCD4l->StartLCD4l();
 
-	bootstatus->showGlobalStatus(bootstatus->getGlobalStatus()+5);
+	bootstatus->showStatus(95);
 
 	if(loadSettingsErg) {
 		bootstatus->hide();
@@ -2568,7 +2568,7 @@ TIMER_START();
 
 	InitZapper();
 
-	bootstatus->showGlobalStatus(100);
+	bootstatus->showStatus(100);
 
 	CHDDDestExec * hdd = new CHDDDestExec();
 	hdd->exec(NULL, "");
