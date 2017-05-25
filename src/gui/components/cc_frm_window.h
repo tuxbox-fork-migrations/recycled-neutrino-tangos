@@ -29,6 +29,8 @@
 #include "cc_frm_header.h"
 #include "cc_frm_footer.h"
 
+#define CCW_PERCENT - //placeholder for negative sign '-', used for discret dimensions parameters
+
 //! Sub class of CComponentsForm. Shows a window with prepared items.
 /*!
 CComponentsWindow provides prepared items like header, footer and a container for
