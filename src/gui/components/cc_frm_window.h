@@ -245,7 +245,6 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		* @see		CTextBox for alignment modes
 		*/
 		void setWindowCaption(const std::string& text, const cc_title_alignment_t& align_mode = DEFAULT_TITLE_ALIGN){ccw_caption = text; ccw_align_mode = align_mode;}
-		///set header text color
 
 		/**
 		* sets title text in header

@@ -329,10 +329,9 @@ colormenu.fade Ein-/Ausblenden
 colormenu.font Verwendete Schriftart
 colormenu.font_sub Untertitel-Schriftart
 colormenu.font_ttx Teletext-Schriftart
-colormenu.hd_preset LCD
 colormenu.menucolors Farben
 colormenu.osd_preset Monitor Auswahl
-colormenu.sd_preset CRT
+colormenu.osd_resolution OSD-Auflösung
 colormenu.textcolor Textfarbe
 colormenu.themeselect Theme auswählen
 colormenu.timing Timeouts
@@ -609,11 +608,11 @@ filebrowser.scan Durchsuche Verzeichnisse
 filebrowser.select Auswählen
 filebrowser.showrights Dateirechte anzeigen
 filebrowser.start.dir Start Verzeichnis
-filebrowser.sort.date (Datum)
-filebrowser.sort.name (Dateiname)
-filebrowser.sort.namedirsfirst (Dateiname2)
-filebrowser.sort.size (Größe)
-filebrowser.sort.type (Typ)
+filebrowser.sort.date Datum
+filebrowser.sort.name Name
+filebrowser.sort.namedirsfirst Name, Verz. zuerst
+filebrowser.sort.size Größe
+filebrowser.sort.type Typ
 filesystem.is.utf8 Dateisystem
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
@@ -1342,6 +1341,7 @@ menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gew�
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs usw.
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
+menu.hint_osd_resolution Wählen Sie eine OSD-Auflösung
 menu.hint_osd_timing Einblendzeit, die das OSD auf dem TV angezeigt wird
 menu.hint_other_fonts Ändern anderer Schriftgrößen
 menu.hint_parentallock_changepin Geben Sie den 4-stelligen PIN-Code ein, der dann ggf. abgefragt wird
@@ -2415,9 +2415,11 @@ streaminfo.framerate Bildrate
 streaminfo.framerate_unknown unbekannt
 streaminfo.head Technische Informationen
 streaminfo.not_available nicht verfügbar
+streaminfo.osd_resolution OSD-Auflösung
 streaminfo.resolution Auflösung
 streaminfo.signal Empfangssignal
-streaming.busy Ein oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart der GUI Abhilfe.
+streaminfo.videosystem Videosystem
+streaming.busy Einer oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart der GUI Abhilfe.
 streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufnahmen sind daher nicht möglich.
 streaming.overflow Aufnahme-Puffer Überlauf! Bitte ggf. einige Aufnahmen beenden.
 streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen beenden.
