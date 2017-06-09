@@ -124,7 +124,11 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 		}
 		if (ivVisible) {
 			CNeutrinoApp::getInstance()->StopSubtitles();
+#if ENABLE_TANGOS
+			g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannel(), true, 0);
+#else
 			g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannel(), true, 0, true);
+#endif
 			CNeutrinoApp::getInstance()->StartSubtitles();
 		}
 	}
