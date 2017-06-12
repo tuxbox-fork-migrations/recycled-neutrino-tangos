@@ -2188,7 +2188,7 @@ void CChannelList::paintHead()
 
 	header->setCaption(header_txt, DEFAULT_TITLE_ALIGN, header_txt_col);
 
-	if (timeset) {
+//	if (timeset) {
 		if(!edit_state){
 			if (header->getContextBtnObject())
 				if (!header->getContextBtnObject()->empty())
@@ -2202,7 +2202,7 @@ void CChannelList::paintHead()
 				header->setContextButton(CComponentsHeader::CC_BTN_EXIT);
 			}
 		}
-	}
+//	}
 
 	header->paint(CC_SAVE_SCREEN_NO);
 }
