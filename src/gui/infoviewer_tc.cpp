@@ -378,12 +378,12 @@ void CInfoViewer::paintHead(t_channel_id channel_id,std::string channel_name)
 
 	if (header == NULL)
 	{
-		header = new CComponentsHeader(head_x, ChanNameY, head_w, head_h);
-		header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
+		header = new CComponentsHeader();
+		header->enableShadow(CC_SHADOW_RIGHT_CORNER_ALL);
 		header->setCorner(RADIUS_LARGE, CORNER_TOP);
 	}
-	else
-		header->setDimensionsAll(head_x, ChanNameY, head_w, head_h);
+
+	header->setDimensionsAll(head_x, ChanNameY, head_w, head_h);
 
 	header->setCaptionFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
 	header->setColorBody(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
