@@ -949,7 +949,9 @@ int CTimerList::show()
 		{
 			if (timerlist[selected].eventType == CTimerd::TIMER_RECORD )
 			{
+				header->getClockObject()->block();
 				RemoteBoxSelect();
+				header->getClockObject()->unblock();
 				if (exec(this,"send_remotetimer"))
 				{
 					res = menu_return::RETURN_EXIT_ALL;
@@ -1023,7 +1025,9 @@ int CTimerList::show()
 		}
 		else if (msg == CRCInput::RC_setup)
 		{
+			header->getClockObject()->block();
 			update = RemoteBoxSetup();
+			header->getClockObject()->unblock();
 		}
 		else if (msg == CRCInput::RC_yellow)
 		{
