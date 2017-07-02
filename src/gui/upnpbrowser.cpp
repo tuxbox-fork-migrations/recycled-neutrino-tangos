@@ -95,7 +95,7 @@ void CUpnpBrowserGui::Init()
 	topbox.setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0, COL_MENUHEAD_TEXT);
 	topbox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]);
 	topbox.enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_SHADOW_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
-	topbox.enableShadow(CC_SHADOW_ON, -1, true);
+	topbox.enableShadow(CC_SHADOW_ON);
 
 	infobox.enableFrame(true, 2);
 	infobox.setCorner(RADIUS_LARGE);
@@ -103,7 +103,7 @@ void CUpnpBrowserGui::Init()
 	infobox.setTextColor(COL_MENUCONTENTDARK_TEXT);
 	infobox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
 	infobox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_SHADOW_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);
-	infobox.enableShadow(CC_SHADOW_ON, -1, true);
+	infobox.enableShadow(CC_SHADOW_ON);
 
 	timebox.enableFrame(true, 2);
 	timebox.setCorner(RADIUS_LARGE);
@@ -111,7 +111,7 @@ void CUpnpBrowserGui::Init()
 	timebox.setTextColor(infobox.getTextColor());
 	timebox.setTextFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
 	timebox.enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_SHADOW_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);
-	timebox.enableShadow(CC_SHADOW_ON, -1, true);
+	timebox.enableShadow(CC_SHADOW_ON);
 
 	m_width = m_frameBuffer->getScreenWidthRel();
 	m_height = m_frameBuffer->getScreenHeightRel();
@@ -197,7 +197,7 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	stopAudio();
 
 	m_frameBuffer->stopFrame();
-	m_frameBuffer->Clear();
+	topbox.kill();
 	g_Zapit->startPlayBack();
 
 	CZapit::getInstance()->EnablePlayback(true);
@@ -936,8 +936,6 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 
 	delete entries;
 	timeout = 0;
-	m_frameBuffer->Clear();
-	m_frameBuffer->blit();
 
 	return endall;
 }
@@ -963,8 +961,8 @@ void CUpnpBrowserGui::paintDeviceInfo()
 
 	topbox.setDimensionsAll(m_x, m_y, m_width, m_topbox_height);
 	topbox.setCorner(RADIUS_LARGE);
-	topbox.setText(tmp, CTextBox::AUTO_WIDTH | CTextBox::CENTER);
-	topbox.paint0();
+	if (topbox.setText(tmp, CTextBox::AUTO_WIDTH | CTextBox::CENTER))
+		topbox.paint0();
 }
 
 void CUpnpBrowserGui::paintDevice(unsigned int _pos)
@@ -1165,8 +1163,8 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	}
 
 	topbox.setCorner(RADIUS_LARGE);
-	topbox.setText(tmp, CTextBox::AUTO_WIDTH | CTextBox::CENTER);
-	topbox.paint0();
+	if (topbox.setText(tmp, CTextBox::AUTO_WIDTH | CTextBox::CENTER))
+		topbox.paint0();
 }
 
 void CUpnpBrowserGui::paintItems(std::vector<UPnPEntry> *entry, unsigned int selected, unsigned int max, unsigned int offset)
@@ -1226,8 +1224,8 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 				text = m_playing_entry.title;
 				text += !m_playing_entry.artist.empty() ? " - " + m_playing_entry.artist : "";
 				text += "\n" + m_playing_entry.album;
-				infobox.setText(text, CTextBox::AUTO_WIDTH);
-				infobox.paint0();
+				if (infobox.setText(text, CTextBox::AUTO_WIDTH))
+					infobox.paint0();
 			}
 		}else{
 			if (!entry)
@@ -1236,8 +1234,8 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 			text = entry->title;
 			text += !entry->artist.empty() ? " - " + entry->artist : "";
 			text += "\n" + entry->album;
-			infobox.setText(text, CTextBox::AUTO_WIDTH);
-			infobox.paint0();
+			if (infobox.setText(text, CTextBox::AUTO_WIDTH))
+				infobox.paint0();
 		}
 		if (image)
 			image->paint0();
@@ -1247,8 +1245,11 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 
 void CUpnpBrowserGui::paintItem2DetailsLine(int pos)
 {
-	if (pos < 0)
+	if (pos < 0){
+		if (dline)
+			dline->kill();
 		return;
+	}
 
 	int xpos  = m_x - DETAILSLINE_WIDTH;
 	int ypos1 = m_item_y + pos*m_item_height;
