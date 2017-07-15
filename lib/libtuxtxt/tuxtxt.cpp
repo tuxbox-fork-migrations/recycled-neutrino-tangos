@@ -5723,17 +5723,7 @@ static void CopyBB2FB()
 #elif defined(HAVE_COOL_HARDWARE)
 		f->fbCopyArea(var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, var_screeninfo.yres);
 #else
-		if ((uint32_t)stride > var_screeninfo.xres) {
-			fb_pixel_t *lfb_ = lfb;
-			fb_pixel_t *lbb_ = lbb;
-			for (uint32_t i1 = 0; i1 < var_screeninfo.yres; i1++) {
-				memcpy(lfb_, lbb_, var_screeninfo.xres * sizeof(fb_pixel_t));
-				lfb_ += stride;
-				lbb_ += stride;
-			}
-		}
-		else
-			memcpy(lfb, lbb, fix_screeninfo.line_length*var_screeninfo.yres);
+		memcpy(lfb, lbb, fix_screeninfo.line_length*var_screeninfo.yres);
 #endif
 #endif
 
