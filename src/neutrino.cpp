@@ -66,7 +66,7 @@
 #include <driver/radiotext.h>
 #include <driver/scanepg.h>
 
-#if !HAVE_GENERIC_HARDWARE
+#if !HAVE_GENERIC_HARDWARE && ! HAVE_ARM_HARDWARE
 #include "gui/3dsetup.h"
 #include "gui/psisetup.h"
 #endif

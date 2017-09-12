@@ -343,6 +343,10 @@ AC_ARG_WITH(boxtype,
 			BOXTYPE="duckbox"
 			BOXMODEL="$withval"
 			;;	
+		armbox)
+			BOXTYPE="armbox"
+			BOXMODEL="$withval"
+			;;
 		*)
 			AC_MSG_ERROR([bad value $withval for --with-boxtype]) ;;
 	esac], [BOXTYPE="coolstream"])
@@ -351,7 +355,8 @@ AC_ARG_WITH(boxmodel,
 	[  --with-boxmodel         valid for coolstream: hd1, hd2
                           valid for generic: raspi
                           valid for duckbox: ufs910, ufs912, ufs913, ufs922, atevio7500, fortis_hdbox, octagon1008, hs7110, hs7810a, hs7119, hs7819, dp7000, cuberevo, cuberevo_mini, cuberevo_mini2, cuberevo_250hd, cuberevo_2000hd, cuberevo_3000hd, ipbox9900, ipbox99, ipbox55, arivalink200, tf7700, hl101
-                          valid for spark: spark, spark7162],
+                          valid for spark: spark, spark7162
+                          valid for armbox: armbox],
 	[case "${withval}" in
 		hd1|hd2)
 			if test "$BOXTYPE" = "coolstream"; then
@@ -393,6 +398,13 @@ AC_ARG_WITH(boxmodel,
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
 			;;
+		armbox)
+			if test "$BOXTYPE" = "armbox"; then
+				BOXMODEL="$withval"
+			else
+				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
+			fi
+			;;
 		*)
 			AC_MSG_ERROR([unsupported value $withval for --with-boxmodel])
 			;;
@@ -408,6 +420,7 @@ AM_CONDITIONAL(BOXTYPE_COOL, test "$BOXTYPE" = "coolstream")
 AM_CONDITIONAL(BOXTYPE_SPARK, test "$BOXTYPE" = "spark")
 AM_CONDITIONAL(BOXTYPE_GENERIC, test "$BOXTYPE" = "generic")
 AM_CONDITIONAL(BOXTYPE_DUCKBOX, test "$BOXTYPE" = "duckbox")
+AM_CONDITIONAL(BOXTYPE_ARMBOX, test "$BOXTYPE" = "armbox")
 AM_CONDITIONAL(BOXMODEL_CS_HD1,test "$BOXMODEL" = "hd1")
 AM_CONDITIONAL(BOXMODEL_CS_HD2,test "$BOXMODEL" = "hd2")
 AM_CONDITIONAL(BOXMODEL_UFS910,test "$BOXMODEL" = "ufs910")
@@ -440,6 +453,8 @@ AM_CONDITIONAL(BOXMODEL_HL101,test "$BOXMODEL" = "hl101")
 
 AM_CONDITIONAL(BOXMODEL_RASPI,test "$BOXMODEL" = "raspi")
 
+AM_CONDITIONAL(BOXMODEL_ARMBOX,test "$BOXMODEL" = "armbox")
+
 if test "$BOXTYPE" = "azbox"; then
 	AC_DEFINE(HAVE_AZBOX_HARDWARE, 1, [building for an azbox])
 elif test "$BOXTYPE" = "tripledragon"; then
@@ -448,6 +463,8 @@ elif test "$BOXTYPE" = "coolstream"; then
 	AC_DEFINE(HAVE_COOL_HARDWARE, 1, [building for a coolstream])
 elif test "$BOXTYPE" = "spark"; then
 	AC_DEFINE(HAVE_SPARK_HARDWARE, 1, [building for a goldenmedia 990 or edision pingulux])
+elif test "$BOXTYPE" = "armbox"; then
+	AC_DEFINE(HAVE_ARM_HARDWARE, 1, [building for a armbox])
 elif test "$BOXTYPE" = "generic"; then
 	AC_DEFINE(HAVE_GENERIC_HARDWARE, 1, [building for a generic device like a standard PC])
 elif test "$BOXTYPE" = "duckbox"; then
@@ -514,6 +531,8 @@ elif test "$BOXMODEL" = "hl101"; then
 	AC_DEFINE(BOXMODEL_HL101, 1, [hl101])	
 elif test "$BOXMODEL" = "raspi"; then
 	AC_DEFINE(BOXMODEL_RASPI, 1, [Raspberry pi])
+elif test "$BOXMODEL" = "armbox"; then
+	AC_DEFINE(BOXMODEL_ARMBOX, 1, [armbox])
 fi
 ])
 
