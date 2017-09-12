@@ -46,8 +46,14 @@ static bool timer_icon = false;
 #define DISPLAY_DEV "/proc/vfd"
 #define LED_DEV "/proc/led"
 #endif
-#if HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_GENERIC_HARDWARE
 #define DISPLAY_DEV "/dev/null"
+static bool usb_icon = false;
+static bool timer_icon = false;
+#endif
+
+#if HAVE_ARM_HARDWARE
+#define DISPLAY_DEV "/dev/dbox/oled0"
 static bool usb_icon = false;
 static bool timer_icon = false;
 #endif
