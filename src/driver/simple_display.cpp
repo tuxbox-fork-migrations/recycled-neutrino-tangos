@@ -54,8 +54,29 @@ static bool timer_icon = false;
 
 #if HAVE_ARM_HARDWARE
 #define DISPLAY_DEV "/dev/dbox/oled0"
+#include <zapit/zapit.h>
+#include <system/helpers.h>
 static bool usb_icon = false;
 static bool timer_icon = false;
+static int proc_put(const char *path, bool state)
+{
+	int ret, ret2;
+	int pfd = open(path, O_WRONLY);
+	char *value;
+    if (state)
+		value="1";
+	else
+		value="0";
+	if (pfd < 0)
+		return pfd;
+	ret = write(pfd, value, 1);
+	ret2 = close(pfd);
+	if (ret2 < 0)
+		return ret2;
+	return ret;
+}
+#else
+static int proc_put(const char *path, bool state) {}
 #endif
 
 static char volume = 0;
@@ -658,7 +679,7 @@ printf("CLCD::setlcdparameter dimm %d power %d\n", dimm, power);
 
 void CLCD::SetIcons(int icon, bool on)
 {
-#if !HAVE_GENERIC_HARDWARE && !HAVE_ARM_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	struct aotom_ioctl_data d;
 	d.u.icon.icon_nr = icon;
 	if (on == true)
@@ -673,6 +694,8 @@ void CLCD::SetIcons(int icon, bool on)
 			perror("[neutrino] SetIcons() VFDICONDISPLAYONOFF");
 		close(fd);
 	}
+#else
+	//nothing
 #endif
 }
 void CLCD::ShowDiskLevel()
@@ -715,7 +738,7 @@ void CLCD::UpdateIcons()
 
 	ShowDiskLevel();
 	SetIcons(SPARK_USB, usb_icon);
-
+#endif
 	CZapitChannel * chan = CZapit::getInstance()->GetCurrentChannel();
 	if (chan)
 	{
@@ -727,7 +750,6 @@ void CLCD::UpdateIcons()
 			SetIcons(SPARK_MP3, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::MPEG);
 		}
 	}
-#endif
 }
 
 void CLCD::ShowIcon(fp_icon i, bool on)
@@ -736,24 +758,28 @@ void CLCD::ShowIcon(fp_icon i, bool on)
 	{
 		case FP_ICON_CAM1:
 			led_r = on;
-			if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+			if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
 				SetIcons(SPARK_REC1, on);
+				proc_put("/proc/stb/lcd/symbol_recording",on);}
 			else
 				setled(led_r, -1); /* switch instant on / switch off if disabling */
 			break;
 		case FP_ICON_PLAY:
 			led_g = on;
-			if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+			if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
 				SetIcons(SPARK_PLAY, on);
+				proc_put("/proc/stb/lcd/symbol_playback",on);}
 			else
 				setled(-1, led_g);
 			break;
 		case FP_ICON_USB:
 			usb_icon = on;
 			SetIcons(SPARK_USB, on);
+			proc_put("/proc/stb/lcd/symbol_usb",on);
 			break;
 		case FP_ICON_HDD:
 			SetIcons(SPARK_HDD, on);
+			proc_put("/proc/stb/lcd/symbol_hdd",on);
 			break;
 		case FP_ICON_PAUSE:
 			SetIcons(SPARK_PAUSE, on);
@@ -770,12 +796,14 @@ void CLCD::ShowIcon(fp_icon i, bool on)
 			break;
 		case FP_ICON_LOCK:
 			SetIcons(SPARK_CA, on);
+			proc_put("/proc/stb/lcd/symbol_scrambled",on);
 			break;
 		case FP_ICON_RADIO:
 			SetIcons(SPARK_AUDIO, on);
 			break;
 		case FP_ICON_TV:
 			SetIcons(SPARK_TVMODE_LOG, on);
+			proc_put("/proc/stb/lcd/symbol_tv",on);
 			break;
 		case FP_ICON_HD:
 			SetIcons(SPARK_DOUBLESCREEN, on);
@@ -783,6 +811,7 @@ void CLCD::ShowIcon(fp_icon i, bool on)
 		case FP_ICON_CLOCK:
 			timer_icon = on;
 			SetIcons(SPARK_CLOCK, on);
+			proc_put("/proc/stb/lcd/symbol_timeshift",on);
 			break;
 		default:
 			break;
