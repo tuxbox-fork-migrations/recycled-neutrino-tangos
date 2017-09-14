@@ -85,7 +85,6 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	
 	if (actionKey == "moviebrowser")
 	{
-		audiomute->enableMuteIcon(false);
 		CInfoClock::getInstance()->enableInfoClock(false);
 		int mode = CNeutrinoApp::getInstance()->getMode();
 		if( mode == NeutrinoMessages::mode_radio )
