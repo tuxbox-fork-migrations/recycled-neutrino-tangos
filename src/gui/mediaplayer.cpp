@@ -80,13 +80,12 @@ CMediaPlayerMenu::~CMediaPlayerMenu()
 
 int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 {
-	printf("init mediaplayer menu in usage mode %d\n", usage_mode);
-
 	if (parent)
 		parent->hide();
 	
-	if (actionKey == "movieplayer")
+	if (actionKey == "moviebrowser")
 	{
+		audiomute->enableMuteIcon(false);
 		CInfoClock::getInstance()->enableInfoClock(false);
 		int mode = CNeutrinoApp::getInstance()->getMode();
 		if( mode == NeutrinoMessages::mode_radio )
@@ -103,12 +102,11 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	return res;
 }
 
-
 //show selectable mediaplayer items
 int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 {	
 	CPersonalizeGui *personalize = p;
-	CMenuWidget 	*media = m;
+	CMenuWidget *media = m;
 	
 	bool show = (personalize == NULL || media == NULL);
 
@@ -165,9 +163,9 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
  		//adding personalized items
 		personalize->addPersonalizedItems();
 		
-		//add I_TYPE_MULTIMEDIA plugins
+		//add PLUGIN_INTEGRATION_MULTIMEDIA plugins
 		unsigned int nextShortcut = (unsigned int)media->getNextShortcut();
-		media->integratePlugins(CPlugins::I_TYPE_MULTIMEDIA, nextShortcut, enabled);
+		media->integratePlugins(PLUGIN_INTEGRATION_MULTIMEDIA, nextShortcut, enabled);
 
 		res = media->exec(NULL, "");
 		delete media;

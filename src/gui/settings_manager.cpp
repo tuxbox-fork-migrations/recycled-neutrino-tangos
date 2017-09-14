@@ -89,7 +89,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey == "saveconfig")
 	{
 		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/var/tuxbox") == true)
+		if (fileBrowser.exec("/media") == true)
 		{
 			std::string fname = "neutrino.conf";
 			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname);
@@ -183,6 +183,7 @@ int CSettingsManager::showMenu()
 
 	CMenuForwarder * mf;
 	mf = new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier,    "settings",     CRCInput::RC_recall);
+
 	mf->setHint(NEUTRINO_ICON_HINT_RESET, LOCALE_MENU_HINT_RESET); // FIXME: RC-button RECALL is broken
 	mset->addItem(mf);
 
@@ -199,10 +200,12 @@ int CSettingsManager::showMenu()
 	mset->addItem(GenericMenuSeparatorLine);
 
 	mf = new CMenuForwarder(LOCALE_SETTINGS_BACKUP, true, NULL, this, "backup",  CRCInput::RC_yellow);
+
 	mf->setHint(NEUTRINO_ICON_HINT_BACKUP, LOCALE_MENU_HINT_BACKUP);
 	mset->addItem(mf);
 
 	mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_blue);
+
 	mf->setHint(NEUTRINO_ICON_HINT_RESTORE, LOCALE_MENU_HINT_RESTORE);
 	mset->addItem(mf);
 
