@@ -2096,24 +2096,26 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 		return;
 	}
 #endif
-
-	CScreenShot * sc = new CScreenShot("/tmp/" + filename + ".bmp", CScreenShot::FORMAT_BMP);
-	sc->EnableOSD(enableOSD);
-	sc->EnableVideo(enableVideo);
+	CScreenShot * screenshot = new CScreenShot("/tmp/" + filename + ".bmp", CScreenShot::FORMAT_BMP);
+	if(screenshot){
+		screenshot->EnableOSD(enableOSD);
+		screenshot->EnableVideo(enableVideo);
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	sc->Start();
-	hh->SendOk();
+		screenshot->Start();
+		hh->SendOk();
 #else
 #if 0
-	sc->Start();
-	hh->SendOk(); // FIXME what if sc->Start() failed?
+	screenshot->Start();
+	hh->SendOk(); // FIXME what if screenshot->Start() failed?
 #else
-	if (sc->StartSync())
-		hh->SendOk();
-	else
-		hh->SendError();
+		if (screenshot->StartSync())
+			hh->SendOk();
+		else
+			hh->SendError();
 #endif
 #endif
+		delete screenshot;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2781,7 +2783,7 @@ void CControlAPI::YWeb_SendRadioStreamingPid(CyhookHandler *hh)
 	hh->printf("0x%04x",apid);
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void CControlAPI::doModifyTimer(CyhookHandler *hh)
 {
 	hh->ParamList["update"]="1";

@@ -83,7 +83,7 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	if (parent)
 		parent->hide();
 	
-	if (actionKey == "moviebrowser")
+	if (actionKey == "movieplayer")
 	{
 		CInfoClock::getInstance()->enableInfoClock(false);
 		int mode = CNeutrinoApp::getInstance()->getMode();

@@ -97,8 +97,8 @@ void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 	dx		= DX;
 	offx		= OFFX;
 	name_start_x	= x + offx + icon_frame_w;
-	item_color	= COL_MENUCONTENT_TEXT;
-	item_bgcolor	= COL_MENUCONTENT_PLUS_0;
+
+	getItemColors(item_color, item_bgcolor);
 }
 
 void CMenuItem::setActive(const bool Active)
@@ -184,25 +184,12 @@ void CMenuItem::setItemButton(const char * const icon_Name, const bool is_select
 
 void CMenuItem::initItemColors(const bool select_mode)
 {
-	if (select_mode)
-	{
-		item_color   = COL_MENUCONTENTSELECTED_TEXT;
-		item_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-	else if (!active || inert)
+	getItemColors(item_color, item_bgcolor, select_mode, marked);
+
+	if (!active || inert)
 	{
 		item_color   = COL_MENUCONTENTINACTIVE_TEXT;
 		item_bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
-	}
-	else if (marked)
-	{
-		item_color   = COL_MENUCONTENT_TEXT;
-		item_bgcolor = COL_MENUCONTENT_PLUS_1;
-	}
-	else
-	{
-		item_color   = COL_MENUCONTENT_TEXT;
-		item_bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 }
 
@@ -1082,16 +1069,17 @@ void CMenuWidget::integratePlugins(int integration, const unsigned int shortcut,
 
 void CMenuWidget::hide()
 {
-	if(savescreen && background)
+	if(savescreen && background) {
+		ResetModules();
 		restoreScreen();//FIXME
-	else {
+	} else {
 		if (header)
 			header->kill();
 		if (info_box)
 			info_box->kill();
 		if (details_line)
 			details_line->hide();
-		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height + footer_height);
+		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height/* + footer_height*/);	// full_height includes footer_height : see calcSize
 		//paintHint(-1);
 	}
 	paintHint(-1);
@@ -1311,7 +1299,7 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	int scr_y = frameBuffer->getScreenY();
 	int scr_w = frameBuffer->getScreenWidth();
 	int scr_h = frameBuffer->getScreenHeight();
-	int real_h = full_height + footer_height + hint_height;
+	int real_h = full_height/* + footer_height*/ + hint_height;		// full_height includes footer_height : see calcSize
 	int x_old = x;
 	int y_old = y;
 	//configured positions 
@@ -1431,7 +1419,7 @@ void CMenuWidget::saveScreen()
 		return;
 
 	delete[] background;
-	saveScreen_height = full_height+footer_height;
+	saveScreen_height = full_height/* + footer_height*/;	// full_height includes footer_height : see calcSize
 	saveScreen_width = full_width;
 	saveScreen_y = y;
 	saveScreen_x = x;
@@ -1464,7 +1452,7 @@ void CMenuWidget::enableSaveScreen(bool enable)
 void CMenuWidget::paintHint(int pos)
 {
 	if (!g_settings.show_menu_hints){
-		ResetModules(); //ensure clean up on changed setting
+		//ResetModules(); //ensure clean up on changed setting
 		return;
 	}
 
