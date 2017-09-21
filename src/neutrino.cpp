@@ -3119,10 +3119,8 @@ void CNeutrinoApp::RealRun()
 			}
 			else if( (msg == CRCInput::RC_audio) && g_settings.audio_run_player) {
 				//open mediaplayer menu in audio mode, user can select between audioplayer and internetradio
-				CMediaPlayerMenu * media = CMediaPlayerMenu::getInstance();
-				media->setMenuTitel(LOCALE_MAINMENU_AUDIOPLAYER);
-				media->setUsageMode(CMediaPlayerMenu::MODE_AUDIO);
-				media->exec(NULL, "");
+				CMediaPlayerMenu * multimedia_menu = CMediaPlayerMenu::getInstance();
+				multimedia_menu->exec(NULL, "");
 			}
 			else if( msg == CRCInput::RC_video ) {
 				//open moviebrowser via media player menu object
@@ -3134,7 +3132,7 @@ void CNeutrinoApp::RealRun()
 				{
 				default:
 				case 0:
-					CMediaPlayerMenu::getInstance()->exec(NULL, "movieplayer");
+					CMediaPlayerMenu::getInstance()->exec(NULL, "moviebrowser");
 					break;
 				case 1:
 					CMoviePlayerGui::getInstance().exec(NULL, "fileplayback");
