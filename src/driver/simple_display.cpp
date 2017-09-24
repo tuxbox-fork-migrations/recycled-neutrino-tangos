@@ -493,7 +493,7 @@ void CLCD::setMode(const MODES m, const char * const)
 
 void CLCD::setBrightness(int dimm)
 {
-#if !HAVE_GENERIC_HARDWARE && !HAVE_ARM_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	switch(dimm) {
 	case 15:
 	case 14: dimm = 7; break;
@@ -530,6 +530,12 @@ void CLCD::setBrightness(int dimm)
 
 		close(fd);
 	}
+#elif HAVE_ARM_HARDWARE
+	std::string value = to_string(255/15*dimm);
+	int pfd = open("/proc/stb/lcd/oled_brightness", O_WRONLY);
+	if (pfd)
+		write(pfd, value.c_str(), value.length());
+	close(pfd);
 #endif
 }
 
