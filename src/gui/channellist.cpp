@@ -626,14 +626,15 @@ int CChannelList::show()
 	int zapOnExit = false;
 	bool bShowBouquetList = false;
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+	int timeout = g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST];
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	bool loop=true;
 	bool dont_hide = false;
 	while (loop) {
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 		bool empty = (*chanlist).empty();
 		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
@@ -655,7 +656,7 @@ int CChannelList::show()
 					selected = selected_in_new_mode;
 				}
 				if(fader.StartFadeOut()) {
-					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+					timeoutEnd = CRCInput::calcTimeoutEnd(1);
 					msg = 0;
 				} else
 					loop=false;
@@ -707,7 +708,7 @@ int CChannelList::show()
 					loop = false;
 				} else {
 					paint();
-					timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 				}
 			}
 		}
@@ -742,7 +743,7 @@ int CChannelList::show()
 			else {
 				if (ret != 0)
 					paint();
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+				timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 			}
 		}
 		else if (!empty && msg == (neutrino_msg_t) g_settings.key_list_start) {
