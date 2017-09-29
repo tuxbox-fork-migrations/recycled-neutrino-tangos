@@ -129,15 +129,16 @@ static const struct dtv_property dvbt_cmdargs[] = {
 #define diff(x,y)	(max(x,y) - min(x,y))
 
 #define FE_TIMER_INIT()					\
-	unsigned int timer_start;			\
-	static unsigned int tmin = 2000, tmax = 0;	\
-	unsigned int timer_msec = 0;
+	int64_t timer_start;				\
+	static uint32_t tmin = 2000, tmax = 0;		\
+	uint32_t timer_msec = 0;
 
 #define FE_TIMER_START()				\
 	timer_start = time_monotonic_ms();
 
 #define FE_TIMER_STOP(label)				\
-	timer_msec = time_monotonic_ms() - timer_start; \
+	timer_msec = (uint32_t)(time_monotonic_ms() -	\
+			timer_start);			\
 	if(tmin > timer_msec) tmin = timer_msec;	\
 	if(tmax < timer_msec) tmax = timer_msec;	\
 	printf("[fe%d] %s: %u msec (min %u max %u)\n",	\
@@ -447,6 +448,7 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 		default:
 			if (zapit_debug)
 				printf("no valid fec for DVB-%c set.. assume auto\n", (delsys == DVB_S ? 'S' : (delsys == DVB_C ? 'C' : 'T')));
+			/* fall through */
 		case fAuto:
 			fec = FEC_AUTO;
 			break;
@@ -483,6 +485,7 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 		default:
 			if (zapit_debug)
 				printf("no valid fec for DVB-S2 set.. !!\n");
+			/* fall through */
 		case fAuto:
 			fec = FEC_AUTO;
 			break;
@@ -803,6 +806,7 @@ void CFrontend::getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsy
 		break;
 	default:
 		printf("[frontend] getXMLDelsysFEC: unknown FEC: %d !!!\n", xmlfec);
+		/* fall through */
 	case FEC_S2_AUTO:
 	case FEC_AUTO:
 		fec = FEC_AUTO;
@@ -877,7 +881,7 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 				mod = "QPSK"; // AKA QAM_4
 				break;
 			}
-			/* fallthrouh for FE_QAM... */
+			/* fall through */
 		case QAM_AUTO:
 		default:
 			mod = "QAM_AUTO";
