@@ -94,6 +94,7 @@ if BOXTYPE_ARMBOX
 libneutrino_driver_a_SOURCES += \
 	fb_generic.cpp \
 	fb_accel.cpp \
+	fb_accel_arm.cpp \
 	simple_display.cpp
 endif
 if USE_STB_HAL
