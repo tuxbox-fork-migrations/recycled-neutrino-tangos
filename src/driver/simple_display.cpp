@@ -736,7 +736,7 @@ void CLCD::ShowDiskLevel()
 }
 void CLCD::UpdateIcons()
 {
-#if !HAVE_GENERIC_HARDWARE && !HAVE_ARM_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	CFrontend *aktFE = CFEManager::getInstance()->getLiveFE();
 	SetIcons(SPARK_SAT, aktFE->isSat(aktFE->getCurrentDeliverySystem()));
 	SetIcons(SPARK_CAB, aktFE->isCable(aktFE->getCurrentDeliverySystem()));
@@ -745,6 +745,7 @@ void CLCD::UpdateIcons()
 	ShowDiskLevel();
 	SetIcons(SPARK_USB, usb_icon);
 #endif
+#if HAVE_SPARK_HARDWARE || HAVE_ARM_HARDWARE
 	CZapitChannel * chan = CZapit::getInstance()->GetCurrentChannel();
 	if (chan)
 	{
@@ -756,6 +757,7 @@ void CLCD::UpdateIcons()
 			SetIcons(SPARK_MP3, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::MPEG);
 		}
 	}
+#endif
 }
 
 void CLCD::ShowIcon(fp_icon i, bool on)
