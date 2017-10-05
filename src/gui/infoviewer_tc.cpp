@@ -268,11 +268,11 @@ void CInfoViewer::start ()
 	InfoHeightY = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight() * 9/8 +
 	              2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 25;
 
-	ChanWidth = max(125, 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + 10);
+	ChanWidth = std::max(125, 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + 10);
 
 	ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/* * 9/8*/;
 	ChanHeight += g_SignalFont->getHeight()/2;
-	ChanHeight = max(75, ChanHeight);
+	ChanHeight = std::max(75, ChanHeight);
 
 	BoxStartX = g_settings.screen_StartX + 10;
 	BoxEndX = g_settings.screen_EndX - 10;
@@ -372,7 +372,7 @@ void CInfoViewer::paintHead(t_channel_id channel_id,std::string channel_name)
 {
 	int head_x = BoxStartX;
 	int head_w = BoxEndX-head_x;
-	int head_h = max(ChanHeight / 2,g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight());
+	int head_h = std::max(ChanHeight / 2,g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight());
 
 	CInfoClock::getInstance()->disableInfoClock();
 
@@ -1906,8 +1906,8 @@ void CInfoViewer::showInfoFile()
 	}
 
 	//get text from file and set it to info object, exit and delete object if failed
-	string old_txt = infobar_txt->getText();
-	string new_txt = infobar_txt->getTextFromFile(infobar_file);
+	std::string old_txt = infobar_txt->getText();
+	std::string new_txt = infobar_txt->getTextFromFile(infobar_file);
 	bool has_text = infobar_txt->setText(new_txt, CTextBox::CENTER, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]);
 	if (new_txt.empty())
 	{
@@ -2108,8 +2108,8 @@ void CInfoViewer::ecmInfoBox_show(const char * txt, int w, int h, Font * font)
 	//set new window dimensions
 	int h_offset = 5;
 	int w_offset = 10;
-	ecmInfoBox->setWidth(min(max_w, w + 2*w_offset));
-	ecmInfoBox->setHeight(min(max_h, h_header + h + 2*h_offset));
+	ecmInfoBox->setWidth(std::min(max_w, w + 2*w_offset));
+	ecmInfoBox->setHeight(std::min(max_h, h_header + h + 2*h_offset));
 	ecmInfoBox->Refresh();
 
 	//calc window position
@@ -2740,7 +2740,7 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 	int endx = BoxEndX - (g_settings.infobar_casystem_frame ? 20 : 10);
 	int py = BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2); /* hand-crafted, should be automatic */
 	int px = 0;
-	static map<int, std::pair<int,const char*> > icon_map;
+	static std::map<int, std::pair<int,const char*> > icon_map;
 	const int icon_number = 11;
 
 	static int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0,0};
@@ -2751,7 +2751,7 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 	{
 		init_flag = true;
 		int icon_sizeH = 0, index = 0;
-		map<int, std::pair<int,const char*> >::const_iterator it;
+		std::map<int, std::pair<int,const char*> >::const_iterator it;
 
 		icon_map[0x0000] = std::make_pair(index++,"dec");
 		icon_map[0x0E00] = std::make_pair(index++,"powervu");
