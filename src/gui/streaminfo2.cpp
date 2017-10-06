@@ -916,7 +916,10 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	// audio
 	r.key = g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE);
 	r.key += ": ";
-	r.val = mp ? mp->getAPIDDesc(mp->getAPID()).c_str() : g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].desc;
+	std::string desc = "N/A";
+	if (!mp && !g_RemoteControl->current_PIDs.APIDs.empty())
+		desc =  g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].desc;
+	r.val = mp ? mp->getAPIDDesc(mp->getAPID()).c_str() : desc.c_str();
 	r.col = COL_MENUCONTENT_TEXT;
 	v.push_back(r);
 
@@ -1045,11 +1048,9 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	for (std::vector<row>::iterator it = v.begin(); it != v.end(); ++it) {
 		it->f->RenderString (xpos, ypos, spaceoffset, it->key, COL_MENUCONTENT_TEXT);
-		const char *text = it->val.c_str();
-		do {
-			text = it->f->RenderString (xpos + spaceoffset, ypos, box_width - spaceoffset, text, it->col);
-			ypos += it->f->getHeight();
-		} while (*text);
+		std::string text = it->val.c_str();
+		it->f->RenderString (xpos + spaceoffset, ypos, box_width - spaceoffset, text, it->col);
+		ypos += it->f->getHeight();
 	}
 
 		if(box_h == 0)
