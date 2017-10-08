@@ -57,6 +57,7 @@ install_DATA =	accept.png \
 		rc_cst_v6.png \
 		rc_spark_old.jpg \
 		rc_spark_new.jpg \
+		rc_hd51.png \
 		record.png \
 		reload.png \
 		remove.png \
