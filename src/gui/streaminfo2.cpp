@@ -830,7 +830,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		}
 
 	}
-#if BOXMODEL_UFS910
+#if BOXMODEL_UFS910 || HAVE_ARM_HARDWARE
 	if(mp || channel->getVideoPid()) {
 #else
 	if((mp || channel->getVideoPid()) && !(videoDecoder->getBlank())) {
