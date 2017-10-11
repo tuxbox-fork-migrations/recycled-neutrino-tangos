@@ -6,7 +6,7 @@ SUBDIRS = \
 
 if ENABLE_TANGOS
 SUBDIRS += \
-	channel_tc
+	channel-tc
 else
 SUBDIRS += \
 	channel

@@ -367,6 +367,7 @@ data/icons/status/Makefile
 data/icons/status/ca/Makefile
 data/icons/status/camd/Makefile
 data/icons/status/channel/Makefile
+data/icons/status/channel-tc/Makefile
 data/icons/status/markers/Makefile
 data/icons/status/various/Makefile
 data/icons/various/Makefile
