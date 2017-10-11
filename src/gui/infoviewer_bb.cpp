@@ -581,7 +581,7 @@ void CInfoViewerBB::showIcon_Resolution()
 #if 0
 	if ((scrambledNoSig) || ((!fta) && (scrambledErr)))
 #else
-#if BOXMODEL_UFS910
+#if BOXMODEL_UFS910 || HAVE_ARM_HARDWARE
 	if (!g_InfoViewer->chanready)
 #else
 	if (!g_InfoViewer->chanready || videoDecoder->getBlank())
