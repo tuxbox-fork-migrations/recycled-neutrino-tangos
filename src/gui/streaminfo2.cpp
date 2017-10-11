@@ -283,7 +283,7 @@ void CStreamInfo2::probeStreams()
 		av_register_all();
 
 		AVIOContext *avioc = NULL;
-		int buffer_size = 188 * 256;
+		int buffer_size = 188 * 128;
 		unsigned char *buffer = (unsigned char *) av_malloc(buffer_size);
 		AVFormatContext *avfc = avformat_alloc_context();
 		if (!avfc) {
