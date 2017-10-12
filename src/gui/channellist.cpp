@@ -1950,10 +1950,12 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		if ((*chanlist)[curr]->getChannelID() == CZapit::getInstance()->GetPipChannelID())
 			pip_icon = NEUTRINO_ICON_PIP;
 #endif
-		//set HD icon
+		//set HD/UHD icon
 		const char *hd_icon = NULL;
 		if(chan->isHD() && g_settings.channellist_hdicon)
 			hd_icon = NEUTRINO_ICON_RESOLUTION_HD;
+		if(chan->isUHD() && g_settings.channellist_hdicon)
+			hd_icon = NEUTRINO_ICON_RESOLUTION_UHD;
 
 		//set webtv icon
 		const char *webtv_icon = NULL;
