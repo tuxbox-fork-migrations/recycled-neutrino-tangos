@@ -919,6 +919,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 	if (!hh->ParamList["repeat"].empty())
 		repeat = atoi(hh->ParamList["repeat"].c_str());
 #endif
+#if 0
 	int evd = open(EVENTDEV, O_RDWR);
 	if (evd < 0) {
 		perror("opening " EVENTDEV " failed");
@@ -938,6 +939,9 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 		return;
 	}
 	close(evd);
+#endif
+	/* 0 == KEY_PRESSED in rcinput.cpp */
+	g_RCInput->postMsg((neutrino_msg_t) sendcode, 0);
 	hh->SendOk();
 }
 //-----------------------------------------------------------------------------
@@ -2096,7 +2100,7 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 		return;
 	}
 #endif
-	CScreenShot * screenshot = new CScreenShot("/tmp/" + filename + ".bmp", CScreenShot::FORMAT_BMP);
+	CScreenShot * screenshot = new CScreenShot("/tmp/" + filename + ".png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
 	if(screenshot){
 		screenshot->EnableOSD(enableOSD);
 		screenshot->EnableVideo(enableVideo);
