@@ -2746,12 +2746,7 @@ TIMER_STOP("################################## after all #######################
 	}
 	RealRun();
 
-
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	ExitRun(CNeutrinoApp::REBOOT);
-#else
-	ExitRun(g_info.hw_caps->can_shutdown);
-#endif
 
 	return 0;
 }
@@ -4037,10 +4032,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if(!skipShutdownTimer) {
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 			timer_wakeup = true;
-			ExitRun(CNeutrinoApp::SHUTDOWN);
-#else
-			ExitRun(g_info.hw_caps->can_shutdown);
 #endif
+			ExitRun(CNeutrinoApp::SHUTDOWN);
 		}
 		else {
 			skipShutdownTimer=false;
@@ -4050,11 +4043,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if( msg == NeutrinoMessages::REBOOT ) {
 		FILE *f = fopen("/tmp/.reboot", "w");
 		fclose(f);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		ExitRun(CNeutrinoApp::REBOOT);
-#else
-		ExitRun();
-#endif
 	}
 	else if (msg == NeutrinoMessages::EVT_POPUP || msg == NeutrinoMessages::EVT_EXTMSG) {
 		if (mode != mode_scart && mode != mode_standby) {
@@ -4267,7 +4256,7 @@ void CNeutrinoApp::ExitRun(int can_shutdown)
 	saveSetup(NEUTRINO_SETTINGS_FILE);
 
 #if HAVE_COOL_HARDWARE
-	if (can_shutdown)
+	if (g_info.hw_caps->can_shutdown)
 	{
 #endif
 		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT ".");
@@ -4804,22 +4793,14 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		ShowMsg(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMsgBox::mbrBack, CMsgBox::mbBack);
 	}
 	else if(actionKey=="shutdown") {
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		ExitRun(CNeutrinoApp::SHUTDOWN);
-#else
-		ExitRun(1);
-#endif
 	}
 	else if(actionKey=="reboot")
 	{
 		FILE *f = fopen("/tmp/.reboot", "w");
 		if (f)
 			fclose(f);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		ExitRun(CNeutrinoApp::REBOOT);
-#else
-		ExitRun();
-#endif
 		unlink("/tmp/.reboot");
 		returnval = menu_return::RETURN_NONE;
 	}
@@ -4828,20 +4809,12 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		FILE *f = fopen("/var/etc/.e2", "w");
 		if (f)
 			fclose(f);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		ExitRun(CNeutrinoApp::CHANGEGUI);
-#else
-		ExitRun();
-#endif
 		returnval = menu_return::RETURN_NONE;
 	}
 	else if(actionKey=="n_restart")
 	{
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 		ExitRun(CNeutrinoApp::CHANGEGUI);
-#else
-		ExitRun();
-#endif
 		returnval = menu_return::RETURN_NONE;
 	}
 	else if (actionKey=="clock_switch")
