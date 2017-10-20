@@ -26,6 +26,7 @@
 
 #include <driver/lcdd.h>
 #include <driver/framebuffer.h>
+#include <system/set_threadname.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -34,6 +35,7 @@
 #include <unistd.h>
 //#include <math.h>
 #include <sys/stat.h>
+
 #if HAVE_SPARK_HARDWARE
 #include <aotom_main.h>
 #define DISPLAY_DEV "/dev/vfd"
@@ -42,10 +44,12 @@
 static bool usb_icon = false;
 static bool timer_icon = false;
 #endif
+
 #if HAVE_AZBOX_HARDWARE
 #define DISPLAY_DEV "/proc/vfd"
 #define LED_DEV "/proc/led"
 #endif
+
 #if HAVE_GENERIC_HARDWARE
 #define DISPLAY_DEV "/dev/null"
 static bool usb_icon = false;
@@ -63,7 +67,7 @@ static int proc_put(const char *path, bool state)
 	int ret, ret2;
 	int pfd = open(path, O_WRONLY);
 	char *value;
-    if (state)
+	if (state)
 		value="1";
 	else
 		value="0";
@@ -203,6 +207,7 @@ void CLCD::wake_up()
 
 void* CLCD::TimeThread(void *)
 {
+	set_threadname("n:boxdisplay"); /* to not confuse with TV display */
 	while (CLCD::getInstance()->thread_running) {
 		sleep(1);
 		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
