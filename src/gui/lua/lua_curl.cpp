@@ -282,8 +282,10 @@ Example:
 		 curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, chunk);
 	}
 		
-	if (!postfields.empty())
+	if (!postfields.empty()) {
+		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDSIZE, static_cast<long>(postfields.length()));
 		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, postfields.c_str());
+	}
 
 	if (ipv4 && ipv6)
 		curl_easy_setopt(curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_WHATEVER);
