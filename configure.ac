@@ -365,6 +365,7 @@ data/icons/radar/Makefile
 data/icons/slider/Makefile
 data/icons/status/Makefile
 data/icons/status/ca/Makefile
+data/icons/status/ca-tc/Makefile
 data/icons/status/camd/Makefile
 data/icons/status/channel/Makefile
 data/icons/status/channel-tc/Makefile
