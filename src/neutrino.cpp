@@ -3209,7 +3209,7 @@ void CNeutrinoApp::RealRun()
 				}
 #endif
 			}
-			else if (msg == CRCInput::RC_timer)
+			else if (msg == CRCInput::RC_timer || msg == CRCInput::RC_program)
 			{
 				CTimerList Timerlist;
 				Timerlist.exec(NULL, "");
