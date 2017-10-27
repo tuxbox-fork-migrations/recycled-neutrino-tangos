@@ -2246,14 +2246,14 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 
 		g_InfoViewer->showMovieTitle(playstate, mi->epgId >>16, channelName, mi->epgTitle, mi->epgInfo1,
 			duration, position, repeat_mode, init_vzap_it ? 0 /*IV_MODE_DEFAULT*/ : 1 /*IV_MODE_VIRTUAL_ZAP*/);
-		unlink("/tmp/cover.jpg");
+		unlink("/tmp/.id3coverart");
 		return;
 	}
 
 	/* not moviebrowser => use the filename as title */
 	CVFD::getInstance()->ShowText(pretty_name.c_str());
 	g_InfoViewer->showMovieTitle(playstate, 0, pretty_name, info_1, info_2, duration, position, repeat_mode);
-	unlink("/tmp/cover.jpg");
+	unlink("/tmp/.id3coverart");
 }
 
 bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
