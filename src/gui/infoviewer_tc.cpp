@@ -640,13 +640,13 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	showLcdPercentOver ();
 	showInfoFile();
 
-	if ((access("/tmp/cover.jpg", F_OK) == 0))
+	if ((access("/tmp/.id3coverart", F_OK) == 0))
 	{
 		icon_w = ChanNumWidth;
 		icon_h = BoxEndY - (ChanNameY + header_height) - 6 ;
 		icon_x =  ChanInfoX + 10 + ChanNumWidth / 2 - icon_w / 2;
 		icon_y = (BoxEndY + ChanNameY + header_height) / 2 - icon_h / 2;
-		g_PicViewer->DisplayImage("/tmp/cover.jpg", icon_x, icon_y, icon_w, icon_h, 1);
+		g_PicViewer->DisplayImage("/tmp/.id3coverart", icon_x, icon_y, icon_w, icon_h, 1);
 	}
 
 	loop();
