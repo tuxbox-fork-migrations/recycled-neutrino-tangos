@@ -199,6 +199,8 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("wav");
 	tsfilefilter.addFilter("asf");
 	tsfilefilter.addFilter("aiff");
+	tsfilefilter.addFilter("mp4");
+	tsfilefilter.addFilter("mov");
 #endif
 	tsfilefilter.addFilter("mpg");
 	tsfilefilter.addFilter("mpeg");
@@ -206,11 +208,14 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("mpv");
 	tsfilefilter.addFilter("vob");
 	tsfilefilter.addFilter("m2ts");
-	tsfilefilter.addFilter("mp4");
-	tsfilefilter.addFilter("mov");
 	tsfilefilter.addFilter("m3u");
 	tsfilefilter.addFilter("m3u8");
 	tsfilefilter.addFilter("pls");
+	tsfilefilter.addFilter("vdr");
+#ifdef HAVE_SPARK_HARDWARE
+	tsfilefilter.addFilter("flv");
+	tsfilefilter.addFilter("wmv");
+#endif
 	tsfilefilter.addFilter("iso");
 #if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
 	tsfilefilter.addFilter("trp");
@@ -1493,7 +1498,7 @@ void CMoviePlayerGui::quickZap(neutrino_msg_t msg)
 	if ((msg == CRCInput::RC_right) || msg == (neutrino_msg_t) g_settings.key_quickzap_up)
 	{
 		//printf("CMoviePlayerGui::%s: CRCInput::RC_right or g_settings.key_quickzap_up\n", __func__);
-		if (isLuaPlay)
+		if (isLuaPlay || isUPNP)
 		{
 			playstate = CMoviePlayerGui::STOPPED;
 			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_NEXT;
@@ -1520,7 +1525,7 @@ void CMoviePlayerGui::quickZap(neutrino_msg_t msg)
 	else if ((msg == CRCInput::RC_left) || msg == (neutrino_msg_t) g_settings.key_quickzap_down)
 	{
 		//printf("CMoviePlayerGui::%s: CRCInput::RC_left or g_settings.key_quickzap_down\n", __func__);
-		if (isLuaPlay)
+		if (isLuaPlay || isUPNP)
 		{
 			playstate = CMoviePlayerGui::STOPPED;
 			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV;
@@ -1546,6 +1551,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 	int quickjump = 300;
 #if HAVE_COOL_HARDWARE
 	int eof = 0;
+	int lastpos = 0;
 	int eof2 = 0;
 	int position_tmp = 0;
 #endif
@@ -2310,9 +2316,8 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 			apidtitle.append(" (AAC)");
 			break;
 		case 6: /*DTS*/
-			if (apidtitle.find("DTS") == std::string::npos)
-				apidtitle.append(" (DTS)");
-#ifndef BOXMODEL_CS_HD2
+			apidtitle.append(" (DTS)");
+#if ! defined(HAVE_SPARK_HARDWARE) && ! defined (BOXMODEL_CS_HD2)
 			enabled = false;
 #endif
 			break;
@@ -3013,7 +3018,6 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 #endif
 
 			frameBuffer->blit2FB(newdata, nw, nh, xoff, yoff);
-			free(newdata);
 
 			min_x = std::min(min_x, xoff);
 			max_x = std::max(max_x, xoff + nw);
@@ -3401,6 +3405,7 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 	if (autoshot && (autoshot_done || !g_settings.auto_cover))
 		return;
 
+#ifdef SCREENSHOT
 	bool cover = autoshot || g_settings.screenshot_cover || forcover;
 	char ending[(sizeof(int)*2) + 6] = ".jpg";
 	if (!cover)
@@ -3450,7 +3455,10 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 			sc->SetSize(w, h);
 		}
 	}
-	sc->Start("-r 320 -j 75");
+	sc->Start();
+#else
+	(void)forcover;
+#endif
 	if (autoshot)
 		autoshot_done = true;
 }

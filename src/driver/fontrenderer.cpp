@@ -681,6 +681,8 @@ const char *Font::RenderString(int x, int y, const int width, const char *text, 
 	//printf("RenderStat: %d %d %d \n", renderer->cacheManager->num_nodes, renderer->cacheManager->num_bytes, renderer->cacheManager->max_bytes);
 	pthread_mutex_unlock( &renderer->render_mutex );
 	frameBuffer->checkFbArea(x, y-height, width, height, false);
+	/* x is the rightmost position of the last drawn character */
+	frameBuffer->mark(left, y + lower - height, x, y + lower);
 	return text;
 }
 
