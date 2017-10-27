@@ -163,7 +163,6 @@ static int sectionsd_stop = 0;
 
 static bool slow_addevent = true;
 
-
 inline void readLockServices(void)
 {
 	pthread_rwlock_rdlock(&servicesLock);
@@ -1377,7 +1376,7 @@ void CTimeThread::waitForTimeset(void)
 	time_mutex.unlock();
 }
 
-bool CTimeThread::setSystemTime(time_t tim, bool force)
+void CTimeThread::setSystemTime(time_t tim)
 {
 	struct timeval tv;
 	struct tm t;
@@ -1396,6 +1395,8 @@ bool CTimeThread::setSystemTime(time_t tim, bool force)
 		return;
 	}
 #endif
+	if (timediff == 0) /* very unlikely... :-) */
+		return;
 	if (timeset && abs(tim - tv.tv_sec) < 120) { /* abs() is int */
 		struct timeval oldd;
 		tv.tv_sec = time_t(timediff / 1000000LL);
@@ -1406,22 +1407,14 @@ bool CTimeThread::setSystemTime(time_t tim, bool force)
 			xprintf("difference is < 120s, using adjtime(%d, %d). oldd(%d, %d)\n",
 				(int)tv.tv_sec, (int)tv.tv_usec, (int)oldd.tv_sec, (int)oldd.tv_usec);
 			timediff = 0;
-			return true;
+			return;
 		}
-	} else if (timeset && ! force) {
-		xprintf("difference is > 120s, try again and set 'force=true'\n");
-		return false;
 	}
-	/* still fall through if adjtime() failed */
 
 	tv.tv_sec = tim;
 	tv.tv_usec = 0;
-	errno=0;
-	if (settimeofday(&tv, NULL) == 0)
-		return true;
-
-	perror("[sectionsd] settimeofday");
-	return errno==EPERM;
+	if (settimeofday(&tv, NULL) < 0)
+		perror("[sectionsd] settimeofday");
 }
 
 void CTimeThread::addFilters()
@@ -1434,7 +1427,6 @@ void CTimeThread::run()
 {
 	set_threadname(name.c_str());
 	time_t dvb_time = 0;
-	bool retry = false; /* if time seems fishy, set to true and try again */
 	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
 	const std::string tn = ("sd:" + name).c_str();
 	set_threadname(tn.c_str());
@@ -1489,10 +1481,21 @@ void CTimeThread::run()
 #else
 			int64_t start = time_monotonic_ms();
 			/* speed up shutdown by looping around Read() */
+			struct pollfd ufds;
+			ufds.events = POLLIN|POLLPRI|POLLERR;
+			DMX::lock();
+			ufds.fd = dmx->getFD();
+			DMX::unlock();
 			do {
-				rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds / 12);
-			} while (running && rc == 0
-				 && (time_monotonic_ms() - start) < (int64_t)timeoutInMSeconds);
+				ufds.revents = 0;
+				rc = ::poll(&ufds, 1, timeoutInMSeconds / 36);
+				if (running && rc == 1) {
+					DMX::lock();
+					if (ufds.fd == dmx->getFD())
+						rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, 10);
+					DMX::unlock();
+				}
+			} while (running && rc == 0 && (time_monotonic_ms() < (int64_t)timeoutInMSeconds + start));
 #endif
 			xprintf("%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d\n",
 				name.c_str(), current_service, rc, messaging_neutrino_sets_time);
@@ -1502,23 +1505,13 @@ void CTimeThread::run()
 					dvb_time = st.getTime();
 					success = true;
 				}
-			} else
-				retry = false; /* reset bogon detector after invalid read() */
+			}
 		}
 		/* default sleep time */
 		sleep_time = ntprefresh * 60;
 		if(success) {
 			if(dvb_time) {
-				bool ret = false;
-				if (dvb_time > (time_t) 1506808800) /*1506808800 - 01.10.2017*/
-					ret = setSystemTime(dvb_time, retry);
-				if (! ret) {
-					xprintf("%s: time looks wrong, trying again\n", name.c_str());
-					sendToSleepNow = false;
-					retry = true;
-					continue;
-				}
-				retry = false;
+				setSystemTime(dvb_time);
 				/* retry a second time immediately after start, to get TOT ? */
 				if(first_time)
 					sleep_time = 5;
@@ -1721,21 +1714,10 @@ bool CCNThread::shouldSleep()
 	if (eit_version != 0xff)
 		return true;
 
-	/* on first retry, restart the demux. I'm not sure if it is a driver bug
-	 * or a bug in our logic, but without this, I'm sometimes missing CN events
-	 * and / or the eit_version and thus the update filter will stop working */
-	if (++eit_retry < 2) {
-		xprintf("%s::%s first retry (%d) -> restart demux\n", name.c_str(), __func__, eit_retry);
-		change(0); /* this also resets lastChanged */
-	}
-	/* ugly, this has been checked before. But timeoutsDMX can be < 0 for multiple reasons,
-	 * and only skipTime should send CNThread finally to sleep if eit_version is not found */
-	time_t since = time_monotonic() - lastChanged;
-	if (since > skipTime) {
-		xprintf("%s::%s timed out after %lds -> going to sleep\n", name.c_str(), __func__, since);
+	if (++eit_retry > 1) {
+		xprintf("%s::%s eit_retry > 1 (%d) -> going to sleep\n", name.c_str(), __func__, eit_retry);
 		return true;
 	}
-	/* retry */
 	sendToSleepNow = false;
 	return false;
 }
@@ -2857,7 +2839,7 @@ void CEitManager::getChannelEvents(CChannelEventList &eList, t_channel_id *chidl
 	bool found_already = true;
 	time_t azeit = time(NULL);
 
-	// showProfiling("sectionsd_getChannelEvents start");
+showProfiling("sectionsd_getChannelEvents start");
 	readLockEvents();
 
 	/* !!! FIX ME: if the box starts on a channel where there is no EPG sent, it hangs!!!	*/
@@ -2901,7 +2883,7 @@ void CEitManager::getChannelEvents(CChannelEventList &eList, t_channel_id *chidl
 		}
 	}
 
-	// showProfiling("sectionsd_getChannelEvents end");
+showProfiling("sectionsd_getChannelEvents end");
 	unlockEvents();
 }
 
