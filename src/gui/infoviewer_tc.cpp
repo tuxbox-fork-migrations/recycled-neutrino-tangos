@@ -2559,7 +2559,7 @@ void CInfoViewer::showIcon_Resolution()
 	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio)
 		return;
 	const char *icon_name = NULL;
-#if BOXMODEL_UFS910 || HAVE_ARM_HARDWARE
+#if BOXMODEL_UFS910
 	if (!chanready)
 #else
 	if (!chanready || videoDecoder->getBlank())
