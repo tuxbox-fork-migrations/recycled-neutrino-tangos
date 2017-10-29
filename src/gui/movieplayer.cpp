@@ -190,40 +190,46 @@ void CMoviePlayerGui::Init(void)
 	if (bookmarkmanager == NULL)
 		bookmarkmanager = new CBookmarkManager();
 
+	// video files
 	tsfilefilter.addFilter("ts");
-#if HAVE_TRIPLEDRAGON
-	tsfilefilter.addFilter("vdr");
-#else
+#if !HAVE_TRIPLEDRAGON
+	tsfilefilter.addFilter("asf");
 	tsfilefilter.addFilter("avi");
 	tsfilefilter.addFilter("mkv");
-	tsfilefilter.addFilter("wav");
-	tsfilefilter.addFilter("asf");
-	tsfilefilter.addFilter("aiff");
-	tsfilefilter.addFilter("mp4");
-	tsfilefilter.addFilter("mov");
 #endif
-	tsfilefilter.addFilter("mpg");
-	tsfilefilter.addFilter("mpeg");
-	tsfilefilter.addFilter("m2p");
-	tsfilefilter.addFilter("mpv");
-	tsfilefilter.addFilter("vob");
-	tsfilefilter.addFilter("m2ts");
-	tsfilefilter.addFilter("m3u");
-	tsfilefilter.addFilter("m3u8");
-	tsfilefilter.addFilter("pls");
-	tsfilefilter.addFilter("vdr");
-#ifdef HAVE_SPARK_HARDWARE
 	tsfilefilter.addFilter("flv");
-	tsfilefilter.addFilter("wmv");
-#endif
 	tsfilefilter.addFilter("iso");
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	tsfilefilter.addFilter("m2p");
+	tsfilefilter.addFilter("m2ts");
+	tsfilefilter.addFilter("mov");
+	tsfilefilter.addFilter("mp4");
+	tsfilefilter.addFilter("mpeg");
+	tsfilefilter.addFilter("mpg");
+	tsfilefilter.addFilter("mpv");
+	tsfilefilter.addFilter("pls");
 	tsfilefilter.addFilter("trp");
 	tsfilefilter.addFilter("vdr");
-	tsfilefilter.addFilter("mp3");
-	tsfilefilter.addFilter("flv");
+	tsfilefilter.addFilter("vob");
 	tsfilefilter.addFilter("wmv");
-#endif
+
+	// audio files
+	tsfilefilter.addFilter("aac");
+	tsfilefilter.addFilter("aif");
+	tsfilefilter.addFilter("aiff");
+	tsfilefilter.addFilter("cdr");
+	tsfilefilter.addFilter("dts");
+	tsfilefilter.addFilter("flac");
+	tsfilefilter.addFilter("flv");
+	tsfilefilter.addFilter("m2a");
+	tsfilefilter.addFilter("m4a");
+	tsfilefilter.addFilter("mp2");
+	tsfilefilter.addFilter("mp3");
+	tsfilefilter.addFilter("mpa");
+	tsfilefilter.addFilter("ogg");
+	tsfilefilter.addFilter("wav");
+	// playlists
+	tsfilefilter.addFilter("m3u");
+	tsfilefilter.addFilter("m3u8");
 
 	if (g_settings.network_nfs_moviedir.empty())
 		Path_local = "/";
@@ -1593,15 +1599,17 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #else
 				CVFD::getInstance()->showPercentOver(file_prozent);
 #endif
-#if HAVE_DUCKBOX_HARDWARE
-				ss = position/1000;
-				hh = ss/3600;
-				ss -= hh * 3600;
-				mm = ss/60;
-				ss -= mm * 60;
-				std::string Value = to_string(hh/10) + to_string(hh%10) + ":" + to_string(mm/10) + to_string(mm%10) + ":" + to_string(ss/10) + to_string(ss%10);
-				CVFD::getInstance()->ShowText(Value.c_str());
-#endif
+				if (g_info.hw_caps->display_xres > 8)
+				{
+					ss = position/1000;
+					hh = ss/3600;
+					ss -= hh * 3600;
+					mm = ss/60;
+					ss -= mm * 60;
+					std::string Value = to_string(hh/10) + to_string(hh%10) + ":" + to_string(mm/10) + to_string(mm%10) + ":" + to_string(ss/10) + to_string(ss%10);
+					CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
+					CVFD::getInstance()->showMenuText(0, Value.c_str(), -1, true);
+				}
 
 				playback->GetSpeed(speed);
 				/* at BOF lib set speed 1, check it */
