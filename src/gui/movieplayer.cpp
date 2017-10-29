@@ -180,6 +180,7 @@ void CMoviePlayerGui::Init(void)
 	stopped = true;
 	currentVideoSystem = -1;
 	currentOsdResolution = 0;
+	is_audio_playing = false;
 
 	frameBuffer = CFrameBuffer::getInstance();
 
@@ -191,45 +192,55 @@ void CMoviePlayerGui::Init(void)
 		bookmarkmanager = new CBookmarkManager();
 
 	// video files
-	tsfilefilter.addFilter("ts");
+	video_filefilter.addFilter("ts");
 #if !HAVE_TRIPLEDRAGON
-	tsfilefilter.addFilter("asf");
-	tsfilefilter.addFilter("avi");
-	tsfilefilter.addFilter("mkv");
+	video_filefilter.addFilter("asf");
+	video_filefilter.addFilter("avi");
+	video_filefilter.addFilter("mkv");
 #endif
-	tsfilefilter.addFilter("flv");
-	tsfilefilter.addFilter("iso");
-	tsfilefilter.addFilter("m2p");
-	tsfilefilter.addFilter("m2ts");
-	tsfilefilter.addFilter("mov");
-	tsfilefilter.addFilter("mp4");
-	tsfilefilter.addFilter("mpeg");
-	tsfilefilter.addFilter("mpg");
-	tsfilefilter.addFilter("mpv");
-	tsfilefilter.addFilter("pls");
-	tsfilefilter.addFilter("trp");
-	tsfilefilter.addFilter("vdr");
-	tsfilefilter.addFilter("vob");
-	tsfilefilter.addFilter("wmv");
+	video_filefilter.addFilter("flv");
+	video_filefilter.addFilter("iso");
+	video_filefilter.addFilter("m2p");
+	video_filefilter.addFilter("m2ts");
+	video_filefilter.addFilter("mov");
+	video_filefilter.addFilter("mp4");
+	video_filefilter.addFilter("mpeg");
+	video_filefilter.addFilter("mpg");
+	video_filefilter.addFilter("mpv");
+	video_filefilter.addFilter("pls");
+	video_filefilter.addFilter("trp");
+	video_filefilter.addFilter("vdr");
+	video_filefilter.addFilter("vob");
+	video_filefilter.addFilter("wmv");
 
 	// audio files
-	tsfilefilter.addFilter("aac");
-	tsfilefilter.addFilter("aif");
-	tsfilefilter.addFilter("aiff");
-	tsfilefilter.addFilter("cdr");
-	tsfilefilter.addFilter("dts");
-	tsfilefilter.addFilter("flac");
-	tsfilefilter.addFilter("flv");
-	tsfilefilter.addFilter("m2a");
-	tsfilefilter.addFilter("m4a");
-	tsfilefilter.addFilter("mp2");
-	tsfilefilter.addFilter("mp3");
-	tsfilefilter.addFilter("mpa");
-	tsfilefilter.addFilter("ogg");
-	tsfilefilter.addFilter("wav");
+	audio_filefilter.addFilter("aac");
+	audio_filefilter.addFilter("aif");
+	audio_filefilter.addFilter("aiff");
+	audio_filefilter.addFilter("cdr");
+	audio_filefilter.addFilter("dts");
+	audio_filefilter.addFilter("flac");
+	audio_filefilter.addFilter("flv");
+	audio_filefilter.addFilter("m2a");
+	audio_filefilter.addFilter("m4a");
+	audio_filefilter.addFilter("mp2");
+	audio_filefilter.addFilter("mp3");
+	audio_filefilter.addFilter("mpa");
+	audio_filefilter.addFilter("ogg");
+	audio_filefilter.addFilter("wav");
+
 	// playlists
 	tsfilefilter.addFilter("m3u");
 	tsfilefilter.addFilter("m3u8");
+
+	for (int i = 0; i < video_filefilter.size(); i++)
+	{
+		tsfilefilter.addFilter(video_filefilter.getFilter(i));
+	}
+	for (int i = 0; i < audio_filefilter.size(); i++)
+	{
+		tsfilefilter.addFilter(audio_filefilter.getFilter(i));
+	}
 
 	if (g_settings.network_nfs_moviedir.empty())
 		Path_local = "/";
@@ -1378,6 +1389,13 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		showStartingHint = true;
 		pthread_create(&thrStartHint, NULL, CMoviePlayerGui::ShowStartHint, this);
 	}
+	if (audio_filefilter.matchFilter(file_name))
+	{
+		frameBuffer->showFrame("mp3.jpg");
+		is_audio_playing = true;
+	}
+	else
+		is_audio_playing = false;
 	bool res = playback->Start((char *) file_name.c_str(), vpid, vtype, currentapid, currentac3, duration);
 
 	if (thrStartHint) {
@@ -1579,7 +1597,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			updateLcd();
 		}
 		if (first_start) {
-			usleep(50000);
+			usleep(80000);
 			callInfoViewer();
 			first_start = false;
 		}
