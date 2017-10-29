@@ -113,6 +113,7 @@ CInfoViewer::CInfoViewer ()
 	info_CurrentNext.flags = 0;
 	frameBuffer = CFrameBuffer::getInstance();
 	ecmInfoBox = NULL;
+	CoverBox = NULL;
 	md5_ecmInfo = "0";
 	InfoHeightY = 0;
 	ButtonWidth = 0;
@@ -642,11 +643,59 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 
 	if ((access("/tmp/.id3coverart", F_OK) == 0))
 	{
-		icon_w = ChanNumWidth;
-		icon_h = BoxEndY - (ChanNameY + header_height) - 6 ;
-		icon_x =  ChanInfoX + 10 + ChanNumWidth / 2 - icon_w / 2;
-		icon_y = (BoxEndY + ChanNameY + header_height) / 2 - icon_h / 2;
-		g_PicViewer->DisplayImage("/tmp/.id3coverart", icon_x, icon_y, icon_w, icon_h, 1);
+		if (CoverBox)
+			delete CoverBox;
+		CoverBox = new CComponentsWindowMax(NONEXISTANT_LOCALE, NEUTRINO_ICON_INFO);
+
+		//calc available width (width of Infobar)
+		int max_w = BoxEndX - BoxStartX;
+		//calc available height (space between Top and Infobar)
+		int max_h = BoxStartY - frameBuffer->getScreenY() - 2*OFFSET_SHADOW;
+
+		//get window header object
+		CComponentsHeader* winheader = CoverBox->getHeaderObject();
+		int h_header = winheader->getHeight();
+
+		//remove window footer object
+		CoverBox->showFooter(false);
+
+		//set new window dimensions
+		int h_offset = 5;
+		int w_offset = 10;
+		int w = 500;
+		int h = 500;
+		CoverBox->setWidth(std::min(max_w, w + 2*w_offset));
+		CoverBox->setHeight(std::min(max_h, h_header + h + 2*h_offset));
+		CoverBox->Refresh();
+
+		//calc window position
+		int pos_x;
+		switch (g_settings.show_ecm_pos)
+		{
+		case 3: // right
+			pos_x = BoxEndX - CoverBox->getWidth();
+			break;
+		case 1: // left
+			pos_x = BoxStartX;
+			break;
+		case 2: // center
+		default:
+			pos_x = frameBuffer->getScreenX() + (max_w/2) - (CoverBox->getWidth()/2);
+		break;
+		}
+
+		int pos_y = frameBuffer->getScreenY() + (max_h/2) - (CoverBox->getHeight()/2);
+		CoverBox->setXPos(pos_x);
+		CoverBox->setYPos(pos_y);
+
+		//get window body object
+		CComponentsForm* winbody = CoverBox->getBodyObject();
+
+		// create textbox object
+		CComponentsPicture *ptmp = new CComponentsPicture(RADIUS_LARGE, RADIUS_LARGE, winbody->getWidth()-2*RADIUS_LARGE, winbody->getHeight()-2*RADIUS_LARGE, "/tmp/.id3coverart");
+		CoverBox->addWindowItem(ptmp);
+		CoverBox->enableShadow(CC_SHADOW_ON);
+		CoverBox->paint(CC_SAVE_SCREEN_NO);
 	}
 
 	loop();
@@ -1970,6 +2019,9 @@ void CInfoViewer::killTitle()
 
 		if (ecminfo_toggle)
 			ecmInfoBox_hide();
+
+		if (CoverBox)
+			CoverBox->kill();
 
 		if (recordsbox)
 		{
