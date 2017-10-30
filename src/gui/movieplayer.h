@@ -189,12 +189,13 @@ class CMoviePlayerGui : public CMenuTarget
 
 	/* playback from file */
 	bool is_file_player;
+	bool is_audio_playing;
 	bool iso_file;
 	bool stopped;
 	CFileBrowser * filebrowser;
 	CFileFilter tsfilefilter;
-	CFileFilter video_filefilter;
-	CFileFilter audio_filefilter;
+	CFileFilter filefilter_video;
+	CFileFilter filefilter_audio;
 	CFileList filelist;
 	CFileList::iterator filelist_it;
 	CFileList::iterator vzap_it;
@@ -321,7 +322,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void setLuaInfoFunc(lua_State* L, bool func) { luaState = L; haveLuaInfoFunc = func; };
 	void getLivestreamInfo(std::string *i1, std::string *i2) { *i1=livestreamInfo1; *i2=livestreamInfo2; };
 	bool getLiveUrl(const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header);
-	bool is_audio_playing;
+	bool IsAudioPlaying() { return is_audio_playing; };
 };
 
 #endif
