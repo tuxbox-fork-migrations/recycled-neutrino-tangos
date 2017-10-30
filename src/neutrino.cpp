@@ -2689,7 +2689,7 @@ TIMER_START();
 	g_audioMute->AudioMute(current_muted, true);
 	CZapit::getInstance()->SetVolumePercent(g_settings.audio_volume_percent_ac3, g_settings.audio_volume_percent_pcm);
 	CVFD::getInstance()->showVolume(g_settings.current_volume, false);
-	CVFD::getInstance()->setMuted(current_muted);
+	//CVFD::getInstance()->setMuted(current_muted);
 
 	LCD4l = new CLCD4l();
 	LCD4l->StartLCD4l();
