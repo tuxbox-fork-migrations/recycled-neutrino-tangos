@@ -24,7 +24,7 @@
 #include <config.h>
 #endif
 
-#include <driver/lcdd.h>
+#include <driver/simple_display.h>
 #include <driver/framebuffer.h>
 #include <system/set_threadname.h>
 
@@ -358,8 +358,8 @@ void CLCD::showTime(bool force)
 		if (force || last_display || (switch_name_time_cnt == 0 && ((hour != t->tm_hour) || (minute != t->tm_min)))) {
 			hour = t->tm_hour;
 			minute = t->tm_min;
-			int ret = -1;
 #if HAVE_SPARK_HARDWARE
+			int ret = -1;
 			now += t->tm_gmtoff;
 			int fd = dev_open();
 #if 0 /* VFDSETTIME is broken and too complicated anyway -> use VFDSETTIME2 */
@@ -377,7 +377,7 @@ void CLCD::showTime(bool force)
 			close(fd);
 #endif
 #if HAVE_ARM_HARDWARE
-			if (mode == MODE_STANDBY || (g_settings.lcd_info_line && mode == MODE_TVRADIO))
+			if (mode == MODE_STANDBY || (g_settings.lcd_info_line && (mode == MODE_TVRADIO)))
 #else
 			if (ret < 0 && servicename.empty())
 #endif
@@ -415,8 +415,17 @@ void CLCD::showTime(bool force)
 			setled(red, green);
 }
 
-void CLCD::showRCLock(int)
+void CVFD::showRCLock(int duration)
 {
+	if (g_info.hw_caps->display_type != HW_DISPLAY_LINE_TEXT || !g_settings.lcd_notify_rclock)
+	{
+		sleep(duration);
+		return;
+	}
+
+	display(g_Locale->getText(LOCALE_RCLOCK_LOCKED));
+	sleep(duration);
+	display(display_text);
 }
 
 /* update is default true, the mute code sets it to false
@@ -477,11 +486,7 @@ void CLCD::showAudioTrack(const std::string &, const std::string & title, const 
 {
 	if (mode != MODE_AUDIO)
 		return;
-	std::string tmp = title;
-	replace_umlauts(tmp);
-	strncpy(display_text, tmp.c_str(), sizeof(display_text) - 1);
-	display_text[sizeof(display_text) - 1] = '\0';
-	upd_display = true;
+	ShowText(title.c_str());
 #if HAVE_ARM_HARDWARE
 	wake_up();
 #endif
@@ -633,10 +638,17 @@ void CLCD::togglePower(void)
 		Clear();
 	else
 		showTime(true);
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
+
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+	{
 		last_toggle_state_power = 1 - last_toggle_state_power;
-		setlcdparameter((mode == MODE_STANDBY) ? g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS] : (mode == MODE_SHUTDOWN) ? g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS] : g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS],
-				last_toggle_state_power);
+
+		if (mode == MODE_STANDBY)
+			setlcdparameter(g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS], last_toggle_state_power);
+		else if (mode == MODE_SHUTDOWN)
+			setlcdparameter(g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS], last_toggle_state_power);
+		else
+			setlcdparameter(g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS], last_toggle_state_power);
 	}
 }
 
@@ -712,14 +724,14 @@ void CLCD::count_down()
 	}
 }
 
-void CLCD::setlcdparameter(int dimm, const int power)
+void CLCD::setlcdparameter(int dimm, const int _power)
 {
 	if(dimm < 0)
 		dimm = 0;
 	else if(dimm > 15)
 		dimm = 15;
 
-	if(!power)
+	if(!_power)
 		dimm = 0;
 
 	if(brightness == dimm)
@@ -761,7 +773,7 @@ void CLCD::ShowDiskLevel()
 	if (get_fs_usage(g_settings.network_nfs_recordingdir.c_str(), t, u))
 	{
 		SetIcons(SPARK_HDD, true);
-		percent = (int)((u * 1000ULL) / t + 60); 
+		percent = (int)((u * 1000ULL) / t + 60);
 		digits = percent / 125;
 		if (percent > 1050)
 			digits = 9;
@@ -770,7 +782,7 @@ void CLCD::ShowDiskLevel()
 		{
 			for (i=0; i<digits; i++)
 				SetIcons(hdd_icons[i], true);
-						
+
 			for (j=i; j < 9; j++)
 				SetIcons(hdd_icons[j], false);
 		}
