@@ -302,6 +302,9 @@ void CMoviePlayerGui::cutNeutrino()
 	if (isUPNP)
 		return;
 
+#if 0
+	CZapit::getInstance()->setMoviePlayer(true);// let CCamManager::SetMode know, the call is from MoviePlayer
+#endif
 	g_Zapit->lockPlayBack();
 
 #ifdef HAVE_AZBOX_HARDWARE
@@ -1148,9 +1151,24 @@ bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &scri
 	}
 	std::string _script = script;
 
+#if 0
 	if (_script.find("/") == std::string::npos)
-		_script = g_settings.livestreamScriptPath + "/" + _script;
-
+	{
+		std::string _s = g_settings.livestreamScriptPath + "/" + _script;
+		printf("[%s:%s:%d] script: %s\n", __file__, __func__, __LINE__, _s.c_str());
+		if (!file_exists(_s.c_str()))
+		{
+			_s = std::string(WEBTVDIR_VAR) + "/" + _script;
+			printf("[%s:%s:%d] script: %s\n", __file__, __func__, __LINE__, _s.c_str());
+		}
+		if (!file_exists(_s.c_str()))
+		{
+			_s = std::string(WEBTVDIR) + "/" + _script;
+			printf("[%s:%s:%d] script: %s\n", __file__, __func__, __LINE__, _s.c_str());
+		}
+		_script = _s;
+	}
+#endif
 	size_t pos = _script.find(".lua");
 	if (!file_exists(_script.c_str()) || (pos == std::string::npos) || (_script.length()-pos != 4)) {
 		printf(">>>>> [%s:%s:%d] script error\n", __file__, __func__, __LINE__);
@@ -1578,7 +1596,6 @@ void CMoviePlayerGui::PlayFileLoop(void)
 	int quickjump = 300;
 #if HAVE_COOL_HARDWARE
 	int eof = 0;
-	int lastpos = 0;
 	int eof2 = 0;
 	int position_tmp = 0;
 #endif
@@ -1705,8 +1722,10 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			{
 				videoDecoder->setBlank(false);
 				screensaver(false);
-				//ignore first keypress stop - just quit the screensaver and call infoviewer
-				if (msg == CRCInput::RC_stop) {
+#if 0				//ignore first keypress stop - just quit the screensaver and call infoviewer
+				if (msg <= CRCInput::RC_MaxRC) {
+#endif
+				if (msg <= CRCInput::RC_stop) {
 					g_RCInput->clearRCMsg();
 					callInfoViewer();
 					continue;
@@ -1717,6 +1736,9 @@ void CMoviePlayerGui::PlayFileLoop(void)
 
 		if (msg == (neutrino_msg_t) g_settings.mpkey_plugin) {
 			g_Plugins->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
+#if 0
+		} else if ((msg == (neutrino_msg_t) g_settings.mpkey_stop) || msg == CRCInput::RC_home) {
+#endif
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
 			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
@@ -1871,6 +1893,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				playback->SetSpeed(speed);
 			}
 			updateLcd();
+
 			if (timeshift == TSHIFT_MODE_OFF)
 				callInfoViewer();
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark) {
@@ -2505,6 +2528,9 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 		newComHintBox.movePosition(newx, newy);
 		return;
 	}
+#if 0
+	else if ((msg == (neutrino_msg_t) g_settings.mpkey_stop) || msg == CRCInput::RC_home) {
+#endif
 	else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 		// if we have a movie information, try to save the stop position
 		printf("CMoviePlayerGui::handleMovieBrowser: stop, isMovieBrowser %d p_movie_info %p\n", isMovieBrowser, p_movie_info);
@@ -3441,7 +3467,6 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 	if (autoshot && (autoshot_done || !g_settings.auto_cover))
 		return;
 
-#ifdef SCREENSHOT
 	bool cover = autoshot || g_settings.screenshot_cover || forcover;
 	char ending[(sizeof(int)*2) + 6] = ".jpg";
 	if (!cover)
@@ -3491,9 +3516,10 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 			sc->SetSize(w, h);
 		}
 	}
-	sc->Start();
+#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	sc->Start("-r 320 -j 75");
 #else
-	(void)forcover;
+	sc->Start();
 #endif
 	if (autoshot)
 		autoshot_done = true;
