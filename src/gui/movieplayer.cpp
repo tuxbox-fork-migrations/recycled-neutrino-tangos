@@ -1411,7 +1411,9 @@ bool CMoviePlayerGui::PlayFileStart(void)
 
 	if (filefilter_audio.matchFilter(file_name))
 	{
+#if !HAVE_SH4_HARDWARE
 		frameBuffer->showFrame("mp3.jpg");
+#endif
 		is_audio_playing = true;
 	}
 	else
