@@ -1972,7 +1972,11 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		//set scramble icon
 		const char *scramble_icon = NULL;
 		if (chan->scrambled)
+#ifdef ENABLE_TANGOS
+			scramble_icon = NEUTRINO_ICON_SCRAMBLED2;
+#else
 			scramble_icon = NEUTRINO_ICON_SCRAMBLED;
+#endif
 
 		//calculate and paint right status icons
 		int icon_w = 0;
