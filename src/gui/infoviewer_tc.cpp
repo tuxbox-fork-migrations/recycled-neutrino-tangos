@@ -864,10 +864,11 @@ bool CInfoViewer::showLivestreamInfo()
 	CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
 	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv && cc->getEpgID() == 0)
 	{
+		std::string livestreamInfo1 = "";
+		std::string livestreamInfo2 = "";
+
 		if (!cc->getScriptName().empty())
 		{
-			std::string livestreamInfo1 = "";
-			std::string livestreamInfo2 = "";
 			std::string tmp1            = "";
 			CMoviePlayerGui::getInstance().getLivestreamInfo(&livestreamInfo1, &tmp1);
 
@@ -914,8 +915,6 @@ bool CInfoViewer::showLivestreamInfo()
 		else
 		{
 			// try to get meta data
-			std::string livestreamInfo1 = "";
-			std::string livestreamInfo2 = "";
 			std::string artist = "";
 			std::string title = "";
 			std::vector<std::string> keys, values;
