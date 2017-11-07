@@ -205,10 +205,6 @@ TUXBOX_APPS_DIRECTORY_ONE(public_httpddir,PUBLIC_HTTPDDIR,localstatedir,/var,/tu
 TUXBOX_APPS_DIRECTORY_ONE(hosted_httpddir,HOSTED_HTTPDDIR,mntdir,/mnt,/hosted,
 	[--with-hosted_httpddir=PATH   ],[where to find the the hosted files])
 
-TUXBOX_APPS_DIRECTORY_ONE(flagdir,FLAGDIR,localstatedir,/var,/etc,
-	[--with-flagdir=PATH           ],[where to find flagfiles])
-])
-
 dnl automake <= 1.6 needs this specifications
 AC_SUBST(CONFIGDIR)
 AC_SUBST(DATADIR)
