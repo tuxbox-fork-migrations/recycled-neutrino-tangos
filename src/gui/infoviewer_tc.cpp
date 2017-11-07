@@ -862,52 +862,94 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 bool CInfoViewer::showLivestreamInfo()
 {
 	CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv &&
-	        cc->getEpgID() == 0 && !cc->getScriptName().empty())
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv && cc->getEpgID() == 0)
 	{
-		std::string livestreamInfo1 = "";
-		std::string livestreamInfo2 = "";
-		std::string tmp1            = "";
-		CMoviePlayerGui::getInstance().getLivestreamInfo(&livestreamInfo1, &tmp1);
-
-		if (!(videoDecoder->getBlank()))
+		if (!cc->getScriptName().empty())
 		{
-			int xres, yres, framerate;
-			std::string tmp2;
-			videoDecoder->getPictureInfo(xres, yres, framerate);
-			switch (framerate)
+			std::string livestreamInfo1 = "";
+			std::string livestreamInfo2 = "";
+			std::string tmp1            = "";
+			CMoviePlayerGui::getInstance().getLivestreamInfo(&livestreamInfo1, &tmp1);
+
+			if (!(videoDecoder->getBlank()))
 			{
-			case 0:
-				tmp2 = "23.976fps";
-				break;
-			case 1:
-				tmp2 = "24fps";
-				break;
-			case 2:
-				tmp2 = "25fps";
-				break;
-			case 3:
-				tmp2 = "29,976fps";
-				break;
-			case 4:
-				tmp2 = "30fps";
-				break;
-			case 5:
-				tmp2 = "50fps";
-				break;
-			case 6:
-				tmp2 = "50,94fps";
-				break;
-			case 7:
-				tmp2 = "60fps";
-				break;
-			default:
-				tmp2 = g_Locale->getText(LOCALE_STREAMINFO_FRAMERATE_UNKNOWN);
-				break;
+				int xres, yres, framerate;
+				std::string tmp2;
+				videoDecoder->getPictureInfo(xres, yres, framerate);
+				switch (framerate)
+				{
+				case 0:
+					tmp2 = "23.976fps";
+					break;
+				case 1:
+					tmp2 = "24fps";
+					break;
+				case 2:
+					tmp2 = "25fps";
+					break;
+				case 3:
+					tmp2 = "29,976fps";
+					break;
+				case 4:
+					tmp2 = "30fps";
+					break;
+				case 5:
+					tmp2 = "50fps";
+					break;
+				case 6:
+					tmp2 = "50,94fps";
+					break;
+				case 7:
+					tmp2 = "60fps";
+					break;
+				default:
+					tmp2 = g_Locale->getText(LOCALE_STREAMINFO_FRAMERATE_UNKNOWN);
+					break;
+				}
+				livestreamInfo2 = to_string(xres) + "x" + to_string(yres) + ", " + tmp2;
+				if (!tmp1.empty())
+					livestreamInfo2 += (std::string)", " + tmp1;
 			}
-			livestreamInfo2 = to_string(xres) + "x" + to_string(yres) + ", " + tmp2;
-			if (!tmp1.empty())
-				livestreamInfo2 += (std::string)", " + tmp1;
+		}
+		else
+		{
+			// try to get meta data
+			std::string livestreamInfo1 = "";
+			std::string livestreamInfo2 = "";
+			std::string artist = "";
+			std::string title = "";
+			std::vector<std::string> keys, values;
+			cPlayback *playback = CMoviePlayerGui::getInstance().getPlayback();
+			if (playback)
+				playback->GetMetadata(keys, values);
+			size_t count = keys.size();
+			if (count > 0)
+			{
+				for (size_t i = 0; i < count; i++)
+				{
+					std::string key = trim(keys[i]);
+					if (!strcasecmp("artist", key.c_str()))
+					{
+						artist = isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
+						continue;
+					}
+					if (!strcasecmp("title", key.c_str()))
+					{
+						title = isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
+						continue;
+					}
+				}
+			}
+			if (!artist.empty())
+			{
+				livestreamInfo1 = artist;
+			}
+			if (!title.empty())
+			{
+				if (!livestreamInfo1.empty())
+					livestreamInfo1 += " - ";
+				livestreamInfo1 += title;
+			}
 		}
 
 		if (livestreamInfo1 != _livestreamInfo1 || livestreamInfo2 != _livestreamInfo2)
@@ -919,51 +961,6 @@ bool CInfoViewer::showLivestreamInfo()
 		}
 		return true;
 	}
-	// FIXME: move this block in the block above
-	else if (web_mode && cc->getEpgID() == 0)
-	{
-		// try to get meta data
-		std::string livestreamInfo1 = "";
-		std::string livestreamInfo2 = "";
-		std::string artist = "";
-		std::string title = "";
-		std::vector<std::string> keys, values;
-		cPlayback *playback = CMoviePlayerGui::getInstance().getPlayback();
-		if (playback)
-			playback->GetMetadata(keys, values);
-		size_t count = keys.size();
-		if (count > 0) {
-			for (size_t i = 0; i < count; i++) {
-				std::string key = trim(keys[i]);
-				if (!strcasecmp("artist", key.c_str())) {
-					artist = isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
-					continue;
-				}
-				if (!strcasecmp("title", key.c_str())) {
-					title = isUTF8(values[i]) ? values[i] : convertLatin1UTF8(values[i]);
-					continue;
-				}
-			}
-		}
-		if (!artist.empty())
-		{
-			livestreamInfo1 = artist;
-		}
-		if (!title.empty())
-		{
-			if (!livestreamInfo1.empty())
-				livestreamInfo1 += " - ";
-			livestreamInfo1 += title;
-		}
-		if (livestreamInfo1 != _livestreamInfo1 || livestreamInfo2 != _livestreamInfo2) {
-			display_Info(livestreamInfo1.c_str(), livestreamInfo2.c_str(), false);
-			_livestreamInfo1 = livestreamInfo1;
-			_livestreamInfo2 = livestreamInfo2;
-			infoViewerBB->showBBButtons(true /*paintFooter*/);
-		}
-		return true;
-	}
-
 	return false;
 }
 
