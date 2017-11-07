@@ -502,7 +502,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 		}
 		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
 		{
-			postmsg = msg;
+			g_RCInput->postMsg (msg, 0);
 			res = menu_return::RETURN_EXIT_ALL;
 			break;
 		}
@@ -787,7 +787,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	if (mp)
 	{
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv)
 		{
 			// channel
 			r.key = g_Locale->getText (LOCALE_TIMERLIST_CHANNEL);
@@ -891,9 +891,9 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	}
 #if BOXMODEL_UFS910
-	if ((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) || channel->getVideoPid())
+	if ((mp && IS_WEBTV(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) || channel->getVideoPid())
 #else
-	if (((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) || channel->getVideoPid()) && !(videoDecoder->getBlank()))
+	if (((mp && IS_WEBTV(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) || channel->getVideoPid()) && !(videoDecoder->getBlank()))
 #endif
 	{
 		 videoDecoder->getPictureInfo(xres, yres, framerate);
