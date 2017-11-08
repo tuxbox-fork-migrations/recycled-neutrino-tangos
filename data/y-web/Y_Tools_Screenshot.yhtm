@@ -31,11 +31,7 @@ function rcsim(_key) {
 		}
 	}
 	loadSyncURL("/control/rcem?" + _key);
-	if (enableOSD == 1 && enableVideo == 0) {
-		do_snapshot();
-	} else {
-		window.setTimeout("do_snapshot()", 750);
-	}
+	window.setTimeout("do_snapshot()", 750);
 }
 function do_snapshot() {
 	if(!checkEnable()) return;
