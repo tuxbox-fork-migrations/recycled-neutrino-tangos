@@ -677,14 +677,11 @@ int COsdSetup::showOsdSetup()
 
 #ifdef SCREENSHOT
 	//screenshot
-	if (!find_executable("grab").empty())
-	{
-		CMenuWidget osd_menu_screenshot(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
-		showOsdScreenShotSetup(&osd_menu_screenshot);
-		mf = new CMenuForwarder(LOCALE_SCREENSHOT_MENU, true, NULL, &osd_menu_screenshot, NULL, CRCInput::convertDigitToKey(shortcut++));
-		mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_SETUP);
-		osd_menu->addItem(mf);
-	}
+	CMenuWidget osd_menu_screenshot(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
+	showOsdScreenShotSetup(&osd_menu_screenshot);
+	mf = new CMenuForwarder(LOCALE_SCREENSHOT_MENU, !find_executable("grab").empty(), NULL, &osd_menu_screenshot, NULL, CRCInput::convertDigitToKey(shortcut++));
+	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_SETUP);
+	osd_menu->addItem(mf);
 #endif
 
 	//screensaver
