@@ -3518,11 +3518,7 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 			sc->SetSize(w, h);
 		}
 	}
-#if HAVE_SH4_HARDWARE
-	sc->Start("-r 320 -j 75");
-#else
 	sc->Start();
-#endif
 	if (autoshot)
 		autoshot_done = true;
 }

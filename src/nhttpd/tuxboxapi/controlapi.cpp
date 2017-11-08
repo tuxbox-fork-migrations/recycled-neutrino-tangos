@@ -2096,31 +2096,12 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	if(!hh->ParamList["name"].empty())
 		filename = hh->ParamList["name"];
 
-#if HAVE_SH4_HARDWARE
-	if (!enableVideo) {
-		CFrameBuffer::getInstance()->OSDShot("/tmp/screenshot.png");
-		hh->SendOk();
-		return;
-	}
-#endif
 	CScreenShot * screenshot = new CScreenShot("/tmp/" + filename + ".png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
 	if(screenshot){
 		screenshot->EnableOSD(enableOSD);
 		screenshot->EnableVideo(enableVideo);
-#if HAVE_SH4_HARDWARE
 		screenshot->Start();
 		hh->SendOk();
-#else
-#if 0
-	screenshot->Start();
-	hh->SendOk(); // FIXME what if screenshot->Start() failed?
-#else
-		if (screenshot->StartSync())
-			hh->SendOk();
-		else
-			hh->SendError();
-#endif
-#endif
 		delete screenshot;
 	}
 }
