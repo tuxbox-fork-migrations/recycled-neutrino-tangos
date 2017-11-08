@@ -1307,57 +1307,6 @@ void CFrameBuffer::set3DMode(Mode3D m)
 	}
 }
 
-bool CFrameBuffer::OSDShot(const std::string &name)
-{
-	struct timeval ts, te;
-	gettimeofday(&ts, NULL);
-
-	size_t l = name.find_last_of(".");
-	if(l == std::string::npos)
-		return false;
-	if (name.substr(l) != ".png")
-		return false;
-	FILE *out = fopen(name.c_str(), "w");
-	if (!out)
-		return false;
-
-	unsigned int xres = DEFAULT_XRES;
-	unsigned int yres = DEFAULT_YRES;
-	fb_pixel_t *b = (fb_pixel_t *) accel_sti_ddt->lbb;
-
-	if (!g_settings.screenshot_backbuffer) {
-		xres = accel_sti_ddt->s.xres;
-		yres = accel_sti_ddt->s.yres;
-		b = (fb_pixel_t *) lfb;
-	}
-
-	png_bytep row_pointers[yres];
-	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-		(png_voidp) NULL, (png_error_ptr) NULL, (png_error_ptr) NULL);
-	png_infop info_ptr = png_create_info_struct(png_ptr);
-
-	png_init_io(png_ptr, out);
-
-	for (unsigned int y = 0; y < yres; y++)
-		row_pointers[y] = (png_bytep) (b + y * xres);
-
-	png_set_compression_level(png_ptr, g_settings.screenshot_png_compression);
-	png_set_bgr(png_ptr);
-	png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
-	png_set_IHDR(png_ptr, info_ptr, xres, yres, 8, PNG_COLOR_TYPE_RGBA,
-		PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-	png_write_info(png_ptr, info_ptr);
-	png_write_image(png_ptr, row_pointers);
-	png_write_end(png_ptr, NULL);
-	png_destroy_write_struct(&png_ptr, &info_ptr);
-
-	fclose(out);
-
-	gettimeofday(&te, NULL);
-	fprintf(stderr, "%s took %lld us\n", __func__, (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
-	return true;
-}
-
 void CFrameBuffer::blitArea(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
 {
 	accel_sti_ddt->blitArea(src_width, src_height, fb_x, fb_y, width, height);
