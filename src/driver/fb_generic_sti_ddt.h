@@ -286,7 +286,6 @@ class CFrameBuffer : public sigc::trackable
 			};
 		void SetTransparent(int t){ m_transparent = t; }
 		void SetTransparentDefault(){ m_transparent = m_transparent_default; }
-		bool OSDShot(const std::string &name);
 		enum Mode3D { Mode3D_off = 0, Mode3D_SideBySide, Mode3D_TopAndBottom, Mode3D_Tile, Mode3D_SIZE };
 		void set3DMode(Mode3D);
 		Mode3D get3DMode(void);
