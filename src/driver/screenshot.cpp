@@ -44,6 +44,7 @@
 #include <cs_api.h>
 #include <driver/screenshot.h>
 #include <system/set_threadname.h>
+#include <system/helpers.h>
 
 CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
 {
@@ -62,15 +63,17 @@ CScreenShot::~CScreenShot()
 
 bool CScreenShot::Start(const std::string custom_cmd)
 {
-	std::string cmd = "/bin/grab";
+	std::string cmd = find_executable("grab");
 
-	if (access(cmd.c_str(), X_OK))
+	if (cmd.empty())
 		return false;
 
 	cmd += " ";
 
-	if (!custom_cmd.empty())
+	if (!custom_cmd.empty()) {
 		cmd += custom_cmd;
+		cmd += " ";
+	}
 
 	std::string get = "";
 	if (get_osd)
@@ -94,11 +97,8 @@ bool CScreenShot::Start(const std::string custom_cmd)
 	if (scale_to_osd)
 		cmd += "-d ";
 
-	if (xres) {
-		char tmp[10];
-		snprintf(tmp, sizeof(tmp), "-w %d ", xres);
-		cmd += std::string(tmp);
-	}
+	if (xres)
+		cmd += "-w " + to_string(xres) + " ";
 
 	cmd += "'";
 	cmd += filename;

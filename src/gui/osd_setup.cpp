@@ -677,7 +677,7 @@ int COsdSetup::showOsdSetup()
 
 #ifdef SCREENSHOT
 	//screenshot
-	if (!access("/bin/grab",X_OK))
+	if (!find_executable("grab").empty())
 	{
 		CMenuWidget osd_menu_screenshot(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
 		showOsdScreenShotSetup(&osd_menu_screenshot);
