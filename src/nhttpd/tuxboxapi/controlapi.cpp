@@ -2096,7 +2096,7 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	if(!hh->ParamList["name"].empty())
 		filename = hh->ParamList["name"];
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	if (!enableVideo) {
 		CFrameBuffer::getInstance()->OSDShot("/tmp/screenshot.png");
 		hh->SendOk();
@@ -2107,7 +2107,7 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	if(screenshot){
 		screenshot->EnableOSD(enableOSD);
 		screenshot->EnableVideo(enableVideo);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 		screenshot->Start();
 		hh->SendOk();
 #else
