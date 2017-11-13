@@ -178,12 +178,12 @@ int CVfdSetup::showSetup()
 
 		//scroll options
 #if HAVE_SH4_HARDWARE
-		oj = new CMenuOptionNumberChooser(LOCALE_LCDMENU_VFD_SCROLL, &g_settings.lcd_vfd_scroll, (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT), 0, 999, this, 0, 0, NONEXISTANT_LOCALE, true);
+		vfds->addItem(new CMenuOptionNumberChooser(LOCALE_LCDMENU_VFD_SCROLL, &g_settings.lcd_vfd_scroll, (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT), 0, 999, this, 0, 0, NONEXISTANT_LOCALE, true));
 #else
 		oj = new CMenuOptionChooser(LOCALE_LCDMENU_SCROLL, &g_settings.lcd_scroll, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled);
-#endif
 		oj->setHint("", LOCALE_MENU_HINT_VFD_SCROLL);
 		vfds->addItem(oj);
+#endif
 
 		//notify rc-lock
 		oj = new CMenuOptionChooser(LOCALE_LCDMENU_NOTIFY_RCLOCK, &g_settings.lcd_notify_rclock, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled);
