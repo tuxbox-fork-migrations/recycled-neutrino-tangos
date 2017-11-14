@@ -233,11 +233,11 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("m3u");
 	tsfilefilter.addFilter("m3u8");
 
-	for (int i = 0; i < filefilter_video.size(); i++)
+	for (unsigned int i = 0; i < filefilter_video.size(); i++)
 	{
 		tsfilefilter.addFilter(filefilter_video.getFilter(i));
 	}
-	for (int i = 0; i < filefilter_audio.size(); i++)
+	for (unsigned int i = 0; i < filefilter_audio.size(); i++)
 	{
 		tsfilefilter.addFilter(filefilter_audio.getFilter(i));
 	}
@@ -1431,9 +1431,11 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		repeat_mode = REPEAT_OFF;
 		return false;
 	} else {
-		numpida = REC_MAX_APIDS;
+		numpida = 0;
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
-		if (p_movie_info)
+		if (p_movie_info){
+			if(!numpida && !p_movie_info->audioPids.empty())
+				numpida = p_movie_info->audioPids.size();
 			for (unsigned int i = 0; i < numpida; i++) {
 				unsigned int j, asize = p_movie_info->audioPids.size();
 				for (j = 0; j < asize && p_movie_info->audioPids[j].AudioPid != apids[i]; j++);
@@ -1446,12 +1448,13 @@ bool CMoviePlayerGui::PlayFileStart(void)
 					p_movie_info->audioPids.push_back(pids);
 				}
 			}
-		else
+		}else{
 			for (unsigned int i = 0; i < numpida; i++)
 				if (apids[i] == playback->GetAPid()) {
 				CZapit::getInstance()->SetVolumePercent((ac3flags[i] == 1) ? g_settings.audio_volume_percent_ac3 : g_settings.audio_volume_percent_pcm);
 				break;
 			}
+		}
 		repeat_mode = (repeat_mode_enum) g_settings.movieplayer_repeat_on;
 		playstate = CMoviePlayerGui::PLAY;
 		CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
@@ -2151,7 +2154,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #endif
 			}
 		}
-		if (msg < 0x4000) /*save only real keys */
+		if (msg < CRCInput::RC_MaxRC)
 			lastmsg = msg;
 	}
 	printf("CMoviePlayerGui::PlayFile: exit, isMovieBrowser %d p_movie_info %p\n", isMovieBrowser, p_movie_info);
@@ -2315,7 +2318,7 @@ bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
 {
 	if (p_movie_info == NULL)
 	{
-		numpida = REC_MAX_APIDS;
+		numpida = 0;
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
 		for (unsigned int count = 0; count < numpida; count++)
 			if(apid == apids[count]){
@@ -2327,7 +2330,7 @@ bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
 	{
 		if (!isMovieBrowser)
 		{
-			numpida = REC_MAX_APIDS;
+			numpida = 0;
 			playback->FindAllPids(apids, ac3flags, &numpida, language);
 			for (unsigned int count = 0; count < numpida; count++)
 				if(apid == apids[count]){
@@ -2386,7 +2389,7 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 
 void CMoviePlayerGui::getCurrentAudioName(bool /* file_player */, std::string &audioname)
 {
-	numpida = REC_MAX_APIDS;
+	numpida = 0;
 	playback->FindAllPids(apids, ac3flags, &numpida, language);
 	if (numpida && !currentapid)
 		currentapid = apids[0];
@@ -3234,8 +3237,11 @@ unsigned int CMoviePlayerGui::getAPID(void)
 
 unsigned int CMoviePlayerGui::getAPIDCount(void)
 {
+	if (!is_file_player && numpida)
+		return numpida;
+
 	unsigned int count = 0;
-	numpida = REC_MAX_APIDS;
+	numpida = 0;
 	playback->FindAllPids(apids, ac3flags, &numpida, language);
 	for (unsigned int i = 0; i < numpida; i++) {
 		if (i != count) {
@@ -3528,25 +3534,6 @@ void CMoviePlayerGui::showFileInfos()
 	CStreamInfo2 * si = new CStreamInfo2;
 	si->exec(NULL, "");
 	delete si;
-/*
-	std::vector<std::string> keys, values;
-	playback->GetMetadata(keys, values);
-	size_t count = keys.size();
-	if (count > 0) {
-		CMenuWidget* sfimenu = new CMenuWidget("Fileinfos", NEUTRINO_ICON_SETTINGS);
-		sfimenu->addItem(GenericMenuBack);
-		sfimenu->addItem(GenericMenuSeparatorLine);
-		for (size_t i = 0; i < count; i++) {
-			std::string key = trim(keys[i]);
-			printf("key: %s - values: %s \n", key.c_str(), isUTF8(values[i]) ? values[i].c_str() : convertLatin1UTF8(values[i]).c_str());
-			CMenuForwarder * mf = new CMenuForwarder(key.c_str(), false, isUTF8(values[i]) ? values[i].c_str() : convertLatin1UTF8(values[i]).c_str(), NULL);
-			sfimenu->addItem(mf);
-		}
-		sfimenu->exec(NULL, "");
-		sfimenu=NULL;
-		delete sfimenu;
-	}
-*/
 	return;
 }
 
