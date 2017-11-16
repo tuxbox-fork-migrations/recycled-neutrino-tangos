@@ -819,7 +819,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		    ChanNumWidth, strChanNum, COL_INFOBAR_TEXT);
 
 	// Radiotext
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
 	{
 		if ((g_settings.radiotext_enable) && (!recordModeActive) && (!calledFromNumZap))
 			showRadiotext();
@@ -848,6 +848,7 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 		timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + timeout_ext);
 		break;
 	case NeutrinoMessages::mode_radio:
+	case NeutrinoMessages::mode_webradio:
 		timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] + timeout_ext);
 		break;
 	case NeutrinoMessages::mode_ts:
@@ -862,7 +863,7 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 bool CInfoViewer::showLivestreamInfo()
 {
 	CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv && cc->getEpgID() == 0)
+	if ((CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio) && cc->getEpgID() == 0)
 	{
 		std::string livestreamInfo1 = "";
 		std::string livestreamInfo2 = "";
@@ -1496,7 +1497,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 					snprintf(runningRest, sizeof(runningRest), "%d / %d %s", (curr_pos + 30000) / 60000, (duration - curr_pos + 30000) / 60000, unit_short_minute);
 					display_Info(NULL, NULL, false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
 				}
-				else if (!IS_WEBTV(current_channel_id))
+				else if (!IS_WEBCHAN(current_channel_id))
 				{
 					show_Data(false);
 				}
@@ -1609,7 +1610,7 @@ void CInfoViewer::sendNoEpg(const t_channel_id for_channel_id)
 void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
 {
 	/* to clear the oldinfo for channels without epg, call getEPG() with for_channel_id = 0 */
-	if (for_channel_id == 0 || IS_WEBTV(for_channel_id))
+	if (for_channel_id == 0 || IS_WEBCHAN(for_channel_id))
 	{
 		oldinfo.current_uniqueKey = 0;
 		return;
@@ -2271,7 +2272,7 @@ void CInfoViewer::getIconInfo()
 	BBarY 			= BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
 	bbIconMinX 		= BoxEndX - 2*OFFSET_INNER_MID;
-	CNeutrinoApp* neutrino	= CNeutrinoApp::getInstance();
+	bool isRadioMode	= (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio);
 
 	for (int i = 0; i < CInfoViewer::ICON_MAX; i++)
 	{
@@ -2280,11 +2281,11 @@ void CInfoViewer::getIconInfo()
 		switch (i)
 		{
 		case CInfoViewer::ICON_SUBT:  //no radio
-			if (neutrino->getMode() != NeutrinoMessages::mode_radio)
+			if (!isRadioMode)
 				iconView = checkIcon(NEUTRINO_ICON_SUBT, &w, &h);
 			break;
 		case CInfoViewer::ICON_RT:
-			if ((neutrino->getMode() == NeutrinoMessages::mode_radio) && g_settings.radiotext_enable)
+			if (isRadioMode && g_settings.radiotext_enable)
 				iconView = checkIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
 			break;
 		case CInfoViewer::ICON_DD:
@@ -2292,11 +2293,11 @@ void CInfoViewer::getIconInfo()
 				iconView = checkIcon(NEUTRINO_ICON_DD, &w, &h);
 			break;
 		case CInfoViewer::ICON_16_9:  //no radio
-			if (neutrino->getMode() != NeutrinoMessages::mode_radio)
+			if (!isRadioMode)
 				iconView = checkIcon(NEUTRINO_ICON_16_9, &w, &h);
 			break;
 		case CInfoViewer::ICON_RES:  //no radio
-			if ((g_settings.infobar_show_res < 2) && (neutrino->getMode() != NeutrinoMessages::mode_radio))
+			if (!isRadioMode && g_settings.infobar_show_res < 2)
 				iconView = checkIcon(g_settings.infobar_show_res ? NEUTRINO_ICON_RESOLUTION_HD : NEUTRINO_ICON_RESOLUTION_1280, &w, &h);
 			break;
 		case CInfoViewer::ICON_CA:
@@ -2304,7 +2305,7 @@ void CInfoViewer::getIconInfo()
 				iconView = checkIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
 			break;
 		case CInfoViewer::ICON_TUNER:
-			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBTV(get_current_channel_id()) && neutrino->getMode() != NeutrinoMessages::mode_ts)
+			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBCHAN(get_current_channel_id()) && neutrino->getMode() != NeutrinoMessages::mode_ts)
 				iconView = checkIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 			break;
 		case CInfoViewer::ICON_UPDATE:
@@ -2636,7 +2637,7 @@ void CInfoViewer::showIcon_16_9()
 	if ((aspectRatio == 0) || ( g_RemoteControl->current_PIDs.PIDs.vpid == 0 ) || (aspectRatio != videoDecoder->getAspectRatio()))
 	{
 		if (chanready &&
-		        (g_RemoteControl->current_PIDs.PIDs.vpid > 0 || IS_WEBTV(get_current_channel_id())))
+		        (g_RemoteControl->current_PIDs.PIDs.vpid > 0 || IS_WEBCHAN(get_current_channel_id())))
 			aspectRatio = videoDecoder->getAspectRatio();
 		else
 			aspectRatio = 0;
@@ -2649,7 +2650,7 @@ void CInfoViewer::showIcon_Resolution()
 {
 	if ((!is_visible) || (g_settings.infobar_show_res == 2)) //show resolution icon is off
 		return;
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
 		return;
 	const char *icon_name = NULL;
 #if BOXMODEL_UFS910
