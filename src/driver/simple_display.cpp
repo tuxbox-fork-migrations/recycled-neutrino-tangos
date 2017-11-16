@@ -26,6 +26,7 @@
 
 #include <driver/simple_display.h>
 #include <driver/framebuffer.h>
+#include <system/helpers.h>
 #include <system/proc_tools.h>
 #include <system/set_threadname.h>
 
@@ -41,7 +42,6 @@
 #include <aotom_main.h>
 #define DISPLAY_DEV "/dev/vfd"
 #include <zapit/zapit.h>
-#include <system/helpers.h>
 static bool usb_icon = false;
 static bool timer_icon = false;
 #endif
@@ -60,7 +60,6 @@ static bool timer_icon = false;
 #if HAVE_ARM_HARDWARE
 #define DISPLAY_DEV "/dev/dbox/oled0"
 #include <zapit/zapit.h>
-#include <system/helpers.h>
 static bool usb_icon = false;
 static bool timer_icon = false;
 #endif
@@ -232,7 +231,8 @@ void CLCD::showServicename(std::string name, bool)
 		return;
 
 	servicename = name;
-	if (mode != MODE_TVRADIO)
+
+	if (mode != MODE_TVRADIO && mode != MODE_AUDIO)
 		return;
 
 	replace_umlauts(servicename);
@@ -369,7 +369,7 @@ void CLCD::showTime(bool force)
 			setled(red, green);
 }
 
-void CVFD::showRCLock(int duration)
+void CLCD::showRCLock(int duration)
 {
 	if (g_info.hw_caps->display_type != HW_DISPLAY_LINE_TEXT || !g_settings.lcd_notify_rclock)
 	{
@@ -577,6 +577,25 @@ int CLCD::getBrightnessStandby()
 		return g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS];
 	} else
 		return 0;
+}
+
+void CLCD::setScrollMode(int scroll_repeats)
+{
+	printf("CLCD::%s scroll_repeats:%d\n", __func__, scroll_repeats);
+	if (scroll_repeats)
+	{
+		proc_put("/proc/stb/lcd/initial_scroll_delay", "1000");
+		proc_put("/proc/stb/lcd/final_scroll_delay", "1000");
+		proc_put("/proc/stb/lcd/scroll_delay", "150");
+		proc_put("/proc/stb/lcd/scroll_repeats", to_string(scroll_repeats).c_str());
+	}
+	else
+	{
+		proc_put("/proc/stb/lcd/initial_scroll_delay", false);
+		proc_put("/proc/stb/lcd/final_scroll_delay", false);
+		proc_put("/proc/stb/lcd/scroll_delay", false);
+		proc_put("/proc/stb/lcd/scroll_repeats", false);
+	}
 }
 
 void CLCD::setPower(int)
@@ -789,17 +808,21 @@ void CLCD::ShowIcon(fp_icon i, bool on)
 	{
 		case FP_ICON_CAM1:
 			led_r = on;
-			if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
+			if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+			{
 				SetIcons(SPARK_REC1, on);
-				proc_put("/proc/stb/lcd/symbol_recording", on);}
+				proc_put("/proc/stb/lcd/symbol_recording", on);
+			}
 			else
 				setled(led_r, -1); /* switch instant on / switch off if disabling */
 			break;
 		case FP_ICON_PLAY:
 			led_g = on;
-			if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) {
+			if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+			{
 				SetIcons(SPARK_PLAY, on);
-				proc_put("/proc/stb/lcd/symbol_playback", on);}
+				proc_put("/proc/stb/lcd/symbol_playback", on);
+			}
 			else
 				setled(-1, led_g);
 			break;
@@ -849,7 +872,7 @@ void CLCD::ShowIcon(fp_icon i, bool on)
 	}
 }
 
-void CVFD::ShowText(const char * str, bool update_timestamp)
+void CLCD::ShowText(const char * str, bool update_timestamp)
 {
 	int fd = dev_open();
 	int len = strlen(str);
