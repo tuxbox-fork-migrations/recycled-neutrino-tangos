@@ -1870,7 +1870,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				CBouquet* webtvBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBTV), false, true);
 				webtvBouquet->channelList->SetChannelList(&webtvList);
 				TVallList->Bouquets.push_back(webtvBouquet);
-#if 0
+#if ENABLE_TANGOS
 				/* "satellite" */
 				webtvBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBTV), false, true);
 				webtvBouquet->channelList->SetChannelList(&webtvList);
@@ -1886,7 +1886,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				CBouquet* webradioBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBRADIO), false, true);
 				webradioBouquet->channelList->SetChannelList(&webradioList);
 				RADIOallList->Bouquets.push_back(webradioBouquet);
-#if 0
+#if ENABLE_TANGOS
 				/* "satellite" */
 				webradioBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBRADIO), false, true);
 				webradioBouquet->channelList->SetChannelList(&webradioList);
