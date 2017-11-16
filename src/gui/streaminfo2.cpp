@@ -833,7 +833,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		// channel
 		r.key = g_Locale->getText (LOCALE_TIMERLIST_CHANNEL);
 		r.key += ": ";
-		r.val = channel->getName().c_str();
+		r.val = (channel->getName()==channel->getRealname()) ? channel->getRealname().c_str():(channel->getName()+" << "+channel->getRealname()).c_str();
 		r.col = COL_MENUCONTENT_TEXT;
 		v.push_back(r);
 
@@ -891,9 +891,9 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	}
 #if BOXMODEL_UFS910
-	if ((mp && IS_WEBTV(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) || channel->getVideoPid())
+	if ((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) || channel->getVideoPid())
 #else
-	if (((mp && IS_WEBTV(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) || channel->getVideoPid()) && !(videoDecoder->getBlank()))
+	if (((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) || channel->getVideoPid()) && !(videoDecoder->getBlank()))
 #endif
 	{
 		 videoDecoder->getPictureInfo(xres, yres, framerate);

@@ -90,13 +90,7 @@ if BOXTYPE_AZBOX
 libneutrino_driver_a_SOURCES += \
 	simple_display.cpp
 endif
-if BOXTYPE_ARMBOX
-libneutrino_driver_a_SOURCES += \
-	fb_generic.cpp \
-	fb_accel.cpp \
-	fb_accel_arm.cpp \
-	simple_display.cpp
-endif
+
 if USE_STB_HAL
 AM_CPPFLAGS += \
 	@DIRECTFB_CFLAGS@
@@ -118,6 +112,7 @@ endif
 
 if BOXTYPE_ARMBOX
 libneutrino_driver_a_SOURCES += \
+	fb_generic.cpp \
 	fb_accel.cpp \
 	fb_accel_arm.cpp \
 	simple_display.cpp

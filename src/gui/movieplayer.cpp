@@ -296,7 +296,7 @@ void CMoviePlayerGui::cutNeutrino()
 
 	playing = true;
 	/* set g_InfoViewer update timer to 1 sec, should be reset to default from restoreNeutrino->set neutrino mode  */
-	if (!isWebTV)
+	if (!isWebChannel)
 		g_InfoViewer->setUpdateTimer(1000 * 1000);
 
 	if (isUPNP)
@@ -315,12 +315,22 @@ void CMoviePlayerGui::cutNeutrino()
 	g_Zapit->setStandby(true);
 #endif
 
-	m_LastMode = (CNeutrinoApp::getInstance()->getMode() /*| NeutrinoMessages::norezap*/);
-	if (isWebTV)
+	int new_mode = NeutrinoMessages::mode_unknown;
+	m_LastMode = CNeutrinoApp::getInstance()->getMode();
+	printf("%s: old mode %d\n", __func__, m_LastMode);fflush(stdout);
+	if (isWebChannel)
+	{
+		bool isRadioMode = (m_LastMode == NeutrinoMessages::mode_radio || m_LastMode == NeutrinoMessages::mode_webradio);
+		new_mode = (isRadioMode) ? NeutrinoMessages::mode_webradio : NeutrinoMessages::mode_webtv;
 		m_LastMode |= NeutrinoMessages::norezap;
+	}
+	else
+	{
+		new_mode = NeutrinoMessages::mode_ts;
+	}
+	printf("%s: new mode %d\n", __func__, new_mode);fflush(stdout);
 	printf("%s: save mode %x\n", __func__, m_LastMode);fflush(stdout);
-	int new_mode = NeutrinoMessages::norezap | (isWebTV ? NeutrinoMessages::mode_webtv : NeutrinoMessages::mode_ts);
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, new_mode);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::norezap | new_mode);
 }
 
 void CMoviePlayerGui::restoreNeutrino()
@@ -350,10 +360,11 @@ void CMoviePlayerGui::restoreNeutrino()
 
 	if (isUPNP)
 		return;
-
+#if ! HAVE_COOL_HARDWARE
 	g_Zapit->unlockPlayBack();
-	//CZapit::getInstance()->EnablePlayback(true);
-
+#else
+	CZapit::getInstance()->EnablePlayback(true);
+#endif
 	printf("%s: restore mode %x\n", __func__, m_LastMode);fflush(stdout);
 #if 0
 	if (m_LastMode == NeutrinoMessages::mode_tv)
@@ -455,7 +466,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 
-	std::string oldservicename = CVFD::getInstance()->getServicename();
 	while(!isHTTP && !isUPNP && SelectFile()) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->showServicename(file_name.c_str());
@@ -466,12 +476,14 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 			break;
 		}
 		do {
+#if ! HAVE_COOL_HARDWARE
 			is_file_player = true;
+#endif
 			PlayFile();
 		}
 		while (repeat_mode || filelist_it != filelist.end());
 	}
-	CVFD::getInstance()->showServicename(oldservicename.c_str());
+	CVFD::getInstance()->showServicename(CVFD::getInstance()->getServicename());
 
 	bookmarkmanager->flush();
 
@@ -659,7 +671,7 @@ void CMoviePlayerGui::ClearFlags()
 	isHTTP = false;
 	isLuaPlay = false;
 	isUPNP = false;
-	isWebTV = false;
+	isWebChannel = false;
 	isYT = false;
 	is_file_player = false;
 	is_audio_playing = false;
@@ -861,11 +873,11 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 			caller->playback->RequestAbort();
 		}
 #if 0
-		else if (caller->isWebTV) {
+		else if (caller->isWebChannel) {
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
 #endif
-		else if (caller->isWebTV && ((msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down))) {
+		else if (caller->isWebChannel && ((msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down))) {
 			caller->playback->RequestAbort();
 			g_RCInput->postMsg(msg, data);
 		}
@@ -1256,7 +1268,7 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	instance_bg->ClearFlags();
 	instance_bg->ClearQueue();
 
-	instance_bg->isWebTV = true;
+	instance_bg->isWebChannel = true;
 	instance_bg->is_file_player = true;
 	instance_bg->isHTTP = true;
 	instance_bg->file_name = realUrl;
@@ -1358,7 +1370,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 	handleMovieBrowser(CRCInput::RC_nokey, position);
 
 	cutNeutrino();
-	if (isWebTV)
+	if (isWebChannel)
 		videoDecoder->setBlank(true);
 
 #if 0
@@ -1468,7 +1480,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 			int i;
 			int towait = (timeshift == TSHIFT_MODE_ON) ? TIMESHIFT_SECONDS+1 : TIMESHIFT_SECONDS;
 			int cnt = 500;
-			if (IS_WEBTV(movie_info.channelId)) {
+			if (IS_WEBCHAN(movie_info.channelId)) {
 				videoDecoder->setBlank(false);
 				cnt = 200;
 				towait = 20;
@@ -1805,7 +1817,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			fromInfoviewer = false;
 			playstate = CMoviePlayerGui::STOPPED;
 			filelist_it = vzap_it;
-		} else if (timeshift == TSHIFT_MODE_OFF && !isWebTV /* && !isYT */ && (msg == (neutrino_msg_t) g_settings.mpkey_next_repeat_mode)) {
+		} else if (timeshift == TSHIFT_MODE_OFF && !isWebChannel /* && !isYT */ && (msg == (neutrino_msg_t) g_settings.mpkey_next_repeat_mode)) {
 			repeat_mode = (repeat_mode_enum)((int)repeat_mode + 1);
 			if (repeat_mode > (int) REPEAT_ALL)
 				repeat_mode = REPEAT_OFF;
@@ -2387,10 +2399,12 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 	}
 }
 
-void CMoviePlayerGui::getCurrentAudioName(bool /* file_player */, std::string &audioname)
+void CMoviePlayerGui::getCurrentAudioName(bool file_player, std::string &audioname)
 {
-	numpida = 0;
-	playback->FindAllPids(apids, ac3flags, &numpida, language);
+	if (file_player) {
+		numpida = 0;
+		playback->FindAllPids(apids, ac3flags, &numpida, language);
+	}
 	if (numpida && !currentapid)
 		currentapid = apids[0];
 	for (unsigned int count = 0; count < numpida; count++)
@@ -3376,7 +3390,7 @@ void CMoviePlayerGui::selectAutoLang()
 		}
 	}
 #if 0
-	if (isWebTV && g_settings.auto_subs && numsubs > 0) {
+	if (isWebChannel && g_settings.auto_subs && numsubs > 0) {
 		for(int i = 0; i < 3; i++) {
 			if(g_settings.pref_subs[i].empty() || g_settings.pref_subs[i] == "none")
 				continue;

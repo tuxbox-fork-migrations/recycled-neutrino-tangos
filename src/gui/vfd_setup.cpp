@@ -51,6 +51,7 @@
 #include <driver/display.h>
 
 #include <system/debug.h>
+#include <system/helpers.h>
 #include <cs_api.h>
 
 
@@ -180,9 +181,23 @@ int CVfdSetup::showSetup()
 #if HAVE_SH4_HARDWARE
 		vfds->addItem(new CMenuOptionNumberChooser(LOCALE_LCDMENU_VFD_SCROLL, &g_settings.lcd_vfd_scroll, (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT), 0, 999, this, 0, 0, NONEXISTANT_LOCALE, true));
 #else
-		oj = new CMenuOptionChooser(LOCALE_LCDMENU_SCROLL, &g_settings.lcd_scroll, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled);
-		oj->setHint("", LOCALE_MENU_HINT_VFD_SCROLL);
-		vfds->addItem(oj);
+		//scroll options
+		if (file_exists("/proc/stb/lcd/scroll_repeats"))
+		{
+			// allow to set scroll_repeats
+			CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_LCDMENU_SCROLL_REPEATS, &g_settings.lcd_scroll, vfd_enabled, 0, 999, this);
+			nc->setLocalizedValue(0);
+			nc->setLocalizedValueName(LOCALE_OPTIONS_OFF);
+			nc->setHint("", LOCALE_MENU_HINT_VFD_SCROLL);
+			vfds->addItem(nc);
+		}
+		else
+		{
+			// simple on/off chooser
+			oj = new CMenuOptionChooser(LOCALE_LCDMENU_SCROLL, &g_settings.lcd_scroll, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled, this);
+			oj->setHint("", LOCALE_MENU_HINT_VFD_SCROLL);
+			vfds->addItem(oj);
+		}
 #endif
 
 		//notify rc-lock
@@ -328,9 +343,11 @@ bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void * /* data 
 #if !HAVE_SH4_HARDWARE
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LEDCONTROLER_MODE_TV)) {
 		CVFD::getInstance()->setled();
-#endif
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LEDCONTROLER_BACKLIGHT_TV)) {
 		CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LCDMENU_SCROLL) || ARE_LOCALES_EQUAL(OptionName, LOCALE_LCDMENU_SCROLL_REPEATS)) {
+		CVFD::getInstance()->setScrollMode(g_settings.lcd_scroll);
+#endif
 	}
 
 	return false;
