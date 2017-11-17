@@ -119,6 +119,7 @@ neutrino_LDADD = \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
 	@AVCODEC_LIBS@ \
+	@SWSCALE_LIBS@ \
 	$(ADEC_LIBS) \
 	@SIGC_LIBS@ \
 	$(PUGIXML_LIBS) \
