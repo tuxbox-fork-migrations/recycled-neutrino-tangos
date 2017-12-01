@@ -353,8 +353,8 @@ const CMenuOptionChooser::keyval SATSETUP_FRONTEND_MODE[SATSETUP_FRONTEND_MODE_C
 const CMenuOptionChooser::keyval FRONTEND_FORCE_MODE[FRONTEND_FORCE_MODE_COUNT] =
 {
 	{ 0, LOCALE_TUNERSETUP_HYBRID },
-	{ 1, LOCALE_TUNERSETUP_CABLE },
-	{ 2, LOCALE_TUNERSETUP_TERR }
+	{ 1, LOCALE_TUNERSETUP_CABLE  },
+	{ 2, LOCALE_TUNERSETUP_TERR   }
 };
 
 CScanSetup::CScanSetup(int wizard_mode)
@@ -375,7 +375,7 @@ CScanSetup::CScanSetup(int wizard_mode)
 	linkfe		= NULL;
 	in_menu		= false;
 	allow_start	= true;
-	tsp			= NULL;
+	tsp		= NULL;
 	if (CFEManager::getInstance()->haveCable())
 		nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int*) &scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 }

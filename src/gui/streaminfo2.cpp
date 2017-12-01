@@ -274,6 +274,7 @@ void CStreamInfo2::probeStreams()
 {
 	if (mp)
 	{
+		// not yet implemented in libcoolstream
 		AVFormatContext *avfc = mp->getPlayback()->GetAVFormatContext();
 		if (avfc)
 		{
@@ -348,7 +349,7 @@ int CStreamInfo2::exec (CMenuTarget * parent, const std::string &)
 	if (parent)
 		parent->hide ();
 
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		mp = &CMoviePlayerGui::getInstance(true);
 	else
 		mp = &CMoviePlayerGui::getInstance();
@@ -540,8 +541,8 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	tname += ": ";
 	if (mp)
 	{
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv)
-			tname += g_Locale->getText(LOCALE_WEBTV_HEAD);
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
+			tname += "Web-Channel"; // TODO split into WebTV/WebRadio
 		else
 			tname += g_Locale->getText(LOCALE_MAINMENU_MOVIEPLAYER);
 	}
@@ -787,7 +788,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	if (mp)
 	{
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv)
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		{
 			// channel
 			r.key = g_Locale->getText (LOCALE_TIMERLIST_CHANNEL);
@@ -1030,7 +1031,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		v.push_back(r);
 
 		// picon
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv)
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		{
 			r.key = "Picon";
 			r.key += ": ";
@@ -1083,7 +1084,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.col = COL_MENUCONTENT_TEXT;
 		r.f   = g_Font[font_small];
 		v.push_back(r);
-
 		// onid
 		r.key = "ONid: ";
 		i = channel->getOriginalNetworkId();
