@@ -819,7 +819,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		    ChanNumWidth, strChanNum, COL_INFOBAR_TEXT);
 
 	// Radiotext
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 	{
 		if ((g_settings.radiotext_enable) && (!recordModeActive) && (!calledFromNumZap))
 			showRadiotext();
@@ -843,15 +843,15 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 	//define timeouts
 	switch (mode)
 	{
-	case NeutrinoMessages::mode_tv:
-	case NeutrinoMessages::mode_webtv:
+	case NeutrinoModes::mode_tv:
+	case NeutrinoModes::mode_webtv:
 		timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + timeout_ext);
 		break;
-	case NeutrinoMessages::mode_radio:
-	case NeutrinoMessages::mode_webradio:
+	case NeutrinoModes::mode_radio:
+	case NeutrinoModes::mode_webradio:
 		timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] + timeout_ext);
 		break;
-	case NeutrinoMessages::mode_ts:
+	case NeutrinoModes::mode_ts:
 		timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] + timeout_ext);
 		break;
 	default:
@@ -863,7 +863,7 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 bool CInfoViewer::showLivestreamInfo()
 {
 	CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
-	if ((CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio) && cc->getEpgID() == 0)
+	if ((CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio) && cc->getEpgID() == 0)
 	{
 		std::string livestreamInfo1 = "";
 		std::string livestreamInfo2 = "";
@@ -1088,7 +1088,7 @@ void CInfoViewer::loop()
 				showInfoFile();
 				if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
 					showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
-				if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio))
+				if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio))
 					showRadiotext();
 
 				showIcon_16_9();
@@ -1116,7 +1116,7 @@ void CInfoViewer::loop()
 				if ((msg == (neutrino_msg_t) g_settings.key_quickzap_up) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down) || (msg == CRCInput::RC_0) || (msg == NeutrinoMessages::SHOW_INFOBAR))
 				{
 					hideIt = false; // default
-					if ((g_settings.radiotext_enable) && (neutrino->getMode() == NeutrinoMessages::mode_radio))
+					if ((g_settings.radiotext_enable) && (neutrino->getMode() == NeutrinoModes::mode_radio))
 						hideIt =  true;
 
 					int rec_mode = CRecordManager::getInstance()->GetRecordMode();
@@ -1525,7 +1525,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				showLivestreamInfo();
 				showButtons(true /*paintFooter*/); // in case button text has changed
 			}
-			if (g_settings.radiotext_enable && g_Radiotext && !g_RemoteControl->current_PIDs.APIDs.empty() && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio))
+			if (g_settings.radiotext_enable && g_Radiotext && !g_RemoteControl->current_PIDs.APIDs.empty() && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoModes::mode_radio))
 				g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
 		}
 		return messages_return::handled;
@@ -2082,7 +2082,7 @@ void CInfoViewer::showLcdPercentOver ()
 {
 	if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] != 1)
 	{
-		if (fileplay || (NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()))
+		if (fileplay || (NeutrinoModes::mode_ts == CNeutrinoApp::getInstance()->getMode()))
 		{
 			CVFD::getInstance ()->showPercentOver (CMoviePlayerGui::getInstance().file_prozent);
 			return;
@@ -2272,7 +2272,7 @@ void CInfoViewer::getIconInfo()
 	BBarY 			= BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
 	bbIconMinX 		= BoxEndX - 2*OFFSET_INNER_MID;
-	bool isRadioMode	= (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio);
+	bool isRadioMode	= (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio);
 
 	for (int i = 0; i < CInfoViewer::ICON_MAX; i++)
 	{
@@ -2301,11 +2301,11 @@ void CInfoViewer::getIconInfo()
 				iconView = checkIcon(g_settings.infobar_show_res ? NEUTRINO_ICON_RESOLUTION_HD : NEUTRINO_ICON_RESOLUTION_1280, &w, &h);
 			break;
 		case CInfoViewer::ICON_CA:
-			if (g_settings.infobar_casystem_display == 2 && CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts)
+			if (g_settings.infobar_casystem_display == 2 && CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts)
 				iconView = checkIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
 			break;
 		case CInfoViewer::ICON_TUNER:
-			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBCHAN(get_current_channel_id()) && CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts)
+			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBCHAN(get_current_channel_id()) && CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts)
 				iconView = checkIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 			break;
 		case CInfoViewer::ICON_UPDATE:
@@ -2343,7 +2343,7 @@ void CInfoViewer::getButtonInfo()
 	bbButtonMaxH = 0;
 	bbButtonMaxX = ChanInfoX;
 	int bbButtonMaxW = 0;
-	int mode = NeutrinoMessages::mode_unknown;
+	int mode = NeutrinoModes::mode_unknown;
 	for (int i = 0; i < CInfoViewer::BUTTON_MAX; i++)
 	{
 		int w = 0, h = 0;
@@ -2355,7 +2355,7 @@ void CInfoViewer::getButtonInfo()
 			icon = NEUTRINO_ICON_INFO_RED;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts)
+			if (mode == NeutrinoModes::mode_ts)
 			{
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_red, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
@@ -2370,7 +2370,7 @@ void CInfoViewer::getButtonInfo()
 			icon = NEUTRINO_ICON_INFO_GREEN;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts)
+			if (mode == NeutrinoModes::mode_ts)
 			{
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_green, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
@@ -2385,7 +2385,7 @@ void CInfoViewer::getButtonInfo()
 			icon = NEUTRINO_ICON_INFO_YELLOW;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts)
+			if (mode == NeutrinoModes::mode_ts)
 			{
 				text = "Fileinfos"; //CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_yellow, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
@@ -2400,7 +2400,7 @@ void CInfoViewer::getButtonInfo()
 			icon = NEUTRINO_ICON_INFO_BLUE;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			mode = CNeutrinoApp::getInstance()->getMode();
-			if (mode == NeutrinoMessages::mode_ts)
+			if (mode == NeutrinoModes::mode_ts)
 			{
 				text = CKeybindSetup::getMoviePlayerButtonName(CRCInput::RC_blue, active, g_settings.infobar_buttons_usertitle);
 				if (!text.empty())
@@ -2415,7 +2415,7 @@ void CInfoViewer::getButtonInfo()
 			break;
 		}
 		//label audio control button in movieplayer mode
-		if (mode == NeutrinoMessages::mode_ts && !CMoviePlayerGui::getInstance().timeshift)
+		if (mode == NeutrinoModes::mode_ts && !CMoviePlayerGui::getInstance().timeshift)
 		{
 			if (text == g_Locale->getText(LOCALE_MPKEY_AUDIO) && !g_settings.infobar_buttons_usertitle)
 				text = CMoviePlayerGui::getInstance(false).CurrentAudioName(); // use instance_mp
@@ -2650,7 +2650,7 @@ void CInfoViewer::showIcon_Resolution()
 {
 	if ((!is_visible) || (g_settings.infobar_show_res == 2)) //show resolution icon is off
 		return;
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webradio)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		return;
 	const char *icon_name = NULL;
 #if BOXMODEL_UFS910
@@ -2913,7 +2913,7 @@ void CInfoViewer::showIcon_CA_Status(int notfirst)
 
 	if (g_settings.infobar_casystem_display == 3)
 		return;
-	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift)
+	if(NeutrinoModes::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift)
 	{
 		if (g_settings.infobar_casystem_display == 2)
 		{
