@@ -892,9 +892,9 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	}
 #if BOXMODEL_UFS910
-	if ((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) || channel->getVideoPid())
+	if ((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) || channel->getVideoPid())
 #else
-	if (((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) || channel->getVideoPid()) && !(videoDecoder->getBlank()))
+	if (((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) || channel->getVideoPid()) && !(videoDecoder->getBlank()))
 #endif
 	{
 		 videoDecoder->getPictureInfo(xres, yres, framerate);
