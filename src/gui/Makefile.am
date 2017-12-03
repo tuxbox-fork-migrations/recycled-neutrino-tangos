@@ -132,6 +132,7 @@ endif
 
 if BOXTYPE_ARMBOX
 libneutrino_gui_a_SOURCES += \
+	psisetup.cpp \
 	3dsetup.cpp
 endif
 
