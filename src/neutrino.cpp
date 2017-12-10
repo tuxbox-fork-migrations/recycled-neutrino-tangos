@@ -396,6 +396,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.show_ecm_pos = configfile.getInt32("show_ecm_pos" , 0);
 
+	g_settings.show_menu_hints_line = configfile.getBool("show_menu_hints_line", false);
+
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 
 	// video
@@ -1270,6 +1272,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	//theme/color options
 	CThemes::setTheme(configfile);
+
+	configfile.setBool("show_menu_hints_line" , g_settings.show_menu_hints_line);
 
 	//video
 	configfile.setInt32( "video_Mode", g_settings.video_Mode );
