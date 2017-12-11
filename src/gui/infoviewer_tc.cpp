@@ -2862,7 +2862,7 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 		icon_map[0x1800] = std::make_pair(index++,"nagra");
 		icon_map[0x0B00] = std::make_pair(index++,"conax");
 		icon_map[0x0D00] = std::make_pair(index++,"cw");
-		icon_map[0x0900] = std::make_pair(index,"nds");
+		icon_map[0x0900] = std::make_pair(index++,"nds");
 		icon_map[0x1000] = std::make_pair(index,"tan");
 
 		for (it=icon_map.begin(); it!=icon_map.end(); ++it)
