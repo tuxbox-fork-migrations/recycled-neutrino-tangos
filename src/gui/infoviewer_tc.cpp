@@ -264,20 +264,20 @@ void CInfoViewer::Init()
 */
 void CInfoViewer::start ()
 {
-	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + 10;
+	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + OFFSET_INNER_MID;
 
 	InfoHeightY = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight() * 9/8 +
-	              2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 25;
+	              2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + OFFSET_INNER_LARGE + OFFSET_INNER_SMALL;
 
-	ChanWidth = std::max(125, 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + 10);
+	ChanWidth = std::max(125, 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + OFFSET_INNER_MID);
 
 	ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/* * 9/8*/;
 	ChanHeight += g_SignalFont->getHeight()/2;
 	ChanHeight = std::max(75, ChanHeight);
 
-	BoxStartX = g_settings.screen_StartX + 10;
-	BoxEndX = g_settings.screen_EndX - 10;
-	BoxEndY = g_settings.screen_EndY - 10 - InfoHeightY_Info - bottom_bar_offset;
+	BoxStartX = g_settings.screen_StartX + OFFSET_INNER_MID;
+	BoxEndX = g_settings.screen_EndX - OFFSET_INNER_MID;
+	BoxEndY = g_settings.screen_EndY - OFFSET_INNER_MID - InfoHeightY_Info - bottom_bar_offset;
 	BoxStartY = BoxEndY - InfoHeightY - ChanHeight / 2;
 
 	ChanNameY = BoxStartY + (ChanHeight / 2);	//oberkante schatten?
@@ -565,11 +565,11 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	paintBody();
 
 	showRecords();
-	ana_clock_size = (BoxEndY - (ChanNameY + header_height) - 6);
+	ana_clock_size = (BoxEndY - (ChanNameY + header_height) - OFFSET_INTER);
 	if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
-		showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
+		showClock_analog(ChanInfoX + OFFSET_INNER_MID + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - (OFFSET_INTER/2), ana_clock_size / 2);
 
-	ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth("888") + 5;
+	ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth("888") + OFFSET_INNER_SMALL;
 
 	if (!zap_mode)
 		paintshowButtonBar();
@@ -628,7 +628,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 		speedw = 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest);
 		icon_w += speedw;
 	}
-	int icon_x = ChanInfoX + 10 + ChanNumWidth / 2 - icon_w / 2;
+	int icon_x = ChanInfoX + OFFSET_INNER_MID + ChanNumWidth / 2 - icon_w / 2;
 	int icon_y = (BoxEndY + ChanNameY + header_height) / 2 - icon_h / 2;
 	if (speed)
 	{
@@ -660,8 +660,8 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 		CoverBox->showFooter(false);
 
 		//set new window dimensions
-		int h_offset = 5;
-		int w_offset = 10;
+		int h_offset = OFFSET_INNER_SMALL;
+		int w_offset = OFFSET_INNER_MID;
 		int w = 500;
 		int h = 500;
 		CoverBox->setWidth(std::min(max_w, w + 2*w_offset));
@@ -782,9 +782,9 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	paintBody();
 
 	showRecords();
-	ana_clock_size = (BoxEndY - (ChanNameY + header_height) - 6);
+	ana_clock_size = (BoxEndY - (ChanNameY + header_height) - OFFSET_INTER);
 	if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
-		showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
+		showClock_analog(ChanInfoX + OFFSET_INNER_MID + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - (OFFSET_INTER/2), ana_clock_size / 2);
 
 	if (showButtonBar)
 	{
@@ -794,10 +794,10 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	if ((ChanNum) && (g_settings.channellist_show_numbers))
 	{
 		snprintf (strChanNum, sizeof(strChanNum), "%d", ChanNum);
-		ChanNumWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum) + 5;
+		ChanNumWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum) + OFFSET_INNER_SMALL;
 	}
 	else
-		ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : 5;
+		ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : OFFSET_INNER_SMALL;
 
 	if (fileplay)
 	{
@@ -815,7 +815,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 
 	if ((g_settings.channellist_show_numbers) && (ChanNum))
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->RenderString(
-		    ChanInfoX + 10, ChanNumYPos,
+		    ChanInfoX + OFFSET_INNER_MID, ChanNumYPos,
 		    ChanNumWidth, strChanNum, COL_INFOBAR_TEXT);
 
 	// Radiotext
@@ -1087,7 +1087,7 @@ void CInfoViewer::loop()
 				blink = !blink;
 				showInfoFile();
 				if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
-					showClock_analog(ChanInfoX + 10 + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - 3, ana_clock_size / 2);
+					showClock_analog(ChanInfoX + OFFSET_INNER_MID + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - (OFFSET_INTER/2), ana_clock_size / 2);
 				if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio))
 					showRadiotext();
 
@@ -1224,44 +1224,44 @@ void CInfoViewer::showSubchan ()
 			char text[100];
 			snprintf (text, sizeof(text), "%d - %s", subchannel, subChannelName.c_str ());
 
-			int dx = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth (text) + 20;
+			int dx = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth (text) + 2*OFFSET_INNER_MID;
 			int dy = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight(); // 25;
 
 			if (g_RemoteControl->director_mode)
 			{
-				int w = 20 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth (g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE)) + 20;
+				int w = 2*OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth (g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE)) + 2*OFFSET_INNER_MID;
 				int h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 				if (w > dx)
 					dx = w;
-				dy = dy + h + 5; //dy * 2;
+				dy = dy + h + OFFSET_INNER_SMALL; //dy * 2;
 			}
 			else
-				dy = dy + 5;
+				dy = dy + OFFSET_INNER_SMALL;
 
 			int x = 0, y = 0;
 			if (g_settings.infobar_subchan_disp_pos == 0)
 			{
 				// Rechts-Oben
-				x = g_settings.screen_EndX - dx - 10;
-				y = g_settings.screen_StartY + 10;
+				x = g_settings.screen_EndX - dx - OFFSET_INNER_MID;
+				y = g_settings.screen_StartY + OFFSET_INNER_MID;
 			}
 			else if (g_settings.infobar_subchan_disp_pos == 1)
 			{
 				// Links-Oben
-				x = g_settings.screen_StartX + 10;
-				y = g_settings.screen_StartY + 10;
+				x = g_settings.screen_StartX + OFFSET_INNER_MID;
+				y = g_settings.screen_StartY + OFFSET_INNER_MID;
 			}
 			else if (g_settings.infobar_subchan_disp_pos == 2)
 			{
 				// Links-Unten
-				x = g_settings.screen_StartX + 10;
-				y = g_settings.screen_EndY - dy - 10;
+				x = g_settings.screen_StartX + OFFSET_INNER_MID;
+				y = g_settings.screen_EndY - dy - OFFSET_INNER_MID;
 			}
 			else if (g_settings.infobar_subchan_disp_pos == 3)
 			{
 				// Rechts-Unten
-				x = g_settings.screen_EndX - dx - 10;
-				y = g_settings.screen_EndY - dy - 10;
+				x = g_settings.screen_EndX - dx - OFFSET_INNER_MID;
+				y = g_settings.screen_EndY - dy - OFFSET_INNER_MID;
 			}
 
 			fb_pixel_t pixbuf[(dx + 2 * borderwidth) * (dy + 2 * borderwidth)];
@@ -1278,13 +1278,13 @@ void CInfoViewer::showSubchan ()
 
 			if (g_RemoteControl->director_mode)
 			{
-				lframeBuffer->paintIcon (NEUTRINO_ICON_BUTTON_YELLOW, x + 8, y + dy - 20);
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (x + 30, y + dy - 2, dx - 40, g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE), COL_MENUCONTENT_TEXT);
+				lframeBuffer->paintIcon (NEUTRINO_ICON_BUTTON_YELLOW, x + 4*OFFSET_INNER_MIN, y + dy - 2*OFFSET_INNER_MID);
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (x + 3*OFFSET_INNER_MID, y + dy - OFFSET_INNER_MIN, dx - 4*OFFSET_INNER_MID, g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE), COL_MENUCONTENT_TEXT);
 				int h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + 10, y + dy - h - 2, dx - 20, text, COL_MENUCONTENT_TEXT);
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + OFFSET_INNER_MID, y + dy - h - OFFSET_INNER_MIN, dx - 2*OFFSET_INNER_MID, text, COL_MENUCONTENT_TEXT);
 			}
 			else
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + 10, y + dy - 2, dx - 20, text, COL_MENUCONTENT_TEXT);
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + OFFSET_INNER_MID, y + dy - OFFSET_INNER_MIN, dx - 2*OFFSET_INNER_MID, text, COL_MENUCONTENT_TEXT);
 
 			uint64_t timeoutEnd_tmp = CRCInput::calcTimeoutEnd (2);
 			int res = messages_return::none;
@@ -1312,7 +1312,7 @@ void CInfoViewer::showSubchan ()
 					}
 				}
 			}
-			lframeBuffer->RestoreScreen (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
+			lframeBuffer->RestoreScreen (x - borderwidth, y - borderwidth, dx + OFFSET_INNER_MIN * borderwidth, dy + OFFSET_INNER_MIN * borderwidth, pixbuf);
 		}
 	}
 	else
@@ -1332,7 +1332,7 @@ void CInfoViewer::showMotorMoving (int duration)
 
 	char text[256];
 	snprintf(text, sizeof(text), "%s (%ds)", g_Locale->getText (LOCALE_INFOVIEWER_MOTOR_MOVING), duration);
-	ShowHint (LOCALE_MESSAGEBOX_INFO, text, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (text) + 10, duration);	// UTF-8
+	ShowHint (LOCALE_MESSAGEBOX_INFO, text, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (text) + OFFSET_INNER_MID, duration);	// UTF-8
 }
 
 void CInfoViewer::killRadiotext()
@@ -1359,9 +1359,9 @@ void CInfoViewer::showRadiotext()
 		// dimensions of radiotext window
 		int /*yoff = 8,*/ ii = 0;
 		rt_dx = BoxEndX - BoxStartX;
-		rt_dy = 25;
+		rt_dy = OFFSET_INNER_LARGE + OFFSET_INNER_SMALL;
 		rt_x = BoxStartX;
-		rt_y = g_settings.screen_StartY + 10;
+		rt_y = g_settings.screen_StartY + OFFSET_INNER_MID;
 		rt_h = rt_y + 7 + rt_dy*(g_Radiotext->S_RtOsdRows+1)+OFFSET_SHADOW;
 		rt_w = rt_x+rt_dx+OFFSET_SHADOW;
 
@@ -1389,7 +1389,7 @@ void CInfoViewer::showRadiotext()
 					// shadow
 					frameBuffer->paintBoxRel(rt_x+OFFSET_SHADOW, rt_y+OFFSET_SHADOW, rt_dx, rt_dy, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 					frameBuffer->paintBoxRel(rt_x, rt_y, rt_dx, rt_dy, COL_INFOBAR_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rt_x+10, rt_y+ 30, rt_dx-20, stext[0], COL_INFOBAR_TEXT, 0, RTisIsUTF);
+					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rt_x+OFFSET_INNER_MID, rt_y+ 3*OFFSET_INNER_MID, rt_dx-2*OFFSET_INNER_MID, stext[0], COL_INFOBAR_TEXT, 0, RTisIsUTF);
 					blit = true;
 				}
 //				yoff = 17;
@@ -1404,9 +1404,9 @@ void CInfoViewer::showRadiotext()
 
 				// RT-Text roundloop
 				int ind = (g_Radiotext->RT_Index == 0) ? g_Radiotext->S_RtOsdRows - 1 : g_Radiotext->RT_Index - 1;
-				int rts_x = rt_x+10;
-				int rts_y = rt_y+ 30;
-				int rts_dx = rt_dx-20;
+				int rts_x = rt_x+OFFSET_INNER_MID;
+				int rts_y = rt_y+ 3*OFFSET_INNER_MID;
+				int rts_dx = rt_dx-2*OFFSET_INNER_MID;
 				if (g_Radiotext->S_RtOsdLoop == 1)   // latest bottom
 				{
 					for (int i = ind+1; i < g_Radiotext->S_RtOsdRows; i++)
@@ -1668,11 +1668,11 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	int height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
 	int CurrInfoY = (BoxEndY + ChanNameY + header_height) / 2;
 	int NextInfoY = CurrInfoY/* + height*/;	// lower end of next info box
-	int InfoX = ChanInfoX + ChanNumWidth + 20;
+	int InfoX = ChanInfoX + ChanNumWidth + 2*OFFSET_INNER_MID;
 
 	int xStart = InfoX;
 	if (starttimes)
-		xStart += info_time_width + 10;
+		xStart += info_time_width + OFFSET_INNER_MID;
 
 	int pb_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() - 4;
 	CurrInfoY -= (pb_h/3);
@@ -1682,10 +1682,10 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	{
 		int pb_w = 112;
 		int pb_startx = BoxEndX - pb_w - OFFSET_SHADOW;
-		int pb_starty = ChanNameY - (pb_h + 10);
+		int pb_starty = ChanNameY - (pb_h + OFFSET_INNER_MID);
 
 		pb_startx = xStart;
-		pb_w = BoxEndX - 10 - xStart;
+		pb_w = BoxEndX - OFFSET_INNER_MID - xStart;
 
 		pb_starty = CurrInfoY + ((pb_h / 3)-(pb_h/5)) ;
 		pb_h = (pb_h/5);
@@ -1706,9 +1706,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	if (showButtonBar)
 	{
 		if (!g_settings.theme.infobar_gradient_top)
-			frameBuffer->paintHLine(ChanInfoX + 10, BoxEndX - 10, CurrInfoY - height - 2, COL_INFOBAR_PLUS_3);
+			frameBuffer->paintHLine(ChanInfoX + OFFSET_INNER_MID, BoxEndX - OFFSET_INNER_MID, CurrInfoY - height - OFFSET_INNER_MIN, COL_INFOBAR_PLUS_3);
 		if ((g_settings.infobar_casystem_display < 2) && (!g_settings.infobar_casystem_frame))
-			frameBuffer->paintHLine(ChanInfoX + 10, BoxEndX - 10, NextInfoY + height + 2, COL_INFOBAR_PLUS_3);
+			frameBuffer->paintHLine(ChanInfoX + OFFSET_INNER_MID, BoxEndX - OFFSET_INNER_MID, NextInfoY + height + OFFSET_INNER_MIN, COL_INFOBAR_PLUS_3);
 	}
 
 
@@ -1718,8 +1718,8 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		currTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest)*2;
 	if (nextDuration)
 		nextTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(nextDuration)*2;
-	int currTimeX = BoxEndX - currTimeW - 10;
-	int nextTimeX = BoxEndX - nextTimeW - 10;
+	int currTimeX = BoxEndX - currTimeW - OFFSET_INNER_MID;
+	int nextTimeX = BoxEndX - nextTimeW - OFFSET_INNER_MID;
 
 	//colored_events init
 	bool colored_event_C = (g_settings.theme.colored_events_infobar == 1);
@@ -1749,7 +1749,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			txt_cur_event_rest = NULL;
 		}
 
-		txt_cur_event = new CComponentsTextTransp(NULL, xStart, CurrInfoY - height, currTimeX - xStart - 5, height, current,
+		txt_cur_event = new CComponentsTextTransp(NULL, xStart, CurrInfoY - height, currTimeX - xStart - OFFSET_INNER_SMALL, height, current,
 		        CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO],
 		        CComponentsText::FONT_STYLE_REGULAR, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
 		txt_cur_event->paint(CC_SAVE_SCREEN_YES);
@@ -1794,7 +1794,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			txt_next_in = NULL;
 		}
 
-		txt_next_event = new CComponentsTextTransp(NULL, xStart, NextInfoY, nextTimeX - xStart - 5, height, next,
+		txt_next_event = new CComponentsTextTransp(NULL, xStart, NextInfoY, nextTimeX - xStart - OFFSET_INNER_SMALL, height, next,
 		        CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO],
 		        CComponentsText::FONT_STYLE_REGULAR, colored_event_N ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
 		txt_next_event->paint(CC_SAVE_SCREEN_YES);
@@ -1979,9 +1979,9 @@ void CInfoViewer::showInfoFile()
 
 	//set position of info area
 	const int xStart	= ChanInfoX;
-	const int yStart	= BoxStartY - 5;
+	const int yStart	= BoxStartY - OFFSET_INNER_SMALL;
 	const int width		= BoxEndX - ChanInfoX;
-	const int height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
+	const int height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + OFFSET_INNER_MIN;
 
 	//create info object
 	if (infobar_txt == NULL)
@@ -2200,8 +2200,8 @@ void CInfoViewer::ecmInfoBox_show(const char * txt, int w, int h, Font * font)
 	ecmInfoBox->showFooter(false);
 
 	//set new window dimensions
-	int h_offset = 5;
-	int w_offset = 10;
+	int h_offset = OFFSET_INNER_SMALL;
+	int w_offset = OFFSET_INNER_MID;
 	ecmInfoBox->setWidth(std::min(max_w, w + 2*w_offset));
 	ecmInfoBox->setHeight(std::min(max_h, h_header + h + 2*h_offset));
 	ecmInfoBox->Refresh();
@@ -2428,8 +2428,8 @@ void CInfoViewer::getButtonInfo()
 	}
 	// Calculate position/size of buttons
 	minX = std::min(bbIconMinX, ChanInfoX + (((BoxEndX - ChanInfoX) * 75) / 100));
-	int MaxBr = (BoxEndX - 10) - (ChanInfoX + 10);
-	bbButtonMaxX = ChanInfoX + 10;
+	int MaxBr = (BoxEndX - OFFSET_INNER_MID) - (ChanInfoX + OFFSET_INNER_MID);
+	bbButtonMaxX = ChanInfoX + OFFSET_INNER_MID;
 	int br = 0, count = 0;
 	for (int i = 0; i < CInfoViewer::BUTTON_MAX; i++)
 	{
@@ -2444,7 +2444,7 @@ void CInfoViewer::getButtonInfo()
 	}
 	if (br > MaxBr)
 		printf("[infoviewer_bb:%s#%d] width br (%d) > MaxBr (%d) count %d\n", __func__, __LINE__, br, MaxBr, count);
-	bbButtonMaxX = ChanInfoX + 10;
+	bbButtonMaxX = ChanInfoX + OFFSET_INNER_MID;
 	int step = MaxBr / 4;
 	if (count > 0)   /* avoid div-by-zero :-) */
 	{
@@ -2814,19 +2814,19 @@ void CInfoViewer::showScale_RecordingDir()
 	if (g_settings.infobar_show_sysfs_hdd)
 	{
 		int percent = cHddStat::getInstance()->getPercent();
-		int py = BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2);
+		int py = BoxEndY + OFFSET_INNER_MIN;
 		int px = ChanInfoX + (((BoxEndX - ChanInfoX) - hddwidth)/2);
 		if (is_visible)
 		{
 			if (percent >= 0)
 			{
-				hddscale->setDimensionsAll(px, py, hddwidth, 18);
+				hddscale->setDimensionsAll(px, py, hddwidth, ca_h - 2*OFFSET_INNER_MIN);
 				hddscale->setValues(percent, 100);
 				hddscale->paint();
 			}
 			else
 			{
-				frameBuffer->paintBoxRel(px, py, hddwidth, 18, COL_INFOBAR_PLUS_0);
+				frameBuffer->paintBoxRel(px, py, hddwidth, ca_h - 2*OFFSET_INNER_MIN, COL_INFOBAR_PLUS_0);
 				hddscale->reset();
 			}
 		}
@@ -2836,8 +2836,8 @@ void CInfoViewer::showScale_RecordingDir()
 void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_offset)
 {
 	char buf[20];
-	int endx = BoxEndX - (g_settings.infobar_casystem_frame ? 20 : 10);
-	int py = BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2); /* hand-crafted, should be automatic */
+	int endx = BoxEndX - OFFSET_INNER_MID - (g_settings.infobar_casystem_frame ? FRAME_WIDTH_MIN + OFFSET_INNER_SMALL : 0);
+	int py = BoxEndY + OFFSET_INNER_SMALL;
 	int px = 0;
 	static std::map<int, std::pair<int,const char*> > icon_map;
 	const int icon_number = 11;
@@ -2897,7 +2897,7 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 	if (px)
 	{
 		snprintf(buf, sizeof(buf), "%s_%s", icon_map[caid].second, icon);
-		if ((px >= (endx-8)) || (px <= 0))
+		if ((px >= (endx-OFFSET_INNER_MID)) || (px <= 0))
 			printf("#####[%s:%d] Error paint icon %s, px: %d,  py: %d, endx: %d, icon_offset: %d\n",
 			       __FUNCTION__, __LINE__, buf, px, py, endx, icon_offset[icon_map[caid].first]);
 		else if (strstr(buf,"dec_white") == 0)
@@ -3006,12 +3006,14 @@ void CInfoViewer::showIcon_CA_Status(int notfirst)
 void CInfoViewer::paint_ca_bar()
 {
 	initBBOffset();
-	int ca_width = BoxEndX - ChanInfoX;
+	int ca_x = ChanInfoX + OFFSET_INNER_MID;
+	int ca_y = BoxEndY;
+	int ca_w = BoxEndX - ChanInfoX - 2*OFFSET_INNER_MID;
 
 	if (g_settings.infobar_casystem_frame)
 	{
 		if (ca_bar == NULL)
-			ca_bar = new CComponentsShapeSquare(ChanInfoX + OFFSET_INNER_MID, BoxEndY, ca_width - 2*OFFSET_INNER_MID, bottom_bar_offset - OFFSET_INNER_MID, NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
+			ca_bar = new CComponentsShapeSquare(ca_x, ca_y, ca_w, ca_h, NULL, CC_SHADOW_ON, COL_INFOBAR_CASYSTEM_PLUS_2, COL_INFOBAR_CASYSTEM_PLUS_0);
 		ca_bar->enableShadow(CC_SHADOW_ON, OFFSET_SHADOW/2, true);
 		ca_bar->setFrameThickness(2);
 		ca_bar->setCorner(RADIUS_SMALL, CORNER_ALL);
@@ -3019,7 +3021,7 @@ void CInfoViewer::paint_ca_bar()
 	}
 	else
 	{
-		paintBoxRel(ChanInfoX, BoxEndY, ca_width, bottom_bar_offset, COL_INFOBAR_CASYSTEM_PLUS_0);
+		paintBoxRel(ChanInfoX, BoxEndY, BoxEndX - ChanInfoX, bottom_bar_offset, COL_INFOBAR_CASYSTEM_PLUS_0);
 	}
 }
 
@@ -3045,7 +3047,18 @@ void CInfoViewer::ResetPBars()
 
 void CInfoViewer::initBBOffset()
 {
-	bottom_bar_offset = (g_settings.infobar_casystem_display < 2) ? (g_settings.infobar_casystem_frame ? 36 : 22) : 0;
+	int icon_w = 0, icon_h = 0;
+	frameBuffer->getIconSize("nagra_white", &icon_w, &icon_h); // take any ca icon to get its height
+	ca_h = icon_h + 2*OFFSET_INNER_SMALL;
+
+	bottom_bar_offset = 0;
+	if (g_settings.infobar_casystem_display < 2)
+	{
+		if (g_settings.infobar_casystem_frame)
+			bottom_bar_offset = ca_h + OFFSET_SHADOW/2 + OFFSET_INNER_SMALL;
+		else
+			bottom_bar_offset = ca_h;
+	}
 }
 
 void* CInfoViewer::scrambledThread(void *arg)
@@ -3099,8 +3112,8 @@ void* CInfoViewer::Thread_paint_cam_icons(void)
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	std::ostringstream buf;
 	std::stringstream fpath;
-	int emu_pic_startx = ChanInfoX + (g_settings.infobar_casystem_frame ? 20 : 10);
-	int py = BoxEndY + (g_settings.infobar_casystem_frame ? 4 : 2);
+	int emu_pic_startx = ChanInfoX + (g_settings.infobar_casystem_frame ? 2*OFFSET_INNER_MID : OFFSET_INNER_MID);
+	int py = BoxEndY + OFFSET_INNER_SMALL;
 	const char *icon_name[] = {"mgcamd","oscam","gbox"};
 	int icon_sizeH = 0;
 	int icon_sizeW = 0;
