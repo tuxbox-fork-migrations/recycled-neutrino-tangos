@@ -794,10 +794,10 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	if ((ChanNum) && (g_settings.channellist_show_numbers))
 	{
 		snprintf (strChanNum, sizeof(strChanNum), "%d", ChanNum);
-		ChanNumWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum) + OFFSET_INNER_SMALL;
+		ChanNumWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum) + OFFSET_INNER_MID;
 	}
 	else
-		ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : OFFSET_INNER_SMALL;
+		ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : OFFSET_INNER_MID;
 
 	if (fileplay)
 	{
@@ -1668,7 +1668,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	int height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
 	int CurrInfoY = (BoxEndY + ChanNameY + header_height) / 2;
 	int NextInfoY = CurrInfoY/* + height*/;	// lower end of next info box
-	int InfoX = ChanInfoX + ChanNumWidth + 2*OFFSET_INNER_MID;
+	int InfoX = ChanInfoX + ChanNumWidth + (ChanNumWidth > OFFSET_INNER_MID ? OFFSET_INNER_MID : 0);
 
 	int xStart = InfoX;
 	if (starttimes)
