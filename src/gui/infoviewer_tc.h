@@ -82,6 +82,7 @@ private:
 	bool	       fileplay;
 
 	int            ButtonWidth;
+	int            ca_h;
 
 	// dimensions of radiotext window
 	int             rt_dx;
