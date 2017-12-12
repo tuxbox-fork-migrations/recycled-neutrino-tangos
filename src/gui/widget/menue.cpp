@@ -256,7 +256,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 		}
 		if (*right_text) {
 			stringstartposOption -= (icon_w == 0 ? 0 : icon_w + OFFSET_INNER_MID);
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height - desc_height, dx- (stringstartposOption- x),  right_text, item_color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height - desc_height, dx - stringstartposOption + x - OFFSET_INNER_MID,  right_text, item_color);
 		}
 	}
 	if (desc_text && *desc_text)
@@ -1316,7 +1316,7 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 		case MENU_POS_CENTER:
 			x = offx + scr_x + ((scr_w - menu_width ) >> 1 );
 			y = offy + scr_y + ((scr_h - real_h) >> 1 );
-			x += DETAILSLINE_WIDTH;
+			//x += DETAILSLINE_WIDTH;
 			break;
 			
 		case MENU_POS_TOP_LEFT: 
@@ -1527,7 +1527,7 @@ void CMenuWidget::paintHint(int pos)
 
 	info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
 	info_box->setFrameThickness(FRAME_WIDTH_MIN);
-	info_box->removeLineBreaks(str);
+	//NI info_box->removeLineBreaks(str);
 	info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT], COL_MENUCONTENT_TEXT);
 	info_box->setCorner(rad);
 	info_box->setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
