@@ -338,9 +338,11 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 	{ CRCInput::RC_red,             "2,3,4,13",                             "",     "red"           },
 	{ CRCInput::RC_green,           "6",                                    "",     "green"         },
-	{ CRCInput::RC_yellow,          "7",                                    "",     "yellow"        },
-	{ CRCInput::RC_blue,            "12,11,14,15,20,21,24,25,19",           "",     "blue"          },
+#if HAVE_ARM_HARDWARE
+	{ CRCInput::RC_playpause,       "9",                                    "",     "5"             },
+#else
 	{ CRCInput::RC_play,            "9",                                    "",     "5"             },
+#endif
 	{ CRCInput::RC_audio,           "27",                                   "",     "6"             },
 #if HAVE_SPARK_HARDWARE
 	{ CRCInput::RC_timer,           "19",                                   "",     "7"             },
@@ -619,7 +621,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.infobar_show_tuner = configfile.getInt32("infobar_show_tuner", 1 );
 	g_settings.radiotext_enable = configfile.getBool("radiotext_enable"          , false);
-	g_settings.radiotext_rass_dir = configfile.getString("radiotext_rass_dir", "/tmp/cache");
 	//audio
 	g_settings.audio_AnalogMode = configfile.getInt32( "audio_AnalogMode", 0 );
 	g_settings.audio_DolbyDigital    = configfile.getBool("audio_DolbyDigital"   , false);
@@ -967,6 +968,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.font_scaling_x = configfile.getInt32("font_scaling_x", 100);
 	g_settings.font_scaling_y = configfile.getInt32("font_scaling_y", 100);
+
+	g_settings.backup_dir = configfile.getString("backup_dir", "/media");
 
 	g_settings.update_dir = configfile.getString("update_dir", "/tmp");
 	g_settings.update_dir_opkg = configfile.getString("update_dir_opkg", g_settings.update_dir);
@@ -1423,7 +1426,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("infobar_show_dd_available"  , g_settings.infobar_show_dd_available  );
 	configfile.setInt32("infobar_show_tuner"  , g_settings.infobar_show_tuner  );
 	configfile.setBool("radiotext_enable"          , g_settings.radiotext_enable);
-	configfile.setString("radiotext_rass_dir", g_settings.radiotext_rass_dir);
 	//audio
 	configfile.setInt32( "audio_AnalogMode", g_settings.audio_AnalogMode );
 	configfile.setBool("audio_DolbyDigital"   , g_settings.audio_DolbyDigital   );
@@ -1669,6 +1671,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("softupdate_proxyserver"   , g_settings.softupdate_proxyserver   );
 	configfile.setString("softupdate_proxyusername" , g_settings.softupdate_proxyusername );
 	configfile.setString("softupdate_proxypassword" , g_settings.softupdate_proxypassword );
+
+	configfile.setString("backup_dir", g_settings.backup_dir);
 
 	configfile.setString("update_dir", g_settings.update_dir);
 	configfile.setString("update_dir_opkg", g_settings.update_dir_opkg);
@@ -2403,6 +2407,7 @@ void wake_up(bool &wakeup)
 		close(fd);
 	}
 #endif
+
 	/* prioritize proc filesystem */
 	if (access("/proc/stb/fp/was_timer_wakeup", F_OK) == 0)
 	{
@@ -2427,7 +2432,8 @@ void wake_up(bool &wakeup)
 	}
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
 
-	if(!wakeup){
+	if (!wakeup)
+	{
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT ".");
 		if (my_system(NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT " failed");
@@ -2600,26 +2606,21 @@ TIMER_START();
 #endif
 
 	//timer start
-#if !HAVE_SH4_HARDWARE
-	timer_wakeup = false;//init
-	wake_up( timer_wakeup );
+	timer_wakeup = (timer_wakeup && g_settings.shutdown_timer_record_type);
+	g_settings.shutdown_timer_record_type = false;
 
+#if !HAVE_SH4_HARDWARE
 	init_cec_setting = true;
-	if(!(g_settings.shutdown_timer_record_type && timer_wakeup && g_settings.hdmi_cec_mode)){
+	if(!(timer_wakeup && g_settings.hdmi_cec_mode))
+	{
 		//init cec settings
 		CCECSetup cecsetup;
 		cecsetup.setCECSettings();
 		init_cec_setting = false;
 	}
 #endif
-	timer_wakeup = (timer_wakeup && g_settings.shutdown_timer_record_type);
-	g_settings.shutdown_timer_record_type = false;
-
 	bootstatus->showStatus(65);
 
-	/* todo: check if this is necessary
-	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) (timer_wakeup && g_settings.shutdown_timer_record_type));
-	 */
 	// The thread argument sets a pointer to Neutrinos timer_wakeup. *pointer is set to true
 	// when timerd is ready, so save the real timer_wakeup value and restore it later. --martii
 	bool timer_wakup_real = timer_wakeup;
@@ -2718,7 +2719,7 @@ TIMER_START();
 	time_t timerd_wait = time_monotonic_ms();
 	while (!timer_wakeup)
 		usleep(100);
-	dprintf(DEBUG_NORMAL, "had to wait %ld ms for timerd start...\n", time_monotonic_ms() - timerd_wait);
+	dprintf(DEBUG_NORMAL, "had to wait %" PRId64 " ms for timerd start...\n", time_monotonic_ms() - timerd_wait);
 	timer_wakeup = timer_wakup_real;
 	InitTimerdClient();
 
@@ -3194,7 +3195,7 @@ void CNeutrinoApp::RealRun()
 				CMediaPlayerMenu * multimedia_menu = CMediaPlayerMenu::getInstance();
 				multimedia_menu->exec(NULL, "");
 			}
-			else if( msg == CRCInput::RC_video ) {
+			else if( msg == CRCInput::RC_video || msg == CRCInput::RC_playpause) {
 				//open moviebrowser via media player menu object
 				if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 					CMediaPlayerMenu::getInstance()->exec(NULL, "moviebrowser");
@@ -4947,13 +4948,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		media->exec(NULL, actionKey);
 		return menu_return::RETURN_EXIT_ALL;
 	}
-	else if(actionKey=="rass") {
-		frameBuffer->Clear();
-		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-		if (g_Radiotext)
-			g_Radiotext->RASS_interactive_mode();
-		return menu_return::RETURN_EXIT_ALL;
-	}
 	else if(actionKey=="restart") {
 		//usage of slots from any classes
 		OnBeforeRestart();
@@ -5195,7 +5189,11 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.key_list_start = tconfig.getInt32( "key_list_start", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_list_end = tconfig.getInt32( "key_list_end", (unsigned int)CRCInput::RC_nokey );
+#if HAVE_ARM_HARDWARE
+	g_settings.key_timeshift = tconfig.getInt32( "key_timeshift", CRCInput::RC_nokey ); // FIXME
+#else
 	g_settings.key_timeshift = tconfig.getInt32( "key_timeshift", CRCInput::RC_pause );
+#endif
 	g_settings.key_unlock = tconfig.getInt32( "key_unlock", CRCInput::RC_setup );
 	g_settings.key_screenshot = tconfig.getInt32( "key_screenshot", (unsigned int)CRCInput::RC_nokey );
 #ifdef ENABLE_PIP
@@ -5223,9 +5221,14 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.mpkey_rewind = tconfig.getInt32( "mpkey.rewind", CRCInput::RC_rewind );
 	g_settings.mpkey_forward = tconfig.getInt32( "mpkey.forward", CRCInput::RC_forward );
-	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_pause );
 	g_settings.mpkey_stop = tconfig.getInt32( "mpkey.stop", CRCInput::RC_stop );
+#if HAVE_ARM_HARDWARE
+	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_playpause );
+	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_playpause );
+#else
 	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_play );
+	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_pause );
+#endif
 	g_settings.mpkey_audio = tconfig.getInt32( "mpkey.audio", CRCInput::RC_green );
 	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_timeshift );
 	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_yellow );
