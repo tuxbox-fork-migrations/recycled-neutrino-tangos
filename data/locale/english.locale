@@ -990,6 +990,7 @@ mainmenu.games Games
 mainmenu.head Main Menu
 mainmenu.lua Lua Plugins
 mainmenu.media Media
+mainmenu.mediaplayer Mediaplayer
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd Read EPG
 mainmenu.pictureviewer Picture viewer
@@ -1161,7 +1162,7 @@ menu.hint_inet_radio Internet radio
 menu.hint_info Show system informations.
 menu.hint_infobar_back Change infobar background color
 menu.hint_infobar_buttons_usertitle Forces userdefined titles for the color keys
-menu.hint_infobar_casys On: display all with colored active, mini: single\nlocked icon, descreet: all active ca-systems
+menu.hint_infobar_casys on: display all CA systems, descreet: display active CA systems; mini: single symbol in footer
 menu.hint_infobar_casys_color Change CA-System background color
 menu.hint_infobar_casys_dotmatrix on: CA-System with dot matrix in background
 menu.hint_infobar_casys_frame on: CA-System with frame
@@ -2341,6 +2342,7 @@ servicemenu.restarting_tuner Restarting tuner
 servicemenu.scants Servicescan
 servicemenu.update Software Update
 settings.backup Save system settings
+settings.backup_dir Save to %s?\n"No" chooses another directory.
 settings.backup_failed Backup failed!
 settings.help Help
 settings.menu_hints Show menu hints
@@ -2492,8 +2494,8 @@ timing.static_messages Interactive messages
 timing.volumebar Volume bar
 tunersetup.cable Cable (DVB-C)
 tunersetup.hybrid Hybrid (DVB-C/T/T2)
-tunersetup.mode Operation Mode
-tunersetup.power 5V Supply on DVB-T/T2 Channels
+tunersetup.mode Operation mode
+tunersetup.power 5V supply on DVB-T/T2 channels
 tunersetup.terr Terrestrial (DVB-T/T2)
 tmdb.api_key TMDb API key
 tmdb.enabled TMDb support

@@ -66,7 +66,7 @@ extern int zapit_debug;
 // DVB-S/S2 specific
 #define PILOTS		7
 #define ROLLOFF		8
-#define MIS			9
+#define MIS		9
 // DVB-T specific
 #define BANDWIDTH	4
 #define CODE_RATE_HP	6
@@ -620,8 +620,10 @@ fe_bandwidth_t CFrontend::getBandwidth(const uint8_t bandwidth)
 		return BANDWIDTH_7_MHZ;
 	case 0x02:
 		return BANDWIDTH_6_MHZ;
+#if _HAVE_DVB57
 	case 0x03:
 		return BANDWIDTH_5_MHZ;
+#endif
 	default:
 		return BANDWIDTH_AUTO; // AUTO
 	}
@@ -991,9 +993,11 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 		case QAM_256:
 			mod = "QAM_256";
 			break;
+#if _HAVE_DVB57
 		case QAM_4_NR:
 			mod = "QAM_4_NR";
 			break;
+#endif
 		case QPSK:
 			if (delsys == DVB_T || delsys == DVB_T2 || delsys == DTMB) {
 				mod = "QPSK"; // AKA QAM_4
@@ -1044,12 +1048,14 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 	case FEC_9_10:
 		fec = "9/10";
 		break;
+#if _HAVE_DVB57
 	case FEC_2_5:
 		fec = "2/5";
 		break;
 	case FEC_NONE:
 		fec = "0";
 		break;
+#endif
 	default:
 		INFO("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
 		/* fall through */
@@ -1073,9 +1079,11 @@ fe_delivery_system_t CFrontend::getFEDeliverySystem(delivery_system_t Delsys)
 	case DVB_T:
 		delsys = SYS_DVBT;
 		break;
+#if _HAVE_DVB57
 	case DVB_T2:
 		delsys = SYS_DVBT2;
 		break;
+#endif
 	case DVB_C:
 		delsys = SYS_DVBC_ANNEX_A;
 		break;
@@ -1094,12 +1102,14 @@ fe_delivery_system_t CFrontend::getFEDeliverySystem(delivery_system_t Delsys)
 	case DSS:
 		delsys = SYS_DSS;
 		break;
+#if _HAVE_DVB57
 	case DTMB:
 		delsys = SYS_DTMB;
 		break;
 	case TURBO:
 		delsys = SYS_TURBO;
 		break;
+#endif
 	default:
 		delsys = SYS_UNDEFINED;
 		break;
@@ -1179,6 +1189,7 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 	case BANDWIDTH_6_MHZ:
 		bandwidth_hz  = 6000000;
 		break;
+#if _HAVE_DVB57
 	case BANDWIDTH_5_MHZ:
 		bandwidth_hz  = 5000000;
 		break;
@@ -1188,6 +1199,7 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 	case BANDWIDTH_10_MHZ:
 		bandwidth_hz  = 10000000;
 		break;
+#endif
 	case BANDWIDTH_AUTO:
 		bandwidth_hz  = 0;
 	}
@@ -1242,12 +1254,14 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	case FEC_9_10:
 		fec = FEC_9_10;
 		break;
+#if _HAVE_DVB57
 	case FEC_2_5:
 		fec = FEC_2_5;
 		break;
 	case FEC_NONE:
 		fec = FEC_NONE;
 		break;
+#endif
 	default:
 		INFO("[fe%d/%d] DEMOD: unknown FEC: %d\n", adapter, fenumber, fec_inner);
 		/* fall through */
@@ -1328,7 +1342,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		cmdseq.props[HIERARCHY].u.data		= feparams->hierarchy;
 		cmdseq.props[DELIVERY_SYSTEM].u.data	= getFEDeliverySystem(feparams->delsys);
 		cmdseq.props[BANDWIDTH].u.data		= getFEBandwidth(feparams->bandwidth);
-		cmdseq.props[PLP_ID].u.data			= feparams->plp_id;
+		cmdseq.props[PLP_ID].u.data		= feparams->plp_id;
 		break;
 	default:
 		INFO("[frontend] unknown frontend type, exiting\n");

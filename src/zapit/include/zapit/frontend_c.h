@@ -248,7 +248,7 @@ class CFrontend
 		bool				tuneChannel(CZapitChannel *channel, bool nvod);
 		bool				retuneChannel(void);
 
-		t_channel_id		getChannelID(void) { return channel_id; }
+		t_channel_id			getChannelID(void) { return channel_id; }
 		void				setChannelID(t_channel_id ID) { channel_id = ID; }
 
 		fe_code_rate_t 			getCFEC ();

@@ -547,8 +547,10 @@ void CMoviePlayerGui::updateLcd()
  && !defined(BOXMODEL_UFS922) \
  && !defined(BOXMODEL_OCTAGON1008) \
  && !defined(BOXMODEL_HS7110) \
+ && !defined(BOXMODEL_HS7420) \
  && !defined(BOXMODEL_HS7810A) \
  && !defined(BOXMODEL_HS7119) \
+ && !defined(BOXMODEL_HS7429) \
  && !defined(BOXMODEL_HS7819) \
  && !defined(BOXMODEL_IPBOX9900) \
  && !defined(BOXMODEL_IPBOX99) \
@@ -578,8 +580,10 @@ void CMoviePlayerGui::updateLcd()
  && !defined(BOXMODEL_FORTIS_HDBOX) \
  && !defined(BOXMODEL_OCTAGON1008) \
  && !defined(BOXMODEL_HS7110) \
+ && !defined(BOXMODEL_HS7420) \
  && !defined(BOXMODEL_HS7810A) \
  && !defined(BOXMODEL_HS7119) \
+ && !defined(BOXMODEL_HS7429) \
  && !defined(BOXMODEL_HS7819) \
  && !defined(BOXMODEL_CUBEREVO_MINI2) \
  && !defined(BOXMODEL_IPBOX9900) \
@@ -1642,6 +1646,10 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		neutrino_msg_data_t data;
 		g_RCInput->getMsg(&msg, &data, 10);	// 1 secs..
 
+		// handle CRCInput::RC_playpause key
+		bool handle_key_play = true;
+		bool handle_key_pause = true;
+
 		if ((playstate >= CMoviePlayerGui::PLAY) && (timeshift != TSHIFT_MODE_OFF || (playstate != CMoviePlayerGui::PAUSE))) {
 			if (playback->GetPosition(position, duration)) {
 				FileTimeOSD->update(position, duration);
@@ -1674,9 +1682,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #ifdef DEBUG
 				printf("CMoviePlayerGui::%s: spd %d pos %d/%d (%d, %d%%)\n", __func__, speed, position, duration, duration-position, file_prozent);
 #endif
-			} else
 #if HAVE_COOL_HARDWARE
-			{
 				/* in case ffmpeg report incorrect values */
 				if(file_prozent > 89 && (playstate == CMoviePlayerGui::PLAY) && (speed == 1)){
 					if(position_tmp != position){
@@ -1703,13 +1709,14 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				}
 				else
 					eof = 0;
+#endif
+
 			}
-#else
+#if ! HAVE_COOL_HARDWARE
+			else
 			{
-				if (filelist_it == filelist.end() - 1 || filelist_it == filelist.end())
-					g_RCInput->postMsg((neutrino_msg_t) g_settings.mpkey_stop, 0);
-				else
-					g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_right, 0);
+				at_eof = true;
+				break;
 			}
 #endif
 			handleMovieBrowser(0, position);
@@ -1835,7 +1842,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			playback->RequestAbort();
 			filelist.clear();
 			repeat_mode = REPEAT_OFF;
-		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
+		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play && handle_key_play) {
 			if (time_forced) {
 				time_forced = false;
 				FileTimeOSD->kill();
@@ -1879,7 +1886,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				delete playlist;
 				enableOsdElements(MUTE);
 			}
-		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
+		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause && handle_key_pause) {
 			if (time_forced) {
 				time_forced = false;
 				FileTimeOSD->kill();
