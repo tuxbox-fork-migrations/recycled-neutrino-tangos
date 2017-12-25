@@ -116,6 +116,14 @@ extern int allow_flash;
 #define MTD_OF_WHOLE_IMAGE              999
 #define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd999"
 #else
+#if HAVE_ARM_HARDWARE
+#define LIST_OF_UPDATES_LOCAL_FILENAME "update.list"
+#define UPDATE_LOCAL_FILENAME          "update.tgz"
+#define FILEBROWSER_UPDATE_FILTER      "tgz"
+#define RELEASE_CYCLE                  "2.0"
+#define MTD_OF_WHOLE_IMAGE              999
+#define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd999"
+#else
 #define LIST_OF_UPDATES_LOCAL_FILENAME "coolstream.list"
 #define UPDATE_LOCAL_FILENAME          "update.img"
 #define RELEASE_CYCLE                  "2.0"
@@ -126,6 +134,7 @@ extern int allow_flash;
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd0"
 #else
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd3"
+#endif
 #endif
 #endif
 #endif
@@ -754,7 +763,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_START_OFGWRITE);
 		hide();
 
-		const char ofgwrite_tgz[] = "/bin/ofgwrite_tgz";
+		const char ofgwrite_tgz[] = "/usr/bin/ofgwrite_tgz";
 		printf("[update] calling %s %s %s %s\n", ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
 #ifndef DRYRUN
 		my_system(4, ofgwrite_tgz, g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
