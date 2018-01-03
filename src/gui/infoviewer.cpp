@@ -302,18 +302,19 @@ void CInfoViewer::showRecordIcon (const bool show)
 		int box_w = 0;
 		int box_h = txt_h;
 
-		int icon_space = OFFSET_SHADOW/2;
+		int icon_space = OFFSET_INTER;
 
 		int rec_icon_x = 0, rec_icon_w = 0, rec_icon_h = 0;
 		int ts_icon_x  = 0, ts_icon_w  = 0, ts_icon_h  = 0;
 
 		frameBuffer->getIconSize(rec_icon.c_str(), &rec_icon_w, &rec_icon_h);
 		frameBuffer->getIconSize(ts_icon.c_str(), &ts_icon_w, &ts_icon_h);
-		
+
 		int icon_h = std::max(rec_icon_h, ts_icon_h);
-		box_h = std::max(box_h, icon_h+icon_space*2);
-		
-		int icon_y = box_y + (box_h - icon_h)/2;
+		box_h = std::max(box_h, icon_h);
+		box_h += icon_space;
+
+		int icon_y = box_y + box_h/2 - icon_h/2;
 		int txt_y  = box_y + (box_h + txt_h)/2;
 
 		char records_msg[8];
@@ -323,13 +324,13 @@ void CInfoViewer::showRecordIcon (const bool show)
 			snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
 			txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(records_msg);
 
-			box_w = rec_icon_w + txt_w + icon_space*5;
-			rec_icon_x = box_x + icon_space*2;
+			box_w = rec_icon_w + txt_w + icon_space*3;
+			rec_icon_x = box_x + icon_space;
 		}
 		else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
 		{
-			box_w = ts_icon_w + icon_space*4;
-			ts_icon_x = box_x + icon_space*2;
+			box_w = ts_icon_w + icon_space*2;
+			ts_icon_x = box_x + icon_space;
 		}
 		else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
 		{
@@ -338,9 +339,9 @@ void CInfoViewer::showRecordIcon (const bool show)
 			snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
 			txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(records_msg);
 
-			box_w = ts_icon_w + rec_icon_w + txt_w + icon_space*7;
-			ts_icon_x = box_x + icon_space*2;
-			rec_icon_x = ts_icon_x + ts_icon_w + icon_space*2;
+			box_w = ts_icon_w + rec_icon_w + txt_w + icon_space*5;
+			ts_icon_x = box_x + icon_space;
+			rec_icon_x = ts_icon_x + ts_icon_w + icon_space;
 		}
 		
 		if (show)
@@ -362,26 +363,32 @@ void CInfoViewer::showRecordIcon (const bool show)
 			
 			if (rec_mode == CRecordManager::RECMODE_REC)
 			{
-				frameBuffer->paintIcon(rec_icon, rec_icon_x, icon_y);
+				paintImage(rec_icon, rec_icon_x, icon_y);
 			}
 			else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
 			{
-				frameBuffer->paintIcon(ts_icon, ts_icon_x, icon_y);
+				paintImage(ts_icon, ts_icon_x, icon_y);
 			}
 			else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
 			{
-				frameBuffer->paintIcon(rec_icon, rec_icon_x, icon_y);
-				frameBuffer->paintIcon(ts_icon, ts_icon_x, icon_y);
+				paintImage(rec_icon, rec_icon_x, icon_y);
+				paintImage(ts_icon, ts_icon_x, icon_y);
 			}
 		}
 		else
 		{
-			if (rec_mode == CRecordManager::RECMODE_REC)
-				frameBuffer->paintBoxRel(rec_icon_x, icon_y, rec_icon_w, icon_h, COL_INFOBAR_PLUS_0);
-			else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
-				frameBuffer->paintBoxRel(ts_icon_x, icon_y, ts_icon_w, icon_h, COL_INFOBAR_PLUS_0);
-			else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
-				frameBuffer->paintBoxRel(ts_icon_x, icon_y, ts_icon_w + rec_icon_w + icon_space*2, icon_h, COL_INFOBAR_PLUS_0);
+			int icon_x, icon_w;
+			if (rec_mode == CRecordManager::RECMODE_REC){
+				icon_x = rec_icon_x;
+				icon_w = rec_icon_w;
+			}else if (rec_mode == CRecordManager::RECMODE_TSHIFT){
+				icon_x = ts_icon_x;
+				icon_w = ts_icon_w;
+			}else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT){
+				icon_x = ts_icon_x;
+				icon_w = ts_icon_w + rec_icon_w + icon_space*2;
+			}
+			PaintBoxRel(icon_x, icon_y, icon_w, icon_h, COL_INFOBAR_PLUS_0);
 		}
 	}
 }
@@ -1739,10 +1746,10 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 
 	int currTimeW = 0;
 	int nextTimeW = 0;
-	if (runningRest)
-		currTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest)*2;
+	if (runningRest) /* 10 is the space between title and time, might be good if this would be scaled...  */
+		currTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest) + 10;
 	if (nextDuration)
-		nextTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(nextDuration)*2;
+		nextTimeW = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(nextDuration)+ 10;
 	int currTimeX = BoxEndX - currTimeW - 10;
 	int nextTimeX = BoxEndX - nextTimeW - 10;
 
@@ -1753,9 +1760,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	//current event
 	if (current && update_current){
 		if (txt_cur_event == NULL)
-			txt_cur_event = new CComponentsTextTransp(NULL, xStart, CurrInfoY - height, currTimeX - xStart - 5, height);
+			txt_cur_event = new CComponentsTextTransp(NULL, xStart, CurrInfoY - height, currTimeX - xStart, height);
 		else
-			txt_cur_event->setDimensionsAll(xStart, CurrInfoY - height, currTimeX - xStart - 5, height);
+			txt_cur_event->setDimensionsAll(xStart, CurrInfoY - height, currTimeX - xStart, height);
 
 		txt_cur_event->setText(current, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
 		if (txt_cur_event->isPainted())
@@ -1789,9 +1796,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	if (next && update_next)
 	{
 		if (txt_next_event == NULL)
-			txt_next_event = new CComponentsTextTransp(NULL, xStart, NextInfoY, nextTimeX - xStart - 5, height);
+			txt_next_event = new CComponentsTextTransp(NULL, xStart, NextInfoY, nextTimeX - xStart, height);
 		else
-			txt_next_event->setDimensionsAll(xStart, NextInfoY, nextTimeX - xStart - 5, height);
+			txt_next_event->setDimensionsAll(xStart, NextInfoY, nextTimeX - xStart, height);
 		txt_next_event->setText(next, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_N ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
 		if (txt_next_event->isPainted())
 			txt_next_event->hide();
