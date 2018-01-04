@@ -939,7 +939,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.flashupdate_createimage_add_spare  = configfile.getInt32( "flashupdate_createimage_add_spare",  0);
 	g_settings.flashupdate_createimage_add_kernel = configfile.getInt32( "flashupdate_createimage_add_kernel", 1);
 
-	g_settings.image_settings_backup_path = configfile.getString("image_settings_backup_path", "/swap/backup");
+
 	g_settings.softupdate_url_file      = configfile.getString("softupdate_url_file", "/var/etc/update.urls");
 	g_settings.softupdate_proxyserver   = configfile.getString("softupdate_proxyserver", "" );
 	g_settings.softupdate_proxyusername = configfile.getString("softupdate_proxyusername", "" );
@@ -1650,7 +1650,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32 ("softupdate_mode"          , g_settings.softupdate_mode          );
 	configfile.setBool("apply_kernel", g_settings.apply_kernel);
 	configfile.setBool("apply_settings", g_settings.apply_settings);
-	configfile.setString("image_settings_backup_path", g_settings.image_settings_backup_path);
 	configfile.setString("softupdate_url_file"      , g_settings.softupdate_url_file      );
 	configfile.setInt32 ("softupdate_name_mode_apply", g_settings.softupdate_name_mode_apply);
 	configfile.setInt32 ("softupdate_name_mode_backup", g_settings.softupdate_name_mode_backup);
@@ -2438,8 +2437,8 @@ void wake_up(bool &wakeup)
 
 int CNeutrinoApp::run(int argc, char **argv)
 {
-	neutrino_start_time = time_monotonic();
 	set_threadname("CNeutrinoApp::run");
+	neutrino_start_time = time_monotonic();
 
 	puts("[neutrino] executing " NEUTRINO_APP_START_SCRIPT ".");
 	if (my_system(NEUTRINO_APP_START_SCRIPT) != 0)
