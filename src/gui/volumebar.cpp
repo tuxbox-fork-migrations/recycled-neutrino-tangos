@@ -346,7 +346,7 @@ void CVolumeHelper::initInfoClock(Font* font)
 
 void CVolumeHelper::initMuteIcon()
 {
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &mute_dx, &mute_dy);
+	frameBuffer->getIconSize(NEUTRINO_ICON_MUTED, &mute_dx, &mute_dy);
 	mute_ax 	= sw - mute_dx;
 	mute_ay 	= y;
 }

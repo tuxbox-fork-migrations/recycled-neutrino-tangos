@@ -1950,15 +1950,15 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		//set recording icon
 		const char *record_icon = NULL;
 		if (rec_mode & CRecordManager::RECMODE_REC)
-			record_icon = NEUTRINO_ICON_REC;
+			record_icon = NEUTRINO_ICON_MARKER_RECORD;
 		else if (rec_mode & CRecordManager::RECMODE_TSHIFT)
-			record_icon = NEUTRINO_ICON_AUTO_SHIFT;
+			record_icon = NEUTRINO_ICON_MARKER_TIMESHIFT;
 
 		//set pip icon
 		const char *pip_icon = NULL;
 #ifdef ENABLE_PIP
 		if ((*chanlist)[curr]->getChannelID() == CZapit::getInstance()->GetPipChannelID())
-			pip_icon = NEUTRINO_ICON_PIP;
+			pip_icon = NEUTRINO_ICON_MARKER_PIP;
 #endif
 		//set HD/UHD icon
 		const char *hd_icon = NULL;
@@ -1970,7 +1970,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		//set webtv icon
 		const char *webtv_icon = NULL;
 		if (!chan->getUrl().empty())
-			webtv_icon = NEUTRINO_ICON_STREAMING;
+			webtv_icon = NEUTRINO_ICON_MARKER_STREAMING;
 
 		//set scramble icon
 		const char *scramble_icon = NULL;
@@ -1978,7 +1978,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 #ifdef ENABLE_TANGOS
 			scramble_icon = NEUTRINO_ICON_SCRAMBLED2;
 #else
-			scramble_icon = NEUTRINO_ICON_SCRAMBLED;
+			scramble_icon = NEUTRINO_ICON_MARKER_SCRAMBLED;
 #endif
 
 		//calculate and paint right status icons
@@ -2048,8 +2048,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		}
 		else if (edit_state && chan->bLocked)
 		{
-			frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icon_w, &icon_h);
-			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + OFFSET_INNER_MID + numwidth - icon_w, ypos, fheight);
+			frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &icon_w, &icon_h);
+			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_LOCK, x + OFFSET_INNER_MID + numwidth - icon_w, ypos, fheight);
 		}
 		else if (g_settings.channellist_show_numbers)
 		{
@@ -2260,7 +2260,7 @@ void CChannelList::paintBody()
 	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr());
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icon_w, &icon_h);
 	numwidth = std::max(icon_w, (int) numwidth);
-	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icon_w, &icon_h);
+	frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &icon_w, &icon_h);
 	numwidth = std::max(icon_w, (int) numwidth);
 
 	liststart = (selected/listmaxshow)*listmaxshow;

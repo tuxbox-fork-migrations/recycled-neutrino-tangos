@@ -1512,7 +1512,7 @@ bool CRecordManager::ShowMenu(void)
 
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
-	CMenuWidget menu(LOCALE_MAINMENU_RECORDING, NEUTRINO_ICON_SETTINGS /*, width*/);
+	CMenuWidget menu(LOCALE_MAINMENU_RECORDING, NEUTRINO_ICON_RECORDING /*, width*/);
 	menu.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	// Record / Timeshift
@@ -1549,9 +1549,9 @@ bool CRecordManager::ShowMenu(void)
 			inst->GetRecordString(title, duration);
 			durations.push_back(duration);
 
-			const char* mode_icon = NEUTRINO_ICON_REC;
+			const char* mode_icon = NEUTRINO_ICON_MARKER_RECORD;
 			if (inst->Timeshift())
-				mode_icon = NEUTRINO_ICON_AUTO_SHIFT;
+				mode_icon = NEUTRINO_ICON_MARKER_TIMESHIFT;
 
 			sprintf(cnt, "%d", i);
 			//define stop key if only one record is running, otherwise define shortcuts
