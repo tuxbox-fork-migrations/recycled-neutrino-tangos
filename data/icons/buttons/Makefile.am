@@ -31,8 +31,10 @@ install_DATA = \
 	info.png \
 	info_small.png \
 	left.png \
+	longpress.png \
 	menu.png \
 	menu_small.png \
+	mute.png \
 	mute_small.png \
 	mute_zap_gray.png \
 	mute_zap_green.png \
