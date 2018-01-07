@@ -81,6 +81,7 @@ class CInfoViewer
 	int            ChanWidth;
 	int            ChanHeight;
 	int            numbox_offset;
+	int            numbox_maxtxtwidth;
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
 	CSectionsdClient::CurrentNextInfo oldinfo;
