@@ -520,6 +520,7 @@ bool CFlashUpdate::checkVersion4Update()
 			//!always leave here!
 			return false;
 		}
+#endif
 
 		//set internal filetype
 		char const * ptr = rindex(filename.c_str(), '.');
