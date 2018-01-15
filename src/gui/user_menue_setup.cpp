@@ -109,6 +109,7 @@ static keyvals usermenu_items[] =
 	{ SNeutrinoSettings::ITEM_ADZAP,		LOCALE_USERMENU_ITEM_ADZAP,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_TUNER_RESTART,	LOCALE_SERVICEMENU_RESTART_TUNER,	usermenu_show },
 	{ SNeutrinoSettings::ITEM_THREE_D_MODE,		LOCALE_THREE_D_SETTINGS,		usermenu_show_three_d_mode },
+	{ SNeutrinoSettings::ITEM_TIMESHIFT,		LOCALE_RECORDINGMENU_TIMESHIFT,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_MAX,			NONEXISTANT_LOCALE,			usermenu_show }
 };
 
