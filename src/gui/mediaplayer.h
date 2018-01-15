@@ -33,10 +33,10 @@
 #if 0
 #include <gui/audioplayer.h>
 #endif
-#include <gui/personalize.h>
 
 #include <string>
 
+class CPersonalizeGui;
 class CMediaPlayerMenu : public CMenuTarget
 {
 	private:
