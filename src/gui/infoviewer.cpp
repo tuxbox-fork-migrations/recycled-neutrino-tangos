@@ -932,9 +932,9 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 			break;
 		case NeutrinoModes::mode_ts:
 			if (CMoviePlayerGui::getInstance().IsAudioPlaying())
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MEDIA_AUDIO] + timeout_ext);
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] + timeout_ext);
 			else
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MEDIA_VIDEO] + timeout_ext);
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] + timeout_ext);
 			break;
 		case NeutrinoModes::mode_tv:
 		case NeutrinoModes::mode_webtv:
@@ -2306,12 +2306,12 @@ void CInfoViewer::setUpdateTimer(uint64_t interval)
 void CInfoViewer::ResetModules(bool kill)
 {
 	if (kill) {
-		if (txt_cur_event)
-			txt_cur_event->clearSavedScreen();
-		if (txt_cur_event_rest)
-			txt_cur_event_rest->clearSavedScreen();
-		if (txt_cur_start)
-			txt_cur_start->clearSavedScreen();
+		if (txt_curr_event)
+			txt_curr_event->clearSavedScreen();
+		if (txt_curr_rest)
+			txt_curr_rest->clearSavedScreen();
+		if (txt_curr_start)
+			txt_curr_start->clearSavedScreen();
 		if (txt_next_event)
 			txt_next_event->clearSavedScreen();
 		if (txt_next_in)
