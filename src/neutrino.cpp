@@ -1002,14 +1002,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 #endif
 	g_settings.youtube_enabled = configfile.getInt32("youtube_enabled", 1);
-	g_settings.youtube_enabled = check_youtube_dev_id();
+	g_settings.youtube_enabled = g_settings.youtube_enabled && check_youtube_dev_id();
 #ifdef TMDB_API_KEY
 	g_settings.tmdb_api_key = TMDB_API_KEY;
 #else
 	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 #endif
 	g_settings.tmdb_enabled = configfile.getInt32("tmdb_enabled", 1);
-	g_settings.tmdb_enabled = check_tmdb_api_key();
+	g_settings.tmdb_enabled = g_settings.tmdb_enabled && check_tmdb_api_key();
 
 	//Filebrowser
 	g_settings.filebrowser_showrights =  configfile.getInt32("filebrowser_showrights", 1);
