@@ -2622,12 +2622,16 @@ static bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 bool CZapit::getUseChannelFilter()
 {
+#if 0
 	return CCamManager::getInstance()->getChannelFilter();
+#endif
 }
 
 void CZapit::setMoviePlayer(bool enable)
 {
+#if 0
 	CCamManager::getInstance()->enableMoviePlayer(enable);
+#endif
 }
 
 void CZapit::run()

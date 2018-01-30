@@ -108,9 +108,11 @@ class CCamManager
 		void SetCITuner(int tuner);
 		int  GetCITuner(void) { return tunerno; };
 		void EnableChannelFilter(bool enable) { filter_channels = enable; };
+#if 0
 		bool getUseCI() { return useCI; };
 		bool getChannelFilter() { return filter_channels; };
 		void enableMoviePlayer(bool enable) { mp = enable; };
+#endif
 
 };
 #endif /* __capmt_h__ */

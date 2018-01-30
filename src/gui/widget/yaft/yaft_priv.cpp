@@ -780,7 +780,7 @@ void YaFT_p::draw_line(int line)
 			continue;
 		int xs = col * CELL_WIDTH;
 		font->RenderString(xs, (line + 1) * CELL_HEIGHT, width - xs, cellp->utf8_str,
-				fb.real_palette[col_pair.fg], mod, Font::IS_UTF8, fb.buf, fb.width * sizeof(fb_pixel_t));
+				fb.real_palette[col_pair.fg], mod, Font::IS_UTF8/*, fb.buf, fb.width * sizeof(fb_pixel_t)*/);
 	}
 	line_dirty[line] = ((mode & MODE_CURSOR) && cursor.y == line) ? true: false;
 }
