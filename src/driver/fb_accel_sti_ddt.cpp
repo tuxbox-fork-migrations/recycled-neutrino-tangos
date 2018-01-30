@@ -79,7 +79,8 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 		fprintf(stderr, "[neutrino] WARNING: not enough framebuffer memory available!\n");
 		fprintf(stderr, "[neutrino]          I need at least 12MB.\n");
 		FILE *f = fopen("/tmp/infobar.txt", "w");
-		if (f) {
+		if (f)
+		{
 			fprintf(f, "NOT ENOUGH FRAMEBUFFER MEMORY!");
 			fclose(f);
 		}
@@ -173,12 +174,14 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 		return;
 
 	// The STM blitter introduces considerable overhead probably worth for small areas.  --martii
-	if (dx * dy < DEFAULT_XRES * 4) {
+	if (dx * dy < DEFAULT_XRES * 4)
+	{
 		waitForIdle();
 		fb_pixel_t *fbs = fb->getFrameBufferPointer() + (DEFAULT_XRES * y) + x;
 		fb_pixel_t *fbe = fbs + DEFAULT_XRES * (dy - 1) + dx;
 		int off = DEFAULT_XRES - dx;
-		while (fbs < fbe) {
+		while (fbs < fbe)
+		{
 			fb_pixel_t *ex = fbs + dx;
 			while (fbs < ex)
 				*fbs++ = col;
@@ -193,7 +196,8 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 	int xx = x;
 	int yy = y;
 	/* maybe we should just return instead of fixing this up... */
-	if (x < 0) {
+	if (x < 0)
+	{
 		fprintf(stderr, "[neutrino] fb::%s: x < 0 (%d)\n", __func__, x);
 		width += x;
 		if (width <= 0)
@@ -201,7 +205,8 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 		xx = 0;
 	}
 
-	if (y < 0) {
+	if (y < 0)
+	{
 		fprintf(stderr, "[neutrino] fb::%s: y < 0 (%d)\n", __func__, y);
 		height += y;
 		if (height <= 0)
@@ -212,16 +217,20 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 	int right = xx + width;
 	int bottom = yy + height;
 
-	if (right > (int)fb->xRes) {
-		if (xx >= (int)fb->xRes) {
+	if (right > (int)fb->xRes)
+	{
+		if (xx >= (int)fb->xRes)
+		{
 			fprintf(stderr, "[neutrino] fb::%s: x >= xRes (%d > %d)\n", __func__, xx, fb->xRes);
 			return;
 		}
 		fprintf(stderr, "[neutrino] fb::%s: x+w > xRes! (%d+%d > %d)\n", __func__, xx, width, fb->xRes);
 		right = fb->xRes;
 	}
-	if (bottom > (int)fb->yRes) {
-		if (yy >= (int)fb->yRes) {
+	if (bottom > (int)fb->yRes)
+	{
+		if (yy >= (int)fb->yRes)
+		{
 			fprintf(stderr, "[neutrino] fb::%s: y >= yRes (%d > %d)\n", __func__, yy, fb->yRes);
 			return;
 		}
@@ -459,7 +468,8 @@ void CFbAccel::blitFB2FB(int fx0, int fy0, int fx1, int fy1, int tx0, int ty0, i
 
 void CFbAccel::blitBoxFB(int x0, int y0, int x1, int y1, fb_pixel_t color)
 {
-	if (x0 > -1 && y0 > -1 && x0 < x1 && y0 < y1) {
+	if (x0 > -1 && y0 > -1 && x0 < x1 && y0 < y1)
+	{
 		STMFBIO_BLT_DATA  bltData;
 		memset(&bltData, 0, sizeof(STMFBIO_BLT_DATA));
 		bltData.operation  = BLT_OP_FILL;
@@ -485,9 +495,11 @@ void CFbAccel::blit()
 #endif
 	msync(lbb, DEFAULT_XRES * 4 * DEFAULT_YRES, MS_SYNC);
 
-	if (borderColor != borderColorOld || (borderColor != 0x00000000 && borderColor != 0xFF000000)) {
+	if (borderColor != borderColorOld || (borderColor != 0x00000000 && borderColor != 0xFF000000))
+	{
 		borderColorOld = borderColor;
-		switch(fb->mode3D) {
+		switch(fb->mode3D)
+		{
 		case CFrameBuffer::Mode3D_off:
 		default:
 			blitBoxFB(0, 0, s.xres, sY, borderColor);		// top
@@ -517,7 +529,8 @@ void CFbAccel::blit()
 			break;
 		}
 	}
-	switch(fb->mode3D) {
+	switch(fb->mode3D)
+	{
 	case CFrameBuffer::Mode3D_off:
 	default:
 		blitBB2FB(0, 0, DEFAULT_XRES, DEFAULT_YRES, sX, sY, eX, eY);
@@ -569,7 +582,8 @@ void CFbAccel::blitBPA2FB(unsigned char *mem, SURF_FMT fmt, int w, int h, int x,
 	if (!transp) /* transp == false (default): use transparency from source alphachannel */
 		blt_data.ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA|BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
 //	blt_data.srcOffset  = 0;
-	switch (fmt) {
+	switch (fmt)
+	{
 	case SURF_RGB888:
 	case SURF_BGR888:
 		blt_data.srcPitch   = w * 3;
@@ -677,18 +691,21 @@ bool CFbAccel::init(void)
 	fb->fd = -1;
 	int fd;
 	fd = open("/dev/fb0", O_RDWR|O_CLOEXEC);
-	if (fd < 0) {
+	if (fd < 0)
+	{
 		perror("open /dev/fb0");
 		return false;
 	}
 	fb->fd = fd;
 
-	if (ioctl(fd, FBIOGET_VSCREENINFO, &fb->screeninfo) < 0) {
+	if (ioctl(fd, FBIOGET_VSCREENINFO, &fb->screeninfo) < 0)
+	{
 		perror("FBIOGET_VSCREENINFO");
 		return false;
 	}
 
-	if (ioctl(fd, FBIOGET_FSCREENINFO, &fb->fix) < 0) {
+	if (ioctl(fd, FBIOGET_FSCREENINFO, &fb->fix) < 0)
+	{
 		perror("FBIOGET_FSCREENINFO");
 		return false;
 	}
@@ -697,7 +714,8 @@ bool CFbAccel::init(void)
 	printf("%dk video mem\n", fb->available / 1024);
 	lfb = (fb_pixel_t *)mmap(0, fb->available, PROT_WRITE|PROT_READ, MAP_SHARED, fd, 0);
 
-	if (lfb == MAP_FAILED) {
+	if (lfb == MAP_FAILED)
+	{
 		perror("mmap");
 		return false;;
 	}
