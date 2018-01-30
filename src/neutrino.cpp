@@ -861,7 +861,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.auto_cover = configfile.getInt32( "auto_cover",  0);
 
 
-	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  0);
+	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  1);
 	g_settings.minimode = configfile.getInt32( "minimode",  0);
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
 	g_settings.zapto_pre_time = configfile.getInt32( "zapto_pre_time",  0);
@@ -957,7 +957,13 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.font_file = configfile.getString("font_file", FONTDIR"/neutrino.ttf");
 	g_settings.ttx_font_file = configfile.getString( "ttx_font_file", FONTDIR"/DejaVuLGCSansMono-Bold.ttf");
-	ttx_font_file = g_settings.ttx_font_file;
+	if (access(g_settings.ttx_font_file, F_OK) != 0)
+	{
+		g_settings.ttx_font_file = FONTDIR "/tuxtxt.ttf";
+		configfile.setUnknownKeyQueryedFlag(true); // force saving config
+	}
+	ttx_font_file = g_settings.ttx_font_file.c_str();
+
 	g_settings.sub_font_file = configfile.getString("sub_font_file", FONTDIR"/neutrino.ttf");
 	sub_font_file = &g_settings.sub_font_file;
 	sub_font_size = configfile.getInt32("fontsize.subtitles", 24);
@@ -4959,6 +4965,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete g_RemoteControl;
 			delete g_fontRenderer;
 			delete g_dynFontRenderer;
+			delete g_shellFontRenderer;
 
 			delete hint;
 
@@ -5522,6 +5529,7 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup 11\n");fflush(stdout);
 	delete g_fontRenderer; g_fontRenderer = NULL;
 	delete g_dynFontRenderer; g_dynFontRenderer = NULL;
+	delete g_shellFontRenderer; g_shellFontRenderer = NULL;
 	printf("cleanup 12\n");fflush(stdout);
 	delete g_PicViewer; g_PicViewer = NULL;
 	printf("cleanup 13\n");fflush(stdout);
@@ -5576,6 +5584,7 @@ void CNeutrinoApp::Cleanup()
 	}
 	printf("cleanup 2\n");fflush(stdout);
 	delete g_SignalFont; g_SignalFont = NULL;
+	delete g_ShellFont; g_ShellFont = NULL;
 	printf("cleanup 3\n");fflush(stdout);
 	configfile.clear();
 
