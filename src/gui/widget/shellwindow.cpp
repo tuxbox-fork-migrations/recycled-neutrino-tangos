@@ -118,7 +118,8 @@ void CShellWindow::exec()
 			return;
 		}
 
-		Font *font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
+		CNeutrinoFonts::getInstance()->SetupShellFont();
+		Font *font = g_ShellFont ? g_ShellFont : g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
 		int h_shell = frameBuffer->getScreenHeight();
 		int w_shell = frameBuffer->getScreenWidth();
 		unsigned int lines_max = h_shell / font->getHeight();
@@ -227,7 +228,7 @@ void CShellWindow::exec()
 
 		if (mode & VERBOSE) {
 			txt = lines2txt(lines);
-			txt += "\n...ready";
+			txt += "\n... ready";
 			textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
 		}
 
@@ -275,10 +276,10 @@ void CShellWindow::showResult()
 			if (show_button){
 				int b_width = 150;
 				int b_height = 35;
-				int xpos = frameBuffer->getScreenWidth() - b_width;
-				int ypos = frameBuffer->getScreenHeight() - b_height;
+				int xpos = frameBuffer->getScreenX() + frameBuffer->getScreenWidth() - OFFSET_INNER_MID - b_width;
+				int ypos = frameBuffer->getScreenY() + frameBuffer->getScreenHeight() - OFFSET_INNER_SMALL - b_height;
 				CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_BACK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
-				btn.setColorBody(COL_MENUCONTENT_PLUS_0);
+				//btn.setColorBody(COL_MENUCONTENT_PLUS_0);
 				btn.paint(false);
 			}
 
