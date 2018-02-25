@@ -33,6 +33,7 @@
 #endif
 
 #include <dirent.h>
+#include <unistd.h>
 
 #include "network_setup.h"
 #include <gui/proxyserver_setup.h>
