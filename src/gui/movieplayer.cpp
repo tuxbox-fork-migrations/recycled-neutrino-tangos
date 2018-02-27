@@ -520,7 +520,7 @@ void CMoviePlayerGui::updateLcd(bool display_playtime)
 		ss -= mm * 60;
 		lcd = to_string(hh/10) + to_string(hh%10) + ":" + to_string(mm/10) + to_string(mm%10) + ":" + to_string(ss/10) + to_string(ss%10);
 
-		CVFD::getInstance()->setMode(LCD_MODE);
+		CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
 		CVFD::getInstance()->showMenuText(0, lcd.c_str(), -1, true);
 		return;
 	}
