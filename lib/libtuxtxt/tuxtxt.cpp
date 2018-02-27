@@ -29,11 +29,7 @@
 #define KEY_TTZOOM	KEY_FN_2
 #define KEY_REVEAL	KEY_FN_D
 
-#if HAVE_SH4_HARDWARE
 #define MARK_FB(a, b, c, d) if (p == lfb) CFrameBuffer::getInstance()->mark(a, b, (a) + (c), (b) + (d))
-#else
-#define MARK_FB(a, b, c, d)
-#endif
 
 extern cVideo * videoDecoder;
 
@@ -2355,11 +2351,8 @@ int GetTeletextPIDs()
 	unsigned char mask[DMX_FILTER_SIZE] = { 0 };
 	int res;
 
-#if HAVE_SH4_HARDWARE
-	cDemux * dmx = new cDemux(0); // live demux
-#else
-	cDemux * dmx = new cDemux(1);
-#endif
+	cDemux * dmx = new cDemux(0);
+
 	dmx->Open(DMX_PSI_CHANNEL);
 
 	mask[0] = 0xFF;
@@ -2815,6 +2808,7 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 		menu[MenuLine[M_PID]*Menu_Width + 27] = '?';
 	/* render menu */
 	PosY = Menu_StartY;
+	CFrameBuffer::getInstance()->waitForIdle();
 	for (line = 0; line < Menu_Height; line++)
 	{
 		PosX = Menu_StartX;
@@ -4992,6 +4986,7 @@ void RenderMessage(int Message)
 	else
 		msg = &message_3[menulanguage][0];
 
+	CFrameBuffer::getInstance()->waitForIdle();
 	/* render infobar */
 	PosX = StartX + fontwidth+5;
 	PosY = StartY + fontheight*16;
@@ -5577,10 +5572,8 @@ void CreateLine25()
 void CopyBB2FB()
 {
 	fb_pixel_t *src, *dst, *topsrc;
-	int fillcolor, i, screenwidth, swtmp;
-#if defined(HAVE_SH4_HARDWARE) || defined(HAVE_COOL_HARDWARE)
+	int fillcolor, i, screenwidth;
 	CFrameBuffer *f = CFrameBuffer::getInstance();
-#endif
 
 	/* line 25 */
 	if (!pagecatching && use_gui)
@@ -5589,23 +5582,7 @@ void CopyBB2FB()
 	/* copy backbuffer to framebuffer */
 	if (!zoommode)
 	{
-#if HAVE_SH4_HARDWARE
 		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
-#elif defined(HAVE_COOL_HARDWARE)
-		f->fbCopyArea(var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, var_screeninfo.yres);
-#else
-		if ((uint32_t)stride > var_screeninfo.xres) {
-			fb_pixel_t *lfb_ = lfb;
-			fb_pixel_t *lbb_ = lbb;
-			for (uint32_t i1 = 0; i1 < var_screeninfo.yres; i1++) {
-				memcpy(lfb_, lbb_, var_screeninfo.xres * sizeof(fb_pixel_t));
-				lfb_ += stride;
-				lbb_ += stride;
-			}
-		}
-		else
-			memcpy(lfb, lbb, fix_screeninfo.line_length*var_screeninfo.yres);
-#endif
 
 		/* adapt background of backbuffer if changed */
 		if (StartX > 0 && *lfb != *lbb) {
@@ -5629,7 +5606,9 @@ void CopyBB2FB()
 
 	/* copy line25 in normal height */
 	if (!pagecatching )
-		memmove(dst + (24 * fontheight) * stride, src + (24 * fontheight) * stride, stride * fontheight);
+		memmove(dst + (24 * fontheight) * var_screeninfo.xres,
+			src + (24 * fontheight) * var_screeninfo.xres,
+			var_screeninfo.xres * fontheight * sizeof(fb_pixel_t));
 
 	if (transpmode)
 		fillcolor = transp;
@@ -5642,37 +5621,15 @@ void CopyBB2FB()
 	/* copy topmenu in normal height (since PIG also keeps dimensions) */
 	if (screenmode == 1)
 	{
-		screenwidth = ( TV43STARTX );
-#if HAVE_SH4_HARDWARE
-		int cx = var_screeninfo.xres - TV43STARTX;	/* x start */
-		int cw = TV43STARTX;				/* width */
-		int cy = StartY;
-		int ch = 24*fontheight;
-		f->blit2FB(lbb, cw, ch, cx, cy, cx, cy, true);
-#else
-		fb_pixel_t *topdst = dst;
-		size_t width = (ex - screenwidth) * sizeof(fb_pixel_t);
-
-		topsrc += screenwidth;
-		topdst += screenwidth;
-		for (i=0; i < 24*fontheight; i++)
-		{
-			memmove(topdst, topsrc, width);
-			topdst += stride;
-			topsrc += stride;
-		}
-#endif
+		screenwidth = TV43STARTX;
+		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, TV43STARTX, 0, TV43STARTX, 0, true);
 	}
 	else if (screenmode == 2)
 		screenwidth = ( TV169FULLSTARTX );
 	else
 		screenwidth = stride;
 
-	for (i = StartY; i>0;i--)
-	{
-		for (swtmp=0; swtmp<=screenwidth; swtmp++)
-			*(dst - i * stride + swtmp) = bgra[fillcolor];
-	}
+	f->paintBox(0, 0, screenwidth, StartY, argb[fillcolor]);
 
 	for (i = 12*fontheight; i; i--)
 	{
@@ -5683,13 +5640,9 @@ void CopyBB2FB()
 		src += stride;
 	}
 
-	for (i = var_screeninfo.yres - StartY - 25*fontheight; i >= 0;i--)
-	{
-		for (swtmp=0; swtmp<= screenwidth;swtmp++)
-			*(dst + stride * (fontheight + i) + swtmp) =  bgra[fillcolor];
-	}
-#if HAVE_SH4_HARDWARE
 	f->mark(0, 0, var_screeninfo.xres, var_screeninfo.yres);
+	f->paintBox(0, StartY + 25 * fontheight, screenwidth, var_screeninfo.yres, argb[fillcolor]);
+#if HAVE_SH4_HARDWARE
 	f->blit();
 #endif
 }
