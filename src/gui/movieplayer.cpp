@@ -467,7 +467,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	}
 
 	while(!isHTTP && !isUPNP && SelectFile()) {
-		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		if (timeshift != TSHIFT_MODE_OFF) {
 			CVFD::getInstance()->ShowIcon(FP_ICON_TIMESHIFT, true);
 			PlayFile();
@@ -490,8 +489,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		if (my_system(MOVIEPLAYER_END_SCRIPT) != 0)
 			perror(MOVIEPLAYER_END_SCRIPT " failed");
 	}
-
-	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
 	running = false;
 
@@ -730,12 +727,14 @@ void CMoviePlayerGui::makeFilename()
 		} else
 			pretty_name = file_name;
 
+#if 0
 		if (pretty_name.substr(0,14)=="videoplayback?") {//youtube name
 			if (!p_movie_info->epgTitle.empty())
 				pretty_name = p_movie_info->epgTitle;
 			else
 				pretty_name = "";
 		}
+#endif
 		printf("CMoviePlayerGui::makeFilename: file_name [%s] pretty_name [%s]\n", file_name.c_str(), pretty_name.c_str());
 	}
 }
