@@ -46,9 +46,6 @@ bool isTtxEplayer = false;
 
 static int screen_x, screen_y, screen_w, screen_h;
 
-void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor=false);
-void FillBorder(fb_pixel_t color, bool modeFullColor=false);
-
 fb_pixel_t *getFBp(int *y)
 {
 	if (*y < (int)var_screeninfo.yres)
@@ -58,7 +55,8 @@ fb_pixel_t *getFBp(int *y)
 	return lbb;
 }
 
-void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor/*=false*/)
+void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor = false);
+void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor)
 {
 	fb_pixel_t *p = getFBp(&y);
 	MARK_FB(x, y, w, h);
@@ -74,7 +72,8 @@ void FillRect(int x, int y, int w, int h, fb_pixel_t color, bool modeFullColor/*
 	}
 }
 
-void FillBorder(fb_pixel_t color, bool modeFullColor/*=false*/)
+void FillBorder(fb_pixel_t color, bool modeFullColor = false);
+void FillBorder(fb_pixel_t color, bool modeFullColor)
 {
 	int ys =  (var_screeninfo.yres-var_screeninfo.yoffset);
 	FillRect(0     , ys                     ,StartX      ,var_screeninfo.yres                       ,color, modeFullColor);
@@ -189,6 +188,7 @@ void hex2str(char *s, unsigned int n)
 		n >>= 4;
 	} while (n);
 }
+
 
 int toptext_getnext(int startpage, int up, int findgroup)
 {
@@ -1215,7 +1215,9 @@ void eval_l25()
 		int BlackBgSubst = 0;
 		int ColorTableRemapping = 0;
 
+
 		pop = gpop = drcs = gdrcs = 0;
+
 
 		if (pi->ext)
 		{
@@ -1667,6 +1669,7 @@ int tuxtx_main(int pid, int page, int source)
 	stride = fbp->getStride() / sizeof(fb_pixel_t);
 	memcpy(&var_screeninfo, var, sizeof(struct fb_var_screeninfo));
 	fix_screeninfo.line_length = var_screeninfo.xres * sizeof(fb_pixel_t);
+
 	/* set variable screeninfo for double buffering */
 	var_screeninfo.yoffset      = 0;
 #if 0
@@ -1704,7 +1707,7 @@ int tuxtx_main(int pid, int page, int source)
 		pthread_create(&ttx_sub_thread, 0, reader_thread, (void *) NULL);
 		return 1;
 	}
-	//transpmode = 1;
+
 	/* main loop */
 	do {
 		if (GetRCCode() == 1)
@@ -1861,7 +1864,7 @@ int tuxtx_main(int pid, int page, int source)
 			}
 		}
 
-		/* update page or timestring and lcd */
+		/* update page */
 		RenderPage();
 #if HAVE_SH4_HARDWARE
 		fbp->blit();
@@ -1881,7 +1884,7 @@ int tuxtx_main(int pid, int page, int source)
 	fbp->setBorderColor(old_border_color);
 #endif
 
- 	printf("Tuxtxt: plugin ended\n");
+	printf("Tuxtxt: plugin ended\n");
 	return 1;
 }
 
@@ -2158,7 +2161,7 @@ int Init(int source)
 			typettf.height = (FT_UShort) 23;
 		}
 
-		typettf.flags = FT_LOAD_RENDER;
+		typettf.flags = FT_LOAD_MONOCHROME;
 
 		if ((error = FTC_Manager_LookupFace(manager, typettf.face_id, &face)))
 		{
@@ -2273,7 +2276,7 @@ void CleanUp()
 	tuxtxt_stop_thread();
 	tuxtxt_clear_cache();
 	if (tuxtxt_cache.dmx != -1)
-    	    close(tuxtxt_cache.dmx);
+		close(tuxtxt_cache.dmx);
 	tuxtxt_cache.dmx = -1;
 #else
 	//tuxtxt_stop();
@@ -2350,11 +2353,14 @@ int GetTeletextPIDs()
 	unsigned char filter[DMX_FILTER_SIZE] = { 0 };
 	unsigned char mask[DMX_FILTER_SIZE] = { 0 };
 	int res;
-
 	cDemux * dmx = new cDemux(0);
-
 	dmx->Open(DMX_PSI_CHANNEL);
 
+	memset(filter, 0x00, DMX_FILTER_SIZE);
+	memset(mask, 0x00, DMX_FILTER_SIZE);
+
+	//filter[0] = 0x00;
+	//mask[0] = 0xFF;
 	mask[0] = 0xFF;
 	mask[4] = 0xFF;
 
@@ -2540,8 +2546,6 @@ skip_pid:
 	}
 
 	getpidsdone = 1;
-
-	//UpdateLCD(); /* update pids? */
 
 	return 1;
 }
@@ -2828,7 +2832,9 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 	national_subset = national_subset_bak;
 	Menu_HighlightLine(menu, MenuLine[menuitem], 1);
 	Menu_UpdateHotlist(menu, hotindex, menuitem);
+#if HAVE_SH4_HARDWARE
 	CFrameBuffer::getInstance()->blit();
+#endif
 }
 
 void ConfigMenu(int Init)
@@ -3383,7 +3389,7 @@ void ConfigMenu(int Init)
 					auto_national &= 1;
 					if (auto_national)
 					{
-					 	if (getpidsdone)
+						if (getpidsdone)
 							national_subset = pid_table[current_pid].national_subset;
 						else
 						{
@@ -3513,7 +3519,8 @@ void PageInput(int Number)
 		{
 			tuxtxt_cache.subpage = subp;
 			tuxtxt_cache.pageupdate = 1;
-#if 1 //TUXTXT_DEBUG
+#if 1
+//TUXTXT_DEBUG
 			printf("TuxTxt <DirectInput: %.3X-%.2X>\n", tuxtxt_cache.page, tuxtxt_cache.subpage);
 #endif
 		}
@@ -3960,7 +3967,7 @@ void SwitchScreenMode(int newscreenmode)
 		ClearBB(clearbbcolor);
 
 	/* set mode */
-	if (screenmode)								 /* split */
+	if (screenmode) /* split */
 	{
 		ClearFB(clearbbcolor);
 
@@ -4055,7 +4062,8 @@ void SwitchTranspMode()
 		SwitchScreenMode(0); /* turn off divided screen */
 	}
 	/* toggle mode */
-#if 0 // transparent first
+#if 0
+	// transparent first
 	if (transpmode == 2)
 		transpmode = 0;
 	else
@@ -4145,13 +4153,17 @@ void RenderDRCS( //FIX ME
 				{
 //					memset(d + ax[x], f1, ax[x+1] - ax[x]);
 					for (ltmp=0 ; ltmp <= (ax[x+1]-ax[x]); ltmp++)
+					{
 						*(d + ax[x] + ltmp) = bgra[f1];
+					}
 				}
 				if (ax[x+7] > ax[x+6])
 				{
 //					memset(d + ax[x+6], f2, ax[x+7] - ax[x+6]); /* 2nd byte 6 pixels to the right */
 					for (ltmp=0 ; ltmp <= (ax[x+7]-ax[x+6]); ltmp++)
+					{
 						*(d + ax[x+6] + ltmp) = bgra[f2];
+					}
 				}
 				d += stride;
 			}
@@ -4566,7 +4578,8 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 		PosX += curfontwidth;
 		return;
 	}
-#if 0//old
+#if 0
+	//old
 	else if (Attribute->charset == C_G2 && Char >= 0x20 && Char <= 0x7F)
 	{
 		if (national_subset_local == NAT_GR)
@@ -4744,7 +4757,8 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 	}
 	if (Char <= 0x20)
 	{
-#if 0//TUXTXT_DEBUG
+#if 0
+//TUXTXT_DEBUG
 		printf("TuxTxt found control char: %x \"%c\" \n", Char, Char);
 #endif
 		FillRect(PosX, PosY + yoffset, curfontwidth, factor*fontheight, bgcolor);
@@ -4755,7 +4769,8 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 
 	if (!(glyph = FT_Get_Char_Index(face, Char)))
 	{
-#if 1// TUXTXT_DEBUG
+#if 1
+// TUXTXT_DEBUG
 		printf("TuxTxt <FT_Get_Char_Index for Char %d %x \"%c\" failed\n", Char, Char, Char);
 #endif
 		FillRect(PosX, PosY + yoffset, curfontwidth, factor*fontheight, bgcolor);
@@ -4781,7 +4796,7 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 	// add diacritical marks
 	if (Attribute->diacrit)
 	{
-		FTC_SBit        sbit_diacrit;
+		FTC_SBit sbit_diacrit;
 #if 0
 		if (national_subset_local == NAT_GR)
 			Char = G2table[2][0x20+ Attribute->diacrit];
@@ -4790,18 +4805,18 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 		else
 			Char = G2table[0][0x20+ Attribute->diacrit];
 #endif
-                if ((national_subset_local == NAT_SC) || (national_subset_local == NAT_RB) || (national_subset_local == NAT_UA))
-                        Char = G2table[1][0x20+ Attribute->diacrit];
-                else if (national_subset_local == NAT_GR)
-                        Char = G2table[2][0x20+ Attribute->diacrit];
+		if ((national_subset_local == NAT_SC) || (national_subset_local == NAT_RB) || (national_subset_local == NAT_UA))
+			Char = G2table[1][0x20+ Attribute->diacrit];
+		else if (national_subset_local == NAT_GR)
+			Char = G2table[2][0x20+ Attribute->diacrit];
 #if 0
-                else if (national_subset_local == NAT_HB)
-                        Char = G2table[3][0x20+ Attribute->diacrit];
+		else if (national_subset_local == NAT_HB)
+			Char = G2table[3][0x20+ Attribute->diacrit];
 #endif
-                else if (national_subset_local == NAT_AR)
-                        Char = G2table[3][0x20+ Attribute->diacrit];
-                else
-                        Char = G2table[0][0x20+ Attribute->diacrit];
+		else if (national_subset_local == NAT_AR)
+			Char = G2table[3][0x20+ Attribute->diacrit];
+		else
+			Char = G2table[0][0x20+ Attribute->diacrit];
 
 		if ((glyph = FT_Get_Char_Index(face, Char)))
 		{
@@ -5156,12 +5171,11 @@ void RenderPage()
 
 	if (transpmode != 2 && delaystarted)
 	{
-	    struct timeval tv;
-    	    gettimeofday(&tv,NULL);
-	    if (tv.tv_sec - tv_delay.tv_sec < subtitledelay)
-		return;
+		struct timeval tv;
+		gettimeofday(&tv,NULL);
+		if (tv.tv_sec - tv_delay.tv_sec < subtitledelay)
+			return;
 	}
-
 
 	/* update page or timestring */
 	if (transpmode != 2 && tuxtxt_cache.pageupdate && tuxtxt_cache.page_receiving != tuxtxt_cache.page && inputcounter == 2)
@@ -5199,7 +5213,7 @@ void RenderPage()
 				SwitchScreenMode(prevscreenmode);
 		}
 
- 		/* display first column?  */
+		/* display first column?  */
 		nofirst = show39;
 		for (row = 1; row < 24; row++)
 		{
@@ -5587,7 +5601,7 @@ void CopyBB2FB()
 		/* adapt background of backbuffer if changed */
 		if (StartX > 0 && *lfb != *lbb) {
 			FillBorder(*lbb, true);
-//			 ClearBB(*(lfb + var_screeninfo.xres * var_screeninfo.yoffset));
+//			ClearBB(*(lfb + var_screeninfo.xres * var_screeninfo.yoffset));
 		}
 #if HAVE_SH4_HARDWARE
 		f->blit();
@@ -5606,9 +5620,9 @@ void CopyBB2FB()
 
 	/* copy line25 in normal height */
 	if (!pagecatching )
-		memmove(dst + (24 * fontheight) * var_screeninfo.xres,
-			src + (24 * fontheight) * var_screeninfo.xres,
-			var_screeninfo.xres * fontheight * sizeof(fb_pixel_t));
+		memmove(dst + (24 * fontheight) * stride,
+			src + (24 * fontheight) * stride,
+			stride * fontheight * sizeof(fb_pixel_t));
 
 	if (transpmode)
 		fillcolor = transp;
@@ -5621,7 +5635,7 @@ void CopyBB2FB()
 	/* copy topmenu in normal height (since PIG also keeps dimensions) */
 	if (screenmode == 1)
 	{
-		screenwidth = TV43STARTX;
+		screenwidth = ( TV43STARTX );
 		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, TV43STARTX, 0, TV43STARTX, 0, true);
 	}
 	else if (screenmode == 2)
@@ -5629,7 +5643,7 @@ void CopyBB2FB()
 	else
 		screenwidth = stride;
 
-	f->paintBox(0, 0, screenwidth, StartY, argb[fillcolor]);
+	f->paintBox(0, 0, screenwidth, StartY, bgra[fillcolor]);
 
 	for (i = 12*fontheight; i; i--)
 	{
@@ -5641,7 +5655,7 @@ void CopyBB2FB()
 	}
 
 	f->mark(0, 0, var_screeninfo.xres, var_screeninfo.yres);
-	f->paintBox(0, StartY + 25 * fontheight, screenwidth, var_screeninfo.yres, argb[fillcolor]);
+	f->paintBox(0, StartY + 25 * fontheight, screenwidth, var_screeninfo.yres, bgra[fillcolor]);
 #if HAVE_SH4_HARDWARE
 	f->blit();
 #endif
