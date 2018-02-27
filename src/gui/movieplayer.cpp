@@ -468,7 +468,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 
 	while(!isHTTP && !isUPNP && SelectFile()) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-		CVFD::getInstance()->showServicename(file_name.c_str());
 		if (timeshift != TSHIFT_MODE_OFF) {
 			CVFD::getInstance()->ShowIcon(FP_ICON_TIMESHIFT, true);
 			PlayFile();
@@ -483,7 +482,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		}
 		while (repeat_mode || filelist_it != filelist.end());
 	}
-	CVFD::getInstance()->showServicename(CVFD::getInstance()->getServicename());
 
 	bookmarkmanager->flush();
 
@@ -525,7 +523,7 @@ void CMoviePlayerGui::updateLcd(bool display_playtime)
 		return;
 	}
 
-	if (isMovieBrowser && p_movie_info && !p_movie_info->epgTitle.empty() && p_movie_info->epgTitle.size() && strncmp(p_movie_info->epgTitle.c_str(), "not", 3))
+	if (p_movie_info && !p_movie_info->epgTitle.empty())
 		name = p_movie_info->epgTitle;
 	else
 		name = pretty_name;
@@ -602,7 +600,8 @@ void CMoviePlayerGui::updateLcd(bool display_playtime)
  && !defined(BOXMODEL_CUBEREVO_MINI2) \
  && !defined(BOXMODEL_IPBOX9900) \
  && !defined(BOXMODEL_IPBOX99) \
- && !defined(BOXMODEL_IPBOX55)
+ && !defined(BOXMODEL_IPBOX55) \
+ && !defined(BOXMODEL_HD51)
 			lcd = "> ";
 #endif
 			break;
@@ -2329,10 +2328,6 @@ void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
 		std::string channelName = mi->channelName;
 		if (channelName.empty())
 			channelName = pretty_name;
-
-		std::string channelTitle = mi->epgTitle;
-		if (channelTitle.empty())
-			channelTitle = pretty_name;
 
 		if (g_settings.movieplayer_display_playtime)
 			updateLcd(false); // force title
