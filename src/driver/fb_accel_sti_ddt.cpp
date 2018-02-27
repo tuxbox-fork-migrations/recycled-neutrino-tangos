@@ -364,15 +364,19 @@ void CFbAccel::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 	}
 }
 
+/* width / height => source surface   *
+ * xoff / yoff    => target position  *
+ * xp / yp        => offset in source */
 void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
-	int x, y, dw, dh;
+	int x, y, dw, dh, bottom;
 	x = xoff;
 	y = yoff;
 	dw = width - xp;
 	dh = height - yp;
+	bottom = height + yp;
 
-	size_t mem_sz = width * height * sizeof(fb_pixel_t);
+	size_t mem_sz = width * bottom * sizeof(fb_pixel_t);
 	/* we can blit anything from [ backbuffer <--> backbuffer + backbuf_sz ]
 	 * if the source is outside this, then it will be memmove()d to start of backbuffer */
 	void *tmpbuff = backbuffer;
@@ -393,7 +397,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 	blt_data.src_left   = xp;
 	blt_data.src_top    = yp;
 	blt_data.src_right  = width;
-	blt_data.src_bottom = height;
+	blt_data.src_bottom = bottom;
 	blt_data.dst_left   = x;
 	blt_data.dst_top    = y;
 	blt_data.dst_right  = x + dw;
@@ -414,8 +418,14 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 	// icons are so small that they will still be in cache
 	msync(backbuffer, backbuf_sz, MS_SYNC);
 
-	if (ioctl(fb->fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
+	if (ioctl(fb->fd, STMFBIO_BLT_EXTERN, &blt_data) < 0) {
 		perror("CFbAccel blit2FB STMFBIO_BLT_EXTERN");
+		fprintf(stderr, "fbbuff %p tmp %p back %p width %u height %u xoff %u yoff %u xp %u yp %u dw %d dh %d\n",
+				fbbuff, tmpbuff, backbuffer, width, height, xoff, yoff, xp, yp, dw, dh);
+		fprintf(stderr, "left: %d top: %d right: %d bottom: %d off: %ld pitch: %ld mem: %ld\n",
+				blt_data.src_left, blt_data.src_top, blt_data.src_right, blt_data.src_bottom,
+				blt_data.srcOffset, blt_data.srcPitch, blt_data.srcMemSize);
+	}
 	return;
 }
 
