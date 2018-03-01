@@ -1662,6 +1662,14 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		bool handle_key_play = true;
 		bool handle_key_pause = true;
 
+		if (g_settings.mpkey_play == g_settings.mpkey_pause)
+		{
+			if (playstate == CMoviePlayerGui::PLAY)
+				handle_key_play = false;
+			else if (playstate == CMoviePlayerGui::PAUSE)
+				handle_key_pause = false;
+		}
+
 		if ((playstate >= CMoviePlayerGui::PLAY) && (timeshift != TSHIFT_MODE_OFF || (playstate != CMoviePlayerGui::PAUSE))) {
 			if (playback->GetPosition(position, duration)) {
 				FileTimeOSD->update(position, duration);
