@@ -602,6 +602,8 @@ void CMoviePlayerGui::updateLcd(bool display_playtime)
 				break;
 			default:
 				break;
+				
+		}
 	}
 	lcd += name;
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
