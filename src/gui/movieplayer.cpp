@@ -545,9 +545,8 @@ void CMoviePlayerGui::updateLcd(bool display_playtime)
 				if (speed < 0) {
 					sprintf(tmp, "%dx<| ", abs(speed));
 					lcd = tmp;
-					break;
-				case CMoviePlayerGui::FF:
-					sprintf(tmp, "%dx>> ", abs(speed));
+				} else if (speed > 0) {
+					sprintf(tmp, "%dx|> ", abs(speed));
 					lcd = tmp;
 #if !defined(BOXMODEL_UFS910) \
  && !defined(BOXMODEL_UFS912) \
@@ -603,9 +602,8 @@ void CMoviePlayerGui::updateLcd(bool display_playtime)
 				break;
 			default:
 				break;
-		lcd += name;
 	}
-
+	lcd += name;
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
 	CVFD::getInstance()->showMenuText(0, lcd.c_str(), -1, true);
 #endif
