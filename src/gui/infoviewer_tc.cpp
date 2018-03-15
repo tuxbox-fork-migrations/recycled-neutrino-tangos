@@ -3115,7 +3115,7 @@ void* CInfoViewer::Thread_paint_cam_icons(void)
 	std::stringstream fpath;
 	int emu_pic_startx = ChanInfoX + (g_settings.infobar_casystem_frame ? 2*OFFSET_INNER_MID : OFFSET_INNER_MID);
 	int py = BoxEndY + OFFSET_INNER_SMALL;
-	const char *icon_name[] = {"mgcamd","oscam","gbox"};
+	const char *icon_name[] = {"cccam","oscam","gbox"};
 	int icon_sizeH = 0;
 	int icon_sizeW = 0;
 
