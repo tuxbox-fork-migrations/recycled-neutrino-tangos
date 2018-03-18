@@ -1324,6 +1324,9 @@ int CChannelList::numericZap(int key)
 			while(strlen(valstr) < maxchansize)
 				strcat(valstr,"-");   //"_"
 
+			CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
+			CVFD::getInstance()->showMenuText(0, valstr, -1, true);
+
 			PaintBoxRel(ox, oy, sx, sy, COL_INFOBAR_PLUS_0, RADIUS_LARGE, CORNER_ALL, CC_SHADOW_ON);
 			for (int i = maxchansize-1; i >= 0; i--) {
 				valstr[i+ 1] = 0;
@@ -1383,6 +1386,7 @@ int CChannelList::numericZap(int key)
 	}
 
 	ClearBoxRel(ox, oy, sx, sy, CC_SHADOW_ON);
+	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
 	CZapitChannel* chan = getChannel(chn);
 	if (doZap) {
@@ -1586,7 +1590,7 @@ void CChannelList::paintDetails(int index)
 		char cSeit[50] = {0}; // UTF-8
 
 		struct		tm *pStartZeit = localtime(&p_event->startTime);
-		unsigned 	seit = ( time(NULL) - p_event->startTime ) / 60;
+		unsigned	seit = (time(NULL) - p_event->startTime + 30) / 60;
 		snprintf(cSeit, sizeof(cSeit), "%s %02d:%02d",(displayNext) ? g_Locale->getText(LOCALE_CHANNELLIST_START):g_Locale->getText(LOCALE_CHANNELLIST_SINCE), pStartZeit->tm_hour, pStartZeit->tm_min);
 		if (displayNext) {
 			snprintf(cNoch, sizeof(cNoch), "(%d %s)", p_event->duration / 60, unit_short_minute);
