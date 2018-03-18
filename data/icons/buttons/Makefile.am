@@ -19,6 +19,7 @@ install_DATA = \
 	btn_record_active.png \
 	btn_record_inactive.png \
 	btn_stop.png \
+	btn_timer.png \
 	clock_face.png \
 	down.png \
 	dummy.png \
