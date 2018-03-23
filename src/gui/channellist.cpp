@@ -133,6 +133,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	move_state = beDefault;
 	edit_state = false;
 	channelsChanged = false;
+	liveBouquet = false;
 
 	paint_events_index = -2;
 	CFrameBuffer::getInstance()->OnAfterSetPallette.connect(sigc::mem_fun(this, &CChannelList::ResetModules));
@@ -763,8 +764,8 @@ int CChannelList::show()
 			if (new_selected >= 0)
 				actzap = updateSelection(new_selected);
 		}
-		else if (!edit_state && (msg == (neutrino_msg_t)g_settings.key_bouquet_up ||
-					msg == (neutrino_msg_t)g_settings.key_bouquet_down)) {
+		else if (!edit_state && !liveBouquet &&
+				(msg == (neutrino_msg_t)g_settings.key_bouquet_up || msg == (neutrino_msg_t)g_settings.key_bouquet_down)) {
 			if (dline)
 				dline->kill(); //kill details line on change to next page
 			if (!bouquetList->Bouquets.empty()) {
@@ -1234,72 +1235,107 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 	}
 }
 
+int CChannelList::showLiveBouquet(int key)
+{
+	int res = -1;
+	if (showEmptyError())
+		return res;
+
+	// zap history bouquet
+	if (key == g_settings.key_zaphistory)
+	{
+		if (this->lastChList.size() > 1)
+		{
+			CChannelList * liveList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HISTORY), true, true);
+			liveList->setLiveBouquet();
+
+			for (unsigned int i = 1; i < this->lastChList.size(); ++i)
+			{
+				t_channel_id channel_id = this->lastChList.getlast(i);
+				if (channel_id)
+				{
+					CZapitChannel* channel = getChannel(channel_id);
+					if (channel)
+						liveList->addChannel(channel);
+				}
+			}
+			if (!liveList->isEmpty())
+			{
+				this->frameBuffer->paintBackground();
+				res = liveList->exec();
+				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+			}
+			delete liveList;
+		}
+		else
+			ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_CHANNELLIST_HISTORY_EMPTY);
+
+		return res;
+	}
+
+	// current transponder bouquet
+	if (key == g_settings.key_current_transponder)
+	{
+		bool isRecord = (!autoshift && CNeutrinoApp::getInstance()->recordingstatus);
+		CChannelList * origList = CNeutrinoApp::getInstance()->channelList;
+		CChannelList * liveList = new CChannelList(isRecord ? g_Locale->getText(LOCALE_CHANNELLIST_RECORDABLE_CHANNELS) : g_Locale->getText(LOCALE_CHANNELLIST_CURRENT_TP), false, true);
+		liveList->setLiveBouquet();
+
+		if (isRecord)
+		{
+			for (unsigned int i = 0 ; i < (*origList->chanlist).size(); i++)
+			{
+				if (SameTP((*origList->chanlist)[i]))
+					liveList->addChannel((*origList->chanlist)[i]);
+			}
+		}
+		else
+		{
+			t_channel_id recid = (*chanlist)[selected]->getChannelID() >> 16;
+			for (unsigned int i = 0; i < (*origList->chanlist).size(); i++)
+			{
+				if (((*origList->chanlist)[i]->getChannelID() >> 16) == recid)
+					liveList->addChannel((*origList->chanlist)[i]);
+			}
+		}
+		if (!liveList->isEmpty())
+		{
+			liveList->adjustToChannelID(origList->getActiveChannel_ChannelID());
+			this->frameBuffer->paintBackground();
+			res = liveList->exec();
+			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		}
+		delete liveList;
+		return res;
+	}
+
+	return res;
+}
+
 /* Called only from "all" channel list */
 int CChannelList::numericZap(int key)
 {
 	int res = -1;
-	if(showEmptyError())
+	if (showEmptyError())
 		return res;
 
-	// -- quickzap "0" to last seen channel...
-	if (key == g_settings.key_lastchannel) {
+	// quickzap "0" to last seen channel
+	if (key == g_settings.key_lastchannel)
+	{
 		t_channel_id channel_id = lastChList.getlast(1);
-		if(channel_id && SameTP(channel_id)) {
+		if (channel_id && SameTP(channel_id))
+		{
 			lastChList.clear_storedelay(); // ignore store delay
 			int new_mode = lastChList.get_mode(channel_id);
-			if(new_mode >= 0)
+			if (new_mode >= 0)
 				CNeutrinoApp::getInstance()->SetChannelMode(new_mode);
 			zapTo_ChannelID(channel_id);
 			res = 0;
 		}
 		return res;
 	}
-	if ((key == g_settings.key_zaphistory) || (key == g_settings.key_current_transponder)) {
-		if((!autoshift && CNeutrinoApp::getInstance()->recordingstatus) || (key == g_settings.key_current_transponder)) {
-			CChannelList * orgList = CNeutrinoApp::getInstance()->channelList;
-			CChannelList * channelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_CURRENT_TP), false, true);
 
-			if(key == g_settings.key_current_transponder) {
-				t_channel_id recid = (*chanlist)[selected]->getChannelID() >> 16;
-				for ( unsigned int i = 0 ; i < (*orgList->chanlist).size(); i++) {
-					if(((*orgList->chanlist)[i]->getChannelID() >> 16) == recid)
-						channelList->addChannel((*orgList->chanlist)[i]);
-				}
-			} else {
-				for ( unsigned int i = 0 ; i < (*orgList->chanlist).size(); i++) {
-					if(SameTP((*orgList->chanlist)[i]))
-						channelList->addChannel((*orgList->chanlist)[i]);
-				}
-			}
-			if ( !channelList->isEmpty()) {
-				channelList->adjustToChannelID(orgList->getActiveChannel_ChannelID());
-				this->frameBuffer->paintBackground();
-				res = channelList->exec();
-				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-			}
-			delete channelList;
-			return res;
-		}
-		// -- zap history bouquet, similar to "0" quickzap, but shows a menue of last channels
-		if (this->lastChList.size() > 1) {
-			CChannelList * channelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HISTORY), true, true);
-
-			for(unsigned int i = 1; i < this->lastChList.size() ; ++i) {
-				t_channel_id channel_id = this->lastChList.getlast(i);
-				if(channel_id) {
-					CZapitChannel* channel = getChannel(channel_id);
-					if(channel) channelList->addChannel(channel);
-				}
-			}
-			if ( !channelList->isEmpty() ) {
-				this->frameBuffer->paintBackground();
-				res = channelList->exec();
-				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-			}
-			delete channelList;
-		}
-		return res;
-	}
+	// numeric zap
 	size_t maxchansize = MaxChanNr().size();
 	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getMaxDigitWidth();
 	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight();

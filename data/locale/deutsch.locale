@@ -266,6 +266,7 @@ channellist.hdicon HD/UHD Icon anzeigen
 channellist.head Alle Kanäle
 channellist.history Verlauf
 channellist.history_clear Verlauf löschen
+channellist.history_empty Kein Verlauf verfügbar
 channellist.keep_numbers Dauerhafte Kanalnummern
 channellist.make_hdlist Erzeuge Bouquets mit HD- und UHD-Kanälen
 channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
@@ -278,6 +279,7 @@ channellist.new_zap_mode_off aus
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
 channellist.numeric_adjust Bei numerischem Zap Kanalliste nachführen
 channellist.provs Anbieter
+channellist.recordable_channels Aufnehmbare Sender
 channellist.recording_not_possible Aufnahme nicht möglich!
 channellist.remember Zuletzt verwendete
 channellist.reset_all Entferne Markierung "Neu" für alle Kanäle
@@ -942,7 +944,7 @@ keybindingmenu.video Video
 keybindingmenu.volume Lautstärke
 keybindingmenu.volumedown Leiser
 keybindingmenu.volumeup Lauter
-keybindingmenu.zaphistory Zapping-History Bouquet
+keybindingmenu.zaphistory Senderverlauf
 keychooser.head Neue Taste einstellen
 keychooser.text Neue Taste drücken.\nZum Abbrechen ein paar Sekunden warten ...
 keychoosermenu.currentkey Derzeitige Taste

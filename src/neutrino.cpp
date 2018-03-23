@@ -2812,7 +2812,7 @@ void CNeutrinoApp::quickZap(int msg)
 	else
 		ret = channelList->quickZap(msg);
 	if (!ret) {
-		res = channelList->numericZap(g_settings.key_zaphistory);
+		res = channelList->showLiveBouquet(g_settings.key_zaphistory);
 		StartSubtitles(res < 0);
 	}
 }
@@ -2820,7 +2820,7 @@ void CNeutrinoApp::quickZap(int msg)
 void CNeutrinoApp::numericZap(int msg)
 {
 	StopSubtitles();
-	int res = channelList->numericZap( msg );
+	int res = channelList->numericZap(msg);
 	StartSubtitles(res < 0);
 	if (res >= 0 && CRCInput::isNumeric(msg)) {
 		if (g_settings.channellist_numeric_adjust && first_mode_found >= 0) {
@@ -3028,11 +3028,11 @@ void CNeutrinoApp::RealRun()
 				else
 					quickZap( msg );
 			}
-			else if( msg == (neutrino_msg_t) g_settings.key_zaphistory ) {
-				// Zap-History "Bouquet"
-				InfoClock->enableInfoClock(false);
-				numericZap( msg );
-				InfoClock->enableInfoClock(true);
+			else if (msg == (neutrino_msg_t) g_settings.key_lastchannel) {
+				numericZap(msg);
+			}
+			else if (msg == (neutrino_msg_t) g_settings.key_zaphistory || msg == (neutrino_msg_t) g_settings.key_current_transponder) {
+				showChannelList(msg);
 			}
 #ifdef SCREENSHOT
 			else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
@@ -3043,10 +3043,6 @@ void CNeutrinoApp::RealRun()
 				}
 			}
 #endif
-			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
-				// Quick Zap
-				numericZap( msg );
-			}
 			else if(msg == (neutrino_msg_t) g_settings.key_timeshift) {
 #if 0
 				if (mode == NeutrinoModes::mode_webtv) {
@@ -3054,11 +3050,6 @@ void CNeutrinoApp::RealRun()
 				} else
 #endif
 					CRecordManager::getInstance()->StartTimeshift();
-			}
-			else if (msg == (neutrino_msg_t) g_settings.key_current_transponder) {
-				InfoClock->enableInfoClock(false);
-				numericZap( msg );
-				InfoClock->enableInfoClock(true);
 			}
 #ifdef ENABLE_PIP
 			else if (msg == (neutrino_msg_t) g_settings.key_pip_close) {
@@ -3164,8 +3155,7 @@ void CNeutrinoApp::RealRun()
 				StartSubtitles();
 			}
 			else if (CRCInput::isNumeric(msg)) {
-				numericZap( msg );
-
+				numericZap(msg);
 			}
 			/* FIXME ??? */
 			else if (CRCInput::isNumeric(msg) && g_RemoteControl->director_mode ) {
@@ -3330,6 +3320,8 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 		if (bouquetList->Bouquets.empty())
 			SetChannelMode(LIST_MODE_PROV);
 		nNewChannel = bouquetList->exec(true);
+	} else if (msg == (neutrino_msg_t) g_settings.key_zaphistory || msg == (neutrino_msg_t) g_settings.key_current_transponder) {
+		channelList->showLiveBouquet(msg);
 	}
 _repeat:
 	printf("CNeutrinoApp::showChannelList: nNewChannel %d\n", nNewChannel);fflush(stdout);
@@ -3602,7 +3594,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 #endif
 
 	/* ================================== KEYS ================================================ */
-	if( msg == CRCInput::RC_ok || (!g_InfoViewer->getSwitchMode() && CNeutrinoApp::getInstance()->listModeKey(msg))) {
+	if( msg == CRCInput::RC_ok || msg == (neutrino_msg_t) g_settings.key_zaphistory || msg == (neutrino_msg_t) g_settings.key_current_transponder
+			|| (!g_InfoViewer->getSwitchMode() && CNeutrinoApp::getInstance()->listModeKey(msg))) {
 		if( (mode == NeutrinoModes::mode_tv) || (mode == NeutrinoModes::mode_radio) || (mode == NeutrinoModes::mode_ts) || (mode == NeutrinoModes::mode_webtv) || (mode == NeutrinoModes::mode_webradio)) {
 			showChannelList(msg);
 			return messages_return::handled;
@@ -4585,8 +4578,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			SDT_ReloadChannels();
 			//SDTreloadChannels = false;
 		}
-		frameBuffer->useBackground(false);
-		frameBuffer->paintBackground();
 
 		/* wasshift = */ CRecordManager::getInstance()->StopAutoRecord();
 
@@ -4643,7 +4634,12 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if (g_info.hw_caps->has_fan)
 			CFanControlNotifier::setSpeed(1);
 
+		if (g_InfoViewer->is_visible)
+			g_InfoViewer->killTitle();
+		frameBuffer->useBackground(false);
+		frameBuffer->paintBackground();
 		frameBuffer->setActive(false);
+
 		// Active standby on
 		powerManager->SetStandby(false, false);
 #if ENABLE_FASTSCAN
@@ -4687,7 +4683,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			g_CamHandler->exec(NULL, "ca_ci_reset1");
 		}
 #endif
+
 		frameBuffer->setActive(true);
+
 		//fan speed
 		if (g_info.hw_caps->has_fan)
 			CFanControlNotifier::setSpeed(g_settings.fan_speed);
@@ -5550,11 +5548,8 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup 18\n");fflush(stdout);
 	delete g_EpgData; g_EpgData = NULL;
 	printf("cleanup 19\n");fflush(stdout);
-#if 0
-	/* crashes in destructor???? very strange */
 	delete g_InfoViewer; g_InfoViewer = NULL;
 	printf("cleanup 11\n");fflush(stdout);
-#endif
 	delete g_EventList; g_EventList = NULL;
 	printf("cleanup 12\n");fflush(stdout);
 	delete g_Locale; g_Locale = NULL;
