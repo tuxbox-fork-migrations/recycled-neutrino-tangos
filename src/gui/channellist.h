@@ -85,6 +85,7 @@ private:
 	unsigned int            origPosition;
 	unsigned int            newPosition;
 	bool			channelsChanged;
+	bool			liveBouquet;
 
 	unsigned int		tuned;
 	t_channel_id		selected_chid;
@@ -214,6 +215,7 @@ public:
 	bool adjustToChannelID(const t_channel_id channel_id);
 	bool showInfo(int pos, int epgpos = 0);
 	void updateEvents(unsigned int from, unsigned int to);
+	int showLiveBouquet(int key);
 	int 	numericZap(int key);
 	int  	show();
 	int	exec();
@@ -237,6 +239,7 @@ public:
 	CLastChannel & getLastChannels() { return lastChList; }
 	bool showEmptyError();
 	int getSelected() { return selected; }
+	void setLiveBouquet(bool state = true) { liveBouquet = state; };
 	CZapitChannel* getPrevNextChannel(int key, unsigned int &sl);
 	//friend class CZapitChannel;
 	enum
