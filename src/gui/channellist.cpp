@@ -787,6 +787,8 @@ int CChannelList::show()
 					actzap = true;
 					oldselected = selected;
 					paintBody(); // refresh zapped vs selected
+				} else if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts) {
+					ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_CHANNELLIST_MOVIEPLAYER_ZAP);
 				} else if(SameTP()) {
 					zapOnExit = true;
 					loop=false;
@@ -1246,8 +1248,8 @@ int CChannelList::showLiveBouquet(int key)
 	{
 		if (this->lastChList.size() > 1)
 		{
-			CChannelList liveList(g_Locale->getText(LOCALE_CHANNELLIST_HISTORY), true, true);
-			liveList.setLiveBouquet();
+			CChannelList * liveList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HISTORY), true, true);
+			liveList->setLiveBouquet();
 
 			for (unsigned int i = 1; i < this->lastChList.size(); ++i)
 			{
@@ -1256,15 +1258,16 @@ int CChannelList::showLiveBouquet(int key)
 				{
 					CZapitChannel* channel = getChannel(channel_id);
 					if (channel)
-						liveList.addChannel(channel);
+						liveList->addChannel(channel);
 				}
 			}
-			if (!liveList.isEmpty())
+			if (!liveList->isEmpty())
 			{
 				this->frameBuffer->paintBackground();
-				res = liveList.exec();
+				res = liveList->exec();
 				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			}
+			delete liveList;
 		}
 		else
 			ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_CHANNELLIST_HISTORY_EMPTY);
@@ -1277,15 +1280,15 @@ int CChannelList::showLiveBouquet(int key)
 	{
 		bool isRecord = (!autoshift && CNeutrinoApp::getInstance()->recordingstatus);
 		CChannelList * origList = CNeutrinoApp::getInstance()->channelList;
-		CChannelList liveList(isRecord ? g_Locale->getText(LOCALE_CHANNELLIST_RECORDABLE_CHANNELS) : g_Locale->getText(LOCALE_CHANNELLIST_CURRENT_TP), false, true);
-		liveList.setLiveBouquet();
+		CChannelList * liveList = new CChannelList(isRecord ? g_Locale->getText(LOCALE_CHANNELLIST_RECORDABLE_CHANNELS) : g_Locale->getText(LOCALE_CHANNELLIST_CURRENT_TP), false, true);
+		liveList->setLiveBouquet();
 
 		if (isRecord)
 		{
 			for (unsigned int i = 0 ; i < (*origList->chanlist).size(); i++)
 			{
 				if (SameTP((*origList->chanlist)[i]))
-					liveList.addChannel((*origList->chanlist)[i]);
+					liveList->addChannel((*origList->chanlist)[i]);
 			}
 		}
 		else
@@ -1294,16 +1297,17 @@ int CChannelList::showLiveBouquet(int key)
 			for (unsigned int i = 0; i < (*origList->chanlist).size(); i++)
 			{
 				if (((*origList->chanlist)[i]->getChannelID() >> 16) == recid)
-					liveList.addChannel((*origList->chanlist)[i]);
+					liveList->addChannel((*origList->chanlist)[i]);
 			}
 		}
-		if (!liveList.isEmpty())
+		if (!liveList->isEmpty())
 		{
-			liveList.adjustToChannelID(origList->getActiveChannel_ChannelID());
+			liveList->adjustToChannelID(origList->getActiveChannel_ChannelID());
 			this->frameBuffer->paintBackground();
-			res = liveList.exec();
+			res = liveList->exec();
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		}
+		delete liveList;
 		return res;
 	}
 
@@ -1424,7 +1428,11 @@ int CChannelList::numericZap(int key)
 
 	CZapitChannel* chan = getChannel(chn);
 	if (doZap) {
-		if(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0)
+		int mode = CNeutrinoApp::getInstance()->getMode();
+		if (
+			((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]       == 0) ||
+			((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] == 0)
+		)
 			g_InfoViewer->killTitle();
 
 		if(chan && SameTP(chan)) {
@@ -1562,7 +1570,11 @@ void CChannelList::virtual_zap_mode(bool up)
 	g_InfoViewer->resetSwitchMode(); //disable virtual_zap_mode
 
 	if (doZap) {
-		if(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0)
+		int mode = CNeutrinoApp::getInstance()->getMode();
+		if (
+			((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]       == 0) ||
+			((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] == 0)
+		)
 			g_InfoViewer->killTitle();
 		if(channel && SameTP(channel))
 			zapToChannel(channel);
