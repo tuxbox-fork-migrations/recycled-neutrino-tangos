@@ -205,6 +205,11 @@ void CColorSetupNotifier::setPalette()
 					convertSetupColor2RGB(t.progressbar_active_red, t.progressbar_active_green, t.progressbar_active_blue),
 					8, convertSetupAlpha2Alpha(t.menu_Content_alpha));
 
+	frameBuffer->paletteGenFade(COL_PROGRESSBAR,
+					convertSetupColor2RGB(t.progressbar_passive_red, t.progressbar_passive_green, t.progressbar_passive_blue),
+					convertSetupColor2RGB(t.progressbar_active_red, t.progressbar_active_green, t.progressbar_active_blue),
+					8, convertSetupAlpha2Alpha(t.menu_Content_alpha));
+
 	// ##### TEXT COLORS #####
 	// COL_COLORED_EVENTS_TEXT
 	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 0,
@@ -286,6 +291,11 @@ void CColorSetupNotifier::setPalette()
 	                              convertSetupColor2RGB(t.clock_Digit_red, t.clock_Digit_green, t.clock_Digit_blue),
 	                              convertSetupAlpha2Alpha(t.clock_Digit_alpha));
 	//NI
+	// COL_PROGRESSBAR_ACTIVE
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 16,
+	                              convertSetupColor2RGB(t.progressbar_active_red, t.progressbar_active_green, t.progressbar_active_blue),
+	                              convertSetupAlpha2Alpha(t.menu_Content_alpha));
+
 	// COL_PROGRESSBAR_ACTIVE
 	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 16,
 	                              convertSetupColor2RGB(t.progressbar_active_red, t.progressbar_active_green, t.progressbar_active_blue),

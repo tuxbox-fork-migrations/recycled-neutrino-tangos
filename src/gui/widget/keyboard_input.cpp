@@ -548,11 +548,6 @@ void CKeyboardInput::insertChar()
 	changed = true;
 }
 
-std::string &CKeyboardInput::getValue(void)
-{
-	return *valueString;
-}
-
 void CKeyboardInput::forceSaveScreen(bool enable)
 {
 	force_saveScreen = enable;

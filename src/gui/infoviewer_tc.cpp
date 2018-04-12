@@ -845,14 +845,14 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 	{
 	case NeutrinoModes::mode_tv:
 	case NeutrinoModes::mode_webtv:
-		timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + timeout_ext);
+		timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR] + timeout_ext);
 		break;
 	case NeutrinoModes::mode_radio:
 	case NeutrinoModes::mode_webradio:
-		timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] + timeout_ext);
+		timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_RADIO] + timeout_ext);
 		break;
 	case NeutrinoModes::mode_ts:
-		timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] + timeout_ext);
+		timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_MOVIE] + timeout_ext);
 		break;
 	default:
 		timeoutEnd = CRCInput::calcTimeoutEnd(6 + timeout_ext);
@@ -2173,6 +2173,16 @@ void CInfoViewer::ResetModules(bool kill)
 		delete ca_bar;
 		ca_bar = NULL;
 	}
+}
+
+bool CInfoViewer::hasTimeout()
+{
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	bool ret = (
+		((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR]     != 0) ||
+		((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_RADIO]  != 0)
+	);
+	return ret;
 }
 
 void CInfoViewer::ecmInfoBox_show(const char * txt, int w, int h, Font * font)

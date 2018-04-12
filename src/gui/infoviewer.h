@@ -215,6 +215,7 @@ class CInfoViewer
 	inline t_channel_id get_current_channel_id(void) { return current_channel_id; }
 	void 	ResetModules(bool kill = false);
 	void	KillModules() {ResetModules(true); };
+	bool 	hasTimeout();
 };
 #endif
 

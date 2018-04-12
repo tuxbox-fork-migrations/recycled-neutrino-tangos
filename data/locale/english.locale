@@ -275,7 +275,7 @@ channellist.new_zap_mode Quickzap in list
 channellist.new_zap_mode_active Active
 channellist.new_zap_mode_allow Allow
 channellist.new_zap_mode_off Off
-channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
+channellist.nonefound No channels were found!\nPlease execute a scan\n(Menu key -> Service)
 channellist.numeric_adjust Numeric Zap Adjust
 channellist.provs Providers
 channellist.recordable_channels Recordable channels
@@ -340,22 +340,25 @@ colormenu.progressbar_passive Background
 colormenu.shadow_color Shadow Color
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
-colormenu.timing Timeouts
+colormenu.timing Timeouts, display behavior
 colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
 colormenusetup.menufoot Footer
 colormenusetup.menuhead Header
+colorsetup.save Save
 colorstatusbar.text Infobar
 colorthememenu.head Select theme
 colorthememenu.head2 Load themes
 colorthememenu.menu_hints Hint box
+colorthememenu.misc Misc
 colorthememenu.name Theme name
 colorthememenu.neutrino_theme Reset Theme
+colorthememenu.neutrino_theme_hint Reset to default theme.
 colorthememenu.question Use selected theme?
 colorthememenu.save Save current theme
-colorthememenu.select1 User Theme
-colorthememenu.select2 Standard Theme
+colorthememenu.select1 User theme
+colorthememenu.select2 Standard theme
 cpu.freq CPU frequency
 cpu.freq_default Default frequency
 cpu.freq_normal Normal frequency
@@ -609,7 +612,7 @@ filebrowser.mark Mark
 filebrowser.nextpage Next Page
 filebrowser.pm Playlist Manager
 filebrowser.prevpage Prev. Page
-filebrowser.scan Scaning folder
+filebrowser.scan Scanning folder
 filebrowser.select Select
 filebrowser.showrights Show file rights
 filebrowser.start.dir Start directory
@@ -735,7 +738,7 @@ fontmenu.menu Menu
 fontmenu.messages Messages
 fontmenu.moviebrowser Moviebrowser
 fontmenu.other Other
-fontmenu.scaling Global Font Zoom Factor
+fontmenu.scaling Global font zoom factor
 fontmenu.scaling_x Horizontal (in %)
 fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
 fontmenu.scaling_y Vertical (in %)
@@ -747,10 +750,10 @@ fontsize.channellist Channellist
 fontsize.channellist_descr Description
 fontsize.channellist_event Event list
 fontsize.channellist_number Number
-fontsize.epg_date EPG Date
-fontsize.epg_info1 EPG Info 1
-fontsize.epg_info2 EPG Info 2
-fontsize.epg_title EPG Title
+fontsize.epg_date EPG date
+fontsize.epg_info1 EPG info 1
+fontsize.epg_info2 EPG info 2
+fontsize.epg_title EPG title
 fontsize.epgplus_item EPG-Plus item
 fontsize.eventlist_datetime Date and time
 fontsize.eventlist_event Event info
@@ -758,17 +761,18 @@ fontsize.eventlist_itemlarge Large
 fontsize.eventlist_itemsmall Small
 fontsize.eventlist_title Title
 fontsize.filebrowser_item Filebrowser items
+fontsize.general_window_text General window text
 fontsize.hint Initialising font,\nplease wait ...
 fontsize.infobar_channame Channel name
-fontsize.infobar_info info
+fontsize.infobar_info Info
 fontsize.infobar_number Number
 fontsize.infobar_small Small
 fontsize.menu Menu text
 fontsize.menu_foot Footer (in all GUI elements)
 fontsize.menu_hint Menu hints
-fontsize.menu_info Menu Info
-fontsize.menu_title Menu Title
-fontsize.message_text Message Text
+fontsize.menu_info Menu info
+fontsize.menu_title Menu title
+fontsize.message_text Message text
 fontsize.moviebrowser_head Headers
 fontsize.moviebrowser_info Info window
 fontsize.moviebrowser_list List items
@@ -829,11 +833,11 @@ hdd_60min 60 min.
 hdd_activate Apply settings
 hdd_check Check filesystem
 hdd_check_failed Filesystem-check failed!
-hdd_extended_settings Extended Settings
+hdd_extended_settings Extended settings
 hdd_fast Fast
 hdd_format Format device
 hdd_format_failed Formating failed! Make sure device not in use, reboot and try again
-hdd_format_warn All data on device will be lost ! Continue with format ?
+hdd_format_warn All data on device will be lost! Continue with formatting?
 hdd_fmt_label HDD label
 hdd_fmt_mountpoint Directory for mountpoint
 hdd_fs Filesystem used to format
@@ -848,7 +852,7 @@ hdd_mount_umount Mount/Unmount
 hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
 hdd_set_recdir Use device for recording ?
-hdd_settings Data Storage
+hdd_settings Data storage
 hdd_sleep Switch off after
 hdd_slow Slow
 hdd_statfs Fill level query
@@ -863,6 +867,7 @@ imageinfo.creator Creator:
 imageinfo.date Date:
 imageinfo.dokumentation Docs:
 imageinfo.forum Forum:
+imageinfo.gui GUI:
 imageinfo.head Image info:
 imageinfo.homepage Home page:
 imageinfo.image Image:
@@ -908,18 +913,18 @@ keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
 keybindingmenu.edit Edit keybindings
 keybindingmenu.head Keybindings
-keybindingmenu.lastchannel Quick Zap
+keybindingmenu.lastchannel Quick zap
 keybindingmenu.longkeypress_duration Long key-press
 keybindingmenu.misc Misc
 keybindingmenu.mode_left_right_key_tv Left/Right key behaviour
 keybindingmenu.mode_left_right_key_tv_infobar Show Infobar
-keybindingmenu.mode_left_right_key_tv_volume Volume Control
-keybindingmenu.mode_left_right_key_tv_vzap Virtual Zap
+keybindingmenu.mode_left_right_key_tv_volume Volume control
+keybindingmenu.mode_left_right_key_tv_vzap Virtual zap
 keybindingmenu.mode_left_right_key_tv_zap Zap
 keybindingmenu.modechange Modechange
 keybindingmenu.navigation Navigation
-keybindingmenu.pagedown page down
-keybindingmenu.pageup page up
+keybindingmenu.pagedown Page down
+keybindingmenu.pageup Page up
 keybindingmenu.poweroff Power toggle
 keybindingmenu.quickzap Quickzap
 keybindingmenu.remotecontrol_code Remote control code
@@ -936,13 +941,13 @@ keybindingmenu.remotecontrol_hardware_msg_part2 ' to '
 keybindingmenu.remotecontrol_hardware_msg_part3 ' \nIs this correct?\nPlease confirm the selection within 15 seconds by using the new remote control.\nOtherwise the selection will be reverted.
 keybindingmenu.remotecontrol_hardware_philips Philips
 keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
-keybindingmenu.repeatblock generic delay
-keybindingmenu.repeatblockgeneric repeat delay
-keybindingmenu.sort change sort order
+keybindingmenu.repeatblock Generic delay
+keybindingmenu.repeatblockgeneric Repeat delay
+keybindingmenu.sort Change sort order
 keybindingmenu.special_active Special Keys
-keybindingmenu.subchanneldown subchannel down
-keybindingmenu.subchannelup subchannel up
-keybindingmenu.tvradiomode TV/Radio-mode
+keybindingmenu.subchanneldown Subchannel down
+keybindingmenu.subchannelup Subchannel up
+keybindingmenu.tvradiomode TV/Radio mode
 keybindingmenu.video Video
 keybindingmenu.volume Volume
 keybindingmenu.volumedown Decrease
@@ -950,38 +955,38 @@ keybindingmenu.volumeup Increase
 keybindingmenu.zaphistory Channel history
 keychooser.head Setup new key
 keychooser.text Press new key.\nWait a few seconds to abort ...
-keychoosermenu.currentkey current key
-keychoosermenu.setnew setup new key
-keychoosermenu.setnone no key
+keychoosermenu.currentkey Current key
+keychoosermenu.setnew Setup new key
+keychoosermenu.setnone No key
 languagesetup.head Language and timezone
-languagesetup.osd OSD Language
-languagesetup.select OSD Language
-lcd_info_line show in infoline
+languagesetup.osd OSD language
+languagesetup.select OSD language
+lcd_info_line Show in infoline
 lcd_info_line_channel Channelname
-lcd_info_line_clock clock
+lcd_info_line_clock Clock
 lcdcontroler.brightness Normal mode
 lcdcontroler.brightnessdeepstandby Deep standby
 lcdcontroler.brightnessstandby Standby
-lcdmenu.dim_brightness Brightness after dim timeout
-lcdmenu.dim_time Dim timeout
+lcdmenu.dim_brightness Brightness after dimm timeout
+lcdmenu.dim_time Dimm timeout
 lcdmenu.head VFD/LED Settings
 lcdmenu.lcdcontroler Brightness
 lcdmenu.notify_rclock Notify when RC is locked
 lcdmenu.scroll Enable text scroll
 lcdmenu.scroll_repeats Enable text scroll and repeats
-lcdmenu.statusline status line
-lcdmenu.statusline.both volume and playtime
-lcdmenu.statusline.playtime playtime
-lcdmenu.statusline.volume volume
+lcdmenu.statusline Status line
+lcdmenu.statusline.both Volume and playtime
+lcdmenu.statusline.playtime Playtime
+lcdmenu.statusline.volume Volume
 lcdmenu.vfd_scroll Scrolling
 ledcontroler.backlight Buttons backlight
 ledcontroler.backlight.tv TV mode
 ledcontroler.blink Blink in deep standby, if timer set
 ledcontroler.menu Power Button LEDs
-ledcontroler.mode.deepstandby Deep Standby
-ledcontroler.mode.record Blinke in Record
+ledcontroler.mode.deepstandby Deep standby
+ledcontroler.mode.record Blinking while record
 ledcontroler.mode.standby Standby
-ledcontroler.mode.tv TV Mode
+ledcontroler.mode.tv TV mode
 ledcontroler.off LED1 and LED2 off
 ledcontroler.on.all LED1 and LED2 on
 ledcontroler.on.led1 LED1 on
@@ -1001,20 +1006,20 @@ lua.versionscheck1 Your Lua API version is too old
 lua.versionscheck2 This requires at least
 mainmenu.audioplayer Audioplayer
 mainmenu.channels Channels
-mainmenu.clearsectionsd Clear EPG Cache
+mainmenu.clearsectionsd Clear EPG cache
 mainmenu.games Games
-mainmenu.head Main Menu
+mainmenu.head Main menu
 mainmenu.lua Lua Plugins
 mainmenu.media Media
 mainmenu.mediaplayer Mediaplayer
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd Read EPG
 mainmenu.pictureviewer Picture viewer
-mainmenu.radiomode Radio-Mode
+mainmenu.radiomode Radio mode
 mainmenu.reboot Reboot
 mainmenu.recording Recording
-mainmenu.recording_start start
-mainmenu.recording_stop stop
+mainmenu.recording_start Start
+mainmenu.recording_stop Stop
 mainmenu.scripts Scripts
 mainmenu.service Service
 mainmenu.settings Settings
@@ -1330,10 +1335,11 @@ menu.hint_next Continue to next menu\nPress menu key to close all menus
 menu.hint_next_brief Continue to next menu
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
+menu.hint_osd_behavior_infobar Show infobar depending on time set or manually on or off.
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
 menu.hint_osd_resolution Change OSD resolution
-menu.hint_osd_timing After this time the OSD will be faded out
+menu.hint_osd_timing Show OSD element depending on time set or manually on or off.
 menu.hint_other_fonts Change other font sizes
 menu.hint_parentallock_changepin Change PIN code
 menu.hint_parentallock_lockage Select age allowed to watch
@@ -1358,7 +1364,7 @@ menu.hint_progressbar_active Change color of active progress bar part
 menu.hint_progressbar_color Change appearance of progress bars
 menu.hint_progressbar_gradient Add a vertical brightness gradient to progress bars
 menu.hint_progressbar_infobar_position Selects the options of progressbar in the infobar
-menu.hint_progressbar_passive Change color of passive progress bar part 
+menu.hint_progressbar_passive Change color of passive progress bar part
 menu.hint_progressbar_preview Use OK to change the current progressbar state
 menu.hint_progressbar_timescale_green Choose the green portion of colored progressbars
 menu.hint_progressbar_timescale_invert Select your preferred color gradient
@@ -1529,7 +1535,7 @@ menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate
 menu.hint_subchannel_pos Select subchannels menu position
 menu.hint_sw_update Update software
 menu.hint_theme Select pre-defined color theme\nSave or load theme from files
-menu.hint_timeouts Configure time to hide GUI windows\nin seconds
+menu.hint_timeouts Customize display behavior and timeouts for messages, windows, menus, infobar, etc.
 menu.hint_timeouts_static_messages Timeout for specific messages with user interaction
 menu.hint_timer_followscreenings Show selection with followscreenings for timer programming
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
@@ -1676,6 +1682,7 @@ miscsettings.progressbar_design_2 colored horizontal lines
 miscsettings.progressbar_design_3 colored bar
 miscsettings.progressbar_design_4 monochrome
 miscsettings.progressbar_design_long Design
+miscsettings.progressbar_global General
 miscsettings.progressbar_gradient 3D effect
 miscsettings.progressbar_infobar_position Position
 miscsettings.progressbar_infobar_position_0 standard
@@ -2503,10 +2510,12 @@ timing.chanlist Channellist
 timing.epg Epg
 timing.filebrowser Filebrowser
 timing.infobar Infobar
-timing.infobar_player Infobar (media mode)
-timing.infobar_radio Infobar (radio mode)
+timing.infobar_player Media mode
+timing.infobar_radio Radio mode
+timing.infobar_tv TV mode
 timing.menu Menu
 timing.numericzap Numeric Zap
+timing.off manual, without timeout
 timing.popup_messages Popup messages
 timing.static_messages Interactive messages
 timing.volumebar Volume bar
@@ -2538,7 +2547,7 @@ usermenu.button_red User menu red
 usermenu.button_yellow User menu yellow
 usermenu.head User menu
 usermenu.item_adzap Adzap
-usermenu.item_bar ---- Border ----
+usermenu.item_bar ---- Parting line ----
 usermenu.item_epg_misc EPG functions
 usermenu.item_none (empty)
 usermenu.item_plugin_types Plugin types
@@ -2663,4 +2672,4 @@ zapitsetup.info Start Channel
 zapitsetup.last_radio Radio Channel
 zapitsetup.last_tv TV Channel
 zapitsetup.last_use from last Channel
-zaptotimer.announce Zapto timer in one minute
+zaptotimer.announce Zap-to timer in one minute

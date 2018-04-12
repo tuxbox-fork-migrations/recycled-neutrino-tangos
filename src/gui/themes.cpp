@@ -38,6 +38,7 @@
 #include <neutrino.h>
 #include "widget/menue.h"
 #include <system/helpers.h>
+#include <system/debug.h>
 #include <system/setting_helpers.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
@@ -51,14 +52,26 @@
 #include "themes.h"
 
 #define USERDIR "/var" THEMESDIR
-#define FILE_PREFIX ".theme"
+#define FILE_SUFFIX ".theme"
+
 static 	SNeutrinoTheme &t = g_settings.theme;
 CThemes::CThemes()
 : themefile('\t')
 {
 	width = 40;
-	notifier = NULL;
+
 	hasThemeChanged = false;
+}
+
+CThemes* CThemes::getInstance()
+{
+	static CThemes* th = NULL;
+
+	if(!th) {
+		th = new CThemes();
+		dprintf(DEBUG_DEBUG, "CThemes Instance created\n");
+	}
+	return th;
 }
 
 int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
@@ -67,12 +80,11 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	if( !actionKey.empty() )
 	{
-		if (actionKey=="theme_neutrino")
+		if (actionKey=="default_theme")
 		{
-			setupDefaultColors();
-			notifier = new CColorSetupNotifier();
-			notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-			delete notifier;
+			if(!applyDefaultTheme())
+				setupDefaultColors(); // fallback
+			changeNotify(NONEXISTANT_LOCALE, NULL);
 		}
 		else
 		{
@@ -80,11 +92,14 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 			if ( strstr(themeFile.c_str(), "{U}") != 0 ) 
 			{
 				themeFile.erase(0, 3);
-				readFile(((std::string)THEMESDIR_VAR + "/" + themeFile + FILE_PREFIX).c_str());
+				readFile(((std::string)THEMESDIR_VAR + "/" + themeFile + FILE_SUFFIX).c_str());
 			} 
 			else
-				readFile(((std::string)THEMESDIR + "/" + themeFile + FILE_PREFIX).c_str());
+				readFile(((std::string)THEMESDIR + "/" + themeFile + FILE_SUFFIX).c_str());
+			g_settings.theme_name = themeFile;
 		}
+		OnAfterSelectTheme();
+		CFrameBuffer::getInstance()->clearIconCache();
 		return res;
 	}
 
@@ -98,7 +113,7 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 	return Show();
 }
 
-void CThemes::readThemes(CMenuWidget &themes)
+void CThemes::initThemesMenu(CMenuWidget &themes)
 {
 	struct dirent **themelist;
 	int n;
@@ -107,6 +122,13 @@ void CThemes::readThemes(CMenuWidget &themes)
 	hasCVSThemes = hasUserThemes = false;
 	std::string userThemeFile = "";
 	CMenuForwarder* oj;
+
+	// only to visualize if we have a migrated theme
+	if (g_settings.theme_name.empty() || g_settings.theme_name == MIGRATE_THEME_NAME)
+	{
+		themes.addItem(new CMenuSeparator(CMenuSeparator::LINE));
+		themes.addItem(new CMenuForwarder(MIGRATE_THEME_NAME, false, "", this));
+	}
 
 	for(int p = 0;p < 2;p++)
 	{
@@ -134,6 +156,7 @@ void CThemes::readThemes(CMenuWidget &themes)
 						oj = new CMenuForwarder(file, true, "", this, userThemeFile.c_str());
 					} else
 						oj = new CMenuForwarder(file, true, "", this, file);
+
 					themes.addItem( oj );
 				}
 				free(themelist[count]);
@@ -141,6 +164,13 @@ void CThemes::readThemes(CMenuWidget &themes)
 			free(themelist);
 		}
 	}
+
+	//on first paint exec this methode to set marker to item
+	markSelectedTheme(&themes);
+
+	//for all next menu paints markers are setted with this slot inside exec()
+	if (OnAfterSelectTheme.empty())
+		OnAfterSelectTheme.connect(sigc::bind(sigc::mem_fun(this, &CThemes::markSelectedTheme), &themes));
 }
 
 int CThemes::Show()
@@ -154,9 +184,12 @@ int CThemes::Show()
 	themes.addIntroItems(LOCALE_COLORTHEMEMENU_HEAD2);
 	
 	//set default theme
-	themes.addItem(new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, NULL, this, "theme_neutrino", CRCInput::RC_red));
+	std::string default_theme = DEFAULT_THEME;
+	CMenuForwarder* fw = new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, default_theme.c_str(), this, "default_theme", CRCInput::RC_red);
+	themes.addItem(fw);
+	fw->setHint("", LOCALE_COLORTHEMEMENU_NEUTRINO_THEME_HINT);
 	
-	readThemes(themes);
+	initThemesMenu(themes);
 
 	CKeyboardInput nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name);
 	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green);
@@ -176,7 +209,7 @@ int CThemes::Show()
 	int res = themes.exec(NULL, "");
 
 	if (!file_name.empty()) {
-		saveFile(((std::string)THEMESDIR_VAR + "/" + file_name + FILE_PREFIX).c_str());
+		saveFile(((std::string)THEMESDIR_VAR + "/" + file_name + FILE_SUFFIX).c_str());
 	}
 
 	if (hasThemeChanged) {
@@ -192,13 +225,13 @@ void CThemes::rememberOldTheme(bool remember)
 {
 	if ( remember ) {
 		oldTheme = t;
+		oldTheme_name = g_settings.theme_name;
 	} else {
 		t = oldTheme;
+		g_settings.theme_name = oldTheme_name;
 
-		notifier = new CColorSetupNotifier;
-		notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+		changeNotify(NONEXISTANT_LOCALE, NULL);
 		hasThemeChanged = false;
-		delete notifier;
 	}
 }
 
@@ -208,10 +241,8 @@ void CThemes::readFile(const char *themename)
 	{
 		getTheme(themefile);
 
-		notifier = new CColorSetupNotifier;
-		notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+		changeNotify(NONEXISTANT_LOCALE, NULL);
 		hasThemeChanged = true;
-		delete notifier;
 	}
 	else
 		printf("[neutrino theme] %s not found\n", themename);
@@ -226,6 +257,18 @@ void CThemes::saveFile(const char *themename)
 		if (!themefile.saveConfig(themename))
 			printf("[neutrino theme] %s write error\n", themename);
 	}
+}
+
+bool CThemes::applyDefaultTheme()
+{
+	g_settings.theme_name = DEFAULT_THEME;
+	std::string default_theme = THEMESDIR "/" + g_settings.theme_name + ".theme";
+	if(themefile.loadConfig(default_theme)){
+		getTheme(themefile);
+		return true;
+	}
+	dprintf(DEBUG_NORMAL, "[CThemes]\t[%s - %d], No default theme found, creating migrated theme from current theme settings\n", __func__, __LINE__);
+	return false;
 }
 
 // setup default Colors
@@ -333,7 +376,7 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "shadow_green", t.shadow_green );
 	configfile.setInt32( "shadow_blue", t.shadow_blue );
 
-	//NI
+	// progressbar
 	configfile.setInt32( "progressbar_active_red", t.progressbar_active_red );
 	configfile.setInt32( "progressbar_active_green", t.progressbar_active_green );
 	configfile.setInt32( "progressbar_active_blue", t.progressbar_active_blue );
@@ -445,13 +488,16 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.shadow_green = configfile.getInt32( "shadow_green", 8);
 	t.shadow_blue = configfile.getInt32( "shadow_blue", 8 );
 
-	//NI
+	// progressbar
 	t.progressbar_active_red = configfile.getInt32( "progressbar_active_red", 98 );
 	t.progressbar_active_green = configfile.getInt32( "progressbar_active_green", 98 );
 	t.progressbar_active_blue = configfile.getInt32( "progressbar_active_blue", 98 );
 	t.progressbar_passive_red = configfile.getInt32( "progressbar_passive_red", 60 );
 	t.progressbar_passive_green = configfile.getInt32( "progressbar_passive_green", 60 );
 	t.progressbar_passive_blue = configfile.getInt32( "progressbar_passive_blue", 60 );
+
+	if (g_settings.theme_name.empty())
+		applyDefaultTheme();
 }
 
 void CThemes::move_userDir()
@@ -485,5 +531,14 @@ void CThemes::move_userDir()
 		}
 		printf("[neutrino theme] removing %s\n", USERDIR);
 		remove(USERDIR);
+	}
+}
+
+void CThemes::markSelectedTheme(CMenuWidget *w)
+{
+	for (int i = 0; i < w->getItemsCount(); i++){
+		w->getItem(i)->setInfoIconRight(NULL);
+		if (g_settings.theme_name == w->getItem(i)->getName())
+			w->getItem(i)->setInfoIconRight(NEUTRINO_ICON_MARKER_DIALOG_OK);
 	}
 }

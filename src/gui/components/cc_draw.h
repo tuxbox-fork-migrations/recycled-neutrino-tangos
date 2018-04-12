@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2017, Thilo Graf 'dbt'
+	Copyright (C) 2012-2018, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -38,7 +38,7 @@ Basic paint attributes and member functions for component classes
 */
 
 class CComponentsTimer;
-class CCDraw : public COSDFader, public CComponentsSignals
+class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 {
 	protected:
 		///pixel buffer handling, returns pixel buffer depends of given parameters

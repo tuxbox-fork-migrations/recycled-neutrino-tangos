@@ -386,7 +386,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	parentallocked = !access(NEUTRINO_PARENTALLOCKED_FILE, R_OK);
 
 	//theme/color options
-	CThemes::getTheme(configfile);
+	g_settings.theme_name = configfile.getString("theme_name", !access(NEUTRINO_SETTINGS_FILE, F_OK) ? MIGRATE_THEME_NAME : "");
+	CThemes::getInstance()->getTheme(configfile);
 
 	g_settings.lcd4l_support = configfile.getInt32("lcd4l_support" , 0);
 	g_settings.lcd4l_logodir = configfile.getString("lcd4l_logodir", LOGODIR);
@@ -991,6 +992,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 		g_settings.timing[i] = configfile.getInt32(locale_real_names[timing_setting[i].name], timing_setting[i].default_timing);
 
+	for (int i = 0; i < SNeutrinoSettings::HANDLING_INFOBAR_SETTING_COUNT; i++)
+		g_settings.handling_infobar[i] = configfile.getInt32(locale_real_names[handling_infobar_setting[i].name], handling_infobar_setting[i].default_timing);
+
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		g_settings.lcd_setting[i] = configfile.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
 	g_settings.lcd_setting_dim_time = configfile.getString("lcd_dim_time","0");
@@ -1277,7 +1281,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("show_ecm_pos" , g_settings.show_ecm_pos);
 
 	//theme/color options
-	CThemes::setTheme(configfile);
+	CThemes::getInstance()->setTheme(configfile);
+	configfile.setString( "theme_name", g_settings.theme_name );
 
 	configfile.setBool("show_menu_hints_line" , g_settings.show_menu_hints_line);
 
@@ -1696,6 +1701,10 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//timing
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 		configfile.setInt32(locale_real_names[timing_setting[i].name], g_settings.timing[i]);
+
+	//timing/handling infobar
+	for (int i = 0; i < SNeutrinoSettings::HANDLING_INFOBAR_SETTING_COUNT; i++)
+		configfile.setInt32(locale_real_names[handling_infobar_setting[i].name], g_settings.handling_infobar[i]);
 
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		configfile.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
@@ -3221,15 +3230,8 @@ void CNeutrinoApp::RealRun()
 			else if( ( msg == CRCInput::RC_help ) || ( msg == CRCInput::RC_info) ||
 						( msg == NeutrinoMessages::SHOW_INFOBAR ) )
 			{
-#if 0
-				bool enabled_by_timing = (
-					   ((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]       != 0)
-					|| ((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] != 0)
-				);
-				bool show_info = ((msg != NeutrinoMessages::SHOW_INFOBAR) || (g_InfoViewer->is_visible || enabled_by_timing));
-#else
-				const bool show_info = true;
-#endif
+				bool show_info = ((msg != NeutrinoMessages::SHOW_INFOBAR) || (g_InfoViewer->is_visible || g_InfoViewer->hasTimeout()));
+
 			         // turn on LCD display
 				CVFD::getInstance()->wake_up();
 
@@ -5731,6 +5733,7 @@ static struct __key_rename key_rename[] = {
 	{ "timing.infobar_movieplayer",	"timing.infobar_player" },
 	{ NULL, NULL }
 };
+
 
 /* actually do the migration of the config entries */
 void CNeutrinoApp::migrateConfig(const char *fname)
