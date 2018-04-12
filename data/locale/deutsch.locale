@@ -277,7 +277,7 @@ channellist.new_zap_mode Quickzap in Liste
 channellist.new_zap_mode_active aktiv
 channellist.new_zap_mode_allow erlauben
 channellist.new_zap_mode_off aus
-channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
+channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(Menü-Taste -> Service)
 channellist.numeric_adjust Bei numerischem Zap Kanalliste nachführen
 channellist.provs Anbieter
 channellist.recordable_channels Aufnehmbare Sender
@@ -342,18 +342,21 @@ colormenu.progressbar_passive Hintergrundfarbe
 colormenu.shadow_color Schattenfarbe
 colormenu.textcolor Textfarbe
 colormenu.themeselect Theme auswählen
-colormenu.timing Timeouts
+colormenu.timing Timeouts, Anzeigeverhalten
 colormenusetup.menucontent Fensterinhalt
 colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
 colormenusetup.menufoot Fußleiste
 colormenusetup.menuhead Titelleiste
+colorsetup.save Speichern
 colorstatusbar.text Infobar
 colorthememenu.head Theme auswählen
 colorthememenu.head2 Themes laden
 colorthememenu.menu_hints Hinweisfenster
+colorthememenu.misc Sonstiges
 colorthememenu.name Themename
 colorthememenu.neutrino_theme Theme zurücksetzen
+colorthememenu.neutrino_theme_hint Setzt auf das Standard-Theme zurück.
 colorthememenu.question Aktuelles Theme beibehalten?
 colorthememenu.save aktuelles Theme speichern
 colorthememenu.select1 Benutzer Theme
@@ -764,6 +767,7 @@ fontsize.eventlist_itemlarge Groß
 fontsize.eventlist_itemsmall Klein
 fontsize.eventlist_title Titel
 fontsize.filebrowser_item Dateibrowsereinträge
+fontsize.general_window_text Allgemeiner Fenstertext
 fontsize.hint Schriftart wird initialisiert,\nbitte warten ...
 fontsize.infobar_channame Kanalname
 fontsize.infobar_ecminfo ECM-Info
@@ -870,6 +874,7 @@ imageinfo.creator Ersteller:
 imageinfo.date Datum:
 imageinfo.dokumentation Dokus:
 imageinfo.forum Forum:
+imageinfo.gui GUI:
 imageinfo.head Image-Informationen
 imageinfo.homepage Homepage:
 imageinfo.image Image:
@@ -1358,10 +1363,11 @@ menu.hint_next Weiter zum nächsten Menü.\nDie Taste 'Menü' schließt alle Men
 menu.hint_next_brief Weiter zum nächsten Menü
 menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gewählten Programm ausrichten
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs usw.
+menu.hint_osd_behavior_infobar Infobar nach Zeitvorgabe oder manuell ein- oder ausblenden.
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
 menu.hint_osd_resolution Wählen Sie eine OSD-Auflösung
-menu.hint_osd_timing Einblendzeit, die das OSD auf dem TV angezeigt wird
+menu.hint_osd_timing OSD-Element nach Zeitvorgabe oder manuell ein- oder ausblenden.
 menu.hint_other_fonts Ändern Sie andere Schriftgrößen
 menu.hint_parentallock_changepin Geben Sie den 4-stelligen PIN-Code ein, der dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Legen Sie fest, bei welcher Altersklasse die Abfrage der PIN erfolgt
@@ -1557,7 +1563,7 @@ menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, 
 menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
 menu.hint_sw_update System aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
-menu.hint_timeouts Anzeigedauer für Menüs oder Infofenster, die sich automatisch schließen (0 deaktiviert)
+menu.hint_timeouts Anpassen von Timeouts und Anzeigeverhalten für Meldungen, Fenster, Menüs, Infobar usw.
 menu.hint_timeouts_static_messages Anzeigedauer für bestimmte Meldungen mit Benutzerinteraktion
 menu.hint_timer_followscreenings Zeige weitere Termine für Timerprogrammierung.
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
@@ -1704,6 +1710,7 @@ miscsettings.progressbar_design_2 horizontale Balken
 miscsettings.progressbar_design_3 Farbverlauf
 miscsettings.progressbar_design_4 monochrom
 miscsettings.progressbar_design_long Design
+miscsettings.progressbar_global Allgemein
 miscsettings.progressbar_gradient 3D-Effekt
 miscsettings.progressbar_infobar_position Position
 miscsettings.progressbar_infobar_position_0 Standard
@@ -2528,10 +2535,12 @@ timing.chanlist Kanalliste
 timing.epg EPG
 timing.filebrowser Filebrowser
 timing.infobar Infobar
-timing.infobar_player Infobar (Mediaplayer)
-timing.infobar_radio Infobar (Radiobetrieb)
+timing.infobar_player Mediaplayer
+timing.infobar_radio Radio-Modus
+timing.infobar_tv TV-Modus
 timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
+timing.off manuell, ohne Timeout
 timing.popup_messages Popup Meldungen
 timing.static_messages Interaktive Meldungen
 timing.volumebar Lautstärkeanzeige

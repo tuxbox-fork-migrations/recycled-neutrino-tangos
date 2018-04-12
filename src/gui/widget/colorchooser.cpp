@@ -2,6 +2,7 @@
 	Based up Neutrino-GUI - Tuxbox-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
+	Copyright (C) 2018 Thilo Graf
 
 	License: GPL
 
@@ -31,6 +32,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
+#include <system/helpers.h>
 
 #include <gui/color.h>
 #include <gui/widget/msgbox.h>
@@ -54,17 +56,27 @@ static const neutrino_locale_t colorchooser_names[VALUES] =
 
 CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, unsigned char *G, unsigned char *B, unsigned char* A, CChangeObserver* Observer)
 {
-	frameBuffer = CFrameBuffer::getInstance();
-	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	item_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	observer    = Observer;
 	name        = Name;
-	
+
+	value[VALUE_R] = R;
+	value[VALUE_G] = G;
+	value[VALUE_B] = B;
+	value[VALUE_A] = A;
+}
+
+void CColorChooser::Init()
+{
+	frameBuffer = CFrameBuffer::getInstance();
+	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	font        = g_Font[SNeutrinoSettings::FONT_TYPE_WINDOW_GENERAL];
+	item_height = font->getHeight();
+
 	// calculate max width of locals
 	text_width = 0;
 	for (int i = 0; i < VALUES; i++)
 	{
-		int tmp_text_width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(colorchooser_names[i]));
+		int tmp_text_width = font->getRenderWidth(g_Locale->getText(colorchooser_names[i]));
 		if (tmp_text_width > text_width)
 			text_width = tmp_text_width;
 	}
@@ -73,7 +85,7 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 	int dummy;
 	frameBuffer->getIconSize(NEUTRINO_ICON_SLIDER_ALPHA, &slider_width, &dummy);
 
-	bar_width = frameBuffer->scale2Res(150);
+	bar_width = frameBuffer->scale2Res(200);
 	/*
 	   We have a half slider_width before and after the bar
 	   to get the middle of the slider at the point of choise
@@ -93,21 +105,17 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 	preview_x = x + text_width + bar_full + 3*OFFSET_INNER_MID;
 	preview_y = y + header_height + OFFSET_INNER_SMALL;
 
-	value[VALUE_R] = R;
-	value[VALUE_G] = G;
-	value[VALUE_B] = B;
-	value[VALUE_A] = A;
-
 	chooser_gradient = gradient_none;
 }
 
 void CColorChooser::setColor()
 {
 	fb_pixel_t col = getColor();
+	int y_prev = preview_y+((preview_h-header_height)/2);
 
 	if ((g_settings.theme.menu_Head_gradient) && ((chooser_gradient == gradient_head_body) || (chooser_gradient == gradient_head_text)))
 	{
-		CComponentsHeader header(preview_x, preview_y+((preview_h-header_height)/2), preview_w, header_height, "Head");
+		CComponentsHeader header(preview_x, y_prev, preview_w, header_height, "Head");
 		if (chooser_gradient == gradient_head_body)
 			header.setColorBody(col);
 		else if (chooser_gradient == gradient_head_text)
@@ -116,11 +124,29 @@ void CColorChooser::setColor()
 	}
 	else
 	{
-		CComponentsShapeSquare preview(preview_x, preview_y, preview_w, preview_h, NULL, false, COL_FRAME_PLUS_0, col);
+		CComponentsShapeSquare preview(preview_x, y_prev, preview_w, preview_h - header_height , NULL, false, COL_FRAME_PLUS_0, col);
 		preview.setFrameThickness(FRAME_WIDTH_MIN);
 		preview.setCorner(RADIUS_SMALL);
 		preview.paint(false);
 	}
+
+	// paint color number
+	int border_off = OFFSET_INNER_MIN + FRAME_WIDTH_MIN;
+
+	char col_num[9];
+	snprintf(col_num, sizeof(col_num), "%x", col);
+	col_num[8] = '\0';
+
+	int w_col_num = preview_w - 2*border_off;
+	int h_col_num = font->getHeight();
+
+	Font *dfont = *CNeutrinoFonts::getInstance()->getDynFont(w_col_num, h_col_num, col_num);
+
+	int x_col_num = preview_x + preview_w/2 - dfont->getRenderWidth(col_num)/2;
+	printf("[CColorChooser] selected color = hex [%s] dec [%d]\n", col_num, col);
+	PaintBoxRel(preview_x, preview_y, preview_w, h_col_num, COL_MENUCONTENT_PLUS_0);
+	paintTextBoxRel(col_num, x_col_num, preview_y + border_off, w_col_num,  h_col_num,
+			dfont, CTextBox::AUTO_WIDTH | CTextBox::CENTER, CComponentsText::FONT_STYLE_REGULAR, COL_MENUCONTENT_TEXT, COL_MENUCONTENT_PLUS_0, CORNER_RADIUS_MIN, CORNER_ALL);
 }
 
 fb_pixel_t CColorChooser::getColor()
@@ -133,6 +159,7 @@ fb_pixel_t CColorChooser::getColor()
 
 int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 {
+	Init();
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 
@@ -273,20 +300,26 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 
 void CColorChooser::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
+	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + header_height + OFFSET_SHADOW);
 	frameBuffer->blit();
 }
 
 void CColorChooser::paint()
 {
-	CComponentsHeader header(x, y, width, header_height, g_Locale->getText(name));
+	CComponentsHeader header(x, y, width, header_height, g_Locale->getText(name), NEUTRINO_ICON_COLORS, CComponentsHeader::CC_BTN_EXIT);
 	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 	header.paint(CC_SAVE_SCREEN_NO);
 
-	PaintBoxRel(x, y + header_height, width, height - header_height, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM, CC_SHADOW_ON);
+
+	PaintBoxRel(x, y + header_height, width, height - header_height, COL_MENUCONTENT_PLUS_0, RADIUS_NONE, CORNER_NONE, CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 
 	for (int i = 0; i < VALUES; i++)
 		paintSlider(x, y + header_height + OFFSET_INNER_SMALL + i*item_height, value[i], colorchooser_names[i], icon_names[i], (i == 0));
+
+	CComponentsFooter footer(x, y + height, width , 0, CComponentsFooter::CC_BTN_LEFT | CComponentsFooter::CC_BTN_UP | CComponentsFooter::CC_BTN_DOWN | CComponentsFooter::CC_BTN_RIGHT);
+	footer.setButtonLabel(NEUTRINO_ICON_BUTTON_OKAY, LOCALE_COLORSETUP_SAVE, width/3);
+	footer.enableShadow(CC_SHADOW_ON);
+	footer.paint(CC_SAVE_SCREEN_NO);
 }
 
 void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutrino_locale_t text, const char * const iconname, const bool selected)
@@ -302,9 +335,16 @@ void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutr
 	   So long we paint a simple frame. This is more save on higher resolutions.
 	*/
 	//frameBuffer->paintIcon(NEUTRINO_ICON_SLIDER_BODY, px + text_width + 2*OFFSET_INNER_MID + bar_offset, py, item_height);
-	frameBuffer->paintBoxFrame(px + text_width + 2*OFFSET_INNER_MID + bar_offset, py + item_height/3, bar_width, item_height/3, 1, COL_FRAME_PLUS_0);
-	// paint slider
-	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_SLIDER_INACTIVE, px + text_width + 2*OFFSET_INNER_MID + ((*spos)*bar_width / 100), py, item_height);
+	int w_col_rate = font->getRenderWidth("100");
+	int w_bar = bar_width - w_col_rate;
+	int x_bar = px + text_width + 2*OFFSET_INNER_MID + bar_offset;
+	frameBuffer->paintBoxFrame(x_bar, py + item_height/3, w_bar, item_height/3, 1, COL_FRAME_PLUS_0);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px + OFFSET_INNER_MID, py + item_height, text_width, g_Locale->getText(text), COL_MENUCONTENT_TEXT);
+	// paint slider
+	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_SLIDER_INACTIVE, px + text_width + 2*OFFSET_INNER_MID + ((*spos)*w_bar / 100), py, item_height);
+
+	// paint color name
+	paintTextBoxRel(g_Locale->getText(text), px + OFFSET_INNER_MID, py, text_width,  item_height, font);
+	// paint color rate
+	paintTextBoxRel(to_string(*spos), x_bar + w_bar + 2*OFFSET_INTER, py, w_col_rate,  item_height, font, CTextBox::RIGHT);
 }

@@ -177,6 +177,7 @@ size_t moviebrowser_font_items = sizeof(moviebrowser_font_sizes)/sizeof(moviebro
 
 const SNeutrinoSettings::FONT_TYPES other_font_sizes[] =
 {
+	SNeutrinoSettings::FONT_TYPE_WINDOW_GENERAL,
 	SNeutrinoSettings::FONT_TYPE_SUBTITLES,
 	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM,
 	SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT
@@ -236,7 +237,8 @@ font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_MOVIEBROWSER_INFO  ,  17, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
 	{LOCALE_FONTSIZE_SUBTITLES          ,  25, CNeutrinoFonts::FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_MESSAGE_TEXT       ,  20, CNeutrinoFonts::FONT_STYLE_BOLD   , 0},
-	{LOCALE_FONTSIZE_BUTTON_TEXT        ,  14, CNeutrinoFonts::FONT_STYLE_REGULAR, 0}
+	{LOCALE_FONTSIZE_BUTTON_TEXT        ,  14, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
+	{LOCALE_FONTSIZE_GENERAL_WINDOW_TEXT,  20, CNeutrinoFonts::FONT_STYLE_REGULAR, 1}
 };
 
 int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -386,6 +388,9 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if(actionKey=="osd.def") {
+		for (int i = 0; i < SNeutrinoSettings::HANDLING_INFOBAR_SETTING_COUNT; i++)
+			g_settings.handling_infobar[i] = handling_infobar_setting[i].default_timing;
+
 		for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 			g_settings.timing[i] = timing_setting[i].default_timing;
 		return res;
@@ -597,11 +602,10 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addIntroItems(LOCALE_MAINSETTINGS_OSD);
 
 	//item menu colors
-	if (osd_menu_colors)
-		delete osd_menu_colors;
-	osd_menu_colors = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP_MENUCOLORS);
-	showOsdMenueColorSetup(osd_menu_colors);
-
+	if (osd_menu_colors == NULL){
+		osd_menu_colors = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP_MENUCOLORS);
+		showOsdMenueColorSetup(osd_menu_colors);
+	}
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_COLORMENU_MENUCOLORS, true, NULL, osd_menu_colors, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_COLORS);
 	osd_menu->addItem(mf);
@@ -797,7 +801,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 {
 	menu_colors->addIntroItems(LOCALE_COLORMENU_MENUCOLORS);
 
-	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_COLORMENU_THEMESELECT, true, NULL, new CThemes(), NULL, CRCInput::RC_red);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_COLORMENU_THEMESELECT, true, NULL, CThemes::getInstance(), NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_THEME);
 	menu_colors->addItem(mf);
 
@@ -832,6 +836,12 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	CColorChooser* chProgressbar_passive = new CColorChooser(LOCALE_COLORMENU_PROGRESSBAR_PASSIVE, &t.progressbar_passive_red, &t.progressbar_passive_green, &t.progressbar_passive_blue,
 			NULL, colorSetupNotifier);
 	//NI
+	CColorChooser* chProgressbar_active = new CColorChooser(LOCALE_COLORMENU_PROGRESSBAR_ACTIVE, &t.progressbar_active_red, &t.progressbar_active_green, &t.progressbar_active_blue,
+			NULL, colorSetupNotifier);
+
+	// progress bar colors
+	CColorChooser* chProgressbar_passive = new CColorChooser(LOCALE_COLORMENU_PROGRESSBAR_PASSIVE, &t.progressbar_passive_red, &t.progressbar_passive_green, &t.progressbar_passive_blue,
+			NULL, colorSetupNotifier);
 	CColorChooser* chProgressbar_active = new CColorChooser(LOCALE_COLORMENU_PROGRESSBAR_ACTIVE, &t.progressbar_active_red, &t.progressbar_active_green, &t.progressbar_active_blue,
 			NULL, colorSetupNotifier);
 
@@ -917,13 +927,6 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT_DIRECTION);
 	menu_colors->addItem(oj);
 
-	// menue separator line gradient enable
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
-	oj = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT_SEPARATOR_ENABLE, &t.menu_Separator_gradient_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
-	oj->OnAfterChangeOption.connect(slot_repaint);
-	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT_SEPARATOR_ENABLE);
-	menu_colors->addItem(oj);
-
 	// infoviewer color
 	CColorChooser* chInfobarcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &t.infobar_red,
 			&t.infobar_green, &t.infobar_blue, &t.infobar_alpha, colorSetupNotifier);
@@ -942,7 +945,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem(mf);
 
 	// infoviewer gradient top
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::EMPTY));
 	oj = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_GRADIENT_TOP, &t.infobar_gradient_top, OPTIONS_COL_GRADIENT_OPTIONS, OPTIONS_COL_GRADIENT_OPTIONS_COUNT, true);
 	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
 	menu_colors->addItem(oj);
@@ -953,7 +956,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem(oj);
 
 	// infoviewer gradient body
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::EMPTY));
 	oj = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_GRADIENT_BODY, &t.infobar_gradient_body, OPTIONS_COL_GRADIENT_OPTIONS, OPTIONS_COL_GRADIENT_OPTIONS_COUNT, true);
 	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
 	menu_colors->addItem(oj);
@@ -964,7 +967,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem(oj);
 
 	// infoviewer gradient bottom
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::EMPTY));
 	oj = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_GRADIENT_BOTTOM, &t.infobar_gradient_bottom, OPTIONS_COL_GRADIENT_OPTIONS, OPTIONS_COL_GRADIENT_OPTIONS_COUNT, true);
 	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
 	menu_colors->addItem(oj);
@@ -975,7 +978,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem(oj);
 
 	// ca bar
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::EMPTY));
 	mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DISPLAY, g_settings.infobar_casystem_display < 2, NULL, chInfobarCASystem );
 	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS_COLOR);
 	menu_colors->addItem(mf);
@@ -1000,25 +1003,31 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	oj->setHint("", LOCALE_MENU_HINT_COLORED_EVENTS);
 	menu_colors->addItem(oj);
 
+	// progressbar
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_PROGRESSBAR));
+
+	// progressbar passive
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_PROGRESSBAR_PASSIVE, true, NULL, chProgressbar_passive );
+	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_PASSIVE);
+	menu_colors->addItem(mf);
+
+	// progressbar aktive
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_PROGRESSBAR_ACTIVE, true, NULL, chProgressbar_active );
+	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_ACTIVE);
+	menu_colors->addItem(mf);
+
 	// shadow
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE));
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE| CMenuSeparator::STRING, LOCALE_COLORTHEMEMENU_MISC));
 
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_SHADOW_COLOR, true, NULL, chShadowColor );
 	mf->setHint("", LOCALE_MENU_HINT_COLORS_SHADOW);
 	menu_colors->addItem(mf);
 
-	//NI progressbar
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_PROGRESSBAR));
-
-	//NI - progressbar passive
-	mf = new CMenuDForwarder(LOCALE_COLORMENU_PROGRESSBAR_PASSIVE, true, NULL, chProgressbar_passive );
-	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_PASSIVE);
-	menu_colors->addItem(mf);
-
-	//NI - progressbar aktive
-	mf = new CMenuDForwarder(LOCALE_COLORMENU_PROGRESSBAR_ACTIVE, true, NULL, chProgressbar_active );
-	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_ACTIVE);
-	menu_colors->addItem(mf);
+	// menue separator line gradient enable
+	oj = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT_SEPARATOR_ENABLE, &t.menu_Separator_gradient_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
+	oj->OnAfterChangeOption.connect(slot_repaint);
+	oj->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT_SEPARATOR_ENABLE);
+	menu_colors->addItem(oj);
 }
 
 /* for font size setup */
@@ -1140,13 +1149,25 @@ void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 
 	std::string nf("%d ");
 	nf += g_Locale->getText(LOCALE_UNIT_SHORT_SECOND);
+	CMenuOptionNumberChooser *ch = NULL;
 
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 	{
-		CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 240);
+		ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 240);
 		ch->setNumberFormat(nf);
-		ch->setLocalizedValue(0, LOCALE_OPTIONS_OFF);
+		ch->setLocalizedValue(0, LOCALE_TIMING_OFF);
 		ch->setHint("", timing_setting[i].hint);
+		menu_timeout->addItem(ch);
+	}
+
+	menu_timeout->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_TIMING_INFOBAR));
+
+	for (int i = 0; i < SNeutrinoSettings::HANDLING_INFOBAR_SETTING_COUNT; i++)
+	{
+		ch = new CMenuOptionNumberChooser(handling_infobar_setting[i].name, &g_settings.handling_infobar[i], true, 0, 240);
+		ch->setNumberFormat(nf);
+		ch->setLocalizedValue(0, LOCALE_TIMING_OFF);
+		ch->setHint("", handling_infobar_setting[i].hint);
 		menu_timeout->addItem(ch);
 	}
 

@@ -126,6 +126,10 @@ class CMenuItem : public  CComponentsSignals
 		neutrino_locale_t desc;
 		std::string descString;
 		CActivateObserver * actObserv;
+
+		bool has_option_icon;
+		void handleOptionIcon(const std::string& str_option);
+		const char* getValName(const neutrino_locale_t& Option, const char* ValName);
 	public:
 		int		height;
 		bool		active, current_active;
@@ -367,7 +371,13 @@ private:
 	void setNumberFormat(std::string format) { numberFormat = format; }
 	void setNumberFormat(std::string (*fun)(int)) { numberFormatFunction = fun; }
 	void setNumericInput(bool _numeric_input) { numeric_input = _numeric_input; }
-	void setLocalizedValue(int special_value, neutrino_locale_t special_value_name) { localized.push_back({special_value, special_value_name}); }
+	void setLocalizedValue(int special_value, neutrino_locale_t special_value_name)
+	{
+		localized_value_t loc;
+		loc.value = special_value;
+		loc.value_name = special_value_name;
+		localized.push_back(loc);
+	}
 };
 
 class CMenuOptionChooserOptions
@@ -432,7 +442,6 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 				bool Pulldown,
 				bool OptionsSort
 		);
-
 
 	public:
 		CMenuOptionChooser(const neutrino_locale_t Name, int * const OptionValue, const struct keyval * const Options,

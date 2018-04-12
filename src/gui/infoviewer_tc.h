@@ -317,6 +317,7 @@ public:
 	{
 		ResetModules(true);
 	};
+	bool 	hasTimeout();
 
 	int bottom_bar_offset, InfoHeightY_Info, showBBIcons_width;
 

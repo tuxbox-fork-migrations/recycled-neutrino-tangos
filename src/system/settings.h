@@ -163,7 +163,6 @@ struct SNeutrinoTheme
 	unsigned char shadow_green;
 	unsigned char shadow_blue;
 
-	//NI
 	unsigned char progressbar_active_red;
 	unsigned char progressbar_active_green;
 	unsigned char progressbar_active_blue;
@@ -476,9 +475,6 @@ struct SNeutrinoSettings
 		TIMING_MENU = 0,
 		TIMING_CHANLIST,
 		TIMING_EPG,
-		TIMING_INFOBAR,
-		TIMING_INFOBAR_RADIO,
-		TIMING_INFOBAR_MOVIE,
 		TIMING_VOLUMEBAR,
 		TIMING_FILEBROWSER,
 		TIMING_NUMERICZAP,
@@ -490,11 +486,24 @@ struct SNeutrinoSettings
 
 	int timing [TIMING_SETTING_COUNT];
 
+	//timing/handling infobar
+	enum HANDLING_INFOBAR_SETTINGS
+	{
+		HANDLING_INFOBAR,
+		HANDLING_INFOBAR_RADIO,
+		HANDLING_INFOBAR_MOVIE,
+
+		HANDLING_INFOBAR_SETTING_COUNT
+	};
+
+	int handling_infobar[HANDLING_INFOBAR_SETTING_COUNT];
+
 	//widget settings
 	int widget_fade;
 
 	//theme/color options
 	SNeutrinoTheme theme;
+	std::string theme_name;
 	bool osd_colorsettings_advanced_mode;
 
 	//network
@@ -795,6 +804,7 @@ struct SNeutrinoSettings
 		FONT_TYPE_SUBTITLES,
 		FONT_TYPE_MESSAGE_TEXT,
 		FONT_TYPE_BUTTON_TEXT,
+		FONT_TYPE_WINDOW_GENERAL,
 		FONT_TYPE_COUNT
 	};
 
@@ -980,6 +990,8 @@ struct SNeutrinoSettings
 
 extern const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SETTINGS_MAX];
 
+
+// timeout modes
 typedef struct time_settings_t
 {
 	const int default_timing;
@@ -987,19 +999,25 @@ typedef struct time_settings_t
 	const neutrino_locale_t hint;
 } time_settings_struct_t;
 
+// osd timing modes
 const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_COUNT] =
 {
-	{ 240,	LOCALE_TIMING_MENU,			LOCALE_MENU_HINT_OSD_TIMING},//TODO: add hint locales
+	{ 240,	LOCALE_TIMING_MENU,			LOCALE_MENU_HINT_OSD_TIMING},
 	{ 60,	LOCALE_TIMING_CHANLIST,			LOCALE_MENU_HINT_OSD_TIMING},
 	{ 240,	LOCALE_TIMING_EPG,			LOCALE_MENU_HINT_OSD_TIMING},
-	{ 6,	LOCALE_TIMING_INFOBAR,			LOCALE_MENU_HINT_OSD_TIMING},
-	{ 0,	LOCALE_TIMING_INFOBAR_RADIO,		LOCALE_MENU_HINT_OSD_TIMING},
-	{ 6,	LOCALE_TIMING_INFOBAR_PLAYER,	LOCALE_MENU_HINT_OSD_TIMING},
 	{ 3,	LOCALE_TIMING_VOLUMEBAR,		LOCALE_MENU_HINT_OSD_TIMING},
 	{ 60,	LOCALE_TIMING_FILEBROWSER,		LOCALE_MENU_HINT_OSD_TIMING},
 	{ 3,	LOCALE_TIMING_NUMERICZAP,		LOCALE_MENU_HINT_OSD_TIMING},
 	{ 6,	LOCALE_TIMING_POPUP_MESSAGES,		LOCALE_MENU_HINT_OSD_TIMING},
 	{ 60,	LOCALE_TIMING_STATIC_MESSAGES,		LOCALE_MENU_HINT_TIMEOUTS_STATIC_MESSAGES}
+};
+
+// infobar osd modes
+const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLING_INFOBAR_SETTING_COUNT] =
+{
+	{ 6,	LOCALE_TIMING_INFOBAR_TV,		LOCALE_MENU_HINT_OSD_BEHAVIOR_INFOBAR},
+	{ 0,	LOCALE_TIMING_INFOBAR_RADIO,		LOCALE_MENU_HINT_OSD_BEHAVIOR_INFOBAR},
+	{ 0,	LOCALE_TIMING_INFOBAR_PLAYER,		LOCALE_MENU_HINT_OSD_BEHAVIOR_INFOBAR}
 };
 
 // lcdd
