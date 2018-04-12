@@ -832,12 +832,6 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 			NULL, colorSetupNotifier);
 	CColorChooser* chShadowColor = new CColorChooser(LOCALE_COLORMENU_SHADOW_COLOR, &t.shadow_red, &t.shadow_green, &t.shadow_blue,
 			&t.shadow_alpha, colorSetupNotifier);
-	//NI
-	CColorChooser* chProgressbar_passive = new CColorChooser(LOCALE_COLORMENU_PROGRESSBAR_PASSIVE, &t.progressbar_passive_red, &t.progressbar_passive_green, &t.progressbar_passive_blue,
-			NULL, colorSetupNotifier);
-	//NI
-	CColorChooser* chProgressbar_active = new CColorChooser(LOCALE_COLORMENU_PROGRESSBAR_ACTIVE, &t.progressbar_active_red, &t.progressbar_active_green, &t.progressbar_active_blue,
-			NULL, colorSetupNotifier);
 
 	// progress bar colors
 	CColorChooser* chProgressbar_passive = new CColorChooser(LOCALE_COLORMENU_PROGRESSBAR_PASSIVE, &t.progressbar_passive_red, &t.progressbar_passive_green, &t.progressbar_passive_blue,
