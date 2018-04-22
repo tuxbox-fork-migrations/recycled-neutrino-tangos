@@ -326,6 +326,7 @@ public:
 	void getBorder(int &sx, int &sy, int &ex, int &ey);
 	void setBorderColor(fb_pixel_t col = 0);
 	fb_pixel_t getBorderColor(void);
+	void clearIconCache();
 
 private:
 	bool autoBlitStatus;
