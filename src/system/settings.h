@@ -860,7 +860,6 @@ struct SNeutrinoSettings
 	int filebrowser_sortmethod;
 	int filebrowser_denydirectoryleave;
 	int filebrowser_use_filter;
-	std::string shoutcast_dev_id;
 
 	//movieplayer
 	int movieplayer_repeat_on;
