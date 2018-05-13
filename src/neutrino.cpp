@@ -1011,19 +1011,29 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//online services
 	std::string yt_api_key = YT_DEV_KEY;
 	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id", yt_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : yt_api_key);
-	g_settings.youtube_enabled = configfile.getInt32("youtube_enabled", 1);
+	g_settings.youtube_enabled = configfile.getInt32("youtube_enabled", 0);
 	g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_dev_id();
 	std::string tmdb_api_key = TMDB_DEV_KEY;
+#if ENABLE_TMDB_KEY_MANAGE
 	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key", tmdb_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : tmdb_api_key);
 	g_settings.tmdb_enabled = configfile.getInt32("tmdb_enabled", 1);
+#else
+	g_settings.tmdb_api_key = tmdb_api_key;
+	g_settings.tmdb_enabled = 1;
+#endif
 	g_settings.tmdb_enabled = g_settings.tmdb_enabled && CApiKey::check_tmdb_api_key();
 	std::string omdb_api_key = OMDB_API_KEY;
+#if ENABLE_OMDB_KEY_MANAGE
 	g_settings.omdb_api_key = configfile.getString("omdb_api_key", omdb_api_key.empty() ? "XXXXXXXX" : omdb_api_key);
 	g_settings.omdb_enabled = configfile.getInt32("omdb_enabled", 1);
+#else
+	g_settings.omdb_api_key = omdb_api_key;
+	g_settings.omdb_enabled = 1;
+#endif
 	g_settings.omdb_enabled = g_settings.omdb_enabled && CApiKey::check_omdb_api_key();
 	std::string sc_api_key = SHOUTCAST_DEV_KEY;
 	g_settings.shoutcast_dev_id = configfile.getString("shoutcast_dev_id", sc_api_key.empty() ? "XXXXXXXXXXXXXXXX" : sc_api_key);
-	g_settings.shoutcast_enabled = configfile.getInt32("shoutcast_enabled", 1);
+	g_settings.shoutcast_enabled = configfile.getInt32("shoutcast_enabled", 0);
 	g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && CApiKey::check_shoutcast_dev_id();
 
 	//Filebrowser
@@ -1040,7 +1050,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.startchanneltv_id =  configfile.getInt64("startchanneltv_id", 0);
 	g_settings.startchannelradio_id =  configfile.getInt64("startchannelradio_id", 0);
 	g_settings.uselastchannel         = configfile.getInt32("uselastchannel" , 1);
-	//epg searsch
+	//epg search
 	g_settings.epg_search_history_max = configfile.getInt32("epg_search_history_max", 10);
 	g_settings.epg_search_history_size = configfile.getInt32("epg_search_history_size", 0);
 	if (g_settings.epg_search_history_size > g_settings.epg_search_history_max)
