@@ -60,6 +60,7 @@
 #if 0
 #include <system/ytparser.h>
 #endif
+#include <gui/imdb.h>
 
 #define MAX_NUMBER_OF_BOOKMARK_ITEMS MI_MOVIE_BOOK_USER_MAX // we just use the same size as used in Movie info (MAX_NUMBER_OF_BOOKMARK_ITEMS is used for the number of menu items)
 #define MOVIEBROWSER_SETTINGS_FILE          CONFIGDIR "/moviebrowser.conf"
@@ -260,6 +261,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		bool showYTMenu(bool calledExternally = false);
 		void refreshYTMenu();
 #endif
+		CIMDB *imdb;
 
 	public:  // Functions //////////////////////////////////////////////////////////7
 		CMovieBrowser(); //P1

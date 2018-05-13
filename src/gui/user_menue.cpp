@@ -409,6 +409,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_SCRIPTS);
 			break;
 		}
+#if 0 //ENABLE_YOUTUBE_PLAYER
 		case SNeutrinoSettings::ITEM_YOUTUBE:
 		{
 			keyhelper.get(&key,&icon);
@@ -416,6 +417,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_YTPLAY, LOCALE_MENU_HINT_YTPLAY);
 			break;
 		}
+#endif
 		case SNeutrinoSettings::ITEM_FILEPLAY:
 		{
 			keyhelper.get(&key,&icon);

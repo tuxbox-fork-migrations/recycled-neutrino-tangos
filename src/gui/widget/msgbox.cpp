@@ -313,13 +313,14 @@ int CMsgBox::exec()
 				loop = false;
 			}
 		}
-		//***action button ok with preselected button***
+		//***action button 'ok' handled with selected button and its predefined result***
 		if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button)){
 			result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
 			loop = false;
 		}
-		//***cancel button***
-		else if (msg == CRCInput::RC_home) {
+		//***action button 'home' with general cancel result***
+		else if (msg == CRCInput::RC_home){
+			result = mbrCancel;
 			loop = false;
 		}
 		//***ignore***
