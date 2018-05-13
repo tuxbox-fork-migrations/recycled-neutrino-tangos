@@ -24,6 +24,7 @@ initscripts-
 kbd-
 kernel-
 kmod-
+krb5-
 lua-
 mc-
 ncurses-
@@ -43,3 +44,4 @@ tzdata-
 udev-
 util-linux-
 webmin-
+zsh-

@@ -124,6 +124,7 @@
 
 /* volumebar */
 #define NEUTRINO_ICON_VOLUME		"volume"
+#define NEUTRINO_ICON_IMDB		"imdb"
 
 /* sliders */
 #define NEUTRINO_ICON_SLIDER_BODY	"slider_body"
@@ -297,8 +298,6 @@
 
 #define NEUTRINO_ICON_STAR_ON		"star-on"
 #define NEUTRINO_ICON_STAR_OFF		"star-off"
-#define NEUTRINO_ICON_STARS_BG		"stars_bg"
-#define NEUTRINO_ICON_STARS		"stars"
 
 #define NEUTRINO_ICON_IMDB		"imdb"
 #define NEUTRINO_ICON_TMDB		"tmdb"
@@ -306,6 +305,6 @@
 /* status */
 #define NEUTRINO_ICON_MARKER_DIALOG_OK		"marker_dialog_ok"
 #define NEUTRINO_ICON_MARKER_DIALOG_OFF		"marker_dialog_off"
-#define NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE	"marker_update_available.png"
+#define NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE	"marker_update_available"
 
 #endif /* __gui_widget_icons_h__ */

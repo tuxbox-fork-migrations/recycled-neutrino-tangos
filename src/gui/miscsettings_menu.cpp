@@ -1,9 +1,7 @@
 /*
-	$port: miscsettings_menu.cpp,v 1.3 2010/12/05 22:32:12 tuxbox-cvs Exp $
-
 	miscsettings_menu implementation - Neutrino-GUI
 
-	Copyright (C) 2010 T. Graf 'dbt'
+	Copyright (C) 2010, 2018 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
 
@@ -20,8 +18,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -620,40 +617,63 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	CMenuWidget *ms_oservices = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ONLINESERVICES);
 	ms_oservices->addIntroItems(LOCALE_MISCSETTINGS_ONLINESERVICES);
 
-	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_tmdb_api_key());
+	// tmdb
+	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_tmdb_api_key());
 	tmdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_ENABLED);
 	ms_oservices->addItem(tmdb_onoff);
 
+#if ENABLE_TMDB_KEY_MANAGE
 	changeNotify(LOCALE_TMDB_API_KEY, NULL);
 	CKeyboardInput tmdb_api_key_input(LOCALE_TMDB_API_KEY, &g_settings.tmdb_api_key, 32, this);
-	CMenuForwarder *mf = new CMenuForwarder(LOCALE_TMDB_API_KEY, true, tmdb_api_key_short, &tmdb_api_key_input);
-	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_API_KEY);
-	ms_oservices->addItem(mf);
+	CMenuForwarder *mf_tm = new CMenuForwarder(LOCALE_TMDB_API_KEY, true, tmdb_api_key_short, &tmdb_api_key_input);
+	mf_tm->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_API_KEY);
+	ms_oservices->addItem(mf_tm);
+
+	ms_oservices->addItem(GenericMenuSeparator);
+#endif
+
+	// omdb
+	omdb_onoff = new CMenuOptionChooser(LOCALE_IMDB_ENABLED, &g_settings.omdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_omdb_api_key());
+// 	omdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_ENABLED);
+	ms_oservices->addItem(omdb_onoff);
+
+#if ENABLE_OMDB_KEY_MANAGE
+	changeNotify(LOCALE_IMDB_API_KEY, NULL);
+	CKeyboardInput omdb_api_key_input(LOCALE_IMDB_API_KEY, &g_settings.omdb_api_key, 8, this);
+	CMenuForwarder *mf_om = new CMenuForwarder(LOCALE_IMDB_API_KEY, true, omdb_api_key_short, &omdb_api_key_input);
+	//mf_om ->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_API_KEY);
+	ms_oservices->addItem(mf_om);
 
 #if 0
 	ms_oservices->addItem(GenericMenuSeparator);
+#endif
 
-	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_youtube_dev_id());
+	// youtube
+	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_youtube_dev_id());
 	youtube_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_ENABLED);
 	ms_oservices->addItem(youtube_onoff);
 
+#if ENABLE_YOUTUBE_KEY_MANAGE
 	changeNotify(LOCALE_YOUTUBE_DEV_ID, NULL);
 	CKeyboardInput youtube_dev_id_input(LOCALE_YOUTUBE_DEV_ID, &g_settings.youtube_dev_id, 39, this);
-	mf = new CMenuForwarder(LOCALE_YOUTUBE_DEV_ID, true, youtube_dev_id_short, &youtube_dev_id_input);
-	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
-	ms_oservices->addItem(mf);
+	CMenuForwarder *mf_yt = new CMenuForwarder(LOCALE_YOUTUBE_DEV_ID, true, youtube_dev_id_short, &youtube_dev_id_input);
+	mf_yt->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
+	ms_oservices->addItem(mf_yt);
 
 	ms_oservices->addItem(GenericMenuSeparator);
+#endif
 
-	shoutcast_onoff = new CMenuOptionChooser(LOCALE_SHOUTCAST_ENABLED, &g_settings.shoutcast_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_shoutcast_dev_id());
+	//shoutcast
+	shoutcast_onoff = new CMenuOptionChooser(LOCALE_SHOUTCAST_ENABLED, &g_settings.shoutcast_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_shoutcast_dev_id());
 	shoutcast_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_ENABLED);
 	ms_oservices->addItem(shoutcast_onoff);
 
+#if ENABLE_SHOUTCAST_KEY_MANAGE
 	changeNotify(LOCALE_SHOUTCAST_DEV_ID, NULL);
 	CKeyboardInput shoutcast_dev_id_input(LOCALE_SHOUTCAST_DEV_ID, &g_settings.shoutcast_dev_id, 16, this);
-	mf = new CMenuForwarder(LOCALE_SHOUTCAST_DEV_ID, true, shoutcast_dev_id_short, &shoutcast_dev_id_input);
-	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_DEV_ID);
-	ms_oservices->addItem(mf);
+	CMenuForwarder *mf_sc = new CMenuForwarder(LOCALE_SHOUTCAST_DEV_ID, true, shoutcast_dev_id_short, &shoutcast_dev_id_input);
+	mf_sc->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_DEV_ID);
+	ms_oservices->addItem(mf_sc);
 #endif
 
 	int res = ms_oservices->exec(NULL, "");
@@ -747,31 +767,40 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 #endif
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_TMDB_API_KEY))
 	{
-		g_settings.tmdb_enabled = g_settings.tmdb_enabled && check_tmdb_api_key();
+		g_settings.tmdb_enabled = g_settings.tmdb_enabled && CApiKey::check_tmdb_api_key();
 		if (g_settings.tmdb_enabled)
 			tmdb_api_key_short = g_settings.tmdb_api_key.substr(0, 8) + "...";
 		else
 			tmdb_api_key_short.clear();
-		tmdb_onoff->setActive(check_tmdb_api_key());
+		tmdb_onoff->setActive(CApiKey::check_tmdb_api_key());
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_IMDB_API_KEY))
+	{
+		g_settings.omdb_enabled = g_settings.omdb_enabled && CApiKey::check_omdb_api_key();
+		if (g_settings.omdb_enabled)
+			omdb_api_key_short = g_settings.omdb_api_key.substr(0, 8) + "...";
+		else
+			omdb_api_key_short.clear();
+		omdb_onoff->setActive(CApiKey::check_omdb_api_key());
 	}
 #if 0
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_YOUTUBE_DEV_ID))
 	{
-		g_settings.youtube_enabled = g_settings.youtube_enabled && check_youtube_dev_id();
+		g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_dev_id();
 		if (g_settings.youtube_enabled)
 			youtube_dev_id_short = g_settings.youtube_dev_id.substr(0, 8) + "...";
 		else
 			youtube_dev_id_short.clear();
-		youtube_onoff->setActive(check_youtube_dev_id());
+		youtube_onoff->setActive(CApiKey::check_youtube_dev_id());
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SHOUTCAST_DEV_ID))
 	{
-		g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && check_shoutcast_dev_id();
+		g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && CApiKey::check_shoutcast_dev_id();
 		if (g_settings.shoutcast_enabled)
 			shoutcast_dev_id_short = g_settings.shoutcast_dev_id.substr(0, 8) + "...";
 		else
 			shoutcast_dev_id_short.clear();
-		shoutcast_onoff->setActive(check_shoutcast_dev_id());
+		shoutcast_onoff->setActive(CApiKey::check_shoutcast_dev_id());
 	}
 #endif
 	return ret;
