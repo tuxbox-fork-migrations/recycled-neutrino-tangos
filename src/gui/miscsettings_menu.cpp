@@ -644,7 +644,6 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	//mf_om ->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_API_KEY);
 	ms_oservices->addItem(mf_om);
 
-#if 0
 	ms_oservices->addItem(GenericMenuSeparator);
 #endif
 
