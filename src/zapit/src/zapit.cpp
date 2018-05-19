@@ -132,8 +132,9 @@ CZapit::CZapit()
 	pmt_update_fd = -1;
 	//volume_left = 0, volume_right = 0;
 	audio_mode = 0;
-	aspectratio=0;
-	mode43=0;
+	mosd = 0;
+	aspectratio = 0;
+	mode43 = 0;
 	def_audio_mode = 0;
 	playbackStopForced = false;
 	standby = true;
@@ -1827,6 +1828,22 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	}
 #endif
 
+	case CZapitMessages::CMD_SET_OSD_RES: {
+		CZapitMessages::commandInt msg;
+		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
+		mosd=(int) msg.val;
+		COsdHelpers::getInstance()->changeOsdResolution(mosd);
+		break;
+	}
+
+	case CZapitMessages::CMD_GET_OSD_RES: {
+		CZapitMessages::commandInt msg;
+		mosd = COsdHelpers::getInstance()->getOsdResolution();
+		msg.val = mosd;
+		CBasicServer::send_data(connfd, &msg, sizeof(msg));
+		break;
+	}
+
 	case CZapitMessages::CMD_SET_ASPECTRATIO: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
@@ -1855,6 +1872,13 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_GET_MODE43: {
 		CZapitMessages::commandInt msg;
 		msg.val = mode43;
+		CBasicServer::send_data(connfd, &msg, sizeof(msg));
+		break;
+	}
+
+	case CZapitMessages::CMD_GET_VIDEO_FORMAT: {
+		CZapitMessages::commandInt msg;
+		msg.val = CNeutrinoApp::getInstance()->getVideoFormat();
 		CBasicServer::send_data(connfd, &msg, sizeof(msg));
 		break;
 	}
