@@ -48,6 +48,7 @@
 #include <ctype.h>
 
 #define VERSION_FILE "/.version"
+#define RELEASE_FILE "/etc/os-release"
 
 using namespace std;
 
@@ -74,7 +75,6 @@ void CImageInfo::Init(void)
 	y_tmp 		= 0;
 	license_txt	= "";
 	v_info.clear();
-	config.loadConfig(VERSION_FILE);
 }
 
 CImageInfo::~CImageInfo()
@@ -276,6 +276,16 @@ void CImageInfo::InitInfoData()
 {
 	v_info.clear();
 
+	image_info_t pretty_name = {LOCALE_IMAGEINFO_OS,""};
+	if (file_exists(RELEASE_FILE)){
+		config.loadConfig(RELEASE_FILE);
+		string tmpstr = config.getString("PRETTY_NAME", "");
+		pretty_name.info_text = str_replace("\"", "", tmpstr);
+		config.clear();
+	}
+
+	config.loadConfig(VERSION_FILE);
+
 #ifdef BUILT_DATE
 	const char * builddate = BUILT_DATE;
 #else
@@ -292,6 +302,9 @@ void CImageInfo::InitInfoData()
 	version_string = "Release : ";
 #endif
 	version_string += PACKAGE_VERSION;
+#else
+#ifdef IMAGE_VERSION
+	version_string = IMAGE_VERSION;
 #else
 	bool is_version_code = true;
 	for (size_t i=0; i<version_string.size(); i++){
@@ -311,6 +324,7 @@ void CImageInfo::InitInfoData()
 	}else
 		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s], internal release cycle [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str(), RELEASE_CYCLE);
 #endif
+#endif
 
 	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE,	config.getString("imagename", PACKAGE_NAME)};
 	if (!version_string.empty()){
@@ -320,6 +334,9 @@ void CImageInfo::InitInfoData()
 		v_info.push_back(imagename);
 	}else
 		v_info.push_back(imagename);
+
+	if (!pretty_name.info_text.empty())
+		v_info.push_back(pretty_name);
 
 	struct utsname uts_info;
 	if (uname(&uts_info) == 0) {

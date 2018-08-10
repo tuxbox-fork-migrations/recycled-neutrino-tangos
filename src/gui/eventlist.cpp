@@ -1069,6 +1069,9 @@ void CEventList::paintFoot(t_channel_id channel_id)
 		header->getClockObject()->setBlit();
 }
 
+// -- Eventlist Menu Handler Class
+// -- to be used for calls from Menu
+
 int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
 	int res = menu_return::RETURN_EXIT_ALL;
@@ -1077,7 +1080,7 @@ int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*
 		parent->hide();
 
 	CEventList *e = new CEventList;
-	CChannelList  *channelList = CNeutrinoApp::getInstance()->channelList;
+	CChannelList *channelList = CNeutrinoApp::getInstance()->channelList;
 	e->exec(CZapit::getInstance()->GetCurrentChannelID(), channelList->getActiveChannelName());
 	delete e;
 

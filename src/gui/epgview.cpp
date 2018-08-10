@@ -1709,25 +1709,26 @@ void CEpgData::ResetModules()
 }
 
 //  -- EPG Data Viewer Menu Handler Class
-//  -- to be used for calls from Menue
-//  -- (2004-03-06 rasc)
+//  -- to be used for calls from Menu
 
 int CEPGDataHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
-	int           res = menu_return::RETURN_EXIT_ALL;
-	CChannelList  *channelList;
-	CEpgData      *e;
+	int res = menu_return::RETURN_EXIT_ALL;
 
-
-	if (parent) {
+	if (parent)
 		parent->hide();
+
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts && !CMoviePlayerGui::getInstance().timeshift)
+	{
+		CMoviePlayerGui::getInstance().showMovieInfo();
 	}
-
-	e = new CEpgData;
-
-	channelList = CNeutrinoApp::getInstance()->channelList;
-	e->show( channelList->getActiveChannel_ChannelID() );
-	delete e;
+	else
+	{
+		CEpgData *e;
+		e = new CEpgData;
+		e->show(CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
+		delete e;
+	}
 
 	return res;
 }

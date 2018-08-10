@@ -321,11 +321,13 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PORT, true, port, &remotebox_port));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_USER, true, user, &remotebox_user));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PASS, true, pass, &remotebox_pass));
-		rbsetup->enableSaveScreen(true);
+		rbsetup->enableSaveScreen();
 		if ((rbsetup->exec(NULL,"") == true) && (!rbaddress.empty()))
 		{
-			remboxmenu->addItem(new CMenuForwarder(rbname, true, NULL, this, "cha_ip"));
 			remboxmenu->hide();
+			remboxmenu->disableSaveScreen();
+			remboxmenu->addItem(new CMenuForwarder(rbname, true, NULL, this, "cha_ip"));
+			remboxmenu->enableSaveScreen();
 			timer_remotebox_item timer_rb;
 			timer_rb.rbaddress = rbaddress;
 			if (!timer_rb.rbaddress.empty())
@@ -348,9 +350,10 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		bselected = remboxmenu->getSelected();
 		if (bselected >= item_offset)
 		{
-			remboxmenu->removeItem(bselected);
-			remboxmenu->enableSaveScreen(false);
 			remboxmenu->hide();
+			remboxmenu->disableSaveScreen();
+			remboxmenu->removeItem(bselected);
+			remboxmenu->enableSaveScreen();
 			bselected = remboxmenu->getSelected();
 			changed = true;
 		}
@@ -383,7 +386,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PORT, true, port, &remotebox_port));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_USER, true, it->user, &remotebox_user));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PASS, true, it->pass, &remotebox_pass));
-		rbsetup->enableSaveScreen(true);
+		rbsetup->enableSaveScreen();
 		if ((rbsetup->exec(NULL,"") == true) && (!it->rbaddress.empty()))
 		{
 			it->port = atoi(port);
@@ -710,7 +713,7 @@ void CTimerList::RemoteBoxSelect()
 		for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
 			m->addItem(new CMenuForwarder(it->rbname, it->online, NULL, selector, to_string(std::distance(g_settings.timer_remotebox_ip.begin(),it)).c_str()));
 
-		m->enableSaveScreen(true);
+		m->enableSaveScreen();
 		m->exec(NULL, "");
 
 		delete selector;
@@ -1115,7 +1118,7 @@ bool CTimerList::RemoteBoxSetup()
 
 	remboxmenu->setFooter(RemoteBoxFooterButtons, RemoteBoxFooterButtonCount);
 
-	remboxmenu->enableSaveScreen(true);
+	remboxmenu->enableSaveScreen();
 	remboxmenu->exec(NULL, "");
 	if (changed)
 	{

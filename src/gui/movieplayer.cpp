@@ -665,6 +665,7 @@ void CMoviePlayerGui::Cleanup()
 	is_file_player = false;
 	p_movie_info = NULL;
 	autoshot_done = false;
+	timeshift_deletion = false;
 	currentaudioname = "Unk";
 }
 
@@ -914,8 +915,8 @@ bool CMoviePlayerGui::StartWebtv(void)
 	playback->Open(is_file_player ? PLAYMODE_FILE : PLAYMODE_TS);
 
 	bool res = playback->Start((char *) file_name.c_str(), cookie_header);//url with cookies
-
-	playback->SetSpeed(1);
+	if (res)
+		playback->SetSpeed(1);
 	if (!res) {
 		playback->Close();
 	} else {
@@ -1332,6 +1333,16 @@ void CMoviePlayerGui::stopPlayBack(void)
 	printf("%s: stopped\n", __func__);
 }
 
+void CMoviePlayerGui::stopTimeshift(void)
+{
+	if (timeshift && playback)
+	{
+		printf("%s: stopping timeshift...\n", __func__);
+		playback->RequestAbort();
+		timeshift = TSHIFT_MODE_OFF;
+	}
+}
+
 void CMoviePlayerGui::Pause(bool b)
 {
 	if (b && (playstate == CMoviePlayerGui::PAUSE))
@@ -1506,6 +1517,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 			} else {
 				if (g_settings.timeshift_pause)
 				{
+					speed = 0;
 					playstate = CMoviePlayerGui::PAUSE;
 #if HAVE_SH4_HARDWARE
 					CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
@@ -1588,6 +1600,11 @@ void CMoviePlayerGui::quickZap(neutrino_msg_t msg)
 				}
 			}
 		}
+		else if (msg == (neutrino_msg_t) g_settings.key_quickzap_up && timeshift)
+		{
+			// zap atm not possible, but signalize it in timeshift mode to get feedback
+			CNeutrinoApp::getInstance()->channelList->quickZap(msg);
+		}
 	}
 	else if (msg == CRCInput::RC_left || msg == CRCInput::RC_previoussong || msg == (neutrino_msg_t) g_settings.key_quickzap_down)
 	{
@@ -1605,6 +1622,11 @@ void CMoviePlayerGui::quickZap(neutrino_msg_t msg)
 				playstate = CMoviePlayerGui::STOPPED;
 				--filelist_it;
 			}
+		}
+		else if (msg == (neutrino_msg_t) g_settings.key_quickzap_down && timeshift)
+		{
+			// zap atm not possible, but signalize it in timeshift mode to get feedback
+			CNeutrinoApp::getInstance()->channelList->quickZap(msg);
 		}
 	}
 }
@@ -1738,7 +1760,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				CScreenSaver::getInstance()->Start();
 			}
 		}
-		else
+		else if (!CScreenSaver::getInstance()->ignoredMsg(msg))
 		{
 			if (CScreenSaver::getInstance()->isActive())
 			{
@@ -1761,9 +1783,22 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		} else if ((msg == (neutrino_msg_t) g_settings.mpkey_stop) || msg == CRCInput::RC_home) {
 #endif
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
-			playstate = CMoviePlayerGui::STOPPED;
-			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
-			ClearQueue();
+			bool timeshift_stopped = false;
+
+			if (timeshift != TSHIFT_MODE_OFF)
+			{
+				if (CRecordManager::getInstance()->Timeshift())
+					timeshift_stopped = CRecordManager::getInstance()->ShowMenu();
+				else // timeshift playback still active, but recording already stopped
+					timeshift_stopped = true;
+			}
+
+			if (timeshift == TSHIFT_MODE_OFF || timeshift_stopped)
+			{
+				playstate = CMoviePlayerGui::STOPPED;
+				keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
+				ClearQueue();
+			}
 		} else if ((!filelist.empty() && msg == (neutrino_msg_t) CRCInput::RC_ok)) {
 			disableOsdElements(MUTE);
 			CFileBrowser *playlist = new CFileBrowser();
@@ -2034,32 +2069,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			showHelp();
 			enableOsdElements(NO_MUTE);
 		} else if (msg == CRCInput::RC_info) {
-			if (fromInfoviewer) {
-				disableOsdElements(NO_MUTE);
-				if (g_settings.movieplayer_display_playtime)
-					updateLcd(false); // force title
-#ifdef ENABLE_LUA
-				if (isLuaPlay && haveLuaInfoFunc) {
-					int xres = 0, yres = 0, aspectRatio = 0, framerate = -1;
-					if (!videoDecoder->getBlank()) {
-						videoDecoder->getPictureInfo(xres, yres, framerate);
-						if (yres == 1088)
-							yres = 1080;
-						aspectRatio = videoDecoder->getAspectRatio();
-					}
-					CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
-				}
-				else {
-#endif
-					g_EpgData->show_mp(p_movie_info,GetPosition(),GetDuration());
-#ifdef ENABLE_LUA
-				}
-#endif
-				fromInfoviewer = false;
-				enableOsdElements(NO_MUTE);
-			}
-			else
-				callInfoViewer();
+			callInfoViewer();
 			update_lcd = true;
 #if 0
 			clearSubtitle();
@@ -2126,7 +2136,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			update_lcd = true;
 #endif
 		} else if (msg == NeutrinoMessages::SHOW_EPG) {
-			handleMovieBrowser(NeutrinoMessages::SHOW_EPG, position);
+			showMovieInfo();
 		} else if (msg == NeutrinoMessages::EVT_SUBT_MESSAGE) {
 #if 0
 			showSubtitle(data);
@@ -2238,6 +2248,21 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 
 	stopped = true;
 	printf("%s: stopped\n", __func__);
+
+	if (timeshift_deletion && (file_name.find("_temp.ts") == file_name.size() - 8))
+	{
+		std::string file = file_name;
+		printf("%s: delete %s\n", __func__, file.c_str());
+		unlink(file.c_str());
+		CMovieInfo mi;
+		if (mi.convertTs2XmlName(file))
+		{
+			printf("%s: delete %s\n", __func__, file.c_str());
+			unlink(file.c_str());
+		}
+		timeshift_deletion = false;
+	}
+
 	if (!filelist.empty() && filelist_it != filelist.end()) {
 		pretty_name.clear();
 		prepareFile(&(*filelist_it));
@@ -2258,6 +2283,32 @@ void CMoviePlayerGui::set_vzap_it(bool up)
 			--vzap_it;
 	}
 	//printf("CMoviePlayerGui::%s: vzap_it: %d\n", __func__, (int)(vzap_it - filelist.begin()));
+}
+
+void CMoviePlayerGui::showMovieInfo()
+{
+	disableOsdElements(NO_MUTE);
+	if (g_settings.movieplayer_display_playtime)
+		updateLcd(false); // force title
+
+#ifdef ENABLE_LUA
+	if (isLuaPlay && haveLuaInfoFunc)
+	{
+		int xres = 0, yres = 0, aspectRatio = 0, framerate = -1;
+		if (!videoDecoder->getBlank())
+		{
+			videoDecoder->getPictureInfo(xres, yres, framerate);
+			if (yres == 1088)
+				yres = 1080;
+			aspectRatio = videoDecoder->getAspectRatio();
+		}
+		CLuaInstVideo::getInstance()->execLuaInfoFunc(luaState, xres, yres, aspectRatio, framerate);
+	}
+	else
+#endif
+		g_EpgData->show_mp(p_movie_info,GetPosition(),GetDuration());
+
+	enableOsdElements(NO_MUTE);
 }
 
 void CMoviePlayerGui::callInfoViewer(bool init_vzap_it)
@@ -2785,10 +2836,6 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 				cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 			}
 		}
-	} else if (msg == NeutrinoMessages::SHOW_EPG && p_movie_info) {
-		disableOsdElements(NO_MUTE);
-		g_EpgData->show_mp(p_movie_info, position, duration);
-		enableOsdElements(NO_MUTE);
 	}
 	return;
 }

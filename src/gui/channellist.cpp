@@ -787,8 +787,6 @@ int CChannelList::show()
 					actzap = true;
 					oldselected = selected;
 					paintBody(); // refresh zapped vs selected
-				} else if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts) {
-					ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_CHANNELLIST_MOVIEPLAYER_ZAP);
 				} else if(SameTP()) {
 					zapOnExit = true;
 					loop=false;
@@ -958,10 +956,6 @@ int CChannelList::show()
 		res = bouquetList->exec(true);
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
-
-
-	if(NeutrinoModes::mode_ts == CNeutrinoApp::getInstance()->getMode())
-		return -1;
 
 	if(zapOnExit)
 		res = selected;
@@ -1205,6 +1199,12 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 
 	if(channel == NULL)
 		return;
+
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts)
+	{
+		ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEPLAYER_ZAP);
+		return;
+	}
 
 	/* we record when we switched away from a channel, so that the parental-PIN code can
 	   check for timeout. last_unlocked_time == 0 means: the PIN was not entered
@@ -2001,12 +2001,17 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		if ((*chanlist)[curr]->getChannelID() == CZapit::getInstance()->GetPipChannelID())
 			pip_icon = NEUTRINO_ICON_MARKER_PIP;
 #endif
-		//set HD/UHD icon
-		const char *hd_icon = NULL;
-		if(chan->isHD() && g_settings.channellist_hdicon)
-			hd_icon = NEUTRINO_ICON_RESOLUTION_HD;
-		if(chan->isUHD() && g_settings.channellist_hdicon)
-			hd_icon = NEUTRINO_ICON_RESOLUTION_UHD;
+		//set resolution icon
+		const char *res_icon = NULL;
+		if (g_settings.channellist_show_res_icon)
+		{
+			if (chan->isHD())
+				res_icon = NEUTRINO_ICON_MARKER_HD;
+			else if (chan->isUHD())
+				res_icon = NEUTRINO_ICON_MARKER_UHD;
+			else
+				res_icon = NEUTRINO_ICON_MARKER_SD;
+		}
 
 		//set webtv icon
 		const char *webtv_icon = NULL;
@@ -2028,10 +2033,10 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		int offset_right = OFFSET_INNER_MID;
 		int icon_x_right = x + width - SCROLLBAR_WIDTH - offset_right;
 
-		if (hd_icon)
+		if (res_icon)
 		{
-			frameBuffer->getIconSize(hd_icon, &icon_w, &icon_h);
-			if (frameBuffer->paintIcon(hd_icon, icon_x_right - icon_w, ypos, fheight))
+			frameBuffer->getIconSize(res_icon, &icon_w, &icon_h);
+			if (frameBuffer->paintIcon(res_icon, icon_x_right - icon_w, ypos, fheight))
 			{
 				offset_right += icon_w + OFFSET_INNER_MID;
 				icon_x_right -= icon_w + OFFSET_INNER_MID;

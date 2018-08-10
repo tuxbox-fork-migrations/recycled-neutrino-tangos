@@ -591,6 +591,7 @@ struct SNeutrinoSettings
 	int key_list_start;
 	int key_list_end;
 	int key_power_off;
+	int key_standby_off_add;
 	int menu_left_exit;
 	int audio_run_player;
 	int timeshift_pause;
@@ -687,11 +688,11 @@ struct SNeutrinoSettings
 	int channellist_foot;
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
-	int channellist_hdicon;
 	int channellist_numeric_adjust;
 	int channellist_show_channellogo;
 	int channellist_show_infobox;
 	int channellist_show_numbers;
+	int channellist_show_res_icon;
 	int repeat_blocker;
 	int repeat_genericblocker;
 #define LONGKEYPRESS_OFF 499

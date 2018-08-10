@@ -192,6 +192,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
 				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
+	bool timeshift = CMoviePlayerGui::getInstance().timeshift;
 	bool adzap_active = CAdZapMenu::getInstance()->isActive();
 
 	std::string itemstr_last("1");
@@ -220,21 +221,21 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_EPG_LIST:
 		{
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTLIST, !_mode_ts, NULL, new CEventListHandler,  "-1", key, icon);
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTLIST, true, NULL, new CEventListHandler,  "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
 		case SNeutrinoSettings::ITEM_EPG_SUPER:
 		{
 			keyhelper.get(&key,&icon,CRCInput::RC_green);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EPGPLUS, !_mode_ts, NULL, new CEPGplusHandler,  "-1", key, icon);
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EPGPLUS, true, NULL, new CEPGplusHandler,  "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
 		case SNeutrinoSettings::ITEM_EPG_INFO:
 		{
 			keyhelper.get(&key,&icon,CRCInput::RC_yellow);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTINFO, !_mode_ts, NULL, new CEPGDataHandler,  "-1", key, icon);
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTINFO, true, NULL, new CEPGDataHandler,  "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
@@ -281,7 +282,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			if (g_settings.recording_type == RECORDING_OFF)
 				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuForwarder(LOCALE_MAINMENU_RECORDING, true, NULL, CRecordManager::getInstance(), "-1", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_REC_AKT, true, NULL, CRecordManager::getInstance(), "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
@@ -290,7 +291,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			if (g_settings.recording_type == RECORDING_OFF)
 				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_TIMESHIFT, true, NULL, CRecordManager::getInstance(), "Timeshift", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, !timeshift, NULL, CRecordManager::getInstance(), "Timeshift", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}

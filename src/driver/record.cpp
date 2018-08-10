@@ -341,20 +341,16 @@ bool CRecordInstance::Stop(bool remove_event)
 	if(!autoshift)
 		CFEManager::getInstance()->unlockFrontend(frontend, true);//FIXME testing
 
-        CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
+	CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
-        if((autoshift && g_settings.auto_delete) /* || autoshift_delete*/) {
-		snprintf(buf,sizeof(buf), "nice -n 20 rm -f \"%s.ts\" &", filename);
-		my_system(3, "/bin/sh", "-c", buf);
-		snprintf(buf,sizeof(buf), "%s.xml", filename);
-                //autoshift_delete = false;
-                unlink(buf);
-        }
+	if (autoshift && g_settings.auto_delete)
+		CMoviePlayerGui::getInstance().deleteTimeshift();
+
 	if(recording_id && remove_event) {
 		g_Timerd->stopTimerEvent(recording_id);
 		recording_id = 0;
 	}
-        //CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, false);
+	//CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, false);
 	WaitRecMsg(end_time, 2);
 	hintBox.hide();
 	return true;
@@ -1151,7 +1147,7 @@ bool CRecordManager::StopAutoRecord(bool lock)
 
 	g_RCInput->killTimer (shift_timer);
 
-	if(!autoshift)
+	if (!autoshift)
 		return false;
 
 	if (lock)
@@ -1159,7 +1155,10 @@ bool CRecordManager::StopAutoRecord(bool lock)
 
 	CRecordInstance * inst = FindTimeshift();
 	if (inst)
+	{
 		StopInstance(inst);
+		CMoviePlayerGui::getInstance().stopTimeshift();
+	}
 
 	if (lock)
 		mutex.unlock();
@@ -1401,13 +1400,13 @@ void CRecordManager::StartTimeshift()
 #elif defined(BOXMODEL_FORTIS_HDBOX)
 		CVFD::getInstance()->ShowIcon(FP_ICON_TIMESHIFT, true);
 #endif
-		bool tstarted = false;
+// 		bool tstarted = false;
 		/* start temporary timeshift if enabled and not running, but dont start second record */
 		if (g_settings.temp_timeshift) {
 			if (!FindTimeshift()) {
 				res = StartAutoRecord();
 				tmode = "timeshift"; // record just started
-				tstarted = true;
+// 				tstarted = true;
 			}
 		}
 		else if (!RecordingStatus(live_channel_id)) {
@@ -1418,8 +1417,14 @@ void CRecordManager::StartTimeshift()
 		if(res)
 		{
 			CMoviePlayerGui::getInstance().exec(NULL, tmode);
+#if 0
+			/*
+			   ShowMenu() moved to movieplayer.cpp
+			   Function is called when stop key is pressed.
+			*/
 			if(g_settings.temp_timeshift && tstarted && autoshift)
 				ShowMenu();
+#endif
 		}
 	}
 }
@@ -1472,7 +1477,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 		if (inst) {
 			std::string title, duration;
 			inst->GetRecordString(title, duration);
-			title += duration;
+			title += " " + duration;
 			tostart = (ShowMsg(LOCALE_RECORDING_IS_RUNNING, title.c_str(),
 						CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, DEFAULT_TIMEOUT) == CMsgBox::mbrYes);
 		}
@@ -1494,6 +1499,9 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			ShowHint(LOCALE_MAINMENU_RECORDING_STOP, g_Locale->getText(LOCALE_RECORDINGMENU_RECORD_IS_NOT_RUNNING), 450, 2);
 			return menu_return::RETURN_EXIT_ALL;
 		}
+	} else if (actionKey == "Exit")
+	{
+		return menu_return::RETURN_EXIT_ALL;
 	}
 
 	ShowMenu();
@@ -1513,6 +1521,8 @@ bool CRecordManager::ShowMenu(void)
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	CMenuWidget menu(LOCALE_MAINMENU_RECORDING, NEUTRINO_ICON_RECORDING /*, width*/);
+	if (rec_count == 0)
+		menu.addKey(CRCInput::RC_stop, this, "Exit");
 	menu.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	// Record / Timeshift
@@ -1614,13 +1624,13 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 
 	if(inst) {
 		inst->GetRecordString(title, duration);
-		title += duration;
+		title += " " + duration;
 	}
 	mutex.unlock();
 	if(inst == NULL)
 		return false;
 
-	if(ShowMsg(LOCALE_SHUTDOWN_RECORDING_QUERY, title.c_str(),
+	if(ShowMsg(FindTimeshift() ? LOCALE_SHUTDOWN_TIMESHIFT_QUERY : LOCALE_SHUTDOWN_RECORDING_QUERY, title.c_str(),
 				CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30) == CMsgBox::mbrYes) {
 		mutex.lock();
 		if (recid)
