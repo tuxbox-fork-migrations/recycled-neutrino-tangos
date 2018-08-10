@@ -75,10 +75,13 @@ struct menu_return
 enum
 {
 	DCOND_MODE_NONE 	= 1,
-
+	// Neutrino modes
 	DCOND_MODE_TV 		= 2,
 	DCOND_MODE_RADIO  	= 4,
-	DCOND_MODE_TS 		= 8
+	DCOND_MODE_TS 		= 8,
+	// record modes
+	DCOND_MODE_REC 		= 16,
+	DCOND_MODE_TSHIFT	= 32
 }/*menu_item_disable_cond_t*/;
 
 class CChangeObserver
@@ -116,7 +119,8 @@ class CMenuItem : public  CComponentsSignals
 		int x, y, dx, offx, name_start_x;
 		bool used;
 		fb_pixel_t item_color, item_bgcolor;
-		bool initModeCondition(const int& stb_mode);
+		bool initNeutrinoModeCondition(const int& stb_mode);
+		bool initRecordModeCondition(const int& rec_mode);
 		void initItemColors(const bool select_mode);
 		lua_State	*luaState;
 		std::string	luaAction;
@@ -585,7 +589,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		unsigned int		item_start_y;
 		unsigned int		current_page;
 		unsigned int		total_pages;
-		bool			exit_pressed;
+		bool			no_action;
 		int			from_wizard;
 		bool			fade;
 		bool			washidden;
@@ -637,10 +641,11 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		void initSelectable();
 		int getSelected()const { return selected; };
 		void move(int xoff, int yoff);
-		int getSelectedLine(void)const {return exit_pressed ? -1 : selected;};
+		int getSelectedLine(void)const {return no_action ? -1 : selected;};
 		void setWizardMode(int _from_wizard) { from_wizard = _from_wizard;};
 		void enableFade(bool _enable) { fade = _enable; };
-		void enableSaveScreen(bool enable);
+		void enableSaveScreen(bool enable = true);
+		void disableSaveScreen() {enableSaveScreen(false);}
 		void paintHint(int num);
 		void paintHint(){hint_painted = false;}
 		enum 

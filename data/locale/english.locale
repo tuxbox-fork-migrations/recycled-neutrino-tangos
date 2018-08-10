@@ -260,7 +260,6 @@ channellist.foot_sort_alpha Sorted[Alpha]
 channellist.foot_sort_chnum Sorted[Number]
 channellist.foot_sort_freq Sorted[Freq]
 channellist.foot_sort_sat Sorted[Sat]
-channellist.hdicon Show HD/UHD icon
 channellist.head All Services
 channellist.history History
 channellist.history_clear Clear history
@@ -270,7 +269,6 @@ channellist.make_hdlist Create lists of HD and UHD channels
 channellist.make_newlist Create list of new channels
 channellist.make_removedlist Create list of removed channels
 channellist.make_webtvlist Create list of WebTV channels
-channellist.movieplayer_zap Zap not possible while movie playback
 channellist.new_zap_mode Quickzap in list
 channellist.new_zap_mode_active Active
 channellist.new_zap_mode_allow Allow
@@ -284,12 +282,13 @@ channellist.remember Last used
 channellist.reset_all Reset 'new' flag for all channels
 channellist.reset_flags Reset 'new' channel flag
 channellist.sats Satellites
-channellist.show_channellogo Show Channel Logos
-channellist.show_channelnumber Show Channel Numbers
-channellist.show_empty_favs Show empty Favorites Bouquets
-channellist.show_infobox Show Bottom Infobox
-channellist.since Since
-channellist.start Starts
+channellist.show_channellogo Show channel logos
+channellist.show_channelnumber Show channel numbers
+channellist.show_empty_favs Show empty favorites bouquets
+channellist.show_infobox Show bottom infobox
+channellist.show_res_icon Signalize resolution
+channellist.since since
+channellist.start starts
 ci.check_live_slot Check CI-slot for live-tv use
 ci.clock CI clock (Mhz)
 ci.empty No CAM in slot
@@ -423,8 +422,8 @@ eventlistbar.channelswitch schedule
 eventlistbar.eventsort sorting
 eventlistbar.recordevent record
 extra.add_to_bouquet Add to bouquet
-extra.auto_delete Auto-delete
-extra.auto_timeshift Auto-record, sec (0 = disable)
+extra.auto_delete Automatic deletion
+extra.auto_timeshift Automatic recording
 extra.cache_txt Cache teletext
 extra.chadded The current channel has been added to selected bouquet.\n
 extra.chalreadyinbq The current channel is already in selected bouquet.\n
@@ -496,7 +495,7 @@ extra.sms_movie SMS-mode movie
 extra.south South
 extra.start_tostandby Startup to standby
 extra.temp_timeshift Temporary timeshift
-extra.timeshift_pause Timeshift pause
+extra.timeshift_pause Paused recording
 extra.tp_bandwidth Bandwidth
 extra.tp_bandwidth_10mhz 10Mhz
 extra.tp_bandwidth_1_712mhz 1.712Mhz
@@ -873,6 +872,7 @@ imageinfo.homepage Home page:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license License
+imageinfo.os System:
 imageinfo.vcs Git:
 imageinfo.version Version:
 imdb.api_key IMDb API-Key
@@ -964,7 +964,8 @@ keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock Generic delay
 keybindingmenu.repeatblockgeneric Repeat delay
 keybindingmenu.sort Change sort order
-keybindingmenu.special_active Special Keys
+keybindingmenu.special_active Special keys
+keybindingmenu.standbyoff_add Standby off (additional)
 keybindingmenu.subchanneldown Subchannel down
 keybindingmenu.subchannelup Subchannel up
 keybindingmenu.tvradiomode TV/Radio mode
@@ -985,7 +986,7 @@ lcd_info_line Show in infoline
 lcd_info_line_channel Channelname
 lcd_info_line_clock Clock
 lcdcontroler.brightness Normal mode
-lcdcontroler.brightnessdeepstandby Deep standby
+lcdcontroler.brightnessdeepstandby Deep-standby
 lcdcontroler.brightnessstandby Standby
 lcdmenu.dim_brightness Brightness after dimm timeout
 lcdmenu.dim_time Dimm timeout
@@ -1001,9 +1002,9 @@ lcdmenu.statusline.volume Volume
 lcdmenu.vfd_scroll Scrolling
 ledcontroler.backlight Buttons backlight
 ledcontroler.backlight.tv TV mode
-ledcontroler.blink Blink in deep standby, if timer set
+ledcontroler.blink Blink in deep-standby, if timer set
 ledcontroler.menu Power Button LEDs
-ledcontroler.mode.deepstandby Deep standby
+ledcontroler.mode.deepstandby Deep-standby
 ledcontroler.mode.record Blinking while record
 ledcontroler.mode.standby Standby
 ledcontroler.mode.tv TV mode
@@ -1041,9 +1042,9 @@ mainmenu.recording Recording
 mainmenu.recording_start Start
 mainmenu.recording_stop Stop
 mainmenu.scripts Scripts
-mainmenu.service Service
-mainmenu.settings Settings
-mainmenu.shutdown Shutdown (deep standby)
+mainmenu.service Installation (service)
+mainmenu.settings System settings
+mainmenu.shutdown Shutdown (Deep-standby)
 mainmenu.sleeptimer SleepTimer
 mainmenu.standby Standby
 mainmenu.tools Tools
@@ -1126,6 +1127,7 @@ menu.hint_channellist_show_channellogo Show channel logos in channellist, eventl
 menu.hint_channellist_show_channelnumber Show channel number in channel list
 menu.hint_channellist_show_empty_favs Show or hide empty bouquets in favorites
 menu.hint_channellist_show_infobox Show or hide bottom infobox of channellist
+menu.hint_channellist_show_res_icon Show or hide the icon to signalize resolution
 menu.hint_channellogos_setup Configure global channelogos options
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
@@ -1158,7 +1160,7 @@ menu.hint_epg_read_now Read saved EPG data from an external device
 menu.hint_epg_save Save cached EPG data to an external device
 menu.hint_epg_save_frequently Save cached EPG data in frequently intervals to an external device
 menu.hint_epg_save_mode Cache EPG only for channels present in favorite bouquets
-menu.hint_epg_save_standby Save EPG on soft standby mode
+menu.hint_epg_save_standby Save EPG on soft-standby mode
 menu.hint_epg_scan Select bouquets to scan epg, current on zap,\nall or selected favorites
 menu.hint_epg_scan_mode Enable background epg scan using free tuner
 menu.hint_eventlist_additional Show additional informations\nin main box
@@ -1257,7 +1259,7 @@ menu.hint_key_pic_mode_active Disable/enable key for the screen format
 menu.hint_key_pic_size_active Disable/enable key for the 4:3 display behavior
 menu.hint_key_pip_close Assign button to stop PiP\nor start it for current channel
 menu.hint_key_pip_setup Assign button to configure PiP
-menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
+menu.hint_key_poweroff Assign button to switch power state\n (standby/deep-standby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
 menu.hint_key_record Assign button to start a recording
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
@@ -1267,6 +1269,7 @@ menu.hint_key_save Save keybindings to a file named keys.conf
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
 menu.hint_key_sort Assign button to change channel list sort order
 menu.hint_key_special_active Disable or enable some special keys
+menu.hint_key_standby_add Assign additional button to leave standby mode
 menu.hint_key_subchanneldown Assign button for fast switch\n to previous subchannel
 menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
 menu.hint_key_timeshift Assign button to start timeshift
@@ -1282,7 +1285,7 @@ menu.hint_last_radio Start box on selected channel\nif last mode is Radio
 menu.hint_last_tv Start box on selected channel\nif last mode is TV
 menu.hint_last_use Start box on last used channel
 menu.hint_leds_blink Blinking LEDs in deep-standby
-menu.hint_leds_deepstandby LEDs state in deeps-standby mode
+menu.hint_leds_deepstandby LEDs state in deep-standby mode
 menu.hint_leds_record LEDs state when box recording
 menu.hint_leds_standby LEDs state in soft-standby mode
 menu.hint_leds_tv Working LEDs state
@@ -1533,7 +1536,7 @@ menu.hint_settings Configure System\nNetwork, audio, video, OSD and more
 menu.hint_shoutcast_dev_id Type your SHOUTcast Dev ID. An empty input disables SHOUTcast support
 menu.hint_shoutcast_enabled Enable or disable SHOUTcast support
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
-menu.hint_shutdown Put your box in deep standby mode\nNo confirmation
+menu.hint_shutdown Put your box in deep-standby mode\nNo confirmation
 menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
 menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more than 1 second
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
@@ -1655,7 +1658,7 @@ miscsettings.epg_read_now Restore EPG now
 miscsettings.epg_save Save EPG on shutdown
 miscsettings.epg_save_frequently Save EPG frequently
 miscsettings.epg_save_mode Favorites only
-miscsettings.epg_save_standby Save EPG on soft standby
+miscsettings.epg_save_standby Save EPG on soft-standby
 miscsettings.epg_scan EPG scan mode
 miscsettings.epg_scan_always Always
 miscsettings.epg_scan_bouquets EPG scan bouquets
@@ -1720,7 +1723,7 @@ miscsettings.progressbar_timescale_yellow yellow
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count In standby, switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby
-miscsettings.shutdown_count_hint2 to deep standby (0 = off).
+miscsettings.shutdown_count_hint2 to deep-standby (0 = off).
 miscsettings.shutdown_real Enable standby
 miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer
@@ -1879,7 +1882,7 @@ moviebrowser.menu_cut Cut movie
 moviebrowser.menu_cut_head Copy, cut and truncate
 moviebrowser.menu_directories_head Directories de/activate
 moviebrowser.menu_main_bookmarks Bookmarks
-moviebrowser.menu_main_head Settings
+moviebrowser.menu_main_head Movie info and settings
 moviebrowser.menu_nfs_head NFS settings
 moviebrowser.menu_parental_lock_activated activated
 moviebrowser.menu_parental_lock_activated_no no
@@ -1889,6 +1892,7 @@ moviebrowser.menu_parental_lock_head Parental Lock
 moviebrowser.menu_parental_lock_rate_head Lock movies from
 moviebrowser.menu_save Save changes
 moviebrowser.menu_save_all Start update of movie info files
+moviebrowser.menu_settings Settings
 moviebrowser.menu_truncate Truncate movie
 moviebrowser.option_browser Browser Options
 moviebrowser.reload_at_start Reload movie info at start
@@ -1985,6 +1989,7 @@ movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
 movieplayer.tsplayback Play
 movieplayer.ytplayback YouTube videoplayer
+movieplayer.zap Zap not possible while movie or timeshift playback
 mpkey.audio Audiotracks
 mpkey.bookmark Bookmarks
 mpkey.forward Forward
@@ -2329,6 +2334,7 @@ scants.bouquet_writenames_bouquets providers
 scants.bouquet_writenames_ever both
 scants.bouquet_writenames_never never
 scants.bouquet_writenames_ubouquets favourites
+scants.canceled Transponderscan canceled!
 scants.channel Channel:
 scants.failed Transponderscan failed!
 scants.finished Transponderscan finished successfully!
@@ -2413,6 +2419,7 @@ settings.restore_warn This will replace all settings and reboot\nContinue ?
 shoutcast.dev_id SHOUTcast Dev ID
 shoutcast.enabled SHOUTcast support
 shutdown.recording_query You really want to to stop record ?
+shutdown.timeshift_query You really want to to stop timeshift ?
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
 sleeptimerbox.announce Box will standby in 1 min.\nCancel Standby ?
 sleeptimerbox.hint1 Shutdown time in minutes (000 = off)
@@ -2680,6 +2687,7 @@ wizard.setup_type Installation type
 wizard.setup_type_hint Easy to setup for CanalDigitaal/TéléSAT/TV Vlaanderen providers or simple cable scan
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Neutrino is designed for set-top boxes and is maintained by the Tuxbox community and lives from the support of users and many volontary contributors./nIf you need help or have  suggestions, found bugs, please feel free to contact us.\nSupport pages or Contact and / or Web addresses can be found in the main menu under "Information".\nNext steps will guide you through initial installation of the device.\nImportant: Your set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
+word.after after
 word.from from
 word.in in
 youtube.dev_id YouTube Dev ID

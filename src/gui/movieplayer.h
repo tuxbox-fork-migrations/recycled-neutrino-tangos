@@ -199,6 +199,7 @@ class CMoviePlayerGui : public CMenuTarget
 	std::string Path_local;
 	int menu_ret;
 	bool autoshot_done;
+	bool timeshift_deletion;
 	//std::vector<livestream_info_t> liveStreamList;
 
 	/* playback from bookmark */
@@ -279,6 +280,7 @@ class CMoviePlayerGui : public CMenuTarget
 	int getState() { return playstate; }
 	void UpdatePosition();
 	int timeshift;
+	void deleteTimeshift() { timeshift_deletion = true; }
 	int file_prozent;
 	cPlayback *getPlayback() { return playback; }
 	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; }
@@ -298,6 +300,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void stopPlayBack(void);
 	void StopSubtitles(bool enable_glcd_mirroring);
 	void StartSubtitles(bool show = true);
+	void stopTimeshift(void);
 	void setLastMode(int m) { m_LastMode = m; }
 	void Pause(bool b = true);
 	void selectAudioPid(void);
@@ -318,6 +321,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void getLivestreamInfo(std::string *i1, std::string *i2) { *i1=livestreamInfo1; *i2=livestreamInfo2; };
 	bool getLiveUrl(const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header);
 	bool IsAudioPlaying() { return is_audio_playing; };
+	void showMovieInfo();
 };
 
 #endif

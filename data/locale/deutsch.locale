@@ -262,7 +262,6 @@ channellist.foot_sort_alpha Sortiert[alpha]
 channellist.foot_sort_chnum Sortiert[nummer]
 channellist.foot_sort_freq Sortiert[freq]
 channellist.foot_sort_sat Sortiert[sat]
-channellist.hdicon HD/UHD Icon anzeigen
 channellist.head Alle Kanäle
 channellist.history Verlauf
 channellist.history_clear Verlauf löschen
@@ -272,7 +271,6 @@ channellist.make_hdlist Erzeuge Bouquets mit HD- und UHD-Kanälen
 channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
 channellist.make_removedlist Erzeuge Bouquet mit gelöschten Kanälen
 channellist.make_webtvlist Erzeuge Bouquet mit WebTV-Kanälen
-channellist.movieplayer_zap Umschalten während der Film-Wiedergabe nicht möglich
 channellist.new_zap_mode Quickzap in Liste
 channellist.new_zap_mode_active aktiv
 channellist.new_zap_mode_allow erlauben
@@ -290,6 +288,7 @@ channellist.show_channellogo Senderlogos zeigen
 channellist.show_channelnumber Kanalnummern zeigen
 channellist.show_empty_favs Zeige leere Favoriten-Bouquets
 channellist.show_infobox Sendungsfenster anzeigen
+channellist.show_res_icon Auflösung signalisieren
 channellist.since seit
 channellist.start Start
 ci.check_live_slot CI-Slot auf Live-TV Nutzung prüfen
@@ -429,8 +428,8 @@ eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
 eventlistbar.recordevent Aufnehmen
 extra.add_to_bouquet dem Bouquet zufügen
-extra.auto_delete Automatisch löschen
-extra.auto_timeshift Autom. Aufnahme, Sek. (0 = deakt.)
+extra.auto_delete Automatisches Löschen
+extra.auto_timeshift Automatische Aufnahme
 extra.cache_txt Teletext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt ...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet.\n
@@ -502,7 +501,7 @@ extra.sms_movie SMS-Modus bei Filmsuche
 extra.south Süden
 extra.start_tostandby Standby nach Boxstart
 extra.temp_timeshift Temporäres Timeshift
-extra.timeshift_pause Timeshift Pause
+extra.timeshift_pause Pausierte Aufnahme
 extra.tp_bandwidth Bandbreite
 extra.tp_bandwidth_10mhz 10Mhz
 extra.tp_bandwidth_1_712mhz 1.712Mhz
@@ -880,6 +879,7 @@ imageinfo.homepage Homepage:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license Lizenz
+imageinfo.os System:
 imageinfo.vcs Git:
 imageinfo.version Version:
 imdb.api_key IMDb API Schlüssel
@@ -953,7 +953,7 @@ keybindingmenu.modechange Moduswechsel
 keybindingmenu.navigation Navigation
 keybindingmenu.pagedown Seite weiter
 keybindingmenu.pageup Seite zurück
-keybindingmenu.poweroff Standby EIN/AUS
+keybindingmenu.poweroff Standby ein/aus
 keybindingmenu.quickzap Schnellumschaltung
 keybindingmenu.remotecontrol_code Fernbedienung Code
 keybindingmenu.remotecontrol_code_change Code der Fernbedienung ändern
@@ -973,6 +973,7 @@ keybindingmenu.repeatblock Anfangsverzögerung
 keybindingmenu.repeatblockgeneric Wiederholungsverzögerung
 keybindingmenu.sort Sortierreihenfolge ändern
 keybindingmenu.special_active Sondertasten
+keybindingmenu.standbyoff_add Standby aus (zusätzlich)
 keybindingmenu.subchanneldown Unterkanal zurück
 keybindingmenu.subchannelup Unterkanal weiter
 keybindingmenu.tvradiomode Fernseh-/Radio-Modus
@@ -1148,6 +1149,7 @@ menu.hint_channellist_show_channellogo Zeigt Senderlogos in Kanalliste, Eventlis
 menu.hint_channellist_show_channelnumber Zeigt Kanalnummer in der Kanalliste.
 menu.hint_channellist_show_empty_favs Zeigt oder versteckt leere Bouquets in den Favoriten
 menu.hint_channellist_show_infobox Zeigt oder versteckt das untere Sendungsfenster
+menu.hint_channellist_show_res_icon Zeigt oder versteckt das Icon zur Signalisierung der Auflösung
 menu.hint_channellogos_setup Wählen Sie die globalen Optionen für die Senderlogos aus
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
@@ -1290,6 +1292,7 @@ menu.hint_key_save Speichern Sie Ihre Tastenbelegungen in einer Datei namens key
 menu.hint_key_screenshot Weisen Sie eine Taste zu, um Menü- und/oder TV-Screenshots zu speichern
 menu.hint_key_sort Weisen Sie eine Taste für das Sortieren in der Kanalliste zu
 menu.hint_key_special_active Deaktivieren oder aktivieren einiger Sondertasten
+menu.hint_key_standbyoff_add Weisen Sie eine zusätzliche Taste zum Beenden des Standby-Modus zu
 menu.hint_key_subchanneldown Weisen Sie eine Taste für das Zurückschalten in den Unterkanälen zu
 menu.hint_key_subchannelup Weisen Sie eine Taste für das Weiterschalten in den Unterkanälen zu
 menu.hint_key_timeshift Weisen Sie eine Taste für das Starten von Timeshift zu
@@ -1577,7 +1580,7 @@ menu.hint_softupdate_expert Einzelne Partitionen aus dem Flash lesen bzw. in den
 menu.hint_softupdate_expert_read Einzelne Partitionen (U-Boot, Splash, Kernel, SystemFS) aus dem Flash lesen
 menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS) in den Flash schreiben
 menu.hint_softupdate_settings Das lokale Update-Verzeichnis und die Konfigurationsdatei festlegen
-menu.hint_standby Receiver in den Standby Modus versetzen
+menu.hint_standby Receiver in den Standby-Modus versetzen
 menu.hint_start_tostandby Aktiviert den Standby-Modus direkt nach dem Starten der Box
 menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, Bitrate usw.
 menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
@@ -1691,7 +1694,7 @@ miscsettings.epg_scan_bq Aktuelles Bouquet
 miscsettings.epg_scan_fav Alle Favoriten
 miscsettings.epg_scan_live Bei eingeschalteter Box
 miscsettings.epg_scan_sel Markierte Bouquets
-miscsettings.epg_scan_standby Im Standby Modus
+miscsettings.epg_scan_standby Im Standby-Modus
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar
@@ -1749,7 +1752,7 @@ miscsettings.radiotext Radiotext
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in
 miscsettings.shutdown_count_hint2 den Deep-Standby geschalten wird (0 = aus)
-miscsettings.shutdown_real Standbymodus
+miscsettings.shutdown_real Standby-Modus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
 miscsettings.sleeptimer_min Sleeptimer Vorgabe
@@ -1907,7 +1910,7 @@ moviebrowser.menu_cut Film schneiden
 moviebrowser.menu_cut_head Kopieren, Schneiden und Kürzen
 moviebrowser.menu_directories_head Verzeichnisse de/aktivieren
 moviebrowser.menu_main_bookmarks Markierungen
-moviebrowser.menu_main_head Einstellungen
+moviebrowser.menu_main_head Film-Info und Einstellungen
 moviebrowser.menu_nfs_head NFS Einstellung
 moviebrowser.menu_parental_lock_activated aktiviert
 moviebrowser.menu_parental_lock_activated_no nein
@@ -1917,6 +1920,7 @@ moviebrowser.menu_parental_lock_head Jugendschutz
 moviebrowser.menu_parental_lock_rate_head Filme sperren ab
 moviebrowser.menu_save Veränderungen speichern
 moviebrowser.menu_save_all Starte Übernahme in allen sichtbaren Filminfos
+moviebrowser.menu_settings Einstellungen
 moviebrowser.menu_truncate Film kürzen
 moviebrowser.option_browser Anzeigeoptionen
 moviebrowser.reload_at_start Filminfos neu laden bei Start
@@ -2013,6 +2017,7 @@ movieplayer.titles Titel
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tsplayback Abspielen
 movieplayer.ytplayback YouTube-Feed Wiedergabe
+movieplayer.zap Umschalten während der Film- oder Timeshift-Wiedergabe nicht möglich
 mpkey.audio Tonspuren
 mpkey.bookmark Markierungen
 mpkey.forward Vorlauf
@@ -2354,6 +2359,7 @@ scants.bouquet_writenames_bouquets nur Anbieter
 scants.bouquet_writenames_ever Beide
 scants.bouquet_writenames_never Nie
 scants.bouquet_writenames_ubouquets nur Favoriten
+scants.canceled Kanalsuche abgebrochen!
 scants.channel Kanal:
 scants.failed Kanalsuche fehlgeschlagen!
 scants.finished Kanalsuche erfolgreich beendet!
@@ -2438,6 +2444,7 @@ settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.
 shoutcast.dev_id SHOUTcast Dev ID
 shoutcast.enabled SHOUTcast-Unterstützung
 shutdown.recording_query Aufnahme läuft. Trotzdem beenden?
+shutdown.timeshift_query Timeshift läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 Min. heruntergefahren.\nShutdown abbrechen?
 sleeptimerbox.announce Die Box wird in 1 Min. in Standby-Betrieb gehen.\nStandby-Betrieb abbrechen?
 sleeptimerbox.hint1 Ausschaltzeit in Minuten (000 = aus)
@@ -2704,7 +2711,8 @@ wizard.setup_easy Einfach
 wizard.setup_type Installationstyp
 wizard.setup_type_hint Wählen Sie einfache Grundeinstellungen oder erweiterte Auswahlmöglichkeiten für die Installation
 wizard.welcome_head Willkommen zur Ersteinrichtung Ihres Receivers!
-wizard.welcome_text Neutrino ist eine von der Tuxbox-Community entwickelte und gepflegte Benutzeroberfläche für Set-Top-Boxen und lebt von der Unterstützung der Nutzer und vielen freiwilligen beitragenden Helfern.\nSollten Sie Hilfe benötigen, Anregungen, Verbesserungsvorschläge oder Fehler bemerken,\nkönnen Sie sich gerne auf unseren Supportseiten melden oder Kontakt aufnehmen. Kontakt- bzw. Webaddressen entnehmen Sie bitte hierfür im Hauptmenü unter "Informationen". \nIn den folgenden Schritten wird Sie Neutrino durch die Ersteinrichtung führen.\nSicherheitshinweis:\n Ihre Set-Top-Box lässt sich auch per Webinterface steuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nAchten Sie bitte darauf, dass Ihr Gerät nicht von aussen zugänglich ist,\nda sonst ein unbefugter Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
+wizard.welcome_text Neutrino ist eine von der Tuxbox-Community entwickelte und gepflegte Benutzeroberfläche für Set-Top-Boxen und lebt von der Unterstützung der Nutzer und vielen freiwilligen beitragenden Helfern.\nSollten Sie Hilfe benötigen, Anregungen, Verbesserungsvorschläge haben oder Fehler bemerken,\nkönnen Sie sich gerne auf unseren Supportseiten melden oder Kontakt aufnehmen. Kontakt- bzw. Webaddressen entnehmen Sie bitte hierfür im Hauptmenü unter "Informationen". \nIn den folgenden Schritten wird Sie Neutrino durch die Ersteinrichtung führen.\nSicherheitshinweis:\n Ihre Set-Top-Box lässt sich auch per Webinterface steuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nAchten Sie bitte darauf, dass Ihr Gerät nicht von aussen zugänglich ist,\nda sonst ein unbefugter Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
+word.after nach
 word.from ab
 word.in in
 youtube.dev_id YouTube Dev ID

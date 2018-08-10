@@ -750,10 +750,18 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir.c_str());
 
-	if(g_settings.auto_delete) {
-		if(g_settings.timeshiftdir == g_settings.network_nfs_recordingdir) {
+	// remove old timeshift recordings
+	if (g_settings.auto_delete)
+	{
+		/*
+		   Why only remove old timeshift recordings
+		   if timeshift-dir == recording-dir?
+		*/
+		//if (g_settings.timeshiftdir == g_settings.network_nfs_recordingdir)
+		{
 			DIR *d = opendir(timeshiftDir.c_str());
-			if(d){
+			if (d)
+			{
 				while (struct dirent *e = readdir(d))
 				{
 					std::string filename = e->d_name;
@@ -768,6 +776,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 			}
 		}
 	}
+
 	g_settings.record_hours = configfile.getInt32( "record_hours", 4 );
 	g_settings.timeshift_hours = configfile.getInt32( "timeshift_hours", 4 );
 	g_settings.filesystem_is_utf8              = configfile.getBool("filesystem_is_utf8"                 , true );
@@ -873,12 +882,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 2);//default next Event
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
-	g_settings.channellist_hdicon = configfile.getInt32("channellist_hdicon", 0); //default off
 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat
 	g_settings.channellist_numeric_adjust  = configfile.getInt32("channellist_numeric_adjust", 0);
 	g_settings.channellist_show_channellogo = configfile.getInt32("channellist_show_channellogo", 1);
 	g_settings.channellist_show_infobox = configfile.getInt32("channellist_show_infobox", 1);
 	g_settings.channellist_show_numbers = configfile.getInt32("channellist_show_numbers", 1);
+	g_settings.channellist_show_res_icon = configfile.getInt32("channellist_show_res_icon", 0);
 
 	//screen configuration
 	g_settings.osd_resolution      = (osd_resolution_tmp == -1) ? configfile.getInt32("osd_resolution", 0) : osd_resolution_tmp;
@@ -1656,7 +1665,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
 	configfile.setInt32("channellist_foot", g_settings.channellist_foot);
 	configfile.setInt32("channellist_new_zap_mode", g_settings.channellist_new_zap_mode);
-	configfile.setInt32("channellist_hdicon", g_settings.channellist_hdicon);
 	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);
 	configfile.setBool  ( "audiochannel_up_down_enable", g_settings.audiochannel_up_down_enable );
 	configfile.setInt32("channellist_sort_mode", g_settings.channellist_sort_mode);
@@ -1664,6 +1672,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("channellist_show_channellogo", g_settings.channellist_show_channellogo);
 	configfile.setInt32("channellist_show_infobox", g_settings.channellist_show_infobox);
 	configfile.setInt32("channellist_show_numbers", g_settings.channellist_show_numbers);
+	configfile.setInt32("channellist_show_res_icon", g_settings.channellist_show_res_icon);
 
 	//screen configuration
 	configfile.setInt32("osd_resolution"     , COsdHelpers::getInstance()->g_settings_osd_resolution_save);
@@ -2975,17 +2984,6 @@ void CNeutrinoApp::RealRun()
 		if (mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio)
 #endif
 		{
-			bool ignored_msg = (
-				/* radio screensaver will ignore this msgs */
-				   msg == NeutrinoMessages::EVT_CURRENTEPG
-				|| msg == NeutrinoMessages::EVT_NEXTEPG
-				|| msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG
-				|| msg == NeutrinoMessages::EVT_TIMESET
-				|| msg == NeutrinoMessages::EVT_PROGRAMLOCKSTATUS
-				|| msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES
-				|| msg == NeutrinoMessages::EVT_ZAP_GOTAPIDS
-				|| msg == NeutrinoMessages::EVT_ZAP_GOTPIDS
-			);
 			if (msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER)
 			{
 				if (CScreenSaver::getInstance()->canStart() && !CScreenSaver::getInstance()->isActive())
@@ -2994,7 +2992,7 @@ void CNeutrinoApp::RealRun()
 					CScreenSaver::getInstance()->Start();
 				}
 			}
-			else if (!ignored_msg)
+			else if (!CScreenSaver::getInstance()->ignoredMsg(msg))
 			{
 				if (CScreenSaver::getInstance()->isActive())
 				{
@@ -3636,6 +3634,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 #endif
 
 	/* ================================== KEYS ================================================ */
+	if (msg == (neutrino_msg_t) g_settings.key_standby_off_add && mode == NeutrinoModes::mode_standby)
+		msg = CRCInput::RC_standby_off;
+
 	if( msg == CRCInput::RC_ok || msg == (neutrino_msg_t) g_settings.key_zaphistory || msg == (neutrino_msg_t) g_settings.key_current_transponder
 			|| (!g_InfoViewer->getSwitchMode() && CNeutrinoApp::getInstance()->listModeKey(msg))) {
 		if( (mode == NeutrinoModes::mode_tv) || (mode == NeutrinoModes::mode_radio) || (mode == NeutrinoModes::mode_ts) || (mode == NeutrinoModes::mode_webtv) || (mode == NeutrinoModes::mode_webradio)) {
@@ -5226,6 +5227,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	//rc-key configuration
 	g_settings.key_tvradio_mode = tconfig.getInt32( "key_tvradio_mode", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_power_off = tconfig.getInt32( "key_power_off", CRCInput::RC_standby );
+	g_settings.key_standby_off_add = tconfig.getInt32( "key_standby_off_add", CRCInput::RC_ok );
 
 	g_settings.key_pageup = tconfig.getInt32( "key_channelList_pageup",  CRCInput::RC_page_up );
 	g_settings.key_pagedown = tconfig.getInt32( "key_channelList_pagedown", CRCInput::RC_page_down );
@@ -5321,6 +5323,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	//rc-key configuration
 	tconfig.setInt32( "key_tvradio_mode", g_settings.key_tvradio_mode );
 	tconfig.setInt32( "key_power_off", g_settings.key_power_off );
+	tconfig.setInt32( "key_standby_off_add", g_settings.key_standby_off_add );
 
 	tconfig.setInt32( "key_channelList_pageup", g_settings.key_pageup );
 	tconfig.setInt32( "key_channelList_pagedown", g_settings.key_pagedown );
