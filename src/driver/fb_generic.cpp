@@ -704,8 +704,9 @@ void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 
 std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_type)
 {
-	std::string path, filetype;
-	filetype = "." + file_type;
+	std::string path, filetype = "";
+	if (!file_type.empty())
+		filetype = "." + file_type;
 
 	std::string dir[] = {	THEMESDIR_VAR "/" + g_settings.theme_name + "/icons",
 				THEMESDIR "/" + g_settings.theme_name + "/icons",
@@ -1547,12 +1548,7 @@ void CFrameBuffer::Clear()
 
 void CFrameBuffer::showFrame(const std::string & filename)
 {
-	std::string picture = std::string(ICONSDIR_VAR) + "/" + filename;
-	if (access(picture.c_str(), F_OK))
-		picture = iconBasePath + "/" + filename;
-	if (filename.find("/", 0) != std::string::npos)
-		picture = filename;
-
+	std::string picture = getIconPath(filename, "");
 	videoDecoder->ShowPicture(picture.c_str());
 }
 
