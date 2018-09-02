@@ -204,7 +204,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 		 * init button label face values
 		*/
 		string txt 		= content[i].locale == NONEXISTANT_LOCALE ? content[i].text : g_Locale->getText(content[i].locale);
-		string icon_name 	= string(content[i].button);
+		string icon_name 	= content[i].button ? string(content[i].button) : "";
 
 		/*
 		 * Ignore item, if no text and no icon is defined.
@@ -318,10 +318,12 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content
 		buttons[i].button = v_content[i].button;
 		buttons[i].text = v_content[i].text;
 		buttons[i].locale = v_content[i].locale;
-		buttons[i].directKeys = v_content[i].directKeys;
+		for (size_t j= 0; j< v_content[i].directKeys.size(); j++)
+			buttons[i].directKeys.push_back(v_content[i].directKeys[j]);
 		buttons[i].btn_result = v_content[i].btn_result;
 		buttons[i].btn_alias = v_content[i].btn_alias;
 	}
+
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 	delete[] buttons;
 }
@@ -416,4 +418,11 @@ void CComponentsFooter::initDefaultFonts()
 {
 	l_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	s_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
+}
+
+CComponentsButton* CComponentsFooter::getButtonLabel(const uint& item_id)
+{
+	if (btn_container)
+		return static_cast<CComponentsButton*>(btn_container->getCCItem(item_id));
+	return NULL;
 }
