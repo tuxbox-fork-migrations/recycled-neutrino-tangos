@@ -92,7 +92,6 @@ extern int allow_flash;
 #define gUserAgent "neutrino/softupdater 1.0"
 
 #define LIST_OF_UPDATES_LOCAL_FILENAME "update.list"
-#define RELEASE_CYCLE                  "2.0"
 
 #if HAVE_DUCKBOX_HARDWARE
 #define FILEBROWSER_UPDATE_FILTER      "img"
