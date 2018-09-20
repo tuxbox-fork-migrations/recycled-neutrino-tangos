@@ -2207,13 +2207,13 @@ void CChannelList::updateVfd()
 		return;
 
 	CZapitChannel* chan = (*chanlist)[selected];
+#if 0
 	CChannelEvent *p_event=NULL;
 	if (displayNext)
 		p_event = &chan->nextEvent;
 	else
 		p_event = &chan->currentEvent;
 
-#if 0
 	if (!(chan->currentEvent.description.empty())) {
 		char nameAndDescription[255];
 		snprintf(nameAndDescription, sizeof(nameAndDescription), "%s - %s",
@@ -2221,6 +2221,7 @@ void CChannelList::updateVfd()
 		CVFD::getInstance()->showMenuText(0, nameAndDescription, -1, true); // UTF-8
 	} else
 #endif
+	if (chan)
 		CVFD::getInstance()->showMenuText(0, chan->getName().c_str(), -1, true); // UTF-8
 }
 
@@ -2494,7 +2495,6 @@ void CChannelList::paint_events(CChannelEventList &evtlist)
 	CChannelEventList::iterator e;
 	time_t azeit;
 	time(&azeit);
-	unsigned int u_azeit = ( azeit > -1)? azeit:0;
 
 	if ( evtlist.empty() )
 	{
