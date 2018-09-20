@@ -2615,6 +2615,8 @@ TIMER_START();
 
 	bootstatus->showStatus(30);
 
+	CFileHelpers::getInstance()->removeDir(COVERDIR_TMP);
+
 	/* set service manager options before starting zapit */
 	CServiceManager::getInstance()->KeepNumbers(g_settings.keep_channel_numbers);
 	//zapit start parameters
