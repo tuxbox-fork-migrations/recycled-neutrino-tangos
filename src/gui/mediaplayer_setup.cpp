@@ -45,6 +45,7 @@
 
 #include <gui/webtv_setup.h>
 #include <gui/webradio_setup.h>
+#include <gui/xmltv_setup.h>
 #include <gui/moviebrowser/mb.h>
 
 #include <driver/screen_max.h>
@@ -94,6 +95,11 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 	CWebRadioSetup rsetup;
 	mf = new CMenuForwarder(LOCALE_WEBRADIO_HEAD, true, NULL, &rsetup, "show_menu", CRCInput::RC_blue);
 	mf->setHint(NEUTRINO_ICON_HINT_RADIOMODE /* FIXME */, LOCALE_MENU_HINT_WEBRADIO_SETUP);
+	mediaSetup->addItem(mf);
+
+	CXMLTVSetup xmltvsetup;
+	mf = new CMenuForwarder(LOCALE_XMLTV_HEAD, true, NULL, &xmltvsetup, "show_menu", CRCInput::RC_blue);
+	mf->setHint(NEUTRINO_ICON_HINT_TVMODE /* FIXME */, LOCALE_MENU_HINT_XMLTV_SETUP);
 	mediaSetup->addItem(mf);
 
 	mediaSetup->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_MOVIEPLAYER));
