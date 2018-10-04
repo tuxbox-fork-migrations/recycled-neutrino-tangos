@@ -331,7 +331,7 @@ void CInfoViewer::showRecords()
 			recline->setCorner(CORNER_RADIUS_MID);
 			recordsbox->addCCItem(recline);
 
-			CComponentsPicture *iconf = new CComponentsPicture(OFFSET_INNER_MID, 0, NEUTRINO_ICON_REC, recline, CC_SHADOW_OFF, COL_RED, COL_INFOBAR_PLUS_0);
+			CComponentsPicture *iconf = new CComponentsPicture(OFFSET_INNER_MID, 0, NEUTRINO_ICON_MARKER_RECORD, recline, CC_SHADOW_OFF, COL_RED, COL_INFOBAR_PLUS_0);
 			iconf->setCornerType(CORNER_NONE);
 			iconf->doPaintBg(true);
 			iconf->SetTransparent(CFrameBuffer::TM_BLACK);
