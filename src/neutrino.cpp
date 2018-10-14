@@ -4936,11 +4936,13 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		FILE *f = fopen("/var/etc/.e2", "w");
 		if (f)
 			fclose(f);
+		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 		ExitRun(CNeutrinoApp::EXIT_CHANGEGUI);
 		returnval = menu_return::RETURN_NONE;
 	}
 	else if(actionKey=="n_restart")
 	{
+		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 		ExitRun(CNeutrinoApp::EXIT_CHANGEGUI);
 		returnval = menu_return::RETURN_NONE;
 	}
