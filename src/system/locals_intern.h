@@ -478,7 +478,7 @@ const char * locale_real_names[] =
 	"extra.dboxinfo_use",
 	"extra.dboxinfo_used",
 	"extra.east",
-	"extra.external_volume"
+	"extra.external_volume",
 	"extra.fec_1_2",
 	"extra.fec_2_3",
 	"extra.fec_2_5",
