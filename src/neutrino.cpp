@@ -1372,7 +1372,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "video_psi_step", g_settings.psi_step );
 #endif
 
-	configfile.setInt32( "current_volume", g_settings.current_volume );
+	if (!g_settings.hdmi_cec_volume)
+		configfile.setInt32( "current_volume", g_settings.current_volume );
 	configfile.setInt32( "current_volume_step", g_settings.current_volume_step );
 	configfile.setInt32( "start_volume", g_settings.start_volume );
 #if HAVE_SH4_HARDWARE
@@ -3099,19 +3100,7 @@ void CNeutrinoApp::RealRun()
 								showInfo();
 							break;
 						case SNeutrinoSettings::VOLUME:
-							if (g_settings.volume_external)
-							{
-								if (my_system((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT) != 0)
-									perror((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT " failed");
-							}
-#if HAVE_ARM_HARDWARE
-							else if (g_settings.hdmi_cec_volume)
-							{
-								(msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? hdmi_cec::getInstance()->vol_up() : hdmi_cec::getInstance()->vol_down();
-							}
-#endif
-							else
-								g_volume->setVolume(msg);
+							g_volume->setVolume(msg);
 							break;
 						default: /* SNeutrinoSettings::ZAP */
 							quickZap(msg);
@@ -3226,19 +3215,7 @@ void CNeutrinoApp::RealRun()
 							showInfo();
 						break;
 					case SNeutrinoSettings::VOLUME:
-						if (g_settings.volume_external)
-						{
-							if (my_system((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT) != 0)
-								perror((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT " failed");
-						}
-#if HAVE_ARM_HARDWARE
-						else if (g_settings.hdmi_cec_volume)
-						{
-							(msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? hdmi_cec::getInstance()->vol_up() : hdmi_cec::getInstance()->vol_down();
-						}
-#endif
-						else
-							g_volume->setVolume(msg);
+						g_volume->setVolume(msg);
 						break;
 					default: /* SNeutrinoSettings::ZAP */
 						quickZap(msg);
@@ -3800,19 +3777,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus))
 	{
-		if (g_settings.volume_external)
-		{
-			if (my_system((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT) != 0)
-				perror((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT " failed");
-		}
-#if HAVE_ARM_HARDWARE
-		else if (g_settings.hdmi_cec_volume)
-		{
-			(msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? hdmi_cec::getInstance()->vol_up() : hdmi_cec::getInstance()->vol_down();
-		}
-#endif
-		else
-			g_volume->setVolume(msg);
+		g_volume->setVolume(msg);
 #if HAVE_DUCKBOX_HARDWARE
 		if((mode == NeutrinoModes::mode_tv) || (mode == NeutrinoModes::mode_radio)) {
 			CVFD::getInstance()->showServicename(channelList->getActiveChannelName());
@@ -3827,58 +3792,16 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		}
 		else {
 			//mute
-			if (g_settings.volume_external)
-			{
-				if (my_system(!current_muted ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT) != 0)
-					perror(!current_muted ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT " failed");
-				else
-					setCurrentMuted(!current_muted);
-			}
-#if HAVE_ARM_HARDWARE
-			else if (g_settings.hdmi_cec_volume)
-			{
-				hdmi_cec::getInstance()->toggle_mute();
-			}
-#endif
-			else
-				g_audioMute->AudioMute(!current_muted, true);
+			g_audioMute->AudioMute(!current_muted, true);
 		}
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mute_on ) {
-		if (g_settings.volume_external)
-		{
-			if (my_system(MUTE_ON_SCRIPT) != 0)
-				perror(MUTE_ON_SCRIPT " failed");
-			else
-				setCurrentMuted(true);
-		}
-#if HAVE_ARM_HARDWARE
-		else if (g_settings.hdmi_cec_volume)
-		{
-			hdmi_cec::getInstance()->toggle_mute();
-		}
-#endif
-		else
-			g_audioMute->AudioMute(true, true);
+		g_audioMute->AudioMute(true, true);
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mute_off ) {
-		if (g_settings.volume_external)
-		{
-			if (my_system(MUTE_OFF_SCRIPT) != 0)
-				perror(MUTE_OFF_SCRIPT " failed");
-			else
-				setCurrentMuted(false);
-		}
-#if HAVE_ARM_HARDWARE
-		else if (g_settings.hdmi_cec_volume)
-		{
-			hdmi_cec::getInstance()->toggle_mute();
-		}
-#endif
-		else
-			g_audioMute->AudioMute(false, true);
+		g_audioMute->AudioMute(false, true);
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_analog_on ) {
