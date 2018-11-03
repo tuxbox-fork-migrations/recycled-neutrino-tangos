@@ -962,6 +962,7 @@ void CEventList::showProgressBar(int pos)
 	{
 		pb->hide();
 	}
+
 }
 
 void CEventList::paint(t_channel_id channel_id)
