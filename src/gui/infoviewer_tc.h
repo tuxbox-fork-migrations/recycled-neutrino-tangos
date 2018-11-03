@@ -111,7 +111,7 @@ private:
 	COSDFader	fader;
 
 	int info_time_width;
-	int time_width;
+	int ca_y_offset;
 	int header_height;
 	bool newfreq ;
 	static const short bar_width = 72;
