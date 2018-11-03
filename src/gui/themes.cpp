@@ -93,10 +93,10 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 			if ( strstr(themeFile.c_str(), "{U}") != 0 ) 
 			{
 				themeFile.erase(0, 3);
-				readFile(((std::string)THEMESDIR_VAR + "/" + themeFile + FILE_SUFFIX).c_str());
+				readFile(((std::string)THEMESDIR_VAR + "/" + themeFile).c_str());
 			} 
 			else
-				readFile(((std::string)THEMESDIR + "/" + themeFile + FILE_SUFFIX).c_str());
+				readFile(((std::string)THEMESDIR + "/" + themeFile).c_str());
 			g_settings.theme_name = themeFile;
 		}
 		OnAfterSelectTheme();
@@ -210,7 +210,7 @@ int CThemes::Show()
 	int res = themes.exec(NULL, "");
 
 	if (!file_name.empty()) {
-		saveFile(((std::string)THEMESDIR_VAR + "/" + file_name + FILE_SUFFIX).c_str());
+		saveFile(((std::string)THEMESDIR_VAR + "/" + file_name).c_str());
 	}
 
 	if (hasThemeChanged) {
@@ -238,7 +238,7 @@ void CThemes::rememberOldTheme(bool remember)
 
 void CThemes::readFile(std::string filename)
 {
-	std::string themename = filename + THEME_SUFFIX;
+	std::string themename = filename;
 
 	if(themefile.loadConfig(themename))
 	{

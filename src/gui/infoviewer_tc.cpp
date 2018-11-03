@@ -116,6 +116,7 @@ CInfoViewer::CInfoViewer ()
 	: fader(g_settings.theme.infobar_alpha)
 {
 	header = NULL;
+	clock = NULL;
 	body = rec = NULL;
 	txt_cur_start = txt_cur_event = txt_cur_event_rest = txt_next_start = txt_next_event = txt_next_in = NULL;
 	timescale = NULL;
@@ -476,6 +477,7 @@ void CInfoViewer::paintHead(t_channel_id channel_id,std::string channel_name)
 
 void CInfoViewer::paintBody()
 {
+	if (skinPaintBackground()) return;
 	int h_body = InfoHeightY - header_height;// - OFFSET_SHADOW;
 	if(h_body < 0)
 		h_body = 0;
@@ -2113,9 +2115,11 @@ void CInfoViewer::killTitle()
 				infobar_txt->kill();
 		}
 
-		header->kill();
+		if (header)
+			header->kill();
 
-		body->kill();
+		if (body)
+			body->kill();
 
 		if (g_settings.radiotext_enable && g_Radiotext)
 		{

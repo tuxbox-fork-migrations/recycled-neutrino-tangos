@@ -686,7 +686,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
 
 	//theme/color options
-	CThemes::getTheme(configfile);
+	CThemes::getInstance()->getTheme(configfile);
 	g_settings.skinfiles = configfile.getString("skinfiles" , "none" );
 	CSkins().readSkinFile(g_settings.skinfiles.c_str());
 	g_settings.osd_colorsettings_advanced_mode = configfile.getBool("osd_colorsettings_advanced_mode", false);
@@ -1558,7 +1558,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	//theme/color options
 	configfile.setString("skinfiles" , g_settings.skinfiles );
-	CThemes::setTheme(configfile);
+	CThemes::getInstance()->setTheme(configfile);
 	configfile.setBool("osd_colorsettings_advanced_mode", g_settings.osd_colorsettings_advanced_mode);
 
 #ifdef ENABLE_GRAPHLCD
