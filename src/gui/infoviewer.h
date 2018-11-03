@@ -28,14 +28,16 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-
+#if ENABLE_TANGOS
+#include "infoviewer_tc.h"
+#else
 
 #ifndef __infoview__
 #define __infoview__
 
 #include <sectionsdclient/sectionsdclient.h>
 
-#include <driver/rcinput.h>
+#include <driver/neutrino_msg_t.h>
 #include <system/settings.h>
 #include <string>
 #include <zapit/channel.h>
@@ -52,7 +54,7 @@ class CInfoViewer
 	CInfoViewerBB* infoViewerBB;
 	CComponentsFrmClock *clock;
 	CComponentsShapeSquare *header , *numbox, *body, *rec;
-	CComponentsTextTransp *txt_cur_start, *txt_cur_event, *txt_cur_event_rest, *txt_next_start, *txt_next_event, *txt_next_in;
+	CComponentsTextTransp *txt_curr_start, *txt_curr_event, *txt_curr_rest, *txt_next_start, *txt_next_event, *txt_next_in;
 
 	bool           gotTime;
 	bool           recordModeActive;
@@ -65,11 +67,8 @@ class CInfoViewer
 	bool	       fileplay;
 
 	int            ButtonWidth;
-	int            spacer;
 
         // dimensions of radiotext window
-        int             rt_dx;
-        int             rt_dy;
         int             rt_x;
         int             rt_y;
         int             rt_h;
@@ -78,22 +77,20 @@ class CInfoViewer
 	std::string ChannelName;
 
 	int            ChanNameX;
-	int            ChanNumWidth;
+	int            ChanNameY;
 	int            ChanWidth;
+	int            ChanHeight;
 	int            numbox_offset;
-
-	int            ana_clock_size;
-	char		   strChanNum[10];
-	void           PaintChanNumber();
+	int            numbox_maxtxtwidth;
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
 	CSectionsdClient::CurrentNextInfo oldinfo;
         t_channel_id   current_channel_id;
         t_channel_id   current_epg_id;
 
-	//uint32_t           fadeTimer;
 	COSDFader	fader;
 
+	int time_width;
 	int time_height;
 	int info_time_width;
 	int header_height;
@@ -152,8 +149,6 @@ class CInfoViewer
 	void sendNoEpg(const t_channel_id channel_id);
 	bool showLivestreamInfo();
 
-	CComponentsWindowMax *ecmInfoBox;
-
  public:
 	bool     chanready;
 	bool	 is_visible;
@@ -161,21 +156,13 @@ class CInfoViewer
 	char     aspectRatio;
 	uint32_t sec_timer_id;
 
-	int      BoxStartX;
-	int      BoxStartY;
-	int      ChanHeight;
+	int	BoxStartX;
+	int	BoxStartY;
 	int      BoxEndX;
 	int      BoxEndY;
 	int      ChanInfoX;
 	bool     showButtonBar;
 	bool     isVolscale;
-	int      ChanNameY;
-	int      time_width;
-
-	std::string	md5_ecmInfo;
-	bool ecminfo_toggle;
-	void ecmInfoBox_hide();
-	void ecmInfoBox_show(const char * txt, int w, int h, Font * font);
 
 	CInfoViewer();
 	~CInfoViewer();
@@ -186,11 +173,12 @@ class CInfoViewer
 
 	void	start();
 	void	showEpgInfo();
-	void	showTitle(CZapitChannel * channel, const bool calledFromNumZap = false, int epgpos = 0);
-	void	showTitle(t_channel_id channel_id, const bool calledFromNumZap = false, int epgpos = 0);
+	void	showTitle(CZapitChannel * channel, const bool calledFromNumZap = false, int epgpos = 0, bool forcePaintButtonBar = false);
+	void	showTitle(t_channel_id channel_id, const bool calledFromNumZap = false, int epgpos = 0, bool forcePaintButtonBar = false);
 	void lookAheadEPG(const int ChanNum, const std::string & Channel, const t_channel_id new_channel_id = 0, const bool calledFromNumZap = false); //alpha: fix for nvod subchannel update
 	void	killTitle();
 	void	getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info);
+	CSectionsdClient::CurrentNextInfo getCurrentNextInfo() const { return info_CurrentNext; }
 	
 	void	showSubchan();
 	//void	Set_CA_Status(int Status);
@@ -227,14 +215,8 @@ class CInfoViewer
 	inline t_channel_id get_current_channel_id(void) { return current_channel_id; }
 	void 	ResetModules(bool kill = false);
 	void	KillModules() {ResetModules(true); };
+	bool 	hasTimeout();
 };
-#if 0
-class CInfoViewerHandler : public CMenuTarget
-{
-	public:
-		int  exec( CMenuTarget* parent,  const std::string &actionkey);
-		int  doMenu();
+#endif
 
-};
-#endif
-#endif
+#endif //ENABLE_TANGOS

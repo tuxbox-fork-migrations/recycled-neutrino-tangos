@@ -33,7 +33,6 @@
 #ifndef __infoview_bb__
 #define __infoview_bb__
 
-#include <driver/rcinput.h>
 #include <driver/fade.h>
 #include <system/settings.h>
 #include "widget/menue.h"
@@ -68,9 +67,7 @@ class CInfoViewerBB
 			ICON_RES	= 5,
 			ICON_CA		= 6,
 			ICON_TUNER	= 7,
-			ICON_UPDATE	= 8,
-			ICON_LOGO	= 9,
-			ICON_MAX	= 10
+			ICON_MAX	= 8
 		};
 
 		typedef struct
@@ -84,16 +81,6 @@ class CInfoViewerBB
 			std::string text;
 			bool active;
 		} bbButtonInfoStruct;
-
-		enum CAM_DECODE_NUM {UNKNOWN, NA, FTA, LOCAL, CARD, REMOTE};
-		void 		paint_cam_icons();
-		void*		Thread_paint_cam_icons(void);
-		unsigned short int decode;
-		int		DecEndx;
-		int 		parse_ecmInfo(const char * file);
-		int		check_ecmInfo();
-		bool	camCI;
-		bool	useCI;
 
 		typedef struct
 		{
@@ -118,22 +105,20 @@ class CInfoViewerBB
 
 		CProgressBar *hddscale, *sysscale;
 		CComponentsShapeSquare *foot, *ca_bar;
+		int ca_h;
 		void paintFoot(int w = 0);
 		void showBBIcons(const int modus, const std::string & icon);
 		void getBBIconInfo(void);
 		bool checkBBIcon(const char * const icon, int *w, int *h);
 
-		void paint_ca_icons(int, const char*, int&);
+		void paint_ca_icon(int, const char*, int&);
 		void paint_ca_bar();
-		void showOne_CAIcon();
 
 		static void* scrambledThread(void *arg);
 		void scrambledCheck(bool force=false);
 
 		void showBarSys(int percent = 0);
 		void showBarHdd(int percent = 0);
-
-		int ca_y_offset;
 
 		CInfoViewerBB();
 
@@ -142,24 +127,21 @@ class CInfoViewerBB
 		static CInfoViewerBB* getInstance();
 		void Init(void);
 
-		int bottom_bar_offset, InfoHeightY_Info, showBBIcons_width;
+		int bottom_bar_offset, InfoHeightY_Info;
 		bool is_visible;
 
+		void paint_ca_icons(int);
 		void showSysfsHdd(void);
-		void showIcon_CA_Status(int);
 		void showIcon_16_9();
 		void showIcon_RadioText(bool rt_available);
 		void showIcon_VTXT();
 		void showIcon_SubT();
 		void showIcon_Resolution();
 		void showIcon_Tuner(void);
-		void showIcon_Update(bool);
-		void showIcon_Logo();
-		void show_clock(int posx,int posy,int dia);
-		void ShowRecDirScale();
 		void showIcon_DD(void);
+		void showIcon_CA();
 		void showBBButtons(bool paintFooter = false);
-		void paintshowButtonBar();
+		void paintshowButtonBar(bool noTimer = false);
 		void getBBButtonInfo(void);
 		void reset_allScala(void);
 		void initBBOffset(void);
