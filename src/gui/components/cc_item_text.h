@@ -95,8 +95,6 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		///destroy current CTextBox and CBox objects
 		void clearCCText();
 
-		///initialize all required attributes for text and send to the CTextBox object
-		void initCCText();
 		///init internal CBox object required by CTextBox object
 		void initCBox();
 
@@ -163,6 +161,9 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 
 		///send option to CTextBox object to paint background box behind text or not
 		virtual inline void doPaintTextBoxBg(bool do_paintbox_bg){ ct_paint_textbg = do_paintbox_bg;};
+
+		///initialize all required attributes for text and send to the CTextBox object
+		void initCCText();
 
 		///set text as string also possible with overloades members for loacales, const char and text file, returns true if text was changed
 		virtual bool setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
@@ -276,7 +277,8 @@ class CComponentsLabel : public CComponentsText
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, shadow_mode, color_text, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_LABEL;
+			cc_item_type.id 	= CC_ITEMTYPE_LABEL;
+			cc_item_type.name	="cc_label_box";
 		};
 
 		CComponentsLabel(	CComponentsForm *parent,
@@ -292,7 +294,8 @@ class CComponentsLabel : public CComponentsText
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, shadow_mode, color_text, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_LABEL;
+			cc_item_type.id		= CC_ITEMTYPE_LABEL;
+			cc_item_type.name	="cc_label_box";
 		};
 };
 

@@ -41,6 +41,7 @@
 
 #include "record_setup.h"
 #include <gui/filebrowser.h>
+#include <gui/followscreenings.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/msgbox.h>
@@ -173,6 +174,13 @@ const CMenuOptionChooser::keyval END_OF_RECORDING[END_OF_RECORDING_COUNT] =
 	{1, LOCALE_RECORDINGMENU_END_OF_RECORDING_EPG}
 };
 
+const CMenuOptionChooser::keyval timer_followscreenings_options[] =
+{
+	{CFollowScreenings::FOLLOWSCREENINGS_OFF	,LOCALE_OPTIONS_OFF	},
+	{CFollowScreenings::FOLLOWSCREENINGS_ON		,LOCALE_OPTIONS_ON	}
+};
+size_t timer_followscreenings_options_count = sizeof(timer_followscreenings_options)/sizeof(CMenuOptionChooser::keyval);
+
 int CRecordSetup::showRecordSetup()
 {
 	CMenuForwarder * mf;
@@ -232,7 +240,7 @@ int CRecordSetup::showRecordSetup()
 	cover->setHint("", LOCALE_MENU_HINT_RECORD_AUTO_COVER);
 	recordingSettings->addItem(cover);
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 	CMenuOptionNumberChooser *ch;
 	ch = new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_BUFSIZE, &g_settings.recording_bufsize, true, 1, 25, NULL);
 	ch->setNumberFormat("%d MB");
@@ -285,7 +293,7 @@ int CRecordSetup::showRecordSetup()
 void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 {
 	//recording start/end correcture
-	int pre,post;
+	int pre = 0,post = 0;
 	g_Timerd->getRecordingSafety(pre,post);
 	g_settings.record_safety_time_before = pre/60;
 	g_settings.record_safety_time_after = post/60;
@@ -325,7 +333,7 @@ void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 	menu_timersettings->addItem(GenericMenuSeparatorLine);
 
 	//allow followscreenings
-	CMenuOptionChooser* followscreenings = new CMenuOptionChooser(LOCALE_TIMERSETTINGS_FOLLOWSCREENINGS, &g_settings.timer_followscreenings, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	CMenuOptionChooser* followscreenings = new CMenuOptionChooser(LOCALE_TIMERSETTINGS_FOLLOWSCREENINGS, &g_settings.timer_followscreenings, timer_followscreenings_options, timer_followscreenings_options_count, true);
 	followscreenings->setHint("", LOCALE_MENU_HINT_TIMER_FOLLOWSCREENINGS);
 	menu_timersettings->addItem(followscreenings);
 }
@@ -388,6 +396,8 @@ void CRecordSetup::showRecordTimeShiftSetup(CMenuWidget *menu_ts)
 		menu_ts->addItem(mc);
 
 		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_EXTRA_AUTO_TIMESHIFT, &g_settings.auto_timeshift, true, 0, 300, NULL);
+		mn->setNumberFormat(g_Locale->getText(LOCALE_WORD_AFTER) + std::string(" %d ") + g_Locale->getText(LOCALE_UNIT_SHORT_SECOND));
+		mn->setLocalizedValue(0, LOCALE_OPTIONS_OFF);
 		mn->setHint("", LOCALE_MENU_HINT_RECORD_TIMESHIFT_AUTO);
 		menu_ts->addItem(mn);
 

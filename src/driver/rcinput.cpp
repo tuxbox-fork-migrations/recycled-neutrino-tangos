@@ -44,6 +44,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <limits.h>
 
 #include <sys/un.h>
 #include <sys/socket.h>
@@ -62,7 +63,7 @@
 #include <sectionsdclient/sectionsdclient.h>
 #include <cs_api.h>
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 #include <gui/cec_setup.h>
 #endif
 
@@ -198,16 +199,17 @@ void CRCInput::open(bool recheck)
 	/* close() takes the lock, too... */
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
-	unsigned long evbit;
 	struct in_dev id;
+
+#if !HAVE_GENERIC_HARDWARE
 	DIR *dir;
-	struct dirent *dentry;
 	dir = opendir("/dev/input");
 	if (! dir) {
 		printf("[rcinput:%s] opendir failed: %m\n", __func__);
 		return;
 	}
-
+	unsigned long evbit;
+	struct dirent *dentry;
 	while ((dentry = readdir(dir)) != NULL)
 	{
 		id.path = "/dev/input/" + std::string(dentry->d_name);
@@ -248,6 +250,7 @@ void CRCInput::open(bool recheck)
 		indev.push_back(id);
 	}
 	closedir(dir);
+#endif
 	id.path = "/tmp/neutrino.input";
 	if (! checkpath(id)) {
 		id.fd = ::open(id.path.c_str(), O_RDWR|O_NONBLOCK|O_CLOEXEC);
@@ -263,8 +266,8 @@ void CRCInput::open(bool recheck)
 	//+++++++++++++++++++++++++++++++++++++++
 #ifdef KEYBOARD_INSTEAD_OF_REMOTE_CONTROL
 	fd_keyb = STDIN_FILENO;
-	if (fd_rc[0] < 0)
-		fd_rc[0] = fd_keyb;
+	if (indev[0].fd < 0)
+		indev[0].fd = fd_keyb;
 #else
 	fd_keyb = 0;
 #endif /* KEYBOARD_INSTEAD_OF_REMOTE_CONTROL */
@@ -410,7 +413,7 @@ int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 	if ( timeout == -1 )
 		timeout = g_settings.timing[SNeutrinoSettings::TIMING_MENU];
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout == 0 ? 0xFFFF : timeout);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	while (doLoop)
 	{
@@ -440,7 +443,7 @@ int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 					if ( anyKeyCancels )
 						doLoop = false;
 					else
-						timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+						timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 				}
 			}
 		}
@@ -474,7 +477,7 @@ int CRCInput::addTimer(uint64_t Interval, bool oneshot, bool correct_time )
 
 	_newtimer.correct_time = correct_time;
 
-//printf("adding timer %d (0x%llx, 0x%llx)\n", _newtimer.id, _newtimer.times_out, Interval);
+//printf("adding timer %d (0x%" PRIx64 ", 0x%" PRIx64 ")\n", _newtimer.id, _newtimer.times_out, Interval);
 
 	std::vector<timer>::iterator e;
 	for ( e= timers.begin(); e!= timers.end(); ++e )
@@ -540,15 +543,15 @@ int CRCInput::checkTimers()
 	return _id;
 }
 
-int64_t CRCInput::calcTimeoutEnd(const int timeout_in_seconds)
+int64_t CRCInput::calcTimeoutEnd(const int _timeout_in_seconds)
 {
-	return time_monotonic_us() + ((uint64_t)timeout_in_seconds * (uint64_t) 1000000);
+	uint64_t timeout_in_seconds = (_timeout_in_seconds == 0) ? INT_MAX : _timeout_in_seconds;
+	return time_monotonic_us() + (timeout_in_seconds * 1000000);
 }
 
 int64_t CRCInput::calcTimeoutEnd_MS(const int timeout_in_milliseconds)
 {
-	uint64_t timeNow = time_monotonic_us();
-	return ( timeNow + timeout_in_milliseconds * 1000 );
+	return time_monotonic_us() + (timeout_in_milliseconds * 1000);
 }
 
 void CRCInput::getMsgAbsoluteTimeout(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t *TimeoutEnd, bool bAllowRepeatLR)
@@ -1307,7 +1310,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 			}
 		}
 
-		for (std::vector<in_dev>::iterator i = indev.begin(); i != indev.end(); ++i) {
+		/* iterate backwards or the vector will be corrupted by the indev.erase(i) */
+		std::vector<in_dev>::iterator i = indev.end();
+		while (i != indev.begin()) {
+			--i;
 			if (((*i).fd != -1) && (FD_ISSET((*i).fd, &rfds))) {
 				uint64_t now_pressed = 0;
 				t_input_event ev;
@@ -1319,7 +1325,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					if (errno == ENODEV) {
 						/* hot-unplugged? */
 						::close((*i).fd);
-						indev.erase(i);
+						i = indev.erase(i);
 					}
 					continue;
 				}
@@ -1340,6 +1346,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					now_pressed -= (t2.tv_usec + t2.tv_sec * 1000000ULL);
 				}
 				SHTDCNT::getInstance()->resetSleepTimer();
+#if HAVE_ARM_HARDWARE
+				if ((ev.code == 0 || ev.code == 1) && ev.value && firstKey)
+					continue;
+#endif
 				if (ev.value && firstKey) {
 					firstKey = false;
 					CTimerManager::getInstance()->cancelShutdownOnWakeup();
@@ -1384,7 +1394,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					if (*timer_wakeup) {
 						unlink("/tmp/.timer_wakeup");
 						*timer_wakeup = false;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 						CCECSetup cecsetup;
 						cecsetup.setCECSettings(true);
 #endif
@@ -1394,13 +1404,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					if (trkey == rc_last_key) {
 						/* only allow selected keys to be repeated */
 						if (mayRepeat(trkey, bAllowRepeatLR) ||
-						    (g_settings.shutdown_real_rcdelay && ((trkey == RC_standby) &&
-#if HAVE_COOL_HARDWARE
-						    (cs_get_revision() > 7)
-#else
-						    (g_info.hw_caps->can_shutdown)
-#endif
-						)))
+						    (g_settings.shutdown_real_rcdelay && ((trkey == RC_standby) && (g_info.hw_caps->can_shutdown))))
 						{
 #ifdef ENABLE_REPEAT_CHECK
 							if (rc_last_repeat_key != trkey) {
@@ -1735,6 +1739,20 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "media";
 			case RC_search:
 				return "search";
+			case RC_nextsong:
+				return "next song";
+			case RC_previoussong:
+				return "previous song";
+			case RC_bookmarks:
+				return "bookmarks";
+			case RC_program:
+				return "program";
+			case RC_playpause:
+				return "play / pause";
+#if BOXMODEL_HD51 || BOXMODEL_HD60
+			case RC_playpause_long:
+				return "play / pause long";
+#endif
 			default:
 				printf("unknown key: %d (0x%x) \n", key, key);
 				return "unknown";
@@ -1743,9 +1761,14 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 
 std::string CRCInput::getKeyName(const unsigned int key)
 {
-	std::string res(getKeyNameC(key & ~RC_Repeat));
-	if ((key & RC_Repeat) && res != "unknown")
-		res += " (long)";
+	std::string res;
+	if (key > RC_MaxRC)
+		res = getKeyNameC(key); /* will only resolve RC_nokey or "unknown" */
+	else {
+		res = (getKeyNameC(key & ~RC_Repeat));
+		if ((key & RC_Repeat) && res != "unknown")
+			res += " (long)";
+	}
 	return res;
 }
 
@@ -1769,12 +1792,22 @@ int CRCInput::translate(int code)
 	{
 		case KEY_EXIT:
 			return RC_home;
-		case KEY_FASTFORWARD:
-			return RC_forward;
 		case 0x100: // FIXME -- needed?
 			return RC_up;
 		case 0x101: // FIXME -- needed?
 			return RC_down;
+		case KEY_PROGRAM:
+			return RC_timer;
+		case KEY_CHANNELUP:
+			return RC_page_up;
+		case KEY_CHANNELDOWN:
+			return RC_page_down;
+#ifdef HAVE_ARM_HARDWARE
+		case KEY_VIDEO:
+			return RC_favorites;
+		case KEY_FASTFORWARD:
+			return RC_forward;
+#endif
 #ifdef HAVE_AZBOX_HARDWARE
 		case KEY_HOME:
 			return RC_favorites;
@@ -1796,7 +1829,10 @@ int CRCInput::translate(int code)
 
 void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
 {
-	for (std::vector<in_dev>::iterator it = indev.begin(); it != indev.end(); ++it) {
+	/* iterate backwards or the vector will be corrupted by the indev.erase(i) */
+	std::vector<in_dev>::iterator it = indev.end();
+	while (it != indev.begin()) {
+		--it;
 		int fd = (*it).fd;
 		std::string path = (*it).path;
 		if (path == "/tmp/neutrino.input")
@@ -1820,8 +1856,17 @@ void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
 		 * rcinput loop into accepting the key event... */
 		ie.value = start_ms + 10;
 		ie.code = REP_DELAY;
-		if (write(fd, &ie, sizeof(ie)) == -1)
+		if (write(fd, &ie, sizeof(ie)) == -1) {
+			if (errno == ENODEV) {
+				printf("[rcinput:%s] %s(fd %d) ENODEV??\n", __func__, path.c_str(), fd);
+				/* hot-unplugged? */
+				::close(fd);
+				it = indev.erase(it);
+				devinput_mtime.tv_sec = 0; /* force check */
+				continue;
+			}
 			printf("[rcinput:%s] %s(fd %d) write %s: %m\n", __func__, path.c_str(), fd, "REP_DELAY");
+		}
 
 		ie.value = repeat_ms + 10;
 		ie.code = REP_PERIOD;

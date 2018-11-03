@@ -22,7 +22,8 @@
 #ifndef __MENU_TARGET__
 #define __MENU_TARGET__
 
-
+#include <string>
+#include <driver/framebuffer.h>
 
 class CMenuTarget
 {
@@ -30,11 +31,11 @@ class CMenuTarget
 		std::string *valueString;
 		std::string valueStringTmp;
 	public:
-		CMenuTarget(){ valueString = &valueStringTmp; }
+		CMenuTarget(){ valueStringTmp = std::string(); valueString = &valueStringTmp; }
 		virtual ~CMenuTarget(){}
 		virtual void hide(){}
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey) = 0;
-		virtual std::string &getValue(void) { return *valueString; }
+		virtual std::string& getValue(void) { return *valueString; }
 		virtual fb_pixel_t getColor(void) { return 0; }
 };
 

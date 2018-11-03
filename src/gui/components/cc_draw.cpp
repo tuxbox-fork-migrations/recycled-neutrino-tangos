@@ -31,12 +31,15 @@
 #include <system/debug.h>
 extern CPictureViewer * g_PicViewer;
 
+/* export CCDRAW_DEBUG to paint red lines around all elements */
+static bool CCDraw_debug = !!(getenv("CCDRAW_DEBUG"));
+
 CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 {
 	frameBuffer 		= CFrameBuffer::getInstance();
 
-	x = cc_xr = x_old	= 0;
-	y = cc_yr = y_old	= 0;
+	x = cc_xr = cc_xr_old = x_old	= 0;
+	y = cc_yr = cc_yr_old = y_old	= 0;
 	height	= height_old	= CC_HEIGHT_MIN;
 	width	= width_old	= CC_WIDTH_MIN;
 
@@ -45,7 +48,7 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	col_frame = col_frame_old 		= COL_FRAME_PLUS_0;
 	col_shadow_clean			= 0;
 
-	cc_body_image = cc_body_image_old 	= string();
+	cc_body_image = cc_body_image_old 	= std::string();
 
 	fr_thickness = fr_thickness_old		= 0;
 
@@ -95,14 +98,16 @@ CCDraw::~CCDraw()
 inline bool CCDraw::applyPosChanges()
 {
 	bool ret = false;
-	if (x != x_old){
-		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], Pos changes x %d != x_old %d...\033[0m\n", __func__, __LINE__, x, x_old);
+	if (x != x_old || cc_xr != cc_xr_old){
+		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], Pos changes x %d != x_old %d... [cc_xr = %d cc_xr_old = %d]\033[0m\n", __func__, __LINE__, x, x_old, cc_xr, cc_xr_old);
 		x_old = x;
+		cc_xr_old = cc_xr;
 		ret = true;
 	}
-	if (y != y_old){
-		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], Pos changes y %d != y_old %d...\033[0m\n", __func__, __LINE__, y, y_old);
+	if (y != y_old || cc_yr != cc_yr_old){
+		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], Pos changes y %d != y_old %d... [cc_yr = %d cc_yr_old = %d]\033[0m\n", __func__, __LINE__, y, y_old, cc_yr, cc_yr_old);
 		y_old = y;
+		cc_yr_old = cc_yr;
 		ret = true;
 	}
 
@@ -374,15 +379,16 @@ bool CCDraw::clearFbGradientData()
 	for(size_t i =0; i< v_fbdata.size() ;i++) {
 		if (v_fbdata[i].gradient_data){
 			if (v_fbdata[i].gradient_data->gradientBuf){
+				dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], clean up gradientBuf   \t %p...\033[0m\n", __func__, __LINE__, v_fbdata[i].gradient_data->gradientBuf);
 				free(v_fbdata[i].gradient_data->gradientBuf);
 				v_fbdata[i].gradient_data->gradientBuf = NULL;
-				dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], clean up gradientBuf...\033[0m\n", __func__, __LINE__);
 			}
 			if (v_fbdata[i].gradient_data->boxBuf){
+				dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], clean up boxBuf     \t %p...\033[0m\n", __func__, __LINE__, v_fbdata[i].gradient_data->boxBuf);
 				cs_free_uncached(v_fbdata[i].gradient_data->boxBuf);
 				v_fbdata[i].gradient_data->boxBuf = NULL;
-				dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], clean up boxBuf...\033[0m\n", __func__, __LINE__);
 			}
+			dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], clean up gradient data \t %p...\033[0m\n", __func__, __LINE__, v_fbdata[i].gradient_data);
 			delete v_fbdata[i].gradient_data;
 			v_fbdata[i].gradient_data = NULL;
 			ret = true;
@@ -414,21 +420,27 @@ bool CCDraw::CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int 
 {
 	int32_t rows = fbdata.dx / (int32_t)frameBuffer->getScreenWidth(true) - 1 + fbdata.y;
 	int32_t rest = fbdata.dx % (int32_t)frameBuffer->getScreenWidth(true);
-	int32_t end  = rows * (int32_t)frameBuffer->getScreenWidth(true) + rest;
+        int32_t end  = rows * (int32_t)frameBuffer->getScreenWidth(true) + rest;
 	if (	(fbdata.x < 0 || fbdata.y < 0) ||
-		(end >= (int32_t)frameBuffer->getScreenWidth(true)*(int32_t)frameBuffer->getScreenHeight(true))
+		(end >= (int32_t)frameBuffer->getScreenWidth(true)*(int32_t)frameBuffer->getScreenHeight(true)) 
 	   ) {
-			dprintf(DEBUG_NORMAL, "[CCDraw] ERROR! Position < 0 or > FB end [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n",
+		dprintf(DEBUG_NORMAL, "[CCDraw] ERROR! Position < 0 or > FB end [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n item: %s [type: %d]\n",
 				func, line,
 				fbdata.x, fbdata.y,
-				fbdata.dx, fbdata.dy);
+				fbdata.dx, fbdata.dy,
+				cc_item_type.name.c_str(),
+				cc_item_type.id
+		);
 			return false;
 		}
 		if (fbdata.dx == 0 || fbdata.dy == 0) {
-			dprintf(DEBUG_DEBUG,"[CCDraw]\t[%s - %d], INFO! dx and/or dy = 0, tx = %d,  y = %d, dx = %d,  dy = %d\n",
+			dprintf(DEBUG_DEBUG,"[CCDraw]\t[%s - %d], INFO! dx and/or dy = 0, tx = %d,  y = %d, dx = %d,  dy = %d\n item: %s [type: %d]\n",
 				func, line,
 				fbdata.x, fbdata.y,
-				fbdata.dx, fbdata.dy);
+				fbdata.dx, fbdata.dy,
+				cc_item_type.name.c_str(),
+				cc_item_type.id
+			);
 			return false;
 		}
 	return true;
@@ -439,11 +451,13 @@ bool CCDraw::CheckFbData(const cc_fbdata_t& fbdata, const char* func, const int 
 //screen area save
 fb_pixel_t* CCDraw::getScreen(int ax, int ay, int dx, int dy)
 {
+	fb_pixel_t* pixbuf = NULL;
+
 	if (dx < 1 ||  dy < 1 || dx * dy == 0)
 		return NULL;
+	else
+		pixbuf = new fb_pixel_t[dx * dy];
 
-	dprintf(DEBUG_INFO, "[CCDraw] INFO! [%s - %d], ax = %d, ay = %d, dx = %d, dy = %d\n", __func__, __LINE__, ax, ay, dx, dy);
-	fb_pixel_t* pixbuf = new fb_pixel_t[dx * dy];
 	frameBuffer->waitForIdle("CCDraw::getScreen()");
 	frameBuffer->SaveScreen(ax, ay, dx, dy, pixbuf);
 	return pixbuf;
@@ -452,8 +466,14 @@ fb_pixel_t* CCDraw::getScreen(int ax, int ay, int dx, int dy)
 cc_screen_data_t CCDraw::getScreenData(const int& ax, const int& ay, const int& dx, const int& dy)
 {
 	cc_screen_data_t res;
+	res.x = res.y = res.dx = res.dy = 0;
 	res.pixbuf = getScreen(ax, ay, dx, dy);
-	res.x = ax; res.y = ay; res.dx = dx; res.dy = dy;
+
+	if (res.pixbuf){
+		res.x = ax; res.y = ay; res.dx = dx; res.dy = dy;
+	}
+	else
+		dprintf(DEBUG_NORMAL, "\033[33m[CCDraw]\[%s - %d], Warning: initialize of screen buffer failed!\033[0m\n", __func__, __LINE__);
 
 	return res;
 }
@@ -540,6 +560,8 @@ void CCDraw::paintFbItems(bool do_save_bg)
 			if (fbtype == CC_FBDATA_TYPE_BACKGROUND){
 				frameBuffer->paintBackgroundBoxRel(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy);
 				v_fbdata[i].is_painted = true;
+				if (CCDraw_debug)
+					frameBuffer->paintBoxFrame(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, 1, COL_RED);
 				continue;
 			}
 		}
@@ -673,6 +695,8 @@ void CCDraw::paintFbItems(bool do_save_bg)
 				}
 			}
 		}
+		if (CCDraw_debug)
+			frameBuffer->paintBoxFrame(fbdata.x, fbdata.y, fbdata.dx, fbdata.dy, 1, COL_RED);
 	}
 
 	//set is_painted attribut. if any layer was painted set it to true;
@@ -714,21 +738,28 @@ void CCDraw::hide()
 	}
 	firstPaint = true;
 	is_painted = false;
-	frameBuffer->blit();
 	OnAfterHide();
 }
 
 //erase or paint over rendered objects
 void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const int& fblayer_type /*fbdata_type*/)
 {
+	int layers = fblayer_type;
+
+	if (fblayer_type & ~CC_FBDATA_TYPES)
+		layers = CC_FBDATA_TYPES;
+
 	for(size_t i =0; i< v_fbdata.size() ;i++){
-		if (fblayer_type == CC_FBDATA_TYPES || v_fbdata[i].fbdata_type & fblayer_type){
-#if 0
-		if (bg_color != COL_BACKGROUND_PLUS_0)
-#endif
-			int r =  v_fbdata[i].r;
-			if (corner_radius > -1)
-				r = corner_radius;
+		if (v_fbdata[i].fbdata_type & layers){
+
+			int r = 0;
+
+			if (corner_radius > -1){
+				r = v_fbdata[i].r;
+				if (corner_radius != v_fbdata[i].r)
+					r = corner_radius;
+			}
+
 			if (v_fbdata[i].dx > 0 && v_fbdata[i].dy > 0){
 				frameBuffer->paintBoxRel(v_fbdata[i].x,
 							v_fbdata[i].y,
@@ -736,31 +767,28 @@ void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const in
 							v_fbdata[i].dy,
 							bg_color,
 							r,
-							corner_type);
-			}else
-				dprintf(DEBUG_DEBUG, "\033[33m[CCDraw][%s - %d], WARNING! render with bad dimensions [dx = %d dy = %d]\033[0m\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy );
+							v_fbdata[i].rtype);
 
-			if (v_fbdata[i].frame_thickness)
-					frameBuffer->paintBoxFrame(v_fbdata[i].x,
-								   v_fbdata[i].y,
-								   v_fbdata[i].dx,
-								   v_fbdata[i].dy,
-								   v_fbdata[i].frame_thickness,
-								   bg_color,
-								   r,
-								   corner_type);
+				if (v_fbdata[i].fbdata_type & CC_FBDATA_TYPE_FRAME){
+					if (v_fbdata[i].frame_thickness)
+							frameBuffer->paintBoxFrame(v_fbdata[i].x,
+										v_fbdata[i].y,
+										v_fbdata[i].dx,
+										v_fbdata[i].dy,
+										v_fbdata[i].frame_thickness,
+										bg_color,
+										v_fbdata[i].r,
+										v_fbdata[i].rtype);
+					}
+			}else
+				dprintf(DEBUG_DEBUG, "\033[33m[CCDraw]\t[%s - %d] WARNING! render with bad dimensions [dx = %d dy = %d]\033[0m\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy );
+
 			v_fbdata[i].is_painted = false;
-#if 0
-		else
-			frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
-#endif
 		}
 	}
 
-	if (fblayer_type == CC_FBDATA_TYPES){
-		firstPaint = true;
-		is_painted = false;
-	}
+	firstPaint = true;
+	is_painted = false;
 }
 
 void CCDraw::killShadow(const fb_pixel_t& bg_color, const int& corner_radius)

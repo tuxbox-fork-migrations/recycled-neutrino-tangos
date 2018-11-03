@@ -56,6 +56,7 @@
 #include <driver/streamts.h>
 #include <driver/record.h>
 #include <driver/genpsi.h>
+#include <system/set_threadname.h>
 #include <gui/movieplayer.h>
 
 #include <system/set_threadname.h>
@@ -159,7 +160,7 @@ void CStreamInstance::AddClient(int clientfd)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	fds.insert(clientfd);
-	printf("CStreamInstance::AddClient: %d (count %d)\n", clientfd, fds.size());
+	printf("CStreamInstance::AddClient: %d (count %d)\n", clientfd, (int)fds.size());
 }
 
 void CStreamInstance::RemoveClient(int clientfd)
@@ -167,7 +168,7 @@ void CStreamInstance::RemoveClient(int clientfd)
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	fds.erase(clientfd);
 	close(clientfd);
-	printf("CStreamInstance::RemoveClient: %d (count %d)\n", clientfd, fds.size());
+	printf("CStreamInstance::RemoveClient: %d (count %d)\n", clientfd, (int)fds.size());
 }
 
 bool CStreamInstance::Open()
@@ -186,6 +187,7 @@ void CStreamInstance::run()
 {
 	set_threadname("CStreamInstance::run");
 	printf("CStreamInstance::run: %" PRIx64 "\n", channel_id);
+	set_threadname("n:streaminstance");
 
 	/* pids here cannot be empty */
 	stream_pids_t::iterator it = pids.begin();
@@ -204,25 +206,23 @@ void CStreamInstance::run()
 
 	CCamManager::getInstance()->Start(channel_id, CCamManager::STREAM);
 
-#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
 	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
 	if(live_fe)
 		CFEManager::getInstance()->unlockFrontend(live_fe);
 	if(frontend)
 		CFEManager::getInstance()->lockFrontend(frontend);
 	//CZapit::getInstance()->SetRecordMode(true);
-#endif
+
 	while (running) {
 		ssize_t r = dmx->Read(buf, IN_SIZE, 100);
 		if (r > 0)
 			Send(r);
 	}
 
-#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
 	if(frontend)
 		CFEManager::getInstance()->unlockFrontend(frontend);
 	//CZapit::getInstance()->SetRecordMode(false);
-#endif
+
 	CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
 
 	printf("CStreamInstance::run: exiting %" PRIx64 " (%d fds)\n", channel_id, (int)fds.size());
@@ -280,8 +280,11 @@ bool CStreamManager::Stop()
 	if (!running)
 		return false;
 	running = false;
-	cancel();
-	bool ret = (OpenThreads::Thread::join() == 0);
+	bool ret = false;
+	if (OpenThreads::Thread::CurrentThread() == this) {
+		cancel();
+		ret = (OpenThreads::Thread::join() == 0);
+	}
 	StopAll();
 	return ret;
 }
@@ -324,7 +327,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 	CFEManager::getInstance()->Lock();
 
 	bool unlock = false;
-	if (!IS_WEBTV(live_channel_id)) {
+	if (!IS_WEBCHAN(live_channel_id)) {
 		unlock = true;
 		CFEManager::getInstance()->lockFrontend(live_fe);
 	}
@@ -347,7 +350,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 	CFEManager::getInstance()->Unlock();
 
 	if (frontend) {
-		bool found = (live_fe != frontend) || IS_WEBTV(live_channel_id) || SAME_TRANSPONDER(live_channel_id, chid);
+		bool found = (live_fe != frontend) || IS_WEBCHAN(live_channel_id) || SAME_TRANSPONDER(live_channel_id, chid);
 		bool ret = false;
 		if (found)
 			ret = zapit.zapTo_record(chid) > 0;
@@ -370,11 +373,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 	for (std::set<CFrontend*>::iterator ft = frontends.begin(); ft != frontends.end(); ++ft)
 		CFEManager::getInstance()->unlockFrontend(*ft);
 
-#if HAVE_DUCKBOX_HARDWARE || HAVE_SPARK_HARDWARE
 	if (unlock && !frontend)
-#else
-	if (unlock)
-#endif
 		CFEManager::getInstance()->unlockFrontend(live_fe);
 
 	CFEManager::getInstance()->Unlock();
@@ -441,13 +440,14 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 	if (sscanf(bp, "id=%" SCNx64, &tmpid) == 1) {
 		channel = CServiceManager::getInstance()->FindChannel(tmpid);
 		chid = tmpid;
+		pids.clear(); // to catch and stream all pids later !
 	}
 #endif
 	if (!channel)
 		return false;
 
 	printf("CStreamManager::Parse: channel_id %" PRIx64 " [%s]\n", chid, channel->getName().c_str());
-	if (IS_WEBTV(chid))
+	if (IS_WEBCHAN(chid))
 		return true;
 
 	frontend = FindFrontend(channel);
@@ -532,7 +532,7 @@ bool CStreamManager::AddClient(int connfd)
 			it->second->AddClient(connfd);
 		} else {
 			CStreamInstance * stream;
-			if (IS_WEBTV(channel_id)) {
+			if (IS_WEBCHAN(channel_id)) {
 				stream = new CStreamStream(connfd, channel_id, pids);
 			} else {
 				stream = new CStreamInstance(connfd, channel_id, pids);
@@ -579,6 +579,7 @@ void CStreamManager::run()
 	int poll_timeout = -1;
 
 	printf("Starting STREAM thread keeper, tid %ld\n", syscall(__NR_gettid));
+	set_threadname("n:streammanager");
 
 	while (running) {
 		mutex.lock();
@@ -877,7 +878,7 @@ bool CStreamStream::Open()
 	av_dict_copy(&ofcx->metadata, ifcx->metadata, 0);
 	int stid = 0x200;
 	for (unsigned i = 0; i < ifcx->nb_streams; i++) {
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
 		AVCodecContext * iccx = ifcx->streams[i]->codec;
 		AVStream *ost = avformat_new_stream(ofcx, iccx->codec);
 		avcodec_copy_context(ost->codec, iccx);
@@ -952,7 +953,7 @@ void CStreamStream::run()
 		if (pkt.stream_index < 0)
 			continue;
 
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
 		AVCodecContext *codec = ifcx->streams[pkt.stream_index]->codec;
 #else
 		AVCodecParameters *codec = ifcx->streams[pkt.stream_index]->codecpar;

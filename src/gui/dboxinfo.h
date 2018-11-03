@@ -50,9 +50,10 @@ class CDBoxInfoWidget : public CMenuTarget
 		int height;
 		int hheight,mheight; // head/menu font height
 		int fontWidth;
-		int sizeWidth;
+		int sizeWidth; // width of mem / disk sizes
 		int percWidth;
 		int nameWidth;
+		bool upmode;   // system or neutrino uptime
 
 		void paint();
 		CComponentsHeader *header;

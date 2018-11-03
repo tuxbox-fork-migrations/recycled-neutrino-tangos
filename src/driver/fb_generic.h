@@ -39,6 +39,14 @@
 
 typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 
+typedef struct osd_resolution_t
+{
+	uint32_t yRes;
+	uint32_t xRes;
+	uint32_t bpp;
+	uint32_t mode;
+} osd_resolution_struct_t;
+
 typedef struct gradientData_t
 {
 	fb_pixel_t* gradientBuf;
@@ -66,7 +74,9 @@ typedef struct gradientData_t
 
 #define WINDOW_SIZE_MAX		100 // %
 #define WINDOW_SIZE_MIN		50 // %
-#define WINDOW_SIZE_MIN_FORCED	80 // %
+#define WINDOW_SIZE_SMALL	80 // %
+
+#define FB_DEVICE		"/dev/fb0"
 
 /** Ausfuehrung als Singleton */
 class CFrameBuffer : public sigc::trackable
@@ -164,7 +174,7 @@ class CFrameBuffer : public sigc::trackable
 
 		static CFrameBuffer* getInstance();
 
-		virtual void init(const char * const fbDevice = "/dev/fb0");
+		virtual void init(const char * const fbDevice = FB_DEVICE);
 		virtual int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 
 
@@ -176,8 +186,8 @@ class CFrameBuffer : public sigc::trackable
 		virtual unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
 		unsigned int getScreenWidth(bool real = false);
 		unsigned int getScreenHeight(bool real = false);
-		unsigned int getScreenWidthRel(bool force_small = false);
-		unsigned int getScreenHeightRel(bool force_small = false);
+		unsigned int getWindowWidth(bool force_small = false);
+		unsigned int getWindowHeight(bool force_small = false);
 		unsigned int getScreenX();
 		unsigned int getScreenY();
 
@@ -231,6 +241,7 @@ class CFrameBuffer : public sigc::trackable
 				const int h = 0, const unsigned char offset = 1, bool paint = true, bool paintBg = false, const fb_pixel_t colBg = 0);
 		bool paintIcon8(const std::string & filename, const int x, const int y, const unsigned char offset = 0);
 		void loadPal   (const std::string & filename, const unsigned char offset = 0, const unsigned char endidx = 255);
+		void clearIconCache();
 
 		bool loadPicture2Mem        (const std::string & filename, fb_pixel_t * const memp);
 		bool loadPicture2FrameBuffer(const std::string & filename);
@@ -270,6 +281,17 @@ class CFrameBuffer : public sigc::trackable
 		virtual void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
 
 		virtual void mark(int x, int y, int dx, int dy);
+		enum Mode3D { Mode3D_off = 0, Mode3D_SideBySide, Mode3D_TopAndBottom, Mode3D_SIZE };
+		virtual void set3DMode(Mode3D);
+		virtual Mode3D get3DMode(void);
+		enum Mode3D mode3D;
+/* Remove this when pu/fb-setmode branch is merged to master */
+#define SCALE2RES_DEFINED
+		virtual int scale2Res(int size) { return size; };
+		virtual bool fullHdAvailable() { return false; };
+		virtual void setOsdResolutions();
+		std::vector<osd_resolution_t> osd_resolutions;
+		size_t getIndexOsdResolution(uint32_t mode);
 
 		enum
 			{

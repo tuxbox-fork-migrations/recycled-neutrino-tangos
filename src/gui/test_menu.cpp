@@ -51,6 +51,8 @@
 #include <xmlinterface.h>
 
 #include <gui/widget/msgbox.h>
+#include <gui/widget/progresswindow.h>
+#include <gui/widget/termwindow.h>
 #include <gui/scan.h>
 #include <gui/scan_setup.h>
 #include <zapit/zapit.h>
@@ -115,6 +117,11 @@ CTestMenu::~CTestMenu()
 }
 
 //static int test_pos[4] = { 130, 192, 282, 360 };
+
+void CTestMenu::handleShellOutput(std::string *line, int *, bool *)
+{
+	fprintf(stderr, "%s: %s\n", __func__, line->c_str());
+}
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 {
@@ -661,7 +668,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			footer->setIcon(NEUTRINO_ICON_INFO);
 
 			//add button labels with conventional button label struct
-			footer->setButtonLabels(TestButtons, TestButtonsCount, 0, footer->getWidth()/TestButtonsCount);
+			footer->setButtonLabels(TestButtons, TestButtonsCount, 1000, footer->getWidth()/TestButtonsCount);
 
 			//also possible: use directly button name and as 2nd parameter string or locale as text
 //			footer->setButtonLabel(NULL, "Test", 0, 250);
@@ -748,11 +755,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "window"){
 		if (window == NULL){
 			window = new CComponentsWindow();
-			window->setWindowCaption("|........HEADER........|", CTextBox::CENTER);
+			window->setWindowCaption("|........HEADER........|", CCHeaderTypes::CC_TITLE_CENTER);
 			window->setDimensionsAll(50, 50, 500, 500);
 			window->setWindowIcon(NEUTRINO_ICON_INFO);
 			window->enableShadow();
-			window->getFooterObject()->setCaption("|........FOOTER........|", CTextBox::CENTER);
+			window->getFooterObject()->setCaption("|........FOOTER........|", CCHeaderTypes::CC_TITLE_CENTER);
 
 			CComponentsShapeCircle *c10 = new CComponentsShapeCircle(0, 0, 28);
 			CComponentsShapeCircle *c11 = new CComponentsShapeCircle(0, CC_APPEND, 28);
@@ -841,6 +848,55 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
+	else if (actionKey == "progress_window"){
+		//classical
+		CProgressWindow pw0("Progress Single Test");
+		pw0.paint();
+		size_t max = 3;
+		for(size_t i = 0; i< max; i++){
+			pw0.showStatus(i, max, to_string(i));
+			sleep(1);
+		}
+		pw0.hide();
+
+		CProgressWindow pw1("Progress Local/Global Test");
+		pw1.paint();
+		for(size_t i = 0; i< max; i++){
+			pw1.showGlobalStatus(i, max, to_string(i));
+			for(size_t j = 0; j< max; j++){
+				pw1.showLocalStatus(j, max, to_string(j));
+				sleep(1);
+			}
+		}
+		pw1.hide();
+
+		//with signals
+		sigc::signal<void, size_t, size_t, std::string> OnProgress0, OnProgress1;
+		CProgressWindow pw2("Progress Single Test -> single Signal", CCW_PERCENT 50, CCW_PERCENT 30, &OnProgress0);
+		pw2.paint();
+
+		for(size_t i = 0; i< max; i++){
+			OnProgress0(i, max, to_string(i));
+			sleep(1);
+		}
+		pw2.hide();
+
+		OnProgress0.clear();
+		OnProgress1.clear();
+		CProgressWindow pw3("Progress Single Test -> dub Signal", CCW_PERCENT 50, CCW_PERCENT 20, NULL, &OnProgress0, &OnProgress1);
+		pw3.paint();
+
+		for(size_t i = 0; i< max; i++){
+			OnProgress1(i, max, to_string(i));
+				for(size_t j = 0; j< max; j++){
+					OnProgress0(j, max, to_string(j));
+					sleep(1);
+				}
+		}
+		pw3.hide();
+
+		return menu_return::RETURN_REPAINT;
+	}
 	else if (actionKey == "hintbox_test")
 	{
 		ShowHint("Testmenu: Hintbox popup test", "Test for HintBox,\nPlease press any key or wait some seconds! ...", 700, 10, NULL, NEUTRINO_ICON_HINT_IMAGEINFO, CComponentsHeader::CC_BTN_EXIT);
@@ -857,7 +913,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "msgbox_test_cancel"){
 		CMsgBox * msgBox = new CMsgBox("Testmenu: MsgBox exit test", "Please press key");
-// 		msgBox->setTimeOut(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]);
+		// msgBox->setTimeOut(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR]);
 		msgBox->paint();
 		res = msgBox->exec();
 		msgBox->hide();
@@ -926,6 +982,35 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		DisplayInfoMessage("Info Test!");
 		return menu_return::RETURN_REPAINT;
 	}
+	else if (actionKey == "shellwindow"){
+		sigc::slot3<void, std::string*, int *, bool *> sl_shell_output;
+		sl_shell_output = sigc::mem_fun(*this, &CTestMenu::handleShellOutput);
+		int r = 0;
+		const char *c = getenv("TEST_COMMAND");
+		std::string cmd = "/bin/ps auxwf";
+		if (c)
+			cmd = (std::string)c;
+		CTermWindow term(cmd, CTermWindow::VERBOSE | CTermWindow::ACKNOWLEDGE, &r, false);
+		term.OnShellOutputLoop.connect(sl_shell_output);
+		term.exec();
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "msgbox_alt_btn"){
+		CMsgBox msgBox("Variable buttontext...", "Msgbox Test");
+		msgBox.setShowedButtons(CMsgBox::mbNo | CMsgBox::mbYes);
+		msgBox.setButtonText(CMsgBox::mbNo, "Left Button");
+		msgBox.setButtonText(CMsgBox::mbYes, "Right Button");
+		msgBox.paint();
+		res = msgBox.exec();
+		msgBox.hide();
+
+		std::string msg_txt = "Return value of MsgBox test is ";
+		msg_txt += to_string(msgBox.getResult());
+
+		ShowHint("MsgBox test returns", msg_txt.c_str(), 700, 10, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
+
+		return res;
+	}
 	else if (actionKey == "footer_key"){
 		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Footer-Key pressed. Press EXIT to return", 350, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
 		hintBox.setTimeOut(15);
@@ -986,7 +1071,7 @@ void CTestMenu::showRecords()
 			recline->doPaintBg(true);
 			recline->setColorBody(COL_INFOBAR_PLUS_0);
 			recline->enableShadow(CC_SHADOW_ON, w_shadow);
-			recline->setCorner(CORNER_RADIUS_MID);
+			recline->setCorner(RADIUS_MID);
 			recordsbox->addCCItem(recline);
 
 			CComponentsPicture *iconf = new CComponentsPicture(OFFSET_INNER_MID, CC_CENTERED, NEUTRINO_ICON_REC, recline, CC_SHADOW_OFF, COL_RED, COL_INFOBAR_PLUS_0);
@@ -1045,6 +1130,7 @@ int CTestMenu::showTestMenu()
 	CMenuWidget w_test(rev /*"Test menu"*/, NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU);
 	w_test.addIntroItems();
 	
+	w_test.addItem(new CMenuForwarder("Shell Window Test", true, NULL, this, "shellwindow"));
 	//hardware
 	CMenuWidget * w_hw = new CMenuWidget("Hardware Test", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HARDWARE);
 	w_test.addItem(new CMenuForwarder(w_hw->getName(), true, NULL, w_hw));
@@ -1068,6 +1154,9 @@ int CTestMenu::showTestMenu()
 	w_test.addItem(new CMenuForwarder(w_msg->getName(), true, NULL, w_msg));
 	showMsgTests(w_msg);
 
+	//restart gui
+	w_test.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, CNeutrinoApp::getInstance(), "restart", CRCInput::RC_standby));
+
 	//footer buttons
 	static const struct button_label footerButtons[2] = {
 		{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_COLORCHOOSER_RED	},
@@ -1077,14 +1166,18 @@ int CTestMenu::showTestMenu()
 	w_test.setFooter(footerButtons, 2);
 	w_test.addKey(CRCInput::RC_red, this, "footer_key");
 	w_test.addKey(CRCInput::RC_green, this, "footer_key");
-
+	int res = w_test.exec(NULL, "");
+	delete w_hw;
+	delete w_cc;
+	delete w_msg;
 	//exit
-	return w_test.exec(NULL, "");;
+	return res;
 }
 
 void CTestMenu::showCCTests(CMenuWidget *widget)
 {
 	widget->addIntroItems();
+	widget->addItem(new CMenuForwarder("Progress Window", true, NULL, this, "progress_window"));
 	widget->addItem(new CMenuForwarder("Running Clock", true, NULL, this, "running_clock"));
 	widget->addItem(new CMenuForwarder("Clock", true, NULL, this, "clock"));
 	widget->addItem(new CMenuForwarder("Button", true, NULL, this, "button"));
@@ -1173,6 +1266,7 @@ void CTestMenu::showMsgTests(CMenuWidget *widget)
 {
 	widget->addIntroItems();
 	widget->addItem(new CMenuForwarder("HintBox test!", true, NULL, this, "hintbox_test"));
+	widget->addItem(new CMenuForwarder("Other buttontext", true, NULL, this, "msgbox_alt_btn"));
 	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "MsgBox"));
 	widget->addItem(new CMenuForwarder("cancel on timeout", true, NULL, this, 	"msgbox_test_cancel_timeout"));
 	widget->addItem(new CMenuForwarder("yes no", true, NULL, this, "msgbox_test_yes_no"));

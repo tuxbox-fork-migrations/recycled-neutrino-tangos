@@ -39,7 +39,8 @@ CComponentsSlider::CComponentsSlider(	const int& x_pos, const int& y_pos, const 
 					fb_pixel_t& color_body,
 					fb_pixel_t& color_shadow)
 {
-	cc_item_type 	= CC_ITEMTYPE_SLIDER;
+	cc_item_type.id 	= CC_ITEMTYPE_SLIDER;
+	cc_item_type.name 	= "cc_slider";
 	corner_rad	= 0;
 
 	x 		= x_pos;
@@ -59,8 +60,8 @@ CComponentsSlider::CComponentsSlider(	const int& x_pos, const int& y_pos, const 
 	csl_body_obj	= NULL;
 	csl_slider_obj	= NULL;
 
-	csl_body_icon	= NEUTRINO_ICON_VOLUMEBODY;
-	csl_slider_icon	 =NEUTRINO_ICON_VOLUMESLIDER2;
+	csl_body_icon	= NEUTRINO_ICON_SLIDER_BODY;
+	csl_slider_icon	 =NEUTRINO_ICON_SLIDER_INACTIVE;
 
 	initCCSlItems();
 	initParent(parent);

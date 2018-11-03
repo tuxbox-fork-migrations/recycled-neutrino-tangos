@@ -1100,10 +1100,8 @@ void CZapitClient::setStandby(const bool enable)
 	msg.truefalse = enable;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_SET_STANDBY, (char*)&msg, sizeof(msg));
-	if(enable) {
-		CZapitMessages::responseCmd response;
-		CBasicClient::receive_data((char* )&response, sizeof(response));
-	}
+	CZapitMessages::responseCmd response;
+	CBasicClient::receive_data((char* )&response, sizeof(response));
 	close_connection();
 }
 
@@ -1263,6 +1261,27 @@ void CZapitClient::setAspectRatio(int ratio)
 	close_connection();
 }
 
+void CZapitClient::getOSDres(int *mosd)
+{
+	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	send(CZapitMessages::CMD_GET_OSD_RES, 0, 0);
+	CBasicClient::receive_data((char* )&msg, sizeof(msg));
+	* mosd = msg.val;
+	close_connection();
+}
+
+void CZapitClient::setOSDres(int mosd)
+{
+	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
+	msg.val = mosd;
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	send(CZapitMessages::CMD_SET_OSD_RES, (char*)&msg, sizeof(msg));
+	close_connection();
+}
+
 void CZapitClient::getMode43(int *m43)
 {
 	CZapitMessages::commandInt msg;
@@ -1281,6 +1300,17 @@ void CZapitClient::setMode43(int m43)
 	msg.val = m43;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_SET_MODE43, (char*)&msg, sizeof(msg));
+	close_connection();
+}
+
+void CZapitClient::getVideoFormat(int *vf)
+{
+	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	send(CZapitMessages::CMD_GET_VIDEO_FORMAT, 0, 0);
+	CBasicClient::receive_data((char* )&msg, sizeof(msg));
+	* vf = msg.val;
 	close_connection();
 }
 

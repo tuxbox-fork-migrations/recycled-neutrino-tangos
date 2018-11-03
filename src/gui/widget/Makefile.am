@@ -1,3 +1,5 @@
+SUBDIRS = yaft
+
 AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 AM_CPPFLAGS += \
@@ -10,6 +12,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/libconfigfile \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
+	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_gui_widget.a libneutrino_gui_widget2.a
@@ -27,9 +30,11 @@ libneutrino_gui_widget_a_SOURCES = \
 	menue.cpp \
 	mountchooser.cpp \
 	msgbox.cpp \
+	navibar.cpp \
 	shellwindow.cpp \
 	stringinput.cpp \
 	stringinput_ext.cpp \
+	termwindow.cpp \
 	textbox.cpp
 
 libneutrino_gui_widget2_a_SOURCES = \

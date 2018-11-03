@@ -35,6 +35,7 @@
 
 #include "system/settings.h"
 #include "system/helpers.h"
+#include <system/helpers-json.h>
 #include "system/set_threadname.h"
 #include "gui/widget/hintbox.h"
 
@@ -197,12 +198,12 @@ bool cTmdb::GetMovieDetails(std::string lang)
 	if (!getUrl(url, answer))
 		return false;
 
+	std::string errMsg = "";
 	Json::Value root;
-	Json::Reader reader;
-	bool parsedSuccess = reader.parse(answer, root, false);
-	if (!parsedSuccess) {
+	bool ok = parseJsonFromString(answer, &root, &errMsg);
+	if (!ok) {
 		printf("Failed to parse JSON\n");
-		printf("%s\n", reader.getFormattedErrorMessages().c_str());
+		printf("%s\n", errMsg.c_str());
 		return false;
 	}
 
@@ -219,10 +220,11 @@ bool cTmdb::GetMovieDetails(std::string lang)
 			answer.clear();
 			if (!getUrl(url, answer))
 				return false;
-			parsedSuccess = reader.parse(answer, root, false);
-			if (!parsedSuccess) {
+
+			ok = parseJsonFromString(answer, &root, &errMsg);
+			if (!ok) {
 				printf("Failed to parse JSON\n");
-				printf("%s\n", reader.getFormattedErrorMessages().c_str());
+				printf("%s\n", errMsg.c_str());
 				return false;
 			}
 
@@ -273,7 +275,6 @@ bool cTmdb::GetMovieDetails(std::string lang)
 std::string cTmdb::CreateEPGText()
 {
 	std::string epgtext;
-	epgtext += "\n";
 	epgtext += "Vote: "+minfo.vote_average.substr(0,3)+"/10 Votecount: "+to_string(minfo.vote_count)+"\n";
 	epgtext += "\n";
 	epgtext += minfo.overview+"\n";

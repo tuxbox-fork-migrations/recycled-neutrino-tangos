@@ -39,15 +39,23 @@
 #define NEUTRINO_ENTER_INACTIVITY_SCRIPT	CONFIGDIR "/inactivity.on"
 #define NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT	CONFIGDIR "/deepstandby.on"
 #define NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT	CONFIGDIR "/deepstandby.off"
+#define NEUTRINO_ENTER_FLASH_SCRIPT	CONFIGDIR "/flash.start"
+#define NEUTRINO_APP_START_SCRIPT	CONFIGDIR "/neutrino.start"
 #define MOVIEPLAYER_START_SCRIPT        CONFIGDIR "/movieplayer.start"
 #define MOVIEPLAYER_END_SCRIPT          CONFIGDIR "/movieplayer.end"
-#define NEUTRINO_ENTER_FLASH_SCRIPT	CONFIGDIR "/flash.start"
+#define VOLUME_UP_SCRIPT                CONFIGDIR "/volume.up"
+#define VOLUME_DOWN_SCRIPT              CONFIGDIR "/volume.down"
+#define MUTE_ON_SCRIPT                  CONFIGDIR "/mute.on"
+#define MUTE_OFF_SCRIPT                 CONFIGDIR "/mute.off"
 
 #define NEUTRINO_SCAN_SETTINGS_FILE     CONFIGDIR "/scan.conf"
 #define NEUTRINO_PARENTALLOCKED_FILE    DATADIR   "/neutrino/.plocked"
 
+#define COVERDIR_TMP	"/tmp/.cover"
+
 #define LOGODIR		ICONSDIR "/logo"
 #define LOGODIR_VAR	ICONSDIR_VAR "/logo"
+#define LOGODIR_TMP	"/tmp/.logo"
 
 #define FLAGDIR		CONFIGDIR
 
@@ -68,10 +76,12 @@ NEUTRINO_CPP  CTimerdClient	*g_Timerd;
 class FBFontRenderClass;
 NEUTRINO_CPP  FBFontRenderClass	*g_fontRenderer;
 NEUTRINO_CPP  FBFontRenderClass	*g_dynFontRenderer;
+NEUTRINO_CPP  FBFontRenderClass	*g_shellFontRenderer;
 
 class Font;
 NEUTRINO_CPP  Font * g_Font[SNeutrinoSettings::FONT_TYPE_COUNT];
 NEUTRINO_CPP  Font * g_SignalFont;
+NEUTRINO_CPP  Font * g_ShellFont;
 
 class CRCInput;
 NEUTRINO_CPP  CRCInput		*g_RCInput;

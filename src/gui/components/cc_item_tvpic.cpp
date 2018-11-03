@@ -46,13 +46,14 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 				fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponents, CComponentsItem
-	cc_item_type 	= CC_ITEMTYPE_PIP;
+	cc_item_type.id		= CC_ITEMTYPE_PIP;
+	cc_item_type.name	="cc_pip_box";
 
 	//CComponentsPIP
 	screen_w = frameBuffer->getScreenWidth(true);
 	screen_h = frameBuffer->getScreenHeight(true);
-	pic_name = ICONSDIR;
-	pic_name += "/start.jpg";
+	pic_name = LOGODIR;
+	pic_name += "/logo.jpg";
 
 	//CComponents
 	x 		= x_pos;
@@ -96,8 +97,8 @@ void CComponentsPIP::paint(bool do_save_bg)
 		return;
 	
 	int mode = CNeutrinoApp::getInstance()->getMode();
-	if(mode == NeutrinoMessages::mode_tv || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_ts) {
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	if(mode == NeutrinoModes::mode_tv || mode == NeutrinoModes::mode_webtv || mode == NeutrinoModes::mode_ts) {
+#if HAVE_SH4_HARDWARE
 		videoDecoder->Pig(pig_x, pig_y, pig_w, pig_h, screen_w, screen_h,
 			g_settings.screen_StartX_int,
 			g_settings.screen_StartY_int,

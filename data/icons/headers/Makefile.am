@@ -16,11 +16,13 @@ install_DATA = \
 	keybinding.png \
 	language.png \
 	lcd.png \
+	lock.png \
 	mainmenue.png \
-	mp3.png \
 	multimedia.png \
 	network.png \
 	personalize.png \
+	pictureviewer.png \
+	question.png \
 	recording.png \
 	settings.png \
 	shell.png \

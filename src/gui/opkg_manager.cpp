@@ -5,7 +5,7 @@
 	OPKG-Manager Class for Neutrino-GUI
 
 	Implementation:
-	Copyright (C) 2012-2015 T. Graf 'dbt'
+	Copyright (C) 2012-2018 T. Graf 'dbt'
 	www.dbox2-tuning.net
 
 	Adaptions:
@@ -34,6 +34,9 @@
 #endif
 
 #include <gui/opkg_manager.h>
+#include <gui/widget/termwindow.h>
+/* hack, so we don't have to change all code below */
+#define CShellWindow CTermWindow
 
 #include <global.h>
 #include <neutrino.h>
@@ -58,7 +61,7 @@
 #include <sys/wait.h>
 #include <fstream>
 
-#if 0
+#if 1
 #define OPKG_CL "opkg"
 #else
 #define OPKG_CL "opkg-cl"
@@ -66,10 +69,18 @@
 
 #define OPKG_TMP_DIR "/tmp/.opkg"
 #define OPKG_TEST_DIR OPKG_TMP_DIR "/test"
+#if 0
 #define OPKG_CL_CONFIG_OPTIONS " -V2 --tmp-dir=/tmp --cache=" OPKG_TMP_DIR
+#else
+#define OPKG_CL_CONFIG_OPTIONS ""
+#endif
 
 #define OPKG_BAD_PATTERN_LIST_FILE CONFIGDIR "/bad_package_pattern.list"
+#if 0
 #define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf"
+#else
+#define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf.borken"
+#endif
 
 /* script to call instead of "opkg upgrade"
  * opkg fails to gracefully self-upgrade, and additionally has some ordering issues
@@ -422,10 +433,10 @@ void COPKGManager::updateMenu()
 		it->second.forwarder->iconName_Info_right = "";
 		it->second.forwarder->setActive(true);
 		if (it->second.upgradable) {
-			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_WARNING;
+			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE;
 			upgradesAvailable = true;
 		} else if (it->second.installed) {
-			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_CHECKMARK;
+			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_DIALOG_OK;
 			it->second.forwarder->setActive(expert_mode);
 		}
 	}
@@ -647,12 +658,12 @@ bool COPKGManager::hasOpkgSupport()
 string COPKGManager::getInfoDir()
 {
 	/* /opt/opkg/... is path in patched opkg, /var/lib/opkg/... is original path */
-	string dirs[] = {TARGET_PREFIX"/opt/opkg/info", TARGET_PREFIX"/var/lib/opkg/info"};
+	string dirs[] = {TARGET_PREFIX"/opt/opkg/info", TARGET_PREFIX"/var/lib/opkg/info", "/var/lib/opkg/info", "/opt/opkg/info"};
 	for (size_t i = 0; i < sizeof(dirs) / sizeof(dirs[0]); i++) {
 		if (access(dirs[i].c_str(), R_OK) == 0)
 			return dirs[i];
+		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] InfoDir [%s] not found\n", __func__, __LINE__, dirs[i].c_str());
 	}
-	dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] InfoDir not found\n", __func__, __LINE__);
 	return "";
 }
 
@@ -671,12 +682,14 @@ string COPKGManager::getPkgDescription(std::string pkgName, std::string pkgDesc)
 			return pkgDesc;
 
 		fpos_t fz;
+		fz.__pos = 0;
 		fseek(fd, 0, SEEK_END);
 		fgetpos(fd, &fz);
 		fseek(fd, 0, SEEK_SET);
-		if (fz.__pos == 0)
+		if (fz.__pos == 0){
+			fclose(fd);
 			return pkgDesc;
-
+		}
 		char buf[512];
 		string package, version, description;
 		while (fgets(buf, sizeof(buf), fd)) {

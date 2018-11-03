@@ -40,8 +40,6 @@ class CComponentsItem : public CComponents
 		///default: CC_NO_INDEX as identifer for not embedded item and default index=0 for form as main parent
 		///see also getIndex(), setIndex()
 		int cc_item_index;
-		///property: define of item type, see cc_types.h for possible types
-		int cc_item_type;
 		///property: default enabled
 		bool cc_item_enabled;
 		///property: default not selected
@@ -100,17 +98,15 @@ class CComponentsItem : public CComponents
 		 * 	gui/color.h
 		 * 	driver/framebuffer.h
 		*/
-		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, bool ignore_parent = false, const int& fblayer_type = CC_FBDATA_TYPES);
+		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, bool ignore_parent = false, const int& fblayer_type = ~CC_FBDATA_TYPES);
 
-		///get the current item type, see attribute cc_item_type above
-		virtual int getItemType();
 		///syncronizes item colors with current color settings if required, NOTE: overwrites internal values!
 		virtual void syncSysColors();
 		
 		///set select mode
 		virtual void setSelected(bool selected,
 					const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
-					const fb_pixel_t& frame_col = COL_SHADOW_PLUS_0,
+					const fb_pixel_t& frame_col = COL_FRAME_PLUS_0,
 					const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
 					const fb_pixel_t& body_col = COL_MENUCONTENT_PLUS_0,
 					const int& frame_w = 3,
@@ -132,7 +128,12 @@ class CComponentsItem : public CComponents
 		///sets page location of current item, parameter as uint8_t, see: cc_page_number
 		virtual void setPageNumber(const uint8_t& on_page_number){cc_page_number = on_page_number;};
 		///returns current number of page location of current item, see: cc_page_number
-		virtual u_int8_t getPageNumber(){return cc_page_number;};
+		virtual uint8_t getPageNumber(){return cc_page_number;};
+
+		///set screen x-position, parameter as int
+		virtual void setXPos(const int& xpos);
+		///set screen y-position, parameter as int
+		virtual void setYPos(const int& ypos);
 
 		///set screen x-position, parameter as uint8_t, percent x value related to current width of parent form or screen
 		virtual void setXPosP(const uint8_t& xpos_percent);
@@ -140,6 +141,17 @@ class CComponentsItem : public CComponents
 		virtual void setYPosP(const uint8_t& ypos_percent);
 		///set x and y position as percent value related to current parent form or screen dimensions at once
 		virtual void setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_percent);
+
+		///sets real x position on screen. Use this, if item is added to a parent form
+		virtual void setRealXPos(const int& xr){cc_xr = xr;}
+		///sets real y position on screen. Use this, if item is added to a parent form
+		virtual void setRealYPos(const int& yr){cc_yr = yr;}
+		///sets real x and y position on screen at once. Use this, if item is added to a parent form
+		virtual void setRealPos(const int& xr, const int& yr){cc_xr = xr; cc_yr = yr;}
+		///get real x-position on screen. Use this, if item contains own render methods and item is bound to a form
+		virtual int getRealXPos(){return cc_parent ? cc_xr : x;}
+		///get real y-position on screen. Use this, if item contains own render methods and item is bound to a form
+		virtual int getRealYPos(){return cc_parent ? cc_yr : y;}
 
 		///do center item on screen or within a parent form, parameter along_mode assigns direction of centering
 		virtual void setCenterPos(int along_mode = CC_ALONG_X | CC_ALONG_Y);

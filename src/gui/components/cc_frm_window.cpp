@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2016 Thilo Graf 'dbt'
+	Copyright (C) 2012-2017 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -95,7 +95,11 @@ CComponentsWindowMax::CComponentsWindowMax(	const string& caption,
 						fb_pixel_t color_body,
 						fb_pixel_t color_shadow)
 						:CComponentsWindow(0, 0, 0, 0, caption,
-						iconname, parent, shadow_mode, color_frame, color_body, color_shadow){};
+						iconname, parent, shadow_mode, color_frame, color_body, color_shadow)
+{
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_WINDOW_MAX;
+	cc_item_type.name 	= "cc_window_max";
+}
 
 CComponentsWindowMax::CComponentsWindowMax(	neutrino_locale_t locale_caption,
 						const string& iconname,
@@ -106,7 +110,11 @@ CComponentsWindowMax::CComponentsWindowMax(	neutrino_locale_t locale_caption,
 						fb_pixel_t color_shadow)
 						:CComponentsWindow(0, 0, 0, 0,
 						locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "",
-						iconname, parent, shadow_mode, color_frame, color_body, color_shadow){};
+						iconname, parent, shadow_mode, color_frame, color_body, color_shadow)
+{
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_WINDOW_MAX;
+	cc_item_type.name 	= "cc_window_max_localized";
+}
 
 void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const string& caption,
@@ -118,7 +126,8 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 					fb_pixel_t color_shadow)
 {
 	//CComponentsForm
-	cc_item_type 	= CC_ITEMTYPE_FRM_WINDOW;
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_WINDOW;
+	cc_item_type.name 	= "cc_base_window";
 
 	//using current screen settings for default dimensions,
 	//do use full screen (from osd-settings) if default values for width/height = 0
@@ -150,10 +159,10 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_buttons	= 0; //no header buttons
 	ccw_show_footer = true;
 	ccw_show_header	= true;
-	ccw_align_mode	= CTextBox::NO_AUTO_LINEBREAK;
+	ccw_align_mode	= DEFAULT_TITLE_ALIGN;
 	ccw_show_l_sideber = false;
 	ccw_show_r_sideber = false;
-	ccw_w_sidebar	= 40;
+	ccw_w_sidebar	= SIDEBAR_WIDTH;
 	ccw_col_head 	= COL_MENUHEAD_PLUS_0;
 	ccw_col_head_text = COL_MENUHEAD_TEXT;
 	ccw_col_footer	= COL_MENUFOOT_PLUS_0;
@@ -169,9 +178,13 @@ void CComponentsWindow::initWindowSize()
 	if (cc_parent)
 		return;
 
+	if (width < 0 && width >= -100) //percentage conversion TODO: behavior inside parent
+		width = frameBuffer->getScreenWidth(true)*abs(width)/100;
 	if (width == 0 || (unsigned)width > frameBuffer->getScreenWidth())
 		width = frameBuffer->getScreenWidth();
 
+	if (height < 0 && height >= -100) //percentage conversion TODO: behavior inside parent
+		height = frameBuffer->getScreenHeight(true)*abs(height)/100;
 	if (height == 0 || (unsigned)height > frameBuffer->getScreenHeight())
 		height = frameBuffer->getScreenHeight();
 }
@@ -187,7 +200,7 @@ void CComponentsWindow::initWindowPos()
 		y = frameBuffer->getScreenY();
 }
 
-void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const int& align_mode)
+void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const cc_title_alignment_t& align_mode)
 {
 	ccw_caption = g_Locale->getText(locale_text);
 	ccw_align_mode = align_mode;
@@ -201,7 +214,7 @@ void CComponentsWindow::initHeader()
 	//set header properties //TODO: assigned properties with internal header objekt have no effect!
 	if (ccw_head){
 		ccw_head->setWidth(width-2*fr_thickness);
-		ccw_head->setPos(0, 0);
+		ccw_head->setPos(fr_thickness, fr_thickness);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption, ccw_align_mode, ccw_col_head_text);
 		ccw_head->setContextButton(ccw_buttons);
@@ -222,10 +235,10 @@ void CComponentsWindow::initFooter()
 	if (ccw_footer){
 		if (ccw_h_footer)
 			ccw_footer->setHeight(ccw_h_footer);
-		ccw_footer->setPos(0, cc_yr + height - ccw_footer->getHeight()- fr_thickness);
-		ccw_footer->setWidth(width-2*fr_thickness);
+		ccw_footer->setPos(cc_xr + fr_thickness, cc_yr + height - ccw_footer->getHeight()- fr_thickness);
+		ccw_footer->setWidth(width/*-2*fr_thickness*/);
 		ccw_footer->enableShadow(false/*shadow*/);
-		ccw_footer->setCorner(corner_rad-fr_thickness, CORNER_BOTTOM);
+		ccw_footer->setCorner(corner_rad, CORNER_BOTTOM);
 		ccw_footer->setButtonFont(ccw_button_font);
 		ccw_footer->setColorBody(ccw_col_footer);
 		ccw_footer->doPaintBg(true);
@@ -391,12 +404,12 @@ int CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
 	return -1;
 }
 
-void CComponentsWindow::setCurrentPage(const u_int8_t& current_page)
+void CComponentsWindow::setCurrentPage(const uint8_t& current_page)
 {
 	ccw_body->setCurrentPage(current_page);
 }
 
-u_int8_t CComponentsWindow::getCurrentPage()
+uint8_t CComponentsWindow::getCurrentPage()
 {
 	return ccw_body->getCurrentPage();
 }
@@ -429,7 +442,7 @@ void CComponentsWindow::paintCurPage(bool do_save_bg)
 		paint(do_save_bg);
 }
 
-void CComponentsWindow::paintPage(const u_int8_t& page_number, bool do_save_bg)
+void CComponentsWindow::paintPage(const uint8_t& page_number, bool do_save_bg)
 {
 	CComponentsWindow::setCurrentPage(page_number);
 	CComponentsWindow::paintCurPage(do_save_bg);
@@ -444,4 +457,9 @@ void CComponentsWindow::paint(bool do_save_bg)
 	paintForm(do_save_bg);
 
 	frameBuffer->blit();
+}
+
+bool CComponentsWindow::setBodyBGImage(const std::string& image_path)
+{
+	return getBodyObject()->setBodyBGImage(image_path);
 }

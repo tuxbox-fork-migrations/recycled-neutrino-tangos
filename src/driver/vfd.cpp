@@ -69,7 +69,6 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 #define SCROLL_TIME 100000
 
 bool invert = false;
-char g_str[64];
 bool blocked = false;
 int blocked_counter = 0;
 int file_vfd = -1;
@@ -255,6 +254,14 @@ void* CVFD::ThreadScrollText(void * arg)
 
 CVFD::CVFD()
 {
+	text[0] = 0;
+	g_str[0] = 0;
+	clearClock = 0;
+	mode = MODE_TVRADIO;
+	switch_name_time_cnt = 0;
+	timeout_cnt = 0;
+	service_number = -1;
+
 #ifdef VFD_UPDATE
         m_fileList = NULL;
         m_fileListPos = 0;
@@ -313,14 +320,6 @@ CVFD::CVFD()
 	support_text	= true;
 	support_numbers	= true;
 #endif
-
-	text[0] = 0;
-	g_str[0] = 0;
-	clearClock = 0;
-	mode = MODE_TVRADIO;
-	switch_name_time_cnt = 0;
-	timeout_cnt = 0;
-	service_number = -1;
 }
 
 CVFD::~CVFD()
@@ -377,7 +376,7 @@ void CVFD::wake_up() {
 	else
 		setPower(1);
 	if(g_settings.lcd_info_line){
-		switch_name_time_cnt = g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + 10;
+		switch_name_time_cnt = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR] + 10;
 	}
 #if defined (BOXMODEL_OCTAGON1008)
 	ShowIcon(ICON_COLON2, false);
@@ -1010,7 +1009,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 		showServicename(servicename);
 		showclock = true;
 		if(g_settings.lcd_info_line)
-			switch_name_time_cnt = g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + 10;
+			switch_name_time_cnt = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR] + 10;
 		break;
 	case MODE_AUDIO:
 	{
@@ -1039,7 +1038,9 @@ void CVFD::setMode(const MODES m, const char * const title)
 		ShowIcon(FP_ICON_COL1, true);
 		ShowIcon(FP_ICON_COL2, true);
 #endif
+#if ! HAVE_COOL_HARDWARE
 		ClearIcons();
+#endif
 		ShowIcon(FP_ICON_USB, false);
 		ShowIcon(FP_ICON_HDD, false);
 		showclock = true;
@@ -1197,7 +1198,7 @@ void CVFD::Clear()
 	if(ret < 0)
 		perror("IOC_FP_SET_TEXT");
 	else
-		text[0] = 0;
+		text.clear();
 #else
 #if defined (BOXMODEL_HS7810A) || defined (BOXMODEL_HS7119) || defined (BOXMODEL_HS7819) || defined (BOXMODEL_CUBEREVO_250HD) || defined (BOXMODEL_IPBOX55)
 	ShowText("    ");
@@ -1301,13 +1302,17 @@ void CVFD::ShowText(const char * str)
 		return;
 
 	char flags[2] = { FP_FLAG_ALIGN_LEFT, 0 };
+	if (! str) {
+		printf("CVFD::ShowText: str is NULL!\n");
+		return;
+	}
 
-	if (g_settings.lcd_scroll)
+	if (g_settings.lcd_scroll && ((int)strlen(str) > g_info.hw_caps->display_xres))
 		flags[0] |= FP_FLAG_SCROLL_ON | FP_FLAG_SCROLL_SIO | FP_FLAG_SCROLL_DELAY;
 
 	std::string txt = std::string(flags) + str;
 	txt = trim(txt);
-	printf("CVFD::ShowText: [%s]\n", txt.c_str() + 1);
+	printf("CVFD::ShowText: [0x%02x][%s]\n", flags[0], txt.c_str() + 1);
 
 	size_t len = txt.length();
 	if (txt == text || len > 255)

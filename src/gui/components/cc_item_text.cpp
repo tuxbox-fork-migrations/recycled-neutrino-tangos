@@ -80,7 +80,9 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 					int shadow_mode,
 					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	cc_item_type 	= CC_ITEMTYPE_TEXT;
+	cc_item_type.id 	= CC_ITEMTYPE_TEXT;
+	cc_item_type.name	="cc_text_box";
+
 	ct_font 	= font_text;
 	ct_textbox	= NULL;
 	ct_text 	= text;
@@ -168,7 +170,6 @@ void CComponentsText::initCCText()
 	ct_textbox->setBackGroundColor(col_body);
 	ct_textbox->setBackGroundRadius(0/*(corner_type ? corner_rad-fr_thickness : 0), corner_type*/);
 	ct_textbox->enableSaveScreen(cc_txt_save_screen && !ct_paint_textbg);
-	ct_textbox->enableUTF8(ct_utf8_encoded);
 	ct_textbox->blit(false);
 
 	//observe behavior of parent form if available
@@ -183,7 +184,8 @@ void CComponentsText::initCCText()
 #endif
 	//send text to CTextBox object, but force text paint text if force_text_paint option is enabled
 	//this is managed by CTextBox object itself
-	ct_text_sent = ct_textbox->setText(&ct_text, ct_box.iWidth, force_text_paint);
+	if (cc_allow_paint)
+		ct_text_sent = ct_textbox->setText(&ct_text, ct_box.iWidth, force_text_paint);
 
 	//set current text status, needed by textChanged()
 	if (ct_text_sent){
@@ -208,8 +210,8 @@ bool CComponentsText::setText(const std::string& stext, const int mode, Font* fo
 {
 	if (ct_text != stext || ct_text_mode != mode || ct_font != font_text || ct_col_text != color_text || ct_text_style != style  ){
 		if (ct_text != stext){
-			ct_text = stext;
 			ct_old_text = ct_text;
+			ct_text = stext;
 		}
 		if (ct_text_mode != mode /*|| mode != ~CTextBox::AUTO_WIDTH*/)
 			ct_text_mode = mode;

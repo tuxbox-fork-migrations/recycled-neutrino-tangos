@@ -58,10 +58,11 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 					)
 
 {
-	cc_item_type 	= CC_ITEMTYPE_FRM_CLOCK;
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_CLOCK;
+	cc_item_type.name 	= "cc_clock";
 
-	x 		= x_pos;
-	y 		= y_pos;
+	x = cc_xr = x_old = x_pos;
+	y = cc_yr = y_old = y_pos;
 
 	shadow		= shadow_mode;
 	shadow_w	= OFFSET_SHADOW;
@@ -75,6 +76,9 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	setClockFormat(prformat_str, secformat_str);
 	cl_col_text	= COL_MENUCONTENT_TEXT;
 
+	//enable refresh of all segments on each interval as default
+	cl_force_repaint = true;
+
 	//init default font
 	cl_font 	= font;
 	cl_font_style	= font_style;
@@ -82,14 +86,11 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 		initClockFont(0, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight());
 
 	//init general clock dimensions
-	height 		= cl_font->getHeight();
-	width 		= cl_font->getRenderWidth(cl_format_str);
+	height 	= height_old= cl_font->getHeight();
+	width 	= width_old = cl_font->getRenderWidth(cl_format_str);
 
 	//set default text background behavior
 	cc_txt_save_screen = false;
-
-	//enable refresh of all segments on each interval as default
-	cl_force_repaint = true;
 
 	//set default running clock properties
 	cl_interval	= interval_seconds;
@@ -112,8 +113,9 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 
 CComponentsFrmClock::~CComponentsFrmClock()
 {
-	if (cl_timer)
-		delete cl_timer;
+	if (cl_timer){
+		delete cl_timer; cl_timer = NULL;
+	}
 }
 
 void CComponentsFrmClock::initClockFont(int dx, int dy)
@@ -247,7 +249,7 @@ void CComponentsFrmClock::initCCLockItems()
 		//extract timestring segment (char)
 		string stmp = s_time.substr(i, 1);
 
-		int w_tmp = minSepWidth;
+		int w_tmp = 0;
 		//get width of current segment
 		if (isdigit(stmp.at(0)) ) //check for digits, if true, we use digit width
 			w_tmp = cl_font->getMaxDigitWidth();
@@ -325,17 +327,19 @@ bool CComponentsFrmClock::startClock()
 	if (cl_timer == NULL){
 		cl_timer = new CComponentsTimer(0);
 		cl_timer->setThreadName("frmClock");
-		if (cl_timer->OnTimer.empty()){
-			dprintf(DEBUG_INFO,"\033[33m[CComponentsFrmClock]\t[%s] init slot...\033[0m\n", __func__);
-			cl_timer->OnTimer.connect(cl_sl_show);
-			force_paint_bg = true;
-		}
 	}
+
+	if (cl_timer->OnTimer.empty()){
+		dprintf(DEBUG_INFO,"\033[33m[CComponentsFrmClock]\t[%s] init slot...\033[0m\n", __func__);
+		cl_timer->OnTimer.connect(cl_sl_show);
+		force_paint_bg = true;
+	}
+
 	cl_timer->setTimerInterval(cl_interval);
 
 	if (cl_timer->startTimer())
 		return true;
-
+	
 	return  false;
 }
 
@@ -392,7 +396,7 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 
 void CComponentsFrmClock::setClockFont(Font *font, const int& style)
 {
-	if (cl_font != font || (cl_font != font)){
+	if (cl_font != font || cl_font_style != style){
 		if (cl_font != font)
 			cl_font = font;
 		if (style != -1)
@@ -431,9 +435,9 @@ void CComponentsFrmClock::setHeight(const int& h)
 	int f_height = cl_font->getHeight();
 	if (h != f_height){
 		dprintf(DEBUG_DEBUG, "\033[33m[CComponentsFrmClock]\t[%s - %d], font height is different than current height [%d], using [%d]  ...\033[0m\n", __func__, __LINE__, h, f_height);
-		CCDraw::setHeight(f_height);
+		CComponentsItem::setHeight(f_height);
 	}else
-		CCDraw::setHeight(h);
+		CComponentsItem::setHeight(h);
 	initCCLockItems();
 }
 
@@ -445,9 +449,9 @@ void CComponentsFrmClock::setWidth(const int& w)
 	int f_width = cl_font->getRenderWidth(cl_format_str);
 	if (w != f_width){
 		dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFrmClock]\t[%s - %d], font width is different than current width [%d], using [%d]  ...\033[0m\n", __func__, __LINE__, w, f_width);
-		CCDraw::setWidth(f_width);
+		CComponentsItem::setWidth(f_width);
 	}else
-		CCDraw::setWidth(w);
+		CComponentsItem::setWidth(w);
 	initCCLockItems();
 }
 
@@ -460,4 +464,3 @@ bool CComponentsFrmClock::enableColBodyGradient(const int& enable_mode, const fb
 	}
 	return false;
 }
-

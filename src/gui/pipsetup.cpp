@@ -26,7 +26,7 @@ CPipSetup::CPipSetup()
 {
 	frameBuffer = CFrameBuffer::getInstance();
 
-	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
+	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio) {
 		gx = &g_settings.pip_radio_x;
 		gy = &g_settings.pip_radio_y;
 		gw = &g_settings.pip_radio_width;
@@ -121,7 +121,7 @@ int CPipSetup::exec(CMenuTarget* parent, const std::string &)
 
 	paint();
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 	bool loop=true;
 	while (loop) {
@@ -129,7 +129,7 @@ int CPipSetup::exec(CMenuTarget* parent, const std::string &)
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 
 		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		if ((msg == (neutrino_msg_t) g_settings.key_pip_setup) ||
 			(msg == CRCInput::RC_timeout) || (msg == CRCInput::RC_ok)) {

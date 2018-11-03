@@ -4,6 +4,7 @@
 #include "pictureviewer.h"
 #include "pv_config.h"
 #include <system/debug.h>
+#include <system/helpers.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -123,6 +124,7 @@ std::string CPictureViewer::DownloadImage(std::string url)
 				curl_easy_setopt(ch, CURLOPT_URL, url.c_str());
 				curl_easy_setopt(ch, CURLOPT_CONNECTTIMEOUT, 3);
 				curl_easy_setopt(ch, CURLOPT_TIMEOUT, 4);
+				curl_easy_setopt(ch, CURLOPT_SSL_VERIFYPEER, 0L);
 				CURLcode res = curl_easy_perform(ch);
 				if (res != CURLE_OK){
 					printf("[%s] curl_easy_perform() failed:%s\n",__func__, curl_easy_strerror(res));
@@ -417,7 +419,7 @@ CPictureViewer::CPictureViewer ()
 	m_aspect_ratio_correction = m_aspect / ((double) xs / ys);
 
 	m_busy_buffer = NULL;
-	logo_hdd_dir = string(g_settings.logo_hdd_dir);
+	logo_hdd_dir = std::string(g_settings.logo_hdd_dir);
 	pthread_mutexattr_t attr;
 	pthread_mutexattr_init(&attr);
 	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK_NP);
@@ -536,7 +538,7 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
 {
 	char strChanId[16];
@@ -571,8 +573,9 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 
 	std::string strLogoE2[2] = { "", "" };
 	CZapitChannel * cc = NULL;
-	if (CNeutrinoApp::getInstance()->channelList)
-		cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
+	if (channel_id)
+		if (CNeutrinoApp::getInstance()->channelList)
+			cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
 	if (cc) {
 		char fname[255];
 		snprintf(fname, sizeof(fname), "1_0_%X_%X_%X_%X_%X0000_0_0_0.png",
@@ -615,6 +618,15 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 				goto found;
 		}
 	}
+	if (cc) {
+		if (!cc->getAlternateLogo().empty())
+		{
+			std::string lname = downloadUrlToLogo(cc->getAlternateLogo(), LOGODIR_TMP, cc->getChannelID());
+			tmp = lname;
+			cc->setAlternateLogo(lname);
+			goto found;
+		}
+	}
 	logo_map[channel_id].name = "";
 	pthread_mutex_unlock(&logo_map_mutex);
 	return false;
@@ -634,12 +646,42 @@ found:
 #else
 bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
 {
-	std::string fileType[] = { ".png", ".jpg" , ".gif" };
+	std::string fileType[] = { ".png", ".jpg", ".gif" };
 
 	//get channel id as string
 	char strChnId[16];
 	snprintf(strChnId, 16, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
 	strChnId[15] = '\0';
+
+	//create E2 filenames
+	char e2filename1[255];
+	e2filename1[0] = '\0';
+	char e2filename2[255];
+	e2filename2[0] = '\0';
+
+	CZapitChannel * cc = NULL;
+	if (channel_id)
+		if (CNeutrinoApp::getInstance()->channelList)
+			cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
+
+	if (cc)
+	{
+		//create E2 filename1
+		snprintf(e2filename1, sizeof(e2filename1), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
+		         (u_int) cc->getServiceType(true),
+		         (u_int) channel_id & 0xFFFF,
+		         (u_int) (channel_id >> 32) & 0xFFFF,
+		         (u_int) (channel_id >> 16) & 0xFFFF,
+		         (u_int) cc->getSatellitePosition());
+
+		//create E2 filename2
+		snprintf(e2filename2, sizeof(e2filename2), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
+		         (u_int) 1,
+		         (u_int) channel_id & 0xFFFF,
+		         (u_int) (channel_id >> 32) & 0xFFFF,
+		         (u_int) (channel_id >> 16) & 0xFFFF,
+		         (u_int) cc->getSatellitePosition());
+	}
 
 	for (size_t i = 0; i<(sizeof(fileType) / sizeof(fileType[0])); i++){
 		std::vector<std::string> v_path;
@@ -655,6 +697,22 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 		id_tmp_path += strChnId + fileType[i];
 		v_path.push_back(id_tmp_path);
 
+		if (e2filename1[0] != '\0')
+		{
+			//create E2 filename1
+			id_tmp_path = g_settings.logo_hdd_dir + "/";
+			id_tmp_path += std::string(e2filename1) + fileType[i];
+			v_path.push_back(id_tmp_path);
+		}
+
+		if (e2filename2[0] != '\0')
+		{
+			//create E2 filename2
+			id_tmp_path = g_settings.logo_hdd_dir + "/";
+			id_tmp_path += std::string(e2filename2) + fileType[i];
+			v_path.push_back(id_tmp_path);
+		}
+
 		if(g_settings.logo_hdd_dir != LOGODIR_VAR){
 			//create filename with channel name (LOGODIR_VAR)
 			id_tmp_path = LOGODIR_VAR "/";
@@ -665,6 +723,22 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 			id_tmp_path = LOGODIR_VAR "/";
 			id_tmp_path += strChnId + fileType[i];
 			v_path.push_back(id_tmp_path);
+
+			if (e2filename1[0] != '\0')
+			{
+				//create E2 filename1 (LOGODIR_VAR)
+				id_tmp_path = LOGODIR_VAR "/";
+				id_tmp_path += std::string(e2filename1) + fileType[i];
+				v_path.push_back(id_tmp_path);
+			}
+
+			if (e2filename2[0] != '\0')
+			{
+				//create E2 filename2 (LOGODIR_VAR)
+				id_tmp_path = LOGODIR_VAR "/";
+				id_tmp_path += std::string(e2filename2) + fileType[i];
+				v_path.push_back(id_tmp_path);
+			}
 		}
 		if(g_settings.logo_hdd_dir != LOGODIR){
 			//create filename with channel name (LOGODIR)
@@ -676,6 +750,22 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 			id_tmp_path = LOGODIR "/";
 			id_tmp_path += strChnId + fileType[i];
 			v_path.push_back(id_tmp_path);
+
+			if (e2filename1[0] != '\0')
+			{
+				//create E2 filename1 (LOGODIR)
+				id_tmp_path = LOGODIR "/";
+				id_tmp_path += std::string(e2filename1) + fileType[i];
+				v_path.push_back(id_tmp_path);
+			}
+
+			if (e2filename2[0] != '\0')
+			{
+				//create E2 filename2 (LOGODIR)
+				id_tmp_path = LOGODIR "/";
+				id_tmp_path += std::string(e2filename2) + fileType[i];
+				v_path.push_back(id_tmp_path);
+			}
 		}
 		//check if file is available, name with real name is preferred, return true on success
 		for (size_t j = 0; j < v_path.size(); j++){
@@ -685,7 +775,20 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 				name = v_path[j];
 				return true;
 			}
-		}	
+		}
+
+		if (cc && (name.compare("m3u_loading_logos") != 0))
+		{
+			if (!cc->getAlternateLogo().empty())
+			{
+				std::string lname = downloadUrlToLogo(cc->getAlternateLogo(), LOGODIR_TMP, cc->getChannelID());
+				if (width && height)
+					getSize(lname.c_str(), width, height);
+				name = lname;
+				cc->setAlternateLogo(lname);
+				return true;
+			}
+		}
 	}
 	return false;
 }
@@ -736,7 +839,7 @@ void CPictureViewer::rescaleImageDimensions(int *width, int *height, const int m
 bool CPictureViewer::DisplayImage(const std::string & name, int posx, int posy, int width, int height, int transp)
 {
 	if(width < 1 || height < 1){
-		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: width %i height %i \n", __func__, __LINE__, width, height);
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: image [%s] width %i height %i \n", __func__, __LINE__, name.c_str(), width, height);
 		return false;
 	}
 
@@ -961,12 +1064,38 @@ unsigned char * CPictureViewer::ResizeA(unsigned char *orgin, int ox, int oy, in
 	return int_Resize(orgin, ox, oy, dx, dy, COLOR, NULL, true);
 }
 
+static size_t getCachedMemSize(void)
+{
+	FILE *procmeminfo = fopen("/proc/meminfo", "r");
+	size_t cached = 0;
+	if (procmeminfo) {
+		char buf[80] = {0}, a[80] = {0};
+		size_t v = 0;
+		while (fgets(buf, sizeof(buf), procmeminfo)) {
+			char unit[10];
+			*unit = 0;
+			if ((3 == sscanf(buf, "%[^:]: %zu %s", a, &v, unit))
+			 || (2 == sscanf(buf, "%[^:]: %zu", a, &v))) {
+				if (*unit == 'k')
+					v <<= 10;
+				if (!strcasecmp(a, "Cached")){
+					cached = v;
+					break;
+				}
+			}
+		}
+		fclose(procmeminfo);
+	}
+	return cached;
+}
+
 bool CPictureViewer::checkfreemem(size_t bufsize)
 {
 	struct sysinfo info;
 	sysinfo( &info );
-	if(bufsize + 4096 > (size_t)info.freeram + (size_t)info.freeswap){
-		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: Out of memory: need %zu > free %zu\n", __func__, __LINE__,bufsize,(size_t)info.freeram + (size_t)info.freeswap);
+	size_t cached = getCachedMemSize();
+	if(bufsize + sysconf(_SC_PAGESIZE) > (size_t)info.freeram + (size_t)info.freeswap + (size_t)info.bufferram + cached){
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: Out of memory: need %zu > free %zu\n", __func__, __LINE__,bufsize,(size_t)info.freeram + (size_t)info.freeswap + (size_t)info.bufferram + cached);
 		return false;
 	}
 	return true;

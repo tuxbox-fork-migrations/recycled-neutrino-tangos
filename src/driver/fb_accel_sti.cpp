@@ -3,7 +3,7 @@
 	The hardware dependent framebuffer acceleration functions for STi chips
 	are represented in this class.
 
-	(C) 2017 Stefan Seyfried
+	(C) 2017-2018 Stefan Seyfried
 
 	License: GPL
 
@@ -36,6 +36,8 @@
 #include <memory.h>
 #include <math.h>
 #include <limits.h>
+#include <errno.h>
+#include <inttypes.h>
 
 #include <linux/kd.h>
 
@@ -276,15 +278,24 @@ void CFbAccelSTi::paintRect(const int x, const int y, const int dx, const int dy
 	blit();
 }
 
+/* width / height => source surface   *
+ * xoff / yoff    => target position  *
+ * xp / yp        => offset in source */
 void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
-	int x, y, dw, dh;
+	int x, y, dw, dh, bottom;
 	x = xoff;
 	y = yoff;
 	dw = width - xp;
 	dh = height - yp;
+	bottom = height + yp;
 
-	size_t mem_sz = width * height * sizeof(fb_pixel_t);
+	size_t mem_sz = width * bottom * sizeof(fb_pixel_t);
+	/* we can blit anything from [ backbuffer <--> backbuffer + backbuf_sz ]
+	 * if the source is outside this, then it will be memmove()d to start of backbuffer */
+	void *tmpbuff = backbuffer;
+	if ((fbbuff >= backbuffer) && (uint8_t *)fbbuff + mem_sz <= (uint8_t *)backbuffer + backbuf_sz)
+		tmpbuff = fbbuff;
 	unsigned long ulFlags = 0;
 	if (!transp) /* transp == false (default): use transparency from source alphachannel */
 		ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA|BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
@@ -300,14 +311,14 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 	blt_data.src_left   = xp;
 	blt_data.src_top    = yp;
 	blt_data.src_right  = width;
-	blt_data.src_bottom = height;
+	blt_data.src_bottom = bottom;
 	blt_data.dst_left   = x;
 	blt_data.dst_top    = y;
 	blt_data.dst_right  = x + dw;
 	blt_data.dst_bottom = y + dh;
 	blt_data.srcFormat  = SURF_ARGB8888;
 	blt_data.dstFormat  = SURF_ARGB8888;
-	blt_data.srcMemBase = (char *)backbuffer;
+	blt_data.srcMemBase = (char *)tmpbuff;
 	blt_data.dstMemBase = (char *)lfb;
 	blt_data.srcMemSize = mem_sz;
 	blt_data.dstMemSize = stride * yRes + lbb_off;
@@ -315,13 +326,19 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 	mark(x, y, blt_data.dst_right, blt_data.dst_bottom);
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	ioctl(fd, STMFBIO_SYNC_BLITTER);
-	if (fbbuff != backbuffer)
+	if (fbbuff != tmpbuff)
 		memmove(backbuffer, fbbuff, mem_sz);
 	// icons are so small that they will still be in cache
 	msync(backbuffer, backbuf_sz, MS_SYNC);
 
-	if (ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
+	if (ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0) {
 		perror(LOGTAG "blit2FB STMFBIO_BLT_EXTERN");
+		fprintf(stderr, "fbbuff %p tmp %p back %p width %u height %u xoff %u yoff %u xp %u yp %u dw %d dh %d\n",
+				fbbuff, tmpbuff, backbuffer, width, height, xoff, yoff, xp, yp, dw, dh);
+		fprintf(stderr, "left: %d top: %d right: %d bottom: %d off: %ld pitch: %ld mem: %ld\n",
+				blt_data.src_left, blt_data.src_top, blt_data.src_right, blt_data.src_bottom,
+				blt_data.srcOffset, blt_data.srcPitch, blt_data.srcMemSize);
+	}
 	return;
 }
 
@@ -330,36 +347,49 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 void CFbAccelSTi::run()
 {
 	printf(LOGTAG "::run start\n");
-	time_t last_blit = 0;
+	int64_t last_blit = 0;
 	blit_pending = false;
 	blit_thread = true;
-	blit_mutex.lock();
 	set_threadname("stifb::autoblit");
 	while (blit_thread) {
+		blit_mutex.lock();
 		blit_cond.wait(&blit_mutex, blit_pending ? BLIT_INTERVAL_MIN : BLIT_INTERVAL_MAX);
-		time_t now = time_monotonic_ms();
-		if (now - last_blit < BLIT_INTERVAL_MIN)
+		blit_mutex.unlock();
+
+		int64_t now = time_monotonic_ms();
+		int64_t diff = now - last_blit;
+		if (diff < BLIT_INTERVAL_MIN)
 		{
 			blit_pending = true;
-			//printf(LOGTAG "::run: skipped, time %ld\n", now - last_blit);
+			//printf(LOGTAG "::run: skipped, time %" PRId64 "\n", diff);
 		}
 		else
 		{
 			blit_pending = false;
-			blit_mutex.unlock();
 			_blit();
-			blit_mutex.lock();
 			last_blit = now;
 		}
 	}
-	blit_mutex.unlock();
 	printf(LOGTAG "::run end\n");
 }
 
 void CFbAccelSTi::blit()
 {
 	//printf(LOGTAG "::blit\n");
+#if 0
+	/* After 99ff4857 "change time_monotonic_ms() from time_t to int64_t"
+	 * this is no longer needed. And it leads to rendering errors.
+	 * Safest would be "blit_mutex.timedlock(timeout)", but that does not
+	 * exist... */
+	int status = blit_mutex.trylock();
+	if (status) {
+		printf(LOGTAG "::blit trylock failed: %d (%s)\n", status,
+				(status > 0) ? strerror(status) : strerror(errno));
+		return;
+	}
+#else
 	blit_mutex.lock();
+#endif
 	blit_cond.signal();
 	blit_mutex.unlock();
 }
@@ -367,9 +397,9 @@ void CFbAccelSTi::blit()
 void CFbAccelSTi::_blit()
 {
 #if 0
-	static time_t last = 0;
-	time_t now = time_monotonic_ms();
-	printf("%s %ld\n", __func__, now - last);
+	static int64_t last = 0;
+	int64_t now = time_monotonic_ms();
+	printf("%s %" PRId64 "\n", __func__, now - last);
 	last = now;
 #endif
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);

@@ -4,6 +4,8 @@
   Copyright (C) 2001 Steffen Hehn 'McClean'
   Homepage: http://dbox.cyberphoria.org/
 
+  Copyright (C) 2007-2012 Stefan Seyfried
+
   Kommentar:
 
   Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -46,6 +48,8 @@
 
 #ifdef BOXMODEL_CS_HD2
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 16
+#elif HAVE_ARM_HARDWARE
+#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 17
 #else
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 13
 #endif
@@ -155,6 +159,18 @@ struct SNeutrinoTheme
 	int progressbar_timescale_green;
 	int progressbar_timescale_yellow;
 	int progressbar_timescale_invert;
+
+	unsigned char shadow_alpha;
+	unsigned char shadow_red;
+	unsigned char shadow_green;
+	unsigned char shadow_blue;
+
+	unsigned char progressbar_active_red;
+	unsigned char progressbar_active_green;
+	unsigned char progressbar_active_blue;
+	unsigned char progressbar_passive_red;
+	unsigned char progressbar_passive_green;
+	unsigned char progressbar_passive_blue;
 };
 
 struct SNeutrinoSkin
@@ -229,14 +245,16 @@ struct SNeutrinoSettings
 	int analog_mode2;
 	int video_43mode;
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
+	uint32_t video_mixer_color;
+#endif
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 	int hdmi_mode;
 	int psi_contrast;
 	int psi_saturation;
 	int psi_brightness;
 	int psi_tint;
 	int psi_step;
-	uint32_t video_mixer_color;
 #endif
 
 #ifdef BOXMODEL_CS_HD2
@@ -278,6 +296,7 @@ struct SNeutrinoSettings
 	int volume_pos;
 	int volume_digits;
 	int volume_size;
+	int volume_external;
 	int show_mute_icon;
 	int menu_pos;
 	int show_menu_hints;
@@ -288,7 +307,7 @@ struct SNeutrinoSettings
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	int audio_mixer_volume_analog;
 	int audio_mixer_volume_spdif;
 	int audio_mixer_volume_hdmi;
@@ -299,8 +318,13 @@ struct SNeutrinoSettings
 	int srs_algo;
 	int srs_ref_volume;
 	int srs_nmgr_enable;
+#if HAVE_ARM_HARDWARE
+	int ac3_pass;
+	int dts_pass;
+#else
 	int hdmi_dd;
 	int spdif_dd;
+#endif // HAVE_ARM_HARDWARE
 	int analog_out;
 	int audio_volume_percent_ac3;
 	int audio_volume_percent_pcm;
@@ -310,7 +334,8 @@ struct SNeutrinoSettings
 	int hdmi_cec_mode;
 	int hdmi_cec_view_on;
 	int hdmi_cec_standby;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int hdmi_cec_volume;
+#if HAVE_SH4_HARDWARE
 	int hdmi_cec_broadcast;
 #endif
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
@@ -319,6 +344,7 @@ struct SNeutrinoSettings
 	int standby_cpufreq;
 	int make_hd_list;
 	int make_webtv_list;
+	int make_webradio_list;
 	int make_new_list;
 	int make_removed_list;
 	int keep_channel_numbers;
@@ -334,7 +360,6 @@ struct SNeutrinoSettings
 	int ci_tuner;
 	std::string ci_pincode;
 	int radiotext_enable;
-	std::string radiotext_rass_dir;
 
 	//screen saver
 	int screensaver_delay;
@@ -367,7 +392,9 @@ struct SNeutrinoSettings
 	std::string epg_dir;
 	int epg_scan;
 	int epg_scan_mode;
+	int epg_scan_rescan;
 	int epg_save_mode;
+	int enable_sdt;
 
 	int epg_search_history_size;
 	int epg_search_history_max;
@@ -380,6 +407,8 @@ struct SNeutrinoSettings
 	std::string ifname;
 
 	std::list<std::string> webtv_xml;
+	std::list<std::string> webradio_xml;
+	std::list<std::string> xmltv_xml; // see http://wiki.xmltv.org/
 
 #ifdef ENABLE_GRAPHLCD
 	int glcd_enable;
@@ -456,8 +485,8 @@ struct SNeutrinoSettings
 		P_MSER_BOUQUET_EDIT,
 		P_MSER_RESET_CHANNELS,
 		P_MSER_RESTART,
-		P_MSER_RELOAD_PLUGINS,
 		P_MSER_RESTART_TUNER,
+		P_MSER_RELOAD_PLUGINS,
 		P_MSER_SERVICE_INFOMENU,
 		P_MSER_SOFTUPDATE,
 
@@ -474,6 +503,7 @@ struct SNeutrinoSettings
 		P_MPLAYER_FILEPLAY,
 		P_MPLAYER_INETPLAY,
 		P_MPLAYER_YTPLAY,
+		P_MPLAYER_GUI_MOUNT,
 
 		//feature keys
 		P_FEAT_KEY_FAVORIT,
@@ -499,22 +529,31 @@ struct SNeutrinoSettings
 	//timing
 	enum TIMING_SETTINGS 
 	{
-		TIMING_MENU		= 0,
-		TIMING_CHANLIST		= 1,
-		TIMING_EPG		= 2,
-		TIMING_INFOBAR		= 3,
-		TIMING_INFOBAR_RADIO	= 4,
-		TIMING_INFOBAR_MOVIE	= 5,
-		TIMING_VOLUMEBAR	= 6,
-		TIMING_FILEBROWSER	= 7,
-		TIMING_NUMERICZAP	= 8,
-		TIMING_POPUP_MESSAGES	= 9,
-		TIMING_STATIC_MESSAGES	= 10,
+		TIMING_MENU = 0,
+		TIMING_CHANLIST,
+		TIMING_EPG,
+		TIMING_VOLUMEBAR,
+		TIMING_FILEBROWSER,
+		TIMING_NUMERICZAP,
+		TIMING_POPUP_MESSAGES,
+		TIMING_STATIC_MESSAGES,
 
 		TIMING_SETTING_COUNT
 	};
 
 	int timing [TIMING_SETTING_COUNT];
+
+	//timing/handling infobar
+	enum HANDLING_INFOBAR_SETTINGS
+	{
+		HANDLING_INFOBAR,
+		HANDLING_INFOBAR_RADIO,
+		HANDLING_INFOBAR_MOVIE,
+
+		HANDLING_INFOBAR_SETTING_COUNT
+	};
+
+	int handling_infobar[HANDLING_INFOBAR_SETTING_COUNT];
 
 	//widget settings
 	int widget_fade;
@@ -523,6 +562,7 @@ struct SNeutrinoSettings
 	SNeutrinoTheme theme;
 	SNeutrinoSkin skin;
 	std::string skinfiles;
+	std::string theme_name;
 	bool osd_colorsettings_advanced_mode;
 
 	//network
@@ -546,6 +586,7 @@ struct SNeutrinoSettings
 	std::string timeshiftdir;
 	std::string downloadcache_dir;
 	std::string last_webtv_dir;
+	std::string last_webradio_dir;
 
 	//recording
 	int  recording_type;
@@ -554,7 +595,7 @@ struct SNeutrinoSettings
 	int recording_audio_pids_std;
 	int recording_audio_pids_alt;
 	int recording_audio_pids_ac3;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 	int recording_bufsize;
 	int recording_bufsize_dmx;
 #endif
@@ -609,6 +650,7 @@ struct SNeutrinoSettings
 	int key_list_start;
 	int key_list_end;
 	int key_power_off;
+	int key_standby_off_add;
 	int menu_left_exit;
 	int audio_run_player;
 	int timeshift_pause;
@@ -650,19 +692,12 @@ struct SNeutrinoSettings
 
 	int key_screenshot;
 	int screenshot_count;
-	int screenshot_format;
 	int screenshot_cover;
-	int screenshot_mode;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	int screenshot_res;
-	int screenshot_png_compression;
-	int screenshot_backbuffer;
-#else
-	int screenshot_video;
-	int screenshot_scale;
-#endif
-	int auto_cover;
 	std::string screenshot_dir;
+	int screenshot_format;
+	int screenshot_mode;
+	int screenshot_scale;
+	int auto_cover;
 
 	int key_current_transponder;
 	int key_pip_close;
@@ -700,21 +735,28 @@ struct SNeutrinoSettings
 	int window_height;
 	int eventlist_additional;
 	int eventlist_epgplus;
+
+	enum CHANNELLIST_ADDITIONAL_MODES
+	{
+		CHANNELLIST_ADDITIONAL_MODE_OFF		= 0,
+		CHANNELLIST_ADDITIONAL_MODE_EPG 	= 1,
+		CHANNELLIST_ADDITIONAL_MODE_MINITV	= 2
+	};
 	int channellist_additional;
 	int channellist_epgtext_align_right;
 	int channellist_foot;
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
-	int channellist_hdicon;
 	int channellist_numeric_adjust;
 	int channellist_show_channellogo;
 	int channellist_show_infobox;
 	int channellist_show_numbers;
+	int channellist_show_res_icon;
 	int repeat_blocker;
 	int repeat_genericblocker;
 #define LONGKEYPRESS_OFF 499
 	int longkeypress_duration;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	int accept_other_remotes;
 #endif
 	int remote_control_hardware;
@@ -725,15 +767,24 @@ struct SNeutrinoSettings
 	int screen_StartY;
 	int screen_EndX;
 	int screen_EndY;
-	int screen_StartX_crt;
-	int screen_StartY_crt;
-	int screen_EndX_crt;
-	int screen_EndY_crt;
-	int screen_StartX_lcd;
-	int screen_StartY_lcd;
-	int screen_EndX_lcd;
-	int screen_EndY_lcd;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+	int screen_StartX_crt_0;
+	int screen_StartY_crt_0;
+	int screen_EndX_crt_0;
+	int screen_EndY_crt_0;
+	int screen_StartX_lcd_0;
+	int screen_StartY_lcd_0;
+	int screen_EndX_lcd_0;
+	int screen_EndY_lcd_0;
+	int screen_StartX_crt_1;
+	int screen_StartY_crt_1;
+	int screen_EndX_crt_1;
+	int screen_EndY_crt_1;
+	int screen_StartX_lcd_1;
+	int screen_StartY_lcd_1;
+	int screen_EndX_lcd_1;
+	int screen_EndY_lcd_1;
+	int osd_resolution;
+#if HAVE_SH4_HARDWARE
 	int screen_StartX_int;
 	int screen_StartY_int;
 	int screen_EndX_int;
@@ -745,7 +796,6 @@ struct SNeutrinoSettings
 
 	//Software-update
 	int softupdate_mode;
-	std::string image_settings_backup_path;
 	std::string softupdate_url_file;
 	std::string softupdate_proxyserver;
 	std::string softupdate_proxyusername;
@@ -763,6 +813,8 @@ struct SNeutrinoSettings
 	int flashupdate_createimage_add_env;
 	int flashupdate_createimage_add_spare;
 	int flashupdate_createimage_add_kernel;
+
+	std::string	backup_dir;
 
 	std::string	update_dir;
 	std::string	update_dir_opkg;
@@ -813,6 +865,7 @@ struct SNeutrinoSettings
 		FONT_TYPE_SUBTITLES,
 		FONT_TYPE_MESSAGE_TEXT,
 		FONT_TYPE_BUTTON_TEXT,
+		FONT_TYPE_WINDOW_GENERAL,
 		FONT_TYPE_COUNT
 	};
 
@@ -843,7 +896,7 @@ struct SNeutrinoSettings
 	int lcd_info_line;
 	std::string lcd_setting_dim_time;
 	int lcd_setting_dim_brightness;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	int lcd_vfd_scroll;
 #endif
 	int led_tv_mode;
@@ -868,14 +921,20 @@ struct SNeutrinoSettings
 	int filebrowser_sortmethod;
 	int filebrowser_denydirectoryleave;
 	int filebrowser_use_filter;
-	std::string shoutcast_dev_id;
 
 	//movieplayer
-	int   movieplayer_repeat_on;
+	int movieplayer_repeat_on;
+	int movieplayer_display_playtime;
+
+	//online services
 	std::string youtube_dev_id;
 	int youtube_enabled;
 	std::string tmdb_api_key;
 	int tmdb_enabled;
+	std::string omdb_api_key;
+	int omdb_enabled;
+	std::string shoutcast_dev_id;
+	int shoutcast_enabled;
 
 	//zapit setup
 	std::string StartChannelTV;
@@ -910,6 +969,9 @@ struct SNeutrinoSettings
 
 	int font_scaling_x;
 	int font_scaling_y;
+
+	// NI
+	int		show_menu_hints_line;
 
 	int		livestreamResolution;
 	std::string	livestreamScriptPath;
@@ -961,9 +1023,9 @@ struct SNeutrinoSettings
 		ITEM_SWUPDATE = 30,
 		ITEM_LIVESTREAM_RESOLUTION = 31,
 		ITEM_ADZAP = 32,
-		ITEM_RASS = 33,
-		ITEM_TUNER_RESTART = 34,
-		ITEM_THREE_D_MODE = 35,
+		ITEM_TUNER_RESTART = 33,
+		ITEM_THREE_D_MODE = 34,
+		ITEM_TIMESHIFT = 35,
 		ITEM_MAX // MUST be always the last in the list
 	} USER_ITEM;
 
@@ -994,6 +1056,8 @@ struct SNeutrinoSettings
 
 extern const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SETTINGS_MAX];
 
+
+// timeout modes
 typedef struct time_settings_t
 {
 	const int default_timing;
@@ -1001,19 +1065,25 @@ typedef struct time_settings_t
 	const neutrino_locale_t hint;
 } time_settings_struct_t;
 
+// osd timing modes
 const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_COUNT] =
 {
-	{ 0,	LOCALE_TIMING_MENU,			LOCALE_MENU_HINT_OSD_TIMING},//TODO: add hint locales
+	{ 240,	LOCALE_TIMING_MENU,			LOCALE_MENU_HINT_OSD_TIMING},
 	{ 60,	LOCALE_TIMING_CHANLIST,			LOCALE_MENU_HINT_OSD_TIMING},
 	{ 240,	LOCALE_TIMING_EPG,			LOCALE_MENU_HINT_OSD_TIMING},
-	{ 6,	LOCALE_TIMING_INFOBAR,			LOCALE_MENU_HINT_OSD_TIMING},
-	{ 0,	LOCALE_TIMING_INFOBAR_RADIO,		LOCALE_MENU_HINT_OSD_TIMING},
-	{ 6,	LOCALE_TIMING_INFOBAR_MOVIEPLAYER,	LOCALE_MENU_HINT_OSD_TIMING},
 	{ 3,	LOCALE_TIMING_VOLUMEBAR,		LOCALE_MENU_HINT_OSD_TIMING},
 	{ 60,	LOCALE_TIMING_FILEBROWSER,		LOCALE_MENU_HINT_OSD_TIMING},
 	{ 3,	LOCALE_TIMING_NUMERICZAP,		LOCALE_MENU_HINT_OSD_TIMING},
 	{ 6,	LOCALE_TIMING_POPUP_MESSAGES,		LOCALE_MENU_HINT_OSD_TIMING},
 	{ 60,	LOCALE_TIMING_STATIC_MESSAGES,		LOCALE_MENU_HINT_TIMEOUTS_STATIC_MESSAGES}
+};
+
+// infobar osd modes
+const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLING_INFOBAR_SETTING_COUNT] =
+{
+	{ 6,	LOCALE_TIMING_INFOBAR_TV,		LOCALE_MENU_HINT_OSD_BEHAVIOR_INFOBAR},
+	{ 0,	LOCALE_TIMING_INFOBAR_RADIO,		LOCALE_MENU_HINT_OSD_BEHAVIOR_INFOBAR},
+	{ 0,	LOCALE_TIMING_INFOBAR_PLAYER,		LOCALE_MENU_HINT_OSD_BEHAVIOR_INFOBAR}
 };
 
 // lcdd
@@ -1035,30 +1105,35 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 #define DEFAULT_LCD_DISPLAYMODE			LCD_DISPLAYMODE_ON
 #endif
 
-#define CORNER_RADIUS_LARGE	11
-#define CORNER_RADIUS_MID	7
-#define CORNER_RADIUS_SMALL	5
-#define CORNER_RADIUS_MIN	3
+#define CORNER_RADIUS_LARGE	CFrameBuffer::getInstance()->scale2Res(11)
+#define CORNER_RADIUS_MID	CFrameBuffer::getInstance()->scale2Res(7)
+#define CORNER_RADIUS_SMALL	CFrameBuffer::getInstance()->scale2Res(5)
+#define CORNER_RADIUS_MIN	CFrameBuffer::getInstance()->scale2Res(3)
 #define CORNER_RADIUS_NONE	0
 
-#define RADIUS_LARGE	(g_settings.rounded_corners ? CORNER_RADIUS_LARGE : 0)
-#define RADIUS_MID	(g_settings.rounded_corners ? CORNER_RADIUS_MID : 0)
-#define RADIUS_SMALL	(g_settings.rounded_corners ? CORNER_RADIUS_SMALL : 0)
-#define RADIUS_MIN	(g_settings.rounded_corners ? CORNER_RADIUS_MIN : 0)
+#define RADIUS_LARGE	(g_settings.rounded_corners ? CORNER_RADIUS_LARGE : CORNER_RADIUS_NONE)
+#define RADIUS_MID	(g_settings.rounded_corners ? CORNER_RADIUS_MID   : CORNER_RADIUS_NONE)
+#define RADIUS_SMALL	(g_settings.rounded_corners ? CORNER_RADIUS_SMALL : CORNER_RADIUS_NONE)
+#define RADIUS_MIN	(g_settings.rounded_corners ? CORNER_RADIUS_MIN   : CORNER_RADIUS_NONE)
 #define RADIUS_NONE	0
 
 // offsets
-#define OFFSET_SHADOW		6
-#define OFFSET_INTER		6
-#define OFFSET_INNER_LARGE	20
-#define OFFSET_INNER_MID	10
-#define OFFSET_INNER_SMALL	5
-#define OFFSET_INNER_MIN	2
+#define OFFSET_SHADOW		CFrameBuffer::getInstance()->scale2Res(6)
+#define OFFSET_INTER		CFrameBuffer::getInstance()->scale2Res(6)
+#define OFFSET_INNER_LARGE	CFrameBuffer::getInstance()->scale2Res(20)
+#define OFFSET_INNER_MID	CFrameBuffer::getInstance()->scale2Res(10)
+#define OFFSET_INNER_SMALL	CFrameBuffer::getInstance()->scale2Res(5)
+#define OFFSET_INNER_MIN	CFrameBuffer::getInstance()->scale2Res(2)
 #define OFFSET_INNER_NONE	0
 
-#define SCROLLBAR_WIDTH		OFFSET_INNER_MID + 2*OFFSET_INNER_MIN
+#define SCROLLBAR_WIDTH		(OFFSET_INNER_MID + 2*OFFSET_INNER_MIN)
 
-#define DETAILSLINE_WIDTH	16 // TODO: scale2Res() ?
+#define FRAME_WIDTH_MIN		CFrameBuffer::getInstance()->scale2Res(2)
+#define FRAME_WIDTH_NONE	0
+
+#define DETAILSLINE_WIDTH	CFrameBuffer::getInstance()->scale2Res(16)
+
+#define SIDEBAR_WIDTH		CFrameBuffer::getInstance()->scale2Res(40)
 
 #define BIGFONT_FACTOR		1.5
 
@@ -1105,6 +1180,9 @@ class CScanSettings
 		int		sat_TP_delsys;
 		int		sat_TP_mod;
 		int		sat_TP_pilot;
+		std::string	sat_TP_pli;
+		std::string	sat_TP_plc;
+		int		sat_TP_plm;
 
 		std::string	cableName;
 		int		cable_TP_mod;
@@ -1123,6 +1201,7 @@ class CScanSettings
 		int		terrestrial_TP_hierarchy;
 		int		terrestrial_TP_transmit_mode;
 		int		terrestrial_TP_delsys;
+		std::string	terrestrial_TP_pli;
 
 		CScanSettings();
 

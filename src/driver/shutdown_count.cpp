@@ -4,6 +4,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2012-2013 Stefan Seyfried
+
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -40,6 +42,7 @@
 
 SHTDCNT::SHTDCNT()
 {
+	thread_running = false;
 	sleep_cnt = 0;
 	shutdown_cnt = 0;
 	thread_running = false;
@@ -94,7 +97,7 @@ void SHTDCNT::shutdown_counter()
 	static bool sleeptimer_active = true;
 	if (g_settings.shutdown_count > 0)
 	{
-		if ((CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby) && (!CNeutrinoApp::getInstance ()->recordingstatus))
+		if ((CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby) && (!CNeutrinoApp::getInstance ()->recordingstatus))
 		{
 			if (shutdown_cnt > 0 )
 			{

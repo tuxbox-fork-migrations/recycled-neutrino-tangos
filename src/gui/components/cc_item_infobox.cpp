@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2014, Thilo Graf 'dbt'
+	Copyright (C) 2012-2017, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -49,12 +49,13 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
-	cc_item_type = CC_ITEMTYPE_TEXT_INFOBOX;
+	cc_item_type.id 	= CC_ITEMTYPE_TEXT_INFOBOX;
+	cc_item_type.name 	= "cc_info_box";
 
-	x 		= x_pos;
-	y 		= y_pos;
-	width 		= w;
-	height	 	= h;
+	x 		= x_old 	= x_pos;
+	y 		= y_old 	= y_pos;
+	width 		= width_old 	= w;
+	height	 	= height_old 	= h;
 	shadow		= shadow_mode;
 	col_frame 	= color_frame;
 	cc_enable_frame	= true;
@@ -70,6 +71,8 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 	pic 		= NULL;
 	cctext		= NULL;
 	pic_name	= "";
+	pic_height	= 0;
+	pic_width	= 0;
 	x_offset	= OFFSET_INNER_MID;
 	initParent(parent);
 }
@@ -80,22 +83,25 @@ CComponentsInfoBox::~CComponentsInfoBox()
 	delete cctext;
 }
 
-void CComponentsInfoBox::setPicture(const std::string& picture_name)
+void CComponentsInfoBox::setPicture(const std::string& picture_name, const int& dx, const int& dy)
 {
-	pic_name 	= picture_name;
+	pic_name = picture_name;
 	if (!pic_name.empty()){
-		int w, h;
-		frameBuffer->getIconSize(pic_name.c_str(), &w, &h);
-		height = max(h, height);
+		frameBuffer->getIconSize(pic_name.c_str(), &pic_width, &pic_height);
+		if (dx > -1)
+			pic_width = dx;
+		if (dy > -1)
+			pic_height = dy;
+		height = max(pic_height, height);
 	}
 }
 
-void CComponentsInfoBox::setPicture(const char* picture_name)
+void CComponentsInfoBox::setPicture(const char* picture_name, const int& dx, const int& dy)
 {
 	string s_tmp = "";
 	if (picture_name)
 		s_tmp = string(picture_name);
-	setPicture(s_tmp);
+	setPicture(s_tmp, dx, dy);
 }
 
 void CComponentsInfoBox::paintPicture()
@@ -115,7 +121,8 @@ void CComponentsInfoBox::paintPicture()
 	int y_pic = (cc_parent ? cc_yr : y) + fr_thickness;
 
 	//init pic object and set icon paint position
-	pic = new CComponentsPicture(x_pic+x_offset, y_pic, 0, min(48, height-2*fr_thickness), pic_name); //NOTE: icons do not scale!
+	string image = frameBuffer->getIconPath(pic_name);
+	pic = new CComponentsPicture(x_pic+x_offset, y_pic, pic_width, min(pic_height, height-2*fr_thickness), image); //NOTE: icons do not scale!
 
 	pic->setColorBody(col_body);
 
@@ -124,7 +131,7 @@ void CComponentsInfoBox::paintPicture()
 		pic->doPaintBg(false);
 
 	//fit icon into frame
-	pic->setYPos(y_pic+(height/2-pic->getHeight()/2));
+	pic->setYPos(y_pic+(height-2*fr_thickness)/2-pic->getHeight()/2);
 
 	//paint, but set visibility mode
 	pic->allowPaint(cc_allow_paint);

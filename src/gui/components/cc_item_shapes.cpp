@@ -41,7 +41,8 @@ CComponentsShapeSquare::CComponentsShapeSquare(	const int x_pos, const int y_pos
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponentsItem
-	cc_item_type 	= CC_ITEMTYPE_SHAPE_SQUARE;
+	cc_item_type.id 	= CC_ITEMTYPE_SHAPE_SQUARE;
+	cc_item_type.name	="cc_box";
 
 	x 		= x_old = x_pos;
 	y 		= y_old = y_pos;
@@ -69,7 +70,8 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponents, CComponentsItem
-	cc_item_type 	= CC_ITEMTYPE_SHAPE_CIRCLE;
+	cc_item_type.id 	= CC_ITEMTYPE_SHAPE_CIRCLE;
+	cc_item_type.name	="cc_circle";
 
 	//CComponents
 	x 		= x_pos;
@@ -106,4 +108,19 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam,
 void CComponentsShapeCircle::paint(bool do_save_bg)
 {
 	paintInit(do_save_bg);
+}
+
+bool PaintBoxRel(const int& x, const int& y, const int& dx, const int& dy, const fb_pixel_t& col, int radius, int corner_type, int shadow_mode)
+{
+	CComponentsShapeSquare box(x, y, dx, dy, NULL,  shadow_mode, COL_SHADOW_PLUS_0, col);
+	box.setCorner(radius, corner_type);
+	box.paint(CC_SAVE_SCREEN_NO);
+	return box.isPainted();
+}
+
+void ClearBoxRel(const int& x, const int& y, const int& dx, const int& dy, int shadow_mode)
+{
+	int w = dx + (shadow_mode ? OFFSET_SHADOW : 0);
+	int h = dy + (shadow_mode ? OFFSET_SHADOW : 0);
+	CFrameBuffer::getInstance()->paintBackgroundBoxRel(x, y, w, h);
 }

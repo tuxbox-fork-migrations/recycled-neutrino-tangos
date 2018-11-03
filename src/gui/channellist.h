@@ -51,7 +51,7 @@
 enum {
 	LIST_MODE_FAV,
 	LIST_MODE_PROV,
-	LIST_MODE_WEBTV,
+	LIST_MODE_WEB,
 	LIST_MODE_SAT,
 	LIST_MODE_ALL,
 	LIST_MODE_LAST
@@ -67,7 +67,7 @@ enum {
 class CFrameBuffer;
 class CBouquet;
 
-class CChannelList : public CListHelpers
+class CChannelList : public CListHelpers, public sigc::trackable
 {
 private:
 	enum state_
@@ -77,6 +77,7 @@ private:
 	} move_state;
 
 	bool edit_state;
+	bool channelsPainted;
 
 	CFrameBuffer		*frameBuffer;
 
@@ -84,6 +85,7 @@ private:
 	unsigned int            origPosition;
 	unsigned int            newPosition;
 	bool			channelsChanged;
+	bool			liveBouquet;
 
 	unsigned int		tuned;
 	t_channel_id		selected_chid;
@@ -112,7 +114,6 @@ private:
 	int			info_height; // the infobox below mainbox is handled outside height
 	int			x;
 	int			y;
-	int			logo_off;
 	int			pig_width;
 	int			pig_height;
 	int			infozone_width;
@@ -131,7 +132,7 @@ private:
 	bool vlist; // "virtual" list, not bouquet
 	bool displayNext;
 	bool displayList;
-	bool pig_on_win;
+	bool minitv_is_active;
 
 	bool headerNew;
 
@@ -214,6 +215,7 @@ public:
 	bool adjustToChannelID(const t_channel_id channel_id);
 	bool showInfo(int pos, int epgpos = 0);
 	void updateEvents(unsigned int from, unsigned int to);
+	int showLiveBouquet(int key);
 	int 	numericZap(int key);
 	int  	show();
 	int	exec();
@@ -237,6 +239,7 @@ public:
 	CLastChannel & getLastChannels() { return lastChList; }
 	bool showEmptyError();
 	int getSelected() { return selected; }
+	void setLiveBouquet(bool state = true) { liveBouquet = state; };
 	CZapitChannel* getPrevNextChannel(int key, unsigned int &sl);
 	//friend class CZapitChannel;
 	enum

@@ -53,7 +53,7 @@ void CVolumeBar::initVarVolumeBar()
 	col_body 	= COL_MENUCONTENT_PLUS_0;
 	corner_rad 	= CORNER_RADIUS_MID;
 	vb_item_offset 	= OFFSET_INNER_SMALL;
-	height 		= g_settings.volume_size; //default height
+	height          = CFrameBuffer::getInstance()->scale2Res(g_settings.volume_size);
 
 	//assume volume value as pointer to global setting
 	vb_vol		= &g_settings.current_volume;
@@ -91,8 +91,8 @@ void CVolumeBar::initVolumeBarSize()
 	//vb_digit_w += corner_rad/2;
 
 	//scale
-	vb_pbw 		= 200;
-	vb_pbh 		= height-4*vb_item_offset;
+	vb_pbw 		= CFrameBuffer::getInstance()->scale2Res(200);
+	vb_pbh 		= height-2*vb_item_offset;
 
 	//result for width
 	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset + corner_rad/2;
@@ -112,8 +112,6 @@ void CVolumeBar::initVolumeBarSize()
 		mute_corrY = (height - mute_dy) / 2;
 	cvh->setMuteIconCorrY(mute_corrY);
 
-	vb_pbh 		= height-8;
-
 	vb_pby 		= height/2-vb_pbh/2;
 }
 
@@ -126,7 +124,7 @@ void CVolumeBar::initVolumeBarPosition()
 	{
 		case VOLUMEBAR_POS_TOP_RIGHT:{
 			int x_corr 	= 0;
-			if (( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_audio) && ( neutrino->getMode() != CNeutrinoApp::mode_pic)) {
+			if (( neutrino->getMode() != NeutrinoModes::mode_scart ) && ( neutrino->getMode() != NeutrinoModes::mode_audio) && ( neutrino->getMode() != NeutrinoModes::mode_pic)) {
 				if ((neutrino->isMuted()) && (!g_settings.mode_clock))
 					x_corr = mute_dx + h_spacer;
 				if (CNeutrinoApp::getInstance()->getChannellistIsVisible() == true)
@@ -200,7 +198,7 @@ void CVolumeBar::initVolumeBarScale()
 
 	vb_pb->setType(CProgressBar::PB_REDRIGHT);
 	vb_pb->setRgb(85, 75, 100);
-	vb_pb->setFrameThickness(2);
+	vb_pb->setFrameThickness(FRAME_WIDTH_NONE);
 	vb_pb->setProgress(vb_pbx, vb_pby, vb_pbw, vb_pbh, *vb_vol, 100);
 }
 
@@ -268,8 +266,8 @@ void CVolumeBar::paint(bool do_save_bg)
 
 CVolumeHelper::CVolumeHelper()
 {
-	h_spacer	= 11;
-	v_spacer	= 6;
+	h_spacer	= OFFSET_INNER_MID;
+	v_spacer	= OFFSET_INNER_SMALL;
 	vb_font		= NULL;
 	clock_font	= NULL;
 
@@ -348,7 +346,7 @@ void CVolumeHelper::initInfoClock(Font* font)
 
 void CVolumeHelper::initMuteIcon()
 {
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &mute_dx, &mute_dy);
+	frameBuffer->getIconSize(NEUTRINO_ICON_MUTED, &mute_dx, &mute_dy);
 	mute_ax 	= sw - mute_dx;
 	mute_ay 	= y;
 }
@@ -360,10 +358,10 @@ void CVolumeHelper::initVolBarSize()
 	digit_width		= 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &icon_width, &icon_height);
 	icon_height		= max(icon_height, 16); // if no icon available
-	icon_height		+= 2;
-	icon_width		+= 8;
+	icon_height		+= OFFSET_INNER_MIN;
+	icon_width		+= OFFSET_INNER_MID;
 	g_settings.volume_size	= max(g_settings.volume_size, icon_height);
-	vol_height		= g_settings.volume_size;
+	vol_height		= CFrameBuffer::getInstance()->scale2Res(g_settings.volume_size);
 
 	if (g_settings.volume_digits) {
 		CNeutrinoFonts *cnf = CNeutrinoFonts::getInstance();
@@ -371,7 +369,7 @@ void CVolumeHelper::initVolBarSize()
 		int tmp_h	= vol_height;
 		digit_width	= 0;
 		vb_font		= cnf->getDynFont(digit_width, tmp_h, "100", CNeutrinoFonts::FONT_STYLE_REGULAR, CNeutrinoFonts::FONT_ID_VOLBAR);
-		digit_width	+= 6;
+		digit_width	+= OFFSET_INNER_SMALL;
 		vol_height	= max(vol_height, tmp_h);
 	}
 }

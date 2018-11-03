@@ -459,7 +459,7 @@ proc()
 # -----------------------------------------------------------
 wol()
 {
-	if [ -e $y_path_bin/ether-wake ]; then
+	if [ -e $y_path_sbin/ether-wake ]; then
 		msg=`ether-wake $1`
 	fi
 	msg="<b>Wake on LAN $1</b><br><br>$msg"
@@ -479,16 +479,23 @@ do_lcshot()
 }
 # -----------------------------------------------------------
 # osd shot
-# $1= fb | dbox bzw. leer
+# $1= fbshot | grab | dbox bzw. leer
 # -----------------------------------------------------------
 do_fbshot()
 {
-	if [ "$1" = "fb" ]; then
+	if [ "$1" = "fbshot" ]; then
 		shift 1
 		if [ -e "$y_path_varbin/fbshot" ]; then
 			$y_path_varbin/fbshot $*
 		else
 			fbshot $*
+		fi
+	elif [ "$1" = "grab" ]; then
+		shift 1
+		if [ -e "$y_path_varbin/grab" ]; then
+			$y_path_varbin/grab $*
+		else
+			grab $*
 		fi
 	else
 		shift 1

@@ -142,11 +142,19 @@ bool CCam::setCaPmt(bool update)
 	return sendMessage((char *)cabuf, calen, update);
 }
 
+#if ! HAVE_COOL_HARDWARE
 bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type, unsigned char scrambled, casys_map_t camap, int mode, bool enable)
 {
 	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
 			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawpmt ? rawlen : 0, (CA_SLOT_TYPE) type, scrambled, camap, mode, enable);
 }
+#else
+bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type)
+{
+	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
+			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawpmt ? rawlen : 0, (CA_SLOT_TYPE) type);
+}
+#endif
 
 int CCam::makeMask(int demux, bool add)
 {
@@ -199,7 +207,7 @@ void CCamManager::StopCam(t_channel_id channel_id, CCam *cam)
 
 bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start, bool force_update)
 {
-	if (IS_WEBTV(channel_id))
+	if (IS_WEBCHAN(channel_id))
 		return false;
 
 	CCam * cam;
@@ -237,23 +245,27 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #else
 			source = cDemux::GetSource(0);
 			demux = cDemux::GetSource(0);
-			INFO("PLAY: fe_num %d dmx_src %d", frontend ? frontend->getNumber() : -1, cDemux::GetSource(0));
+//			INFO("PLAY: fe_num %d dmx_src %d", frontend ? frontend->getNumber() : -1, cDemux::GetSource(0));
 #endif
+			INFO("PLAY: fe_num %d dmx_src %d", source, demux);
 			break;
 		case STREAM:
 		case RECORD:
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, frontend ? frontend->getNumber() : -1, channel->getRecordDemux());
-			source = frontend->getNumber();
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+//			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, frontend ? frontend->getNumber() : -1, channel->getRecordDemux());
+			if(frontend)
+				source = frontend->getNumber();
 			demux = source;
 #else
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
 #endif
+			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, source, demux);
 			break;
 		case PIP:
 			source = channel->getRecordDemux();
 			demux = channel->getPipDemux();
+			INFO("PIP: fe_num %d dmx_src %d", source, demux);
 			break;
 	}
 
@@ -271,6 +283,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 
+#if ! HAVE_COOL_HARDWARE
 	/* stop decoding if record stops unless it's the live channel. TODO:PIP? */
 	/* all the modes: RECORD, STREAM, PIP except PLAY now stopping here !! */
 	if (mode && start == false && source != cDemux::GetSource(0)) {
@@ -284,6 +297,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			channel_map.erase(channel_id);
 		}
 	}
+#endif
 
 	if((oldmask != newmask) || force_update) {
 		cam->setCaMask(newmask);

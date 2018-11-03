@@ -38,7 +38,7 @@
 #endif
 
 #include <driver/file.h>
-#include <driver/rcinput.h>
+#include <driver/neutrino_msg_t.h>
 
 #include <gui/infoviewer.h>
 
@@ -135,6 +135,8 @@ public:
 		return false;
 	};
 	void Clear(void) { Filter.clear();};
+	size_t size(void) { return Filter.size();};
+	std::string getFilter(int i) { return Filter.at(i);};
 };
 //------------------------------------------------------------------------
 
@@ -162,10 +164,10 @@ class CFileBrowser
 		unsigned int		listmaxshow;
 		std::vector<unsigned int> selections;
 
-		int 			fheight;	// Fonthoehe Filelist-Inhalt
-		int 			theight;	// Fonthoehe Filelist-Titel
-		int			foheight;	// Hoehe der button leiste
-		int			skwidth;	// width SMSKey field
+		int 			item_height;
+		int 			header_height;
+		int			footer_height;
+		int			smskey_width;
 		std::string		name;
 		std::string		base;
 		std::string		m_baseurl;
@@ -234,7 +236,6 @@ class CFileBrowser
 		int  getMenuRet() { return menu_ret; }
 		static bool checkBD(CFile &file);
 
-//		size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
 	private:
 		tFileBrowserMode 	m_Mode;
 };

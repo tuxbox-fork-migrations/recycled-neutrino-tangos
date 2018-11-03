@@ -99,7 +99,7 @@ FBFontRenderClass::~FBFontRenderClass()
 	for (fontListEntry * f = font; f; f = g)
 	{
 		g = f->next;
-		delete f;
+		delete f; f = NULL;
 	}
 
 	FTC_Manager_Done(cacheManager);
@@ -562,6 +562,9 @@ const char *Font::RenderString(int x, int y, const int width, const char *text, 
 	fg_blue    = color  & 0x000000FF;
 	fb_pixel_t bg_color = 0;
 
+	if (y < 0)
+		y = 0;
+
 	/* the GXA seems to do it's job asynchonously, so we need to wait until
 	   it's ready, otherwise the font will sometimes "be overwritten" with
 	   background color or bgcolor will be wrong */
@@ -681,6 +684,8 @@ const char *Font::RenderString(int x, int y, const int width, const char *text, 
 	//printf("RenderStat: %d %d %d \n", renderer->cacheManager->num_nodes, renderer->cacheManager->num_bytes, renderer->cacheManager->max_bytes);
 	pthread_mutex_unlock( &renderer->render_mutex );
 	frameBuffer->checkFbArea(x, y-height, width, height, false);
+	/* x is the rightmost position of the last drawn character */
+	frameBuffer->mark(left, y + lower - height, x, y + lower);
 	return text;
 }
 

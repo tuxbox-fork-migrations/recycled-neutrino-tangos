@@ -44,7 +44,6 @@ using namespace std;
 //abstract sub class CComponentsItem from CComponents
 CComponentsItem::CComponentsItem(CComponentsForm* parent)
 {
-	cc_item_type 		= CC_ITEMTYPE_GENERIC;
 	cc_item_index 		= CC_NO_INDEX;
 	cc_item_enabled 	= true;
 	cc_item_selected 	= false;
@@ -207,12 +206,13 @@ void CComponentsItem::paintInit(bool do_save_bg)
 	//handle frame color for slected/not selected item
 	if (fr_thickness) {
 		for(size_t j =0; j< v_fbdata.size() ;j++) {
-			if ((v_fbdata[j].fbdata_type == CC_FBDATA_TYPE_FRAME)){
+			if (v_fbdata[j].fbdata_type == CC_FBDATA_TYPE_FRAME){
 				v_fbdata[j].color = col_frame_cur;
 				v_fbdata[j].frame_thickness = th;
 			}
 		}
 	}
+	dprintf(DEBUG_DEBUG, "\033[1;32m[CComponentsItem]\t[%s - %d], init and paint item type = %d  [%s]...\033[0m\n", __func__, __LINE__, cc_item_type.id, cc_item_type.name.c_str());
 	paintFbItems(do_save_bg);
 }
 
@@ -239,19 +239,6 @@ void CComponentsItem::syncSysColors()
 	col_frame 	= COL_FRAME_PLUS_0;
 }
 
-//returns current item element type, if no available, return -1 as unknown type
-int CComponentsItem::getItemType()
-{
-	for(int i =0; i< (CC_ITEMTYPES) ;i++){
-		if (i == cc_item_type)
-			return i;
-	}
-
-	dprintf(DEBUG_DEBUG, "[CComponentsItem] %s: unknown item type requested...\n", __func__);
-
-	return -1;
-}
-
 //returns true if current item is added to a form
 bool CComponentsItem::isAdded()
 {
@@ -259,6 +246,20 @@ bool CComponentsItem::isAdded()
 		return true;
 
 	return false;
+}
+
+void CComponentsItem::setXPos(const int& xpos)
+{
+	CCDraw::setXPos(xpos);
+	if (cc_parent)
+		cc_xr = cc_parent->getRealXPos() + x;
+}
+
+void CComponentsItem::setYPos(const int& ypos)
+{
+	CCDraw::setYPos(ypos);
+	if (cc_parent)
+		cc_yr = cc_parent->getRealYPos() + y;
 }
 
 void CComponentsItem::setXPosP(const uint8_t& xpos_percent)
@@ -315,3 +316,5 @@ void CComponentsItem::setSelected(bool selected, const fb_pixel_t& sel_frame_col
 	col_body = cc_item_selected ? sel_body_col : body_col;
 	col_frame = cc_item_selected ? sel_frame_col : frame_col;
 }
+
+

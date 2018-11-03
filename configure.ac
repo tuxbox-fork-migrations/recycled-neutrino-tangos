@@ -1,6 +1,12 @@
-AC_INIT(Tuxbox-Neutrino,3.4.2)
-AM_INIT_AUTOMAKE([1.0.1 nostdinc])
+define(ver_major, 3)
+define(ver_minor, 7)
+define(ver_micro, 1)
+
+AC_INIT(Neutrino-MP, ver_major.ver_minor.ver_micro)
+AM_INIT_AUTOMAKE([nostdinc foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
+
+AC_DEFINE(RELEASE_CYCLE, "ver_major.0", [Release cycle information; used in update code])
 
 TUXBOX_APPS
 TUXBOX_APPS_DIRECTORY
@@ -12,39 +18,43 @@ AC_PROG_CXX
 AC_DISABLE_STATIC
 AM_PROG_LIBTOOL
 
-# Add build information to config.h
-# ---------------------------------
-
-# Add host to config.h
-AC_DEFINE_UNQUOTED(USED_BUILD, ["$build"], [Build system under which the program was compiled on.])
-
-# Add used CXXFLAGS to config.h
-AC_DEFINE_UNQUOTED(USED_CXXFLAGS, ["$CXXFLAGS"], [Define to the used CXXFLAGS to compile this package.])
-
-# Get compiler (version)
-AH_TEMPLATE(USED_COMPILER, [Define to name and version of used compiler])
+# Add build information to local_build_config.h.tmp
+# -------------------------------------------------
+rm -f local_build_config.h.tmp
+cat > local_build_config.h.tmp << EOF
+/* Build system under which the program was compiled on. */
+#define USED_BUILD "$build"
+/* Define to the used CXXFLAGS to compile this package. */
+#define USED_CXXFLAGS "$CXXFLAGS"
+EOF
 if COMPILER=`$CC --version | head -n 1`; then
-    AC_DEFINE_UNQUOTED(USED_COMPILER, ["$COMPILER"])
+	cat >> local_build_config.h.tmp <<-EOF
+	/* Define to name and version of used compiler */
+	#define USED_COMPILER "$COMPILER"
+	EOF
+fi
+# only update header if it differs to avoid unnecessary rebuilds
+if ! diff local_build_config.h.tmp local_build_config.h >/dev/null 2>&1; then
+	rm -f local_build_config.h
+	mv local_build_config.h.tmp local_build_config.h
+else
+	rm -f local_build_config.h.tmp
 fi
 
 AC_ARG_ENABLE(ffmpegdec,
-	AS_HELP_STRING(--enable-ffmpegdec,include ffmpeg decoder support),
-	,[enable_ffmpegdec=no])
+	AS_HELP_STRING([--enable-ffmpegdec], [enable ffmpeg decoder support @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_FFMPEGDEC, 1, [include ffmpeg decoder support]))
+AM_CONDITIONAL(ENABLE_FFMPEGDEC, test "$enable_ffmpegdec" = "yes")
 
-AM_CONDITIONAL(ENABLE_FFMPEGDEC,test "$enable_ffmpegdec" = "yes")
-if test "$enable_ffmpegdec" = "yes"; then
-	AC_DEFINE(ENABLE_FFMPEGDEC,1,[include ffmpeg decoder support])
-fi
+if test "$enable_ffmpegdec" != "yes"; then
 
-if test x"$enable_ffmpegdec" != xyes; then
-
-AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
-	[use libvorbisidec instead of libogg/libvorbis])],
+AC_ARG_WITH(tremor,
+	AS_HELP_STRING([--with-tremor], [use libvorbisidec instead of libogg/libvorbis @<:@default=no@:>@]),
 	[TREMOR="$withval"],
 	[TREMOR=no])
 
-AC_ARG_WITH([tremor-static], [AS_HELP_STRING([--with-tremor-static],
-	[use statically linked libvorbisidec instead of libogg/libvorbis])],
+AC_ARG_WITH(tremor-static,
+	AS_HELP_STRING([--with-tremor-static], [use statically linked libvorbisidec instead of libogg/libvorbis @<:@default=no@:>@]),
 	[TREMOR_STATIC="$withval"],
 	[TREMOR_STATIC=no])
 
@@ -54,7 +64,7 @@ fi
 
 if test "$TREMOR" = "yes"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(VORBISIDEC,vorbisidec)
-	AC_DEFINE(USE_TREMOR,1,use libvorbisidec/tremor library)
+	AC_DEFINE(USE_TREMOR, 1, use libvorbisidec/tremor library)
 fi
 
 if test "$TREMOR_STATIC" = "yes"; then
@@ -76,146 +86,129 @@ TUXBOX_APPS_LIB_PKGCONFIG_CHECK(OGG,ogg)
 if test -z "$OGG_CFLAGS" ; then
 	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
 fi
-else
+
+fi # test "$enable_ffmpegdec"
+
 TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
-fi
+
+AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 
 if test "$BOXTYPE" = "tripledragon"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
 fi
-
-AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 
 # TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_PKGCONFIG(CURL,libcurl)
 
 ## For the check you must use the corresponding libtool number as version number,
 ## see freetype source code docs/VERSIONS.TXT
-PKG_CHECK_MODULES([FREETYPE], [freetype2 >= 16.2.10],
-	[echo "freetype2 >= 2.5.0 found"], [
-	## If freetype is not found:
-	## Activate this line if you want to search with freetype-config instead
-	[echo "freetype2 >= 2.5.0 not found, use alternative search method with freetype-config"]
-	## Activate this line if you want to abort
-#	AC_MSG_ERROR([freetype2 >= 2.5.0 not found])
-	])
+PKG_CHECK_MODULES([FREETYPE], [freetype2 >= 16.2.10], [
+	echo "freetype2 >= 2.5.0 found"
+], [
+	echo "freetype2 >= 2.5.0 not found, use alternative search method with freetype-config"
+	#AC_MSG_ERROR([freetype2 >= 2.5.0 not found])
+])
 
 # fallback to curl-config (which is ugly for cross-compilation)
 if test -z "$CURL_LIBS" -a -z "$CURL_CFLAGS"; then
 	TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
 fi
+
 # fallback to freetype-config (which is ugly for cross-compilation)
 if test -z "$FREETYPE_LIBS" -a -z "$FREETYPE_CFLAGS"; then
 	TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
 	CPPFLAGS+=" $FREETYPE_CFLAGS"
 	AC_MSG_CHECKING([whether FreeType version is 2.5.0 or higher])
-		AC_TRY_CPP([
-			#include <ft2build.h>
-			#include FT_FREETYPE_H
-			#if FREETYPE_MAJOR < 2 || (FREETYPE_MAJOR == 2 && FREETYPE_MINOR < 5)
-			#error Freetype version too low.
-			#endif
-			],
-			[AC_MSG_RESULT(yes)],
-			[AC_MSG_ERROR([Need FreeType library version 2.5.0 or higher])
-		])
+	AC_TRY_CPP([
+		#include <ft2build.h>
+		#include FT_FREETYPE_H
+		#if FREETYPE_MAJOR < 2 || (FREETYPE_MAJOR == 2 && FREETYPE_MINOR < 5)
+		#error Freetype version too low.
+		#endif
+	], [
+		AC_MSG_RESULT(yes)
+	], [
+		AC_MSG_ERROR([Need FreeType library version 2.5.0 or higher])
+	])
 fi
 
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
+TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
+TUXBOX_APPS_LIB_PKGCONFIG(SWSCALE,libswscale)
+
 if test "$BOXTYPE" = "coolstream"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(BLURAY,libbluray)
 fi
-TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 
-#TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
-#TUXBOX_APPS_LIB_PKGCONFIG(CONNECTION,tuxbox-connection)
-#TUXBOX_APPS_LIB_PKGCONFIG(EVENTSERVER,tuxbox-eventserver)
-#TUXBOX_APPS_LIB_PKGCONFIG(LCDDISPLAY,tuxbox-lcddisplay)
-#TUXBOX_APPS_LIB_PKGCONFIG(LIRCDCLIENT,tuxbox-lircdclient)
-#TUXBOX_APPS_LIB_PKGCONFIG(NET,tuxbox-net)
-#TUXBOX_APPS_LIB_PKGCONFIG(PLUGINS,tuxbox-plugins)
-#TUXBOX_APPS_LIB_PKGCONFIG(TUXBOX,tuxbox)
-#TUXBOX_APPS_LIB_PKGCONFIG(UCODES,tuxbox-ucodes)
-#TUXBOX_APPS_LIB_PKGCONFIG(MPEGTOOLS,tuxbox-mpegtools)
-#TUXBOX_APPS_LIB_PKGCONFIG(TUXTXT,tuxbox-tuxtxt)
-
-AC_ARG_ENABLE(keyboard-no-rc,
-         [  --enable-keyboard-no-rc             enable keyboard control, disable rc control],
-         [AC_DEFINE(KEYBOARD_INSTEAD_OF_REMOTE_CONTROL,1,[enable keyboard control, disable rc control])])
-
-AC_ARG_ENABLE(mdev,
-	[  --enable-mdev disable broken neutrino mount hack, use with mdev],
-	[AC_DEFINE(ASSUME_MDEV,1,[disable broken neutrino mount hack, use with mdev])])
-
-AC_ARG_ENABLE(freesatepg,
-	[  --enable-freesatepg                  enable Freesat EPG code (experimental)],
-	[AC_DEFINE(ENABLE_FREESATEPG,1,[enable Freesat EPG code])])
-
-AC_ARG_ENABLE(fastscan,
-	AS_HELP_STRING(--enable-fastscan,include FASTSCAN support),
-	,[enable_fastscan=no])
-
-AM_CONDITIONAL(ENABLE_FASTSCAN,test "$enable_fastscan" = "yes")
-if test "$enable_fastscan" = "yes"; then
-	AC_DEFINE(ENABLE_FASTSCAN,1,[include FASTSCAN support])
+if test "$BOXTYPE" = "coolstream" ||
+   test "$BOXTYPE" = "armbox" ||
+   test "$BOXTYPE" = "generic" ||
+   test "$BOXTYPE" = "tripledragon" ||
+   test "$BOXTYPE" = "duckbox" ||
+   test "$BOXTYPE" = "armbox" ||
+   test "$BOXTYPE" = "spark7162" ||
+   test "$BOXTYPE" = "spark"; then
+	AC_DEFINE(SCREENSHOT, 1, [Define to 1 if the platform supports screenshots])
 fi
 
 AC_ARG_ENABLE(graphlcd,
-	[  --enable-graphlcd                    enable GraphLCD support],
-	[AC_DEFINE(ENABLE_GRAPHLCD,1,[enable GraphLCD support])])
+	AS_HELP_STRING([--enable-graphlcd], [enable GraphLCD support]),
+	,[enable_graphlcd=no])
 
-AM_CONDITIONAL(ENABLE_GRAPHLCD,test "$enable_graphlcd" = "yes")
+AM_CONDITIONAL(ENABLE_GRAPHLCD, test "$enable_graphlcd" = "yes")
 if test "$enable_graphlcd" = "yes"; then
-	AC_DEFINE(ENABLE_GRAPHLCD,1,[include GraphLCD support])
+	AC_DEFINE(ENABLE_GRAPHLCD, 1, [include GraphLCD support])
 fi
+
+AC_ARG_ENABLE(keyboard-no-rc,
+	AS_HELP_STRING([--enable-keyboard-no-rc], [enable keyboard control, disable rc control @<:@default=no@:>@]),
+	AC_DEFINE(KEYBOARD_INSTEAD_OF_REMOTE_CONTROL, 1, [enable keyboard control, disable rc control]))
+
+AC_ARG_ENABLE(mdev,
+	AS_HELP_STRING([--enable-mdev], [use mdev instead of broken neutrino mount hack @<:@default=no@:>@]),
+	AC_DEFINE(ASSUME_MDEV, 1, [use mdev instead of broken neutrino mount hack]))
+
+AC_ARG_ENABLE(freesatepg,
+	AS_HELP_STRING([--enable-freesatepg], [enable Freesat EPG code @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_FREESATEPG, 1, [enable Freesat EPG code]))
 
 AC_ARG_ENABLE(viasatepg,
-	[  --enable-viasatepg                  enable ViaSat EPG code (experimental)],
-	[AC_DEFINE(ENABLE_VIASATEPG,1,[enable ViaSat EPG code])])
+	AS_HELP_STRING([--enable-viasatepg], [enable ViaSat EPG code @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_VIASATEPG, 1, [enable ViaSat EPG code]))
+
+AC_ARG_ENABLE(fastscan,
+	AS_HELP_STRING([--enable-fastscan], [enable fastscan code @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_FASTSCAN, 1, [enable fastscan code]))
+AM_CONDITIONAL(ENABLE_FASTSCAN, test "$enable_fastscan" = "yes")
 
 AC_ARG_ENABLE(giflib,
-	AS_HELP_STRING(--enable-giflib,use giflib instead of libungif),
-	,[enable_giflib=no])
+	AS_HELP_STRING([--enable-giflib], [use giflib instead of libungif @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_GIFLIB, 1, [use giflib instead of libungif]))
+AM_CONDITIONAL(ENABLE_GIFLIB, test "$enable_giflib" = "yes")
 
-AM_CONDITIONAL(ENABLE_GIFLIB,test "$enable_giflib" = "yes")
-if test "$enable_giflib" = "yes"; then
-	AC_DEFINE(ENABLE_GIFLIB,1,[use giflib instead of libungif])
-fi
-
-### USE_PUGIXML
 AC_ARG_ENABLE(pugixml,
-       AS_HELP_STRING(--enable-pugixml,use pugixml instead of xmltree),
-       ,[enable_pugixml=no])
+	AS_HELP_STRING([--enable-pugixml], [use pugixml instead of xmltree @<:@default=no@:>@]),
+	AC_DEFINE(USE_PUGIXML, 1, [use pugixml instead of xmltree]))
+AM_CONDITIONAL(USE_PUGIXML, test "$enable_pugixml" = "yes")
 
-AM_CONDITIONAL(USE_PUGIXML,test "$enable_pugixml" = "yes")
-if test "$enable_pugixml" = "yes"; then
-       AC_DEFINE(USE_PUGIXML,1,[use pugixml instead of xmltree])
-fi
-
-
-# FLAC - Free Lossless Audio Codec
 AC_ARG_ENABLE(flac,
-	AS_HELP_STRING(--enable-flac,include FLAC support),
-	,[enable_flac=no])
+	AS_HELP_STRING([--enable-flac], [enable FLAC support @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_FLAC, 1, [enable FLAC support]))
+AM_CONDITIONAL(ENABLE_FLAC, test "$enable_flac" = "yes")
 
-AM_CONDITIONAL(ENABLE_FLAC,test "$enable_flac" = "yes")
-if test "$enable_flac" = "yes"; then
-	AC_DEFINE(ENABLE_FLAC,1,[include FLAC support])
-fi
-
-# UPNP - upnp browser (borken right now)
 AC_ARG_ENABLE(upnp,
-	AS_HELP_STRING(--disable-upnp,disable UPNP support),
-	,[enable_upnp=yes])
+	AS_HELP_STRING([--enable-upnp], [enable UPNP support @<:@default=yes@:>@]),
+	[enable_upnp="$enableval"],
+	[enable_upnp="yes"])
 
-AM_CONDITIONAL(ENABLE_UPNP,test "$enable_upnp" = "yes")
 if test "$enable_upnp" = "yes"; then
-	AC_DEFINE(ENABLE_UPNP,1,[include UPNP support - currently broken])
+	AC_DEFINE(ENABLE_UPNP, 1, [enable UPNP support])
 fi
+AM_CONDITIONAL(ENABLE_UPNP, test "$enable_upnp" = "yes")
 
 AC_ARG_ENABLE(webif,
 	AS_HELP_STRING(--disable-webif,disable webif),
@@ -226,96 +219,100 @@ if test "$enable_webif" = "yes"; then
 	AC_DEFINE(ENABLE_WEBIF,1,[include webif])
 fi
 
-AC_ARG_ENABLE(extupdate,
-	AS_HELP_STRING(--enable-extupdate,include extended update routine),
-	,[enable_extupdate=no])
+AC_ARG_ENABLE(tangos,
+	AS_HELP_STRING(--disable-tangos,disable tangos infoviewer),
+	,[enable_tangos=yes])
 
-AM_CONDITIONAL(ENABLE_EXTUPDATE,test "$enable_extupdate" = "yes")
-if test "$enable_extupdate" = "yes"; then
-	AC_DEFINE(ENABLE_EXTUPDATE,1,[include extended update routine])
+AM_CONDITIONAL(ENABLE_TANGOS,test "$enable_tangos" = "yes")
+if test "$enable_tangos" = "yes"; then
+	AC_DEFINE(ENABLE_TANGOS,1,[include tangos infoviewer])
 fi
 
-AC_ARG_WITH(stb-hal-includes,
-	[  --with-stb-hal-includes=PATH  path for libstb-hal includes [[NONE]]],
-	[STB_HAL_INC="$withval"],[STB_HAL_INC=""])
-AC_ARG_WITH(stb-hal-build,
-	[  --with-stb-hal-build=PATH   path where libstb-hal is built [[NONE]]],
-	[STB_HAL_LIB="-L$withval"],[STB_HAL_LIB=""])
+AC_ARG_ENABLE(extupdate,
+	AS_HELP_STRING([--enable-extupdate], [enable extended update routine @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_EXTUPDATE, 1, [enable extended update routine]))
+AM_CONDITIONAL(ENABLE_EXTUPDATE, test "$enable_extupdate" = "yes")
 
-AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
+AC_ARG_ENABLE(lua,
+	AS_HELP_STRING([--enable-lua], [enable Lua support @<:@default=yes@:>@]),
+	[enable_lua="$enableval"],
+	[enable_lua="yes"])
+
+if test "$enable_lua" = "yes"; then
+	AC_DEFINE(ENABLE_LUA, 1, [include Lua support])
+	PKG_CHECK_MODULES([LUA], [lua >= 5.2], [
+		echo "lua >= 5.2 found"
+	], [
+		PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], [
+			echo "lua5.2 found"
+		], [
+			echo "lualib not found, assuming static lua in linker path..."
+			LUA_LIBS="-llua -ldl"
+			AC_DEFINE(STATIC_LUAPOSIX, 1, [Define to 1 for static lua build.])
+		])
+	])
+	# hack...
+	AC_DEFINE(LUA_COMPAT_5_2, 1, [does not really belong in config.h, but is needed for build with lua 5.3+])
+fi
+AM_CONDITIONAL(ENABLE_LUA, test "$enable_lua" = "yes")
+
+AC_ARG_ENABLE(cleanup,
+	AS_HELP_STRING([--enable-cleanup], [enable cleanup on exit @<:@default=no@:>@]),
+	AC_DEFINE(EXIT_CLEANUP, 1, [enable cleanup on exit]))
+
+AC_ARG_ENABLE(pip,
+	AS_HELP_STRING([--enable-pip], [enable picture in picture support @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_PIP, 1, [enable picture in picture support]))
+
+AC_ARG_ENABLE(testing,
+	AS_HELP_STRING([--enable-testing], [enable development code @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_TESTING, 1, [enable development code]))
+AM_CONDITIONAL(ENABLE_TESTING, test "$enable_testing" = "yes")
+
+AC_ARG_ENABLE(fribidi,
+	AS_HELP_STRING([--enable-fribidi], [enable fribidi support @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_FRIBIDI, 1, [enable fribidi support]))
+AM_CONDITIONAL(ENABLE_FRIBIDI, test "$enable_fribidi" = "yes")
+
+AC_ARG_WITH(stb-hal-includes,
+	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path for libstb-hal includes [[NONE]]]),
+	[STB_HAL_INC="$withval"],
+	[STB_HAL_INC=""])
+
+AC_ARG_WITH(stb-hal-build,
+	AS_HELP_STRING([--with-stb-hal-build=PATH], [path where libstb-hal is built [[NONE]]]),
+	[STB_HAL_LIB="-L$withval"],
+	[STB_HAL_LIB=""])
+
 if test "$BOXTYPE" != coolstream; then
-	AC_DEFINE(USE_STB_HAL, 1,[use libstb-hal])
+	AC_DEFINE(USE_STB_HAL, 1, [use libstb-hal])
 	if test "$STB_HAL_INC" = ""; then
 		AC_MSG_ERROR([need libstb-hal includes path with --with-stb-hal-includes=...])
 	fi
 	HWLIB_CFLAGS="-I$STB_HAL_INC"
 fi
-
-# Lua - embeddable scripting language
-AC_ARG_ENABLE(lua,
-	AS_HELP_STRING(--disable-lua,disable Lua support),
-	,[enable_lua=yes])
-
-AM_CONDITIONAL(ENABLE_LUA,test "$enable_lua" = "yes")
-
-if test "$enable_lua" = "yes"; then
-	# either use dynamic lualib in package lua (openSUSE)
-	# ... or in package lua5.2 (debian-derivates)
-	# ... and if all fails, assume it is in the linker path (cross build)
-	AC_DEFINE(ENABLE_LUA,1,[include Lua support])
-	PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
-		PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], echo "lua5.2 found", [
-			echo "=> lualib not found, assuming static lua in linker path..."
-			LUA_LIBS="-llua -ldl"
-			AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
-		])
-	])
-# hack...
-AC_DEFINE(LUA_COMPAT_5_2,1,[does not really belong in config.h, but is needed for build with lua 5.3+])
-fi
-
-AC_ARG_ENABLE(cleanup,
-	[  --enable-cleanup                  enable cleanup on exit],
-	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
-
-AC_ARG_ENABLE(pip,
-	[  --enable-pip                  enable picture in picture support],
-	[AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])])
-
-
-AC_ARG_ENABLE(testing,
-	AS_HELP_STRING(--enable-testing,include devel code parts for neutrino tests))
-
-AM_CONDITIONAL(ENABLE_TESTING,test "$enable_testing" = "yes")
-if test "$enable_testing" = "yes"; then
-	AC_DEFINE(ENABLE_TESTING,1,[include devel code parts for neutrino tests - not recommended for general users!])
-fi
-
-AC_ARG_ENABLE([fribidi],
-	AS_HELP_STRING([--enable-fribidi], [enable fribidi support])
-)
-AM_CONDITIONAL(ENABLE_FRIBIDI, test "$enable_fribidi" = "yes")
-AS_IF([test "$enable_fribidi" = "yes"],
-	AC_DEFINE(ENABLE_FRIBIDI, 1, [enable fribidi support])
-)
+AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
 
 if test "$BOXTYPE" = "coolstream"; then
-if test -e ${srcdir}/lib/hardware/coolstream/hd1/libcoolstream/nevis_ir.h; then
-	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
-fi
-HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd1/libcoolstream'
+	if test "$BOXMODEL" = "hd1"; then
+		if test -e ${srcdir}/lib/hardware/coolstream/hd1/libcoolstream/nevis_ir.h; then
+			AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H, 1, [Define to 1 if you have the <nevis_ir.h> header file.])
+		fi
+		HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd1/libcoolstream'
+	fi
 
-if test "$BOXMODEL" = "hd2"; then
-if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_ir_generic.h; then
-	AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H,1,[Define to 1 if you have the <cs_ir_generic.h> header file.])
-fi
-if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_frontpanel.h; then
-	AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H,1,[Define to 1 if you have the <cs_frontpanel.h> header file.])
-fi
-HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd2/libcoolstream'
-fi
-HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/src/zapit/include/private'
-HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/lib/hardware/coolstream'
+	if test "$BOXMODEL" = "hd2"; then
+		if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_ir_generic.h; then
+			AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H, 1, [Define to 1 if you have the <cs_ir_generic.h> header file.])
+		fi
+		if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_frontpanel.h; then
+			AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H, 1, [Define to 1 if you have the <cs_frontpanel.h> header file.])
+		fi
+		HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd2/libcoolstream'
+	fi
+
+	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/src/zapit/include/private'
+	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/lib/hardware/coolstream'
 fi
 
 # hack, so that framebuffer.h does not need to be included everywhere...
@@ -356,8 +353,10 @@ data/icons/radar/Makefile
 data/icons/slider/Makefile
 data/icons/status/Makefile
 data/icons/status/ca/Makefile
+data/icons/status/ca-tc/Makefile
 data/icons/status/camd/Makefile
 data/icons/status/channel/Makefile
+data/icons/status/channel-tc/Makefile
 data/icons/status/markers/Makefile
 data/icons/status/various/Makefile
 data/icons/various/Makefile
@@ -377,6 +376,15 @@ data/scripts/Makefile
 data/themes/Makefile
 data/themes/TangoCash-Skin1/Makefile
 data/themes/TangoCash-Skin2/Makefile
+data/themes/Grey-Blue/Makefile
+data/themes/Grey-Blue/icons/Makefile
+data/themes/Grey-Blue/icons/buttons/Makefile
+data/themes/Neutrino-3.0/Makefile
+data/themes/Neutrino-3.0/icons/Makefile
+data/themes/Neutrino-3.0/icons/buttons/Makefile
+data/themes/Olive-3.0/Makefile
+data/themes/Olive-3.0/icons/Makefile
+data/themes/Olive-3.0/icons/buttons/Makefile
 data/y-web/Makefile
 data/y-web/images/Makefile
 data/y-web/languages/Makefile
@@ -409,6 +417,7 @@ src/gui/components/Makefile
 src/gui/lua/Makefile
 src/gui/moviebrowser/Makefile
 src/gui/widget/Makefile
+src/gui/widget/yaft/Makefile
 src/lcddisplay/Makefile
 src/nhttpd/Makefile
 src/nhttpd/nhttpd.conf

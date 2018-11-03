@@ -43,11 +43,11 @@ CComponentsTimer::CComponentsTimer(const int& interval, bool is_nano)
 	tm_thread 		= 0;
 	tm_interval 		= interval;
 	tm_enable_nano		= is_nano;
-
+	tm_enable 		= false;
 	sl_stop_timer 		= sigc::mem_fun(*this, &CComponentsTimer::stopTimer);
 
 	if (interval > 0)
-		startTimer();
+		tm_enable = startTimer();
 }
 
 CComponentsTimer::~CComponentsTimer()
@@ -55,18 +55,41 @@ CComponentsTimer::~CComponentsTimer()
 	stopTimer();
 }
 
+int CComponentsTimer::getSleep(long miliseconds)
+{
+   struct timespec req, rem;
+
+	if(miliseconds > 999){
+		req.tv_sec = (time_t)(miliseconds / 1000);
+		req.tv_nsec = (miliseconds - ((long)req.tv_sec * 1000)) * 1000000;
+	}else{
+		req.tv_sec = 0;
+		req.tv_nsec = miliseconds * 1000000;
+	}
+
+	return nanosleep(&req , &rem);
+}
+
 void CComponentsTimer::runSharedTimerAction()
 {
 	//start loop
-	string tn = "cc:"+name;
+	tn = "cc:"+name;
 	set_threadname(tn.c_str());
-	while(tm_enable && tm_interval > 0) {
+	while(tm_enable && tm_interval > 0 && !OnTimer.empty()) {
 		tm_mutex.lock();
 		OnTimer();
-		if (!tm_enable_nano)
-			mySleep(tm_interval);
-		else
-			usleep((useconds_t)tm_interval);
+		if (!tm_enable_nano){
+			sleep(tm_interval);
+		}else{
+			//behavior is different on cst hardware
+			long corr_factor = 1;
+#if ! HAVE_COOL_HARDWARE 
+			corr_factor = 10;
+#endif
+			int res = getSleep(tm_interval * corr_factor);
+			if (res != 0)
+				dprintf(DEBUG_NORMAL,"\033[33m[CComponentsTimer] [%s - %d] ERROR: returns [%d] \033[0m\n", __func__, __LINE__, res);
+		}
 		tm_mutex.unlock();
 	}
 
@@ -87,9 +110,6 @@ void* CComponentsTimer::initThreadAction(void *arg)
 //start up running timer with own thread, return true on succses
 void CComponentsTimer::initThread()
 {
-	if (!tm_enable)
-		return;
-
 	if(!tm_thread) {
 		void *ptr = static_cast<void*>(this);
 
@@ -132,20 +152,22 @@ void CComponentsTimer::stopThread()
 
 bool CComponentsTimer::startTimer()
 {
-	tm_enable = true;
 	initThread();
 	if(tm_thread)
-		return true;
+		tm_enable = true;
 
-	return false;
+	return tm_enable;
 }
 
 bool CComponentsTimer::stopTimer()
 {
 	tm_enable = false;
 	stopThread();
-	if(tm_thread == 0)
+	if(tm_thread == 0){
+		if (!OnTimer.empty())
+			OnTimer.clear();
 		return true;
+	}
 
 	return false;
 }

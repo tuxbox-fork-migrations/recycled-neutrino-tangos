@@ -37,12 +37,13 @@
 
 #include <gui/color.h>
 #include <gui/infoviewer.h>
+#include <gui/osd_setup.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/icons.h>
 
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 #include <driver/screen_max.h>
 #endif
 #include <system/settings.h>
@@ -51,9 +52,9 @@
 #include <global.h>
 #include <neutrino.h>
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 struct borderFrame { int sx, sy, ex, ey; };
-static map<t_channel_id, borderFrame> borderMap;
+static std::map<t_channel_id, borderFrame> borderMap;
 #define BORDER_CONFIG_FILE CONFIGDIR "/zapit/borders.conf"
 #else
 //int x_box = 15 * 5;
@@ -67,7 +68,7 @@ inline unsigned int make16color(__u32 rgb)
 CScreenSetup::CScreenSetup()
 {
 	frameBuffer = CFrameBuffer::getInstance();
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	screenheight = frameBuffer->getScreenHeight(true);
 	screenwidth = frameBuffer->getScreenWidth(true);
 	startX = g_settings.screen_StartX_int;
@@ -80,7 +81,7 @@ CScreenSetup::CScreenSetup()
 #endif
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 int CScreenSetup::exec(CMenuTarget* parent, const std::string &action)
 {
 	if (!m) {
@@ -152,15 +153,15 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &action)
 			showBorder(channel_id);
 
 			if(g_settings.screen_preset) {
-				g_settings.screen_StartX_lcd = g_settings.screen_StartX_int;
-				g_settings.screen_StartY_lcd = g_settings.screen_StartY_int;
-				g_settings.screen_EndX_lcd = g_settings.screen_EndX_int;
-				g_settings.screen_EndY_lcd = g_settings.screen_EndY_int;
+				g_settings.screen_StartX_lcd_0 = g_settings.screen_StartX_int;
+				g_settings.screen_StartY_lcd_0 = g_settings.screen_StartY_int;
+				g_settings.screen_EndX_lcd_0 = g_settings.screen_EndX_int;
+				g_settings.screen_EndY_lcd_0 = g_settings.screen_EndY_int;
 			} else {
-				g_settings.screen_StartX_crt = g_settings.screen_StartX_int;
-				g_settings.screen_StartY_crt = g_settings.screen_StartY_int;
-				g_settings.screen_EndX_crt = g_settings.screen_EndX_int;
-				g_settings.screen_EndY_crt = g_settings.screen_EndY_int;
+				g_settings.screen_StartX_crt_0 = g_settings.screen_StartX_int;
+				g_settings.screen_StartY_crt_0 = g_settings.screen_StartY_int;
+				g_settings.screen_EndX_crt_0 = g_settings.screen_EndX_int;
+				g_settings.screen_EndY_crt_0 = g_settings.screen_EndY_int;
 			}
 		}
 		return menu_return::RETURN_EXIT;
@@ -206,6 +207,8 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &action)
 
 		frameBuffer->setBorder(x_coord[0], y_coord[0], x_coord[1], y_coord[1]);
 		updateCoords();
+		m->paint();
+		frameBuffer->blit();
 		return menu_return::RETURN_REPAINT;
 	}
 	return menu_return::RETURN_NONE;
@@ -248,8 +251,7 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 
 	selected = 0;
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
-::TIMING_MENU]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 	bool loop=true;
 	while (loop)
@@ -257,32 +259,68 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd, true );
 
 		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
-::TIMING_MENU]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		switch ( msg )
 		{
-			case CRCInput::RC_ok:
+			case CRCInput::RC_ok: {
 				// abspeichern
 				g_settings.screen_StartX = x_coord[0];
 				g_settings.screen_EndX = x_coord[1];
 				g_settings.screen_StartY = y_coord[0];
 				g_settings.screen_EndY = y_coord[1];
-				if(g_settings.screen_preset) {
-					g_settings.screen_StartX_lcd = g_settings.screen_StartX;
-					g_settings.screen_StartY_lcd = g_settings.screen_StartY;
-					g_settings.screen_EndX_lcd = g_settings.screen_EndX;
-					g_settings.screen_EndY_lcd = g_settings.screen_EndY;
-				} else {
-					g_settings.screen_StartX_crt = g_settings.screen_StartX;
-					g_settings.screen_StartY_crt = g_settings.screen_StartY;
-					g_settings.screen_EndX_crt = g_settings.screen_EndX;
-					g_settings.screen_EndY_crt = g_settings.screen_EndY;
+				switch (g_settings.osd_resolution) {
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+					case 1:
+					    {
+						switch (g_settings.screen_preset) {
+							case COsdSetup::PRESET_CRT:
+								g_settings.screen_StartX_crt_1 = g_settings.screen_StartX;
+								g_settings.screen_StartY_crt_1 = g_settings.screen_StartY;
+								g_settings.screen_EndX_crt_1   = g_settings.screen_EndX;
+								g_settings.screen_EndY_crt_1   = g_settings.screen_EndY;
+								break;
+							case COsdSetup::PRESET_LCD:
+							default:
+								g_settings.screen_StartX_lcd_1 = g_settings.screen_StartX;
+								g_settings.screen_StartY_lcd_1 = g_settings.screen_StartY;
+								g_settings.screen_EndX_lcd_1   = g_settings.screen_EndX;
+								g_settings.screen_EndY_lcd_1   = g_settings.screen_EndY;
+								break;
+						}
+					    }
+					break;
+#endif
+					case 0:
+					default:
+					    {
+						switch (g_settings.screen_preset) {
+							case COsdSetup::PRESET_CRT:
+								g_settings.screen_StartX_crt_0 = g_settings.screen_StartX;
+								g_settings.screen_StartY_crt_0 = g_settings.screen_StartY;
+								g_settings.screen_EndX_crt_0   = g_settings.screen_EndX;
+								g_settings.screen_EndY_crt_0   = g_settings.screen_EndY;
+								break;
+							case COsdSetup::PRESET_LCD:
+							default:
+								g_settings.screen_StartX_lcd_0 = g_settings.screen_StartX;
+								g_settings.screen_StartY_lcd_0 = g_settings.screen_StartY;
+								g_settings.screen_EndX_lcd_0   = g_settings.screen_EndX;
+								g_settings.screen_EndY_lcd_0   = g_settings.screen_EndY;
+								break;
+						}
+					    }
+					break;
 				}
+
 				if (g_InfoViewer) /* recalc infobar position */
 					g_InfoViewer->start();
+				if (CNeutrinoApp::getInstance()->channelList)
+					CNeutrinoApp::getInstance()->channelList->ResetModules();
+
 				loop = false;
 				break;
+			}
 
 			case CRCInput::RC_home:
 				if ( ( ( g_settings.screen_StartX != x_coord[0] ) ||
@@ -291,6 +329,7 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 							( g_settings.screen_EndY != y_coord[1] ) ) &&
 						(ShowMsg(LOCALE_VIDEOMENU_SCREENSETUP, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel))
 					break;
+				/* falls through */
 
 			case CRCInput::RC_timeout:
 				loop = false;
@@ -384,7 +423,7 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 
 void CScreenSetup::hide()
 {
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	frameBuffer->paintBackgroundBox(0, 0, screenwidth, screenheight);
 	if (channel_id)
 		showBorder(channel_id);
@@ -400,7 +439,7 @@ void CScreenSetup::hide()
 	frameBuffer->blit();
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 bool CScreenSetup::loadBorder(t_channel_id cid)
 {
 	loadBorders();

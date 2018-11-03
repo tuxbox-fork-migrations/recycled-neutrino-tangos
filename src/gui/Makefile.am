@@ -41,6 +41,7 @@ AM_CPPFLAGS += \
 	@LUA_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
+	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a
@@ -63,9 +64,8 @@ libneutrino_gui_a_SOURCES = \
 	filebrowser.cpp \
 	followscreenings.cpp \
 	imageinfo.cpp \
+	imdb.cpp \
 	info_menue.cpp \
-	infoviewer.cpp \
-	infoviewer_bb.cpp \
 	keybind_setup.cpp \
 	mediaplayer.cpp \
 	mediaplayer_setup.cpp \
@@ -74,6 +74,7 @@ libneutrino_gui_a_SOURCES = \
 	network_service.cpp \
 	network_setup.cpp \
 	nfs.cpp \
+	osd_helpers.cpp \
 	osd_progressbar_setup.cpp \
 	osd_setup.cpp \
 	osdlang_setup.cpp \
@@ -91,7 +92,6 @@ libneutrino_gui_a_SOURCES = \
 	screensetup.cpp \
 	settings_manager.cpp \
 	sleeptimer.cpp \
-	streaminfo2.cpp \
 	subchannel_select.cpp \
 	themes.cpp \
 	skins.cpp \
@@ -106,9 +106,20 @@ libneutrino_gui_a_SOURCES = \
 	videosettings.cpp \
 	volumebar.cpp \
 	webtv_setup.cpp \
+	webradio_setup.cpp \
+	xmltv_setup.cpp \
 	zapit_setup.cpp \
 	lcd4l.cpp \
 	lcd4l_setup.cpp
+
+if ENABLE_TANGOS
+libneutrino_gui_a_SOURCES += \
+	infoviewer_tc.cpp
+else
+libneutrino_gui_a_SOURCES += \
+	infoviewer.cpp \
+	infoviewer_bb.cpp
+endif
 
 if BOXTYPE_SPARK
 libneutrino_gui_a_SOURCES += \
@@ -122,9 +133,23 @@ libneutrino_gui_a_SOURCES += \
 	psisetup.cpp
 endif
 
+if BOXTYPE_ARMBOX
+libneutrino_gui_a_SOURCES += \
+	psisetup.cpp \
+	3dsetup.cpp
+endif
+
 if ENABLE_GRAPHLCD
 libneutrino_gui_a_SOURCES += \
 	glcdsetup.cpp
+endif
+
+if BOXTYPE_COOL
+libneutrino_gui_a_SOURCES += \
+	streaminfo1.cpp
+else
+libneutrino_gui_a_SOURCES += \
+	streaminfo2.cpp
 endif
 
 if ENABLE_EXTUPDATE

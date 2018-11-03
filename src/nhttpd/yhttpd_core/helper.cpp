@@ -16,7 +16,6 @@
 // yhttpd
 #include <yconfig.h>
 #include <tuxboxapi/controlapi.h>
-#include "ytypes_globals.h"
 #include "helper.h"
 #include "ylogging.h"
 
@@ -400,12 +399,6 @@ std::string json_convert_string(std::string s) {
 #endif // 0
 
 std::string yExecuteScript(std::string cmd) {
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	const char *fbshot = "Y_Tools fbshot fb /";
-	int len = strlen(fbshot);
-	if (!strncmp(cmd.c_str(), fbshot, len))
-		return CFrameBuffer::getInstance()->OSDShot(cmd.substr(len - 1)) ? "" : "error";
-#endif
 
 	std::string script, para, result;
 	bool found = false;

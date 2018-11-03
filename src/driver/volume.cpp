@@ -4,6 +4,7 @@
 
 	volume bar - Neutrino-GUI
 	Copyright (C) 2011-2013 M. Liebmann (micha-bbg)
+	Copyright (C) 2012,2013 Stefan Seyfried
 
 	License: GPL
 
@@ -31,7 +32,9 @@
 #include <gui/infoclock.h>
 #include <gui/keybind_setup.h>
 #include <system/debug.h>
+/* compat header from zapit/include */
 #include <audio.h>
+#include <video.h>
 #include <system/settings.h>
 #include <system/helpers.h>
 #include <daemonc/remotecontrol.h>
@@ -45,6 +48,8 @@
 #include <driver/nglcd.h>
 #endif
 
+
+#define VOLUME_SCRIPT	CONFIGDIR "/volume.sh"
 
 extern CRemoteControl * g_RemoteControl;
 extern cAudio * audioDecoder;
@@ -91,9 +96,14 @@ void CVolume::setVolumeExt(int vol)
 
 void CVolume::setVolume(const neutrino_msg_t key)
 {
-	neutrino_msg_t msg	= key;
+	if (!g_RCInput) /* don't die... */
+		return;
 	int mode = CNeutrinoApp::getInstance()->getMode();
-	
+	if (mode == NeutrinoModes::mode_standby)
+		return;
+
+	neutrino_msg_t msg	= key;
+	static bool do_vol = true; /* false if volume is handled by external script */
 	if (msg <= CRCInput::RC_MaxRC) {
 		if(m_mode != mode) {
 			m_mode = mode;
@@ -103,10 +113,14 @@ void CVolume::setVolume(const neutrino_msg_t key)
 	}
 
 	hideVolscale();
-	showVolscale();
+	//showVolscale();
 
 	neutrino_msg_data_t data = 0;
 	uint64_t timeoutEnd = 0;
+#if HAVE_ARM_HARDWARE
+	if (g_settings.hdmi_cec_volume)
+		g_settings.current_volume = hdmi_cec::getInstance()->GetVolume();
+#endif
 	int vol = g_settings.current_volume;
 
 	do {
@@ -117,14 +131,42 @@ void CVolume::setVolume(const neutrino_msg_t key)
 			if ((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == (neutrino_msg_t) g_settings.key_volumedown) ||
 			    (sub_chan_keybind && (msg == CRCInput::RC_right || msg == CRCInput::RC_left))) {
 				int dir = (msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? 1 : -1;
+				if (my_system(2, VOLUME_SCRIPT, dir > 0 ? "up" : "down") == 0)
+				{
+					do_vol = false;
+					/* clear all repeated events */
+					neutrino_msg_t tmp = msg;
+					while (msg == tmp)
+						g_RCInput->getMsg(&tmp, &data, 0);
+					if (tmp != CRCInput::RC_timeout)
+						g_RCInput->postMsg(tmp, data);
+#if HAVE_ARM_HARDWARE
+				}
+				else if (g_settings.hdmi_cec_volume)
+				{
+					(dir > 0) ? hdmi_cec::getInstance()->vol_up() : hdmi_cec::getInstance()->vol_down();
+					do_vol = false;
+					g_settings.current_volume = hdmi_cec::getInstance()->GetVolume();
+					printf("Volume: %d\n", g_settings.current_volume);
+#endif
+				}
+				else if (g_settings.volume_external)
+				{
+					if (my_system((dir > 0) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT) != 0)
+							perror((dir > 0) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT " failed");
+					do_vol = false;
+				} else
+					do_vol = true;
 				if (CNeutrinoApp::getInstance()->isMuted() && (dir > 0 || g_settings.current_volume > 0)) {
 					hideVolscale();
-					CAudioMute::getInstance()->AudioMute(false, true);
-					setVolume(msg);
-					return;
+					if (do_vol) {
+						CAudioMute::getInstance()->AudioMute(false, true);
+						setVolume(msg);
+						return;
+					}
 				}
 
-				if (!CNeutrinoApp::getInstance()->isMuted()) {
+				if (do_vol && !CNeutrinoApp::getInstance()->isMuted()) {
 					/* current_volume is char, we need signed to catch v < 0 */
 					int v = g_settings.current_volume;
 					v += dir * g_settings.current_volume_step;
@@ -153,23 +195,25 @@ void CVolume::setVolume(const neutrino_msg_t key)
 				break;
 			}
 
-			setvol(g_settings.current_volume);
-			timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR]);
+			if (do_vol)
+				setvol(g_settings.current_volume);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR]);
 		}
 		else if (msg == NeutrinoMessages::EVT_VOLCHANGED) {
-			timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR]);
 		}
 		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::unhandled) {
 			g_RCInput->postMsg(msg, data);
 			break;
 		}
 
-		if (volscale) {
+//		if (volscale) {
 			if(vol != g_settings.current_volume) {
 				vol = g_settings.current_volume;
+				showVolscale();
 				volscale->paint();
 			}
-		}
+//		}
 
 		CVFD::getInstance()->showVolume(g_settings.current_volume);
 		if (msg != CRCInput::RC_timeout) {

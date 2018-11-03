@@ -38,7 +38,6 @@
 
 #include <gui/widget/progresswindow.h>
 
-#include <driver/framebuffer.h>
 #ifdef BOXMODEL_CS_HD2
 #include <system/mtdutils/mkfs.jffs2.h>
 #endif
@@ -58,7 +57,8 @@ class CFlashUpdate : public CProgressWindow
 	std::string newVersion;
 	int	menu_ret;
 	int softupdate_mode;
-	
+
+// 	void update_php(std::string &url, const char* type);
 	bool selectHttpImage(void);
 	bool getUpdateImage(const std::string & version);
 	bool checkVersion4Update();

@@ -100,7 +100,7 @@ class CMoviePlayerGui : public CMenuTarget
 	std::string livestreamInfo2;
 
 	CFrameBuffer * frameBuffer;
-	int            m_LastMode;	
+	int            m_LastMode;
 
 	std::string	cookie_header;
 	std::string	info_1, info_2;
@@ -117,6 +117,8 @@ class CMoviePlayerGui : public CMenuTarget
 	int startposition;
 	int position;
 	int duration;
+	int currentVideoSystem;
+	uint32_t currentOsdResolution;
 
 	unsigned int numpida;
 	int vpid;
@@ -131,11 +133,6 @@ class CMoviePlayerGui : public CMenuTarget
 #endif
 	int currentapid, currentac3;
 	repeat_mode_enum repeat_mode;
-
-	/* screensaver */
-	int		m_idletime;
-	bool		m_screensaver;
-	void		screensaver(bool on);
 
 	// subtitle data
 	unsigned int numpids;
@@ -164,7 +161,7 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short sub_supported[REC_MAX_APIDS];
 	int currentspid;
 	int min_x, min_y, max_x, max_y;
-	time_t end_time;
+	int64_t end_time;
 	bool ext_subs;
 	bool lock_subs;
 #endif
@@ -174,23 +171,26 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isMovieBrowser;
 	bool isHTTP;
 	bool isUPNP;
-	bool isWebTV;
+	bool isWebChannel;
 	bool isYT;
 	bool showStartingHint;
 	static CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO movie_info;
 	P_MI_MOVIE_LIST milist;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	CFrameBuffer::Mode3D old3dmode;
 #endif
 
 	/* playback from file */
 	bool is_file_player;
+	bool is_audio_playing;
 	bool iso_file;
 	bool stopped;
 	CFileBrowser * filebrowser;
 	CFileFilter tsfilefilter;
+	CFileFilter filefilter_video;
+	CFileFilter filefilter_audio;
 	CFileList filelist;
 	CFileList::iterator filelist_it;
 	CFileList::iterator vzap_it;
@@ -199,6 +199,7 @@ class CMoviePlayerGui : public CMenuTarget
 	std::string Path_local;
 	int menu_ret;
 	bool autoshot_done;
+	bool timeshift_deletion;
 	//std::vector<livestream_info_t> liveStreamList;
 
 	/* playback from bookmark */
@@ -233,7 +234,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	void handleMovieBrowser(neutrino_msg_t msg, int position = 0);
 	bool SelectFile();
-	void updateLcd();
+	void updateLcd(bool display_playtime = false);
 
 #if 0
 	void selectSubtitle();
@@ -279,6 +280,7 @@ class CMoviePlayerGui : public CMenuTarget
 	int getState() { return playstate; }
 	void UpdatePosition();
 	int timeshift;
+	void deleteTimeshift() { timeshift_deletion = true; }
 	int file_prozent;
 	cPlayback *getPlayback() { return playback; }
 	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; }
@@ -298,6 +300,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void stopPlayBack(void);
 	void StopSubtitles(bool enable_glcd_mirroring);
 	void StartSubtitles(bool show = true);
+	void stopTimeshift(void);
 	void setLastMode(int m) { m_LastMode = m; }
 	void Pause(bool b = true);
 	void selectAudioPid(void);
@@ -317,6 +320,8 @@ class CMoviePlayerGui : public CMenuTarget
 	void setLuaInfoFunc(lua_State* L, bool func) { luaState = L; haveLuaInfoFunc = func; };
 	void getLivestreamInfo(std::string *i1, std::string *i2) { *i1=livestreamInfo1; *i2=livestreamInfo2; };
 	bool getLiveUrl(const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header);
+	bool IsAudioPlaying() { return is_audio_playing; };
+	void showMovieInfo();
 };
 
 #endif

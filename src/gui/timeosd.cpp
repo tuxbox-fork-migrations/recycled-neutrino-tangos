@@ -43,6 +43,7 @@ CTimeOSD::CTimeOSD():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1
 	tmp_mode  = MODE_HIDE;
 	m_restore = false;
 	mp_time_forced = false;
+	cc_item_type.name 	= "time_osd_box";
 	Init();
 }
 
@@ -102,7 +103,7 @@ void CTimeOSD::initTimeString()
 void CTimeOSD::show(time_t time_show, bool force)
 {
 	time_show /= 1000;
-	if (!force && (m_mode == MODE_HIDE || m_time_show == time_show || CScreenSaver::getInstance()->IsRun()))
+	if (!force && (m_mode == MODE_HIDE || m_time_show == time_show || CScreenSaver::getInstance()->isActive()))
 		return;
 	m_time_show = time_show;
 

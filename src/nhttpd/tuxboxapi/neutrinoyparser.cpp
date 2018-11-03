@@ -105,26 +105,26 @@ THandleStatus CNeutrinoYParser::Hook_ReadConfig(CConfigFile *Config, CStringList
 //=============================================================================
 const CNeutrinoYParser::TyFuncCall CNeutrinoYParser::yFuncCallList[]=
 {
-	{"mount-get-list", 				&CNeutrinoYParser::func_mount_get_list},
-	{"mount-set-values", 			&CNeutrinoYParser::func_mount_set_values},
-	{"get_bouquets_as_dropdown",	&CNeutrinoYParser::func_get_bouquets_as_dropdown},
-	{"get_bouquets_as_templatelist",&CNeutrinoYParser::func_get_bouquets_as_templatelist},
-	{"get_actual_bouquet_number",	&CNeutrinoYParser::func_get_actual_bouquet_number},
-	{"get_channels_as_dropdown",	&CNeutrinoYParser::func_get_channels_as_dropdown},
+	{"mount-get-list",			&CNeutrinoYParser::func_mount_get_list},
+	{"mount-set-values",			&CNeutrinoYParser::func_mount_set_values},
+	{"get_bouquets_as_dropdown",		&CNeutrinoYParser::func_get_bouquets_as_dropdown},
+	{"get_bouquets_as_templatelist",	&CNeutrinoYParser::func_get_bouquets_as_templatelist},
+	{"get_actual_bouquet_number",		&CNeutrinoYParser::func_get_actual_bouquet_number},
+	{"get_channels_as_dropdown",		&CNeutrinoYParser::func_get_channels_as_dropdown},
 	{"get_bouquets_with_epg",		&CNeutrinoYParser::func_get_bouquets_with_epg},
 	{"get_actual_channel_id",		&CNeutrinoYParser::func_get_actual_channel_id},
-	{"get_logo_name",		&CNeutrinoYParser::func_get_logo_name},
-	{"get_mode",					&CNeutrinoYParser::func_get_mode},
-	{"get_video_pids",				&CNeutrinoYParser::func_get_video_pids},
-	{"get_audio_pid",				&CNeutrinoYParser::func_get_radio_pid},
-	{"get_audio_pids_as_dropdown",	&CNeutrinoYParser::func_get_audio_pids_as_dropdown},
-	{"umount_get_list",				&CNeutrinoYParser::func_unmount_get_list},
+	{"get_logo_name",			&CNeutrinoYParser::func_get_logo_name},
+	{"get_mode",				&CNeutrinoYParser::func_get_mode},
+	{"get_video_pids",			&CNeutrinoYParser::func_get_video_pids},
+	{"get_audio_pid",			&CNeutrinoYParser::func_get_radio_pid},
+	{"get_audio_pids_as_dropdown",		&CNeutrinoYParser::func_get_audio_pids_as_dropdown},
+	{"umount_get_list",			&CNeutrinoYParser::func_unmount_get_list},
 	{"get_partition_list",			&CNeutrinoYParser::func_get_partition_list},
-	{"get_boxtype",					&CNeutrinoYParser::func_get_boxtype},
-	{"get_boxmodel",				&CNeutrinoYParser::func_get_boxmodel},
+	{"get_boxtype",				&CNeutrinoYParser::func_get_boxtype},
+	{"get_boxmodel",			&CNeutrinoYParser::func_get_boxmodel},
 	{"get_current_stream_info",		&CNeutrinoYParser::func_get_current_stream_info},
-	{"get_timer_list",				&CNeutrinoYParser::func_get_timer_list},
-	{"set_timer_form",				&CNeutrinoYParser::func_set_timer_form},
+	{"get_timer_list",			&CNeutrinoYParser::func_get_timer_list},
+	{"set_timer_form",			&CNeutrinoYParser::func_set_timer_form},
 	{"bouquet_editor_main",			&CNeutrinoYParser::func_bouquet_editor_main},
 	{"set_bouquet_edit_form",		&CNeutrinoYParser::func_set_bouquet_edit_form},
 };
@@ -230,8 +230,8 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *, st
 		sel=(nr==(i+1)) ? "selected=\"selected\"" : "";
 		if(!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true"))
 			yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(),
-				std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[i]->Name.c_str()).c_str());
-			//yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(), (encodeString(std::string(g_bouquetManager->Bouquets[i]->Name.c_str()))).c_str());
+				std::string(g_bouquetManager->Bouquets[i]->bName.c_str()).c_str());
+			//yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(), (encodeString(std::string(g_bouquetManager->Bouquets[i]->bName.c_str()))).c_str());
 	}
 	return yresult;
 }
@@ -254,12 +254,8 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_templatelist(CyhookHandler *
 			g_bouquetManager->Bouquets[i]->getRadioChannels(channels);
 		else
 			g_bouquetManager->Bouquets[i]->getTvChannels(channels);
-#if HAVE_DUCKBOX_HARDWARE
 		if(!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true") && g_bouquetManager->Bouquets[i]->bUser) {
-#else
-		if(!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true")) {
-#endif
-			yresult += string_printf(ytemplate.c_str(), i + 1, g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[i]->Name.c_str());
+			yresult += string_printf(ytemplate.c_str(), i + 1, g_bouquetManager->Bouquets[i]->bName.c_str());
 			yresult += "\r\n";
 		}
 	}
@@ -481,7 +477,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				, channel->getName().c_str()
 			);
 #endif
-		yresult += string_printf("\n&nbsp;&nbsp;<a href=\"/control/build_playlist?id="PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS"\"><img src=\"/images/vlc.png\" alt=\"VLC-Link\" style=\"border: 0px\" /></a>",channel->getChannelID());
+		yresult += string_printf("\n&nbsp;&nbsp;<a href=\"/control/build_playlist?id=" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS "\"><img src=\"/images/vlc.png\" alt=\"VLC-Link\" style=\"border: 0px\" /></a>",channel->getChannelID());
 
 		yresult += "</td></tr></table>\n</td>\n</tr>\n";
 
@@ -592,7 +588,7 @@ std::string  CNeutrinoYParser::func_get_logo_name(CyhookHandler *hh, std::string
 		std::string fileType[] = { ".png", ".jpg" , ".gif" };
 
 		std::string channelIdShort = channelId.substr(channelId.length() - 12);
-		channelIdShort = channelIdShort.erase(0, min(channelIdShort.find_first_not_of('0'), channelIdShort.size()-1));
+		channelIdShort = channelIdShort.erase(0, std::min(channelIdShort.find_first_not_of('0'), channelIdShort.size()-1));
 
 		std::string channelName = "";
 		t_channel_id chId = 0;
@@ -801,7 +797,7 @@ std::string  CNeutrinoYParser::func_unmount_get_list(CyhookHandler *, std::strin
 		in >> ymount >> ylocal_dir >> yfstype;
 		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		yfstype = trim(yfstype);
-		if( (yfstype == "nfs") << (yfstype == "ftp") || (yfstype == "lufsd") )
+		if( (yfstype == "nfs") || (yfstype == "ftp") || (yfstype == "lufsd") )
 		{
 			mounts=ylocal_dir +" on "+ ymount + " ("+yfstype+")";
 			ysel = ((j==0) ? "checked=\"checked\"" : "");
@@ -857,6 +853,8 @@ std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 
 	std::string boxname(g_info.hw_caps->boxname);
 
+	if (boxvendor.compare("SPARK") == 0)
+		boxname = to_string(g_info.hw_caps->boxtype);
 
 	return boxvendor + " " + boxname;
 }
@@ -1031,6 +1029,10 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 	unsigned timerId=0;
 	std::string cmd, stimerid;
 	CTimerd::responseGetTimer timer;             // Timer
+	timer.alarmTime = 0;
+	timer.stopTime = 0;
+	timer.apids = 0;
+	timer.eventType = CTimerd::__TIMER_NEXTPROGRAM;//nothing
 	time_t now_t = time(NULL);
 	ySplitString(para, " ", cmd, stimerid);
 	if(cmd != "new")
@@ -1209,9 +1211,9 @@ std::string  CNeutrinoYParser::func_bouquet_editor_main(CyhookHandler *hh, std::
 			yresult += string_printf(para.c_str(), classname, akt.c_str(),
 				i + 1, lock_action.c_str(), lock_img.c_str(), lock_alt.c_str(), //lock
 				i + 1, hidden_action.c_str(), hidden_img.c_str(), hidden_alt.c_str(), //hhidden
-				i + 1, bouquet->Name.c_str(), bouquet->Name.c_str(), //link
-				i + 1, bouquet->Name.c_str(), //rename
-				i + 1, bouquet->Name.c_str(), //delete
+				i + 1, bouquet->bName.c_str(), bouquet->bName.c_str(), //link
+				i + 1, bouquet->bName.c_str(), //rename
+				i + 1, bouquet->bName.c_str(), //delete
 				down_show.c_str(), i + 1, //down arrow
 				up_show.c_str(), i + 1); //up arrow
 		}

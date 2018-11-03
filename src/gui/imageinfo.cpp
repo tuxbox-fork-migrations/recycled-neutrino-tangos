@@ -17,10 +17,8 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -47,8 +45,10 @@
 #include <gui/lua/lua_api_version.h>
 #endif
 #include <nhttpd/yconfig.h>
+#include <ctype.h>
 
-#define VERSION_FILE TARGET_PREFIX "/.version"
+#define VERSION_FILE "/.version"
+#define RELEASE_FILE "/etc/os-release"
 
 using namespace std;
 
@@ -69,13 +69,12 @@ void CImageInfo::Init(void)
 	cc_sub_caption	= NULL;
 	b_info 		= NULL;
 	btn_red		= NULL;
-	item_offset	= 10;
+	item_offset	= OFFSET_INNER_MID;
 	item_font 	= NULL;
 	item_height 	= 0;
 	y_tmp 		= 0;
 	license_txt	= "";
 	v_info.clear();
-	config.loadConfig(VERSION_FILE);
 }
 
 CImageInfo::~CImageInfo()
@@ -277,39 +276,88 @@ void CImageInfo::InitInfoData()
 {
 	v_info.clear();
 
+	image_info_t pretty_name = {LOCALE_IMAGEINFO_OS,""};
+	if (file_exists(RELEASE_FILE)){
+		config.loadConfig(RELEASE_FILE);
+		string tmpstr = config.getString("PRETTY_NAME", "");
+		pretty_name.info_text = str_replace("\"", "", tmpstr);
+		config.clear();
+	}
+
+	config.loadConfig(VERSION_FILE);
+
 #ifdef BUILT_DATE
 	const char * builddate = BUILT_DATE;
 #else
 	const char * builddate = config.getString("builddate", "n/a").c_str();
 #endif
 
-	std::string version_string;
+	string version_string = config.getString("version", "");
+#ifdef PACKAGE_VERSION
+#if HAVE_SH4_HARDWARE
+	version_string = "SH4-Release : ";
+#elif HAVE_ARM_HARDWARE
+	version_string = "ARM-Release : ";
+#else
+	version_string = "Release : ";
+#endif
+	version_string += PACKAGE_VERSION;
+#else
 #ifdef IMAGE_VERSION
 	version_string = IMAGE_VERSION;
 #else
-	std::string _version = config.getString("version", "U000000000000000").c_str();
-	static CFlashVersionInfo versionInfo(_version.c_str());
-
-	version_string = versionInfo.getReleaseCycle();
-	version_string += " ";
-	version_string += versionInfo.getType();
-	version_string += " (";
-	version_string += versionInfo.getDate();
-	version_string += ")";
+	bool is_version_code = true;
+	for (size_t i=0; i<version_string.size(); i++){
+		if (!isdigit(version_string[i])){
+			is_version_code = false;
+			break;
+		}
+	}
+	if (is_version_code && version_string.size() == 16){
+		static CFlashVersionInfo versionInfo(version_string.c_str());
+		version_string = versionInfo.getReleaseCycle();
+		version_string += " ";
+		version_string += versionInfo.getType();
+		version_string += " (";
+		version_string += versionInfo.getDate();
+		version_string += ")";
+	}else
+		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s], internal release cycle [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str(), RELEASE_CYCLE);
+#endif
 #endif
 
-	struct utsname uts_info;
-
 	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE,	config.getString("imagename", PACKAGE_NAME)};
-	v_info.push_back(imagename);
-	image_info_t version	= {LOCALE_IMAGEINFO_VERSION,	version_string};
-	v_info.push_back(version);
+	if (!version_string.empty()){
+		image_info_t version	= {LOCALE_IMAGEINFO_VERSION,	version_string};
+		imagename.info_text += " ";
+		imagename.info_text += version_string;
+		v_info.push_back(imagename);
+	}else
+		v_info.push_back(imagename);
+
+	if (!pretty_name.info_text.empty())
+		v_info.push_back(pretty_name);
+
+	struct utsname uts_info;
+	if (uname(&uts_info) == 0) {
+		image_info_t kernel	= {LOCALE_IMAGEINFO_KERNEL,	uts_info.release};
+		v_info.push_back(kernel);
+	}
+
+	image_info_t date	= {LOCALE_IMAGEINFO_DATE,	builddate};
+	v_info.push_back(date);
+
+	image_info_t creator	= {LOCALE_IMAGEINFO_CREATOR,	config.getString("creator", "n/a")};
+	v_info.push_back(creator);
+
+	image_info_t gui	= {LOCALE_IMAGEINFO_GUI, config.getString("gui", PACKAGE_NAME)};
+	v_info.push_back(gui);
+
 #ifdef VCS
 	image_info_t vcs	= {LOCALE_IMAGEINFO_VCS,	VCS};
 	v_info.push_back(vcs);
 #endif
-	image_info_t date	= {LOCALE_IMAGEINFO_DATE,	builddate};
-	v_info.push_back(date);
+
 	string s_api;
 #ifdef ENABLE_LUA
 	s_api	+= "LUA " + to_string(LUA_API_VERSION_MAJOR) + "." + to_string(LUA_API_VERSION_MINOR);
@@ -327,12 +375,7 @@ void CImageInfo::InitInfoData()
 	s_api	+= YHTTPD_VERSION;
 	image_info_t api	= {LOCALE_IMAGEINFO_API,	s_api};
 	v_info.push_back(api);
-	if (uname(&uts_info) == 0) {
-		image_info_t kernel	= {LOCALE_IMAGEINFO_KERNEL,	uts_info.release};
-		v_info.push_back(kernel);
-	}
-	image_info_t creator	= {LOCALE_IMAGEINFO_CREATOR,	config.getString("creator", "n/a")};
-	v_info.push_back(creator);
+
 	image_info_t www	= {LOCALE_IMAGEINFO_HOMEPAGE,	config.getString("homepage", "n/a")};
 	v_info.push_back(www);
 	image_info_t doc	= {LOCALE_IMAGEINFO_DOKUMENTATION, config.getString("docs", "http://wiki.neutrino-hd.de")};
@@ -362,7 +405,7 @@ void CImageInfo::InitInfos()
 	y_tmp = 0;
 	for (size_t i=0; i<v_info.size(); i++) {
 		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, y_tmp, cc_info->getWidth(), 0, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
-		item->setLabelWidthPercent(20);
+		item->setLabelWidthPercent(15);
 
 		if (!item_font){
 			item_font = item->getFont();

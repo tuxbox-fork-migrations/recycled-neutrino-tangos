@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, 2014 Thilo Graf 'dbt'
+	Copyright (C) 2012-2018 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -29,6 +29,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm_icons.h"
+#include <system/debug.h>
 
 using namespace std;
 
@@ -53,7 +54,8 @@ void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, c
 						int shadow_mode,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	cc_item_type 	= CC_ITEMTYPE_FRM_ICONFORM;
+	cc_item_type.id 	= CC_ITEMTYPE_FRM_ICONFORM;
+	cc_item_type.name 	= "cc_icon_container";
 
 	x 		= x_pos;
 	y 		= y_pos;
@@ -69,8 +71,8 @@ void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, c
 
 	append_y_offset = 2;
 
-	initChainItems();
 	initParent(parent);
+	addIcon(v_icons);
 }
 
 void CComponentsIconForm::addIcon(const std::string& icon_name)
@@ -82,7 +84,10 @@ void CComponentsIconForm::addIcon(const std::string& icon_name)
 							icon_name,
 							this);
 	ccp->doPaintBg(false);
-
+	int dx, dy;
+	ccp->getRealSize(&dx, &dy);
+	height = max(height, dy);
+	width = max(width, dx);
 	initChainItems();
 }
 
@@ -90,6 +95,16 @@ void CComponentsIconForm::addIcon(std::vector<std::string> icon_name)
 {
 	for (size_t i= 0; i< icon_name.size(); i++)
 		addIcon(icon_name[i]);
+}
+
+void CComponentsIconForm::addIcons(const std::string& icon_name, const size_t& count)
+{
+	if (count == 0){
+		dprintf(DEBUG_NORMAL, "[CComponentsIconForm]\t[%s - %d], NOTE: no count of items defined...\n", __func__, __LINE__);
+		return;
+	}
+	for (size_t i = 1; i <= count; i++)
+		addIcon(icon_name);
 }
 
 void CComponentsIconForm::insertIcon(const uint& icon_id, const std::string& icon_name)

@@ -78,9 +78,9 @@
 #include <libdvbsub/dvbsub.h>
 #include <OpenThreads/ScopedLock>
 #include <libtuxtxt/teletext.h>
-#include <OpenThreads/ScopedLock>
 
 #include <neutrino.h>
+#include <gui/osd_helpers.h>
 
 #ifdef PEDANTIC_VALGRIND_SETUP
 #define VALGRIND_PARANOIA(x) memset(&x, 0, sizeof(x))
@@ -132,8 +132,9 @@ CZapit::CZapit()
 	pmt_update_fd = -1;
 	//volume_left = 0, volume_right = 0;
 	audio_mode = 0;
-	aspectratio=0;
-	mode43=0;
+	mosd = 0;
+	aspectratio = 0;
+	mode43 = 0;
 	def_audio_mode = 0;
 	playbackStopForced = false;
 	standby = true;
@@ -528,21 +529,24 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	/* firstzap right now does nothing but control saving the audio channel */
 	firstzap = false;
 
-	if (IS_WEBTV(newchannel->getChannelID()) && !newchannel->getUrl().empty()) {
+	if (IS_WEBCHAN(newchannel->getChannelID()) && !newchannel->getUrl().empty()) {
 		dvbsub_stop();
 		if (current_channel && current_channel->getChannelID() == newchannel->getChannelID() && !newchannel->getScriptName().empty()){
 			INFO("[zapit] stop rezap to channel %s id %" PRIx64 ")", newchannel->getName().c_str(), newchannel->getChannelID());
 			return true;
 		}
 
-		if (!IS_WEBTV(live_channel_id))
+		if (!IS_WEBCHAN(live_channel_id))
 			CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
 
 		live_channel_id = newchannel->getChannelID();
 		lock_channel_id = live_channel_id;
 
 		current_channel = newchannel;
-		lastChannelTV = channel_id;
+		if (newchannel->getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE)
+			lastChannelRadio = channel_id;
+		else
+			lastChannelTV = channel_id;
 		SendEvent(CZapitClient::EVT_WEBTV_ZAP_COMPLETE, &live_channel_id, sizeof(t_channel_id));
 		return true;
 	}
@@ -816,7 +820,7 @@ bool CZapit::ZapForEpg(const t_channel_id channel_id, bool instandby)
 	/* no need to lock fe in standby mode,
 	   epg scan should care to not call this if recording running */
 	if (!instandby) {
-		if (!IS_WEBTV(live_channel_id))
+		if (!IS_WEBCHAN(live_channel_id))
 			CFEManager::getInstance()->lockFrontend(live_fe);
 #ifdef ENABLE_PIP
 		if (pip_fe /* && pip_fe != live_fe */)
@@ -826,7 +830,7 @@ bool CZapit::ZapForEpg(const t_channel_id channel_id, bool instandby)
 	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
 
 	if (!instandby) {
-		if (!IS_WEBTV(live_channel_id))
+		if (!IS_WEBCHAN(live_channel_id))
 			CFEManager::getInstance()->unlockFrontend(live_fe);
 #ifdef ENABLE_PIP
 		if (pip_fe /* && pip_fe != live_fe */)
@@ -1734,7 +1738,8 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
         case CZapitMessages::CMD_SET_VIDEO_SYSTEM: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
-		videoDecoder->SetVideoSystem(msg.val);
+		COsdHelpers::getInstance()->setVideoSystem(msg.val);
+		COsdHelpers::getInstance()->changeOsdResolution(0, true);
 		CNeutrinoApp::getInstance()->g_settings_video_Mode(msg.val);
                 break;
         }
@@ -1796,7 +1801,6 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 				SendEvent(CZapitClient::EVT_ZAP_FAILED, &lock_channel_id, sizeof(lock_channel_id));
 			lock_channel_id = 0;
 		}
-
 		SendCmdReady(connfd);
 		break;
 	}
@@ -1824,6 +1828,22 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	}
 #endif
 
+	case CZapitMessages::CMD_SET_OSD_RES: {
+		CZapitMessages::commandInt msg;
+		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
+		mosd=(int) msg.val;
+		COsdHelpers::getInstance()->changeOsdResolution(mosd);
+		break;
+	}
+
+	case CZapitMessages::CMD_GET_OSD_RES: {
+		CZapitMessages::commandInt msg;
+		mosd = COsdHelpers::getInstance()->getOsdResolution();
+		msg.val = mosd;
+		CBasicServer::send_data(connfd, &msg, sizeof(msg));
+		break;
+	}
+
 	case CZapitMessages::CMD_SET_ASPECTRATIO: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
@@ -1849,16 +1869,19 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
 	}
 
-#if 0 
-	//FIXME howto read aspect mode back?
 	case CZapitMessages::CMD_GET_MODE43: {
 		CZapitMessages::commandInt msg;
-		mode43=videoDecoder->getCroppingMode();
 		msg.val = mode43;
 		CBasicServer::send_data(connfd, &msg, sizeof(msg));
 		break;
 	}
-#endif
+
+	case CZapitMessages::CMD_GET_VIDEO_FORMAT: {
+		CZapitMessages::commandInt msg;
+		msg.val = CNeutrinoApp::getInstance()->getVideoFormat();
+		CBasicServer::send_data(connfd, &msg, sizeof(msg));
+		break;
+	}
 
 	case CZapitMessages::CMD_GETPIDS: {
 		if (current_channel) {
@@ -1997,9 +2020,9 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		if (msgBoolean.truefalse) {
 			// if(currentMode & RECORD_MODE) videoDecoder->freeze();
 			enterStandby();
-			SendCmdReady(connfd);
 		} else
 			leaveStandby();
+		SendCmdReady(connfd);
 		break;
 	}
 #if 0
@@ -2216,7 +2239,7 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 		return true;
 	}
 #if 0
-	if (IS_WEBTV(thisChannel->getChannelID())) {
+	if (IS_WEBCHAN(thisChannel->getChannelID())) {
 		INFO("WEBTV channel\n");
 		SendEvent(CZapitClient::EVT_WEBTV_ZAP_COMPLETE, &live_channel_id, sizeof(t_channel_id));
 		return true;
@@ -2278,8 +2301,13 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 #if ! HAVE_AZBOX_HARDWARE
 	/* start video */
 	if (video_pid) {
+	#if HAVE_COOL_HARDWARE
 		videoDecoder->Start(0, pcr_pid, video_pid);
 		videoDemux->Start();
+	#else
+		videoDemux->Start();
+		videoDecoder->Start(0, pcr_pid, video_pid);
+	#endif
 	}
 #endif
 #ifdef USE_VBI
@@ -2298,7 +2326,7 @@ bool CZapit::StopPlayBack(bool send_pmt, bool blank)
 		CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
 
 #if 0
-	if (current_channel && IS_WEBTV(current_channel->getChannelID())) {
+	if (current_channel && IS_WEBCHAN(current_channel->getChannelID())) {
 		playing = false;
 		return true;
 	}
@@ -2378,9 +2406,11 @@ void CZapit::leaveStandby(void)
 	}
 	standby = false;
 	if (current_channel) {
+#if !HAVE_ARM_HARDWARE
 		/* tune channel, with stopped playback to not bypass the parental PIN check */
 		ZapIt(live_channel_id, false, false);
-		if (IS_WEBTV(live_channel_id)) {
+#endif
+		if (IS_WEBCHAN(live_channel_id)) {
 			CZapitChannel* newchannel = CServiceManager::getInstance()->FindChannel(last_channel_id);
 			CFrontend * fe = newchannel ? CFEManager::getInstance()->allocateFE(newchannel) : NULL;
 			bool transponder_change;
@@ -2461,6 +2491,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	current_volume = ZapStart_arg->volume;
 
 	webtv_xml = ZapStart_arg->webtv_xml;
+	webradio_xml = ZapStart_arg->webradio_xml;
 
 	videoDemux = new cDemux();
 	videoDemux->Open(DMX_VIDEO_CHANNEL);
@@ -2480,7 +2511,9 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDecoder = cAudio::GetDecoder(0);
 
 	videoDecoder->SetDemux(videoDemux);
-	videoDecoder->SetVideoSystem(video_mode);
+	COsdHelpers::getInstance()->setVideoSystem(video_mode);
+	uint32_t osd_resolution = ZapStart_arg->osd_resolution;
+	COsdHelpers::getInstance()->changeOsdResolution(osd_resolution);
 	videoDecoder->Standby(false);
 
 	audioDecoder->SetDemux(audioDemux);
@@ -2493,7 +2526,13 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	pipDecoder->SetDemux(pipDemux);
 #endif
 #else
+#if HAVE_COOL_HARDWARE
+	/* work around broken drivers: when starting up with 720p50 image is pink on hd1 */
+	videoDecoder = new cVideo(VIDEO_STD_1080I50, videoDemux->getChannel(), videoDemux->getBuffer());
+	videoDecoder->SetVideoSystem(video_mode);
+#else
         videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
+#endif
         videoDecoder->Standby(false);
 
         audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
@@ -2601,9 +2640,23 @@ static bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	return CZapit::getInstance()->ParseCommand(rmsg, connfd);
 }
 
+bool CZapit::getUseChannelFilter()
+{
+#if 0
+	return CCamManager::getInstance()->getChannelFilter();
+#endif
+}
+
+void CZapit::setMoviePlayer(bool enable)
+{
+#if 0
+	CCamManager::getInstance()->enableMoviePlayer(enable);
+#endif
+}
+
 void CZapit::run()
 {
-	set_threadname("CZapit::run");
+	set_threadname("zap:main");
 	printf("[zapit] starting... tid %ld\n", syscall(__NR_gettid));
 
 	abort_zapit = 0;
@@ -2777,6 +2830,7 @@ void CZapitSdtMonitor::run()
 	t_satellite_position            satellitePosition = 0;
 	freq_id_t                       freq = 0;
 	transponder_id_t 		tpid = 0;
+	set_threadname("zap:sdtmonitor");
 
 	//tstart = time(0);
 	sdt_tp.clear();
@@ -2795,7 +2849,7 @@ void CZapitSdtMonitor::run()
 				tpid = channel->getTransponderId();
 			}
 		}
-		if(!CZapit::getInstance()->scanSDT())
+		if(!CZapit::getInstance()->GetScanSDT())
 			continue;
 
 		tcur = time(0);
@@ -2837,7 +2891,7 @@ void CZapitSdtMonitor::run()
 			bool updated = CServiceManager::getInstance()->SaveCurrentServices(tpid);
 			CServiceManager::getInstance()->CopyCurrentServices(tpid);
 
-			if(updated && (CZapit::getInstance()->scanSDT() == 1))
+			if(updated && (CZapit::getInstance()->GetScanSDT() == 1))
 				CZapit::getInstance()->SendEvent(CZapitClient::EVT_SDT_CHANGED);
 			if(!updated)
 				printf("[sdt monitor] no changes.\n");

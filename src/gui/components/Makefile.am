@@ -11,6 +11,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/xmltree \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
+	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_gui_components.a
@@ -18,6 +19,7 @@ noinst_LIBRARIES = libneutrino_gui_components.a
 
 libneutrino_gui_components_a_SOURCES = \
 	cc_base.cpp \
+	cc_button_select.cpp \
 	cc_detailsline.cpp \
 	cc_draw.cpp \
 	cc_extra.cpp \
@@ -40,4 +42,5 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_item_shapes.cpp \
 	cc_item_text.cpp \
 	cc_item_tvpic.cpp \
-	cc_timer.cpp
+	cc_timer.cpp\
+	cc_types.cpp

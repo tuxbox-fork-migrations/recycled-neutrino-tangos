@@ -107,7 +107,7 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey == "savekeys") {
 		CFileBrowser fileBrowser;
 		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/var/tuxbox") == true) {
+		if (fileBrowser.exec("/media") == true) {
 			std::string fname = "keys.conf";
 			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname);
 			sms->exec(NULL, "");
@@ -222,6 +222,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 {
 	{LOCALE_KEYBINDINGMENU_TVRADIOMODE,   	&g_settings.key_tvradio_mode,		LOCALE_MENU_HINT_KEY_TVRADIOMODE },
 	{LOCALE_KEYBINDINGMENU_POWEROFF,      	&g_settings.key_power_off,		LOCALE_MENU_HINT_KEY_POWEROFF },
+	{LOCALE_KEYBINDINGMENU_STANDBYOFF_ADD,	&g_settings.key_standby_off_add,	LOCALE_MENU_HINT_KEY_STANDBYOFF_ADD },
 	{LOCALE_KEYBINDINGMENU_PAGEUP, 		&g_settings.key_pageup,			LOCALE_MENU_HINT_KEY_PAGEUP },
 	{LOCALE_KEYBINDINGMENU_PAGEDOWN, 	&g_settings.key_pagedown, 		LOCALE_MENU_HINT_KEY_PAGEDOWN },
 	{LOCALE_KEYBINDINGMENU_VOLUMEUP, 	&g_settings.key_volumeup,		LOCALE_MENU_HINT_KEY_VOLUMEUP },
@@ -240,11 +241,11 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_KEYBINDINGMENU_SUBCHANNELDOWN,	&g_settings.key_subchannel_down,	LOCALE_MENU_HINT_KEY_SUBCHANNELDOWN },
 	{LOCALE_KEYBINDINGMENU_ZAPHISTORY,	&g_settings.key_zaphistory, 		LOCALE_MENU_HINT_KEY_HISTORY },
 	{LOCALE_KEYBINDINGMENU_LASTCHANNEL,	&g_settings.key_lastchannel,		LOCALE_MENU_HINT_KEY_LASTCHANNEL },
-	{LOCALE_MPKEY_REWIND,			&g_settings.mpkey_rewind,		LOCALE_MENU_HINT_KEY_MPREWIND },
-	{LOCALE_MPKEY_FORWARD,			&g_settings.mpkey_forward,  		LOCALE_MENU_HINT_KEY_MPFORWARD },
+	{LOCALE_MPKEY_PLAY,			&g_settings.mpkey_play,			LOCALE_MENU_HINT_KEY_MPPLAY },
 	{LOCALE_MPKEY_PAUSE,			&g_settings.mpkey_pause, 		LOCALE_MENU_HINT_KEY_MPPAUSE },
 	{LOCALE_MPKEY_STOP,			&g_settings.mpkey_stop,			LOCALE_MENU_HINT_KEY_MPSTOP },
-	{LOCALE_MPKEY_PLAY,			&g_settings.mpkey_play,			LOCALE_MENU_HINT_KEY_MPPLAY },
+	{LOCALE_MPKEY_FORWARD,			&g_settings.mpkey_forward,  		LOCALE_MENU_HINT_KEY_MPFORWARD },
+	{LOCALE_MPKEY_REWIND,			&g_settings.mpkey_rewind,		LOCALE_MENU_HINT_KEY_MPREWIND },
 	{LOCALE_MPKEY_AUDIO,			&g_settings.mpkey_audio, 		LOCALE_MENU_HINT_KEY_MPAUDIO },
 	{LOCALE_MPKEY_SUBTITLE,			&g_settings.mpkey_subtitle,		LOCALE_MENU_HINT_KEY_MPSUBTITLE },
 	{LOCALE_MPKEY_TIME,			&g_settings.mpkey_time,			LOCALE_MENU_HINT_KEY_MPTIME },
@@ -292,7 +293,7 @@ bool checkLongPress(uint32_t key)
 
 int CKeybindSetup::showKeySetup()
 {
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SH4_HARDWARE
 	//save original rc hardware selection and initialize text strings
 	int org_remote_control_hardware = g_settings.remote_control_hardware;
 	char RC_HW_str[4][32];
@@ -306,7 +307,7 @@ int CKeybindSetup::showKeySetup()
 
 	//keysetup menu
 	CMenuWidget* keySettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP);
-	keySettings->addIntroItems(LOCALE_MAINSETTINGS_KEYBINDING, LOCALE_KEYBINDINGMENU_HEAD);
+	keySettings->addIntroItems(LOCALE_MAINSETTINGS_KEYBINDING);
 
 	//keybindings menu
 	CMenuWidget bindSettings(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING);
@@ -322,12 +323,12 @@ int CKeybindSetup::showKeySetup()
 	mf->setHint("", LOCALE_MENU_HINT_KEY_BINDING);
 	keySettings->addItem(mf);
 
-	mf = new CMenuForwarder(LOCALE_EXTRA_LOADKEYS, true, NULL, this, "loadkeys", CRCInput::RC_green);
-	mf->setHint("", LOCALE_MENU_HINT_KEY_LOAD);
+	mf = new CMenuForwarder(LOCALE_EXTRA_SAVEKEYS, true, NULL, this, "savekeys", CRCInput::RC_green);
+	mf->setHint("", LOCALE_MENU_HINT_KEY_SAVE);
 	keySettings->addItem(mf);
 
-	mf = new CMenuForwarder(LOCALE_EXTRA_SAVEKEYS, true, NULL, this, "savekeys", CRCInput::RC_yellow);
-	mf->setHint("", LOCALE_MENU_HINT_KEY_SAVE);
+	mf = new CMenuForwarder(LOCALE_EXTRA_LOADKEYS, true, NULL, this, "loadkeys", CRCInput::RC_yellow);
+	mf->setHint("", LOCALE_MENU_HINT_KEY_LOAD);
 	keySettings->addItem(mf);
 
 	char * model = g_info.hw_caps->boxname;
@@ -362,7 +363,7 @@ int CKeybindSetup::showKeySetup()
 	cc->setHint("", LOCALE_MENU_HINT_LONGKEYPRESS_DURATION);
 	keySettings->addItem(cc);
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	g_settings.accept_other_remotes = access("/etc/lircd_predata_lock", R_OK) ? 1 : 0;
 	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_ACCEPT_OTHER_REMOTES,
 		&g_settings.accept_other_remotes, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this,
@@ -370,7 +371,7 @@ int CKeybindSetup::showKeySetup()
 	mc->setHint("", LOCALE_MENU_HINT_ACCEPT_OTHER_REMOTES);
 	keySettings->addItem(mc);
 #endif
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SH4_HARDWARE
 	if (RC_HW_SELECT) {
 		CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE,
 			&g_settings.remote_control_hardware, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT, true, NULL,
@@ -398,7 +399,7 @@ int CKeybindSetup::showKeySetup()
 
 	int res = keySettings->exec(NULL, "");
 
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
+#if !HAVE_SH4_HARDWARE
 	//check if rc hardware selection has changed before leaving the menu
 	if (org_remote_control_hardware != g_settings.remote_control_hardware) {
 		g_RCInput->CRCInput::set_rc_hw();
@@ -406,7 +407,7 @@ int CKeybindSetup::showKeySetup()
 		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART2));
 		strcat(RC_HW_msg, RC_HW_str[g_settings.remote_control_hardware]);
 		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART3));
-		if(ShowMsg(LOCALE_MESSAGEBOX_INFO, RC_HW_msg, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_INFO, 450, 15) == CMsgBox::mbrNo) {
+		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, RC_HW_msg, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_INFO, 450, 15, true) == CMsgBox::mbrNo) {
 			g_settings.remote_control_hardware = org_remote_control_hardware;
 			g_RCInput->CRCInput::set_rc_hw();
 		}
@@ -509,9 +510,11 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mf->setHint("", key_settings[NKEY_UNLOCK].hint);
 	bindSettings->addItem(mf);
 	// screenshot
+#ifdef SCREENSHOT
 	mf = new CMenuForwarder(key_settings[NKEY_SCREENSHOT].keydescription, true, keychooser[NKEY_SCREENSHOT]->getKeyName(), keychooser[NKEY_SCREENSHOT]);
 	mf->setHint("", key_settings[NKEY_SCREENSHOT].hint);
 	bindSettings->addItem(mf);
+#endif
 #ifdef ENABLE_PIP
 	// pip
 	mf = new CMenuForwarder(key_settings[NKEY_PIP_CLOSE].keydescription, true, keychooser[NKEY_PIP_CLOSE]->getKeyName(), keychooser[NKEY_PIP_CLOSE]);
@@ -553,6 +556,10 @@ void CKeybindSetup::showKeyBindModeSetup(CMenuWidget *bindSettings_modes)
 	mf = new CMenuForwarder(key_settings[NKEY_POWER_OFF].keydescription, true, keychooser[NKEY_POWER_OFF]->getKeyName(), keychooser[NKEY_POWER_OFF], NULL, CRCInput::RC_green);
 	mf->setHint("", key_settings[NKEY_POWER_OFF].hint);
 	bindSettings_modes->addItem(mf);
+
+	mf = new CMenuForwarder(key_settings[NKEY_STANDBY_OFF_ADD].keydescription, true, keychooser[NKEY_STANDBY_OFF_ADD]->getKeyName(), keychooser[NKEY_STANDBY_OFF_ADD], NULL, CRCInput::RC_yellow);
+	mf->setHint("", key_settings[NKEY_STANDBY_OFF_ADD].hint);
+	bindSettings_modes->addItem(mf);
 }
 
 void CKeybindSetup::showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist)
@@ -588,7 +595,7 @@ void CKeybindSetup::showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplaye
 {
 	bindSettings_mplayer->addIntroItems(LOCALE_MAINMENU_MOVIEPLAYER);
 
-	for (int i = MPKEY_REWIND; i <= MPKEY_PLUGIN; i++) {
+	for (int i = MPKEY_PLAY; i <= MPKEY_PLUGIN; i++) {
 		CMenuForwarder * mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_mplayer->addItem(mf);
@@ -623,7 +630,7 @@ void CKeybindSetup::showKeyBindSpecialSetup(CMenuWidget *bindSettings_special)
 
 bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* data */)
 {
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_ACCEPT_OTHER_REMOTES)) {
 		struct sockaddr_un sun;
 		memset(&sun, 0, sizeof(sun));
@@ -660,7 +667,7 @@ bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* d
 const char *CKeybindSetup::getMoviePlayerButtonName(const neutrino_msg_t key, bool &active, bool return_title)
 {
 	active = false;
-	for (unsigned int i = MPKEY_REWIND; i <= MPKEY_PLUGIN; i++)
+	for (unsigned int i = MPKEY_PLAY; i <= MPKEY_PLUGIN; i++)
 	{
 		if ((uint32_t)*key_settings[i].keyvalue_p == (unsigned int)key)
 		{

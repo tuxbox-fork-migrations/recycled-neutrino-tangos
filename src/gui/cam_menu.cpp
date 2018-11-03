@@ -54,6 +54,12 @@
 #include <zapit/zapit.h>
 #include <driver/abstime.h>
 
+#define CI_CLOCK_OPTION_COUNT 2
+static const CMenuOptionChooser::keyval CI_CLOCK_OPTIONS[CI_CLOCK_OPTION_COUNT] = {
+	{ 6, LOCALE_CI_CLOCK_NORMAL },
+	{ 7, LOCALE_CI_CLOCK_HIGH }
+};
+
 void CCAMMenuHandler::init(void)
 {
 	hintBox = NULL;
@@ -106,23 +112,28 @@ int CCAMMenuHandler::doMainMenu()
 	char name1[255]={0};
 	char str1[255]={0};
 
-	int CiSlots = ca ? ca->GetNumberCISlots() : 0;
-
 	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CI_SETTINGS, NEUTRINO_ICON_SETTINGS);
 	cammenu->addIntroItems();
-#ifdef BOXMODEL_CS_HD2
-	int fecount = CFEManager::getInstance()->getFrontendCount();
-	char fename[fecount+1][255];
-#endif
+
+	int CiSlots = ca ? ca->GetNumberCISlots() : 0;
 	if(CiSlots) {
 		cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_RESET_STANDBY, &g_settings.ci_standby_reset, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+#if HAVE_ARM_HARDWARE
+		cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_CLOCK, &g_settings.ci_clock, CI_CLOCK_OPTIONS, CI_CLOCK_OPTION_COUNT, true, this));
+#else
+#if !HAVE_SH4_HARDWARE
 		cammenu->addItem( new CMenuOptionNumberChooser(LOCALE_CI_CLOCK, &g_settings.ci_clock, true, 6, 12, this));
+#endif
+#endif
 	}
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_IGNORE_MSG, &g_settings.ci_ignore_messages, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_SAVE_PINCODE, &g_settings.ci_save_pincode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_CHECK_LIVE_SLOT, &g_settings.ci_check_live, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 
 #ifdef BOXMODEL_CS_HD2
+	int fecount = CFEManager::getInstance()->getFrontendCount();
+	char fename[fecount+1][255];
+
 	CMenuOptionChooser::keyval_ext feselect[fecount+1];
 	feselect[0].key = -1;
 	feselect[0].value = NONEXISTANT_LOCALE;
@@ -141,6 +152,7 @@ int CCAMMenuHandler::doMainMenu()
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_CI_TUNER, &g_settings.ci_tuner, feselect, select_count, true, this);
 	cammenu->addItem(mc);
 #endif
+
 	cammenu->addItem( GenericMenuSeparatorLine );
 
 	CMenuWidget * tempMenu;
@@ -459,7 +471,7 @@ int CCAMMenuHandler::handleCamMsg(const neutrino_msg_t msg, neutrino_msg_data_t 
 		if (Msg.Flags & CA_MESSAGE_HAS_PARAM1_INT)
 			timeout = Msg.Msg.Param[0];
 		printf("CCAMMenuHandler::handleCamMsg: close request slot: %d (timeout %d)\n", curslot, timeout);
-		ca->MenuClose(SlotType, curslot);
+		//ca->MenuClose(SlotType, curslot);
 		if (timeout)
 			close_timer = g_RCInput->addTimer(timeout*1000*1000, true);
 		else

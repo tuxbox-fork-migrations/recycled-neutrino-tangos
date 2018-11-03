@@ -88,12 +88,31 @@ static std::string keys_russian[2][KEY_ROWS][KEY_COLUMNS] =
 		{ "Я", "Ч", "С", "М", "И", "Т", "Ь", "Б", "Ю", "?", "<", ">", "?", " " }
 	}
 };
-
+#if 0
+static std::string keys_arabic[2][KEY_ROWS][KEY_COLUMNS] =
+{
+	{
+		{ "`", "1", "2", "3", "4",  "5", "6", "7", "8", "9", "0", "-", "=", "§"  },
+		{ "ض", "ص", "ث", "ق", "ف",  "غ", "ع", "ه", "خ", "ح", "ج", "د", "{", "}"  },
+		{ "ش", "س", "ي", "ب", "ل",  "ا", "ت", "ن", "م", "ك", "ط", "ذ", ":", "\"" },
+		{ "ئ", "ء", "ؤ", "ر", "لا", "ى", "ة", "و", "ز", "ظ", "<", ">", "?", " "  }
+	},
+	{
+		{ "`", "1", "2", "3", "4",  "5", "6", "7", "8", "9", "0", "-", "=", "§"  },
+		{ "ض", "ص", "ث", "ق", "ف",  "غ", "ع", "ه", "خ", "ح", "ج", "د", "{", "}"  },
+		{ "ش", "س", "ي", "ب", "ل",  "ا", "ت", "ن", "م", "ك", "ط", "ذ", ":", "\"" },
+		{ "ئ", "ء", "ؤ", "ر", "لا", "ى", "ة", "و", "ز", "ظ", "<", ">", "?", " "  }
+	}
+};
+#endif
 struct keyboard_layout keyboards[] =
 {
-	{ "English", "english", keys_english },
-	{ "Deutsch", "deutsch", keys_deutsch },
-	{ "Русский", "russkij", keys_russian },
+	  { "English", "english", keys_english }
+	, { "Deutsch", "deutsch", keys_deutsch }
+	, { "Русский", "russkij", keys_russian }
+#if 0
+	, { "Arabic" , "arabic" , keys_arabic  }
+#endif
 };
 #define LAYOUT_COUNT (sizeof(keyboards)/sizeof(struct keyboard_layout))
 
@@ -529,11 +548,6 @@ void CKeyboardInput::insertChar()
 	changed = true;
 }
 
-std::string &CKeyboardInput::getValue(void)
-{
-	return *valueString;
-}
-
 void CKeyboardInput::forceSaveScreen(bool enable)
 {
 	force_saveScreen = enable;
@@ -567,7 +581,7 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 	paint();
 	paintKeyboard();
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 	bool loop=true;
 	while (loop)
@@ -581,7 +595,7 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 
 		if (msg <= CRCInput::RC_MaxRC)
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		if (msg==CRCInput::RC_left)
 		{
@@ -636,7 +650,7 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 		{
 			if ((inputString->getValue() != oldval) &&
 					(ShowMsg(title, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				continue;
 			}
 

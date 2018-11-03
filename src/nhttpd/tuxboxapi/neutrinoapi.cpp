@@ -18,6 +18,7 @@
 #include <fstream>
 #include <map>
 #include <sstream>
+#include <iostream>
 
 // tuxbox
 #include <neutrinoMessages.h>
@@ -27,6 +28,8 @@
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
 #include <driver/pictureviewer/pictureviewer.h>
+#include <system/httptool.h>
+#include <system/helpers.h>
 #include <gui/color.h>
 #include <gui/widget/icons.h>
 #include <gui/movieplayer.h>
@@ -64,10 +67,13 @@ extern CZapitClient::SatelliteList satList;
 
 //static std::map<std::string, std::string> iso639;
 #ifndef initialize_iso639_map
+#define ISO_639_TAB DATADIR "/share/iso-codes/iso-639.tab"
+static const char * iso639filename = ISO_639_TAB;
+
 bool _initialize_iso639_map(void)
 {
 	std::string s, t, u, v;
-	std::ifstream in("/share/iso-codes/iso-639.tab");
+	std::ifstream in(iso639filename);
 	if (in.is_open())
 	{
 		while (in.peek() == '#')
@@ -83,7 +89,10 @@ bool _initialize_iso639_map(void)
 		return true;
 	}
  	else
+	{
+		std::cout << "[neutrinoapi.cpp] Loading " << iso639filename << " failed." << std::endl;
 		return false;
+	}
 }
 #endif
 //-----------------------------------------------------------------------------
@@ -99,7 +108,6 @@ const char * _getISO639Description(const char * const iso)
 //=============================================================================
 // Initialization of static variables
 //=============================================================================
-std::string CNeutrinoAPI::Dbox_Hersteller[4]	= {"none", "Nokia", "Philips", "Sagem"};
 std::string CNeutrinoAPI::videooutput_names[5]	= {"CVBS", "RGB with CVBS", "S-Video", "YUV with VBS", "YUV with CVBS"};
 std::string CNeutrinoAPI::videoformat_names[5]	= {"automatic", "4:3", "14:9", "16:9", "20:9"};
 std::string CNeutrinoAPI::audiotype_names[5] 	= {"none", "single channel","dual channel","joint stereo","stereo"};
@@ -244,7 +252,7 @@ bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 	long value;
 	int pos = 0;
 
-	memset(bitInfo, 0, 10);
+	memset(bitInfo, 0, sizeof(int[10]));
 
 	FILE *fd = fopen("/proc/bus/bitstream", "rt");
 
@@ -464,7 +472,7 @@ int CNeutrinoAPI::setVideoAspectRatioAsString(std::string newRatioString)
 //-------------------------------------------------------------------------
 std::string CNeutrinoAPI::getVideoResolutionAsString(void)
 {
-	int xres, yres, framerate;
+	int xres = 0, yres = 0, framerate = 0;
 	videoDecoder->getPictureInfo(xres, yres, framerate);
 	std::stringstream out;
 	out << xres << "x" << yres;
@@ -474,7 +482,7 @@ std::string CNeutrinoAPI::getVideoResolutionAsString(void)
 //-------------------------------------------------------------------------
 std::string CNeutrinoAPI::getVideoFramerateAsString(void)
 {
-	int xres, yres, framerate;
+	int xres = 0, yres = 0, framerate = 0;
 	std::string sframerate = "{=L:unknown=}";
 	videoDecoder->getPictureInfo(xres, yres, framerate);
 	switch(framerate){
@@ -489,7 +497,7 @@ std::string CNeutrinoAPI::getVideoFramerateAsString(void)
 //-------------------------------------------------------------------------
 std::string CNeutrinoAPI::getAudioInfoAsString(void)
 {
-	int type, layer, freq, mode, lbitrate;
+	int type = 0, layer = 0, freq = 0, mode = 0, lbitrate = 0;
 	audioDecoder->getAudioInfo(type, layer, freq, lbitrate, mode);
 	std::stringstream out;
 	if(type == 0)
@@ -503,17 +511,17 @@ std::string CNeutrinoAPI::getAudioInfoAsString(void)
 std::string CNeutrinoAPI::getCryptInfoAsString(void)
 {
 	std::stringstream out;
-	std::string casys[11]=	{"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
-	int caids[] =		{ 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
+	std::string casys[12]=	{"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","Biss:","DreCrypt:","PowerVU:","Tandberg:"};
+	int caids[] =		{ 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00, 0x1000 };
 
 	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 	if(channel) {
-                for (unsigned short i = 0; i < 11; i++) {
+                for (unsigned short i = 0; i < 12; i++) {
                         for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
                                 int caid = (*it) & 0xFF00;
                                 if(caid == caids[i])
-					out << casys[i] << hex << (*it) << "\n";
+					out << casys[i] << std::hex << (*it) << "\n";
                         }
 
 		}
@@ -529,4 +537,54 @@ std::string CNeutrinoAPI::getLogoFile(t_channel_id channelId)
 	if (g_PicViewer->GetLogoName(channelId, channelName, logoString, NULL, NULL))
 		return logoString;
 	return "";
+}
+
+std::string CNeutrinoAPI::GetRemoteBoxIP(std::string _rbname)
+{
+	std::string c_url = "";
+	for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
+	{
+		if (it->rbname == _rbname)
+		{
+			if (!it->user.empty() && !it->pass.empty())
+				c_url += it->user + ":" + it->pass +"@";
+			c_url += it->rbaddress;
+			c_url += ":" + to_string(it->port);
+			break;
+		}
+	}
+	return c_url;
+}
+
+void CNeutrinoAPI::SendAllTimers(std::string url, bool force)
+{
+	CTimerd::TimerList timerlist;
+	timerlist.clear();
+	Timerd->getTimerList(timerlist);
+	sort(timerlist.begin(), timerlist.end());
+
+	int pre = 0,post = 0;
+	Timerd->getRecordingSafety(pre,post);
+	CHTTPTool httpTool;
+	std::string r_url;
+
+	for(CTimerd::TimerList::iterator timer = timerlist.begin(); timer != timerlist.end(); ++timer)
+	{
+		if (timer->eventType == CTimerd::TIMER_RECORD) {
+			r_url = "http://";
+			r_url += url;
+			r_url += "/control/timer?action=new";
+			r_url += "&alarm=" + to_string((int)timer->alarmTime + pre);
+			r_url += "&stop=" + to_string((int)timer->stopTime - post);
+			r_url += "&announce=" + to_string((int)timer->announceTime + pre);
+			r_url += "&channel_id=" + string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer->channel_id);
+			r_url += "&aj=on";
+			r_url += "&rs=on";
+
+			r_url = httpTool.downloadString(r_url, -1, 300);
+
+			if ((r_url=="ok") || force)
+				Timerd->removeTimerEvent(timer->eventID);
+		}
+	}
 }

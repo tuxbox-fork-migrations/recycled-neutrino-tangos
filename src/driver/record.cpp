@@ -17,8 +17,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -179,11 +178,11 @@ void CRecordInstance::WaitRecMsg(time_t StartTime, time_t WaitTime)
 		usleep(100000);
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 void recordingFailureHelper(void *data)
 {
 	CRecordInstance *inst = (CRecordInstance *) data;
-	std::string errormsg = std::string(g_Locale->getText(LOCALE_RECORDING_FAILED)) + "\n" + string(inst->GetFileName());
+	std::string errormsg = std::string(g_Locale->getText(LOCALE_RECORDING_FAILED)) + "\n" + std::string(inst->GetFileName());
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, errormsg.c_str());
 	hintBox.paint();
 	sleep(3);
@@ -222,7 +221,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	CGenPsi psi;
 	numpids = 0;
 	if (allpids.PIDs.vpid != 0){
-		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType == 1 ? EN_TYPE_AVC : recMovieInfo->VideoType == 2 ? EN_TYPE_HEVC : EN_TYPE_VIDEO, 0);
+		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType == CHANNEL_MPEG4 ? EN_TYPE_AVC : recMovieInfo->VideoType == CHANNEL_HEVC ? EN_TYPE_HEVC : EN_TYPE_VIDEO, 0);
 		if (allpids.PIDs.pcrpid && (allpids.PIDs.pcrpid != allpids.PIDs.vpid)) {
 			psi.addPid(allpids.PIDs.pcrpid, EN_TYPE_PCR, 0);
 			apids[numpids++]=allpids.PIDs.pcrpid;
@@ -230,10 +229,20 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	}
 	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
 		apids[numpids++] = recMovieInfo->audioPids[i].AudioPid;
-		if(channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3){
-			psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_EAC3, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
-		}else
-			psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+		switch (channel->getAudioChannel(i)->audioChannelType) {
+			case CZapitAudioChannel::EAC3:
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_EAC3, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				break;
+			case CZapitAudioChannel::AAC:
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AAC, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				break;
+			case CZapitAudioChannel::AACPLUS:
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AACP, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				break;
+			default:
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				break;
+		}
 
 		if (numpids >= REC_MAX_APIDS)
 			break;
@@ -265,7 +274,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		apids[numpids++] = allpids.PIDs.pmtpid;
 #endif
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 	if(record == NULL) {
 		record = new cRecord(channel->getRecordDemux(), g_settings.recording_bufsize_dmx * 1024 * 1024, g_settings.recording_bufsize * 1024 * 1024);
 		record->setFailureCallback(&recordingFailureHelper, this);
@@ -332,20 +341,16 @@ bool CRecordInstance::Stop(bool remove_event)
 	if(!autoshift)
 		CFEManager::getInstance()->unlockFrontend(frontend, true);//FIXME testing
 
-        CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
+	CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
-        if((autoshift && g_settings.auto_delete) /* || autoshift_delete*/) {
-		snprintf(buf,sizeof(buf), "nice -n 20 rm -f \"%s.ts\" &", filename);
-		my_system(3, "/bin/sh", "-c", buf);
-		snprintf(buf,sizeof(buf), "%s.xml", filename);
-                //autoshift_delete = false;
-                unlink(buf);
-        }
+	if (autoshift && g_settings.auto_delete)
+		CMoviePlayerGui::getInstance().deleteTimeshift();
+
 	if(recording_id && remove_event) {
 		g_Timerd->stopTimerEvent(recording_id);
 		recording_id = 0;
 	}
-        //CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, false);
+	//CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, false);
 	WaitRecMsg(end_time, 2);
 	hintBox.hide();
 	return true;
@@ -1036,7 +1041,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	printf("%s channel_id %" PRIx64 " epg: %" PRIx64 ", apidmode 0x%X\n", __func__,
 	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
 
-	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF /* || IS_WEBTV(eventinfo->channel_id) */)
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF /* || IS_WEBCHAN(eventinfo->channel_id) */)
 		return false;
 
 #if 1 // FIXME test
@@ -1055,7 +1060,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 		newdir = Directory;
 
 	mutex.lock();
-	if (IS_WEBTV(eventinfo->channel_id)) {
+	if (IS_WEBCHAN(eventinfo->channel_id)) {
 		inst = new CStreamRec(eventinfo, newdir, timeshift, StreamVTxtPid, StreamPmtPid, StreamSubtitlePids);
 		error_msg = inst->Record();
 		if(error_msg == RECORD_OK) {
@@ -1142,7 +1147,7 @@ bool CRecordManager::StopAutoRecord(bool lock)
 
 	g_RCInput->killTimer (shift_timer);
 
-	if(!autoshift)
+	if (!autoshift)
 		return false;
 
 	if (lock)
@@ -1150,7 +1155,10 @@ bool CRecordManager::StopAutoRecord(bool lock)
 
 	CRecordInstance * inst = FindTimeshift();
 	if (inst)
+	{
 		StopInstance(inst);
+		CMoviePlayerGui::getInstance().stopTimeshift();
+	}
 
 	if (lock)
 		mutex.unlock();
@@ -1356,7 +1364,7 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			return messages_return::handled;
 		}
 		else if(data == check_timer) {
-			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby) {
+			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby) {
 				mutex.lock();
 				int have_err = 0;
 				for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
@@ -1392,13 +1400,13 @@ void CRecordManager::StartTimeshift()
 #elif defined(BOXMODEL_FORTIS_HDBOX)
 		CVFD::getInstance()->ShowIcon(FP_ICON_TIMESHIFT, true);
 #endif
-		bool tstarted = false;
+// 		bool tstarted = false;
 		/* start temporary timeshift if enabled and not running, but dont start second record */
 		if (g_settings.temp_timeshift) {
 			if (!FindTimeshift()) {
 				res = StartAutoRecord();
 				tmode = "timeshift"; // record just started
-				tstarted = true;
+// 				tstarted = true;
 			}
 		}
 		else if (!RecordingStatus(live_channel_id)) {
@@ -1409,8 +1417,14 @@ void CRecordManager::StartTimeshift()
 		if(res)
 		{
 			CMoviePlayerGui::getInstance().exec(NULL, tmode);
+#if 0
+			/*
+			   ShowMenu() moved to movieplayer.cpp
+			   Function is called when stop key is pressed.
+			*/
 			if(g_settings.temp_timeshift && tstarted && autoshift)
 				ShowMenu();
+#endif
 		}
 	}
 }
@@ -1463,7 +1477,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 		if (inst) {
 			std::string title, duration;
 			inst->GetRecordString(title, duration);
-			title += duration;
+			title += " " + duration;
 			tostart = (ShowMsg(LOCALE_RECORDING_IS_RUNNING, title.c_str(),
 						CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, DEFAULT_TIMEOUT) == CMsgBox::mbrYes);
 		}
@@ -1485,6 +1499,9 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			ShowHint(LOCALE_MAINMENU_RECORDING_STOP, g_Locale->getText(LOCALE_RECORDINGMENU_RECORD_IS_NOT_RUNNING), 450, 2);
 			return menu_return::RETURN_EXIT_ALL;
 		}
+	} else if (actionKey == "Exit")
+	{
+		return menu_return::RETURN_EXIT_ALL;
 	}
 
 	ShowMenu();
@@ -1503,7 +1520,9 @@ bool CRecordManager::ShowMenu(void)
 
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
-	CMenuWidget menu(LOCALE_MAINMENU_RECORDING, NEUTRINO_ICON_SETTINGS /*, width*/);
+	CMenuWidget menu(LOCALE_MAINMENU_RECORDING, NEUTRINO_ICON_RECORDING /*, width*/);
+	if (rec_count == 0)
+		menu.addKey(CRCInput::RC_stop, this, "Exit");
 	menu.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	// Record / Timeshift
@@ -1540,9 +1559,9 @@ bool CRecordManager::ShowMenu(void)
 			inst->GetRecordString(title, duration);
 			durations.push_back(duration);
 
-			const char* mode_icon = NEUTRINO_ICON_REC;
+			const char* mode_icon = NEUTRINO_ICON_MARKER_RECORD;
 			if (inst->Timeshift())
-				mode_icon = NEUTRINO_ICON_AUTO_SHIFT;
+				mode_icon = NEUTRINO_ICON_MARKER_TIMESHIFT;
 
 			sprintf(cnt, "%d", i);
 			//define stop key if only one record is running, otherwise define shortcuts
@@ -1605,13 +1624,13 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 
 	if(inst) {
 		inst->GetRecordString(title, duration);
-		title += duration;
+		title += " " + duration;
 	}
 	mutex.unlock();
 	if(inst == NULL)
 		return false;
 
-	if(ShowMsg(LOCALE_SHUTDOWN_RECORDING_QUERY, title.c_str(),
+	if(ShowMsg(FindTimeshift() ? LOCALE_SHUTDOWN_TIMESHIFT_QUERY : LOCALE_SHUTDOWN_RECORDING_QUERY, title.c_str(),
 				CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30) == CMsgBox::mbrYes) {
 		mutex.lock();
 		if (recid)
@@ -1673,12 +1692,12 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		return false;
 
 	int mode = channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE ?
-		NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
+		NeutrinoModes::mode_tv : NeutrinoModes::mode_radio;
 
 	printf("%s channel_id %" PRIx64 " mode %d\n", __func__, channel_id, mode);
 
 	last_mode = CNeutrinoApp::getInstance()->getMode();
-	if(last_mode == NeutrinoMessages::mode_standby && recmap.empty()) {
+	if(last_mode == NeutrinoModes::mode_standby && recmap.empty()) {
 		g_Zapit->setStandby(false); // this zap to live_channel_id
 		/* wait for zapit wakeup */
 		g_Zapit->getMode();
@@ -1709,7 +1728,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 
 		/* if allocateFE was successful, full zapTo_serviceID 
 		 * needed, if record frontend same as live, and its on different TP */
-		bool found = (live_fe != frontend) || IS_WEBTV(live_channel_id) || SAME_TRANSPONDER(live_channel_id, channel_id);
+		bool found = (live_fe != frontend) || IS_WEBCHAN(live_channel_id) || SAME_TRANSPONDER(live_channel_id, channel_id);
 
 		/* stop all streams on that fe, if we going to change transponder */
 		if (!frontend->sameTsidOnid(channel->getTransponderId()))
@@ -1722,8 +1741,8 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		else {
 			printf("%s mode %d last_mode %d getLastMode %d\n", __FUNCTION__, mode, last_mode, CNeutrinoApp::getInstance()->getLastMode());
 			StopAutoRecord(false);
-			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
-				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
+			if (mode != last_mode && (last_mode != NeutrinoModes::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
+				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoModes::norezap );
 				mode_changed = true;
 			}
 
@@ -1756,15 +1775,15 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 
 		/* after this zapit send EVT_RECORDMODE_ACTIVATED, so neutrino getting NeutrinoMessages::EVT_RECORDMODE */
 		g_Zapit->setRecordMode( true );
-		if(last_mode == NeutrinoMessages::mode_standby)
+		if(last_mode == NeutrinoModes::mode_standby)
 			g_Zapit->stopPlayBack();
 		if ((live_channel_id == channel_id) && g_Radiotext)
 			g_Radiotext->radiotext_stop();
 		/* in case channel_id == live_channel_id */
 		CStreamManager::getInstance()->StopStream(channel_id);
 	}
-	if(last_mode == NeutrinoMessages::mode_standby) {
-		//CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_standby);
+	if(last_mode == NeutrinoModes::mode_standby) {
+		//CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoModes::mode_standby);
 		g_RCInput->postMsg( NeutrinoMessages::CHANGEMODE , last_mode);
 	} else if(!ret && mode_changed /*mode != last_mode*/)
 		CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , last_mode);
@@ -1781,7 +1800,7 @@ void CRecordManager::RestoreNeutrino(void)
 	/* after this zapit send EVT_RECORDMODE_DEACTIVATED, so neutrino getting NeutrinoMessages::EVT_RECORDMODE */
 	g_Zapit->setRecordMode( false );
 
-	if((CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby) && StopSectionsd)
+	if((CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby) && StopSectionsd)
 		g_Sectionsd->setPauseScanning(false);
 }
 
@@ -1982,7 +2001,7 @@ void CStreamRec::FillMovieInfo(CZapitChannel * /*channel*/, APIDList & /*apid_li
 
 	for (unsigned i = 0; i < ofcx->nb_streams; i++) {
 		AVStream *st = ofcx->streams[i];
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
 		AVCodecContext * codec = st->codec;
 #else
 		AVCodecParameters * codec = st->codecpar;
@@ -2224,7 +2243,7 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	stream_index = -1;
 	int stid = 0x200;
 	for (unsigned i = 0; i < ifcx->nb_streams; i++) {
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
 		AVCodecContext * iccx = ifcx->streams[i]->codec;
 		AVStream *ost = avformat_new_stream(ofcx, iccx->codec);
 		avcodec_copy_context(ost->codec, iccx);
@@ -2280,7 +2299,7 @@ void CStreamRec::run()
 			break;
 		if (pkt.stream_index < 0)
 			continue;
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,5,0 ))
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
 		AVCodecContext *codec = ifcx->streams[pkt.stream_index]->codec;
 #else
 		AVCodecParameters *codec = ifcx->streams[pkt.stream_index]->codecpar;

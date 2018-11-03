@@ -123,6 +123,7 @@ struct NeutrinoMessages {
 		/* NEVER CHANGE THIS */
 		EVT_CA_MESSAGE                           = CRCInput::RC_Events + 60, /* data = CA_MESSAGE pointer */
 		EVT_SUBT_MESSAGE                         = CRCInput::RC_Events + 61, /* data = subtitles pointer */
+		EVT_AUTO_SET_VIDEOSYSTEM                 = CRCInput::RC_Events + 62, /* data = new video system */
 		/* END */
 
 		EVT_CURRENTEPG                           = CRCInput::RC_WithData +  1,
@@ -169,22 +170,27 @@ struct NeutrinoMessages {
 		EVT_WEBTV_ZAP_COMPLETE                   = CRCInput::RC_WithData + 28,  /* data: (t_channel_id *) */
  		EVT_SCAN_REPORT_FREQUENCYP               = CRCInput::RC_WithData + 29
 	};
+};
+
+struct NeutrinoModes
+{
 	enum
 	{
 		mode_unknown = -1,
-		mode_tv = 	1,
+		mode_tv = 1,
 		mode_radio = 2,
 		mode_scart = 3,
 		mode_standby = 4,
 		mode_audio = 5,
 		mode_pic = 6,
 		mode_ts = 7,
+		mode_off = 8,
 		mode_webtv = 9,
 		mode_upnp = 10,
+		mode_webradio = 11,
 		mode_mask = 0xFF,
 		norezap = 0x100
 	};
 };
-
 
 #endif

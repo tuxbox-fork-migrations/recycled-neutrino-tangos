@@ -56,9 +56,11 @@
 #include <driver/movieinfo.h>
 #include <driver/file.h>
 #include <driver/fb_window.h>
+#include <gui/widget/progresswindow.h>
 #if 0
 #include <system/ytparser.h>
 #endif
+#include <gui/imdb.h>
 
 #define MAX_NUMBER_OF_BOOKMARK_ITEMS MI_MOVIE_BOOK_USER_MAX // we just use the same size as used in Movie info (MAX_NUMBER_OF_BOOKMARK_ITEMS is used for the number of menu items)
 #define MOVIEBROWSER_SETTINGS_FILE          CONFIGDIR "/moviebrowser.conf"
@@ -139,7 +141,7 @@ class CYTCacheSelectorTarget : public CMenuTarget
 #endif
 
 // Priorities for Developmemt: P1: critical feature, P2: important feature, P3: for next release, P4: looks nice, lets see
-class CMovieBrowser : public CMenuTarget
+class CMovieBrowser : public CMenuTarget, public CProgressSignals
 {
 #if 0
 	friend class CYTCacheSelectorTarget;
@@ -229,6 +231,8 @@ class CMovieBrowser : public CMenuTarget
 		P_MI_MOVIE_LIST movielist;
 
 		uint64_t old_EpgId;
+		std::string old_ChannelName;
+
 		int movieInfoUpdateAll[MB_INFO_MAX_NUMBER];
 		int movieInfoUpdateAllIfDestEmptyOnly;
 		int clock_off;
@@ -259,6 +263,7 @@ class CMovieBrowser : public CMenuTarget
 		bool showYTMenu(bool calledExternally = false);
 		void refreshYTMenu();
 #endif
+		CIMDB *imdb;
 
 	public:  // Functions //////////////////////////////////////////////////////////7
 		CMovieBrowser(); //P1
@@ -375,7 +380,6 @@ class CMovieBrowser : public CMenuTarget
 		void clearSelection();
 		bool supportedExtension(CFile &file);
 		bool addFile(CFile &file, int dirItNr);
-		sigc::signal<void, size_t, size_t, std::string> OnLoadFile;
 };
 
 // I tried a lot to use the menu.cpp as ListBox selection, and I got three solution which are all garbage.
@@ -418,7 +422,7 @@ class CMenuWidgetSelection : public CMenuWidget
 {
 	public:
 		CMenuWidgetSelection(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 30) : CMenuWidget(Name, Icon, mwidth){;};
-		int getSelectedLine(void){return exit_pressed ? -1 : selected;};
+		int getSelectedLine(void){return no_action ? -1 : selected;};
 };
 
 class CFileChooser : public CMenuWidget
