@@ -21,6 +21,9 @@
  */
 
 #include <cstdio>
+
+#include <global.h>
+#include <system/helpers.h>
 #include <zapit/zapit.h>
 #include <zapit/channel.h>
 
@@ -58,8 +61,8 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_
 	Init();
 }
 
-// For WebTV ...
-CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid, const char* script_name)
+// For WebTV/WebRadio ...
+CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid, const char* script_name, int mode)
 {
 	if (!p_name || !p_url)
 		return;
@@ -71,7 +74,10 @@ CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, cons
 	service_id = 0;
 	transport_stream_id = 0;
 	original_network_id = 0;
-	serviceType = ST_DIGITAL_TELEVISION_SERVICE;
+	if (mode == MODE_WEBTV)
+		serviceType = ST_DIGITAL_TELEVISION_SERVICE;
+	else
+		serviceType = ST_DIGITAL_RADIO_SOUND_SERVICE;
 	satellitePosition = 0;
 	freq = 0;
 	epg_id = epgid;
@@ -106,6 +112,7 @@ void CZapitChannel::Init()
 	bLockCount = 0;
 	bLocked = DEFAULT_CH_LOCKED;
 	bUseCI = false;
+	altlogo = "";
 }
 
 CZapitChannel::~CZapitChannel(void)
@@ -197,9 +204,35 @@ unsigned char CZapitChannel::getServiceType(bool real)
 			ST_DIGITAL_RADIO_SOUND_SERVICE : ST_DIGITAL_TELEVISION_SERVICE;	
 }
 
+bool CZapitChannel::isUHD()
+{
+	switch(serviceType) {
+		case 0x1f:
+			if (delsys == DVB_T2)
+				return false;
+			else
+				return true;
+		case ST_DIGITAL_TELEVISION_SERVICE:
+		case 0x19:
+		{
+			if (strstr(name.c_str(), "UHD") || (strstr(name.c_str(), "4k")))
+				return true;
+			else
+				return false;
+		}
+		default:
+			return false;
+	}
+}
+
 bool CZapitChannel::isHD()
 {
 	switch(serviceType) {
+		case 0x1f:
+			if (delsys == DVB_T2)
+				return true;
+			else
+				return false;
 		case 0x11: case 0x19:
 //printf("[zapit] HD channel: %s type 0x%X\n", name.c_str(), serviceType);
 			return true;

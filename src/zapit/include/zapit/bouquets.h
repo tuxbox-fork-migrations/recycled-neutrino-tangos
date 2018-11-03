@@ -18,12 +18,10 @@
 
 #include "channel.h"
 
-using namespace std;
-
-typedef map<t_channel_id, CZapitChannel> tallchans;
+typedef std::map<t_channel_id, CZapitChannel> tallchans;
 typedef tallchans::iterator tallchans_iterator;
 
-typedef vector<CZapitChannel*> ZapitChannelList;
+typedef std::vector<CZapitChannel*> ZapitChannelList;
 typedef ZapitChannelList::iterator zapit_list_it_t;
 
 #define DEFAULT_BQ_ID	0
@@ -32,11 +30,16 @@ typedef ZapitChannelList::iterator zapit_list_it_t;
 #define DEFAULT_BQ_OTHER    false
 #define DEFAULT_BQ_SCANEPG    false
 
+#define DEFAULT_BQ_NAME_FAV   "Favorites"
+#define DEFAULT_BQ_NAME_ALL   "All Channels"
+#define DEFAULT_BQ_NAME_OTHER "Other"
+
 class CZapitBouquet
 {
 	public:
 
 	std::string Name;
+	std::string bName; // localized bouquet name, defaults to Name
 	bq_id_t	 BqID;
 	bool        bHidden;
 	bool        bLocked;
@@ -45,6 +48,7 @@ class CZapitBouquet
 	bool        bOther;
 	int         bScanEpg;
 	bool        bWebtv; // dont save
+	bool        bWebradio; // dont save
 	int         bUseCI;
 	t_satellite_position satellitePosition;
 
@@ -54,6 +58,7 @@ class CZapitBouquet
 	inline CZapitBouquet(const std::string name)
 	{
 		Name = name;
+		bName = name;
 		BqID=DEFAULT_BQ_ID;
 		bHidden = DEFAULT_BQ_HIDDEN;
 		bLocked = DEFAULT_BQ_LOCKED;
@@ -61,6 +66,7 @@ class CZapitBouquet
 		bOther = DEFAULT_BQ_OTHER;
 		bScanEpg = DEFAULT_BQ_SCANEPG;
 		bWebtv = false;
+		bWebradio = false;
 		bUseCI = false;
 	}
 
@@ -83,7 +89,7 @@ class CZapitBouquet
 	bool getChannels(ZapitChannelList &list, bool tv, int flags = CZapitChannel::PRESENT);
 };
 
-typedef vector<CZapitBouquet *> BouquetList;
+typedef std::vector<CZapitBouquet *> BouquetList;
 
 class CBouquetManager
 {
@@ -100,10 +106,18 @@ class CBouquetManager
 		void writeBouquet(FILE * bouq_fd, uint32_t i, bool bUser);
 		//remap epg_id
 		std::map<t_channel_id, t_channel_id> EpgIDMapping;
+		std::map<t_channel_id, std::string> EpgXMLMapping;
 		void readEPGMapping();
 		t_channel_id reMapEpgID(t_channel_id channelid);
+		std::string reMapEpgXML(t_channel_id channelid);
+		void convert_E2_EPGMapping(std::string mapfile_in, std::string mapfile_out = "/tmp/epgmap.xml");
+		void dump_EPGMapping(std::string mapfile_out = "/tmp/epgmap.xml");
+		//logo downloads
+		static void* LogoThread(void* _logolist);
+		pthread_t thrLogo;
+		ZapitChannelList LogoList;
 	public:
-		CBouquetManager() { remainChannels = NULL; };
+		CBouquetManager() { remainChannels = NULL; thrLogo = 0; };
 		~CBouquetManager();
 		class ChannelIterator
 		{
@@ -150,6 +164,10 @@ class CBouquetManager
 		void setBouquetLock(const unsigned int id, bool state);
 		void setBouquetLock(CZapitBouquet* bouquet, bool state);
 		void loadWebtv();
+		void loadWebradio();
+		void loadLogos();
+		void loadWebchannels(int mode);
+		std::string ReadMarkerValue(std::string strLine, const char* strMarkerName);
 		//bouquet writeChannelsNames selection options
 		enum{
 			BWN_NEVER,
@@ -168,7 +186,7 @@ class CBouquetManager
  * For instance all countless variants of the letter a have to be regarded as the same letter.
  */
 
-struct CmpBouquetByChName: public binary_function <const CZapitBouquet * const, const CZapitBouquet * const, bool>
+struct CmpBouquetByChName: public std::binary_function <const CZapitBouquet * const, const CZapitBouquet * const, bool>
 {
 	static bool comparetolower(const char a, const char b)
 		{

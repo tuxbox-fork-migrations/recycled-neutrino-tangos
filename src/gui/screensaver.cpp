@@ -36,7 +36,6 @@
 #include <neutrino.h>
 #include <pthread.h>
 #include <algorithm>    // sort
-#include <ctype.h>
 #include "audiomute.h"
 #include "screensaver.h"
 #include <system/debug.h>
@@ -54,12 +53,13 @@ CScreenSaver::CScreenSaver()
 {
 	thrScreenSaver 	= 0;
 	m_frameBuffer 	= CFrameBuffer::getInstance();
-	m_viewer	= new CPictureViewer();
+
 	index 		= 0;
 	status_mute	= CAudioMute::getInstance()->getStatus();
 	scr_clock	= NULL;
 	clr.i_color	= COL_DARK_GRAY;
 	pip_channel_id	= 0;
+	idletime	= time(NULL);
 }
 
 CScreenSaver::~CScreenSaver()
@@ -68,7 +68,7 @@ CScreenSaver::~CScreenSaver()
 		pthread_cancel(thrScreenSaver);
 	thrScreenSaver = 0;
 
-	delete m_viewer;
+
 	if (scr_clock)
 		delete scr_clock;
 }
@@ -99,16 +99,6 @@ void CScreenSaver::Start()
 		g_Zapit->stopPip();
 #endif
 
-	m_viewer->SetScaling(CPictureViewer::SIMPLE);
-	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
-
-	if (g_settings.video_Format == 3)
-		m_viewer->SetAspectRatio(float(16.0/9));
-	else
-		m_viewer->SetAspectRatio(float(4.0/3));
-
-	m_viewer->Cleanup();
-
 	m_frameBuffer->stopFrame();
 
 	if(!thrScreenSaver)
@@ -127,6 +117,7 @@ void CScreenSaver::Stop()
 		pthread_cancel(thrScreenSaver);
 		thrScreenSaver = 0;
 	}
+	resetIdleTime();
 
 	if (scr_clock){
 		scr_clock->Stop();
@@ -164,7 +155,7 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 
 	if (g_settings.screensaver_timeout)
 	{
-		while(1)
+		while(PScreenSaver)
 		{
 			PScreenSaver->paint();
 			sleep(g_settings.screensaver_timeout);
@@ -261,7 +252,7 @@ void CScreenSaver::paint()
 		}
 
 		dprintf(DEBUG_INFO, "[CScreenSaver]  %s - %d : %s\n",  __func__, __LINE__, v_bg_files.at(index).c_str());
-		m_viewer->ShowImage(v_bg_files.at(index).c_str(), false /*unscaled*/);
+		paintImage(v_bg_files.at(index), 0, 0, m_frameBuffer->getScreenWidth(true), m_frameBuffer->getScreenHeight(true));
 
 		if (!g_settings.screensaver_random)
 			index++;
@@ -275,9 +266,10 @@ void CScreenSaver::paint()
 		if (!scr_clock){
 			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H:%M:%S", "%H:%M %S", true,
 						1, NULL, CC_SHADOW_OFF, COL_BLACK, COL_BLACK);
+			scr_clock->setCornerType(CORNER_NONE);
 			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
 			scr_clock->disableSaveBg();
-			scr_clock->doPaintBg(true);
+			scr_clock->doPaintBg(false);
 		}
 		if (scr_clock->isPainted())
 			scr_clock->Stop();
@@ -313,9 +305,35 @@ void CScreenSaver::paint()
 	}
 }
 
-bool CScreenSaver::IsRun()
+bool CScreenSaver::canStart()
+{
+	if (g_settings.screensaver_delay && (time(NULL) - idletime > g_settings.screensaver_delay*60))
+		return true;
+	return false;
+}
+
+bool CScreenSaver::isActive()
 {
 	if(thrScreenSaver)
+		return true;
+	return false;
+}
+
+bool CScreenSaver::ignoredMsg(neutrino_msg_t msg)
+{
+	/* screensaver will ignore these msgs */
+	if (
+		   msg == NeutrinoMessages::EVT_CURRENTEPG
+		|| msg == NeutrinoMessages::EVT_NEXTEPG
+		|| msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG
+		|| msg == NeutrinoMessages::EVT_TIMESET
+		|| msg == NeutrinoMessages::EVT_PROGRAMLOCKSTATUS
+		|| msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES
+		|| msg == NeutrinoMessages::EVT_ZAP_GOTAPIDS
+		|| msg == NeutrinoMessages::EVT_ZAP_GOTPIDS
+		|| msg == NeutrinoMessages::EVT_EIT_COMPLETE
+		|| msg == NeutrinoMessages::EVT_BACK_ZAP_COMPLETE
+	)
 		return true;
 	return false;
 }

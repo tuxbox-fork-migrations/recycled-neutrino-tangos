@@ -40,7 +40,7 @@
 						 in __USE_FILE_OFFSET64 mode */
 
 #ifndef __USE_FILE_OFFSET64
-#define __USE_FILE_OFFSET64
+#error not using 64 bit file offsets
 #endif /* __USE_FILE__OFFSET64 */
 #endif
 
@@ -52,35 +52,34 @@
 
 class CFile
 {
-	private:
-		mutable int Type;
 	public:
 		enum FileType
 		{
 			FILE_UNKNOWN = 0,
 			FILE_AAC,
-			FILE_AVI,
 			FILE_ASF,
-			FILE_DIR,
-			FILE_ISO,
-			FILE_TEXT,
+			FILE_AVI,
+			FILE_BIN_PACKAGE,
 			FILE_CDR,
-			FILE_MP3,
-			FILE_MKV,
-			FILE_OGG,
-			FILE_WAV,
+			FILE_DIR,
 			FILE_FLAC,
 			FILE_FLV,
-			FILE_XML,
-			FILE_PLAYLIST,
-			STREAM_AUDIO,
-			FILE_PICTURE,
-			STREAM_PICTURE,
-			FILE_VOB,
+			FILE_ISO,
+			FILE_MKV,
+			FILE_MP3,
 			FILE_MPG,
+			FILE_OGG,
+			FILE_PICTURE,
+			FILE_PKG_PACKAGE,
+			FILE_PLAYLIST,
+			FILE_TEXT,
+			FILE_TGZ_PACKAGE,
 			FILE_TS,
-			FILE_BIN_PACKAGE,
-			FILE_PKG_PACKAGE
+			FILE_VOB,
+			FILE_WAV,
+			FILE_XML,
+			STREAM_AUDIO,
+			STREAM_PICTURE
 		};
 
 		FileType	getType(void) const;

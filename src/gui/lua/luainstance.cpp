@@ -180,10 +180,11 @@ static void set_lua_variables(lua_State *L)
 		{ "MENUCONTENTINACTIVE",	MAGIC_COLOR | (COL_MENUCONTENTINACTIVE) },
 		{ "MENUFOOT",			MAGIC_COLOR | (COL_MENUFOOT) },
 		{ "FRAME",			MAGIC_COLOR | (COL_FRAME) },
+		{ "SCROLLBAR",			MAGIC_COLOR | (COL_SCROLLBAR) },
 		{ "SCROLLBAR_ACTIVE",		MAGIC_COLOR | (COL_SCROLLBAR_ACTIVE) },
 		{ "SCROLLBAR_PASSIVE",		MAGIC_COLOR | (COL_SCROLLBAR_PASSIVE) },
-		{ "PROGRESSBAR_ACTIVE",		MAGIC_COLOR | (COL_PROGRESSBAR_ACTIVE) },
-		{ "PROGRESSBAR_PASSIVE",	MAGIC_COLOR | (COL_PROGRESSBAR_PASSIVE) },
+		{ "PROGRESSBAR_ACTIVE",		MAGIC_COLOR | (COL_PROGRESSBAR_ACTIVE_PLUS_0) },
+		{ "PROGRESSBAR_PASSIVE",	MAGIC_COLOR | (COL_PROGRESSBAR_PASSIVE_PLUS_0) },
 		{ "BACKGROUND",			MAGIC_COLOR | (COL_BACKGROUND) },
 		{ "DARK_RED",			MAGIC_COLOR | (COL_DARK_RED0) },
 		{ "DARK_GREEN",			MAGIC_COLOR | (COL_DARK_GREEN0) },
@@ -231,6 +232,7 @@ static void set_lua_variables(lua_State *L)
 		{ "MENUCONTENTINACTIVE_PLUS_0",		(lua_Unsigned) (COL_MENUCONTENTINACTIVE_PLUS_0) },
 		{ "MENUFOOT_PLUS_0",			(lua_Unsigned) (COL_MENUFOOT_PLUS_0) },
 		{ "FRAME_PLUS_0",			(lua_Unsigned) (COL_FRAME_PLUS_0) },
+		{ "SCROLLBAR_PLUS_0",			(lua_Unsigned) (COL_SCROLLBAR_PLUS_0) },
 		{ "SCROLLBAR_ACTIVE_PLUS_0",		(lua_Unsigned) (COL_SCROLLBAR_ACTIVE_PLUS_0) },
 		{ "SCROLLBAR_PASSIVE_PLUS_0",		(lua_Unsigned) (COL_SCROLLBAR_PASSIVE_PLUS_0) },
 		{ "PROGRESSBAR_ACTIVE_PLUS_0",		(lua_Unsigned) (COL_PROGRESSBAR_ACTIVE_PLUS_0) },
@@ -368,18 +370,19 @@ static void set_lua_variables(lua_State *L)
 
 	table_key neutrino_mode[] =
 	{
-		{ "UNKNOWN",		(lua_Integer)CNeutrinoApp::mode_unknown },
-		{ "TV",			(lua_Integer)CNeutrinoApp::mode_tv },
-		{ "RADIO",		(lua_Integer)CNeutrinoApp::mode_radio },
-		{ "SCART",		(lua_Integer)CNeutrinoApp::mode_scart },
-		{ "STANDBY",		(lua_Integer)CNeutrinoApp::mode_standby },
-		{ "AUDIO",		(lua_Integer)CNeutrinoApp::mode_audio },
-		{ "PIC",		(lua_Integer)CNeutrinoApp::mode_pic },
-		{ "TS",			(lua_Integer)CNeutrinoApp::mode_ts },
-		{ "OFF",		(lua_Integer)CNeutrinoApp::mode_off },
-		{ "WEBTV",		(lua_Integer)CNeutrinoApp::mode_webtv },
-		{ "MASK",		(lua_Integer)CNeutrinoApp::mode_mask },
-		{ "NOREZAP",		(lua_Integer)CNeutrinoApp::norezap },
+		{ "UNKNOWN",		(lua_Integer)NeutrinoModes::mode_unknown },
+		{ "TV",			(lua_Integer)NeutrinoModes::mode_tv },
+		{ "RADIO",		(lua_Integer)NeutrinoModes::mode_radio },
+		{ "SCART",		(lua_Integer)NeutrinoModes::mode_scart },
+		{ "STANDBY",		(lua_Integer)NeutrinoModes::mode_standby },
+		{ "AUDIO",		(lua_Integer)NeutrinoModes::mode_audio },
+		{ "PIC",		(lua_Integer)NeutrinoModes::mode_pic },
+		{ "TS",			(lua_Integer)NeutrinoModes::mode_ts },
+		{ "OFF",		(lua_Integer)NeutrinoModes::mode_off },
+		{ "WEBTV",		(lua_Integer)NeutrinoModes::mode_webtv },
+		{ "WEBRADIO",		(lua_Integer)NeutrinoModes::mode_webradio },
+		{ "MASK",		(lua_Integer)NeutrinoModes::mode_mask },
+		{ "NOREZAP",		(lua_Integer)NeutrinoModes::norezap },
 		{ NULL, 0 }
 	};
 
@@ -516,11 +519,11 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 		}
 	}
 	lua_setglobal(lua, "arg");
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	CFrameBuffer::getInstance()->autoBlit();
 #endif
 	status = lua_pcall(lua, 0, LUA_MULTRET, 0);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	CFrameBuffer::getInstance()->autoBlit(false);
 #endif
 	if (result_code)
@@ -790,7 +793,7 @@ int CLuaInstance::GetInput(lua_State *L)
 #if 1
 int CLuaInstance::Blit(lua_State *)
 {
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	CFrameBuffer::getInstance()->autoBlit(false);
 #endif
 	return 0;
@@ -798,7 +801,7 @@ int CLuaInstance::Blit(lua_State *)
 #else
 int CLuaInstance::Blit(lua_State *L)
 {
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	CFrameBuffer::getInstance()->autoBlit(false);
 #endif
 	CLuaData *W = CheckData(L, 1);

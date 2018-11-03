@@ -40,7 +40,7 @@ extern transponder_list_t transponders;
 
 typedef std::map <t_satellite_position, transponder_list_t> sat_transponder_map_t;
 
-typedef map<t_channel_id, CZapitChannel> channel_map_t;
+typedef std::map<t_channel_id, CZapitChannel> channel_map_t;
 typedef channel_map_t::iterator channel_map_iterator_t;
 typedef std::pair<t_channel_id, CZapitChannel> channel_pair_t;
 typedef std::pair<channel_map_iterator_t,bool> channel_insert_res_t;
@@ -68,7 +68,8 @@ class CServiceManager
 		int tp_count;
 		uint32_t fake_tid;
 		uint32_t fake_nid;
-		uint32_t fake_pos;
+		uint32_t fake_t_pos;
+		uint32_t fake_c_pos;
 		int newfound;
 
 		tallchans allchans;
@@ -129,10 +130,13 @@ class CServiceManager
 
 		CZapitChannel* FindChannel(const t_channel_id channel_id, bool * current_is_nvod = NULL);
 		CZapitChannel* FindChannelByName(std::string name);
+		CZapitChannel* FindChannelByPattern(std::string pattern); //NI
 		CZapitChannel* FindCurrentChannel(const t_channel_id channel_id);
 		CZapitChannel* FindChannel48(const t_channel_id channel_id);
 		CZapitChannel* FindChannelFuzzy(const t_channel_id channel_id,
 						const t_satellite_position pos, const freq_id_t freq);
+
+		CZapitChannel * GetCurrentChannel(void);
 
 		std::string GetServiceName(t_channel_id channel_id);
 
@@ -140,7 +144,9 @@ class CServiceManager
 		bool GetAllRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 		bool GetAllTvChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 		bool GetAllHDChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+		bool GetAllUHDChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 		bool GetAllWebTVChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+		bool GetAllWebRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 		bool GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position, int flags = CZapitChannel::PRESENT);
 		bool GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid, int flags = CZapitChannel::PRESENT);
 		bool GetAllUnusedChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);

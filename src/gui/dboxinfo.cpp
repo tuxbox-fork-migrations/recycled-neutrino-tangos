@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	(C) 2009-2011, 2013-2014 Stefan Seyfried
+	(C) 2009-2011, 2013-2014, 2017 Stefan Seyfried
 
 	License: GPL
 
@@ -46,7 +46,6 @@
 #include <driver/record.h>
 
 #include <zapit/femanager.h>
-#include <cs_api.h>
 
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
@@ -75,6 +74,7 @@ CDBoxInfoWidget::CDBoxInfoWidget()
 	percWidth = 3 * fm->getMaxDigitWidth()
 		    + fm->getRenderWidth("%"); //100%
 	nameWidth = fontWidth * 17;
+	upmode = false;
 }
 
 CDBoxInfoWidget::~CDBoxInfoWidget()
@@ -104,8 +104,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	bool doLoop = true;
 
 	int timeout = g_settings.timing[SNeutrinoSettings::TIMING_MENU];
-
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout == 0 ? 0xFFFF : timeout);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 	uint32_t updateTimer = g_RCInput->addTimer(5*1000*1000, false);
 
 	while (doLoop)
@@ -123,7 +122,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 				( msg == CRCInput::RC_home ) ||
 				( msg == CRCInput::RC_ok ) ) {
 			if(fader.StartFadeOut()) {
-				timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+				timeoutEnd = CRCInput::calcTimeoutEnd(1);
 				msg = 0;
 			} else
 				doLoop = false;
@@ -136,6 +135,10 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 			g_RCInput->postMsg (msg, 0);
 			res = menu_return::RETURN_EXIT_ALL;
 			doLoop = false;
+		}
+		else if (msg == CRCInput::RC_info) {
+			upmode = !upmode;
+			paint();
 		}
 		else
 		{
@@ -151,7 +154,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 				if ((msg <= CRCInput::RC_MaxRC) &&
 						(data == 0))                     /* <- button pressed */
 				{
-					timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 				}
 			}
 		}
@@ -223,7 +226,7 @@ void CDBoxInfoWidget::paint()
 		height += mheight * (frontend_count - 2);
 
 	int icon_w = 0, icon_h = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icon_w, &icon_h);
+	frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_RECORD, &icon_w, &icon_h);
 
 #define MEMINFO_TOTAL 0
 #define MEMINFO_USED 1
@@ -283,10 +286,10 @@ void CDBoxInfoWidget::paint()
 		while (getline(in, line)) {
 			size_t firstslash = line.find_first_of('/');
 			size_t firstspace = line.find_first_of(' ');
-			if ((firstspace != string::npos && firstslash != string::npos && firstslash < firstspace) || (line.find("rootfs") == 0)) {
+			if ( (firstspace != std::string::npos && firstslash != std::string::npos && firstslash < firstspace) || (line.find("rootfs") == 0) ) {
 				firstspace++;
 				size_t nextspace = line.find_first_of(' ', firstspace);
-				if (nextspace == string::npos || line.find("nodev", nextspace + 1) != string::npos)
+				if (nextspace == std::string::npos || line.find("nodev", nextspace + 1) != std::string::npos)
 					continue;
 				std::string mountpoint = line.substr(firstspace, nextspace - firstspace);
 				struct stat st;
@@ -334,17 +337,14 @@ void CDBoxInfoWidget::paint()
 
 	//paint head
 	std::string title(g_Locale->getText(LOCALE_EXTRA_DBOXINFO));
-#if 1
-	title += ": ";
-	title += g_info.hw_caps->boxname;
-#else
+#if 0
 	std::map<std::string,std::string> cpuinfo;
 	in.open("/proc/cpuinfo");
 	if (in.is_open()) {
 		std::string line;
 		while (getline(in, line)) {
 			size_t colon = line.find_first_of(':');
-			if (colon != string::npos && colon > 1) {
+			if (colon != std::string::npos && colon > 1) {
 				std::string key = line.substr(0, colon - 1);
 				std::string val = line.substr(colon + 1);
 				cpuinfo[trim(key)] = trim(val);
@@ -359,12 +359,12 @@ void CDBoxInfoWidget::paint()
 		title += ": ";
 		title + cpuinfo["machine"];
 	}
-	char ss[17];
-	sprintf(ss, "%016llx", cs_get_serial());
-	title += ", S/N ";
-	title += ss;
-	width = max(width, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(title, true) + 50);
 #endif
+	title += ": ";
+	title += g_info.hw_caps->boxvendor;
+	title += " ";
+	title += g_info.hw_caps->boxname;
+	width = std::max(width, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(title, true) + 50);
 
 	if (!header)
 		header = new CComponentsHeader(x, ypos, width, hheight, title, NEUTRINO_ICON_SHELL);
@@ -393,6 +393,8 @@ void CDBoxInfoWidget::paint()
 	std::string str_now(strftime(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_TIMEFORMAT), now));
 	struct sysinfo info;
 	sysinfo(&info);
+	if (upmode)
+		info.uptime = time_monotonic() - CNeutrinoApp::getInstance()->getStartTime();
 	now -= info.uptime;
 	std::string str_boot(strftime(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_TIMEFORMAT), now));
 
@@ -491,7 +493,6 @@ void CDBoxInfoWidget::paint()
 	const int headSize = 5;
 	int maxWidth[headSize];
 	memset(maxWidth, 0, headSize * sizeof(int));
-
 	int ypos_mem_head = ypos;
 	ypos += mheight;
 
@@ -567,7 +568,7 @@ void CDBoxInfoWidget::paint()
 						tmp = basename((char *)mnt);
 						_w = nameWidth - mpOffset;
 						if ((*it).second)
-							_w -= icon_w + 10;
+							_w -= icon_w;
 						_w += width_i/2;
 						break;
 					case 1:
@@ -591,7 +592,7 @@ void CDBoxInfoWidget::paint()
 					}
 					fm->RenderString(x + mpOffset + space, ypos+ mheight, _w, tmp, COL_MENUCONTENT_TEXT);
 					if ((*it).second && icon_w>0 && icon_h>0)
-						frameBuffer->paintIcon(crm->RecordingStatus() ? NEUTRINO_ICON_REC:NEUTRINO_ICON_REC_GRAY, x + nameWidth - icon_w + width_i/2, ypos + (mheight/2 - icon_h/2));
+						frameBuffer->paintIcon(crm->RecordingStatus() ? NEUTRINO_ICON_MARKER_RECORD : NEUTRINO_ICON_MARKER_RECORD_GRAY, x + nameWidth - icon_w + width_i/2, ypos + (mheight/2 - icon_h/2));
 				}
 				if (pbw-pbw_fix > 8) /* smaller progressbar is not useful ;) */
 				{

@@ -67,11 +67,13 @@ CStartUpWizard::~CStartUpWizard()
 {
 }
 
+#ifdef ENABLE_FASTSCAN
 const CMenuOptionChooser::keyval WIZARD_SETUP_TYPE[] =
 {
 	{ 0, LOCALE_WIZARD_SETUP_EASY },
 	{ 1, LOCALE_WIZARD_SETUP_ADVANCED }
 };
+#endif
 
 int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 {
@@ -87,6 +89,10 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	osdl_setup.setWizardMode(true);
 	languageSettings.showLanguageSetup(&osdl_setup);
 	osdl_setup.exec(NULL, "");
+
+	/* hack to ensure system's view of timezone is the same as neutrino's */
+	CTZChangeNotifier tzn;
+	tzn.changeNotify(NONEXISTANT_LOCALE, (void *)"dummy");
 
 	//restore backup
 	CSettingsManager settingsManager(SNeutrinoSettings::WIZARD_START);

@@ -11,6 +11,7 @@
 	Copyright (C) 2011 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
+	Copyright (C) 2013-2014 Stefan Seyfried
 
         License: GPL
 
@@ -42,6 +43,7 @@
 #endif
 #include <unistd.h>
 
+#include <driver/rcinput.h>
 #include "user_menue.h"
 #include "user_menue_setup.h"
 #include "subchannel_select.h"
@@ -164,6 +166,8 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 	std::string txt = g_settings.usermenu[button]->title;
 	if (button < COL_BUTTONMAX && txt.empty())
 		txt = g_Locale->getText(user_menu[button].caption);
+	if (txt.empty())
+		txt = g_Locale->getText(LOCALE_USERMENU_HEAD);
 
 	CMenuWidget *menu = new CMenuWidget(txt, (button < COL_BUTTONMAX) ? user_menu[button].menu_icon_def : "", width);
 	if (menu == NULL)
@@ -184,10 +188,11 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 	else
 		menu->addItem(GenericMenuSeparator);
 
-	bool _mode_ts    = CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_ts;
-	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) &&
+	bool _mode_ts    = CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts;
+	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
 				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
+	bool timeshift = CMoviePlayerGui::getInstance().timeshift;
 	bool adzap_active = CAdZapMenu::getInstance()->isActive();
 
 	std::string itemstr_last("1");
@@ -216,21 +221,21 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_EPG_LIST:
 		{
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTLIST, !_mode_ts, NULL, new CEventListHandler,  "-1", key, icon);
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTLIST, true, NULL, new CEventListHandler,  "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
 		case SNeutrinoSettings::ITEM_EPG_SUPER:
 		{
 			keyhelper.get(&key,&icon,CRCInput::RC_green);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EPGPLUS, !_mode_ts, NULL, new CEPGplusHandler,  "-1", key, icon);
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EPGPLUS, true, NULL, new CEPGplusHandler,  "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
 		case SNeutrinoSettings::ITEM_EPG_INFO:
 		{
 			keyhelper.get(&key,&icon,CRCInput::RC_yellow);
-			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTINFO, !_mode_ts, NULL, new CEPGDataHandler,  "-1", key, icon);
+			menu_item = new CMenuDForwarder(LOCALE_EPGMENU_EVENTINFO, true, NULL, new CEPGDataHandler,  "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
@@ -277,7 +282,16 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			if (g_settings.recording_type == RECORDING_OFF)
 				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuForwarder(LOCALE_MAINMENU_RECORDING, true, NULL, CRecordManager::getInstance(), "-1", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_REC_AKT, true, NULL, CRecordManager::getInstance(), "-1", key, icon);
+			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
+			break;
+		}
+		case SNeutrinoSettings::ITEM_TIMESHIFT:
+		{
+			if (g_settings.recording_type == RECORDING_OFF)
+				break;
+			keyhelper.get(&key,&icon,CRCInput::RC_red);
+			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, !timeshift, NULL, CRecordManager::getInstance(), "Timeshift", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
@@ -346,7 +360,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 				if (g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_LUA])
 					show = show || g_Plugins->getType(count) == CPlugins::P_TYPE_LUA;
 
-				if (show && !g_Plugins->isHidden(count) && (g_Plugins->getIntegration(count) == CPlugins::I_TYPE_DISABLED))
+				if (show && !g_Plugins->isHidden(count) && (g_Plugins->getIntegration(count) == PLUGIN_INTEGRATION_DISABLED))
 				{
 					menu_items++;
 					neutrino_msg_t d_key = g_Plugins->getKey(count);
@@ -396,6 +410,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_SCRIPTS);
 			break;
 		}
+#if 0 //ENABLE_YOUTUBE_PLAYER
 		case SNeutrinoSettings::ITEM_YOUTUBE:
 		{
 			keyhelper.get(&key,&icon);
@@ -403,6 +418,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_YTPLAY, LOCALE_MENU_HINT_YTPLAY);
 			break;
 		}
+#endif
 		case SNeutrinoSettings::ITEM_FILEPLAY:
 		{
 			keyhelper.get(&key,&icon);
@@ -482,7 +498,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_RELOAD_CHANNELS, LOCALE_MENU_HINT_RESTART_TUNER);
 			break;
 		}
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 		case SNeutrinoSettings::ITEM_THREE_D_MODE:
 		{
 			keyhelper.get(&key,&icon);
@@ -491,15 +507,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			break;
 		}
 #endif
-		case SNeutrinoSettings::ITEM_RASS:
-		{
-			if (!(neutrino->getMode() == CNeutrinoApp::mode_radio && g_Radiotext && g_Radiotext->haveRASS()))
-				continue;
-			keyhelper.get(&key,&icon);
-			menu_item = new CMenuForwarder(LOCALE_RASS_HEAD, true, NULL, neutrino, "rass", key, icon);
-			menu_item->setHint(NEUTRINO_ICON_HINT_RASS, LOCALE_MENU_HINT_RASS);
-			break;
-		}
 #if !HAVE_SPARK_HARDWARE
 		case SNeutrinoSettings::ITEM_CAM:
 		{
@@ -604,7 +611,7 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 			case SNeutrinoSettings::ITEM_NONE:
 			case SNeutrinoSettings::ITEM_BAR:
 			case SNeutrinoSettings::ITEM_LIVESTREAM_RESOLUTION:
-				if (mode == NeutrinoMessages::mode_webtv && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty()) {
+				if (mode == NeutrinoModes::mode_webtv && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty()) {
 					if(loc == NONEXISTANT_LOCALE && !text) {
 						CWebTVResolution webtvres;
 						std::string tmp = webtvres.getResolutionValue();
@@ -654,7 +661,7 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 				continue;
 			case SNeutrinoSettings::ITEM_AUDIO_SELECT:
 				if(loc == NONEXISTANT_LOCALE && !text) {
-					if (mode == NeutrinoMessages::mode_webtv)
+					if (mode == NeutrinoModes::mode_webtv)
 						text = CMoviePlayerGui::getInstance(true).CurrentAudioName().c_str(); // use instance_bg
 					else if (!g_RemoteControl->current_PIDs.APIDs.empty())
 						text = g_RemoteControl->current_PIDs.APIDs[
@@ -663,11 +670,6 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 					return_title = true;
 				active = true;
 				continue;
-#if 0
-			case SNeutrinoSettings::ITEM_RASS:
-				if (!(CNeutrinoApp::getInstance()->getMode() == CNeutrinoApp::mode_radio && g_Radiotext && g_Radiotext->haveRASS()))
-					continue;
-#endif
 			default:
 				if(loc == NONEXISTANT_LOCALE && !text)
 					loc = CUserMenuSetup::getLocale(item);

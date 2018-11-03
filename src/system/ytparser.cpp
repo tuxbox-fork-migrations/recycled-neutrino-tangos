@@ -38,6 +38,7 @@
 #include <OpenThreads/ScopedLock>
 #include "settings.h"
 #include "helpers.h"
+#include "helpers-json.h"
 #include "set_threadname.h"
 #include <global.h>
 #include <json/json.h>
@@ -288,25 +289,25 @@ std::string cYTFeedParser::getXmlData(xmlNodePtr node)
 
 bool cYTFeedParser::parseFeedJSON(std::string &answer)
 {
+	std::string errMsg = "";
 	Json::Value root;
-	Json::Reader reader;
 
 	std::ostringstream ss;
 	std::ifstream fh(curfeedfile.c_str(),std::ifstream::in);
 	ss << fh.rdbuf();
 	std::string filedata = ss.str();
 
-	bool parsedSuccess = reader.parse(filedata,root,false);
+	bool parsedSuccess = parseJsonFromString(filedata, &root, NULL);
 
 	if(!parsedSuccess)
 	{
-		parsedSuccess = reader.parse(answer,root,false);
+		parsedSuccess = parseJsonFromString(answer, &root, &errMsg);
 	}
 
 	if(!parsedSuccess)
 	{
 		printf("Failed to parse JSON\n");
-		printf("%s\n", reader.getFormattedErrorMessages().c_str());
+		printf("%s\n", errMsg.c_str());
 		return false;
 	}
 
@@ -323,7 +324,7 @@ bool cYTFeedParser::parseFeedJSON(std::string &answer)
 	Json::Value elements = root["items"];
 	for(unsigned int i=0; i<elements.size();++i)
 	{
-		OnLoadVideoInfo(i, elements.size(), g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
+		OnProgress(i, elements.size(), g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_VIDEOS));
 #ifdef DEBUG_PARSER
 		printf("=========================================================\n");
 		printf("Element %d in elements\n", i);
@@ -383,14 +384,15 @@ bool cYTFeedParser::parseFeedDetailsJSON(cYTVideoInfo* vinfo)
 	if (!getUrl(url, answer))
 		return false;
 
+	std::string errMsg = "";
 	Json::Value root;
-	Json::Reader reader;
-	bool parsedSuccess = reader.parse(answer, root, false);
+	bool parsedSuccess = parseJsonFromString(answer, &root, &errMsg);
 	if (!parsedSuccess) {
 		printf("Failed to parse JSON\n");
-		printf("%s\n", reader.getFormattedErrorMessages().c_str());
+		printf("%s\n", errMsg.c_str());
 		return false;
 	}
+
 
 	Json::Value elements = root["items"];
 	std::string duration = elements[0]["contentDetails"].get("duration", "").asString();
@@ -516,6 +518,7 @@ bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::stri
 			default:
 				//trailer = "&time=today";
 				curfeed = "&chart=mostPopular";
+				break;
 			case MOST_POPULAR_ALL_TIME:
 				curfeed = "&chart=mostPopular";
 				break;

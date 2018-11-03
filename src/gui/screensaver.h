@@ -30,16 +30,15 @@
 #include <gui/components/cc.h>
 
 class CFrameBuffer;
-class CPictureViewer;
+
 class CScreenSaver : public sigc::trackable
 {
 	private:
 		CFrameBuffer 	*m_frameBuffer;
-		CPictureViewer	*m_viewer;
 		CComponentsFrmClock *scr_clock;
 		pthread_t	thrScreenSaver;
 		static void*	ScreenSaverPrg(void *arg);
-		vector<string> 	v_bg_files;
+		std::vector<std::string> v_bg_files;
 		unsigned int 	index;
 		t_channel_id	pip_channel_id;
 		bool		status_mute;
@@ -47,11 +46,13 @@ class CScreenSaver : public sigc::trackable
 		bool ReadDir();
 		void paint();
 
+		time_t idletime;
+
 		union u_color {
 			struct s_color {
 				uint8_t b, g, r, a;
 			} uc_color;
-		unsigned int i_color;
+			unsigned int i_color;
 		};
 
 		u_color clr;
@@ -66,11 +67,16 @@ class CScreenSaver : public sigc::trackable
 		CScreenSaver();
 		~CScreenSaver();
 		static CScreenSaver* getInstance();
-		bool IsRun();
+		bool canStart();
+		bool isActive();
 		void Start();
 		void Stop();
+		bool ignoredMsg(neutrino_msg_t msg);
 		sigc::signal<void> OnBeforeStart;
 		sigc::signal<void> OnAfterStop;
+
+		void resetIdleTime() { idletime = time(NULL); }
+		time_t getIdleTime() { return idletime; }
 };
 
 #endif // __CSCREENSAVER_H__

@@ -7,7 +7,7 @@
  *             rasc       <rasc@berlios.de>,
  *             thegoodguy <thegoodguy@berlios.de>
  *
- * (C) 2009, 2011, 2013 Stefan Seyfried
+ * (C) 2009, 2011-2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,14 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+#include <fstream>
+#include <iostream>
+
+#include <global.h>
+#include <driver/pictureviewer/pictureviewer.h>
+#include <system/helpers.h>
+#include <system/set_threadname.h>
+
 #include <zapit/bouquets.h>
 #include <zapit/debug.h>
 #include <zapit/getservices.h>
@@ -39,7 +47,17 @@
 #include <zapit/zapit.h>
 #include <xmlinterface.h>
 
+#define M3U_START_MARKER        "#EXTM3U"
+#define M3U_INFO_MARKER         "#EXTINF"
+#define TVG_INFO_ID_MARKER      "tvg-id="
+#define TVG_INFO_NAME_MARKER    "tvg-name="
+#define TVG_INFO_LOGO_MARKER    "tvg-logo="
+#define TVG_INFO_SHIFT_MARKER   "tvg-shift="
+#define GROUP_NAME_MARKER       "group-title="
+
 extern CBouquetManager *g_bouquetManager;
+extern CPictureViewer *g_PicViewer;
+pthread_mutex_t  mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #define GET_ATTR(node, name, fmt, arg)                                  \
         do {                                                            \
@@ -273,7 +291,7 @@ void CBouquetManager::saveBouquets(void)
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i] != remainChannels) {
 			DBG("save Bouquets: name %s user: %d\n", Bouquets[i]->Name.c_str(), Bouquets[i]->bUser);
-			if(!Bouquets[i]->bUser && !Bouquets[i]->bWebtv) {
+			if(!Bouquets[i]->bUser && !Bouquets[i]->bWebtv && !Bouquets[i]->bWebradio) {
 				writeBouquet(bouq_fd, i,false);
 			}
 		}
@@ -387,10 +405,6 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 	xmlNodePtr channel_node;
 
 	if (search) {
-		if(!bUser){
-			readEPGMapping();
-		}
-
 		t_original_network_id original_network_id;
 		t_service_id service_id;
 		t_transport_stream_id transport_stream_id;
@@ -413,7 +427,11 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			const char* useci = xmlGetAttribute(search, "ci");
 			newBouquet->bHidden = hidden ? (strcmp(hidden, "1") == 0) : false;
 			newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
-			newBouquet->bFav = (strcmp(name, "favorites") == 0);
+			newBouquet->bFav = (strcmp(name, DEFAULT_BQ_NAME_FAV) == 0);
+			if (newBouquet->bFav)
+				newBouquet->bName = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
+			else
+				newBouquet->bName = name;
 			newBouquet->bScanEpg = scanepg ? (strcmp(scanepg, "1") == 0) : false;
 			newBouquet->bUseCI = useci ? (strcmp(useci, "1") == 0) : false;
 			channel_node = xmlChildrenNode(search);
@@ -456,7 +474,12 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					t_channel_id new_epgid = reMapEpgID(chan->getChannelID());
 					if(new_epgid)
 						chan->setEPGid(new_epgid);
-
+					std::string new_epgxml = reMapEpgXML(chan->getChannelID());
+					if(!new_epgxml.empty()) {
+						char buf[100];
+						snprintf(buf, sizeof(buf), "%llx", chan->getChannelID() & 0xFFFFFFFFFFFFULL);
+						chan->setScriptName("#" + new_epgxml + "=" + buf);
+					}
 					newBouquet->addService(chan);
 				} else if (bUser) {
 					if (url) {
@@ -491,9 +514,6 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			search = xmlNextNode(search);
 		}
 		INFO("total: %d bouquets", (int)Bouquets.size());
-		if(!bUser && !EpgIDMapping.empty()){
-			EpgIDMapping.clear();
-		}
 	}
 	xmlFreeDoc(parser);
 }
@@ -502,15 +522,25 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 {
 	TIMER_START();
 	clearAll();
+	readEPGMapping();
+
 	if (ignoreBouquetFile == false) {
 		parseBouquetsXml(BOUQUETS_XML, false);
 		sortBouquets();
 	}
 
 	loadWebtv();
+	loadWebradio();
+	loadLogos();
 	parseBouquetsXml(UBOUQUETS_XML, true);
 	renumServices();
 	CServiceManager::getInstance()->SetCIFilter();
+	if(!EpgIDMapping.empty()){
+			EpgIDMapping.clear();
+	}
+	if(!EpgXMLMapping.empty()){
+			EpgXMLMapping.clear();
+	}
 	TIMER_STOP("[zapit] bouquet loading took");
 }
 
@@ -542,7 +572,7 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 	int j = CServiceManager::getInstance()->GetMaxNumber(true);
 	/* FIXME temp debug */
 	printf("############## CBouquetManager::makeRemainingChannelsBouquet: numbers start at: tv %d radio %d ############\n", i, j);
-	for (vector<CZapitBouquet*>::const_iterator it = Bouquets.begin(); it != Bouquets.end(); ++it) {
+	for (std::vector<CZapitBouquet*>::const_iterator it = Bouquets.begin(); it != Bouquets.end(); ++it) {
 		renumChannels((*it)->tvChannels, i, (*it)->bUser ? NULL : (char *) (*it)->Name.c_str());
 		renumChannels((*it)->radioChannels, j, (*it)->bUser ? NULL : (char *) (*it)->Name.c_str());
 	}
@@ -554,8 +584,9 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 
 	// TODO: use locales
 	if (remainChannels == NULL)
-		remainChannels = addBouquet( Bouquets.empty()  ? "All Channels" : "Other", false); // UTF-8 encoded
+		remainChannels = addBouquet(Bouquets.empty() ? DEFAULT_BQ_NAME_ALL : DEFAULT_BQ_NAME_OTHER, false); // UTF-8 encoded
 	remainChannels->bOther = true;
+	remainChannels->bName = g_Locale->getText(LOCALE_BOUQUETNAME_OTHER);
 
 	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); ++it) {
 		remainChannels->addService(*it);
@@ -583,9 +614,13 @@ void CBouquetManager::renumServices()
 
 CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bool myfav, bool to_begin)
 {
-	CZapitBouquet* newBouquet = new CZapitBouquet(myfav ? "favorites" : name);
+	CZapitBouquet* newBouquet = new CZapitBouquet(myfav ? DEFAULT_BQ_NAME_FAV : name);
 	newBouquet->bUser = ub;
 	newBouquet->bFav = myfav;
+	if (newBouquet->bFav)
+		newBouquet->bName = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
+	else
+		newBouquet->bName = name;
 	newBouquet->satellitePosition = INVALID_SAT_POSITION;
 
 //printf("CBouquetManager::addBouquet: %s, user %s\n", name.c_str(), ub ? "YES" : "NO");
@@ -730,8 +765,7 @@ int CBouquetManager::existsUBouquet(char const * const name, bool myfav)
 			if (Bouquets[i]->bFav)
 				return (int)i;
 		}
-		//else if (Bouquets[i]->bUser && strncasecmp(Bouquets[i]->Name.c_str(), name,Bouquets[i]->Name.length())==0)
-		else if (Bouquets[i]->bUser && (Bouquets[i]->Name == name))
+		else if (Bouquets[i]->bUser && (Bouquets[i]->bName == name))
 			return (int)i;
 	}
 	return -1;
@@ -780,6 +814,15 @@ void CBouquetManager::clearAll(bool user)
 	if (!user)
 		Bouquets = tmplist;
 	remainChannels = NULL;
+	if(thrLogo != 0)
+	{
+		pthread_cancel(thrLogo);
+		pthread_join(thrLogo, NULL);
+		thrLogo = 0;
+	}
+	pthread_mutex_lock (&mutex);
+	LogoList.clear();
+	pthread_mutex_unlock (&mutex);
 }
 
 void CBouquetManager::deletePosition(t_satellite_position satellitePosition)
@@ -810,59 +853,333 @@ CZapitBouquet* CBouquetManager::addBouquetIfNotExist(const std::string &name)
 
 void CBouquetManager::loadWebtv()
 {
-	std::list<std::string> *webtv_xml = CZapit::getInstance()->GetWebTVXML();
-	if (!webtv_xml)
+	loadWebchannels(MODE_WEBTV);
+}
+
+void CBouquetManager::loadWebradio()
+{
+	loadWebchannels(MODE_WEBRADIO);
+}
+
+void CBouquetManager::loadWebchannels(int mode)
+{
+	std::list<std::string> *webchannels_xml = (mode == MODE_WEBTV) ? CZapit::getInstance()->GetWebTVXML() : CZapit::getInstance()->GetWebRadioXML();
+	if (!webchannels_xml)
 		return;
 
-	for (std::list<std::string>::iterator it = webtv_xml->begin(); it != webtv_xml->end(); ++it) {
-		if (!access((*it).c_str(), R_OK)) {
-			INFO("Loading webtv from %s ...", (*it).c_str());
-			xmlDocPtr parser = parseXmlFile((*it).c_str());
-			if (parser == NULL)
-				continue;
+	for (std::list<std::string>::iterator it = webchannels_xml->begin(); it != webchannels_xml->end(); ++it)
+	{
+		std::string filename = (*it);
+		std::string extension = getFileExt(filename);
+		std::string tmp_name = randomFile(extension, LOGODIR_TMP);
+		bool remove_tmp = false;
 
-			xmlNodePtr l0 = xmlDocGetRootElement(parser);
-			xmlNodePtr l1 = xmlChildrenNode(l0);
-			if (l1) {
-				CZapitBouquet* pbouquet = NULL;
-				const char *prov = xmlGetAttribute(l0, "name");
-				if (!prov)
-					prov = "WebTV";
-				pbouquet = addBouquetIfNotExist(prov);
-				pbouquet->bWebtv = true;
+		if (filename.compare(0,1,"/") == 0)
+			tmp_name = filename;
+		else {
+			if (::downloadUrl(filename,tmp_name))
+				remove_tmp = true;}
 
-				while ((xmlGetNextOccurence(l1, "webtv"))) {
-					const char *title = xmlGetAttribute(l1, "title");
-					const char *url = xmlGetAttribute(l1, "url");
-					const char *desc = xmlGetAttribute(l1, "description");
-					const char *genre = xmlGetAttribute(l1, "genre");
-					const char *epgid = xmlGetAttribute(l1, "epgid");
-					const char *script = xmlGetAttribute(l1, "script");
-					t_channel_id epg_id = 0;
-					if (epgid)
-						epg_id = strtoull(epgid, NULL, 16);
+		if (!access(tmp_name.c_str(), R_OK))
+		{
+			INFO("Loading %s from %s ...", (mode == MODE_WEBTV) ? "webtv" : "webradio", filename.c_str());
 
-					CZapitBouquet* gbouquet = pbouquet;
-					if (genre) {
-						std::string bname = prov ? std::string(std::string(prov) + " ") + genre : genre;
-						gbouquet = addBouquetIfNotExist(bname);
-						gbouquet->bWebtv = true;
+			// check for extension
+			bool e2tv = false;
+			bool xml = false;
+			bool m3u = false;
+
+			if( strcasecmp("tv", extension.c_str()) == 0)
+				e2tv = true;
+			if( strcasecmp("m3u", extension.c_str()) == 0)
+				m3u = true;
+			if( strcasecmp("xml", extension.c_str()) == 0)
+				xml = true;
+
+			if (xml)
+			{
+				xmlDocPtr parser = parseXmlFile(tmp_name.c_str());
+				if (parser == NULL)
+					continue;
+
+				xmlNodePtr l0 = xmlDocGetRootElement(parser);
+				xmlNodePtr l1 = xmlChildrenNode(l0);
+				if (l1)
+				{
+					CZapitBouquet* pbouquet = NULL;
+					const char *prov = xmlGetAttribute(l0, "name");
+					if (!prov)
+						prov = (mode == MODE_WEBTV) ? "WebTV" : "WebRadio";
+					pbouquet = addBouquetIfNotExist(prov);
+					if (mode == MODE_WEBTV) {
+						pbouquet->bWebtv = true;
 					}
-					if (title && url) {
-						t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
-						CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script);
-						CServiceManager::getInstance()->AddChannel(channel);
-						channel->flags = CZapitChannel::UPDATED;
-						if (gbouquet)
-							gbouquet->addService(channel);
+					else
+					{
+						pbouquet->bWebradio = true;
 					}
+					while ((xmlGetNextOccurence(l1, (mode == MODE_WEBTV) ? "webtv" : "webradio")))
+					{
+						const char *title = xmlGetAttribute(l1, "title");
+						const char *url = xmlGetAttribute(l1, "url");
+						const char *desc = xmlGetAttribute(l1, "description");
+						const char *genre = xmlGetAttribute(l1, "genre");
+						const char *epgid = xmlGetAttribute(l1, "epgid");
+						const char *script = xmlGetAttribute(l1, "script");
+						t_channel_id epg_id = 0;
+						if (epgid)
+						{
+							//NI
+							if (strcmp(epgid, "auto") == 0 && title)
+							{
+								CZapitChannel * channel = CServiceManager::getInstance()->FindChannelByPattern(title);
+								if (channel && !IS_WEBCHAN(channel->getChannelID()))
+								{
+									epg_id = channel->getChannelID();
+									INFO("* auto epg_id found for %s: " PRINTF_CHANNEL_ID_TYPE "\n", title, epg_id);
+								}
+							}
+						else
+							epg_id = strtoull(epgid, NULL, 16);
+						}
 
+						CZapitBouquet* gbouquet = pbouquet;
+
+						if (genre)
+						{
+							std::string bname = prov ? std::string(std::string(prov) + " ") + genre : genre;
+							gbouquet = addBouquetIfNotExist(bname);
+							if (mode == MODE_WEBTV)
+								gbouquet->bWebtv = true;
+							else
+								gbouquet->bWebradio = true;
+						}
+						if (title && url)
+						{
+							t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
+							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script, mode);
+							CServiceManager::getInstance()->AddChannel(channel);
+							channel->flags = CZapitChannel::UPDATED;
+							if (gbouquet)
+								gbouquet->addService(channel);
+						}
 					l1 = xmlNextNode(l1);
+					}
+				}
+				xmlFreeDoc(parser);
+			}
+			else if(m3u)
+			{
+				std::ifstream infile;
+				char cLine[1024];
+				std::string desc = "";
+				std::string title = "";
+				std::string group = "";
+				std::string epgid = "";
+				std::string alogo = "";
+				CZapitBouquet* pbouquet = NULL;
+
+				infile.open(tmp_name.c_str(), std::ifstream::in);
+
+				while (infile.good())
+				{
+					infile.getline(cLine, sizeof(cLine));
+					// remove CR
+					if(cLine[strlen(cLine) - 1] == '\r')
+						cLine[strlen(cLine) - 1] = 0;
+					std::string strLine = cLine;
+
+					if (strLine.empty())
+						continue;
+
+					if (strLine.find(M3U_START_MARKER) != std::string::npos)
+						continue;
+
+					if (strLine.find(M3U_INFO_MARKER) != std::string::npos)
+					{
+						int iColon = (int)strLine.find_first_of(':');
+						int iComma = (int)strLine.find_last_of(',');
+						title = "";
+						group = "";
+						desc = "";
+						alogo = "";
+
+						if (iColon >= 0 && iComma >= 0 && iComma > iColon)
+						{
+							iComma++;
+							iColon++;
+							title = strLine.substr(iComma);
+							std::string strInfoLine = strLine.substr(iColon, --iComma - iColon);
+							desc = ReadMarkerValue(strInfoLine, TVG_INFO_NAME_MARKER);
+							group = ReadMarkerValue(strInfoLine, GROUP_NAME_MARKER);
+							epgid = ReadMarkerValue(strInfoLine, TVG_INFO_ID_MARKER);
+							alogo = ReadMarkerValue(strInfoLine, TVG_INFO_LOGO_MARKER);
+						}
+
+						pbouquet = addBouquetIfNotExist((mode == MODE_WEBTV) ? "WebTV" : "WebRadio");
+						if (mode == MODE_WEBTV)
+							pbouquet->bWebtv = true;
+						else
+							pbouquet->bWebradio = true;
+
+					}
+
+					else if (strLine[0] != '#')
+					{
+						char *url = NULL;
+						if ((url = strstr(cLine, "http://")) || (url = strstr(cLine, "https://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) || (url = strstr(cLine, "rtp://")) || (url = strstr(cLine, "mmsh://")) )
+						{
+							if (url != NULL)
+							{
+								if (desc.empty())
+									desc = "m3u stream";
+
+								CZapitBouquet* gbouquet = pbouquet;
+								if (!group.empty())
+								{
+									std::string bname = (mode == MODE_WEBTV) ? "[WebTV] " : "[WebRadio] ";
+									bname += group;
+									gbouquet = addBouquetIfNotExist(bname);
+									if (mode == MODE_WEBTV)
+										gbouquet->bWebtv = true;
+									else
+										gbouquet->bWebradio = true;
+								}
+
+								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
+								std::string epg_script = "";
+								if (!epgid.empty()) {
+									char buf[100];
+									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+									// keep the tvg-id for later epg injection
+									epg_script = "#" + epgid + "=" + buf;
+								}
+								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, epg_script.c_str(), mode);
+								CServiceManager::getInstance()->AddChannel(channel);
+								//remapinng epg_id
+								t_channel_id new_epgid = reMapEpgID(chid);
+								if(new_epgid)
+									channel->setEPGid(new_epgid);
+								std::string new_epgxml = reMapEpgXML(chid);
+								if(!new_epgxml.empty()) {
+									char buf[100];
+									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+									channel->setScriptName("#" + new_epgxml + "=" + buf);
+								}
+								desc = "m3u_loading_logos";
+								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid,title,desc))
+								{
+									channel->setAlternateLogo(alogo);
+									pthread_mutex_lock (&mutex);
+									LogoList.push_back(channel);
+									pthread_mutex_unlock (&mutex);
+								}
+								channel->flags = CZapitChannel::UPDATED;
+								if (gbouquet)
+									gbouquet->addService(channel);
+							}
+						}
+					}
+				}
+				infile.close();
+			}
+			else if (e2tv)
+			{
+				FILE * f = fopen(tmp_name.c_str(), "r");
+
+				std::string title;
+				std::string URL;
+				std::string url;
+				std::string desc;
+				t_channel_id epg_id = 0;
+				CZapitBouquet* pbouquet = NULL;
+
+				if(f != NULL)
+				{
+					while(true)
+					{
+						char line[1024];
+						if (!fgets(line, 1024, f))
+							break;
+
+						size_t len = strlen(line);
+						if (len < 2)
+							// Lines with less than one char aren't meaningful
+							continue;
+
+						// strip newline
+						line[--len] = 0;
+
+						// strip carriage return (when found)
+						if (line[len - 1] == '\r')
+							line[len - 1 ] = 0;
+
+						if (strncmp(line, "#SERVICE 4097:0:1:0:0:0:0:0:0:0:", 32) == 0)
+							url = line + 32;
+						else if (strncmp(line, "#DESCRIPTION", 12) == 0)
+						{
+							int offs = line[12] == ':' ? 14 : 13;
+
+							title = line + offs;
+
+							desc = "e2 stream";
+
+							pbouquet = addBouquetIfNotExist((mode == MODE_WEBTV) ? "WebTV" : "WebRadio");
+							if (mode == MODE_WEBTV)
+								pbouquet->bWebtv = true;
+							else
+								pbouquet->bWebradio = true;
+
+							t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, ::decodeUrl(url).c_str());
+							CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), epg_id, NULL, mode);
+							CServiceManager::getInstance()->AddChannel(channel);
+							channel->flags = CZapitChannel::UPDATED;
+							if (pbouquet)
+								pbouquet->addService(channel);
+
+						}
+					}
+
+					fclose(f);
 				}
 			}
-			xmlFreeDoc(parser);
+
 		}
+		if (remove_tmp)
+			remove(tmp_name.c_str());
 	}
+}
+
+void CBouquetManager::loadLogos()
+{
+
+	if(thrLogo != 0)
+	{
+		pthread_cancel(thrLogo);
+		pthread_join(thrLogo, NULL);
+		thrLogo = 0;
+	}
+
+	if (LogoList.size() > 0)
+		pthread_create(&thrLogo, NULL, LogoThread, (void*)&LogoList);
+}
+
+void* CBouquetManager::LogoThread(void* _logolist)
+{
+	set_threadname(__func__);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	pthread_mutex_lock (&mutex);
+	ZapitChannelList *LogoList = (ZapitChannelList *)_logolist;
+	for (ZapitChannelList::iterator it = LogoList->begin(); it != LogoList->end(); ++it)
+	{
+		CZapitChannel *cc = (*it);
+		if (cc)
+			cc->setAlternateLogo(downloadUrlToLogo(cc->getAlternateLogo(), LOGODIR_TMP, cc->getChannelID()));
+	}
+	LogoList->clear();
+	pthread_mutex_unlock(&mutex);
+	pthread_exit(0);
+	return NULL;
 }
 
 CBouquetManager::ChannelIterator::ChannelIterator(CBouquetManager* owner, const bool TV)
@@ -951,10 +1268,25 @@ t_channel_id CBouquetManager::reMapEpgID(t_channel_id channelid)
 	return 0;
 }
 
+std::string CBouquetManager::reMapEpgXML(t_channel_id channelid)
+{
+	if(!EpgXMLMapping.empty()){
+		std::map<t_channel_id, std::string>::iterator it = EpgXMLMapping.find(channelid);
+		if ( it != EpgXMLMapping.end() ){
+			INFO("mapping: %012" PRIx64 " to %s", channelid, it->second.c_str());
+			return it->second;
+		}
+	}
+	return "";
+}
+
 void CBouquetManager::readEPGMapping()
 {
 	if(!EpgIDMapping.empty())
 		EpgIDMapping.clear();
+
+	if(!EpgXMLMapping.empty())
+		EpgXMLMapping.clear();
 
 	const std::string epg_map_dir = CONFIGDIR "/zapit/epgmap.xml";
 	xmlDocPtr epgmap_parser = parseXmlFile(epg_map_dir.c_str());
@@ -967,20 +1299,101 @@ void CBouquetManager::readEPGMapping()
 			epgmap = xmlChildrenNode(epgmap);
 
 		while (epgmap) {
-			const char *cannelid = xmlGetAttribute(epgmap, "channel_id");
+			const char *channelid = xmlGetAttribute(epgmap, "channel_id");
 			const char *epgid = xmlGetAttribute(epgmap, "new_epg_id");
+			const char *xmlepg = xmlGetData(epgmap); // returns empty string, not NULL if nothing found
 			t_channel_id epg_id = 0;
-			t_channel_id chid = 0;
+			t_channel_id channel_id = 0;
 			if (epgid)
 				epg_id = strtoull(epgid, NULL, 16);
-			if (cannelid)
-				chid = strtoull(cannelid, NULL, 16);
-			if(chid && epg_id){
-				EpgIDMapping[chid]=epg_id;
+			if (channelid)
+				channel_id = strtoull(channelid, NULL, 16);
+			if(channel_id && epg_id){
+				EpgIDMapping[channel_id]=epg_id;
 			}
-
+			if(channel_id && ((xmlepg != NULL) && (xmlepg[0] != '\0'))){
+				EpgXMLMapping[channel_id]=xmlepg;
+			}
 			epgmap = xmlNextNode(epgmap);
 		}
 	}
 	xmlFreeDoc(epgmap_parser);
+}
+
+void CBouquetManager::convert_E2_EPGMapping(std::string mapfile_in, std::string mapfile_out)
+{
+	FILE * outfile = NULL;
+	xmlDocPtr epgmap_parser = parseXmlFile(mapfile_in.c_str());
+
+	if (epgmap_parser != NULL)
+	{
+		outfile = fopen(mapfile_out.c_str(), "w");
+		xmlNodePtr epgmap = xmlDocGetRootElement(epgmap_parser);
+		if(epgmap)
+			epgmap = xmlChildrenNode(epgmap);
+
+		fprintf(outfile,
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+		"<zapit>\n");
+
+		while (epgmap) {
+			const char *e2_channelid = xmlGetData(epgmap);
+			const char *xmlepg = xmlGetAttribute(epgmap, "id");
+			if (e2_channelid[0] != '\0') {
+				u_int sid = 0,tsid = 0,onid = 0,sat = 0;
+				sscanf(e2_channelid,"1:0:1:%X:%X:%X:%X0000:0:0:0:", &sid, &tsid, &onid, &sat);
+				t_channel_id short_channel_id = create_channel_id(sid,onid,tsid);
+				CZapitChannel * cc = CServiceManager::getInstance()->FindChannel48(short_channel_id);
+				if (cc) {
+					if(xmlepg){
+						fprintf(outfile,"\t<filter channel_id=\"%012" PRIx64 "\" >%s</filter> --%s\n",cc->getChannelID(), xmlepg, cc->getName().c_str());
+					}
+				}
+			}
+			epgmap = xmlNextNode(epgmap);
+		}
+		fprintf(outfile, "</zapit>\n");
+		fclose(outfile);
+	}
+	xmlFreeDoc(epgmap_parser);
+}
+
+void CBouquetManager::dump_EPGMapping(std::string mapfile_out)
+{
+	FILE * outfile = NULL;
+	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
+
+	outfile = fopen(mapfile_out.c_str(), "w");
+
+	fprintf(outfile,
+	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+	"<zapit>\n");
+
+	for (; !(cit.EndOfChannels()); cit++)
+	{
+		if ((*cit)->getChannelID() != (*cit)->getEpgID())
+			fprintf(outfile,"\t<filter channel_id=\"%012" PRIx64 "\" new_epg_id=\"%012" PRIx64 "\" /> --%s\n",(*cit)->getChannelID(), (*cit)->getEpgID(), (*cit)->getName().c_str());
+
+		std::string tvg_id = (*cit)->getScriptName();
+		if (tvg_id.empty())
+			continue;
+
+		tvg_id = tvg_id.substr(1,tvg_id.find_first_of("=")-1);
+		fprintf(outfile,"\t<filter channel_id=\"%012" PRIx64 "\" >%s</filter> --%s\n",(*cit)->getChannelID(), tvg_id.c_str(), (*cit)->getName().c_str());
+	}
+	fprintf(outfile, "</zapit>\n");
+	fclose(outfile);
+}
+
+std::string CBouquetManager::ReadMarkerValue(std::string strLine, const char* strMarkerName)
+{
+	if (strLine.find(strMarkerName) != std::string::npos)
+	{
+		strLine = strLine.substr(strLine.find(strMarkerName));
+		strLine = strLine.substr(strLine.find_first_of('"')+1);
+		strLine = strLine.substr(0,strLine.find_first_of('"'));
+		return strLine;
+	}
+
+	return std::string("");
 }

@@ -30,48 +30,56 @@
 
 int usage (const char * basename)
 {
-	std::cout << "get current channel id: " << basename << " -gi" << std::endl;
-	std::cout << "bouquet list: " << basename << " [-ra]" << std::endl;
-	std::cout << "channel list: " << basename << " [-ra] <bouquet-number>" << std::endl;
-	std::cout << "zap by number: " << basename << " [-ra] <bouquet-number> <channel-number>" << std::endl;
-	std::cout << "zap by name: " << basename << " [-ra] -n <channel-name>" << std::endl;
-	std::cout << "zap by channel id: " << basename << " -zi <chanid (hex)>" << std::endl;
-	std::cout << "set diseqc type: " << basename << " -dt <type>" << std::endl;
-	std::cout << "set diseqc repeats: " << basename << " -dr <count>" << std::endl;
-	std::cout << "(-ra toggles radio mode)" << std::endl;
-	std::cout << "switch record mode on/off: " << basename << " -re" << std::endl;
-	std::cout << "start/stop playback: " << basename << " -p" << std::endl
-		  << std::endl;
-	std::cout << "change audio pid: " << basename << " -a <audio-number>" << std::endl
-		  << std::endl;
-	std::cout << "reload channels bouquets: " << basename << " -c" << std::endl;
-	std::cout << "save bouquets: " << basename << " -sb" << std::endl
-		  << std::endl;
-	std::cout << "show satellites: " << basename << " -sh" << std::endl;
-	std::cout << "rezap " << basename << " -rz" << std::endl;
-	std::cout << "select satellites: " << basename << " -se <satmask> <diseqc order>" << std::endl;
-	std::cout << "start transponderscan: " << basename << " -st" << std::endl
-		  << std::endl;
-	std::cout << "mute audio: " << basename << " -mute" << std::endl;
-	std::cout << "unmute audio: " << basename << " -unmute" << std::endl;
-	std::cout << "set volume: " << basename << " -vol <0..64>" << std::endl;
-	std::cout << "register neutrino as event client: " << basename << " -rn" << std::endl;
-	std::cout << "shutdown zapit: " << basename << " -kill" << std::endl;
-	std::cout << "enter standby: " << basename << " -esb" << std::endl;
-	std::cout << "leave standby: " << basename << " -lsb" << std::endl;
-	std::cout << "get aspect ratio: " << basename << " -var" << std::endl;
-	std::cout << "set aspect ratio: " << basename << " -var <aspectratio>" << std::endl;
-#if 0
-	//FIXME howto read aspect mode back?
-	std::cout << "get 4:3 mode: " << basename << " -vm43" << std::endl;
+	std::cout << "Usage:" << std::endl
+		<< basename << " <options>" << std::endl
+		<< "   options:" << std::endl
+		<< "\t-gm\t\t\tget current TV/Radio mode" << std::endl
+		<< "\t-gi\t\t\tget current channel ID" << std::endl
+		<< "\t-ra\t\t\tlist bouquets (-ra toggles radio mode)" << std::endl
+		<< "\t-ra <bouquet-no>\t\tlist bouquet channels" << std::endl
+		<< "\t-ra <bouquet-no> <channel-name>\tzap by bouquet number and channel name" << std::endl
+		<< "\t-ra -n <channel-name>\t\tzap by name" << std::endl
+		<< "\t-zi <chanid>\t\t\tzap by channel ID (hex)" << std::endl
+		<< "\t-dt <type>\t\tset DiSEqC type" << std::endl
+		<< "\t-dr <count>\t\tset DiSEqC repeats" << std::endl
+		<< "\t-re\t\t\tswitch record mode on/off" << std::endl
+		<< "\t-p\t\t\tstart/stop playback" << std::endl
+		<< std::endl
+		<< "\t-a <audio-no>\t\tchange audio pid" << std::endl
+		<< std::endl
+		<< "\t-c\t\t\treload channels bouquets" << std::endl
+		<< "\t-sb\t\t\tsave bouquets" << std::endl
+		<< std::endl
+		<< "\t-sh\t\t\tshow satellites" << std::endl
+		<< "\t-rz\t\t\trezap only" << std::endl
+		<< "\t-se <satmask> <diseqc order> select satellites" << std::endl
+		<< "\t-st\t\t\tstart transponderscan" << std::endl
+		<< std::endl
+		<< "\t-mute\t\t\tmute audio" << std::endl
+		<< "\t-unmute\t\t\tunmute audio" << std::endl
+		<< "\t-vol <0..64>\t\tset volume" << std::endl
+		<< "\t-rn\t\t\tregister neutrino as event client" << std::endl
+		<< "\t-kill\t\t\tshutdown zapit" << std::endl
+		<< "\t-esb\t\t\tenter standby" << std::endl
+		<< "\t-lsb\t\t\tleave standby" << std::endl
+		<< "\t-osd\t\t\tget osd resolution" << std::endl
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+		<< "\t-osd <resolution>\tset osd resolution" << std::endl
 #endif
-	std::cout << "set 4:3 mode: " << basename << " -vm43 <4:3mode>" << std::endl;
-	std::cout << "switch to hd 1080i mode: " << basename << " --1080" << std::endl;
-	std::cout << "switch to pal mode: " << basename << " --pal" << std::endl;
-	std::cout << "switch to hd 720p mode: " << basename << " --720p" << std::endl;
-	std::cout << "send diseqc 1.2 motor command: " << basename << " -m <cmdtype> <addr> <cmd> <number of parameters> <parameter 1> <parameter 2>" << std::endl;
-	std::cout << "lock remote control: " << basename << " -lockrc" << std::endl;
-	std::cout << "unlock remote control: " << basename << " -unlockrc" << std::endl;
+		<< "\t-var\t\t\tget aspect ratio" << std::endl
+		<< "\t-var <aspectratio>\tset aspect ratio" << std::endl
+		<< "\t-vm43\t\t\tget 4:3 mode" << std::endl
+		<< "\t-vm43 <4:3mode>\t\tset 4:3 mode" << std::endl
+		<< "\t-vf\t\t\tget video format" << std::endl
+		<< "\t--1080\t\t\tswitch to hd 1080i mode" << std::endl
+		<< "\t--pal\t\t\tswitch to pal mode" << std::endl
+		<< "\t--720p\t\t\tswitch to hd 720p mode" << std::endl
+		<< "\t-m <cmdtype> <addr> <cmd> <number of parameters> <parameter 1> <parameter 2>" << std::endl
+		<< "\t\t\t\tsend DiSEqC 1.2 motor command" << std::endl
+		<< "\t-lockrc\t\t\tlock remote control" << std::endl
+		<< "\t-unlockrc\t\tunlock remote control" << std::endl
+		<< std::endl
+		;
 	return -1;
 }
 
@@ -92,8 +100,10 @@ int main (int argc, char** argv)
 	int mute = -1;
 	int volume = -1;
 	int nvod = -1;
+	int mosd = -1;
 	int arat = -1;
 	int m43 = -1;
+	int vf = -1;
 	int lockrc = -1;
 	const char * channelName = NULL;
 
@@ -115,8 +125,11 @@ int main (int argc, char** argv)
 	bool sendMotorCommand = false;
 	bool quiet = false;
 	bool getchannel = false;
+	bool getmode = false;
+	bool osd = false;
 	bool aspectratio = false;
 	bool mode43 = false;
+	bool videoformat = false;
 	uint8_t motorCmdType = 0;
 	uint8_t motorCmd = 0;
 	uint8_t motorNumParameters = 0;
@@ -232,6 +245,18 @@ int main (int argc, char** argv)
 				continue;
 			}
 		}
+		else if (!strncmp(argv[i], "-osd", 4))
+		{
+			osd = true;
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+			if (i < argc - 1)
+			{
+				sscanf(argv[++i], "%d", &mosd);
+				continue;
+			}
+#endif
+			continue;
+		}
 		else if (!strncmp(argv[i], "-p", 2))
 		{
 			playback = true;
@@ -262,10 +287,12 @@ int main (int argc, char** argv)
 				sscanf(argv[++i], "%d", &m43);
 				continue;
 			}
-#if 0 
-			//FIXME howto read aspect mode back?
 			continue;
-#endif
+		}
+		else if (!strncmp(argv[i], "-vf", 3))
+		{
+			videoformat = true;
+			continue;
 		}
 		else if (!strncmp(argv[i], "-sb", 3))
 		{
@@ -340,6 +367,11 @@ int main (int argc, char** argv)
 				sscanf(argv[++i], "%d", &volume);
 				continue;
 			}
+		}
+		else if (!strncmp(argv[i], "-gm", 3))
+		{
+			getmode = true;
+			continue;
 		}
 		else if (!strncmp(argv[i], "-gi", 3))
 		{
@@ -473,6 +505,20 @@ int main (int argc, char** argv)
 		return 0;
 	}
 
+	if (osd)
+	{
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
+		if (mosd > -1)
+			zapit.setOSDres(mosd);
+		else
+#endif
+		{
+			zapit.getOSDres(&mosd);
+			printf("%d\n", mosd);
+		}
+		return 0;
+	}
+
 	if (playback)
 	{
 		if (zapit.isPlayBackActive())
@@ -504,13 +550,27 @@ int main (int argc, char** argv)
 
 	if (mode43)
 	{
+#if HAVE_ARM_HARDWARE
+		/* hack for mix-up letterbox / panscan */
+		m43 = (m43 == 0 || m43 == 1) ? !m43 : m43;
+#endif
 		if(m43 >= 0)
 			zapit.setMode43(m43);
 		else
 		{
 			zapit.getMode43(&m43);
+#if HAVE_ARM_HARDWARE
+			m43 = (m43 == 0 || m43 == 1) ? !m43 : m43;
+#endif
 			printf("%d\n",m43);
 		}
+		return 0;
+	}
+
+	if (videoformat)
+	{
+		zapit.getVideoFormat(&vf);
+		printf("%d\n", vf);
 		return 0;
 	}
 
@@ -592,6 +652,20 @@ int main (int argc, char** argv)
 		//zapit.startPlayBack();
 		return 0;
 	}
+
+	if (getmode)
+	{
+		int mode = zapit.getMode(); // 1 = TV, 2 = Radio
+		std::cout << "Mode: " << mode;
+		if (mode == CZapitClient::MODE_TV)
+			std::cout << " (TV)" << std::endl;
+		else if (mode == CZapitClient::MODE_RADIO)
+			std::cout << " (Radio)" << std::endl;
+		else
+			std::cout << " (unknown!)" << std::endl;
+		return mode;
+	}
+
 	if (getchannel)
 	{
 		t_channel_id channelid = zapit.getCurrentServiceID();

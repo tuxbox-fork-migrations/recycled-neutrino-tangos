@@ -363,7 +363,7 @@ void tuxtxt_clear_cache(void)
 	tuxtxt_cache.bttok      = 0;
 	tuxtxt_cache.cached_pages  = 0;
 	tuxtxt_cache.page_receiving = -1;
-	tuxtxt_cache.vtxtpid = 0;
+	tuxtxt_cache.vtxtpid = -1;
 	memset(&tuxtxt_cache.subpagetable, 0xFF, sizeof(tuxtxt_cache.subpagetable));
 	memset(&tuxtxt_cache.basictop, 0, sizeof(tuxtxt_cache.basictop));
 	memset(&tuxtxt_cache.adip, 0, sizeof(tuxtxt_cache.adip));
@@ -571,7 +571,7 @@ void tuxtxt_allocate_cache(int magazine)
 	pthread_mutex_unlock(&tuxtxt_cache_lock);
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 /******************************************************************************
  * Handling of packets injected by libeplayer3                                *
  ******************************************************************************/
@@ -663,7 +663,7 @@ static bool read_injected_packet(unsigned char * &packet, int &size, int timeout
 /******************************************************************************
  * CacheThread                                                                *
  ******************************************************************************/
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 extern bool isTtxEplayer;
 #endif
 static int stop_cache = 0;
@@ -680,7 +680,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		0x30,0xb0,0x70,0xf0 };
 	unsigned char pes_packet_dmx[184*20];
 	unsigned char *pes_packet_ptr = NULL;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	unsigned char *pes_packet_eplayer3 = NULL;
 #endif
 	unsigned char vtxt_row[42];
@@ -692,11 +692,11 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 	unsigned char pagedata[9][23*40];
 	tstPageinfo *pageinfo_thread;
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	sem_init(&inject_sem, 0, 0);
 #endif
-	printf("TuxTxt running thread...(%04x)\n",tuxtxt_cache.vtxtpid);
 	set_threadname("tuxtxt:cache");
+	printf("TuxTxt running thread...(%04x)\n",tuxtxt_cache.vtxtpid);
 	tuxtxt_cache.receiving = 1;
 	nice(3);
 	while (!stop_cache)
@@ -710,7 +710,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		/* read packet */
 		ssize_t readcnt = 0;
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 		if (isTtxEplayer) {
 			pes_packet_ptr = NULL;
 			if (pes_packet_eplayer3) {
@@ -823,8 +823,9 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 						tuxtxt_cache.current_subpage[magazine] = -1;
 						continue;
 					}
-
+#if 0	/* ? */
 					b1 &= 3;
+#endif
 					b3 &= 7;
 
 					if (tuxtxt_is_dec(tuxtxt_cache.page_receiving)) /* ignore other subpage bits for hex pages */
@@ -1187,7 +1188,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		}
 		pthread_mutex_unlock(&tuxtxt_cache_biglock);
 	}
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	if (pes_packet_eplayer3)
 		free(pes_packet_eplayer3);
 #endif
@@ -1200,18 +1201,18 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 int tuxtxt_start_thread(int source = 0);
 int tuxtxt_start_thread(int source)
 {
-	if (!tuxtxt_cache.vtxtpid)
+	if (tuxtxt_cache.vtxtpid == -1)
 		return 0;
 
 	tuxtxt_cache.thread_starting = 1;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	if (!isTtxEplayer) {
 #endif
 		tuxtxt_init_demuxer(source);
 
 		dmx->pesFilter(tuxtxt_cache.vtxtpid);
 		dmx->Start();
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	}
 #endif
 	stop_cache = 0;
@@ -1259,17 +1260,8 @@ int tuxtxt_stop_thread()
 		delete dmx;
 		dmx = NULL;
 	}
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	clear_inject_queue();
-#endif
-#if 0
-	if (tuxtxt_cache.dmx != -1)
-	{
-		//ioctl(tuxtxt_cache.dmx, DMX_STOP);
-
-//        close(tuxtxt_cache.dmx);
-  	}
-//	tuxtxt_cache.dmx = -1;
 #endif
 #if 1//TUXTXT_DEBUG
 	printf("TuxTxt stopped service %x\n", tuxtxt_cache.vtxtpid);

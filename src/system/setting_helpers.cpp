@@ -181,9 +181,9 @@ void CColorSetupNotifier::setPalette()
 	                              8, convertSetupAlpha2Alpha(t.infobar_alpha) );
 
 	frameBuffer->paletteGenFade(COL_SHADOW,
-	                              convertSetupColor2RGB(int(t.infobar_red*0.4), int(t.infobar_green*0.4), int(t.infobar_blue*0.4)),
-	                              convertSetupColor2RGB(t.infobar_Text_red, t.infobar_Text_green, t.infobar_Text_blue),
-	                              8, convertSetupAlpha2Alpha(t.infobar_alpha) );
+	                              convertSetupColor2RGB(int(t.shadow_red), int(t.shadow_green), int(t.shadow_blue)),
+	                              convertSetupColor2RGB(t.shadow_red, t.shadow_green, t.shadow_blue),
+	                              8, convertSetupAlpha2Alpha(t.shadow_alpha) );
 
 	frameBuffer->paletteGenFade(COL_INFOBAR_CASYSTEM,
 	                              convertSetupColor2RGB(t.infobar_casystem_red, t.infobar_casystem_green, t.infobar_casystem_blue),
@@ -199,6 +199,16 @@ void CColorSetupNotifier::setPalette()
 	                              convertSetupColor2RGB(int(t.menu_Content_red*0.6), int(t.menu_Content_green*0.6), int(t.menu_Content_blue*0.6)),
 	                              convertSetupColor2RGB(t.colored_events_red, t.colored_events_green, t.colored_events_blue),
 	                              8, convertSetupAlpha2Alpha(t.infobar_alpha) );
+	//NI
+	frameBuffer->paletteGenFade(COL_PROGRESSBAR,
+					convertSetupColor2RGB(t.progressbar_passive_red, t.progressbar_passive_green, t.progressbar_passive_blue),
+					convertSetupColor2RGB(t.progressbar_active_red, t.progressbar_active_green, t.progressbar_active_blue),
+					8, convertSetupAlpha2Alpha(t.menu_Content_alpha));
+
+	frameBuffer->paletteGenFade(COL_PROGRESSBAR,
+					convertSetupColor2RGB(t.progressbar_passive_red, t.progressbar_passive_green, t.progressbar_passive_blue),
+					convertSetupColor2RGB(t.progressbar_active_red, t.progressbar_active_green, t.progressbar_active_blue),
+					8, convertSetupAlpha2Alpha(t.menu_Content_alpha));
 
 	// ##### TEXT COLORS #####
 	// COL_COLORED_EVENTS_TEXT
@@ -280,6 +290,16 @@ void CColorSetupNotifier::setPalette()
 	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 15,
 	                              convertSetupColor2RGB(t.clock_Digit_red, t.clock_Digit_green, t.clock_Digit_blue),
 	                              convertSetupAlpha2Alpha(t.clock_Digit_alpha));
+	//NI
+	// COL_PROGRESSBAR_ACTIVE
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 16,
+	                              convertSetupColor2RGB(t.progressbar_active_red, t.progressbar_active_green, t.progressbar_active_blue),
+	                              convertSetupAlpha2Alpha(t.menu_Content_alpha));
+
+	// COL_PROGRESSBAR_ACTIVE
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 16,
+	                              convertSetupColor2RGB(t.progressbar_active_red, t.progressbar_active_green, t.progressbar_active_blue),
+	                              convertSetupAlpha2Alpha(t.menu_Content_alpha));
 
 	frameBuffer->paletteSet();
 }
@@ -290,7 +310,7 @@ bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	return false;
 }
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void *data)
 #else
 bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void *)
@@ -306,10 +326,17 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 		g_Zapit->setAudioMode(g_settings.audio_AnalogMode);
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_ANALOG_OUT)) {
 		audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
+#if HAVE_ARM_HARDWARE
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_AC3)) {
+		audioDecoder->SetHdmiDD(g_settings.ac3_pass ? true : false);
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_DTS)) {
+		audioDecoder->SetSpdifDD(g_settings.dts_pass ? true : false);
+#else
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_HDMI_DD)) {
 		audioDecoder->SetHdmiDD((HDMI_ENCODED_MODE) g_settings.hdmi_dd);
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_SPDIF_DD)) {
 		audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
+#endif
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_AVSYNC)) {
 		videoDecoder->SetSyncMode((AVSYNC_TYPE)g_settings.avsync);
 		audioDecoder->SetSyncMode((AVSYNC_TYPE)g_settings.avsync);
@@ -319,7 +346,7 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_CLOCKREC)) {
 		//.Clock recovery enable/disable
 		// FIXME add code here.
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG)) {
 			audioDecoder->setMixerVolume("Analog", (long)(*((int *)(data))));
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_HDMI)) {
@@ -390,7 +417,7 @@ printf("CSubtitleChangeExec::exec: TTX, pid %x page %x lang %s\n", pid, page, pt
 			playback->SetSubtitlePid(0);
 			playback->SetTeletextPid(pid);
 			tuxtx_set_pid(pid, page, ptr);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 			tuxtx_main(pid, page, 0, true);
 #else
 			tuxtx_main(pid, page, 0);
@@ -544,6 +571,12 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 			perror("unlink failed");
 		if (symlink(cmd.c_str(), "/etc/localtime"))
 			perror("symlink failed");
+		/* for yocto tzdata compatibility */
+		FILE *f = fopen("/etc/timezone", "w");
+		if (f) {
+			fprintf(f, "%s\n", zone.c_str());
+			fclose(f);
+		}
 #if 0
 		cmd = ":" + zone;
 		setenv("TZ", cmd.c_str(), 1);

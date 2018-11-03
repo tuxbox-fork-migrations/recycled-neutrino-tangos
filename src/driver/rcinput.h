@@ -52,6 +52,8 @@
 #endif
 #endif
 
+#include <driver/neutrino_msg_t.h>
+
 #ifndef KEY_OK
 #define KEY_OK           0x160
 #endif
@@ -70,6 +72,10 @@
 
 #ifndef KEY_BLUE
 #define KEY_BLUE         0x191
+#endif
+
+#ifndef KEY_PLAYPAUSE_LONG
+#define KEY_PLAYPAUSE_LONG 0X4A4
 #endif
 
 #ifndef KEY_GAMES
@@ -116,13 +122,6 @@
 	#define KEY_FN_S
 	#define KEY_FN_B
 */
-
-
-typedef unsigned long neutrino_msg_t;
-typedef unsigned long neutrino_msg_data_t;
-
-#define NEUTRINO_UDS_NAME "/tmp/neutrino.sock"
-
 
 class CRCInput
 {
@@ -229,8 +228,13 @@ class CRCInput
 			RC_tv		= KEY_TV,
 			RC_radio	= KEY_RADIO,
 			RC_text		= KEY_TEXT,
+#if defined BOXMODEL_VUSOLO4K
+			RC_info		= 0xFFFE,
+			RC_epg		= KEY_INFO,
+#else
 			RC_info		= KEY_INFO,
 			RC_epg		= KEY_EPG,
+#endif
 			RC_recall	= KEY_LAST,
 			RC_favorites	= KEY_FAVORITES,
 			RC_sat		= KEY_SAT,
@@ -267,6 +271,14 @@ class CRCInput
 			RC_prog4	= KEY_PROG4,
 			RC_media	= KEY_MEDIA,
 			RC_search	= KEY_SEARCH,
+			RC_nextsong	= KEY_NEXTSONG,
+			RC_previoussong	= KEY_PREVIOUSSONG,
+			RC_bookmarks	= KEY_BOOKMARKS,
+			RC_program	= KEY_PROGRAM,
+			RC_playpause	= KEY_PLAYPAUSE,
+#if BOXMODEL_HD51 || BOXMODEL_HD60
+			RC_playpause_long = KEY_PLAYPAUSE_LONG,
+#endif
 
 			RC_power_on	= KEY_POWERON,
 			RC_power_off	= KEY_POWEROFF,
@@ -288,7 +300,7 @@ class CRCInput
 			RC_zoomout	= KEY_ZOOMOUT,
 
 			RC_timeout	= 0xFFFFFFFF,
-			RC_nokey	= 0xFFFFFFFE
+			RC_nokey	= RC_NOKEY
 		};
 
 		//rc-hardware definitions

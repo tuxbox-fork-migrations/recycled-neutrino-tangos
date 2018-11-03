@@ -69,11 +69,15 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		int screenshot_res;
 		CMenuOptionChooser *screenshot_res_chooser;
 
+		//NI
+		int show_menu_hints_line;
+
 		int showOsdSetup();
  		void showOsdMenueColorSetup(CMenuWidget *menu_colors);
 		void showOsdFontSizeSetup(CMenuWidget *menu_fonts);
 		void showOsdTimeoutSetup(CMenuWidget *menu_timeout);
 		void showOsdMenusSetup(CMenuWidget *menu_menus);
+		void showOsdChannellogosSetup(CMenuWidget *menu_channellogos); //NI
 		void showOsdInfobarSetup(CMenuWidget *menu_infobar);
 		void showOsdChanlistSetup(CMenuWidget *menu_chanlist);
 		void showOsdEventlistSetup(CMenuWidget *menu_eventlist);
@@ -99,6 +103,12 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 			INFOBAR_NO_BACKGROUND,
 			INFOBAR_LOGO_FRAMED,
 			INFOBAR_LOGO_SHADED
+		};
+
+		enum
+		{
+			PRESET_CRT,
+			PRESET_LCD
 		};
 		
 		COsdSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);

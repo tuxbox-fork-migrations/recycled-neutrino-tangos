@@ -49,16 +49,22 @@ static const CMenuOptionChooser::keyval THREE_D_OPTIONS[THREE_D_OPTIONS_COUNT] =
 {
 	{CFrameBuffer::Mode3D_off,		LOCALE_THREE_D_OFF },
 	{CFrameBuffer::Mode3D_SideBySide,	LOCALE_THREE_D_SIDESIDE },
-	{CFrameBuffer::Mode3D_TopAndBottom,	LOCALE_THREE_D_TOPBOTTOM },
+	{CFrameBuffer::Mode3D_TopAndBottom,	LOCALE_THREE_D_TOPBOTTOM }
+#if !HAVE_ARM_HARDWARE
+	,
 	{CFrameBuffer::Mode3D_Tile,		LOCALE_THREE_D_TILE }
+#endif
 };
 
 static C3DSetup::threeDList tdl[THREE_D_OPTIONS_COUNT] =
 {
 	{ NULL, "off",		CFrameBuffer::Mode3D_off },
 	{ NULL, "sidebyside",	CFrameBuffer::Mode3D_SideBySide },
-	{ NULL, "topandbottom",	CFrameBuffer::Mode3D_TopAndBottom },
+	{ NULL, "topandbottom",	CFrameBuffer::Mode3D_TopAndBottom }
+#if !HAVE_ARM_HARDWARE
+	,
 	{ NULL, "tile",		CFrameBuffer::Mode3D_Tile }
+#endif
 };
 
 C3DSetup::C3DSetup(void)
@@ -95,7 +101,7 @@ int C3DSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		hintBox.paint();
 		load();
 		if (frameBuffer->get3DMode() == CFrameBuffer::Mode3D_off) {
-			map<t_channel_id, CFrameBuffer::Mode3D>::iterator i;
+			std::map<t_channel_id, CFrameBuffer::Mode3D>::iterator i;
 			i = threeDMap.find(CZapit::getInstance()->GetCurrentChannelID());
 			if (i != threeDMap.end())
 				threeDMap.erase(i);
@@ -108,7 +114,7 @@ int C3DSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	if (actionKey == "zapped") {
 		load();
-		map<t_channel_id, CFrameBuffer::Mode3D>::iterator i;
+		std::map<t_channel_id, CFrameBuffer::Mode3D>::iterator i;
 		i = threeDMap.find(CZapit::getInstance()->GetCurrentChannelID());
 		if (i != threeDMap.end())
 			frameBuffer->set3DMode((*i).second);
@@ -156,7 +162,7 @@ void C3DSetup::load()
 
 void C3DSetup::save()
 {
-	map<t_channel_id, CFrameBuffer::Mode3D>::iterator i;
+	std::map<t_channel_id, CFrameBuffer::Mode3D>::iterator i;
 	FILE *f = fopen(THREE_D_CONFIG_FILE, "w");
 	if (f) {
 		for (i = threeDMap.begin(); i != threeDMap.end(); i++) {

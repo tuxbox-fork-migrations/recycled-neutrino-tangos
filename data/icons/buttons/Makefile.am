@@ -14,15 +14,22 @@ install_DATA = \
 	blau.png \
 	btn_backward.png \
 	btn_forward.png \
+	btn_option_off_active.png \
+	btn_option_off_inactive.png \
+	btn_option_on_active.png \
+	btn_option_on_inactive.png \
 	btn_pause.png \
 	btn_play.png \
 	btn_record_active.png \
 	btn_record_inactive.png \
 	btn_stop.png \
+	btn_timer.png \
 	clock_face.png \
 	down.png \
 	dummy.png \
 	dummy_small.png \
+	epg.png \
+	epg_small.png \
 	gelb.png \
 	gruen.png \
 	help.png \
@@ -31,8 +38,10 @@ install_DATA = \
 	info.png \
 	info_small.png \
 	left.png \
+	longpress.png \
 	menu.png \
 	menu_small.png \
+	mute.png \
 	mute_small.png \
 	mute_zap_gray.png \
 	mute_zap_green.png \

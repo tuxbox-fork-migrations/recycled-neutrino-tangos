@@ -27,6 +27,7 @@ AM_CPPFLAGS = \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
+	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 if BOXTYPE_TRIPLE
@@ -111,6 +112,7 @@ neutrino_LDADD = \
 	$(top_builddir)/lib/libmd5sum/libtuxbox-md5sum.a \
 	$(top_builddir)/lib/libtuxtxt/libtuxtxt.a \
 	$(top_builddir)/lib/libdvbsub/libdvbsub.a \
+	$(top_builddir)/src/gui/widget/yaft/libneutrino_gui_terminal.a \
 	@CURL_LIBS@ \
 	@FREETYPE_LIBS@ \
 	@PNG_LIBS@ \
@@ -118,6 +120,7 @@ neutrino_LDADD = \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
 	@AVCODEC_LIBS@ \
+	@SWSCALE_LIBS@ \
 	$(ADEC_LIBS) \
 	@SIGC_LIBS@ \
 	$(PUGIXML_LIBS) \
@@ -126,7 +129,8 @@ neutrino_LDADD = \
 	-lutil \
 	-lOpenThreads \
 	-lrt -lpthread \
-	-ldl -lblkid
+	-ldl -lblkid \
+	-lz
 
 if ENABLE_WEBIF
 neutrino_LDADD += \
@@ -162,7 +166,12 @@ endif
 if BOXTYPE_COOL
 neutrino_LDADD += \
 	$(top_builddir)/lib/hardware/coolstream/libhwcaps.a
+if ENABLE_LIBCOOLSTREAM_STATIC
+neutrino_LDADD += -lca-sc
+neutrino_LDADD += @LIBCOOLSTREAM_STATIC_DIR@/libcoolstream-mt.a
+else
 neutrino_LDADD += -lcoolstream-mt -lca-sc
+endif
 
 if BOXMODEL_CS_HD2
 neutrino_LDADD += -lca-ci -llnxtmvssUsr -llnxUKAL -llnxplatUsr -llnxtmasUsr -llnxdvbciUsr -llnxpvrUsr -llnxcssUsr -llnxnotifyqUsr -ltmpvrDataManager-cst -ltmpvrIndexStorage -llnxscsUsr
@@ -188,6 +197,21 @@ bin_PROGRAMS += dt
 dt_SOURCES = dt.c
 bin_PROGRAMS += mdev_helper
 mdev_helper_SOURCES = mdev_helper.cpp
+endif
+
+if BOXTYPE_TRIPLE
+neutrino_LDADD += \
+	$(top_builddir)/src/lcddisplay/liblcddisplay.a
+endif
+
+if BOXMODEL_RASPI
+neutrino_LDADD += \
+	-L/opt/vc/lib/ -lbcm_host -lvcos -lvchiq_arm -lpthread -lrt
+endif
+
+if BOXTYPE_COOL
+bin_PROGRAMS += shutdown_helper
+shutdown_helper_SOURCES = shutdown_helper.c
 endif
 
 if USE_STB_HAL

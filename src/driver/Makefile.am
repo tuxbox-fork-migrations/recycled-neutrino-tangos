@@ -15,6 +15,7 @@ AM_CPPFLAGS = \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
+	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_driver.a libneutrino_driver_netfile.a
@@ -56,7 +57,8 @@ endif
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \
 	fb_generic.cpp \
-	fb_accel.cpp
+	fb_accel.cpp \
+	fb_accel_cs_hdx.cpp
 if BOXMODEL_CS_HD2
 libneutrino_driver_a_SOURCES += \
 	fb_accel_cs_hd2.cpp \
@@ -88,6 +90,7 @@ if BOXTYPE_AZBOX
 libneutrino_driver_a_SOURCES += \
 	simple_display.cpp
 endif
+
 if USE_STB_HAL
 AM_CPPFLAGS += \
 	@DIRECTFB_CFLAGS@
@@ -104,6 +107,14 @@ libneutrino_driver_a_SOURCES += \
 	fb_generic.cpp \
 	fb_accel.cpp \
 	fb_accel_glfb.cpp \
+	simple_display.cpp
+endif
+
+if BOXTYPE_ARMBOX
+libneutrino_driver_a_SOURCES += \
+	fb_generic.cpp \
+	fb_accel.cpp \
+	fb_accel_arm.cpp \
 	simple_display.cpp
 endif
 

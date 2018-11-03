@@ -68,13 +68,13 @@ typedef struct gradientData_t
 
 #define WINDOW_SIZE_MAX		100 // %
 #define WINDOW_SIZE_MIN		50 // %
-#define WINDOW_SIZE_MIN_FORCED	80 // %
+#define WINDOW_SIZE_SMALL	80 // %
 #define ConnectLineBox_Width	16 // px
 
 #if HAVE_GENERIC_HARDWARE
 #define USE_OPENGL 1
 #endif
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 #include <linux/stmfb.h>
 #endif
 
@@ -176,8 +176,8 @@ class CFrameBuffer : public sigc::trackable
 		unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
 		unsigned int getScreenWidth(bool real = false);
 		unsigned int getScreenHeight(bool real = false); 
-		unsigned int getScreenWidthRel(bool force_small = false);
-		unsigned int getScreenHeightRel(bool force_small = false);
+		unsigned int getWindowWidth(bool force_small = false);
+		unsigned int getWindowHeight(bool force_small = false);
 		unsigned int getScreenX();
 		unsigned int getScreenY();
 		
@@ -188,7 +188,7 @@ class CFrameBuffer : public sigc::trackable
 		void setBlendMode(uint8_t mode = 1);
 		void setBlendLevel(int level);
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 		void setMixerColor(uint32_t mixer_background);
 #endif
 
@@ -296,7 +296,7 @@ class CFrameBuffer : public sigc::trackable
 		void setBorderColor(fb_pixel_t col = 0);
 		fb_pixel_t getBorderColor(void);
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	private:
 		bool autoBlitStatus;
 		pthread_t autoBlitThreadId;

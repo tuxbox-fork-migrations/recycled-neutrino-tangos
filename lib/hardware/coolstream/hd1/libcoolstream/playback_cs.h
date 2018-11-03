@@ -57,6 +57,7 @@ public:
 	bool Start(std::string filename, std::string headers = "");
 	bool Stop(void);
 	bool SetAPid(unsigned short pid, int audio_flag);
+	bool SetSubtitlePid(int /*pid*/){return true;}
 	bool SetSpeed(int speed);
 	bool GetSpeed(int &speed) const;
 	bool GetPosition(int &position, int &duration);
@@ -73,6 +74,9 @@ public:
 	void GetTitles(std::vector<int> &playlists, std::vector<std::string> &titles, int &current);
 	void SetTitle(int title);
 	uint64_t GetReadCount(void);
+
+	/* dummies for compatibility with libstb-hal */
+	void GetMetadata(std::vector<std::string> /*&keys*/, std::vector<std::string> /*&values*/){};
 };
 
 #endif // __PLAYBACK_CS_H_

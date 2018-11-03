@@ -99,7 +99,7 @@ bool CServiceScan::Stop()
 
 void CServiceScan::run()
 {
-	set_threadname("CServiceScan::run");
+	set_threadname("zap:servicescan");
 	running = true;
 
 	CleanAllMaps();
@@ -163,8 +163,22 @@ bool CServiceScan::tuneFrequency(FrontendParameters *feparams, t_satellite_posit
 				return false;
 		}
 	}
-
-	return frontend->tuneFrequency(feparams, false);
+	/* for unicable, retry tuning two times before assuming it failed */
+	int retry = (frontend->getDiseqcType() == DISEQC_UNICABLE) * 2 + 1;
+	do {
+		ret = frontend->tuneFrequency(feparams, false);
+		if (ret)
+			return true;
+		if (abort_scan)
+			break;
+		retry--;
+		if (retry) {
+			int rand_us = (rand() * 1000000LL / RAND_MAX);
+			printf("[scan] SCR retrying tune, retry=%d after %dms\n", retry, rand_us/1000);
+			usleep(rand_us);
+		}
+	} while (retry > 0);
+	return false;
 }
 
 bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters *feparams,  bool fromnit)
@@ -278,7 +292,9 @@ _repeat:
 		if(abort_scan)
 			return false;
 
-		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.frequency, !CFrontend::isSat(tI->second.feparams.delsys));
+		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.frequency, CFrontend::isCable(tI->second.feparams.delsys));
+		if (CFrontend::isTerr(tI->second.feparams.delsys))
+			freq = (freq_id_t) (tI->second.feparams.frequency/(1000*1000));
 
 		CNit nit(satellitePosition, freq, cable_nid);
 		if(flags & SCAN_NIT)
@@ -614,7 +630,9 @@ bool CServiceScan::ScanTransponder()
 	printf("[scan] NIT %s, fta only: %s, satellites %s\n", flags & SCAN_NIT ? "yes" : "no",
 			flags & SCAN_FTA ? "yes" : "no", scanProviders.size() == 1 ? "single" : "multi");
 
-	freq_id_t freq = CREATE_FREQ_ID(TP->feparams.frequency, !CFrontend::isSat(TP->feparams.delsys));
+	freq_id_t freq = CREATE_FREQ_ID(TP->feparams.frequency, CFrontend::isCable(TP->feparams.delsys));
+	if (CFrontend::isTerr(TP->feparams.delsys))
+		freq = (freq_id_t) (TP->feparams.frequency/(1000*1000));
 
 	fake_tid++; fake_nid++;
 
@@ -661,7 +679,9 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 	bool ret = false;
 	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); ++tI) {
 		if (tI->second.satellitePosition == satellitePosition) {
-			freq_id_t newfreq = CREATE_FREQ_ID(tI->second.feparams.frequency, !frontend->isSat());
+			freq_id_t newfreq = CREATE_FREQ_ID(tI->second.feparams.frequency, frontend->isCable());
+			if (frontend->isTerr())
+				newfreq = (freq_id_t) (tI->second.feparams.frequency/(1000*1000));
 			if (freq == newfreq) {
 				memcpy(&tI->second.feparams, feparams, sizeof(FrontendParameters));
 				printf("[scan] replacing transponder parameters\n");
@@ -676,8 +696,10 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 void CServiceScan::SendTransponderInfo(transponder &t)
 {
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, &processed_transponders, sizeof(processed_transponders));
+#if 0
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) " ", 2);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) " ", 2);
+#endif
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &t.feparams, sizeof(FrontendParameters));
 }
 
@@ -702,6 +724,7 @@ void CServiceScan::ChannelFound(uint8_t service_type, std::string providerName, 
 		case ST_NVOD_REFERENCE_SERVICE:
 		case ST_NVOD_TIME_SHIFTED_SERVICE:
 			CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) serviceName.c_str(), serviceName.length() + 1);
+			/* fall through */
 		case ST_DATA_BROADCAST_SERVICE:
 		case ST_RCS_MAP:
 		case ST_RCS_FLS:

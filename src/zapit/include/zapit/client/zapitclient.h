@@ -506,10 +506,13 @@ class CZapitClient:public CBasicClient
 	void setAudioMode(int mode);
 	//void getAudioMode(int * mode);
 	void setVideoSystem(int video_system);
+	void getOSDres(int *mosd);
+	void setOSDres(int mosd);
 	void getAspectRatio(int *ratio);
 	void setAspectRatio(int ratio);
 	void getMode43(int *m43);
 	void setMode43(int m43);
+	void getVideoFormat(int *vf);
 
 	/****************************************/
 	/*					*/

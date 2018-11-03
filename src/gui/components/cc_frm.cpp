@@ -45,7 +45,8 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 					fb_pixel_t color_shadow)
 					:CComponentsItem(parent)
 {
-	cc_item_type 	= CC_ITEMTYPE_FRM;
+	cc_item_type.id  = CC_ITEMTYPE_FRM;
+	cc_item_type.name= "cc_base_form";
 
 	Init(x_pos, y_pos, w, h, color_frame, color_body, color_shadow);
 	cc_xr 	= x;
@@ -68,7 +69,7 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 	page_count	= 1;
 	cur_page	= 0;
 	sb 		= NULL;
-	w_sb		= 15;
+	w_sb		= SCROLLBAR_WIDTH;
 
 	page_scroll_mode = PG_SCROLL_M_UP_DOWN_KEY;
 
@@ -159,13 +160,13 @@ void CComponentsForm::execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& /
 		return;
 
 	if (page_scroll_mode & PG_SCROLL_M_UP_DOWN_KEY){
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 		if (msg == CRCInput::RC_page_up || msg == CRCInput::RC_up)
 #else
 		if (msg == CRCInput::RC_page_up)
 #endif
 			ScrollPage(SCROLL_P_DOWN);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 		if (msg == CRCInput::RC_page_down || msg == CRCInput::RC_down)
 #else
 		if (msg == CRCInput::RC_page_down)
@@ -194,9 +195,7 @@ void CComponentsForm::clear()
 
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		if (v_cc_items[i]){
-
-		dprintf(DEBUG_DEBUG, "[CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __func__, (int)i+1, (int)v_cc_items.size(), v_cc_items[i]->getItemType());
-
+			dprintf(DEBUG_DEBUG, "[CComponentsForm]\t[%s-%d] delete form cc-item %d of %d address = %p \033[33m\t type = [%d] [%s]\033[0m\n", __func__, __LINE__, (int)i+1, (int)v_cc_items.size(), v_cc_items[i], v_cc_items[i]->getItemType(), v_cc_items[i]->getItemName().c_str());
 			delete v_cc_items[i];
 			v_cc_items[i] = NULL;
 		}
@@ -208,12 +207,12 @@ void CComponentsForm::clear()
 int CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
-		dprintf(DEBUG_DEBUG, "[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __func__, __LINE__, cc_Item->getItemType(), cc_item_index);
+		dprintf(DEBUG_DEBUG, "[CComponentsForm]\t[%s-%d] try to add cc_Item \033[33m\t type = [%d] [%s]\033[0m to form [%s -> current index=%d] \n", __func__, __LINE__, cc_Item->getItemType(), cc_Item->getItemName().c_str(), getItemName().c_str(), cc_item_index);
 
 		cc_Item->setParent(this);
 		v_cc_items.push_back(cc_Item);
 
-		dprintf(DEBUG_DEBUG, "\tadded cc_Item [type %d] to form [current index=%d] \n", cc_Item->getItemType(), cc_item_index);
+		dprintf(DEBUG_DEBUG, "\tadded cc_Item (type = [%d] [%s]  to form [current index=%d] \n", cc_Item->getItemType(), cc_Item->getItemName().c_str(), cc_item_index);
 
 		//assign item index
 		int new_index = genIndex();
@@ -258,13 +257,23 @@ int CComponentsForm::genIndex()
 CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 {
 	if (cc_item_id >= size()){
-		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d]  Error: parameter cc_item_id = %u, out of range (size = %" PRIx32")...\n", __func__, __LINE__, cc_item_id, size());
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d]  Error: inside container type = [%d] [%s] parameter cc_item_id = %u, out of range (size = %zx)...\n", __func__, __LINE__, cc_item_type.id, cc_item_type.name.c_str(), cc_item_id, size());
 		return NULL;
 	}
 
 	if (v_cc_items[cc_item_id])
 		return v_cc_items[cc_item_id];
 	return NULL;
+}
+
+CComponentsItem* CComponentsForm::getPrevCCItem(CComponentsItem* current_cc_item)
+{
+	return getCCItem(getCCItemId(current_cc_item) - 1);
+}
+
+CComponentsItem* CComponentsForm::getNextCCItem(CComponentsItem* current_cc_item)
+{
+	return getCCItem(getCCItemId(current_cc_item) + 1);
 }
 
 void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item)
@@ -343,7 +352,7 @@ void CComponentsForm::exchangeCCItem(CComponentsItem* item_a, CComponentsItem* i
 void CComponentsForm::paintForm(bool do_save_bg)
 {
 	//paint body
-	if (!is_painted || force_paint_bg)
+	if (!is_painted || force_paint_bg || shadow_force)
 		paintInit(do_save_bg);
 
 	//paint
@@ -367,7 +376,7 @@ bool CComponentsForm::isPageChanged()
 	return false;
 }
 
-void CComponentsForm::paintPage(const u_int8_t& page_number, bool do_save_bg)
+void CComponentsForm::paintPage(const uint8_t& page_number, bool do_save_bg)
 {
 	cur_page = page_number;
 	paint(do_save_bg);
@@ -378,11 +387,12 @@ void CComponentsForm::paintCCItems()
 	size_t items_count 	= v_cc_items.size();
 
 	//using of real x/y values to paint items if this text object is bound in a parent form
-	int this_x = x, auto_x = x, this_y = y, auto_y = y, this_w = width;
+	int this_x = x, auto_x = x, this_y = y, auto_y = y, this_w = 0;
 	int w_parent_frame = 0;
 	if (cc_parent){
 		this_x = auto_x = cc_xr;
 		this_y = auto_y = cc_yr;
+		w_parent_frame = cc_parent->getFrameThickness();
 	}
 
 	//init and handle scrollbar
@@ -430,17 +440,24 @@ void CComponentsForm::paintCCItems()
 		//get current dimension of item
 		int w_item = cc_item->getWidth() - (xpos <= fr_thickness ? fr_thickness : 0);
 		int h_item = cc_item->getHeight() - (ypos <= fr_thickness ? fr_thickness : 0);
+		/* this happens for example with opkg manager's "package info" screen on a SD framebuffer (704x576)
+		 * later CC_CENTERED auto_y calculation is wrong then */
+		if (cc_item->getHeight() > height) {
+			cc_item->setHeight(height);
+			// TODO: the fr_thickness is probably wrong for ypos < 0 (CC_CENTERED / CC_APPEND)
+			h_item = cc_item->getHeight() - (ypos <= fr_thickness ? fr_thickness : 0);
+		}
 
 		//check item for corrupt position, skip current item if found problems
 		if (ypos > height || xpos > this_w){
-			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] WARNING: item position is out of form size:\ndefinied x=%d, defined this_w=%d \ndefinied y=%d, defined height=%d \n",
-				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), xpos, this_w, ypos, height);
-			if (this->cc_item_type != CC_ITEMTYPE_FRM_CHAIN)
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m WARNING: item position is out of form size:\ndefinied x=%d, defined this_w=%d \ndefinied y=%d, defined height=%d \n",
+				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), cc_item->getItemName().c_str(), xpos, this_w, ypos, height);
+			if (this->cc_item_type.id != CC_ITEMTYPE_FRM_CHAIN)
 				continue;
 		}
 
 		//move item x-position, if we have a frame on parent, TODO: other constellations not considered at the moment
-		w_parent_frame = xpos <= fr_thickness ? fr_thickness : 0;
+		w_parent_frame = xpos <= fr_thickness ? fr_thickness : w_parent_frame;
 
 		//set required x-position to item:
 		//append vertical
@@ -460,12 +477,13 @@ void CComponentsForm::paintCCItems()
 		}
 
 		//move item y-position, if we have a frame on parent, TODO: other constellations not considered at the moment
-		w_parent_frame = ypos <= fr_thickness ? fr_thickness : 0;
+		w_parent_frame = ypos <= fr_thickness ? fr_thickness : w_parent_frame;
 
 		//set required y-position to item
 		//append hor
 		if (ypos == CC_APPEND){
 			auto_y += append_y_offset;
+			// FIXME: ypos is probably wrong here, because it is -1
 			cc_item->setRealYPos(auto_y + ypos + w_parent_frame);
 			auto_y += h_item;
 		}
@@ -481,16 +499,14 @@ void CComponentsForm::paintCCItems()
 
 		//reduce corner radius, if we have a frame around parent item, ensure matching corners inside of embedded item, this avoids ugly unpainted spaces between frame and item border
 		//TODO: other constellations not considered at the moment
-		if (w_parent_frame){
-			if(xpos <= fr_thickness || ypos <= fr_thickness)
-				cc_item->setCorner(max(0, cc_item->getCornerRadius()-w_parent_frame), cc_item->getCornerType());
-		}
+		if (w_parent_frame)
+			cc_item->setCorner(max(0, cc_item->getCornerRadius()- w_parent_frame), cc_item->getCornerType());
 
 		//These steps check whether the element can be painted into the container.
 		//Is it too wide or too high, it will be shortened and displayed in the log.
 		//This should be avoid!
 		//checkwidth and adapt if required
-		int right_frm = (cc_parent ? cc_xr : x) + this_w - 2*fr_thickness;
+		int right_frm = (cc_parent ? cc_xr : x) + this_w/* - 2*fr_thickness*/;
 		int right_item = cc_item->getRealXPos() + w_item;
 		int w_diff = right_item - right_frm;
 		int new_w = w_item - w_diff;
@@ -498,8 +514,8 @@ void CComponentsForm::paintCCItems()
 		right_item -= (new_w%2);
 		w_item -= (new_w%2);
 		if (right_item > right_frm){
-			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] this_w is too large, definied width=%d, possible width=%d \n",
-				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m this_w is too large, definied width=%d, possible width=%d \n",
+				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), cc_item->getItemName().c_str(), w_item, new_w);
 			cc_item->setWidth(new_w);
 		}
 
@@ -512,8 +528,8 @@ void CComponentsForm::paintCCItems()
 		bottom_item -= (new_h%2);
 		h_item -= (new_h%2);
 		if (bottom_item > bottom_frm){
-			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
-			       __func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] \033[33m\t type = [%d] [%s]\033[0m height is too large, definied height=%d, possible height=%d \n",
+			       __func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), cc_item->getItemName().c_str(), h_item, new_h);
 			cc_item->setHeight(new_h);
 		}
 
@@ -525,7 +541,7 @@ void CComponentsForm::paintCCItems()
 
 		//finally paint current item, but only required contents of page
 		if (cc_item->getPageNumber() == cur_page)
-			cc_item->paint(CC_SAVE_SCREEN_NO);
+			cc_item->paint(cc_item->SaveBg());
 
 		//restore defined old visibility mode of item after paint
 		cc_item->allowPaint(item_visible);
@@ -539,24 +555,30 @@ void CComponentsForm::killCCItems(const fb_pixel_t& bg_color, bool ignore_parent
 		v_cc_items[i]->kill(bg_color, ignore_parent);
 }
 
-void CComponentsForm::setPageCount(const u_int8_t& pageCount)
+void CComponentsForm::hideCCItems()
 {
-	u_int8_t new_val = pageCount;
+	for(size_t i=0; i<v_cc_items.size(); i++)
+		v_cc_items[i]->hide();
+}
+
+void CComponentsForm::setPageCount(const uint8_t& pageCount)
+{
+	uint8_t new_val = pageCount;
 	if (new_val <  page_count)
 		dprintf(DEBUG_NORMAL, "[CComponentsForm] %s:  current count (= %u) of pages higher than page_count (= %u) will be set, smaller value is ignored!\n", __func__, page_count, new_val) ;
 	page_count = max(new_val, page_count);
 }
 
-u_int8_t CComponentsForm::getPageCount()
+uint8_t CComponentsForm::getPageCount()
 {
-	u_int8_t num = 0;
+	uint8_t num = 0;
 	for(size_t i=0; i<v_cc_items.size(); i++){
-		u_int8_t item_num = v_cc_items[i]->getPageNumber();
+		uint8_t item_num = v_cc_items[i]->getPageNumber();
 		num = max(item_num, num);
 	}
 
 	//convert type, possible -Wconversion warnings!
-	page_count = static_cast<u_int8_t>(num+1);
+	page_count = static_cast<uint8_t>(num+1);
 
 	return page_count;
 }
@@ -642,7 +664,7 @@ void CComponentsForm::ScrollPage(int direction, bool do_paint)
 	else
 		cur_page = (uint8_t)target_page;
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	frameBuffer->blit();
 #endif
 	OnAfterScrollPage();
@@ -690,4 +712,22 @@ bool CComponentsForm::enableColBodyGradient(const int& enable_mode, const fb_pix
 		return true;
 	}
 	return false;
+}
+
+int CComponentsForm::getUsedDY()
+{
+	int y_res = 0;
+	for (size_t i= 0; i< v_cc_items.size(); i++)
+		y_res  = max(v_cc_items[i]->getYPos() + v_cc_items[i]->getHeight(), y_res);
+
+	return y_res;
+}
+
+int CComponentsForm::getUsedDX()
+{
+	int x_res = 0;
+	for (size_t i= 0; i< v_cc_items.size(); i++)
+		x_res  = max(v_cc_items[i]->getXPos() + v_cc_items[i]->getWidth(), x_res);
+
+	return x_res;
 }

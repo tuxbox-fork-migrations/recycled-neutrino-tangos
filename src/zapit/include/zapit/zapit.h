@@ -42,10 +42,17 @@ typedef struct ZAPIT_start_arg
         t_channel_id startchannelradio_id;
         int uselastchannel;
         int video_mode;
+        uint32_t osd_resolution;
 	int volume;
         int ci_clock;
 	std::list<std::string> *webtv_xml;
+	std::list<std::string> *webradio_xml;
 } Z_start_arg;
+
+enum {
+	MODE_WEBTV = 0,
+	MODE_WEBRADIO
+};
 
 typedef struct Zapit_config {
         int writeChannelsNames;
@@ -70,9 +77,6 @@ typedef struct Zapit_config {
         /* FE specific */
         int highVoltage;
         int motorRotationSpeed;
-        int uni_scr;
-	int uni_qrg;       /* the unicable frequency in MHz */
-	int uni_lnb;       /* the input (0/1) of a twin-position switch */
 } t_zapit_config;
 
 
@@ -113,6 +117,7 @@ class CZapit : public OpenThreads::Thread
 
 		int audio_mode;
 		int def_audio_mode;
+		int mosd;
 		int aspectratio;
 		int mode43;
 #if 0
@@ -123,6 +128,7 @@ class CZapit : public OpenThreads::Thread
 		int volume_percent;
 
 		std::list<std::string> *webtv_xml;
+		std::list<std::string> *webradio_xml;
 
 		int currentMode;
 		bool playbackStopForced;
@@ -247,7 +253,8 @@ class CZapit : public OpenThreads::Thread
 		void Abort() { abort_zapit = 1; };
 		bool Recording() { return currentMode & RECORD_MODE; };
 		bool makeRemainingChannelsBouquet() { return config.makeRemainingChannelsBouquet; };
-		bool scanSDT() { return config.scanSDT; };
+		bool GetScanSDT() { return config.scanSDT; };
+		void SetScanSDT(int _scanSDT) { config.scanSDT = _scanSDT; };
 		bool scanPids() { return config.scanPids; };
 		void scanPids(bool enable) { config.scanPids = enable; };
 
@@ -278,5 +285,8 @@ class CZapit : public OpenThreads::Thread
 		void unlockPlayBack(const bool sendpmt = true);
 		void Rezap();
 		std::list<std::string> *GetWebTVXML(void) { return webtv_xml; }
+		std::list<std::string> *GetWebRadioXML(void) { return webradio_xml; }
+		bool getUseChannelFilter();
+		void setMoviePlayer(bool enable);
 };
 #endif /* __zapit_h__ */

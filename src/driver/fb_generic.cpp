@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 		      2003 thegoodguy
 
-	Copyright (C) 2009-2012,2017 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
+	Copyright (C) 2009-2012,2017-2018 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
 	mute icon & info clock handling
 	Copyright (C) 2013 M. Liebmann (micha-bbg)
 
@@ -41,11 +41,13 @@
 #include <sys/mman.h>
 #include <memory.h>
 #include <math.h>
+#include <endian.h>
 
 #include <linux/kd.h>
 
 #include <gui/audiomute.h>
 #include <gui/color.h>
+#include <gui/osd_helpers.h>
 #include <gui/pictureviewer.h>
 #include <system/debug.h>
 #include <global.h>
@@ -58,6 +60,7 @@ extern CPictureViewer * g_PicViewer;
 #define ICON_CACHE_SIZE 1024*1024*2 // 2mb
 
 #define BACKGROUNDIMAGEWIDTH 720
+#define LOGTAG "[fb_generic] "
 
 void CFrameBuffer::waitForIdle(const char *)
 {
@@ -138,6 +141,9 @@ CFrameBuffer* CFrameBuffer::getInstance()
 #if HAVE_TRIPLEDRAGON
 		frameBuffer = new CFbAccelTD();
 #endif
+#if HAVE_ARM_HARDWARE
+		frameBuffer = new CFbAccelARM();
+#endif
 		if (!frameBuffer)
 			frameBuffer = new CFrameBuffer();
 		printf("[neutrino] %s Instance created\n", frameBuffer->fb_name);
@@ -167,7 +173,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 	}
 
 	available=fix.smem_len;
-	printf("[fb_generic] [%s] framebuffer %dk video mem\n", fix.id, available/1024);
+	printf(LOGTAG "[%s] framebuffer %dk video mem\n", fix.id, available/1024);
 	lbb = lfb = (fb_pixel_t*)mmap(0, available, PROT_WRITE|PROT_READ, MAP_SHARED, fd, 0);
 	if (!lfb) {
 		perror("mmap");
@@ -206,16 +212,9 @@ nolfb:
 	lbb = lfb = NULL;
 }
 
-
 CFrameBuffer::~CFrameBuffer()
 {
-	std::map<std::string, rawIcon>::iterator it;
-
-	for(it = icon_cache.begin(); it != icon_cache.end(); ++it) {
-		/* printf("FB: delete cached icon %s: %x\n", it->first.c_str(), (int) it->second.data); */
-		cs_free_uncached(it->second.data);
-	}
-	icon_cache.clear();
+	clearIconCache();
 
 	if (background) {
 		delete[] background;
@@ -272,16 +271,16 @@ unsigned int CFrameBuffer::getScreenHeight(bool real)
 		return g_settings.screen_EndY - g_settings.screen_StartY;
 }
 
-unsigned int CFrameBuffer::getScreenWidthRel(bool force_small)
+unsigned int CFrameBuffer::getWindowWidth(bool force_small)
 {
-	int percent = force_small ? WINDOW_SIZE_MIN_FORCED : g_settings.window_width;
+	int percent = force_small ? WINDOW_SIZE_SMALL : g_settings.window_width;
 	// always reduce a possible detailsline
 	return (g_settings.screen_EndX - g_settings.screen_StartX - 2*DETAILSLINE_WIDTH) * percent / 100;
 }
 
-unsigned int CFrameBuffer::getScreenHeightRel(bool force_small)
+unsigned int CFrameBuffer::getWindowHeight(bool force_small)
 {
-	int percent = force_small ? WINDOW_SIZE_MIN_FORCED : g_settings.window_height;
+	int percent = force_small ? WINDOW_SIZE_SMALL : g_settings.window_height;
 	return (g_settings.screen_EndY - g_settings.screen_StartY) * percent / 100;
 }
 
@@ -350,8 +349,34 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0) {
 		printf("screen unblanking failed\n");
 	}
+
 	return 0;
 }
+
+void CFrameBuffer::setOsdResolutions()
+{
+	/* FIXME: Infos available in driver? */
+	osd_resolution_t res;
+	osd_resolutions.clear();
+	res.xRes = 1280;
+	res.yRes = 720;
+	res.bpp  = 32;
+	res.mode = OSDMODE_720;
+	osd_resolutions.push_back(res);
+}
+
+size_t CFrameBuffer::getIndexOsdResolution(uint32_t mode)
+{
+	if (osd_resolutions.size() == 1)
+		return 0;
+
+	for (size_t i = 0; i < osd_resolutions.size(); i++) {
+		if (osd_resolutions[i].mode == mode)
+			return i;
+	}
+	return 0;
+}
+
 #if 0
 //never used
 void CFrameBuffer::setTransparency( int /*tr*/ )
@@ -679,13 +704,26 @@ void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 
 std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_type)
 {
-	std::string path, filetype;
-	filetype = "." + file_type;
-	path = std::string(ICONSDIR_VAR) + "/" + icon_name + filetype;
-	if (access(path.c_str(), F_OK))
-		path = iconBasePath + "/" + icon_name + filetype;
+	std::string path, filetype = "";
+	if (!file_type.empty())
+		filetype = "." + file_type;
+
+	std::string dir[] = {	THEMESDIR_VAR "/" + g_settings.theme_name + "/icons",
+				THEMESDIR "/" + g_settings.theme_name + "/icons",
+				ICONSDIR_VAR,
+				iconBasePath
+	};
+
+	for(int i=0; i<4 ; i++){
+		path = std::string(dir[i]) + "/" + icon_name + filetype;
+		if (access(path.c_str(), F_OK) == 0){
+			return path;
+		}
+	}
+
 	if (icon_name.find("/", 0) != std::string::npos)
 		path = icon_name;
+
 	return path;
 }
 
@@ -788,6 +826,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		return false;
 
 	int  yy = y;
+	bool freeicondata = false;
 	//printf("CFrameBuffer::paintIcon: load %s\n", filename.c_str());fflush(stdout);
 
 	/* we cache and check original name */
@@ -872,6 +911,8 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 			cache_size += dsize;
 			icon_cache.insert(std::pair <std::string, rawIcon> (filename, tmpIcon));
 			//printf("Cached %s, cache size %d\n", newname.c_str(), cache_size);
+		}else{
+			freeicondata = true;
 		}
 	} else {
 		data = it->second.data;
@@ -880,9 +921,13 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		//printf("paintIcon: already cached %s %d x %d\n", newname.c_str(), width, height);
 	}
 _display:
-	if(!paint)
+	if(!paint){
+		if(freeicondata){
+			free(data);
+			data = NULL;
+		}
 		return true;
-
+	}
 	if (h != 0)
 		yy += (h - height) / 2;
 
@@ -892,6 +937,17 @@ _display:
 	blit2FB(data, width, height, x, yy);
 	checkFbArea(x, yy, width, height, false);
 	return true;
+}
+
+void CFrameBuffer::clearIconCache()
+{
+	std::map<std::string, rawIcon>::iterator it;
+
+	for(it = icon_cache.begin(); it != icon_cache.end(); ++it) {
+		/* printf("FB: delete cached icon %s: %x\n", it->first.c_str(), (int) it->second.data); */
+		cs_free_uncached(it->second.data);
+	}
+	icon_cache.clear();
 }
 
 void CFrameBuffer::loadPal(const std::string & filename, const unsigned char offset, const unsigned char endidx)
@@ -1351,7 +1407,7 @@ void CFrameBuffer::useBackground(bool ub)
 	useBackgroundPaint = ub;
 	if(!useBackgroundPaint) {
 		delete[] background;
-		background=0;
+		background=NULL;
 	}
 }
 
@@ -1374,10 +1430,11 @@ void CFrameBuffer::saveBackgroundImage(void)
 
 void CFrameBuffer::restoreBackgroundImage(void)
 {
-	fb_pixel_t * tmp = background;
+	fb_pixel_t * tmp = NULL;
 
 	if (backupBackground != NULL)
 	{
+		tmp = background;
 		background = backupBackground;
 		backupBackground = NULL;
 	}
@@ -1491,12 +1548,7 @@ void CFrameBuffer::Clear()
 
 void CFrameBuffer::showFrame(const std::string & filename)
 {
-	std::string picture = std::string(ICONSDIR_VAR) + "/" + filename;
-	if (access(picture.c_str(), F_OK))
-		picture = iconBasePath + "/" + filename;
-	if (filename.find("/", 0) != std::string::npos)
-		picture = filename;
-
+	std::string picture = getIconPath(filename, "");
 	videoDecoder->ShowPicture(picture.c_str());
 }
 
@@ -1634,29 +1686,72 @@ void CFrameBuffer::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, u
 	}
 }
 
-void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool /*transp*/)
+/*
+ * source surface:
+ *  |<-------width----------------------->|
+ *  |<---------xp------------>|           |
+ *  +-------------------------+-----------+----
+ *  |                         |           | ^ ^
+ *  |                         |           | | |
+ *  |                         |           | y h
+ *  |                         |           | p e
+ *  |                         |           | v i
+ *  |                         +-----------+-- g
+ *  |                         |###########|   h
+ *  |                         |###########|   t
+ *  |                         |###########|   |
+ *  |                         |###########|   v
+ *  +-------------------------+-----------+----
+ *  xoff, yoff is the offset into the *target* (framebuffer) surface.
+ *  transp == false (default): alpha blend src and dst, transp == true => just copy over src to dest
+ */
+void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
-	int  xc, yc;
-
+	uint32_t xc, yc;
 	xc = (width > xRes) ? xRes : width;
 	yc = (height > yRes) ? yRes : height;
+
+	if (xp >= xc || yp >= yc) {
+		printf(LOGTAG "%s: invalid parameters, xc: %u <= xp: %u or yc: %u <= yp: %u\n", __func__, xc, xp, yc, yp);
+		return;
+	}
 
 	fb_pixel_t*  data = (fb_pixel_t *) fbbuff;
 
 	fb_pixel_t * d = getFrameBufferPointer() + xoff + swidth * yoff;
+	if (transp) {
+		fb_pixel_t *pixpos = data + yp * width;
+		int len = (xc - xp) * sizeof(fb_pixel_t);
+		if (width == xRes && swidth == xRes && xoff == 0 && xp == 0) {
+			memmove(d, pixpos, (yc - yp) * len);
+			return;
+		}
+		for (uint32_t count = 0; count < yc - yp; count++) {
+			memmove(d, pixpos + xp, len);
+			d += swidth;
+			pixpos += width;
+		}
+		return;
+	}
 	fb_pixel_t * d2;
-
-	for (int count = 0; count < yc; count++ ) {
+	for (uint32_t count = 0; count < yc - yp; count++ ) {
 		fb_pixel_t *pixpos = &data[(count + yp) * width];
 		d2 = (fb_pixel_t *) d;
-		for (int count2 = 0; count2 < xc; count2++ ) {
+		for (uint32_t count2 = 0; count2 < xc - xp; count2++ ) {
 			fb_pixel_t pix = *(pixpos + xp);
 			if ((pix & 0xff000000) == 0xff000000)
 				*d2 = pix;
 			else {
 				uint8_t *in = (uint8_t *)(pixpos + xp);
 				uint8_t *out = (uint8_t *)d2;
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 				int a = in[3];	/* TODO: big/little endian */
+#elif __BYTE_ORDER == __BIG_ENDIAN
+				int a = in[0];
+				out++; in++;
+#else
+#error neither big nor little endian???
+#endif
 				*out = (*out + ((*in - *out) * a) / 256);
 				in++; out++;
 				*out = (*out + ((*in - *out) * a) / 256);
@@ -1826,4 +1921,13 @@ void CFrameBuffer::mark(int , int , int , int )
 uint32_t CFrameBuffer::getWidth4FB_HW_ACC(const uint32_t /*x*/, const uint32_t w, const bool /*max*/)
 {
 	return w;
+}
+
+CFrameBuffer::Mode3D CFrameBuffer::get3DMode()
+{
+	return Mode3D_off;
+}
+
+void CFrameBuffer::set3DMode(Mode3D m)
+{
 }

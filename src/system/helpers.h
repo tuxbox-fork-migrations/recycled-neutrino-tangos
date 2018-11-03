@@ -23,7 +23,6 @@
 */
 
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <string.h>
@@ -33,9 +32,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <map>
- 
-#include <sys/stat.h>
-#include <sys/types.h>
+
+#include <curl/curl.h>
+#include <curl/easy.h>
+
+typedef uint64_t t_channel_id;
 
 int my_system(const char * cmd);
 int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
@@ -72,6 +73,7 @@ std::string cutString(const std::string str, int msgFont, const int width);
 std::string strftime(const char *format, const struct tm *tm);
 std::string strftime(const char *format, time_t when, bool gm = false);
 time_t toEpoch(std::string &date);
+const char *cstr_replace(const char *search, const char *replace, const char *text);
 std::string& str_replace(const std::string &search, const std::string &replace, std::string &text);
 std::string& htmlEntityDecode(std::string& text);
 
@@ -99,7 +101,6 @@ class CFileHelpers
 		CFileHelpers();
 		~CFileHelpers();
 		static CFileHelpers* getInstance();
-		bool doCopyFlag;
 
 		void clearDebugInfo();
 		void readDebugInfo(helpersDebugInfo* di);
@@ -151,9 +152,35 @@ std::string Lang2ISO639_1(std::string& lang);
 std::string readLink(std::string lnk);
 
 bool	File_copy(std::string rstr, std::string wstr);
-int	getpidof(const char *process);
-std::string	filehash(const char * file);
-std::string	get_path(const char * path);
+int getpidof(const char *process);
+std::string filehash(const char * file);
+std::string get_path(const char * path);
 inline bool file_exists(const std::string file) { return file_exists(file.c_str()); }
 
+std::string readFile(std::string file);
+
+std::string iso_8859_1_to_utf8(std::string &str);
+bool utf8_check_is_valid(const std::string &str);
+
+std::string randomString(unsigned int length = 10);
+std::string randomFile(std::string suffix = "tmp", std::string directory = "/tmp", unsigned int length = 10);
+std::string downloadUrlToRandomFile(std::string url, std::string directory = "/tmp", unsigned int length = 10);
+std::string downloadUrlToLogo(std::string url, std::string directory = "/tmp", t_channel_id channel_id = 0);
+
+// curl
+struct MemoryStruct {
+	char *memory;
+	size_t size;
+};
+
+size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
+size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
+
+std::string encodeUrl(std::string txt);
+std::string decodeUrl(std::string url);
+
+bool getUrl(std::string &url, std::string &answer, const std::string userAgent = " ", unsigned int timeout = 60);
+bool downloadUrl(std::string url, std::string file, const std::string userAgent = " ", unsigned int timeout = 60);
+
+//
 #endif

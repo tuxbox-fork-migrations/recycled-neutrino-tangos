@@ -11,6 +11,7 @@
 	Copyright (C) 2010 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
+	Copyright (C) 2014 Stefan Seyfried
 
 	License: GPL
 
@@ -34,6 +35,7 @@
 #include <config.h>
 #endif
 
+#include <driver/rcinput.h>
 #include "user_menue_setup.h"
 
 #include <global.h>
@@ -53,7 +55,7 @@
 
 static bool usermenu_show = true;
 static bool usermenu_show_not = false;
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 static bool usermenu_show_three_d_mode = true;
 #else
 static bool usermenu_show_three_d_mode = false;
@@ -97,7 +99,11 @@ static keyvals usermenu_items[] =
 	{ SNeutrinoSettings::ITEM_YOUTUBE,		LOCALE_MOVIEPLAYER_YTPLAYBACK,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_FILEPLAY,		LOCALE_MOVIEPLAYER_FILEPLAYBACK,	usermenu_show },
 	{ SNeutrinoSettings::ITEM_TOOLS,		LOCALE_MAINMENU_TOOLS,			usermenu_show },
+#if 0
 	{ SNeutrinoSettings::ITEM_LUA,                  LOCALE_MAINMENU_LUA,			usermenu_show },
+#else
+	{ SNeutrinoSettings::ITEM_LUA,                  LOCALE_PERSONALIZE_PLUGINS,		usermenu_show },
+#endif
 	{ SNeutrinoSettings::ITEM_HDDMENU,		LOCALE_HDD_SETTINGS,			usermenu_show },
 	{ SNeutrinoSettings::ITEM_AUDIOPLAY,		LOCALE_AUDIOPLAYER_NAME,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_INETPLAY,		LOCALE_INETRADIO_NAME,			usermenu_show },
@@ -105,9 +111,9 @@ static keyvals usermenu_items[] =
 	{ SNeutrinoSettings::ITEM_SWUPDATE,		LOCALE_SERVICEMENU_UPDATE,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_LIVESTREAM_RESOLUTION,LOCALE_LIVESTREAM_RESOLUTION,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_ADZAP,		LOCALE_USERMENU_ITEM_ADZAP,		usermenu_show },
-	{ SNeutrinoSettings::ITEM_RASS,			LOCALE_RASS_HEAD,			usermenu_show_not },
 	{ SNeutrinoSettings::ITEM_TUNER_RESTART,	LOCALE_SERVICEMENU_RESTART_TUNER,	usermenu_show },
 	{ SNeutrinoSettings::ITEM_THREE_D_MODE,		LOCALE_THREE_D_SETTINGS,		usermenu_show_three_d_mode },
+	{ SNeutrinoSettings::ITEM_TIMESHIFT,		LOCALE_RECORDINGMENU_TIMESHIFT,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_MAX,			NONEXISTANT_LOCALE,			usermenu_show }
 };
 

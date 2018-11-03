@@ -35,6 +35,7 @@
 
 #include <timerdclient/timerdtypes.h>
 
+#include <driver/display.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/listhelpers.h>
 
@@ -51,13 +52,15 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int 		y;
 		int 		width;
 		int 		height;
-		int		fheight; // fontheight content
-		int		theight; // fontheight titel
-		int		footerHeight;
+		int		font_height;
+		int		item_height;
+		int		header_height;
+		int		footer_height;
 		int		selected;
 		int		liststart;
 		unsigned int	listmaxshow;
 		bool		visible;
+		CComponentsHeader *header;
 		int		httpConnectTimeout;
 
 		CTimerdClient *Timer;
@@ -84,7 +87,7 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int modifyTimer();
 		int newTimer();
 		/* todo: properly import the enum CVFD::MODES */
-		int saved_dispmode;
+		CVFD::MODES saved_displaymode;
 		void RemoteBoxTimerList(CTimerd::TimerList &timerlist);
 		bool RemoteBoxSetup();
 		void RemoteBoxSelect();

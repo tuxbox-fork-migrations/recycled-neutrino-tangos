@@ -42,10 +42,6 @@
 
 #define scansettings CNeutrinoApp::getInstance()->getScanSettings()
 
-#ifdef ENABLE_FASTSCAN
-#define ENABLE_FASTSCAN //don't define this to remove fast scan menu
-#endif
-
 class CScanSetup : public CMenuTarget, public CChangeObserver
 {
 	protected:
@@ -61,6 +57,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CMenuForwarder  *fsatSelect;
 		CMenuOptionChooser * dtype;
 		CMenuOptionChooser * dorder;
+		CMenuOptionChooser * tsp;
 		CMenuForwarder  *uniSetup;
 		CMenuOptionNumberChooser * ojDiseqcRepeats;
 		CIntInput * nid;
@@ -69,7 +66,11 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CGenericMenuActivate msettings;
 
 		CMenuOptionChooser * linkfe;
+#if BOXMODEL_VUSOLO4K
+		std::string modestr[16];
+#else
 		std::string modestr[4];
+#endif
 
 		/* variables for selected frontend */
 		/* diseqc mode */
@@ -128,6 +129,9 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		void saveScanSetup();
 
 		CScanSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
+
+		/* required to set display count of selected satellites, see: showFrontendSetup() */
+		void setOptionSatSelect(int fe_number, CMenuForwarder* menu_item);
 	public:	
 		~CScanSetup();
 

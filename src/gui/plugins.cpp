@@ -4,29 +4,22 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2011-2014 Stefan Seyfried
 
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -60,7 +53,6 @@
 #include "widget/shellwindow.h"
 
 #include <poll.h>
-#include <fcntl.h>
 #include <vector>
 
 #include <video.h>
@@ -128,7 +120,7 @@ void CPlugins::scanDir(const char *dir)
 					new_plugin.pluginfile.append(".sh");
 				else if (new_plugin.type == CPlugins::P_TYPE_LUA)
 					new_plugin.pluginfile.append(".lua");
-				else
+				else // CPlugins::P_TYPE_GAME or CPlugins::P_TYPE_TOOL
 					new_plugin.pluginfile.append(".so");
 				// We do not check if new_plugin.pluginfile exists since .cfg in
 				// PLUGINDIR_VAR can overwrite settings in read only dir
@@ -137,7 +129,6 @@ void CPlugins::scanDir(const char *dir)
 				// already exists in the list.
 				// This behavior is used to make sure plugins can be disabled
 				// by creating a .cfg in PLUGINDIR_VAR (PLUGINDIR often is read only).
-
 				if (!plugin_exists(new_plugin.filename))
 				{
 					plugin_list.push_back(new_plugin);
@@ -200,18 +191,10 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	plugin_data->key = CRCInput::RC_nokey;
 	plugin_data->name = "";
 	plugin_data->description = "";
-#if 0
-	plugin_data->fb = false;
-	plugin_data->rc = false;
-	plugin_data->lcd = false;
-	plugin_data->vtxtpid = false;
-	plugin_data->showpig = false;
-	plugin_data->needoffset = false;
-#endif
 	plugin_data->shellwindow = false;
 	plugin_data->hide = false;
 	plugin_data->type = CPlugins::P_TYPE_DISABLED;
-	plugin_data->integration = CPlugins::I_TYPE_DISABLED;
+	plugin_data->integration = PLUGIN_INTEGRATION_DISABLED;
 	plugin_data->hinticon = NEUTRINO_ICON_HINT_PLUGIN;
 
 	std::string _hintIcon = plugin_data->plugindir + "/" + plugin_data->filename + "_hint.png";
@@ -267,34 +250,8 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		}
 		else if (cmd == "integration")
 		{
-			plugin_data->integration = getPluginIntegration(atoi(parm));
+			plugin_data->integration = atoi(parm);
 		}
-#if 0
-		else if (cmd == "needfb")
-		{
-			plugin_data->fb = atoi(parm);
-		}
-		else if (cmd == "needrc")
-		{
-			plugin_data->rc = atoi(parm);
-		}
-		else if (cmd == "needlcd")
-		{
-			plugin_data->lcd = atoi(parm);
-		}
-		else if (cmd == "needvtxtpid")
-		{
-			plugin_data->vtxtpid = atoi(parm);
-		}
-		else if (cmd == "pigon")
-		{
-			plugin_data->showpig = atoi(parm);
-		}
-		else if (cmd == "needoffsets")
-		{
-			plugin_data->needoffset = atoi(parm);
-		}
-#endif
 		else if (cmd == "shellwindow")
 		{
 			plugin_data->shellwindow = atoi(parm);
@@ -307,7 +264,6 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		{
 			reject = atoi(parm);
 		}
-
 	}
 
 	inFile.close();
@@ -328,28 +284,6 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	return !reject;
 }
 
-#if 0
-PluginParam * CPlugins::makeParam(const char * const id, const char * const value, PluginParam * const next)
-{
-	PluginParam * startparam = new PluginParam;
-
-	startparam->next = next;
-	startparam->id   = id;
-	startparam->val  = strdup(value);
-
-	return startparam;
-}
-
-PluginParam * CPlugins::makeParam(const char * const id, const int value, PluginParam * const next)
-{
-	char aval[10];
-
-	sprintf(aval, "%d", value);
-
-	return makeParam(id, aval, next);
-}
-#endif
-
 void CPlugins::startPlugin_by_name(const std::string & name)
 {
 	for (int i = 0; i <  (int) plugin_list.size(); i++)
@@ -369,7 +303,6 @@ void CPlugins::startPlugin(const char * const filename)
 		startPlugin(pluginnr);
 	else
 		printf("[CPlugins] could not find %s\n", filename);
-
 }
 
 void CPlugins::popenScriptPlugin(const char * script)
@@ -436,7 +369,7 @@ void CPlugins::startLuaPlugin(int number)
 	lua->runScript(script);
 	delete lua;
 #endif
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	frameBuffer->ClearFB();
 #endif
 	videoDecoder->Pig(-1, -1, -1, -1);
@@ -449,25 +382,25 @@ void CPlugins::startPlugin(int number)
 	delScriptOutput();
 	/* export neutrino settings to the environment */
 	char tmp[32];
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	sprintf(tmp, "%d", g_settings.screen_StartX_int);
 #else
 	sprintf(tmp, "%d", g_settings.screen_StartX);
 #endif
 	setenv("SCREEN_OFF_X", tmp, 1);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	sprintf(tmp, "%d", g_settings.screen_StartY_int);
 #else
 	sprintf(tmp, "%d", g_settings.screen_StartY);
 #endif
 	setenv("SCREEN_OFF_Y", tmp, 1);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	sprintf(tmp, "%d", g_settings.screen_EndX_int);
 #else
 	sprintf(tmp, "%d", g_settings.screen_EndX);
 #endif
 	setenv("SCREEN_END_X", tmp, 1);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	sprintf(tmp, "%d", g_settings.screen_EndY_int);
 #else
 	sprintf(tmp, "%d", g_settings.screen_EndY);
@@ -509,7 +442,7 @@ void CPlugins::startPlugin(int number)
 	my_system(2, plugin_list[number].pluginfile.c_str(), NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	frameBuffer->Unlock();
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	frameBuffer->ClearFB();
 #endif
 	videoDecoder->Pig(-1, -1, -1, -1);
@@ -523,7 +456,7 @@ bool CPlugins::hasPlugin(CPlugins::p_type_t type)
 	for (std::vector<plugin>::iterator it=plugin_list.begin();
 			it!=plugin_list.end(); ++it)
 	{
-		if (it->type == type && !it->hide)
+		if ((it->type & type) && !it->hide)
 			return true;
 	}
 	return false;
@@ -559,35 +492,6 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 		return P_TYPE_LUA;
 	default:
 		return P_TYPE_DISABLED;
-	}
-}
-
-CPlugins::i_type_t CPlugins::getPluginIntegration(int integration)
-{
-	switch (integration)
-	{
-	case INTEGRATION_TYPE_DISABLED:
-		return I_TYPE_DISABLED;
-		break;
-	/*
-	case INTEGRATION_TYPE_MAIN:
-		return I_TYPE_MAIN;
-		break;
-	*/
-	case INTEGRATION_TYPE_MULTIMEDIA:
-		return I_TYPE_MULTIMEDIA;
-		break;
-	case INTEGRATION_TYPE_SETTING:
-		return I_TYPE_SETTING;
-		break;
-	case INTEGRATION_TYPE_SERVICE:
-		return I_TYPE_SERVICE;
-		break;
-	case INTEGRATION_TYPE_INFORMATION:
-		return I_TYPE_INFORMATION;
-		break;
-	default:
-		return I_TYPE_DISABLED;
 	}
 }
 

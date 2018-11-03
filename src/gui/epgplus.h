@@ -18,8 +18,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef __epgplus__
@@ -95,6 +94,7 @@ class EpgPlus
 				int width;
 
 				static Font* font;
+				CComponentsHeader *head;
 		};
 
 
@@ -210,6 +210,7 @@ class EpgPlus
 			//// attributes
 			public:
 				const CZapitChannel * channel;
+				std::string displayNumber;
 				std::string displayName;
 				int index;
 
@@ -420,6 +421,7 @@ class EpgPlus
 
 		int		channelListStartIndex;
 		int		maxNumberOfDisplayableEntries; // maximal number of displayable entrys
+		static int	channelNumberOffset;
 
 		time_t		startTime;
 		time_t		firstStartTime;

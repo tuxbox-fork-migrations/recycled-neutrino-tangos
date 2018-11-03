@@ -101,6 +101,7 @@ class CVFD
 		int fd;
 		int brightness;
 		std::string text;
+		char 				g_str[64];
 
 		void count_down();
 
@@ -130,7 +131,7 @@ class CVFD
 		void setMode(const MODES m, const char * const title = "");
 
 		void showServicename(const std::string & name, int number = -1); // UTF-8
-		void setEPGTitle(const std::string) { return; }
+		void setEPGTitle(const std::string) { return; };
 		void showTime(bool force = false);
 		/** blocks for duration seconds */
 		void showRCLock(int duration = 2);
@@ -163,14 +164,16 @@ class CVFD
 		void Lock();
 		void Unlock();
 		void Clear();
-		void ShowIcon(fp_icon icon, bool show);
-#if HAVE_DUCKBOX_HARDWARE
+#if !HAVE_DUCKBOX_HARDWARE
+		void UpdateIcons() { return; }
+#else
 		void repaintIcons();
 		void UpdateIcons();
 		void ShowScrollText(char * str);
 		static void* ThreadScrollText(void * arg);
 		void ClearIcons();
 #endif
+		void ShowIcon(fp_icon icon, bool show);
 		void ShowText(const char *str);
 		void ShowNumber(int number);
 		void wake_up();

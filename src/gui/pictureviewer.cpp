@@ -64,6 +64,7 @@
 #include <gui/pictureviewer_help.h>
 #include <gui/widget/stringinput.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 
 
 #include <system/settings.h>
@@ -159,22 +160,22 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	selected = 0;
 
-	width = frameBuffer->getScreenWidthRel();
-	height = frameBuffer->getScreenHeightRel();
+	width = frameBuffer->getWindowWidth();
+	height = frameBuffer->getWindowHeight();
 
-	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	item_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 
-        //get footerHeight from paintButtons
-	buttons1Height = ::paintButtons(0, 0, 0, PictureViewerButtons1Count, PictureViewerButtons1, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
-	buttons2Height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
-	footerHeight = buttons1Height + buttons2Height;
+        //get footer_height from paintButtons
+	buttons1_height = ::paintButtons(0, 0, 0, PictureViewerButtons1Count, PictureViewerButtons1, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
+	buttons2_height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
+	footer_height = buttons1_height + buttons2_height;
 
-	listmaxshow = (height-theight-footerHeight)/(fheight);
-	height = theight+listmaxshow*fheight+footerHeight;	// recalc height
+	listmaxshow = (height - header_height - footer_height - OFFSET_SHADOW)/item_height;
+	height = header_height + listmaxshow*item_height + footer_height + OFFSET_SHADOW; // recalc height
 
-	x=getScreenStartX( width );
-	y=getScreenStartY( height );
+	x=getScreenStartX(width);
+	y=getScreenStartY(height);
 
 	m_viewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
 	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
@@ -190,7 +191,7 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	// remember last mode
 	m_LastMode = CNeutrinoApp::getInstance()->getMode();
 	// tell neutrino we're in pic_mode
-	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_pic );
+	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoModes::mode_pic );
 
 	if (!audioplayer) { // !!! why? !!!
 		CNeutrinoApp::getInstance()->stopPlayBack(true);
@@ -225,7 +226,7 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	// Restore last mode
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , m_LastMode );
-	if (m_LastMode == NeutrinoMessages::mode_ts)
+	if (m_LastMode == NeutrinoModes::mode_ts)
 		videoDecoder->setBlank(false);
 
 	// always exit all
@@ -582,33 +583,44 @@ int CPictureViewerGui::show()
 			// FIXME: do not accept volume-keys while decoding
 		}
 		// control keys for audioplayer
-		else if (audioplayer && msg==CRCInput::RC_pause)
+		else if (audioplayer)
 		{
 			m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
-			m_audioPlayer->pause();
-		}
-		else if (audioplayer && msg==CRCInput::RC_stop)
-		{
-			m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
-			m_audioPlayer->stop();
-		}
-		else if (audioplayer && msg==CRCInput::RC_play)
-		{
-			m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
-			if (m_currentTitle > -1)
-				m_audioPlayer->play((unsigned int)m_currentTitle);
-		}
-		else if (audioplayer && msg==CRCInput::RC_forward)
-		{
-			m_audioPlayer->playNext();
-		}
-		else if (audioplayer && msg==CRCInput::RC_rewind)
-		{
-			m_audioPlayer->playPrev();
+
+			if (msg == CRCInput::RC_playpause)
+			{
+				// manipulate msg
+				if (m_audioPlayer->getState() == CAudioPlayerGui::PAUSE)
+					msg = CRCInput::RC_play;
+				else
+					msg = CRCInput::RC_pause;
+			}
+
+			if (msg == CRCInput::RC_play)
+			{
+				if (m_currentTitle > -1)
+					m_audioPlayer->play((unsigned int)m_currentTitle);
+			}
+			else if (msg == CRCInput::RC_pause)
+			{
+				m_audioPlayer->pause();
+			}
+			else if (msg == CRCInput::RC_stop)
+			{
+				m_audioPlayer->stop();
+			}
+			else if (msg == CRCInput::RC_forward || msg == CRCInput::RC_nextsong)
+			{
+				m_audioPlayer->playNext();
+			}
+			else if (msg == CRCInput::RC_rewind || msg == CRCInput::RC_previoussong)
+			{
+				m_audioPlayer->playPrev();
+			}
 		}
 		else if (msg == NeutrinoMessages::CHANGEMODE)
 		{
-			if ((data & NeutrinoMessages::mode_mask) !=NeutrinoMessages::mode_pic)
+			if ((data & NeutrinoModes::mode_mask) !=NeutrinoModes::mode_pic)
 			{
 				loop = false;
 				m_LastMode=data;
@@ -662,7 +674,7 @@ void CPictureViewerGui::hide()
 void CPictureViewerGui::paintItem(int pos)
 {
 //	printf("paintItem{\n");
-	int ypos = y+ theight + 0 + pos*fheight;
+	int ypos = y + header_height + pos*item_height;
 
 	unsigned int currpos = liststart + pos;
 
@@ -680,8 +692,8 @@ void CPictureViewerGui::paintItem(int pos)
 		i_radius = RADIUS_LARGE;
 
 	if (i_radius)
-		frameBuffer->paintBoxRel(x, ypos, width - 15, fheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x, ypos, width - 15, fheight, bgcolor, i_radius);
+		frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, item_height, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, ypos, width - SCROLLBAR_WIDTH, item_height, bgcolor, i_radius);
 
 	if (currpos < playlist.size())
 	{
@@ -692,8 +704,8 @@ void CPictureViewerGui::paintItem(int pos)
 		char timestring[18];
 		strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&playlist[currpos].Date));
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(timestring);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, width-30 - w, tmp, color, fheight);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+width-20-w,ypos+fheight, w, timestring, color, fheight);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID, ypos + item_height, width - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - w, tmp, color, item_height);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - w, ypos + item_height, w, timestring, color, item_height);
 
 	}
 //	printf("paintItem}\n");
@@ -703,7 +715,8 @@ void CPictureViewerGui::paintItem(int pos)
 
 void CPictureViewerGui::paintHead()
 {
-	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_PICTUREVIEWER_HEAD, NEUTRINO_ICON_MP3, CComponentsHeaderLocalized::CC_BTN_HELP);
+	CComponentsHeader header(x, y, width, header_height, LOCALE_PICTUREVIEWER_HEAD, NEUTRINO_ICON_PICTUREVIEWER, CComponentsHeader::CC_BTN_HELP);
+	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 
 #ifdef ENABLE_GUI_MOUNT
 	header.setContextButton(NEUTRINO_ICON_BUTTON_MENU);
@@ -721,15 +734,20 @@ void CPictureViewerGui::paintFoot()
 	else
 		PictureViewerButtons2[0].locale = LOCALE_PICTUREVIEWER_SORTORDER_DATE;
 
-	frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	int footer_y = y + (height - footer_height - OFFSET_SHADOW);
+
+	// shadow
+	frameBuffer->paintBoxRel(x + OFFSET_SHADOW, footer_y + OFFSET_SHADOW, width, footer_height, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+
+	frameBuffer->paintBoxRel(x, footer_y, width, footer_height, COL_MENUFOOT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	if (!playlist.empty())
 	{
-		::paintButtons(x, y + (height - footerHeight), 0, PictureViewerButtons1Count, PictureViewerButtons1, width);
-		::paintButtons(x, y + (height - buttons2Height), 0, PictureViewerButtons2Count, PictureViewerButtons2, width);
+		::paintButtons(x, footer_y, width, PictureViewerButtons1Count, PictureViewerButtons1, width, buttons1_height);
+		::paintButtons(x, footer_y + buttons1_height, width, PictureViewerButtons2Count, PictureViewerButtons2, width, buttons2_height);
 	}
 	else
-		::paintButtons(x, y + (height - footerHeight), 0, 1, &(PictureViewerButtons1[1]), width);
+		::paintButtons(x, footer_y, width, 1, &(PictureViewerButtons1[1]), width, buttons1_height);
 }
 
 //------------------------------------------------------------------------
@@ -750,19 +768,11 @@ void CPictureViewerGui::paint()
 		paintItem(count);
 	}
 
-	int ypos = y+ theight;
-	int sb = fheight* listmaxshow;
-	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
-
-	unsigned int tmp_max = listmaxshow;
-	if(!tmp_max)
-		tmp_max = 1;
-	int sbc= ((playlist.size()- 1)/ tmp_max)+ 1;
-	int sbs= (selected/tmp_max);
-	if (sbc < 1)
-		sbc = 1;
-
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_SCROLLBAR_ACTIVE_PLUS_0);
+	//scrollbar
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page, playlist.size(), listmaxshow, selected);
+	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page, CC_SHADOW_ON);
 
 	paintFoot();
 	paintInfo();

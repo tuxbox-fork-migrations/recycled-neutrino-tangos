@@ -69,7 +69,6 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	UPnPEntry      m_playing_entry;
 	CUPnPSocket  * m_socket;
 	CFrameBuffer * m_frameBuffer;
-	bool           m_vol_ost;
 	int            m_LastMode;
 	int            m_width;
 	int            m_height;
@@ -97,6 +96,7 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 	time_t         m_time_played;
 	bool           m_playing_entry_is_shown;
 	time_t         timeout;
+	int	       video_key_msg;
 	CComponentsDetailsLine * dline;
 	CComponentsFooter footer;
 	CComponentsInfoBox topbox, infobox, timebox;

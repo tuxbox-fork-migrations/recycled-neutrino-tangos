@@ -34,7 +34,7 @@
 #include <gui/widget/icons.h>
 #include <string>
 #include <driver/neutrinofonts.h>
-#include <driver/rcinput.h>
+#include <driver/neutrino_msg_t.h>
 
 #define COL_BUTTON_BODY COL_MENUFOOT_PLUS_0
 #define COL_BUTTON_TEXT_ENABLED COL_MENUCONTENTSELECTED_PLUS_0
@@ -48,7 +48,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 {
 	protected:
 		///object: picture object
-		CComponentsPictureScalable *cc_btn_icon_obj;
+		CComponentsPicture *cc_btn_icon_obj;
 		///object: label object
 		CComponentsLabel *cc_btn_text_obj;
 
@@ -103,7 +103,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
@@ -112,7 +112,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
@@ -121,7 +121,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,
@@ -130,7 +130,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		///set text color
 		void setButtonTextColor(fb_pixel_t caption_color){cc_btn_text_col = caption_color;};
@@ -199,19 +199,40 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 
 		/**
 		* Returns current primary event msg value of button object.
-		* @return	neutrino_msg_t
-		* @note		This method returns only the first existant message value from  cc_directKeys container \n
-		* 		Other existant keys ar ignored. If a certain value is required, \n
-		* 		use hasButtonDirectKey().
-		* @see		bool hasButtonDirectKey(), driver/rcinput.h for possible values
+		* @return	neutrino_msg_t \n
+		* 		If no key is avaliable return value = RC_NOKEY.
+		* @param[in]	id
+		* 	@li 	expects type size_t as item id from cc_directKeys container of the button object \n
+		* 		Default parameter is 0. This returns the first existant message value from  cc_directKeys container. \n
+		* 		If required use getKeySize() to get current count of avalable keys.
+		* @see		bool hasButtonDirectKey(), size_t getKeySize(), driver/rcinput.h for possible values
 		*/
-		neutrino_msg_t getButtonDirectKey(){return cc_directKeys[0];}
+		neutrino_msg_t getButtonDirectKey(const size_t& id = 0)
+		{
+			for (size_t i= 0; i< cc_directKeys.size(); i++){
+				if (i == 0){
+					if (cc_directKeys[i] != RC_NOKEY)
+						return cc_directKeys[i];
+				}else{
+					if (cc_directKeys[i] == id)
+						return cc_directKeys[i];
+				}
+			}
+			return RC_NOKEY;
+		}
 
 		/**
-		* Returns true if filtered event msg value of button object is found in cc_directKeys container.
+		 * Returns count of existant direct keys of cc_directKeys container.
+		 * @return	size_t
+		 * @see		getButtonDirectKey(), driver/rcinput.h for possible values
+		 */
+		size_t getKeySize() {return cc_directKeys.size();}
+
+		/**
+		* Returns true if defined parameter event msg value of button object is found in cc_directKeys container.
 		* @return	bool
 		* @param[in]	msg
-		* 	@li 	exepts type neutrino_msg_t as filter for searched message
+		* 	@li 	expects type neutrino_msg_t as filter for searched message
 		* @see		neutrino_msg_t getButtonDirectKey(), driver/rcinput.h for possible values
 		*/
 		bool hasButtonDirectKey(const neutrino_msg_t& msg)
@@ -246,10 +267,11 @@ class CComponentsButtonRed : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_RED;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_RED;
+			cc_item_type.name 	= "cc_base_red_button";
 		};
 		CComponentsButtonRed(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
@@ -257,10 +279,11 @@ class CComponentsButtonRed : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_RED;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_RED;
+			cc_item_type.name 	= "cc_base_localized_red_button";
 		};
 };
 
@@ -277,10 +300,11 @@ class CComponentsButtonGreen : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_GREEN;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_GREEN;
+			cc_item_type.name 	= "cc_base_green_button";
 
 		};
 		CComponentsButtonGreen(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -289,10 +313,11 @@ class CComponentsButtonGreen : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_GREEN;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_GREEN;
+			cc_item_type.name 	= "cc_base_localized_green_button";
 		};
 };
 
@@ -309,10 +334,11 @@ class CComponentsButtonYellow : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_YELLOW;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_YELLOW;
+			cc_item_type.name 	= "cc_base_yellow_button";
 		};
 		CComponentsButtonYellow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
@@ -320,10 +346,11 @@ class CComponentsButtonYellow : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_YELLOW;
+			cc_item_type.id		= CC_ITEMTYPE_BUTTON_YELLOW;
+			cc_item_type.name 	= "cc_base_localized_yellow_button";
 		};
 };
 
@@ -340,10 +367,11 @@ class CComponentsButtonBlue : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_BLUE;
+			cc_item_type.id		= CC_ITEMTYPE_BUTTON_BLUE;
+			cc_item_type.name 	= "cc_base_blue_button";
 		};
 		CComponentsButtonBlue(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
@@ -351,10 +379,11 @@ class CComponentsButtonBlue : public CComponentsButton
 					bool selected = false,
 					bool enabled = true,
 					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_SHADOW_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
-			cc_item_type 	= CC_ITEMTYPE_BUTTON_BLUE;
+			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_BLUE;
+			cc_item_type.name 	= "cc_base_localized_blue_button";
 		};
 };
 

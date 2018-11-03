@@ -150,6 +150,7 @@ bc.screenshot.delete=Schnappschuss l&ouml;schen
 bc.screenshot.zoom=Schnappschuss zoomen
 bc.screenshot.wait_text=Schnappschuss wird erstellt
 bc.screenshot.checkenable=OSD und/oder TV muss aktiviert sein!
+bc.screenshot.reload_desc=Reload-Intervall in Sekunden
 
 ========= Boxcontrol - Others
 bc.channels=Sender
@@ -619,3 +620,5 @@ rc.key_trsp=Trsp
 rc.key_time=
 rc.key_picsize=Pic Size
 rc.key_picmode=Pic Mode
+rc.key_pos=Pos
+rc.key_recall=Recall

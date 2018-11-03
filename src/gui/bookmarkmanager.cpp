@@ -37,6 +37,7 @@
 #include <system/settings.h>
 #include <driver/display.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <gui/components/cc.h>
 #include <gui/widget/msgbox.h>
@@ -251,9 +252,9 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 
 	int res = -1;
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
-	uint32_t msg;
-	uint32_t data;
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+	neutrino_msg_t msg;
+	neutrino_msg_data_t data;
 
 	bool loop=true;
 	bool update=true;
@@ -268,7 +269,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
 		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		if ( ( msg == CRCInput::RC_timeout ) ||
 				( msg == CRCInput::RC_home) )
@@ -413,7 +414,7 @@ void CBookmarkManager::hide()
 //------------------------------------------------------------------------
 void CBookmarkManager::paintHead()
 {
-	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_BOOKMARKMANAGER_NAME, NEUTRINO_ICON_BOOKMARK_MANAGER, CComponentsHeaderLocalized::CC_BTN_HELP);
+	CComponentsHeader header(x, y, width, theight, LOCALE_BOOKMARKMANAGER_NAME, NEUTRINO_ICON_BOOKMARK_MANAGER, CComponentsHeader::CC_BTN_HELP);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
@@ -461,7 +462,7 @@ void CBookmarkManager::paint()
 	{
 		int ypos = y+ theight;
 		int sb = 2*fheight* listmaxshow;
-		frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PASSIVE_PLUS_0);
+		frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_SCROLLBAR_PLUS_0);
 		unsigned  int  tmp_max  =  listmaxshow;
 		if(!tmp_max)
 			tmp_max  =  1;

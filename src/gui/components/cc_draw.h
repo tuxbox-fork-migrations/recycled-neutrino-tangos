@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2017, Thilo Graf 'dbt'
+	Copyright (C) 2012-2018, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -38,7 +38,7 @@ Basic paint attributes and member functions for component classes
 */
 
 class CComponentsTimer;
-class CCDraw : public COSDFader, public CComponentsSignals
+class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 {
 	protected:
 		///pixel buffer handling, returns pixel buffer depends of given parameters
@@ -62,9 +62,9 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///property: y-position on screen, to alter setPos() or setDimensionsAll(), see also defines CC_APPEND, CC_CENTERED
 		int y, y_old;
 		///property: contains real x-position on screen
-		int cc_xr;
+		int cc_xr, cc_xr_old;
 		///property: contains real y-position on screen
-		int cc_yr;
+		int cc_yr, cc_yr_old;
 		///property: height-dimension on screen, to alter with setHeight() or setDimensionsAll()
 		int height, height_old;
 		///property: width-dimension on screen, to alter with setWidth() or setDimensionsAll()
@@ -107,7 +107,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 
 		///paint caching for body and shadow, default init value = true, see also enablePaintCache() NOTE: has no effect if paint_bg = false
 		bool cc_paint_cache;
-
+		
 		///enable/disable background buffer, default init value = false, see also enableSaveBg()
 		bool cc_save_bg;
 
@@ -183,17 +183,6 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///Note: position of bound components (items) means position related within parent form, not for screen!
 		///to set the real screen position, look at setRealPos()
 		virtual void setPos(const int& xpos, const int& ypos){setXPos(xpos); setYPos(ypos);}
-
-		///sets real x position on screen. Use this, if item is added to a parent form
-		virtual void setRealXPos(const int& xr){cc_xr = xr;}
-		///sets real y position on screen. Use this, if item is added to a parent form
-		virtual void setRealYPos(const int& yr){cc_yr = yr;}
-		///sets real x and y position on screen at once. Use this, if item is added to a parent form
-		virtual void setRealPos(const int& xr, const int& yr){cc_xr = xr; cc_yr = yr;}
-		///get real x-position on screen. Use this, if item contains own render methods and item is bound to a form
-		virtual int getRealXPos(){return cc_xr;}
-		///get real y-position on screen. Use this, if item contains own render methods and item is bound to a form
-		virtual int getRealYPos(){return cc_yr;}
 
 		///set height of component on screen
 		virtual void setHeight(const int& h);
@@ -284,6 +273,8 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		virtual void enableSaveBg(bool save_bg = true);
 		///disable background buffering, does the same like enableSaveBg(false), NOTE: cleans existant pixbuffer content!
 		virtual void disableSaveBg(){enableSaveBg(false);}
+		///returns background buffering mode. Mode is assigned with paint() or enableSaveBg()/disableSaveBg())
+		bool SaveBg(){return cc_save_bg;}
 
 		///allow/disalows paint of item and its contents, but initialize of other properties are not touched
 		///this can be understood as a counterpart to isPainted(), but before paint and value of is_painted is modified temporarily till next paint of item //TODO: is this sufficiently?
@@ -301,7 +292,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		///disable color gradient, returns true if gradient mode was changed
 		virtual bool disableColBodyGradient(){return enableColBodyGradient(CC_COLGRAD_OFF);}
 		///set color gradient properties, possible parameter values for mode and intensity to find in CColorGradient, in driver/framebuffer.h>
-		virtual void setColBodyGradient(const int& mode, const int& direction = 1 /*CFrameBuffer::gradientVertical*/, const fb_pixel_t& sec_color = 255 /*=COL_BACKGROUND*/, const int& intensity = CColorGradient::normal, uint8_t v_min=0x40, uint8_t v_max=0xE0, uint8_t s=0xC0)
+		virtual void setColBodyGradient(const int& mode, const int& direction  = 1 /*CFrameBuffer::gradientVertical*/, const fb_pixel_t& sec_color = 255 /*=COL_BACKGROUND*/, const int& intensity = CColorGradient::normal, uint8_t v_min=0x40, uint8_t v_max=0xE0, uint8_t s=0xC0)
 						{	cc_body_gradient_intensity=intensity;
 							cc_body_gradient_intensity_v_min=v_min;
 							cc_body_gradient_intensity_v_max=v_max;
@@ -351,7 +342,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		 *
 		 * @return bool			returns true if effect was successful canceled
 		 *
-		 * @param[in] keep_on_screen	optional, exepts bool, default = false. means: item is not repainted after canceled effect
+		 * @param[in] keep_on_screen	optional, expects bool, default = false. means: item is not repainted after canceled effect
 		 *
 		 * @see				take a look into test menu class for examples
 		 * 				NOTE: Effect must be started with paintBlink()
@@ -394,7 +385,7 @@ class CCDraw : public COSDFader, public CComponentsSignals
 		 *	Shadow paint must be reworked, because dimensions of shadow containes not the real defined size. Parts of item are killed too.
 		 *
 		*/
-		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = CC_FBDATA_TYPES);
+		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = ~CC_FBDATA_TYPES);
 
 		/**Erase shadow around rendered item.
 		 * This is similar with the kill() member, but shadow will be handled only.

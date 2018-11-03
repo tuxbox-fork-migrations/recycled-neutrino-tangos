@@ -39,7 +39,7 @@
 #include <driver/record.h>
 #include <driver/streamts.h>
 
-#define EPG_RESCAN_TIME (24*60*60)
+//#define EPG_RESCAN_TIME (24*60*60)
 
 extern CBouquetList * bouquetList;
 extern CBouquetList * TVfavList;
@@ -113,7 +113,7 @@ void CEpgScan::AddBouquet(CChannelList * clist)
 {
 	for (unsigned i = 0; i < clist->Size(); i++) {
 		CZapitChannel * chan = clist->getChannelFromIndex(i);
-		if (!IS_WEBTV(chan->getChannelID()) && scanned.find(chan->getTransponderId()) == scanned.end())
+		if (!IS_WEBCHAN(chan->getChannelID()) && scanned.find(chan->getTransponderId()) == scanned.end())
 			scanmap.insert(eit_scanmap_pair_t(chan->getTransponderId(), chan->getChannelID()));
 	}
 }
@@ -207,11 +207,11 @@ void CEpgScan::AddTransponders()
 
 bool CEpgScan::CheckMode()
 {
-	bool webtv = IS_WEBTV(CZapit::getInstance()->GetCurrentChannelID());
+	bool webchan = IS_WEBCHAN(CZapit::getInstance()->GetCurrentChannelID());
 	if ((g_settings.epg_scan_mode == CEpgScan::MODE_OFF)
 			|| (standby && !(g_settings.epg_scan_mode & MODE_STANDBY))
 			|| (!standby && !(g_settings.epg_scan_mode & MODE_LIVE))
-			|| (!standby && !webtv && (CFEManager::getInstance()->getEnabledCount() <= 1))) {
+			|| (!standby && !webchan && (CFEManager::getInstance()->getEnabledCount() <= 1))) {
 		return false;
 	}
 	return true;
@@ -275,7 +275,7 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		INFO("EVT_ZAP_COMPLETE, scan map size: %zd\n", scanmap.size());
 #if 0
 		t_channel_id chid = *(t_channel_id *)data;
-		if (IS_WEBTV(chid))
+		if (IS_WEBCHAN(chid))
 			Next();
 #endif
 		return messages_return::handled;
@@ -322,8 +322,9 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 void CEpgScan::AddTimer()
 {
 	if (rescan_timer == 0)
-		rescan_timer = g_RCInput->addTimer(EPG_RESCAN_TIME*1000ULL*1000ULL, true);
+		rescan_timer = g_RCInput->addTimer((g_settings.epg_scan_rescan*60*60)*1000ULL*1000ULL, true);
 	INFO("rescan timer id %d", rescan_timer);
+	INFO("rescan time is %d*60*60", g_settings.epg_scan_rescan);
 }
 
 void CEpgScan::EnterStandby()
@@ -332,6 +333,9 @@ void CEpgScan::EnterStandby()
 	if (standby) {
 		CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
 		CNeutrinoApp::getInstance()->standbyToStandby();
+
+		if (g_settings.epg_save && g_settings.epg_save_standby)
+			CNeutrinoApp::getInstance()->saveEpg(NeutrinoModes::mode_standby);
 	}
 }
 
@@ -343,7 +347,7 @@ void CEpgScan::Next()
 #endif
 	next_chid = 0;
 
-	if (!standby && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby)
+	if (!standby && CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby)
 		return;
 	if (CRecordManager::getInstance()->RecordingStatus() || CStreamManager::getInstance()->StreamStatus())
 		return;
@@ -367,8 +371,8 @@ void CEpgScan::Next()
 	CFrontend *pip_fe = NULL;
 #endif
 	if (!standby) {
-		bool webtv = IS_WEBTV(CZapit::getInstance()->GetCurrentChannelID());
-		if (!webtv) {
+		bool webchan = IS_WEBCHAN(CZapit::getInstance()->GetCurrentChannelID());
+		if (!webchan) {
 			llocked = true;
 			live_fe = CZapit::getInstance()->GetLiveFrontend();
 			CFEManager::getInstance()->lockFrontend(live_fe);

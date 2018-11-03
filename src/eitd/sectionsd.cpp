@@ -5,7 +5,7 @@
  * Copyright (C) 2001 by fnbrd (fnbrd@gmx.de)
  * Homepage: http://dbox2.elxsi.de
  *
- * Copyright (C) 2008-2013 Stefan Seyfried
+ * Copyright (C) 2008-2016 Stefan Seyfried
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
  *
@@ -58,7 +58,9 @@
 #include "debug.h"
 
 #include <compatibility.h>
-
+#if ! HAVE_COOL_HARDWARE
+#include <poll.h>
+#endif
 //#define ENABLE_SDT //FIXME
 
 //#define DEBUG_SDT_THREAD
@@ -156,7 +158,7 @@ CSdtThread threadSDT;
 #endif
 
 #ifdef DEBUG_EVENT_LOCK
-static time_t lockstart = 0;
+static int64_t lockstart = 0;
 #endif
 
 static int sectionsd_stop = 0;
@@ -210,9 +212,9 @@ inline void unlockEvents(void)
 {
 #ifdef DEBUG_EVENT_LOCK
 	if (lockstart) {
-		time_t tmp = time_monotonic_ms() - lockstart;
+		int64_t tmp = time_monotonic_ms() - lockstart;
 		if (tmp > 50)
-			xprintf("locked ms %d\n", tmp);
+			xprintf("locked ms %" PRId64 "\n", tmp);
 		lockstart = 0;
 	}
 #endif
@@ -1210,16 +1212,16 @@ static void commandFreeMemory(int connfd, char * /*data*/, const unsigned /*data
 
 static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLength)
 {
-	pthread_t thrInsert;
+	pthread_t thrInsertXML;
 
 	sendEmptyResponse(connfd, NULL, 0);
 
 	if (dataLength > 100)
 		return ;
-
+	static std::string epg_dir_tmp = "";
 	writeLockMessaging();
 	data[dataLength] = '\0';
-	static std::string epg_dir_tmp = (std::string)data + "/";
+	epg_dir_tmp = (std::string)data + "/";
 	unlockMessaging();
 
 
@@ -1227,7 +1229,33 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-	if (pthread_create (&thrInsert, &attr, insertEventsfromFile, (void *)epg_dir_tmp.c_str() ))
+	if (pthread_create (&thrInsertXML, &attr, insertEventsfromFile, (void *)epg_dir_tmp.c_str() ))
+	{
+		perror("sectionsd: pthread_create()");
+	}
+
+	pthread_attr_destroy(&attr);
+}
+
+static void commandReadSIfromXMLTV(int connfd, char *data, const unsigned dataLength)
+{
+	pthread_t thrInsertXMLTV;
+
+	sendEmptyResponse(connfd, NULL, 0);
+
+	if (dataLength > 100)
+		return ;
+	static std::string url_tmp = "";
+	writeLockMessaging();
+	data[dataLength] = '\0';
+	url_tmp = (std::string)data;
+	unlockMessaging();
+
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+	if (pthread_create (&thrInsertXMLTV, &attr, insertEventsfromXMLTV, (void *)url_tmp.c_str() ))
 	{
 		perror("sectionsd: pthread_create()");
 	}
@@ -1269,6 +1297,7 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 	{	commandReadSIfromXML,			"commandReadSIfromXML"			},
 	{	commandWriteSI2XML,			"commandWriteSI2XML"			},
 	{	commandSetConfig,			"commandSetConfig"			},
+	{	commandReadSIfromXMLTV,			"commandReadSIfromXMLTV"		},
 };
 
 bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)
@@ -1428,7 +1457,8 @@ void CTimeThread::run()
 	set_threadname(name.c_str());
 	time_t dvb_time = 0;
 	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
-
+	const std::string tn = ("sd:" + name).c_str();
+	set_threadname(tn.c_str());
 	addFilters();
 	DMX::start();
 
@@ -1470,7 +1500,7 @@ void CTimeThread::run()
 
 			xprintf("%s: get DVB time ch 0x%012" PRIx64 " (isOpen %d)\n",
 				name.c_str(), current_service, isOpen());
-			int rc;
+			int rc = 0;
 #if HAVE_COOL_HARDWARE
 			/* libcoolstream does not like the repeated read if the dmx is not yet running
 			 * (e.g. during neutrino start) and causes strange openthreads errors which in
@@ -1478,7 +1508,7 @@ void CTimeThread::run()
 			 * shutdown" hack on with libcoolstream... :-( */
 			rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
 #else
-			time_t m_start = time_monotonic_ms();
+			int64_t start = time_monotonic_ms();
 			/* speed up shutdown by looping around Read() */
 			struct pollfd ufds;
 			ufds.events = POLLIN|POLLPRI|POLLERR;
@@ -1490,11 +1520,12 @@ void CTimeThread::run()
 				rc = ::poll(&ufds, 1, timeoutInMSeconds / 36);
 				if (running && rc == 1) {
 					DMX::lock();
-					if (ufds.fd == dmx->getFD())
+					if (ufds.fd == dmx->getFD()){
 						rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, 10);
+					}
 					DMX::unlock();
 				}
-			} while (running && rc == 0 && (time_monotonic_ms() < timeoutInMSeconds + m_start));
+			} while (running && rc == 0 && (time_monotonic_ms() < (int64_t)timeoutInMSeconds + start));
 #endif
 			xprintf("%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d\n",
 				name.c_str(), current_service, rc, messaging_neutrino_sets_time);
@@ -1510,14 +1541,13 @@ void CTimeThread::run()
 		sleep_time = ntprefresh * 60;
 		if(success) {
 			if(dvb_time) {
-				if (dvb_time > (time_t) 1420074000) /*1420074000 - 01.01.2015*/
-					setSystemTime(dvb_time);
+				setSystemTime(dvb_time);
 				/* retry a second time immediately after start, to get TOT ? */
 				if(first_time)
 					sleep_time = 5;
 			}
-			/* in case of wrong TDT date, dont send time is set, 1420074000 - 01.01.2015 */
-			if(time_ntp || (dvb_time > (time_t) 1420074000)) {
+			/* in case of wrong TDT date, dont send time is set, 1506808800 - 01.10.2017 */
+			if(time_ntp || (dvb_time > (time_t) 1506808800)) {
 				sendTimeEvent(time_ntp, dvb_time);
 				xprintf("%s: Time set via %s, going to sleep for %d seconds.\n", name.c_str(),
 						time_ntp ? "NTP" : first_time ? "DVB (TDT)" : "DVB (TOT)", sleep_time);
@@ -1569,6 +1599,8 @@ void CSectionThread::run()
 {
 	set_threadname(name.c_str());
 	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
+	const std::string tn = ("sd:" + name).c_str();
+	set_threadname(tn.c_str());
 	if (sections_debug)
 		dump_sched_info(name);
 
@@ -2252,6 +2284,7 @@ void CEitManager::run()
 	int rc;
 
 	xprintf("[sectionsd] starting\n");
+	set_threadname("sd:eitmanager");
 printf("SIevent size: %d\n", (int)sizeof(SIevent));
 
 	/* "export NO_SLOW_ADDEVENT=true" to disable this */

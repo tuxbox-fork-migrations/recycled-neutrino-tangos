@@ -67,7 +67,7 @@ CHintBox::CHintBox(	const neutrino_locale_t Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent): CComponentsWindow(	0, 0, width,
+			const int& indent): CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
@@ -84,7 +84,7 @@ CHintBox::CHintBox(	const char * const Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	0, 0, width,
+			const int& indent):CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
@@ -101,7 +101,7 @@ CHintBox::CHintBox(	const neutrino_locale_t  Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	0, 0, width,
+			const int& indent):CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
@@ -118,7 +118,7 @@ CHintBox::CHintBox(	const char * const Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	0, 0, width,
+			const int& indent):CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
@@ -131,6 +131,7 @@ CHintBox::CHintBox(	const char * const Caption,
 
 void CHintBox::init(const std::string& Text, const int& Width, const std::string& Picon, const int& header_buttons, const int& text_mode, const int& indent)
 {
+	int _Width	= frameBuffer->scale2Res(Width);
 	timeout		= HINTBOX_DEFAULT_TIMEOUT;
 	w_indentation	= indent;
 
@@ -146,7 +147,7 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 		showHeader(false);
 
 	//set required window width and basic height, consider existent header instance and its caption width
-	width 		= getMaxWidth(Text, ccw_caption, hb_font, Width);
+	width 		= getMaxWidth(Text, ccw_caption, hb_font, _Width);
 	height 		= max(HINTBOX_MIN_HEIGHT, min(HINTBOX_MAX_HEIGHT, height));
 
 	ccw_buttons = header_buttons;
@@ -162,6 +163,8 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 
 	if (!Text.empty())
 		addHintItem(Text, text_mode, Picon, COL_MENUCONTENT_TEXT, hb_font);
+	else
+		ReSize();
 }
 
 CHintBox::~CHintBox()
@@ -188,6 +191,7 @@ void CHintBox::enableTimeOutBar(bool enable)
 		CFrameBuffer::getInstance()->blit();
 	}else{
 		timeout_pb = new CProgressBar();
+		timeout_pb->setType(CProgressBar::PB_TIMESCALE);
 		timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
 		timeout_pb->setValues(0, 100*timeout);
 		if (!timeout_pb_timer) {
@@ -207,7 +211,7 @@ int CHintBox::exec()
 	if (timeout == NO_TIMEOUT || timeout == DEFAULT_TIMEOUT)
 		timeout = HINTBOX_DEFAULT_TIMEOUT;
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	if (timeout > 0)
 		enableTimeOutBar();
@@ -264,17 +268,21 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	/* set required font and line height */
 	Font* item_font = !font_text ? hb_font : font_text;
 
+	/* set picon */
+	string picon = Picon;
+
 	/* pre define required info height depends of lines and minimal needed height*/
 	int line_breaks = CTextBox::getLines(Text);
 	int h_font = item_font->getHeight();
-	int h_lines = h_font * line_breaks;
+	int h_lines = h_font;
+	h_lines += h_font * line_breaks;
 
 	/* get required height depends of possible lines and max height */
 	h_hint_obj = min(HINTBOX_MAX_HEIGHT - (ccw_head ? ccw_head->getHeight() : 0), h_lines + 2*w_indentation);
 
 	int txt_mode = text_mode;
 	/* remove CENTER mode if picon defined */
-	if (!Picon.empty() && (txt_mode & CTextBox::CENTER)){
+	if (!picon.empty() && (txt_mode & CTextBox::CENTER)){
 		txt_mode &= ~CTextBox::CENTER;
 	}
 
@@ -311,16 +319,11 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 								color_text);
 
 	/* define picon and disable bg */
-	info_box->setPicture(Picon);
+	info_box->setPicture(picon);
 	info_box->doPaintBg(false);
 
-	/* recalculate new hintbox height */
+	/* recalculate new hintbox dimensions and position*/
 	ReSize();
-
-	/* set hint box position general to center and refresh window */
-	setCenterPos(CC_ALONG_X);
-	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height) >> 2),
-	Refresh();
 }
 
 void CHintBox::setMsgText(const std::string& Text, const uint& hint_id, const int& mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
@@ -352,6 +355,10 @@ void CHintBox::ReSize()
 		h += item->getHeight();
 	}
 	height = min(HINTBOX_MAX_HEIGHT, max(HINTBOX_MIN_HEIGHT, max(height,h)));
+
+	/* set hint box position general to center and refresh window */
+	setCenterPos(CC_ALONG_X);
+	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height) >> 2),
 	Refresh();
 }
 

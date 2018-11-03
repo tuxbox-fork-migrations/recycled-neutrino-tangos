@@ -86,7 +86,7 @@ int CLuaInstHintbox::HintboxNew(lua_State *L)
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "text", text);
 	tableLookup(L, "icon", icon);
-	lua_Integer width = 450;
+	lua_Integer width = HINTBOX_MIN_WIDTH;
 	tableLookup(L, "width", width);
 
 	CLuaHintbox **udata = (CLuaHintbox **) lua_newuserdata(L, sizeof(CLuaHintbox *));
@@ -136,9 +136,9 @@ int CLuaInstHintbox::HintboxExec(lua_State *L)
 	neutrino_msg_data_t data;
 	if ( timeout == -1 )
 		timeout = 5; /// default timeout 5 sec
-	//timeout = g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR];
+	//timeout = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR];
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	int res = messages_return::none;
 

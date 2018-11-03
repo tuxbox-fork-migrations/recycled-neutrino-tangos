@@ -278,12 +278,17 @@ void CStringInput::keyDownPressed()
 {
 	int npos = 0;
 	std::string tmp_value = *valueString;
-	for(int count=0;count<(int)strlen(validchars);count++)
+	const int validchar_len = (int)strlen(validchars);
+	for(int count=0;count<validchar_len;count++)
 		if(valueString->at(selected)==validchars[count])
 			npos = count;
 	npos--;
-	if(npos<0)
-		npos = strlen(validchars)-1;
+	if(npos<0){
+		if(validchar_len > 0)
+			npos = validchar_len-1;
+		else
+			npos = 0;
+	}
 	valueString->at(selected)=validchars[npos];
 
 	int current_value = atoi(*valueString);
@@ -363,11 +368,6 @@ void CStringInput::keyPlusPressed()
 	}
 }
 
-std::string &CStringInput::getValue(void)
-{
-	return *valueString;
-}
-
 void CStringInput::forceSaveScreen(bool enable)
 {
 	force_saveScreen = enable;
@@ -402,7 +402,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 
 	paint();
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 	bool loop=true;
 	while (loop)
@@ -417,7 +417,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true );
 
 		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		if ((msg == NeutrinoMessages::EVT_TIMER) && (data == smstimer))
 			msg = CRCInput::RC_right;
@@ -485,10 +485,10 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		}
 		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
 		{
-			string tmp_name = name == NONEXISTANT_LOCALE ? head : g_Locale->getText(name);
+			std::string tmp_name = name == NONEXISTANT_LOCALE ? head : g_Locale->getText(name);
 			if ((trim (*valueString) != trim(oldval)) &&
 			     (ShowMsg(tmp_name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				continue;
 			}
 
@@ -631,7 +631,7 @@ void CStringInputSMS::initSMS(const char * const Valid_Chars)
 	last_digit = -1;				// no key pressed yet
 	const char CharList[10][11] = { "0 -_/()<>=",	// 10 characters
 					"1+.,:!?%\\'",  //' for c't search ;)
-					"abc2ä",
+					"abc2@ä",
 					"def3",
 					"ghi4",
 					"jkl5",

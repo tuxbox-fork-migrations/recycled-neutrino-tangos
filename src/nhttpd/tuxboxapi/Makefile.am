@@ -16,10 +16,13 @@ AM_CPPFLAGS += \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
+	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libnhttpd_tuxboxapi.a
 
 libnhttpd_tuxboxapi_a_SOURCES = \
-	neutrinoapi.cpp neutrinoyparser.cpp controlapi.cpp
+	controlapi.cpp \
+	neutrinoapi.cpp \
+	neutrinoyparser.cpp
 	

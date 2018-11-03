@@ -33,7 +33,7 @@
 #ifndef __remotecontrol__
 #define __remotecontrol__
 
-#include <driver/rcinput.h> /* neutrino_msg_t, neutrino_msg_data_t */
+#include <driver/neutrino_msg_t.h>
 
 #include <zapit/client/zapitclient.h>
 
@@ -71,7 +71,7 @@ typedef std::vector<CSubService> CSubServiceListSorted;
 
 class CRemoteControl
 {
-	//unsigned int            current_programm_timer;
+//	unsigned int            current_programm_timer;
 	uint64_t		zap_completion_timeout;
 	std::string             current_channel_name;
 	int			current_channel_num;

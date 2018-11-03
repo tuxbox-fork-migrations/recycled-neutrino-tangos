@@ -33,6 +33,7 @@
 #include <config.h>
 #endif
 
+#include <unistd.h>
 
 #include "osdlang_setup.h"
 
@@ -262,6 +263,8 @@ bool COsdLangSetup::changeNotify(const neutrino_locale_t, void *)
 {
 	//apply osd language
 	g_Locale->loadLocale(g_settings.language.c_str());
+
+	// TODO: reload channellists to apply changes to localized bouquet names?
 
 	return true;
 }

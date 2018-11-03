@@ -33,16 +33,18 @@
 #ifndef __epgview__
 #define __epgview__
 
-#include <driver/rcinput.h>
 #include <system/settings.h>
 
+#include <gui/imdb.h>
 #include <driver/movieinfo.h>
 #include "widget/menue.h"
-
+#include "widget/navibar.h"
+#include "gui/components/cc.h"
 #include <vector>
 #include <string>
 
 class CFrameBuffer;
+class CEPGRateBanner;
 class CEpgData
 {
 	private:
@@ -50,7 +52,12 @@ class CEpgData
 		CChannelEventList	evtlist;
 		CChannelEventList	followlist;
 		CEPGData		epgData;
-		CComponentsShapeSquare* header;
+		CIMDB			*imdb;
+
+		CComponentsHeader	*header;
+		CNaviBar 		*Bottombox;
+		CProgressBar 		*pb;
+		Font			*font_title;
 		std::string 		epg_date;
 		std::string 		epg_start;
 		std::string 		epg_end;
@@ -92,6 +99,15 @@ class CEpgData
 		void showProgressBar();
 		bool isCurrentEPG(const t_channel_id channel_id);
 
+
+		bool imdb_active;
+		int imdb_stars;
+		std::string imdb_rating;
+		std::string epg_title;
+		std::string movie_filename;
+		int showIMDb(bool splash = false);
+		Font *fontIMDb;
+
 	public:
 
 		CEpgData();
@@ -100,15 +116,47 @@ class CEpgData
 		int show(const t_channel_id channel_id, uint64_t id = 0, time_t* startzeit = NULL, bool doLoop = true, bool callFromfollowlist = false, bool mp_info = false );
 		int show_mp(MI_MOVIE_INFO *mi, int mp_position = 0, int mp_duration = 0, bool doLoop = true);
 		void hide();
+		void ResetModules();
 };
-
-
 
 class CEPGDataHandler : public CMenuTarget
 {
 	public:
-		int  exec( CMenuTarget* parent,  const std::string &actionkey);
+		int exec(CMenuTarget* parent,  const std::string &actionkey);
 
+};
+
+class CEPGRateBanner : public CComponentsIconForm
+{
+	private:
+		void init(const std::string& quote_icon, const std::string& quote_icon_bg, const size_t& quote, const size_t& quote_max, const std::string& provider_logo)
+		{
+			cc_item_type.name 	= "epg_rate_banner";
+			append_x_offset = 5;
+			paint_bg = false;
+			addIcons(provider_logo);
+			addIcons(quote_icon, quote);
+			addIcons(quote_icon_bg, quote_max - quote);
+		}
+
+	public:
+
+	CEPGRateBanner(	const int &x_pos,
+			const int &y_pos,
+			const size_t& quote,
+			const size_t& quote_max = 10,
+			const std::string& provider_logo = "",
+			const std::string& quote_icon = NEUTRINO_ICON_STAR_ON,
+			const std::string& quote_icon_bg = NEUTRINO_ICON_STAR_OFF,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
+			CComponentsForm *parent = NULL)
+			:CComponentsIconForm(x_pos, y_pos, 0, 0, std::vector<std::string>(), parent, shadow_mode, color_frame, color_body, color_shadow)
+			{
+				init(quote_icon, quote_icon_bg, quote, quote_max, provider_logo);
+			};
 };
 
 

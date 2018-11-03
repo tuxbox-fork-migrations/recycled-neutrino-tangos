@@ -19,8 +19,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -55,6 +54,7 @@
 #include <zapit/satconfig.h>
 #include <zapit/getservices.h>
 #include <eitd/sectionsd.h>
+#include <system/helpers.h>
 
 #include <algorithm>
 #include <sstream>
@@ -68,6 +68,7 @@ time_t EpgPlus::duration = 0;
 int EpgPlus::sliderWidth = 0;
 int EpgPlus::channelsTableWidth = 0;
 int EpgPlus::entryFontSize = 0;
+int EpgPlus::channelNumberOffset = 0;
 
 /* negative size means "screen width in percent" */
 static EpgPlus::SizeSetting sizeSettingTable[] =
@@ -81,16 +82,22 @@ static int current_bouquet;
 
 Font *EpgPlus::Header::font = NULL;
 
-EpgPlus::Header::Header(CFrameBuffer * pframeBuffer, int px, int py, int pwidth)
+EpgPlus::Header::Header(CFrameBuffer * pframeBuffer __attribute__((unused)), int px, int py, int pwidth)
 {
-	this->frameBuffer = pframeBuffer;
+	//this->frameBuffer = pframeBuffer;
 	this->x = px;
 	this->y = py;
 	this->width = pwidth;
+	this->head = NULL;
 }
 
 EpgPlus::Header::~Header()
 {
+	if (this->head)
+	{
+		delete this->head;
+		this->head = NULL;
+	}
 }
 
 void EpgPlus::Header::init()
@@ -100,10 +107,23 @@ void EpgPlus::Header::init()
 
 void EpgPlus::Header::paint(const char * Name)
 {
-	std::string head = Name ? Name : g_Locale->getText(LOCALE_EPGPLUS_HEAD);
+	std::string caption = Name ? Name : g_Locale->getText(LOCALE_EPGPLUS_HEAD);
 
-	CComponentsHeader _header(this->x, this->y, this->width, this->font->getHeight(), head);
-	_header.paint(CC_SAVE_SCREEN_NO);
+	if (this->head == NULL)
+	{
+		this->head = new CComponentsHeader();
+		this->head->setContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT);
+		this->head->enableClock(true, "%H:%M", "%H %M", true);
+		this->head->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
+		this->head->getClockObject()->setBlit(false);
+	}
+
+	if (this->head)
+	{
+		this->head->setDimensionsAll(this->x, this->y, this->width, this->font->getHeight());
+		this->head->setCaption(caption);
+		this->head->paint(CC_SAVE_SCREEN_NO);
+	}
 }
 
 int EpgPlus::Header::getUsedHeight()
@@ -177,6 +197,9 @@ void EpgPlus::TimeLine::paint(time_t _startTime, int pduration)
 
 		toggleColor = !toggleColor;
 	}
+
+	// shadow
+	this->frameBuffer->paintBoxRel(this->x + this->width, this->y + OFFSET_SHADOW, OFFSET_SHADOW, this->getUsedHeight(), COL_SHADOW_PLUS_0);
 }
 
 void EpgPlus::TimeLine::paintGrid()
@@ -198,12 +221,12 @@ void EpgPlus::TimeLine::paintMark(time_t _startTime, int pduration, int px, int 
 	this->clearMark();
 
 	// paint new mark
-	time_t azeit;
-	time(&azeit);
-	if (((azeit > _startTime) && (azeit < _startTime + pduration)) && (g_settings.theme.progressbar_design_channellist != CProgressBar::PB_OFF))
+	time_t currentTime;
+	time(&currentTime);
+	if (((currentTime > _startTime) && (currentTime < _startTime + pduration)) && (g_settings.theme.progressbar_design_channellist != CProgressBar::PB_OFF))
 	{
 		CProgressBar pbbar = CProgressBar(px,this->y + this->font->getHeight(),pwidth,this->font->getHeight());
-		pbbar.setValues((azeit - _startTime),pduration);
+		pbbar.setValues((currentTime - _startTime),pduration);
 		pbbar.setType(CProgressBar::PB_TIMESCALE);
 		pbbar.setDesign(g_settings.theme.progressbar_design_channellist);
 		pbbar.setCornerType(0);
@@ -228,20 +251,24 @@ void EpgPlus::TimeLine::paintMark(time_t _startTime, int pduration, int px, int 
 	this->font->RenderString(px - textWidth - OFFSET_INNER_MIN, this->y + this->font->getHeight() + this->font->getHeight(),
 					textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
-	// display end time after mark
+	// display end time
 	timeStr = EpgPlus::getTimeString(_startTime + pduration, "%H:%M");
 	textWidth = font->getRenderWidth(timeStr);
+	int textX = 0;
 
-	if (px + pwidth + textWidth < this->x + this->width)
+	if (px + pwidth + textWidth + OFFSET_INNER_MIN < this->x + this->width)
 	{
-		this->font->RenderString(px + pwidth + OFFSET_INNER_MIN, this->y + this->font->getHeight() + this->font->getHeight(),
-						textWidth, timeStr, COL_MENUCONTENT_TEXT);
+		// display end time after mark
+		textX = px + pwidth + OFFSET_INNER_MIN;
 	}
-	else if (textWidth < pwidth - OFFSET_INNER_MID)
+	else if (textWidth < pwidth - 2*OFFSET_INNER_MIN)
 	{
-		this->font->RenderString(px + pwidth - textWidth - OFFSET_INNER_MIN, this->y + this->font->getHeight() + this->font->getHeight(),
-						textWidth, timeStr, COL_MENUCONTENTSELECTED_TEXT);
+		// display end time before mark
+		textX = px + pwidth - textWidth - OFFSET_INNER_MIN;
 	}
+
+	if (textX)
+		this->font->RenderString(textX, this->y + this->font->getHeight() + this->font->getHeight(), textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
 	// paint the separation line
 	if (separationLineThickness > 0)
@@ -255,6 +282,13 @@ void EpgPlus::TimeLine::clearMark()
 {
 	this->frameBuffer->paintBoxRel(this->x, this->y + this->font->getHeight(),
 					this->width, this->font->getHeight() , COL_MENUCONTENT_PLUS_0);
+
+	// paint the separation line
+	if (separationLineThickness > 0)
+	{
+		this->frameBuffer->paintBoxRel(this->x, this->y + this->font->getHeight() + this->font->getHeight(),
+					this->width, this->separationLineThickness, COL_MENUCONTENTDARK_PLUS_0);
+	}
 }
 
 int EpgPlus::TimeLine::getUsedHeight()
@@ -296,11 +330,17 @@ bool EpgPlus::ChannelEventEntry::isSelected(time_t _selectedTime) const
 
 void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 {
-	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(),
-					this->channelEvent.description.empty()? COL_MENUCONTENT_PLUS_0 : (pisSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : (toggleColor ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENT_PLUS_1)));
+	bool selected = this->channelEvent.description.empty() ? false : pisSelected;
+
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
+
+	getItemColors(color, bgcolor, selected, false, toggleColor, true /* toggle enlighten */);
+
+	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(), bgcolor);
 
 	this->font->RenderString(this->x + OFFSET_INNER_SMALL, this->y + this->font->getHeight(),
-					this->width - 2*OFFSET_INNER_SMALL > 0 ? this->width - 2*OFFSET_INNER_SMALL : 0, this->channelEvent.description, pisSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
+					this->width - 2*OFFSET_INNER_SMALL > 0 ? this->width - 2*OFFSET_INNER_SMALL : 0, this->channelEvent.description, color);
 
 	// paint the separation lines
 	if (separationLineThickness > 0)
@@ -314,7 +354,8 @@ void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 					this->width, this->separationLineThickness, COL_MENUCONTENTDARK_PLUS_0);
 	}
 
-	if (pisSelected) {
+	if (pisSelected)
+	{
 		if (this->channelEvent.description.empty())
 		{	// dummy channel event
 			this->timeLine->clearMark();
@@ -345,16 +386,12 @@ EpgPlus::ChannelEntry::ChannelEntry(const CZapitChannel * pchannel, int pindex, 
 {
 	this->channel = pchannel;
 
+	this->displayNumber = "";
+	this->displayName = "";
 	if (pchannel != NULL)
 	{
-		std::stringstream pdisplayName;
-		//pdisplayName << pindex + 1 << " " << pchannel->getName();
-		if (g_settings.channellist_show_numbers)
-			pdisplayName << pchannel->number << " " << pchannel->getName();
-		else
-			pdisplayName << pchannel->getName();
-
-		this->displayName = pdisplayName.str();
+		this->displayNumber = to_string(pchannel->number);
+		this->displayName = pchannel->getName();
 	}
 
 	this->index = pindex;
@@ -402,17 +439,41 @@ EpgPlus::ChannelEntry::~ChannelEntry()
 
 void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 {
-	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(),
-					isSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : COL_MENUCONTENT_PLUS_0);
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
 
-	this->logo = new CComponentsChannelLogoScalable(this->x + OFFSET_INNER_MID, this->y, "", this->channel->channel_id);
-	this->logo->setHeight(this->font->getHeight(),true);
+	int radius = isSelected ? RADIUS_MID : RADIUS_NONE;
 
+	getItemColors(color, bgcolor, isSelected);
+
+	this->frameBuffer->paintBoxRel(this->x, this->y, this->width, this->font->getHeight(), bgcolor, radius, CORNER_LEFT);
+
+	int xPos = this->x + OFFSET_INNER_MID;
+	int numberWidth = 0;
+
+	this->logo = new CComponentsChannelLogoScalable(xPos, this->y, "", this->channel->channel_id);
 	if ((g_settings.channellist_show_channellogo) && this->logo->hasLogo())
+	{
+		this->logo->setWidth(std::min(this->logo->getWidth(), this->width - 2*OFFSET_INNER_MID), true);
+		if (this->logo->getHeight() > this->font->getHeight() - OFFSET_INNER_MIN)
+			this->logo->setHeight(this->font->getHeight() - OFFSET_INNER_MIN, true);
+		this->logo->setYPos(this->y+(this->font->getHeight()-this->logo->getHeight())/2);
 		this->logo->paint(false);
+	}
 	else
-		this->font->RenderString(this->x + OFFSET_INNER_MID, this->y + this->font->getHeight(),
-					this->width - 2*OFFSET_INNER_MID, this->displayName, isSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
+	{
+		if (g_settings.channellist_show_numbers)
+		{
+			// display channelnumber
+			int xOffset = EpgPlus::channelNumberOffset - this->font->getRenderWidth(this->displayNumber);
+			this->font->RenderString(xPos + xOffset, this->y + this->font->getHeight(), this->width - 2*OFFSET_INNER_MID, this->displayNumber, color);
+			numberWidth = EpgPlus::channelNumberOffset + OFFSET_INNER_SMALL;
+			xPos += numberWidth;
+		}
+
+		// display channelname
+		this->font->RenderString(xPos, this->y + this->font->getHeight(), this->width - numberWidth - 2*OFFSET_INNER_MID, this->displayName, color);
+	}
 
 	if (isSelected)
 	{
@@ -472,7 +533,7 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 	// paint detailsline
 	if (isSelected)
 	{
-		int xPos	= this->x - DETAILSLINE_WIDTH;
+		xPos		= this->x - DETAILSLINE_WIDTH;
 		int yPosTop	= this->y + this->font->getHeight()/2;
 		int yPosBottom	= this->footer->y + this->footer->getUsedHeight()/2;
 
@@ -501,7 +562,7 @@ EpgPlus::Footer::Footer(CFrameBuffer * pframeBuffer, int px, int py, int pwidth,
 	this->width = pwidth;
 
 	this->buttonHeight = pbuttonHeight;
-	this->buttonY = this->y - OFFSET_INTER - this->buttonHeight;
+	this->buttonY = this->y - OFFSET_INTER - OFFSET_SHADOW - this->buttonHeight;
 }
 
 EpgPlus::Footer::~Footer()
@@ -532,6 +593,7 @@ void EpgPlus::Footer::paintEventDetails(const std::string & description, const s
 	int frame_thickness = 2;
 
 	// clear the whole footer
+	this->frameBuffer->paintBoxRel(this->x + OFFSET_SHADOW, yPos + OFFSET_SHADOW, this->width, this->getUsedHeight(), COL_SHADOW_PLUS_0, RADIUS_LARGE);
 	this->frameBuffer->paintBoxRel(this->x, yPos, this->width, this->getUsedHeight(), COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);
 	this->frameBuffer->paintBoxFrame(this->x, yPos, this->width, this->getUsedHeight(), frame_thickness, COL_FRAME_PLUS_0, RADIUS_LARGE);
 
@@ -560,8 +622,9 @@ struct button_label buttonLabels[] =
 void EpgPlus::Footer::paintButtons(button_label * pbuttonLabels, int numberOfButtons)
 {
 	int buttonWidth = (this->width);
-	CComponentsFooter _footer;
-	_footer.paintButtons(this->x, this->buttonY, buttonWidth, buttonHeight, numberOfButtons, pbuttonLabels, buttonWidth/numberOfButtons);
+	CComponentsFooter foot;
+	foot.enableShadow(CC_SHADOW_ON, -1, true);
+	foot.paintButtons(this->x, this->buttonY, buttonWidth, buttonHeight, numberOfButtons, pbuttonLabels, buttonWidth/numberOfButtons);
 }
 
 EpgPlus::EpgPlus()
@@ -713,6 +776,16 @@ void EpgPlus::createChannelEntries(int selectedChannelEntryIndex)
 
 		this->selectedChannelEntry = this->displayedChannelEntries[selectedChannelEntryIndex - this->channelListStartIndex];
 	}
+
+	// get largest channelnumber
+	int n = 1;
+	for (TChannelEntries::iterator It = this->displayedChannelEntries.begin();
+			It != this->displayedChannelEntries.end();
+			++It)
+	{
+		n = std::max(n, (*It)->channel->number);
+	}
+	channelNumberOffset = ChannelEntry::font->getRenderWidth(to_string(n));
 }
 
 void EpgPlus::init()
@@ -722,8 +795,8 @@ void EpgPlus::init()
 	currentViewMode = ViewMode_Scroll;
 	currentSwapMode = SwapMode_ByPage;
 #endif
-	usableScreenWidth = frameBuffer->getScreenWidthRel();
-	usableScreenHeight = frameBuffer->getScreenHeightRel();
+	usableScreenWidth = frameBuffer->getWindowWidth();
+	usableScreenHeight = frameBuffer->getWindowHeight();
 
 	for (size_t i = 0; i < NumberOfSizeSettings; ++i)
 	{
@@ -759,11 +832,13 @@ void EpgPlus::init()
 
 	int footerHeight = Footer::getUsedHeight();
 
-	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - buttonHeight - OFFSET_INTER - footerHeight) / this->entryHeight;
+	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - buttonHeight - OFFSET_SHADOW - OFFSET_INTER - footerHeight - OFFSET_SHADOW) / this->entryHeight;
 	this->bodyHeight = this->maxNumberOfDisplayableEntries * entryHeight;
 
-	this->usableScreenHeight = headerHeight + timeLineHeight + this->bodyHeight + buttonHeight + OFFSET_INTER + footerHeight; // recalc deltaY
+	this->usableScreenHeight = headerHeight + timeLineHeight + this->bodyHeight + buttonHeight + OFFSET_SHADOW + OFFSET_INTER + footerHeight + OFFSET_SHADOW; // recalc deltaY
 	this->usableScreenX = getScreenStartX(this->usableScreenWidth);
+	if (this->usableScreenX < DETAILSLINE_WIDTH)
+		this->usableScreenX = DETAILSLINE_WIDTH;
 	this->usableScreenY = getScreenStartY(this->usableScreenHeight);
 
 	this->headerX = this->usableScreenX;
@@ -775,7 +850,7 @@ void EpgPlus::init()
 	this->timeLineWidth = this->usableScreenWidth;
 
 	this->footerX = usableScreenX;
-	this->footerY = this->usableScreenY + this->usableScreenHeight - footerHeight;
+	this->footerY = this->usableScreenY + this->usableScreenHeight - OFFSET_SHADOW - footerHeight;
 	this->footerWidth = this->usableScreenWidth;
 
 	this->channelsTableX = this->usableScreenX;
@@ -857,14 +932,17 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 		this->paint();
 		frameBuffer->blit();
 
-		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+		this->header->head->getClockObject()->setBlit();
+
+		int timeout = g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST];
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 		bool loop = true;
 		while (loop)
 		{
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
 			if (msg <= CRCInput::RC_MaxRC)
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+				timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 
 			if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer()))
@@ -876,7 +954,7 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 			{
 				if (fader.StartFadeOut())
 				{
-					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+					timeoutEnd = CRCInput::calcTimeoutEnd(1);
 					msg = 0;
 				}
 				else
@@ -998,7 +1076,9 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 			else if (msg == CRCInput::RC_ok)
 			{
 				if (selectedChannelEntry)
+				{
 					CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(selectedChannelEntry->channel->getChannelID());
+				}
 				current_bouquet = bouquetList->getActiveBouquetNumber();
 			} 
 			else if (CRCInput::isNumeric(msg))
@@ -1234,6 +1314,11 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 					}
 				}
 			}
+			else if (msg == CRCInput::RC_home)
+			{
+				loop = false;
+				res = menu_return::RETURN_EXIT_ALL;
+			}
 			else if (CNeutrinoApp::getInstance()->listModeKey(msg))
 			{
 				g_RCInput->postMsg(msg, 0);
@@ -1307,7 +1392,20 @@ EpgPlus::TCChannelEventEntries::const_iterator EpgPlus::getSelectedEvent() const
 
 void EpgPlus::hide()
 {
-	this->frameBuffer->paintBackgroundBoxRel(this->usableScreenX - DETAILSLINE_WIDTH, this->usableScreenY, DETAILSLINE_WIDTH + this->usableScreenWidth, this->usableScreenHeight);
+	if (this->header->head)
+	{
+		this->header->head->kill();
+		delete this->header->head;
+		this->header->head = NULL;
+	}
+
+	if (this->selectedChannelEntry->detailsLine) {
+		this->selectedChannelEntry->detailsLine->kill();
+		delete this->selectedChannelEntry->detailsLine;
+		this->selectedChannelEntry->detailsLine = NULL;
+	}
+
+	this->frameBuffer->paintBackgroundBoxRel(this->usableScreenX, this->usableScreenY, this->usableScreenWidth + OFFSET_SHADOW, this->usableScreenHeight + OFFSET_SHADOW);
 	frameBuffer->blit();
 }
 
@@ -1351,42 +1449,14 @@ void EpgPlus::paint()
 	this->timeLine->paintGrid();
 
 	// paint slider
-	int total_pages = ((this->channelList->getSize() - 1) / this->maxNumberOfDisplayableEntries) + 1;
-	int current_page = this->selectedChannelEntry == NULL ? 0 : (this->selectedChannelEntry->index / this->maxNumberOfDisplayableEntries);
+	int total_pages;
+	int current_page;
+	getScrollBarData(&total_pages, &current_page,
+		this->channelList->getSize(),
+		this->maxNumberOfDisplayableEntries,
+		this->selectedChannelEntry == NULL ? 0 : this->selectedChannelEntry->index);
 
-	paintScrollBar(this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, total_pages, current_page);
-}
-
-// -- EPG+ Menue Handler Class
-// -- to be used for calls from Menue
-// -- (2004-03-05 rasc)
-
-int CEPGplusHandler::exec(CMenuTarget * parent, const std::string & /*actionKey*/)
-{
-	int res = menu_return::RETURN_EXIT_ALL;
-	EpgPlus *e;
-	CChannelList *channelList;
-
-	if (parent)
-		parent->hide();
-
-	e = new EpgPlus;
-
-	//channelList = CNeutrinoApp::getInstance()->channelList;
-	int bnum = bouquetList->getActiveBouquetNumber();
-	current_bouquet = bnum;
-	if (!bouquetList->Bouquets.empty() && !bouquetList->Bouquets[bnum]->channelList->isEmpty())
-		channelList = bouquetList->Bouquets[bnum]->channelList;
-	else
-		channelList = CNeutrinoApp::getInstance()->channelList;
-
-	e->exec(channelList, channelList->getSelectedChannelIndex(), bouquetList);
-	delete e;
-	// FIXME
-	//printf("CEPGplusHandler::exec old bouquet %d new %d current %d\n", bnum, bouquetList->getActiveBouquetNumber(), current_bouquet);
-	bouquetList->activateBouquet(current_bouquet, false);
-
-	return res;
+	paintScrollBar(this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, total_pages, current_page, CC_SHADOW_RIGHT_CORNER_ALL);
 }
 
 EpgPlus::MenuTargetAddReminder::MenuTargetAddReminder(EpgPlus * pepgPlus)
@@ -1552,4 +1622,35 @@ int EpgPlus::MenuOptionChooserSwitchViewMode::exec(CMenuTarget * parent)
 	CMenuOptionChooser::exec(parent);
 
 	return menu_return::RETURN_REPAINT;
+}
+
+// -- EPG+ Menu Handler Class
+// -- to be used for calls from Menu
+
+int CEPGplusHandler::exec(CMenuTarget * parent, const std::string & /*actionKey*/)
+{
+	int res = menu_return::RETURN_EXIT_ALL;
+	EpgPlus *e;
+	CChannelList *channelList;
+
+	if (parent)
+		parent->hide();
+
+	e = new EpgPlus;
+
+	//channelList = CNeutrinoApp::getInstance()->channelList;
+	int bnum = bouquetList->getActiveBouquetNumber();
+	current_bouquet = bnum;
+	if (!bouquetList->Bouquets.empty() && !bouquetList->Bouquets[bnum]->channelList->isEmpty())
+		channelList = bouquetList->Bouquets[bnum]->channelList;
+	else
+		channelList = CNeutrinoApp::getInstance()->channelList;
+
+	e->exec(channelList, channelList->getSelectedChannelIndex(), bouquetList);
+	delete e;
+	// FIXME
+	//printf("CEPGplusHandler::exec old bouquet %d new %d current %d\n", bnum, bouquetList->getActiveBouquetNumber(), current_bouquet);
+	bouquetList->activateBouquet(current_bouquet, false);
+
+	return res;
 }

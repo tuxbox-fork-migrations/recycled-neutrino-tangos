@@ -50,9 +50,6 @@
 *                                                                                     *
 **************************************************************************************/
 
-extern const unsigned char genre_sub_classes[];            /* epgview.cpp */
-extern const neutrino_locale_t * genre_sub_classes_list[]; /* epgview.cpp */
-
 class CFrameBuffer;
 class CConfigFile;
 class CScanSettings;
@@ -60,6 +57,17 @@ class CScanSettings;
 class CNeutrinoApp : public CMenuTarget, CChangeObserver, public sigc::trackable
 {
 public:
+	enum // Neutrino's exit codes to be handled in it's start script
+	{
+		EXIT_ERROR = -1,
+//		EXIT_NORMAL = 0,	// g_info.hw_caps->can_shutdown == 0
+		EXIT_SHUTDOWN = 0,	// g_info.hw_caps->can_shutdown == 1
+		EXIT_REBOOT = 1,
+		EXIT_NOTUSED = 2,
+		EXIT_CHANGEGUI = 3
+	};
+	void ExitRun(int can_shutdown = 0);
+
 	enum
 	{
 		RECORDING_OFF    = 0,
@@ -67,8 +75,6 @@ public:
 		RECORDING_VCR    = 2,
 		RECORDING_FILE   = 3
 	};
-	
-	
 
 private:
 	CFrameBuffer * frameBuffer;
@@ -80,9 +86,6 @@ private:
 	int                             network_dhcp;
 	int                             network_automatic_start;
 
-	int				m_idletime;
-	bool				m_screensaver;
-
 	int				mode;
 	int				lastMode;
 	bool				softupdate;
@@ -90,6 +93,8 @@ private:
 	bool 				init_cec_setting;
 	int				lastChannelMode;
 	struct timeval                  standby_pressed_at;
+
+	time_t				neutrino_start_time;
 
 	int				current_muted;
 
@@ -107,6 +112,8 @@ private:
 	bool				channelList_allowed;
 	bool				channelList_painted;
 	int				first_mode_found;
+	int				osd_resolution_tmp;
+	bool				frameBufferInitialized;
 
 	void SDT_ReloadChannels();
 	void setupNetwork( bool force= false );
@@ -118,9 +125,6 @@ private:
 	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
-#if !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
-	void ExitRun(int can_shutdown = 0);
-#endif
 	void RealRun();
 	void InitZapper();
 	void InitTimerdClient();
@@ -142,27 +146,11 @@ private:
 	CNeutrinoApp();
 
 public:
-	enum
-	{
-		mode_unknown = -1,
-		mode_tv = 1,
-		mode_radio = 2,
-		mode_scart = 3,
-		mode_standby = 4,
-		mode_audio = 5,
-		mode_pic = 6,
-		mode_ts = 7,
-		mode_off = 8,
-		mode_webtv = 9,
-		mode_upnp = 10,
-		mode_mask = 0xFF,
-		norezap = 0x100
-	};
-
 	CUserMenu usermenu;
 
 	void saveSetup(const char * fname);
 	int loadSetup(const char * fname);
+	void setScreenSettings();
 	void upgradeSetup(const char * fname);
 	void loadKeys(const char * fname = NULL);
 	void saveKeys(const char * fname = NULL);
@@ -200,8 +188,10 @@ public:
 	int getLastMode() {
 		return lastMode;
 	}
-	void switchTvRadioMode(const int prev_mode = mode_unknown);
+	int getVideoFormat() { return g_settings.video_Format; }
+	void switchTvRadioMode(const int prev_mode = NeutrinoModes::mode_unknown);
 
+	time_t getStartTime() { return neutrino_start_time; }
 	
 	bool isMuted() {return current_muted; }
 	void setCurrentMuted(int m) { current_muted = m; }
@@ -227,28 +217,18 @@ public:
 	CConfigFile* getConfigFile() {return &configfile;};
 	bool 		SDTreloadChannels;
 
-	void saveEpg(bool cvfd_mode);
+	void saveEpg(int _mode);
 	void stopDaemonsForFlash();
 	int showChannelList(const neutrino_msg_t msg, bool from_menu = false);
 	void allowChannelList(bool allow){channelList_allowed = allow;}
 	CPersonalizeGui & getPersonalizeGui() { return personalize; }
 	bool getChannellistIsVisible() { return channelList_painted; }
 	void zapTo(t_channel_id channel_id);
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
-	enum {
-		SHUTDOWN,
-		REBOOT,
-		NOTUSED,
-		CHANGEGUI
-	};
-	void ExitRun(int can_shutdown = SHUTDOWN);
-#endif
 	bool wakeupFromStandby(void);
 	void standbyToStandby(void);
 	void lockPlayBack(bool blank = true);
 	void stopPlayBack(bool lock = false);
 	bool adjustToChannelID(const t_channel_id channel_id);
-	void screensaver(bool);
 	//signal/event handler before restart of neutrino gui
 	sigc::signal<bool> OnBeforeRestart;
 	sigc::signal<void> OnAfterSetupFonts;

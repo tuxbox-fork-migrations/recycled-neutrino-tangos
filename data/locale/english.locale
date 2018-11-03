@@ -1,26 +1,26 @@
-AUDIOSelectMenue.head Audio and subtitles
+AUDIOSelectMenue.head Audio Options
 AUDIOSelectMenue.volume Audio selection and volume adjustment
-EPGMenu.epgplus Eventlist overview
+EPGMenu.epgplus EPG-Timelines (EPG-Plus)
 EPGMenu.eventinfo Details current program
 EPGMenu.eventlist Eventlist current programm
-EPGMenu.head EPG - Program Information
-EPGMenu.streaminfo technical information
+EPGMenu.head EPG - Program information
+EPGMenu.streaminfo Technical informations
 EPGPlus.actions Actions
 EPGPlus.bybouquet_mode by bouquet
 EPGPlus.bypage_mode by page
-EPGPlus.head Eventlist Overview (EPG Plus)
-EPGPlus.next_bouquet next bouquet
-EPGPlus.options options
-EPGPlus.page_down page down
-EPGPlus.page_up page up
-EPGPlus.prev_bouquet prev bouquet
+EPGPlus.head Eventlist overview (EPG Plus)
+EPGPlus.next_bouquet Next bouquet
+EPGPlus.options Options
+EPGPlus.page_down Page down
+EPGPlus.page_up Page up
+EPGPlus.prev_bouquet Prev bouquet
 EPGPlus.record Record
 EPGPlus.refresh_epg Refresh
 EPGPlus.remind Schedule
-EPGPlus.scroll_mode Scroll Mode
-EPGPlus.stretch_mode Stretch Mode
-EPGPlus.swap_mode swap mode
-EPGPlus.view_mode view mode
+EPGPlus.scroll_mode Scroll mode
+EPGPlus.stretch_mode Stretch mode
+EPGPlus.swap_mode Swap mode
+EPGPlus.view_mode View mode
 GENRE.ALL off
 GENRE.ARTS Arts
 GENRE.ARTS.0 arts/culture
@@ -127,6 +127,7 @@ audio.srs_iq SRS TruVolume algo
 audio.srs_nmgr Noise manager
 audio.srs_volume Reference volume
 audiomenu.PCMOffset Volume Decrease PCM
+audiomenu.ac3 AC3 passthrough
 audiomenu.analog_mode Analog mode
 audiomenu.analog_out Analog output
 audiomenu.auto_lang Auto select audio
@@ -136,6 +137,7 @@ audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
 audiomenu.clockrec 
 audiomenu.dolbydigital Prefer Dolby Digital (AC-3)
+audiomenu.dts DTS passthrough
 audiomenu.hdmi_dd Encoded DD on HDMI
 audiomenu.hdmi_dd_auto auto
 audiomenu.hdmi_dd_force force
@@ -156,6 +158,7 @@ audiomenu.volume_adjustment Channel specific volume adjustment
 audiomenu.volume_adjustment_ac3 AC3 streams
 audiomenu.volume_adjustment_clear Clear saved values
 audiomenu.volume_adjustment_pcm PCM streams
+audiomenu.volume_last_used last used
 audiomenu.volume_start Start volume
 audiomenu.volume_step Volume step
 audioplayer.add Add
@@ -163,46 +166,46 @@ audioplayer.add_ic Icecast
 audioplayer.add_loc Local radio list
 audioplayer.add_sc SHOUTcast
 audioplayer.artist_title Artist, Title
-audioplayer.building_search_index building search index
-audioplayer.button_select_title_by_id search by ID
-audioplayer.button_select_title_by_name search by name
-audioplayer.defdir start dir.
+audioplayer.building_search_index Building search index
+audioplayer.button_select_title_by_id Search by ID
+audioplayer.button_select_title_by_name Search by name
+audioplayer.defdir Start directory
 audioplayer.delete Remove
-audioplayer.deleteall remove all
-audioplayer.display_order display order
-audioplayer.enable_sc_metadata enable SHOUTcast meta data parsing
-audioplayer.fastforward fast forw.
-audioplayer.follow auto select current
+audioplayer.deleteall Remove all
+audioplayer.display_order Display order
+audioplayer.enable_sc_metadata Enable SHOUTcast meta data parsing
+audioplayer.fastforward Fast forward
+audioplayer.follow Auto select current
 audioplayer.head Audio Playlist
 audioplayer.highprio High decode priority
-audioplayer.jump_backwards jump backwards
+audioplayer.jump_backwards Jump backwards
 audioplayer.jump_dialog_hint1 Please enter jump target
 audioplayer.jump_dialog_hint2 (relative, in seconds)
 audioplayer.jump_dialog_title Enter jump target
-audioplayer.jump_forwards jump forwards
-audioplayer.keylevel key level
+audioplayer.jump_forwards Jump forwards
+audioplayer.keylevel Key level
 audioplayer.load_radio_stations Load internet radios
 audioplayer.name Audioplayer
-audioplayer.pause pause
+audioplayer.pause Pause
 audioplayer.play Play
-audioplayer.playing Current Track
+audioplayer.playing Current track
 audioplayer.playlist_fileerror_msg File could not be created:
 audioplayer.playlist_fileoverwrite_msg Do you want to overwrite this file:
 audioplayer.playlist_fileoverwrite_title Overwrite?
-audioplayer.playlist_name filename of the play list
+audioplayer.playlist_name Filename of the play list
 audioplayer.playlist_name_hint1 Please enter the filename of the playlist
 audioplayer.playlist_name_hint2 The extension .m3u will be added automatically
-audioplayer.reading_files reading files
-audioplayer.receiving_list Receiving list, please wait
-audioplayer.repeat_on enable repeat mode
-audioplayer.rewind rewind
-audioplayer.save_playlist save play list
-audioplayer.select_title_by_name search title by name (SMS)
-audioplayer.show_playlist Show Playlist
-audioplayer.shuffle shuffle
-audioplayer.spectrum lcd a-spectrum
+audioplayer.reading_files Reading files
+audioplayer.receiving_list Receiving list, please wait ...
+audioplayer.repeat_on Enable repeat mode
+audioplayer.rewind Rewind
+audioplayer.save_playlist Save play list
+audioplayer.select_title_by_name Search title by name (SMS)
+audioplayer.show_playlist Show playlist
+audioplayer.shuffle Shuffle
+audioplayer.spectrum LCD spectrum
 audioplayer.stop Stop
-audioplayer.title_artist Title, Artist
+audioplayer.title_artist Title, artist
 bookmarkmanager.delete delete
 bookmarkmanager.name bookmarks
 bookmarkmanager.rename rename
@@ -229,6 +232,8 @@ bouquetname.hdtv HD channels
 bouquetname.new New channels
 bouquetname.other Unknown provider
 bouquetname.removed Removed channels
+bouquetname.uhdtv UHD channels
+bouquetname.webradio WebRadio channels
 bouquetname.webtv WebTV channels
 buildinfo.compiled_on Build Host
 buildinfo.compiled_with Compiler version
@@ -237,42 +242,43 @@ buildinfo.creator Creator
 buildinfo.kernel Kernel version
 buildinfo.menu Build information
 cablesetup.provider cable provider
-channellist.additional Additional informations
-channellist.additional_off off
-channellist.additional_on on
-channellist.additional_on_minitv on (with MiniTV)
-channellist.current_tp Current transponder
+channellist.additional Additional Informations
+channellist.additional_off Off
+channellist.additional_on On
+channellist.additional_on_minitv On (with MiniTV)
+channellist.current_tp Current Transponder
 channellist.edit Edit
-channellist.epgtext_align_left left
-channellist.epgtext_align_right right
-channellist.extended Show event progress
+channellist.epgtext_align_left Left
+channellist.epgtext_align_right Right
+channellist.extended Show Event Progress
 channellist.extended_colored with colored progressbar
 channellist.extended_simple with simple progressbar
-channellist.favs Favoriten
+channellist.favs Favorites
 channellist.foot Channel Information
 channellist.foot_freq Sat/Freq Info
-channellist.foot_next next Event
-channellist.foot_off off
-channellist.foot_sort_alpha sorted[alpha]
-channellist.foot_sort_chnum sorted[number]
-channellist.foot_sort_freq sorted[freq]
-channellist.foot_sort_sat sorted[sat]
-channellist.hdicon Show HD icon
+channellist.foot_next Next Event
+channellist.foot_off Off
+channellist.foot_sort_alpha Sorted[Alpha]
+channellist.foot_sort_chnum Sorted[Number]
+channellist.foot_sort_freq Sorted[Freq]
+channellist.foot_sort_sat Sorted[Sat]
 channellist.head All Services
 channellist.history History
 channellist.history_clear Clear history
+channellist.history_empty No history available
 channellist.keep_numbers Persistent channel numbers
-channellist.make_hdlist Create list of HD channels
+channellist.make_hdlist Create lists of HD and UHD channels
 channellist.make_newlist Create list of new channels
 channellist.make_removedlist Create list of removed channels
 channellist.make_webtvlist Create list of WebTV channels
 channellist.new_zap_mode Quickzap in list
-channellist.new_zap_mode_active active
-channellist.new_zap_mode_allow allow
-channellist.new_zap_mode_off off
-channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
-channellist.numeric_adjust Numeric zap adjust
+channellist.new_zap_mode_active Active
+channellist.new_zap_mode_allow Allow
+channellist.new_zap_mode_off Off
+channellist.nonefound No channels were found!\nPlease execute a scan\n(Menu key -> Service)
+channellist.numeric_adjust Numeric Zap Adjust
 channellist.provs Providers
+channellist.recordable_channels Recordable channels
 channellist.recording_not_possible Recording not possible!
 channellist.remember Last used
 channellist.reset_all Reset 'new' flag for all channels
@@ -282,10 +288,13 @@ channellist.show_channellogo Show channel logos
 channellist.show_channelnumber Show channel numbers
 channellist.show_empty_favs Show empty favorites bouquets
 channellist.show_infobox Show bottom infobox
+channellist.show_res_icon Signalize resolution
 channellist.since since
 channellist.start starts
 ci.check_live_slot Check CI-slot for live-tv use
 ci.clock CI clock (Mhz)
+ci.clock_high high
+ci.clock_normal normal
 ci.empty No CAM in slot
 ci.ignore_msg Ignore CA messages
 ci.init_failed CAM init failed
@@ -320,37 +329,39 @@ colorchooser.alpha alpha
 colorchooser.blue blue
 colorchooser.green green
 colorchooser.red red
-colorchooser.save Save
-colormenu.advanced_mode_off Default options
-colormenu.advanced_mode_on Advanced options
 colormenu.background Background
 colormenu.clock_textcolor Digit color
 colormenu.fade Fade GUI
 colormenu.font Select GUI font
 colormenu.font_sub Select Subtitle font
 colormenu.font_ttx Select Teletext font
-colormenu.hd_preset LCD
 colormenu.menucolors Colors
 colormenu.osd_preset TV preset
-colormenu.sd_preset CRT
+colormenu.osd_resolution OSD resolution
+colormenu.progressbar_active Active part color
+colormenu.progressbar_passive Background
+colormenu.shadow_color Shadow Color
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
-colormenu.timing Timeouts
+colormenu.timing Timeouts, display behavior
 colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
 colormenusetup.menufoot Footer
 colormenusetup.menuhead Header
+colorsetup.save Save
 colorstatusbar.text Infobar
 colorthememenu.head Select theme
 colorthememenu.head2 Load themes
 colorthememenu.menu_hints Hint box
+colorthememenu.misc Misc
 colorthememenu.name Theme name
-colorthememenu.neutrino_theme Neutrino Theme
+colorthememenu.neutrino_theme Reset Theme
+colorthememenu.neutrino_theme_hint Reset to default theme.
 colorthememenu.question Use selected theme?
 colorthememenu.save Save current theme
-colorthememenu.select1 User Theme
-colorthememenu.select2 Standard Theme
+colorthememenu.select1 User themes
+colorthememenu.select2 Standard themes
 cpu.freq CPU frequency
 cpu.freq_default Default frequency
 cpu.freq_normal Normal frequency
@@ -415,9 +426,8 @@ eventlistbar.channelswitch schedule
 eventlistbar.eventsort sorting
 eventlistbar.recordevent record
 extra.add_to_bouquet Add to bouquet
-extra.audio_run_player Audio key start player
-extra.auto_delete Auto-delete
-extra.auto_timeshift Auto-record, sec (0 = disable)
+extra.auto_delete Automatic deletion
+extra.auto_timeshift Automatic recording
 extra.cache_txt Cache teletext
 extra.chadded The current channel has been added to selected bouquet.\n
 extra.chalreadyinbq The current channel is already in selected bouquet.\n
@@ -459,7 +469,6 @@ extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
-extra.key_plugin One touch plugin
 extra.key_record Record key
 extra.key_screenshot Screenshot key
 extra.key_switchformat Next resolution
@@ -467,8 +476,8 @@ extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
 extra.latitude Latitude
-extra.loadconfig Settings: Load from
-extra.loadkeys Load keys from
+extra.loadconfig Load settings
+extra.loadkeys Load keybindings
 extra.lodirection LoDirection
 extra.longitude Longitude
 extra.menu_left_exit "Left" = menu back
@@ -481,8 +490,8 @@ extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
 extra.rounded_corners_on rounded
-extra.saveconfig Settings: Save as
-extra.savekeys Save keys as
+extra.saveconfig Save settings
+extra.savekeys Save keybindings
 extra.scrambled_message Scrambled Message
 extra.show_mute_icon mute-icon at volume 0
 extra.sms_channel SMS-mode channel
@@ -490,7 +499,7 @@ extra.sms_movie SMS-mode movie
 extra.south South
 extra.start_tostandby Startup to standby
 extra.temp_timeshift Temporary timeshift
-extra.timeshift_pause Timeshift pause
+extra.timeshift_pause Paused recording
 extra.tp_bandwidth Bandwidth
 extra.tp_bandwidth_10mhz 10Mhz
 extra.tp_bandwidth_1_712mhz 1.712Mhz
@@ -506,7 +515,6 @@ extra.tp_delsys Delivery system
 extra.tp_delsys_dss DSS
 extra.tp_delsys_dtmb DTMB
 extra.tp_delsys_dvbc DVB-C
-extra.tp_delsys_dvbc2 DVB-C2
 extra.tp_delsys_dvbs DVB-S
 extra.tp_delsys_dvbs2 DVB-S2
 extra.tp_delsys_dvbt DVB-T
@@ -548,6 +556,13 @@ extra.tp_mod_auto QAM/AUTO
 extra.tp_pilot Pilot
 extra.tp_pilot_auto Auto (HW)
 extra.tp_pilot_auto_sw Auto (SW)
+extra.tp_plc PLM Code
+extra.tp_pli Stream ID
+extra.tp_plm PLS Mode
+extra.tp_plm_combo Combo
+extra.tp_plm_gold Gold
+extra.tp_plm_root Root (Default)
+extra.tp_plm_unk Unknown
 extra.tp_pol Polarization
 extra.tp_pol_h H
 extra.tp_pol_l L
@@ -575,7 +590,6 @@ extra.zapit_fe_no_same Different tuners when same transponder
 extra.zapit_fe_retries Tune retries
 extra.zapit_fe_timeout Tune timeout
 extra.zapit_hvoltage 18V for rotor moving 
-extra.zapit_make_bouquet Make Remaining Channels list
 extra.zapit_motor_speed Motor moving speed
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_sdt_changed Channels changed, reload settings.
@@ -601,15 +615,15 @@ filebrowser.mark Mark
 filebrowser.nextpage Next Page
 filebrowser.pm Playlist Manager
 filebrowser.prevpage Prev. Page
-filebrowser.scan Scaning folder
+filebrowser.scan Scanning folder
 filebrowser.select Select
 filebrowser.showrights Show file rights
 filebrowser.start.dir Start directory
-filebrowser.sort.date (date)
-filebrowser.sort.name (name)
-filebrowser.sort.namedirsfirst (name, dir first)
-filebrowser.sort.size (Size)
-filebrowser.sort.type (type)
+filebrowser.sort.date Date
+filebrowser.sort.name Name
+filebrowser.sort.namedirsfirst Name, dirs first
+filebrowser.sort.size Size
+filebrowser.sort.type Type
 filesystem.is.utf8 file system
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
@@ -618,9 +632,11 @@ flashupdate.apply_settings Import current settings into new image?
 flashupdate.autocheck Auto-check updates on boot
 flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open MTD
-flashupdate.checkupdate_internet Check for online updates
+flashupdate.checkupdate_internet Online update
 flashupdate.checkupdate_local Local update
+flashupdate.choose_partition Choose partition
 flashupdate.copy_image Copy Image to main memory
+flashupdate.copy_settings Copy settings to new image?
 flashupdate.createimage Save image
 flashupdate.createimage_add_env Add 'env' to image
 flashupdate.createimage_add_kernel Add 'kernel' to image
@@ -638,7 +654,7 @@ flashupdate.currentversiondate Date
 flashupdate.currentversiontime Time
 flashupdate.erasefailed erasure of flash failed
 flashupdate.erasing erasing flash
-flashupdate.experimentalimage The image you have selected is an untested version, this means\nyour box maybe fail to boot after update.\n\nDo you really want to update to this version?
+flashupdate.experimentalimage You have selected a beta version or a nightly build.\nPlease note that this version is untested\nand your box may not work after update.\n\nDo you really want to install this version?
 flashupdate.expertfunctions Expert-functions
 flashupdate.fileis0bytes the filesize is 0 Bytes
 flashupdate.fileselector File-Selector
@@ -647,7 +663,6 @@ flashupdate.getinfofile getting versioninfo
 flashupdate.getinfofileerror Can't get update versioninfo!
 flashupdate.getupdatefile getting update
 flashupdate.getupdatefileerror Can't get update!
-flashupdate.globalprogress Global Progress:
 flashupdate.head Software Update
 flashupdate.install_image Flash downloaded image?
 flashupdate.install_package Install downloadad pack?
@@ -659,7 +674,6 @@ flashupdate.mkfs_create_image Create backup
 flashupdate.mkfs_preparing_files Preparing files and directories
 flashupdate.mkfs_using_sumtool Using sumtool
 flashupdate.msgbox Found the following new file:\nDate: %s, %s\nBaseImage: %s\nType: %s\n\nDo you want to download and install this version now?
-flashupdate.msgbox_manual Found the following new image:\nDate: %s, %s\nBaseImage: %s\nImageType: %s\n\nDo you want to install this version now?
 flashupdate.mtdselector Partition-Selector
 flashupdate.namemode1 Filename settingsfile
 flashupdate.namemode1_default <org.name>+settings.img
@@ -670,7 +684,7 @@ flashupdate.namemode2_default <partition>+<time>.img
 flashupdate.namemode2_hostname_time <partition>+<time>+<hostname>.img
 flashupdate.new_found New image found !
 flashupdate.new_notfound No new images found
-flashupdate.noversion Version checks are currently only supported when updating over the web.\nAre you sure that you wish to install this image?
+flashupdate.noversion Version check is only supported via online updates.\nAre you sure that you want to continue?
 flashupdate.programmingflash programming flash
 flashupdate.proxypassword Password
 flashupdate.proxypassword_hint1 enter the proxyserver password
@@ -690,14 +704,16 @@ flashupdate.readflashmtd Read one partition
 flashupdate.ready ready
 flashupdate.reallyflashmtd Do you really want to flash?\n\nIf a error occurs or the image is not\nvalid, the box will not boot after flashing.\n\nImagename: %s\nTarget: %s
 flashupdate.savesuccess The image was successfully saved \nunder %s.
-flashupdate.selectimage Available Images/Files
+flashupdate.selectimage Available images and updates
 flashupdate.settings Update settings
+flashupdate.start_ofgwrite Starting ofgwrite ...
+flashupdate.start_selected_partition Start chosen partition?
 flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
 flashupdate.type_addon Addon
 flashupdate.type_beta Beta
-flashupdate.type_internal Internal
 flashupdate.type_locale Locale
+flashupdate.type_nightly Nightly
 flashupdate.type_release Release
 flashupdate.type_settings Settings
 flashupdate.type_text Text
@@ -707,7 +723,6 @@ flashupdate.update_with_settings_del_skipped Folder [%s] can not be deleted. Ent
 flashupdate.update_with_settings_error Flash Error!\n \nNew Image only has %ld KB (out of %ld KB) left. Not\nenough space to complete this operation.\n \nCanceling operation!
 flashupdate.update_with_settings_processed Image is being processed ...
 flashupdate.update_with_settings_skipped Folder [%s] can not be saved. Entry is skipped.
-flashupdate.update_with_settings_successfully Setting takeover successfully.\nThe image can now be flashed.
 flashupdate.update_with_settings_warning Flash Warning!\n \nNew Image only has %ld KB (out of %ld KB) left. Probably not\nenough space to complete this operation ...\n \nDo you really want to proceed?
 flashupdate.updatemode Updatemode
 flashupdate.updatemode_internet internet
@@ -726,40 +741,41 @@ fontmenu.menu Menu
 fontmenu.messages Messages
 fontmenu.moviebrowser Moviebrowser
 fontmenu.other Other
-fontmenu.scaling Global Font Zoom Factor
+fontmenu.scaling Global font zoom factor
 fontmenu.scaling_x Horizontal (in %)
 fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
 fontmenu.scaling_y Vertical (in %)
 fontmenu.scaling_y_hint2 Vertical (in %) min 50 / max 200
 fontmenu.sizes Font sizes
 fontsize.button_text Button text
-fontsize.channel_num_zap direct selection
+fontsize.channel_num_zap Direct selection
 fontsize.channellist Channellist
 fontsize.channellist_descr Description
 fontsize.channellist_event Event list
 fontsize.channellist_number Number
-fontsize.epg_date EPG Date
-fontsize.epg_info1 EPG Info 1
-fontsize.epg_info2 EPG Info 2
-fontsize.epg_title EPG Title
+fontsize.epg_date EPG date
+fontsize.epg_info1 EPG info 1
+fontsize.epg_info2 EPG info 2
+fontsize.epg_title EPG title
 fontsize.epgplus_item EPG-Plus item
 fontsize.eventlist_datetime Date and time
-fontsize.eventlist_event Event Info
+fontsize.eventlist_event Event info
 fontsize.eventlist_itemlarge Large
 fontsize.eventlist_itemsmall Small
 fontsize.eventlist_title Title
 fontsize.filebrowser_item Filebrowser items
+fontsize.general_window_text General window text
 fontsize.hint Initialising font,\nplease wait ...
 fontsize.infobar_channame Channel name
-fontsize.infobar_info info
+fontsize.infobar_info Info
 fontsize.infobar_number Number
 fontsize.infobar_small Small
 fontsize.menu Menu text
 fontsize.menu_foot Footer (in all GUI elements)
 fontsize.menu_hint Menu hints
-fontsize.menu_info Menu Info
-fontsize.menu_title Menu Title
-fontsize.message_text Message Text
+fontsize.menu_info Menu info
+fontsize.menu_title Menu title
+fontsize.message_text Message text
 fontsize.moviebrowser_head Headers
 fontsize.moviebrowser_info Info window
 fontsize.moviebrowser_list List items
@@ -782,6 +798,16 @@ glcd.color.magenta Magenta
 glcd.color.red Red
 glcd.color.white White
 glcd.color.yellow Yellow
+glcd.color.orange Orange
+glcd.color.light_gray Light_Gray
+glcd.color.gray Gray
+glcd.color.dark_gray Dark_Gray
+glcd.color.dark_red Dark_Red
+glcd.color.dark_green Dark_Green
+glcd.color.dark_blue Dark_Blue
+glcd.color.purple Purple
+glcd.color.mint Mint
+glcd.color.golden Golden
 glcd.enable GraphLCD enabled
 glcd.font Font
 glcd.head GraphLCD
@@ -809,17 +835,15 @@ hdd_5min 5 min.
 hdd_60min 60 min.
 hdd_activate Apply settings
 hdd_check Check filesystem
-hdd_check_failed HDD-check failed!
-hdd_check_format_bad Checking of disks with format %s is not supported.
-hdd_extended_settings Extended HDD-Settings
+hdd_check_failed Filesystem-check failed!
+hdd_extended_settings Extended settings
 hdd_fast Fast
 hdd_format Format device
 hdd_format_failed Formating failed! Make sure device not in use, reboot and try again
-hdd_format_warn All data on device will be lost ! Continue with format ?
+hdd_format_warn All data on device will be lost! Continue with formatting?
 hdd_fmt_label HDD label
 hdd_fmt_mountpoint Directory for mountpoint
 hdd_fs Filesystem used to format
-hdd_fs_unknown unknown
 hdd_label_hint1 Put in disc label and press save
 hdd_label_hint2 Only if RECORD (default disc label for recording) the necassary folders were written to disc
 hdd_manage Manage device
@@ -830,16 +854,15 @@ hdd_mount_ok Device ready to use.
 hdd_mount_umount Mount/Unmount
 hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
-hdd_removable_device Removable device
 hdd_set_recdir Use device for recording ?
-hdd_settings Data Storage
+hdd_settings Data storage
 hdd_sleep Switch off after
 hdd_slow Slow
 hdd_statfs Fill level query
 hdd_statfs_always always
 hdd_statfs_recording while recording only
 hdd_umount Unmount
-hdd_umount_warn unmount device
+hdd_umount_warn Unmount device
 hdd_umounted Device removed
 help_box_title Help
 imageinfo.api API:
@@ -847,13 +870,35 @@ imageinfo.creator Creator:
 imageinfo.date Date:
 imageinfo.dokumentation Docs:
 imageinfo.forum Forum:
+imageinfo.gui GUI:
 imageinfo.head Image info:
 imageinfo.homepage Home page:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license License
+imageinfo.os System:
 imageinfo.vcs Git:
 imageinfo.version Version:
+imdb.api_key IMDb API-Key
+imdb.enabled IMDb-Support
+imdb.data_actors Actors
+imdb.data_awards Awards
+imdb.data_boxoffice Boxoffice
+imdb.data_director Director
+imdb.data_failed No data found
+imdb.data_genre Genre
+imdb.data_metascore Metascore
+imdb.data_plot Plot
+imdb.data_production Production
+imdb.data_rating_failed No rating
+imdb.data_released Released
+imdb.data_runtime Runtime
+imdb.data_title Original title
+imdb.data_votes Votes
+imdb.data_website Website
+imdb.data_writer Screenplay author
+imdb.info IMDb-Info
+imdb.info_save save Cover
 inetradio.name Internetradio
 infoviewer.epgnotload EPG not loaded ...
 infoviewer.epgwait waiting for EPG ...
@@ -863,7 +908,6 @@ infoviewer.nocurrent No info for current program available
 infoviewer.noepg EPG not available
 infoviewer.notavailable Channel not available
 infoviewer.now now
-infoviewer.selecttime Timeselection
 infoviewer.subchan_disp_pos Subchannel display
 infoviewer.subchan_infobar Full infobar
 infoviewer.waittime Waiting for time ...
@@ -891,20 +935,20 @@ keybindingmenu.cancel close channellist
 keybindingmenu.channeldown channel down
 keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
-keybindingmenu.edit Edit
-keybindingmenu.head Edit Keybindings
-keybindingmenu.lastchannel Quick Zap
+keybindingmenu.edit Edit keybindings
+keybindingmenu.head Keybindings
+keybindingmenu.lastchannel Quick zap
 keybindingmenu.longkeypress_duration Long key-press
 keybindingmenu.misc Misc
 keybindingmenu.mode_left_right_key_tv Left/Right key behaviour
 keybindingmenu.mode_left_right_key_tv_infobar Show Infobar
-keybindingmenu.mode_left_right_key_tv_volume Volume Control
-keybindingmenu.mode_left_right_key_tv_vzap Virtual Zap
+keybindingmenu.mode_left_right_key_tv_volume Volume control
+keybindingmenu.mode_left_right_key_tv_vzap Virtual zap
 keybindingmenu.mode_left_right_key_tv_zap Zap
 keybindingmenu.modechange Modechange
 keybindingmenu.navigation Navigation
-keybindingmenu.pagedown page down
-keybindingmenu.pageup page up
+keybindingmenu.pagedown Page down
+keybindingmenu.pageup Page up
 keybindingmenu.poweroff Power toggle
 keybindingmenu.quickzap Quickzap
 keybindingmenu.remotecontrol_code Remote control code
@@ -921,52 +965,53 @@ keybindingmenu.remotecontrol_hardware_msg_part2 ' to '
 keybindingmenu.remotecontrol_hardware_msg_part3 ' \nIs this correct?\nPlease confirm the selection within 15 seconds by using the new remote control.\nOtherwise the selection will be reverted.
 keybindingmenu.remotecontrol_hardware_philips Philips
 keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
-keybindingmenu.repeatblock generic delay
-keybindingmenu.repeatblockgeneric repeat delay
-keybindingmenu.sort change sort order
-keybindingmenu.special_active Special Keys
-keybindingmenu.subchanneldown subchannel down
-keybindingmenu.subchannelup subchannel up
-keybindingmenu.tvradiomode TV/Radio-mode
+keybindingmenu.repeatblock Generic delay
+keybindingmenu.repeatblockgeneric Repeat delay
+keybindingmenu.sort Change sort order
+keybindingmenu.special_active Special keys
+keybindingmenu.standbyoff_add Standby off (additional)
+keybindingmenu.subchanneldown Subchannel down
+keybindingmenu.subchannelup Subchannel up
+keybindingmenu.tvradiomode TV/Radio mode
 keybindingmenu.video Video
 keybindingmenu.volume Volume
 keybindingmenu.volumedown Decrease
 keybindingmenu.volumeup Increase
-keybindingmenu.zaphistory Zapping History Bouquet
-keychooser.head Setup new Key
-keychooser.text1 Please press the new key
-keychooser.text2 wait a few seconds for abort
-keychoosermenu.currentkey current key
-keychoosermenu.setnew setup new key
-keychoosermenu.setnone no key
+keybindingmenu.zaphistory Channel history
+keychooser.head Setup new key
+keychooser.text Press new key.\nWait a few seconds to abort ...
+keychoosermenu.currentkey Current key
+keychoosermenu.setnew Setup new key
+keychoosermenu.setnone No key
 languagesetup.head Language and timezone
-languagesetup.osd OSD Language
-languagesetup.select OSD Language
-lcd_info_line show in infoline
+languagesetup.osd OSD language
+languagesetup.select OSD language
+lcd_info_line Show in infoline
 lcd_info_line_channel Channelname
-lcd_info_line_clock clock
-lcdcontroler.brightness normal Brightness
-lcdcontroler.brightnessdeepstandby DeepStandby Brightness
-lcdcontroler.brightnessstandby Standby Brightness
-lcdmenu.dim_brightness Brightness after dim timeout
-lcdmenu.dim_time Dim timeout
+lcd_info_line_clock Clock
+lcdcontroler.brightness Normal mode
+lcdcontroler.brightnessdeepstandby Deep-standby
+lcdcontroler.brightnessstandby Standby
+lcdmenu.dim_brightness Brightness after dimm timeout
+lcdmenu.dim_time Dimm timeout
 lcdmenu.head VFD/LED Settings
 lcdmenu.lcdcontroler Brightness
 lcdmenu.notify_rclock Notify when RC is locked
 lcdmenu.scroll Enable text scroll
-lcdmenu.statusline status line
-lcdmenu.statusline.both volume and playtime
-lcdmenu.statusline.playtime playtime
-lcdmenu.statusline.volume volume
+lcdmenu.scroll_repeats Enable text scroll and repeats
+lcdmenu.statusline Status line
+lcdmenu.statusline.both Volume and playtime
+lcdmenu.statusline.playtime Playtime
+lcdmenu.statusline.volume Volume
 lcdmenu.vfd_scroll Scrolling
 ledcontroler.backlight Buttons backlight
 ledcontroler.backlight.tv TV mode
-ledcontroler.blink Blink in deep standby, if timer set
+ledcontroler.blink Blink in deep-standby, if timer set
 ledcontroler.menu Power Button LEDs
-ledcontroler.mode.deepstandby Deep Standby
-ledcontroler.mode.record Blinke in Record
+ledcontroler.mode.deepstandby Deep-standby
+ledcontroler.mode.record Blinking while record
 ledcontroler.mode.standby Standby
-ledcontroler.mode.tv TV Mode
+ledcontroler.mode.tv TV mode
 ledcontroler.off LED1 and LED2 off
 ledcontroler.on.all LED1 and LED2 on
 ledcontroler.on.led1 LED1 on
@@ -986,24 +1031,24 @@ lua.versionscheck1 Your Lua API version is too old
 lua.versionscheck2 This requires at least
 mainmenu.audioplayer Audioplayer
 mainmenu.channels Channels
-mainmenu.clearsectionsd Clear EPG Cache
+mainmenu.clearsectionsd Clear EPG cache
 mainmenu.games Games
-mainmenu.head Main Menu
+mainmenu.head Main menu
 mainmenu.lua Lua Plugins
 mainmenu.media Media
+mainmenu.mediaplayer Mediaplayer
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd Read EPG
 mainmenu.pictureviewer Picture viewer
-mainmenu.radiomode Radio-Mode
+mainmenu.radiomode Radio mode
 mainmenu.reboot Reboot
 mainmenu.recording Recording
-mainmenu.recording_start start
-mainmenu.recording_stop stop
+mainmenu.recording_start Start
+mainmenu.recording_stop Stop
 mainmenu.scripts Scripts
-mainmenu.service Service
-mainmenu.settings Settings
-mainmenu.shutdown Shutdown (deep standby)
-mainmenu.shutdown_menu Shutdown
+mainmenu.service Installation (service)
+mainmenu.settings System settings
+mainmenu.shutdown Shutdown (Deep-standby)
 mainmenu.sleeptimer SleepTimer
 mainmenu.standby Standby
 mainmenu.tools Tools
@@ -1035,17 +1080,18 @@ menu.hint_a_pic Configure audio player, picture viewer, movie player and more
 menu.hint_accept_other_remotes Disable to ignore other remote controls
 menu.hint_adzap AdZap will switch back to the current channel when the selected time is up
 menu.hint_adzap_active AdZap is active. With a new call it will be deactivated.
-menu.hint_adzap_setup Settings for the AdZap service
 menu.hint_adzap_writedata Write data according to adzap status to /tmp/adzap.data
 menu.hint_aplay Audio player
 menu.hint_aplay_setup Change title display, start directory, screen saver and more
 menu.hint_audio Audio output, DD\nSRS True volume options
+menu.hint_audio_ac3 Pass AC3 audio tracks unchanged
 menu.hint_audio_adjust_vol_ac3 Channel specific volume adjustment for AC3 streams
 menu.hint_audio_adjust_vol_clear Clear all saved values for PCM and AC3 streams
 menu.hint_audio_adjust_vol_pcm Channel specific volume adjustment for PCM streams
 menu.hint_audio_analog_mode Select audio channel to use\nstereo, mono-left, mono-right
 menu.hint_audio_avsync A/V sync
 menu.hint_audio_dd Auto-switch to DolbyDigital audio pid,\nif available
+menu.hint_audio_dts Pass DTS audio tracks unchanged
 menu.hint_audio_hdmi_dd DolbyDigital over HDMI: off - decoded\nauto  if supported by device, force
 menu.hint_audio_spdif_dd DolbyDigital over optical output
 menu.hint_audio_srs SRS TruVolume control volume jumps\nat content changes
@@ -1074,19 +1120,23 @@ menu.hint_cache_txt Start teletext caching after channel switch
 menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
 menu.hint_cec_view_on CEC view ON
+menu.hint_cec_volume Pressing the volume buttons adjusts the volume on the connected audio device
 menu.hint_channellist_additional Show additional informations\nin main box
+menu.hint_channellist_enablesdt Enables dynamic channel updates during operation
 menu.hint_channellist_epg_align EPG event align
 menu.hint_channellist_extended Show current event progress bar
 menu.hint_channellist_fonts Change channel list font sizes
 menu.hint_channellist_foot Show additional information\nin bottom box
-menu.hint_channellist_hdicon Show HD icons in channel list
+menu.hint_channellist_hdicon Show HD/UHD icons in channel list
 menu.hint_channellist_mode Use the selected channel list mode on startup if last mode is TV
 menu.hint_channellist_mode_radio Use the selected channel list mode on startup if last mode is Radio
 menu.hint_channellist_setup Configure channel list GUI options
-menu.hint_channellist_show_channellogo Show channel logos in channel list
+menu.hint_channellist_show_channellogo Show channel logos in channellist, eventlist, EPG Plus, EPG-viewer and moviebrowser
 menu.hint_channellist_show_channelnumber Show channel number in channel list
 menu.hint_channellist_show_empty_favs Show or hide empty bouquets in favorites
 menu.hint_channellist_show_infobox Show or hide bottom infobox of channellist
+menu.hint_channellist_show_res_icon Show or hide the icon to signalize resolution
+menu.hint_channellogos_setup Configure global channelogos options
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
 menu.hint_clock_background Show clock with theme's background color
@@ -1100,6 +1150,7 @@ menu.hint_color_gradient_separator_enable Disable/enable color gradient for menu
 menu.hint_colored_events Use different color for current or next event
 menu.hint_colored_events_textcolor Change color for colored events in channellist and infobar
 menu.hint_colors Configure GUI colors
+menu.hint_colors_shadow Setup for shadow color.
 menu.hint_content_back Change GUI window background color
 menu.hint_content_textcolor Change GUI window text color
 menu.hint_dboxinfo Information about box cpu and storage
@@ -1117,7 +1168,7 @@ menu.hint_epg_read_now Read saved EPG data from an external device
 menu.hint_epg_save Save cached EPG data to an external device
 menu.hint_epg_save_frequently Save cached EPG data in frequently intervals to an external device
 menu.hint_epg_save_mode Cache EPG only for channels present in favorite bouquets
-menu.hint_epg_save_standby Save EPG on soft standby mode
+menu.hint_epg_save_standby Save EPG on soft-standby mode
 menu.hint_epg_scan Select bouquets to scan epg, current on zap,\nall or selected favorites
 menu.hint_epg_scan_mode Enable background epg scan using free tuner
 menu.hint_eventlist_additional Show additional informations\nin main box
@@ -1159,10 +1210,10 @@ menu.hint_inact_timer Shutdown box after inactivity
 menu.hint_inactive_back Change inactive item background color
 menu.hint_inactive_textcolor Change inactive item text color
 menu.hint_inet_radio Internet radio
-menu.hint_info Information about image, box cpu and storage,\nstream information
+menu.hint_info Show system informations.
 menu.hint_infobar_back Change infobar background color
 menu.hint_infobar_buttons_usertitle Forces userdefined titles for the color keys
-menu.hint_infobar_casys On: display all with colored active, mini: single\nlocked icon, descreet: all active ca-systems
+menu.hint_infobar_casys on: display all CA systems, descreet: display active CA systems; mini: single symbol in footer
 menu.hint_infobar_casys_color Change CA-System background color
 menu.hint_infobar_casys_dotmatrix on: CA-System with dot matrix in background
 menu.hint_infobar_casys_frame on: CA-System with frame
@@ -1170,9 +1221,9 @@ menu.hint_infobar_dd Show DD icon
 menu.hint_infobar_filesys Show flash and HDD used space levels
 menu.hint_infobar_fonts Change infobar font sizes
 menu.hint_infobar_logo Logo, channelnumber and signal display; Options in [brackets] will be displayed in small infobox
-menu.hint_infobar_logo_dir Select directory to search for channels logo
+menu.hint_infobar_logo_dir Set folder for channel logos.
 menu.hint_infobar_on_epg Show infobar on current EPG event change
-menu.hint_infobar_radiotext Show radiotext window
+menu.hint_infobar_radiotext If available, radiotext will displayed in a separate window
 menu.hint_infobar_res Show channel resolution icons
 menu.hint_infobar_sat Show current satellite or cable provider
 menu.hint_infobar_setup Configure infobar options
@@ -1182,7 +1233,6 @@ menu.hint_infoclock_setup Configure info clock GUI options
 menu.hint_keep_numbers Keep channel numbers over next scans\nand bouquets editing
 menu.hint_key_addrecord Assign button to add record timer\nfrom event list
 menu.hint_key_addremind Assign button to add zap timer\nfrom event list
-menu.hint_key_audio On: 'audio' button start show audio-play menu\nOff: 'audio' button show Audio selection
 menu.hint_key_binding Re-define keys used for common operations
 menu.hint_key_bouquetdown Assign button to switch channel list\nto previous bouquet
 menu.hint_key_bouquetup Assign button to switch channel list\nto next bouquet
@@ -1217,18 +1267,17 @@ menu.hint_key_pic_mode_active Disable/enable key for the screen format
 menu.hint_key_pic_size_active Disable/enable key for the 4:3 display behavior
 menu.hint_key_pip_close Assign button to stop PiP\nor start it for current channel
 menu.hint_key_pip_setup Assign button to configure PiP
-menu.hint_key_pip_swap Assign button to swap PiP and live channel
-menu.hint_key_plugin Assign button to execute the one touch plugin
-menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
+menu.hint_key_poweroff Assign button to switch power state\n (standby/deep-standby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
 menu.hint_key_record Assign button to start a recording
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
 menu.hint_key_repeatblockgeneric Delay between key repeats\nwhile button pressed
 menu.hint_key_right Select function for 'left' and 'right' keys in live TV/Radio mode and movieplayer mode
-menu.hint_key_save Save keybindings to file
+menu.hint_key_save Save keybindings to a file named keys.conf
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
 menu.hint_key_sort Assign button to change channel list sort order
 menu.hint_key_special_active Disable or enable some special keys
+menu.hint_key_standby_add Assign additional button to leave standby mode
 menu.hint_key_subchanneldown Assign button for fast switch\n to previous subchannel
 menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
 menu.hint_key_timeshift Assign button to start timeshift
@@ -1239,19 +1288,19 @@ menu.hint_key_volumedown Assign button to decrease volume
 menu.hint_key_volumeup Assign button to increase volume
 menu.hint_keys Remote control repeat rate\nEdit key bindings
 menu.hint_lang_pref Configure preferred audio, EPG\nand subtitle languages
-menu.hint_language OSD language, timezone\nPreffered audio and subtitles languages
+menu.hint_language OSD language, timezone\nPrefered audio and subtitles languages
 menu.hint_last_radio Start box on selected channel\nif last mode is Radio
 menu.hint_last_tv Start box on selected channel\nif last mode is TV
 menu.hint_last_use Start box on last used channel
 menu.hint_leds_blink Blinking LEDs in deep-standby
-menu.hint_leds_deepstandby LEDs state in deeps-standby mode
+menu.hint_leds_deepstandby LEDs state in deep-standby mode
 menu.hint_leds_record LEDs state when box recording
 menu.hint_leds_standby LEDs state in soft-standby mode
 menu.hint_leds_tv Working LEDs state
 menu.hint_load Load GUI settings from file
 menu.hint_longkeypress_duration A key press will be considered as "long key press" if it's pressed longer than the specified time.
 menu.hint_lua Run Lua Plugins
-menu.hint_make_hdlist Auto-create HD channel list based on\nchannel type and name
+menu.hint_make_hdlist Auto-create HD and UHD channel lists based on\nchannel type and name
 menu.hint_make_newlist Create list of recently added channels
 menu.hint_make_removedlist Create list of recently removed channels
 menu.hint_make_webtvlist Auto-create WebTV channel list based on\nchannel type and name
@@ -1261,6 +1310,7 @@ menu.hint_mbkey_cover Assign button to create movie cover while playback or dele
 menu.hint_media Play movies, audio files\nWatch pictures
 menu.hint_menu_fonts Change menu font sizes
 menu.hint_menu_hints Show this hints. Also you can switch\nit any time using 'help' button
+menu.hint_menu_hints_line Activate/deactivate the line from the menu to this hints
 menu.hint_menu_pos Select menu position
 menu.hint_menus Configure menu options
 menu.hint_message_fonts Change message text font sizes
@@ -1277,6 +1327,7 @@ menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
 menu.hint_moviebrowser_fonts Change moviebrowser (My recordings) font sizes
 menu.hint_moviebrowser_setup Set selection and display options.
+menu.hint_movieplayer_display_playtime While playback show playtime instead of movietitle on VFD
 menu.hint_movieplayer_plugin Choose a plugin that's executed with the one touch key in movieplayer mode
 menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
 menu.hint_net_dhcp Use DHCP server to auto-configure
@@ -1315,9 +1366,11 @@ menu.hint_next Continue to next menu\nPress menu key to close all menus
 menu.hint_next_brief Continue to next menu
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
+menu.hint_osd_behavior_infobar Show infobar depending on time set or manually on or off.
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
-menu.hint_osd_timing After this time the OSD will be faded out
+menu.hint_osd_resolution Change OSD resolution
+menu.hint_osd_timing Show OSD element depending on time set or manually on or off.
 menu.hint_other_fonts Change other font sizes
 menu.hint_parentallock_changepin Change PIN code
 menu.hint_parentallock_lockage Select age allowed to watch
@@ -1338,9 +1391,11 @@ menu.hint_power_leds Configure power-button LEDs behavior
 menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
 menu.hint_pref_subs Select preferred subtitle language\nselect 'none' to disable
 menu.hint_progressbar Select the options for the progressbar
+menu.hint_progressbar_active Change color of active progress bar part
 menu.hint_progressbar_color Change appearance of progress bars
 menu.hint_progressbar_gradient Add a vertical brightness gradient to progress bars
 menu.hint_progressbar_infobar_position Selects the options of progressbar in the infobar
+menu.hint_progressbar_passive Change color of passive progress bar part
 menu.hint_progressbar_preview Use OK to change the current progressbar state
 menu.hint_progressbar_timescale_green Choose the green portion of colored progressbars
 menu.hint_progressbar_timescale_invert Select your preferred color gradient
@@ -1348,7 +1403,6 @@ menu.hint_progressbar_timescale_red Choose the red portion of colored progressba
 menu.hint_progressbar_timescale_yellow Choose the yellow portion of colored progressbars
 menu.hint_protection Protect content by PIN code\nDefault PIN 0000
 menu.hint_radiomode Switch box to radio mode
-menu.hint_rass Switch to interactive Rass (radio screen show) mode.
 menu.hint_reboot Reboot box\nNo confirmation
 menu.hint_record_already_found_check Checks before setting a new record timer if an eponymous title already exists
 menu.hint_record_apid_ac3 Record AC3 audio pids
@@ -1390,7 +1444,7 @@ menu.hint_restore Restore files from selected backup
 menu.hint_rotor_swap Swap rotor east/west directions\nin motor control
 menu.hint_rounded_corners Draw round or rectangular windows corners 
 menu.hint_save_settings Save all settings to flash
-menu.hint_saveas Save GUI settings to file
+menu.hint_saveas Save GUI settings to a file named neutrino.conf
 menu.hint_scan_auto Auto-scan selected provider
 menu.hint_scan_autoall Scan several selected providers at once
 menu.hint_scan_autoall_select Add selected satellites to scan
@@ -1490,16 +1544,15 @@ menu.hint_settings Configure System\nNetwork, audio, video, OSD and more
 menu.hint_shoutcast_dev_id Type your SHOUTcast Dev ID. An empty input disables SHOUTcast support
 menu.hint_shoutcast_enabled Enable or disable SHOUTcast support
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
-menu.hint_shutdown Put your box in deep standby mode\nNo confirmation
+menu.hint_shutdown Put your box in deep-standby mode\nNo confirmation
 menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
-menu.hint_shutdown_menu Put you receiver in sleep or deep standby mode, set sleep timer
 menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more than 1 second
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
 menu.hint_sleeptimer Set timer to put your box\nin sleep mode
 menu.hint_sleeptimer_min Default setting for sleeptimer
 menu.hint_sms_channel If enabled, numeric buttons in channel list used to search channel in SMS style
 menu.hint_sms_movie If enabled, numeric buttons in moviebrowser used to search movie in SMS style
-menu.hint_soft_restart Restart GUI without reboot
+menu.hint_soft_restart Restart Neutrino without reboot
 menu.hint_softupdate_check Check online update, download and flash firmware
 menu.hint_softupdate_check_local Select and flash firmware from local file
 menu.hint_softupdate_createimage_menu Backup of current software, including all settings
@@ -1513,7 +1566,7 @@ menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate
 menu.hint_subchannel_pos Select subchannels menu position
 menu.hint_sw_update Update software
 menu.hint_theme Select pre-defined color theme\nSave or load theme from files
-menu.hint_timeouts Configure time to hide GUI windows\nin seconds
+menu.hint_timeouts Customize display behavior and timeouts for messages, windows, menus, infobar, etc.
 menu.hint_timeouts_static_messages Timeout for specific messages with user interaction
 menu.hint_timer_followscreenings Show selection with followscreenings for timer programming
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
@@ -1563,8 +1616,10 @@ menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
 menu.hint_volume_size Select volume indicator height
+menu.hint_webradio_setup WebRadio channels configured here will be available in the standard channel lists.
 menu.hint_webtv_setup WebTV channels configured here will be available in the standard channel lists.
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
+menu.hint_xmltv_setup Configure XMLTV files with EPG data to describe TV listings
 menu.hint_youtube_dev_id Type your YouTube Dev ID. An empty input disables YouTube support
 menu.hint_youtube_enabled Enable or disable YouTube support
 menu.hint_ytplay Play selected YouTube feeds
@@ -1582,7 +1637,9 @@ messagebox.no No
 messagebox.ok Ok
 messagebox.yes Yes
 miscsettings.channellist Channellist
+miscsettings.channellist_enablesdt Transponder background update
 miscsettings.channellist_epgtext_align Programtext Align
+miscsettings.channellogos Channellogos
 miscsettings.colored_events Program colored
 miscsettings.colored_events_0 none
 miscsettings.colored_events_1 current
@@ -1611,7 +1668,7 @@ miscsettings.epg_read_now Restore EPG now
 miscsettings.epg_save Save EPG on shutdown
 miscsettings.epg_save_frequently Save EPG frequently
 miscsettings.epg_save_mode Favorites only
-miscsettings.epg_save_standby Save EPG on soft standby
+miscsettings.epg_save_standby Save EPG on soft-standby
 miscsettings.epg_scan EPG scan mode
 miscsettings.epg_scan_always Always
 miscsettings.epg_scan_bouquets EPG scan bouquets
@@ -1651,7 +1708,6 @@ miscsettings.infobar_show_tuner Display active tuner
 miscsettings.infoclock Clock
 miscsettings.onlineservices Online services
 miscsettings.progressbar Progressbar
-miscsettings.progressbar_color Color
 miscsettings.progressbar_design Design
 miscsettings.progressbar_design_0 colored points
 miscsettings.progressbar_design_1 colored vertical lines
@@ -1659,6 +1715,7 @@ miscsettings.progressbar_design_2 colored horizontal lines
 miscsettings.progressbar_design_3 colored bar
 miscsettings.progressbar_design_4 monochrome
 miscsettings.progressbar_design_long Design
+miscsettings.progressbar_global General
 miscsettings.progressbar_gradient 3D effect
 miscsettings.progressbar_infobar_position Position
 miscsettings.progressbar_infobar_position_0 standard
@@ -1676,7 +1733,7 @@ miscsettings.progressbar_timescale_yellow yellow
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count In standby, switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby
-miscsettings.shutdown_count_hint2 to deep standby (0 = off).
+miscsettings.shutdown_count_hint2 to deep-standby (0 = off).
 miscsettings.shutdown_real Enable standby
 miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer
@@ -1749,6 +1806,7 @@ moviebrowser.cut_failed Cut failed, are there jump bookmarks and enough free spa
 moviebrowser.cutting Cutting movie, please wait ...
 moviebrowser.delete_all Delete all selected movies without any questions?
 moviebrowser.delete_info Delete files, please wait ...
+moviebrowser.delete_movie Delete movie
 moviebrowser.delete_screenshot Delete screenshot?
 moviebrowser.dir Path
 moviebrowser.directories Directories
@@ -1761,7 +1819,6 @@ moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Enter new jump length (s)
 moviebrowser.edit_book_type_info2 <0: backward, >0: forward, 0: none
 moviebrowser.edit_serie Enter name of serie
-moviebrowser.error_no_movies No movies found
 moviebrowser.filter_off Filter off
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_focus Switch window
@@ -1769,7 +1826,8 @@ moviebrowser.foot_options Options
 moviebrowser.foot_play Playback
 moviebrowser.foot_refresh Refresh list
 moviebrowser.foot_sort Sort:
-moviebrowser.head MovieBrowser
+moviebrowser.head My recordings
+moviebrowser.head_all_movies All movies:
 moviebrowser.head_filter Filter movies by category:
 moviebrowser.head_playlist Last played:
 moviebrowser.head_recordlist Last recorded:
@@ -1793,6 +1851,7 @@ moviebrowser.hint_movieend Film end in 5 seconds\n'0' to cancel
 moviebrowser.hint_newbook_backward New jump back started\n'%s' to define endposition, '0' to cancel
 moviebrowser.hint_newbook_forward New jump forward started\n'%s' to define endposition, '0' to cancel
 moviebrowser.hint_truncate Truncating all data beyond the end-bookmark
+moviebrowser.imdb_data Get IMDb data
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
 moviebrowser.info_file File
@@ -1818,6 +1877,7 @@ moviebrowser.info_prodyear Year
 moviebrowser.info_quality Quality
 moviebrowser.info_rating Rating
 moviebrowser.info_recorddate Record date
+moviebrowser.info_recordtime Record time
 moviebrowser.info_serie Serie
 moviebrowser.info_size File size (MB)
 moviebrowser.info_spacer Spacer
@@ -1831,9 +1891,8 @@ moviebrowser.menu_copy_several Copy and split movie
 moviebrowser.menu_cut Cut movie
 moviebrowser.menu_cut_head Copy, cut and truncate
 moviebrowser.menu_directories_head Directories de/activate
-moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Bookmarks
-moviebrowser.menu_main_head Settings
+moviebrowser.menu_main_head Movie info and settings
 moviebrowser.menu_nfs_head NFS settings
 moviebrowser.menu_parental_lock_activated activated
 moviebrowser.menu_parental_lock_activated_no no
@@ -1843,11 +1902,13 @@ moviebrowser.menu_parental_lock_head Parental Lock
 moviebrowser.menu_parental_lock_rate_head Lock movies from
 moviebrowser.menu_save Save changes
 moviebrowser.menu_save_all Start update of movie info files
+moviebrowser.menu_settings Settings
 moviebrowser.menu_truncate Truncate movie
 moviebrowser.option_browser Browser Options
 moviebrowser.reload_at_start Reload movie info at start
 moviebrowser.remount_at_start Remount at start
-moviebrowser.scan_for_movies Scan for Movies ...
+moviebrowser.scan_for_movies Scan for recordings...
+moviebrowser.scan_for_videos Scan for YT-Videos ...
 moviebrowser.serie_auto_create Serie auto create
 moviebrowser.serie_head Serie
 moviebrowser.serie_name Change name
@@ -1869,6 +1930,7 @@ moviebrowser.short_prodyear Year
 moviebrowser.short_quality * (quality)
 moviebrowser.short_rating Vote
 moviebrowser.short_recorddate Date
+moviebrowser.short_recordtime Time
 moviebrowser.short_serie Serie
 moviebrowser.short_size MB
 moviebrowser.short_spacer 
@@ -1898,7 +1960,6 @@ moviebrowser.yt_max_history Max search history size
 moviebrowser.yt_max_results Max results to fetch
 moviebrowser.yt_most_popular Most popular today
 moviebrowser.yt_most_popular_all_time Most popular
-moviebrowser.yt_next_results Next results
 moviebrowser.yt_orderby Order by
 moviebrowser.yt_orderby.published publishing date
 moviebrowser.yt_orderby.rating rating
@@ -1906,8 +1967,6 @@ moviebrowser.yt_orderby.relevance relevance
 moviebrowser.yt_orderby.viewcount view count
 moviebrowser.yt_pending Pending downloads
 moviebrowser.yt_pref_quality Prefered quality
-moviebrowser.yt_prev_results Previous results
-moviebrowser.yt_recently_featured Recently featured
 moviebrowser.yt_region Region
 moviebrowser.yt_related Related videos
 moviebrowser.yt_search Search keyword
@@ -1917,6 +1976,7 @@ movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
 movieplayer.bookmarkname_hint2 
 movieplayer.chapters Chapters
+movieplayer.display_playtime Show playtime in VFD
 movieplayer.fileplayback File play
 movieplayer.head Movieplayer
 movieplayer.help_additional To find more user definable key bindings, see "Mainmenu" > "Settings" > "Keys" > "Edit" > "Movieplayer".\n\nWhile movie playback some menuitems in mainmenu are deactivated.
@@ -1940,6 +2000,7 @@ movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
 movieplayer.tsplayback Play
 movieplayer.ytplayback YouTube videoplayer
+movieplayer.zap Zap not possible while movie or timeshift playback
 mpkey.audio Audiotracks
 mpkey.bookmark Bookmarks
 mpkey.forward Forward
@@ -2076,17 +2137,16 @@ personalize.pinprotect Yes
 personalize.pinstatus Require PIN
 personalize.plugins Plugins
 personalize.usermenu_plugin_types Choose Plugin types to show
-personalize.usermenu_preferred_buttons Assigning of preferred keys
 personalize.usermenu_show_cancel Show "Cancel"-Button
 personalize.visible Visible
-pictureviewer.defdir start dir.
+pictureviewer.defdir Start directory
 pictureviewer.head Picture viewer
 pictureviewer.help1 menu mode
 pictureviewer.help10 reread image
 pictureviewer.help11 previous image
 pictureviewer.help12 next image
-pictureviewer.help13 Zoom out
-pictureviewer.help14 Zoom in
+pictureviewer.help13 zoom out
+pictureviewer.help14 zoom in
 pictureviewer.help15 scroll up
 pictureviewer.help16 scroll left
 pictureviewer.help17 scroll right
@@ -2109,19 +2169,19 @@ pictureviewer.help9 show mode
 pictureviewer.resize.color_average advanced
 pictureviewer.resize.none none
 pictureviewer.resize.simple simple
-pictureviewer.scaling scaling
-pictureviewer.show show
-pictureviewer.slide_time slideshow display time
-pictureviewer.slideshow slideshow
-pictureviewer.sortorder.date change sort order (date)
-pictureviewer.sortorder.filename change sort order (filename)
+pictureviewer.scaling Scaling
+pictureviewer.show Show
+pictureviewer.slide_time Slideshow display time
+pictureviewer.slideshow Slideshow
+pictureviewer.sortorder.date Sort order: Date
+pictureviewer.sortorder.filename Sort order: Filename
 ping.ok is reachable (ping)
 ping.protocol is unreachable (host or protocol error)
 ping.socket is unreachable (socket error)
 ping.unreachable is unreachable
 pinprotection.head Enter PIN code
 pinprotection.wrongcode PIN-Code was wrong! Try again.
-plugins.hdd_dir Plugin HDD dir.
+plugins.hdd_dir Plugin external directory.
 plugins.no_plugin No plugin
 plugins.result plugin output
 plugintype.disabled Disabled
@@ -2129,7 +2189,6 @@ plugintype.game Game
 plugintype.lua Lua plugin
 plugintype.script Script
 plugintype.tool Tool
-rass.head Radio Screen Show
 rclock.locked Locked
 rclock.lockmsg Remote control will be locked.\nTo unlock, press\n[red] followed by [%s]\non your remote control.
 rclock.title Lock remote control
@@ -2231,11 +2290,6 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd SD only
 satsetup.fastscan_type Scan type
 satsetup.fastscan_update Auto update
-satsetup.fe_delsys_mode Delivery system mode
-satsetup.fe_delsys_mode_auto Auto
-satsetup.fe_delsys_mode_cable Cable
-satsetup.fe_delsys_mode_sat Satellite
-satsetup.fe_delsys_mode_terrestrial Terrestrial
 satsetup.fe_mode Tuner mode
 satsetup.fe_mode_independent Independent
 satsetup.fe_mode_link_loop Loop
@@ -2291,6 +2345,7 @@ scants.bouquet_writenames_bouquets providers
 scants.bouquet_writenames_ever both
 scants.bouquet_writenames_never never
 scants.bouquet_writenames_ubouquets favourites
+scants.canceled Transponderscan canceled!
 scants.channel Channel:
 scants.failed Transponderscan failed!
 scants.finished Transponderscan finished successfully!
@@ -2301,7 +2356,6 @@ scants.numberofradioservices Radio
 scants.numberoftotalservices Total
 scants.numberoftvservices TV
 scants.preverences_receiving_system Preferences
-scants.preverences_scan Scanmode
 scants.provider Provider:
 scants.select_tp Select transponder
 scants.startnow start scan
@@ -2353,10 +2407,12 @@ servicemenu.restart_tuner Restart tuner
 servicemenu.restarting_tuner Restarting tuner
 servicemenu.scants Servicescan
 servicemenu.update Software Update
-settings.backup Image-Settings: Backup
+settings.backup Save system settings
+settings.backup_dir Save to %s?\n"No" chooses another directory.
 settings.backup_failed Backup failed!
 settings.help Help
 settings.menu_hints Show menu hints
+settings.menu_hints_line Show line to menu hints
 settings.menu_pos Menu position
 settings.menus Menus
 settings.missingoptionsconffile The settings have been updated.\nNew Options will be set to default.
@@ -2369,11 +2425,12 @@ settings.pos_higher_center higher center
 settings.pos_top_center top center
 settings.pos_top_left top left
 settings.pos_top_right top right
-settings.restore Image-Settings: Restore
+settings.restore Restore system settings
 settings.restore_warn This will replace all settings and reboot\nContinue ?
 shoutcast.dev_id SHOUTcast Dev ID
 shoutcast.enabled SHOUTcast support
 shutdown.recording_query You really want to to stop record ?
+shutdown.timeshift_query You really want to to stop timeshift ?
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
 sleeptimerbox.announce Box will standby in 1 min.\nCancel Standby ?
 sleeptimerbox.hint1 Shutdown time in minutes (000 = off)
@@ -2381,7 +2438,7 @@ sleeptimerbox.hint2 The STB will shutdown after this time.
 sleeptimerbox.hint3 The STB will shutdown, if remote not used.
 sleeptimerbox.title Sleeptimer
 sleeptimerbox.title2 Inactivity shutdown timer
-streaminfo.aratio Aspect Ratio
+streaminfo.aratio Aspect ratio
 streaminfo.aratio_unknown unknown
 streaminfo.audiotype Audiotype
 streaminfo.audiotype_unknown unknown
@@ -2390,10 +2447,12 @@ streaminfo.bitrate Bitrate
 streaminfo.casystems Conditional access systems
 streaminfo.framerate Framerate
 streaminfo.framerate_unknown unknown
-streaminfo.head Stream-Information
+streaminfo.head Technical informations
 streaminfo.not_available not available
+streaminfo.osd_resolution OSD resolution
 streaminfo.resolution Resolution
-streaminfo.signal Receipt signal
+streaminfo.signal Tuner
+streaminfo.videosystem Videosystem
 streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart GUI.
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.
 streaming.overflow Record buffer overflow, consider to stop some records
@@ -2430,6 +2489,7 @@ timerlist.bouquetselect choose bouquet
 timerlist.channel Channel
 timerlist.channelselect choose channel
 timerlist.delete Delete
+timerlist.info Info
 timerlist.menumodify Modify timer
 timerlist.menunew New timer
 timerlist.message Message
@@ -2465,6 +2525,7 @@ timerlist.repeatcount repeats
 timerlist.repeatcount.hint_1 Amount of timer repeats
 timerlist.repeatcount.hint_2 0 for unlimited repeats
 timerlist.save Save timer
+timerlist.send.timer Send Timer
 timerlist.standby Action
 timerlist.standby.off Leave standby
 timerlist.standby.on Enter standby
@@ -2485,28 +2546,30 @@ timerlist.weekdays.hint_1 Mo Tu We Th Fr Sa Su
 timerlist.weekdays.hint_2 'X'=timer '-' no timer
 timersettings.followscreenings Show screening selection
 timersettings.record_safety_time_after Record stop time correction
-timersettings.record_safety_time_after.hint_1 Correction time in min. (00=off). This time
-timersettings.record_safety_time_after.hint_2 will added to stop time of every record timer.
 timersettings.record_safety_time_before Record start time correction
-timersettings.record_safety_time_before.hint_1 Correction time in min. (00=off). This time
-timersettings.record_safety_time_before.hint_2 will be deducted of every record timer.
 timersettings.separator Timer
 timing.chanlist Channellist
 timing.epg Epg
 timing.filebrowser Filebrowser
-timing.hint_1 Time in sec. After this time the
-timing.hint_2 infobar will be faded out.
 timing.infobar Infobar
-timing.infobar_movieplayer Infobar (movie mode)
-timing.infobar_radio Infobar (radio mode)
+timing.infobar_player Media mode
+timing.infobar_radio Radio mode
+timing.infobar_tv TV mode
 timing.menu Menu
 timing.numericzap Numeric Zap
+timing.off manual, without timeout
 timing.popup_messages Popup messages
 timing.static_messages Interactive messages
 timing.volumebar Volume bar
 tmdb.api_key TMDb API key
 tmdb.enabled TMDb support
+tmdb.info TMDb-Info
 tmdb.read_data Search TMDb data ...
+tunersetup.cable Cable (DVB-C)
+tunersetup.hybrid Hybrid (DVB-C/T/T2)
+tunersetup.mode Operation mode
+tunersetup.power 5V supply on DVB-T/T2 channels
+tunersetup.terr Terrestrial (DVB-T/T2)
 unicable.lnb Unicable Input
 unicable.qrg Unicable Frequency
 unicable.scr Unicable SCR
@@ -2526,7 +2589,7 @@ usermenu.button_red User menu red
 usermenu.button_yellow User menu yellow
 usermenu.head User menu
 usermenu.item_adzap Adzap
-usermenu.item_bar ---- Border ----
+usermenu.item_bar ---- Parting line ----
 usermenu.item_epg_misc EPG functions
 usermenu.item_none (empty)
 usermenu.item_plugin_types Plugin types
@@ -2535,7 +2598,6 @@ usermenu.items Menu items
 usermenu.key Key
 usermenu.key_select Assign key
 usermenu.msg_info_is_empty You don't have definied a name for this menu!\nUsing default name:\n
-usermenu.msg_warning_name You have more than one items created for this menu,\nbut none new name for this menu defined.\nIt is recommended to enter a new name!
 usermenu.msg_warning_no_items No items defined!\nThe menu name is reset!
 usermenu.name Name
 usermenu.title_blue Features
@@ -2589,6 +2651,7 @@ videomenu.hdmi_cec_mode_tuner as Sat/Cable STB
 videomenu.hdmi_cec_standby Enable CEC standby
 videomenu.hdmi_cec_standby_not_timer unless timer-wakeup
 videomenu.hdmi_cec_view_on Enable CEC View on
+videomenu.hdmi_cec_volume Activate CEC volume control
 videomenu.hue Hue
 videomenu.letterbox Letterbox
 videomenu.masksetup Mask Setup
@@ -2611,18 +2674,22 @@ videomenu.sdosd SD OSD
 videomenu.sharpness Sharpness
 videomenu.tv-scart Video
 videomenu.vcrsignal VCR Output Signal Type
-videomenu.vcrsignal_composite CVBS
-videomenu.vcrsignal_svideo S-Video
 videomenu.videoformat Format
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
+webradio.head WebRadio
+webradio.xml WebRadio XML files
+webradio.xml.add Add XML file
+webradio.xml.del Remove XML file
+webradio.xml.reload Reload XML files
 webtv.head WebTV
-webtv.xml WebTV XML files
-webtv.xml.add Add XML file
-webtv.xml.del Remove XML file
-webtv.xml.reload Reload XML files
+webtv.xml WebTV files
+webtv.xml.add Add
+webtv.xml.del Remove
+webtv.xml.enter Enter
+webtv.xml.reload Reload
 window_size Window size in %
 wizard.initial_settings Initial settings found
 wizard.install_settings Do you want to install channels for Astra 19.2°E?
@@ -2632,9 +2699,16 @@ wizard.setup_easy Easy
 wizard.setup_type Installation type
 wizard.setup_type_hint Easy to setup for CanalDigitaal/TéléSAT/TV Vlaanderen providers or simple cable scan
 wizard.welcome_head Welcome to the Setup Wizard
-wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
+wizard.welcome_text Neutrino is designed for set-top boxes and is maintained by the Tuxbox community and lives from the support of users and many volontary contributors./nIf you need help or have  suggestions, found bugs, please feel free to contact us.\nSupport pages or Contact and / or Web addresses can be found in the main menu under "Information".\nNext steps will guide you through initial installation of the device.\nImportant: Your set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
+word.after after
 word.from from
 word.in in
+xmltv.head XMLTV
+xmltv.xml XMLTV files
+xmltv.xml.add Add
+xmltv.xml.del Remove
+xmltv.xml.enter Enter
+xmltv.xml.reload Reload
 youtube.dev_id YouTube Dev ID
 youtube.enabled YouTube support
 zapit.scantype scan for services
@@ -2649,4 +2723,4 @@ zapitsetup.info Start Channel
 zapitsetup.last_radio Radio Channel
 zapitsetup.last_tv TV Channel
 zapitsetup.last_use from last Channel
-zaptotimer.announce Zapto timer in one minute
+zaptotimer.announce Zap-to timer in one minute

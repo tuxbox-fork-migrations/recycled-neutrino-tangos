@@ -46,7 +46,6 @@
 #include <errno.h>
 #include <system/helpers.h>
 #include <gui/widget/msgbox.h>
-#include <errno.h>
 #include <system/debug.h>
 
 CShellWindow::CShellWindow(const std::string &Command, const int Mode, int *Res, bool auto_exec)
@@ -84,7 +83,7 @@ static int read_line(int fd, struct pollfd *fds, char *b, size_t sz)
 	return i;
 }
 
-static std::string lines2txt(list<std::string> &lines)
+static std::string lines2txt(std::list<std::string> &lines)
 {
 	std::string txt = "";
 	for (std::list<std::string>::const_iterator it = lines.begin(), end = lines.end(); it != end; ++it) {
@@ -119,11 +118,12 @@ void CShellWindow::exec()
 			return;
 		}
 
-		Font *font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
+		CNeutrinoFonts::getInstance()->SetupShellFont();
+		Font *font = g_ShellFont ? g_ShellFont : g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
 		int h_shell = frameBuffer->getScreenHeight();
 		int w_shell = frameBuffer->getScreenWidth();
 		unsigned int lines_max = h_shell / font->getHeight();
-		list<std::string> lines;
+		std::list<std::string> lines;
 		CBox textBoxPosition(frameBuffer->getScreenX(), frameBuffer->getScreenY(), w_shell, h_shell);
 		if (textBox == NULL){
 			textBox = new CTextBox(cmd.c_str(), font, CTextBox::BOTTOM, &textBoxPosition);
@@ -134,14 +134,14 @@ void CShellWindow::exec()
 		fds.events = POLLIN | POLLHUP | POLLERR;
 		fcntl(fds.fd, F_SETFL, fcntl(fds.fd, F_GETFL, 0) | O_NONBLOCK);
 
-		time_t lastPaint = time_monotonic_ms();
+		int64_t lastPaint = time_monotonic_ms();
 		bool ok = true, nlseen = false, dirty = false, incomplete = false;
 		char output[1024];
 		std::string txt = "";
 		std::string line = "";
 
 		do {
-			time_t now;
+			int64_t now;
 			fds.revents = 0;
 			int r = poll(&fds, 1, 300);
 			if (r > 0) {
@@ -228,7 +228,7 @@ void CShellWindow::exec()
 
 		if (mode & VERBOSE) {
 			txt = lines2txt(lines);
-			txt += "\n...ready";
+			txt += "\n... ready";
 			textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
 		}
 
@@ -276,17 +276,17 @@ void CShellWindow::showResult()
 			if (show_button){
 				int b_width = 150;
 				int b_height = 35;
-				int xpos = frameBuffer->getScreenWidth() - b_width;
-				int ypos = frameBuffer->getScreenHeight() - b_height;
+				int xpos = frameBuffer->getScreenX() + frameBuffer->getScreenWidth() - OFFSET_INNER_MID - b_width;
+				int ypos = frameBuffer->getScreenY() + frameBuffer->getScreenHeight() - OFFSET_INNER_SMALL - b_height;
 				CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_BACK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
-				btn.setColorBody(COL_MENUCONTENT_PLUS_0);
+				//btn.setColorBody(COL_MENUCONTENT_PLUS_0);
 				btn.paint(false);
 			}
 
 			frameBuffer->blit();
 			neutrino_msg_t msg;
 			neutrino_msg_data_t data;
-			uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+			uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 			if (!exit)
 			{

@@ -48,8 +48,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-//static const char * iso639filename = "/usr/share/iso-codes/iso-639.tab";
-static const char * iso639filename = "/share/iso-codes/iso-639.tab";
+static const char * iso639filename = "/usr/share/iso-codes/iso-639.tab";
+//static const char * iso639filename = "/share/iso-codes/iso-639.tab";
 
 #define DEFAULT_LOCALE "english"
 
@@ -249,6 +249,11 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 const char * CLocaleManager::getText(const neutrino_locale_t keyName) const
 {
 	return localeData[keyName];
+}
+
+std::string CLocaleManager::getString(const neutrino_locale_t keyName) const
+{
+	return (std::string) localeData[keyName];
 }
 
 static const neutrino_locale_t locale_weekday[7] =

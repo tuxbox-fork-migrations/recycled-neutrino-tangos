@@ -29,7 +29,7 @@
 
 #include <gui/widget/buttons.h>
 #include <system/settings.h>
-//#include <driver/stacktrace.h>
+#include <system/stacktrace.h>
 #include <driver/fontrenderer.h>
 
 
@@ -103,8 +103,8 @@ int paintButtons(	const button_label_ext * const content,
 	int w_footer = footerwidth;
 	int h_footer = 0;
 	
-	int w_space 	= 10; //minimal space between buttons
-	int h_space	= 4; //minimal space between caption and/or icon and border
+	int w_space 	= OFFSET_INNER_MID; //minimal space between buttons
+	int h_space	= OFFSET_INNER_SMALL; //minimal space between caption and/or icon and border
 	int x_icon 	= x_footer + w_space;
 	int x_caption 	= 0;
 	
@@ -132,7 +132,7 @@ int paintButtons(	const button_label_ext * const content,
 	if (count > 16 || count == 0)
 	{
 		fprintf(stderr, "paintButtons does only support max 16 buttons yet (%d)\n", count);
-// 		print_stacktrace();
+		print_stacktrace();
 		return 0;
 	}
 	if (maxwidth < 200 && show)
@@ -205,7 +205,7 @@ int paintButtons(	const button_label_ext * const content,
 	fprintf(stderr, "PB: sp %d mw %d w_t %d w_i %d w_s %d c_i %d\n",
 		spacing, maxwidth, w_text, w_icons, w_space, count_items);
 #endif
-	if (fwidth[cnt - 1] == 0) /* divisor needs to be labels+1 unless rightmost icon has a label */
+	if (cnt > 0 && fwidth[cnt - 1] == 0) /* divisor needs to be labels+1 unless rightmost icon has a label */
 		count_labels++;   /* side effect: we don't try to divide by 0 :-) */
 
 	if (maximize) {
@@ -312,8 +312,8 @@ int paintButtons(       const int &x,
 	int w_footer = footerwidth;
 	int h_footer = 0;
 
-	int w_space     = 10; //minimal space between buttons
-	int h_space     = 4; //minimal space between caption and/or icon and border
+	int w_space     = OFFSET_INNER_MID; //minimal space between buttons
+	int h_space     = OFFSET_INNER_SMALL; //minimal space between caption and/or icon and border
 	int x_icon      = x_footer + w_space;
 	int x_caption   = 0;
 
@@ -348,7 +348,7 @@ int paintButtons(       const int &x,
 		fprintf(stderr, "paintButtons: maxwidth very small\n");
 		fprintf(stderr, "  x: %d y: %d footw: %d count: %d maxw: %d footh: %d\n ",
 				x, y, footerwidth, count, maxwidth, footerheight);
-		//print_stacktrace();
+		print_stacktrace();
 	}
 
 	uint i;

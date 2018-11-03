@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
-	Copyright (C) 2012,2013,2014 Stefan Seyfried
+	Copyright (C) 2012-2016 Stefan Seyfried
 
 	License: GPLv2
 
@@ -121,10 +121,12 @@ bool CFEManager::Init()
 	/* for testing without a frontend, export SIMULATE_FE=1 */
 	if (femap.empty() && getenv("SIMULATE_FE")) {
 		INFO("SIMULATE_FE is set, adding dummy frontend for testing");
-		fe = new CFrontend(0,0);
+		fe = new CFrontend(0, -1);
 		fekey = MAKE_FE_KEY(0, 0);
 		femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
+		fe->Open();
 		livefe = fe;
+		have_sat = true;
 	}
 	if (femap.empty())
 		return false;
@@ -249,16 +251,22 @@ bool CFEManager::loadSettings()
 		fe_config.diseqcRepeats		= getConfigValue(fe, "diseqcRepeats", 0);
 		fe_config.motorRotationSpeed	= getConfigValue(fe, "motorRotationSpeed", 18);
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
-		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", -1);
+		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", 0);
 		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
+		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", -1);
 		fe_config.diseqc_order		= getConfigValue(fe, "diseqc_order", UNCOMMITED_FIRST);
 		fe_config.use_usals		= getConfigValue(fe, "use_usals", 0);
 		fe_config.rotor_swap		= getConfigValue(fe, "rotor_swap", 0);
+		fe_config.force_mode		= getConfigValue(fe, "force_mode", 0);
+		fe_config.powered		= getConfigValue(fe, "powered", 0);
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
 		/* default mode for first / next frontends */
 		int def_mode = def_modeX;
+
+		if (fe->hasCable() && fe->hasTerr())
+			fe->forceDelSys(fe_config.force_mode);
 
 		if (fe->hasSat() && fsat) {
 			fsat = false;
@@ -350,12 +358,15 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "highVoltage", fe_config.highVoltage);
 		setConfigValue(fe, "uni_scr", fe_config.uni_scr);
 		setConfigValue(fe, "uni_qrg", fe_config.uni_qrg);
+		setConfigValue(fe, "uni_pin", fe_config.uni_pin);
 		setConfigValue(fe, "diseqc_order", fe_config.diseqc_order);
 		setConfigValue(fe, "use_usals", fe_config.use_usals);
 		setConfigValue(fe, "rotor_swap", fe_config.rotor_swap);
 		setConfigValue(fe, "lastSatellitePosition", fe->getRotorSatellitePosition());
 		setConfigValue(fe, "mode", fe->getMode());
 		setConfigValue(fe, "master", fe->getMaster());
+		setConfigValue(fe, "force_mode", fe_config.force_mode);
+		setConfigValue(fe, "powered", fe_config.powered);
 
 		std::vector<int> satList;
 		satellite_map_t satellites = fe->getSatellites();
@@ -381,7 +392,9 @@ void CFEManager::saveSettings(bool write)
 void CFEManager::copySettings(CFrontend * from, CFrontend * to)
 {
 	INFO("Copy settings fe %d -> fe %d", from->fenumber, to->fenumber);
-	if (to->config.diseqcType != DISEQC_UNICABLE || to->config.diseqcType != DISEQC_UNICABLE2 || to->getMode() == CFrontend::FE_MODE_LINK_LOOP)
+	if ((to->config.diseqcType != DISEQC_UNICABLE &&
+	     to->config.diseqcType != DISEQC_UNICABLE2) ||
+	     to->getMode() == CFrontend::FE_MODE_LINK_LOOP)
 		to->config.diseqcType = from->config.diseqcType;
 
 	to->config.diseqcRepeats = from->config.diseqcRepeats;
@@ -464,7 +477,8 @@ void CFEManager::linkFrontends(bool init)
 		}
 		if (init && femode != CFrontend::FE_MODE_UNUSED)
 			fe->Init();
-		if (femode != CFrontend::FE_MODE_UNUSED) {
+		if (femode != CFrontend::FE_MODE_UNUSED)
+		{
 			enabled_count++;
 			if ((fe->fenumber + 1) < (int) MAX_DMX_UNITS)
 				demuxes[fe->fenumber + 1] = 1;
@@ -486,7 +500,7 @@ void CFEManager::Open()
 {
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
-		if(!fe->Locked())
+		if (!fe->Locked() && fe->getMode() != CFrontend::FE_MODE_UNUSED)
 			fe->Open(true);
 	}
 }
@@ -556,6 +570,8 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 		CFrontend * mfe = it->second;
 
 		if (!mfe->supportsDelivery(channel->delsys))
+			continue;
+		if (mfe->forcedDelivery(channel->delsys))
 			continue;
 		if (mfe->getMode() == CFrontend::FE_MODE_UNUSED || CFrontend::linked(mfe->getMode()))
 			continue;
@@ -735,15 +751,20 @@ bool CFEManager::canTune(CZapitChannel * channel)
 
 CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 {
+	delivery_system_t delsys = UNKNOWN_DS;
+	if (SAT_POSITION_CABLE(satellitePosition))
+		delsys = ALL_CABLE;
+	if (SAT_POSITION_TERR(satellitePosition))
+		delsys = ALL_TERR;
 	CFrontend * frontend = NULL;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
-		if (mfe->hasCable() && SAT_POSITION_CABLE(satellitePosition)) {
+		if (mfe->hasCable() && SAT_POSITION_CABLE(satellitePosition) && !mfe->forcedDelivery(delsys)) {
 			if (mfe->getMode() != CFrontend::FE_MODE_UNUSED) {
 				frontend = mfe;
 				break;
 			}
-		} else if (mfe->hasTerr() && SAT_POSITION_TERR(satellitePosition)) {
+		} else if (mfe->hasTerr() && SAT_POSITION_TERR(satellitePosition) && !mfe->forcedDelivery(delsys)) {
 			if (mfe->getMode() != CFrontend::FE_MODE_UNUSED) {
 				frontend = mfe;
 				break;

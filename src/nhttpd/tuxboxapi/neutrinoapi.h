@@ -49,7 +49,6 @@ public:
 	//bool standby_mode;
 
 	// some constants
-	static std::string Dbox_Hersteller[4];
 	static std::string videooutput_names[5];
 	static std::string videoformat_names[5];
 	static std::string audiotype_names[5];
@@ -84,6 +83,8 @@ public:
 	std::string getAudioInfoAsString(void);
 	std::string getCryptInfoAsString(void);
 	std::string getLogoFile(t_channel_id channelId);
+	std::string GetRemoteBoxIP(std::string _rbname);
+	void		SendAllTimers(std::string url, bool force = false);
 public:
 	CNeutrinoAPI();
 	~CNeutrinoAPI(void);

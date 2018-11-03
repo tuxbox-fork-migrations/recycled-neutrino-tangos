@@ -29,6 +29,7 @@ Basic attributes and member functions for component sub classes
 #ifndef __N_COMPONENTS__
 #define __N_COMPONENTS__
 
+
 #include "cc_types.h"
 #include "cc_base.h"
 #include "cc_extra.h"

@@ -30,12 +30,17 @@
 #endif
 #include <global.h>
 #include <neutrino.h>
+#include <video.h>
 #include <driver/display.h>
 #include <gui/infoclock.h>
 #include <gui/volumebar.h>
 #include <gui/audiomute.h>
 
-CAudioMute::CAudioMute():CComponentsPicture(0, 0, NEUTRINO_ICON_BUTTON_MUTE)
+#include <driver/display.h>
+
+#include <system/helpers.h>
+
+CAudioMute::CAudioMute():CComponentsPicture(0, 0, NEUTRINO_ICON_MUTED)
 {
 	y_old			= -1;
 	paint_bg		= false;
@@ -59,9 +64,20 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 
 	CVFD::getInstance()->setMuted(newValue);
 	neutrino->setCurrentMuted(newValue);
-	g_Zapit->muteAudio(newValue);
+#if HAVE_ARM_HARDWARE
+	if (g_settings.hdmi_cec_volume)
+		hdmi_cec::getInstance()->toggle_mute();
+	else
+#endif
+	if (g_settings.volume_external)
+	{
+		if (my_system((newValue) ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT) != 0)
+				perror((newValue) ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT " failed");
+	}
+	else
+		g_Zapit->muteAudio(newValue);
 
-	if( isEvent && ( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_pic))
+	if( isEvent && ( neutrino->getMode() != NeutrinoModes::mode_scart ) && ( neutrino->getMode() != NeutrinoModes::mode_pic))
 	{
 		if (doInit)
 			CVolumeHelper::getInstance()->refresh();
@@ -99,9 +115,10 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 			if (!CInfoClock::getInstance()->isBlocked()){
 				CInfoClock::getInstance()->ClearDisplay();
 				this->kill();
-				clearSavedScreen();
-			}else
+			}
+			else
 				this->hide();
+			clearSavedScreen();
 			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
 		}
 		frameBuffer->fbNoCheck(false);

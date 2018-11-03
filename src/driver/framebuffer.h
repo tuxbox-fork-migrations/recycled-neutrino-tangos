@@ -21,7 +21,7 @@
 	Boston, MA  02110-1301, USA.
 */
 
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 #include "fb_generic_sti_ddt.h"
 #else
 #include "fb_generic.h"
@@ -73,7 +73,7 @@ typedef struct gradientData_t
 
 #define WINDOW_SIZE_MAX		100 // %
 #define WINDOW_SIZE_MIN		50 // %
-#define WINDOW_SIZE_MIN_FORCED	80 // %
+#define WINDOW_SIZE_SMALL	80 // %
 
 /** Ausfuehrung als Singleton */
 class CFrameBuffer : public sigc::trackable
@@ -188,8 +188,8 @@ class CFrameBuffer : public sigc::trackable
 		unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
 		unsigned int getScreenWidth(bool real = false);
 		unsigned int getScreenHeight(bool real = false); 
-		unsigned int getScreenWidthRel(bool force_small = false);
-		unsigned int getScreenHeightRel(bool force_small = false);
+		unsigned int getWindowWidth(bool force_small = false);
+		unsigned int getWindowHeight(bool force_small = false);
 		unsigned int getScreenX();
 		unsigned int getScreenY();
 		

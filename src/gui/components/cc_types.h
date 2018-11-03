@@ -2,8 +2,8 @@
 	Based up Neutrino-GUI - Tuxbox-Project 
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
-	Classes for generic GUI-related components.
-	Copyright (C) 2012-2014, Thilo Graf 'dbt'
+	Types and base type class for generic GUI-related components.
+	Copyright (C) 2012-2018, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -17,30 +17,42 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	General Public License for more details.
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef __CC_TYPES__
 #define __CC_TYPES__
 
+#include <stdint.h>
 #include <system/localize.h>
-#include <driver/rcinput.h>
+#include <driver/neutrino_msg_t.h>
+#include <driver/framebuffer.h>
 #include <gui/color_custom.h>
+#include <vector>
+#include <sys/types.h>
 
 struct gradientData_t;
 class Font;
 class CComponentsForm;
 class CComponentsScrollBar;
+class CCButtonSelect;
 
 ///cc item types
+typedef struct cc_type_t
+{
+	int 		id;
+	std::string 	name; 
+} cc_type_struct_t;
+
 typedef enum
 {
 	CC_ITEMTYPE_GENERIC,
 	CC_ITEMTYPE_ITEM,
 	CC_ITEMTYPE_PICTURE,
+	CC_ITEMTYPE_PICTURE_SCALABLE,
+	CC_ITEMTYPE_CHANNEL_LOGO,
+	CC_ITEMTYPE_CHANNEL_LOGO_SCALABLE,
 	CC_ITEMTYPE_TEXT,
 	CC_ITEMTYPE_TEXT_INFOBOX,
 	CC_ITEMTYPE_SHAPE_SQUARE,
@@ -53,6 +65,7 @@ typedef enum
 	CC_ITEMTYPE_FOOTER,
 	CC_ITEMTYPE_FRM_ICONFORM,
 	CC_ITEMTYPE_FRM_WINDOW,
+	CC_ITEMTYPE_FRM_WINDOW_MAX,
 	CC_ITEMTYPE_FRM_EXT_TEXT,
 	CC_ITEMTYPE_LABEL,
 	CC_ITEMTYPE_PROGRESSBAR,
@@ -96,7 +109,7 @@ typedef enum
 	CC_FBDATA_TYPE_FRAME		= 8,
 	CC_FBDATA_TYPE_BACKGROUND 	= 16,
 
-	CC_FBDATA_TYPES			= 32
+	CC_FBDATA_TYPES			= CC_FBDATA_TYPE_BOX | CC_FBDATA_TYPE_SHADOW_BOX | CC_FBDATA_TYPE_FRAME
 }FBDATA_TYPES;
 
 //fb color gradient types
@@ -191,18 +204,22 @@ typedef struct button_label_cc
 	button_label_cc(): 	button(NULL),
 				text(std::string()),
 				locale(NONEXISTANT_LOCALE),
-				directKeys(1, CRCInput::RC_nokey){}
+				directKeys(0, RC_NOKEY /*CRCInput::RC_nokey*/){}
 } button_label_cc_struct;
 
-#define CC_WIDTH_MIN		16
-#define CC_HEIGHT_MIN		16
+#define CC_WIDTH_MIN		CFrameBuffer::getInstance()->scale2Res(16)
+#define CC_HEIGHT_MIN		CC_WIDTH_MIN
 
+//shadow defines
 #define CC_SHADOW_OFF 			0x0
 #define CC_SHADOW_RIGHT 		0x2
 #define CC_SHADOW_BOTTOM 		0x4
 #define CC_SHADOW_CORNER_BOTTOM_LEFT	0x8
 #define CC_SHADOW_CORNER_BOTTOM_RIGHT	0x10
 #define CC_SHADOW_CORNER_TOP_RIGHT	0x20
+//prepared combined shadow defines
+#define CC_SHADOW_RIGHT_CORNER_ALL	CC_SHADOW_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT
+#define CC_SHADOW_BOTTOM_CORNER_ALL	CC_SHADOW_BOTTOM | CC_SHADOW_CORNER_BOTTOM_RIGHT | CC_SHADOW_CORNER_BOTTOM_LEFT
 #define CC_SHADOW_ON 			CC_SHADOW_RIGHT | CC_SHADOW_BOTTOM | CC_SHADOW_CORNER_BOTTOM_LEFT | CC_SHADOW_CORNER_BOTTOM_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT
 
 #define CC_SAVE_SCREEN_YES 	true
@@ -217,5 +234,24 @@ typedef struct button_label_cc
 #define CC_CENTERED		-2
 
 
+//abstract basic type class
+class CCTypes
+{
+	protected:
+		///property: define of item type, see above for possible types
+		cc_type_t cc_item_type;
+
+	public:
+		CCTypes();
+		virtual ~CCTypes(){};
+
+		///get the current item type, see attribute cc_item_type above
+		int getItemType();
+		//sets item name
+		void setItemName(const std::string& name);
+		//gets item name
+		std::string getItemName();
+
+};
 
 #endif

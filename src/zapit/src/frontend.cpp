@@ -3,7 +3,7 @@
  *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
  *
- * (C) 2007-2013,2015 Stefan Seyfried
+ * (C) 2007-2013,2015-2016 Stefan Seyfried
  * Copyright (C) 2011 CoolStream International Ltd 
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,8 +28,10 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <cmath>
+#include <fstream>
 /* zapit */
 #include <config.h>
+#include <system/helpers.h>
 #include <zapit/debug.h>
 #include <zapit/settings.h>
 #include <zapit/getservices.h>
@@ -38,7 +40,10 @@
 #include <zapit/frontend_c.h>
 #include <zapit/satconfig.h>
 #include <driver/abstime.h>
+#include <linux/dvb/frontend.h>
 #include <linux/dvb/version.h>
+
+#include <hardware_caps.h>
 
 extern transponder_list_t transponders;
 extern int zapit_debug;
@@ -61,6 +66,7 @@ extern int zapit_debug;
 // DVB-S/S2 specific
 #define PILOTS		7
 #define ROLLOFF		8
+#define MIS		9
 // DVB-T specific
 #define BANDWIDTH	4
 #define CODE_RATE_HP	6
@@ -68,12 +74,19 @@ extern int zapit_debug;
 #define TRANSMISSION_MODE 8
 #define GUARD_INTERVAL	9
 #define HIERARCHY	10
+// DVB-T2 specific
+#define PLP_ID 11
 
 #define FE_COMMON_PROPS	2
 #define FE_DVBS_PROPS	6
-#define FE_DVBS2_PROPS	8
+#if HAVE_COOL_HARDWARE
+	#define FE_DVBS2_PROPS	8
+#else
+	#define FE_DVBS2_PROPS	9
+#endif
 #define FE_DVBC_PROPS	6
 #define FE_DVBT_PROPS 10
+#define FE_DVBT2_PROPS 11
 
 /* stolen from dvb.c from vlc */
 static const struct dtv_property dvbs_cmdargs[] = {
@@ -97,6 +110,9 @@ static const struct dtv_property dvbs2_cmdargs[] = {
 	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} ,0},
 	{ DTV_PILOT,		{}, { PILOT_AUTO	} ,0},
 	{ DTV_ROLLOFF,		{}, { ROLLOFF_AUTO	} ,0},
+#if ! HAVE_COOL_HARDWARE
+	{ DTV_STREAM_ID,	{}, { NO_STREAM_ID_FILTER } ,0},
+#endif
 	{ DTV_TUNE,		{}, { 0			} ,0 }
 };
 
@@ -126,22 +142,43 @@ static const struct dtv_property dvbt_cmdargs[] = {
 	{ DTV_TUNE,		{}, { 0			}, 0}
 };
 
+static const struct dtv_property dvbt2_cmdargs[] = {
+	{ DTV_CLEAR,		{0,0,0}, { 0		} ,0},
+	{ DTV_FREQUENCY,	{}, { 0			} ,0},
+	{ DTV_MODULATION,	{}, { QAM_AUTO		} ,0},
+	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} ,0},
+	{ DTV_BANDWIDTH_HZ,	{}, { 8000000		} ,0},
+	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBT2		} ,0},
+	{ DTV_CODE_RATE_HP,	{}, { FEC_AUTO		} ,0},
+	{ DTV_CODE_RATE_LP,	{}, { FEC_AUTO		} ,0},
+	{ DTV_TRANSMISSION_MODE,{}, { TRANSMISSION_MODE_AUTO}, 0},
+	{ DTV_GUARD_INTERVAL,	{}, { GUARD_INTERVAL_AUTO}, 0},
+	{ DTV_HIERARCHY,	{}, { HIERARCHY_AUTO	}, 0},
+#if defined DTV_STREAM_ID
+	{ DTV_STREAM_ID,	{}, { NO_STREAM_ID_FILTER } ,0},
+#elif defined DTV_DVBT2_PLP_ID
+	{ DTV_DVBT2_PLP_ID,	{}, { NO_STREAM_ID_FILTER } ,0},
+#endif
+	{ DTV_TUNE,		{}, { 0			}, 0}
+};
+
 #define diff(x,y)	(max(x,y) - min(x,y))
 
 #define FE_TIMER_INIT()					\
-	unsigned int timer_start;			\
-	static unsigned int tmin = 2000, tmax = 0;	\
-	unsigned int timer_msec = 0;
+	int64_t timer_start;				\
+	static uint32_t tmin = 2000, tmax = 0;		\
+	uint32_t timer_msec = 0;
 
 #define FE_TIMER_START()				\
 	timer_start = time_monotonic_ms();
 
 #define FE_TIMER_STOP(label)				\
-	timer_msec = time_monotonic_ms() - timer_start; \
+	timer_msec = (uint32_t)(time_monotonic_ms() -	\
+			timer_start);			\
 	if(tmin > timer_msec) tmin = timer_msec;	\
 	if(tmax < timer_msec) tmax = timer_msec;	\
-	printf("[fe%d] %s: %u msec (min %u max %u)\n",	\
-		 fenumber, label, timer_msec, tmin, tmax);
+	printf("[fe%d/%d] %s: %u msec (min %u max %u)\n",	\
+		 adapter, fenumber, label, timer_msec, tmin, tmax);
 
 #define SETCMD(c, d) {					\
 	prop[cmdseq.num].cmd = (c);			\
@@ -176,11 +213,11 @@ static fe_sec_voltage_t unicable_lowvolt = SEC_VOLTAGE_13;
 
 CFrontend::CFrontend(int Number, int Adapter)
 {
-	DBG("[fe%d] New frontend on adapter %d\n", Number, Adapter);
+	DBG("[fe%d/%d] New frontend on adapter %d\n", Adapter, Number, Adapter);
 	fd		= -1;
 	fenumber	= Number;
 	adapter		= Adapter;
-	slave		= false; //(Number != 0); //false;
+	slave		= false; /* is set in frontend->setMasterSlave() */
 	standby		= true;
 	locked		= false;
 	usecount	= 0;
@@ -197,6 +234,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 	config.uni_scr = 0;        /* the unicable SCR address 0-7 */
 	config.uni_qrg = 0;        /* the unicable frequency in MHz */
 	config.uni_lnb = 0;        /* for two-position switches */
+	config.uni_pin = -1;       /* for MDU setups */
 	config.highVoltage = false;
 	config.motorRotationSpeed = 0; //in 0.1 degrees per second
 
@@ -213,11 +251,12 @@ CFrontend::CFrontend(int Number, int Adapter)
 	memset(&info, 0, sizeof(info));
 
 	deliverySystemMask = UNKNOWN_DS;
+	isMultistream = false;
 }
 
 CFrontend::~CFrontend(void)
 {
-	DBG("[fe%d] close frontend fd %d\n", fenumber, fd);
+	DBG("[fe%d/%d] close frontend fd %d\n", adapter, fenumber, fd);
 	if(fd >= 0)
 		Close();
 }
@@ -229,7 +268,15 @@ bool CFrontend::Open(bool init)
 
 	char filename[128];
 	snprintf(filename, sizeof(filename), "/dev/dvb/adapter%d/frontend%d", adapter, fenumber);
-	DBG("[fe%d] open %s\n", fenumber, filename);
+	DBG("[fe%d/%d] open %s\n", adapter, fenumber, filename);
+
+	if (adapter == -1) {
+		deliverySystemMask |= DVB_S;
+		deliverySystemMask |= DVB_S2;
+		info.type = FE_QPSK;
+		strcpy(info.name, "dummyfe");
+		return false;
+	}
 
 	mutex.lock();
 	if (fd < 0) {
@@ -240,6 +287,7 @@ bool CFrontend::Open(bool init)
 		}
 
 		getFEInfo();
+
 	}
 
 	currentTransponder.setTransponderId(0);
@@ -259,10 +307,36 @@ void CFrontend::getFEInfo(void)
 
 	//FIXME if (fenumber > 1) info.type = FE_QAM;
 
-	printf("[fe%d] frontend fd %d type %d\n", fenumber, fd, info.type);
+	printf("[fe%d/%d] frontend fd %d type %d\n", adapter, fenumber, fd, info.type);
 	bool legacy = true;
 
+#if HAVE_ARM_HARDWARE
+	std::ifstream in;
+	if (adapter == 0)
+		in.open("/proc/bus/nim_sockets");
+	if (in.is_open())
+	{
+		std::string line;
+		bool found = false;
+		while (getline(in, line))
+		{
+			if (line.find("NIM Socket "+to_string(fenumber)+":") !=std::string::npos)
+				found = true;
+
+			if ((line.find("Name:") != std::string::npos) && found)
+			{
+				//printf("NIM SOCKET: %s\n",line.substr(line.find_first_of(":")+2).c_str());
+				std::string tmp = info.name;
+				sprintf(info.name,"%s (%s)",tmp.c_str(),line.substr(line.find_first_of(":")+2).c_str());
+				break;
+			}
+		}
+	in.close();
+	}
+#endif // HAVE_ARM_HARDWARE
+
 	deliverySystemMask = UNKNOWN_DS;
+	forcedSystemMask = UNKNOWN_DS;
 
 #if (DVB_API_VERSION >= 5) && (DVB_API_VERSION_MINOR >= 5)
 	dtv_property prop[1];
@@ -292,12 +366,14 @@ void CFrontend::getFEInfo(void)
 				break;
 			case SYS_DVBT2:
 				deliverySystemMask |= DVB_T2;
+				isMultistream = info.caps & FE_CAN_MULTISTREAM;
 				break;
 			case SYS_DVBS:
 				deliverySystemMask |= DVB_S;
 				break;
 			case SYS_DVBS2:
 				deliverySystemMask |= DVB_S2;
+				isMultistream = info.caps & FE_CAN_MULTISTREAM;
 				break;
 			case SYS_DTMB:
 				deliverySystemMask |= DTMB;
@@ -318,10 +394,7 @@ void CFrontend::getFEInfo(void)
 		switch (info.type) {
 		case FE_QPSK:
 			deliverySystemMask |= DVB_S;
-#if !BOXMODEL_CS_HD1 && !HAVE_SPARK_HARDWARE && !HAVE_DUCKBOX_HARDWARE
-			if (info.caps & FE_CAN_2G_MODULATION)
-#endif
-				deliverySystemMask |= DVB_S2;
+			deliverySystemMask |= DVB_S2;
 			break;
 		case FE_OFDM:
 			deliverySystemMask |= DVB_T;
@@ -358,7 +431,7 @@ void CFrontend::Close(void)
 	if(standby)
 		return;
 
-	INFO("[fe%d] close frontend fd %d", fenumber, fd);
+	INFO("[fe%d/%d] close frontend fd %d", adapter, fenumber, fd);
 
 	if (!slave && config.diseqcType > MINI_DISEQC)
 		sendDiseqcStandby();
@@ -401,14 +474,14 @@ void CFrontend::reset(void)
 void CFrontend::Lock()
 {
 	usecount++;
-	INFO("[fe%d] usecount %d tp %" PRIx64 "\n", fenumber, usecount, getTsidOnid());
+	INFO("[fe%d/%d] usecount %d tp %" PRIx64 "\n", adapter, fenumber, usecount, getTsidOnid());
 }
 
 void CFrontend::Unlock()
 {
 	if(usecount > 0)
 		usecount--;
-	INFO("[fe%d] usecount %d tp %" PRIx64 "\n", fenumber, usecount, getTsidOnid());
+	INFO("[fe%d/%d] usecount %d tp %" PRIx64 "\n", adapter, fenumber, usecount, getTsidOnid());
 }
 
 fe_code_rate_t CFrontend::getCFEC()
@@ -424,7 +497,7 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 	dvb_fec_t f = (dvb_fec_t) fec_inner;
 	fe_code_rate_t fec;
 
-	if (delsys == DVB_S || delsys == DVB_C || delsys == DVB_T) {
+	if (delsys == DVB_S || delsys == DVB_C || delsys == DVB_T || delsys == DVB_T2) {
 		switch (f) {
 		case fNone:
 			fec = FEC_NONE;
@@ -446,7 +519,8 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 			break;
 		default:
 			if (zapit_debug)
-				printf("no valid fec for DVB-%c set.. assume auto\n", (delsys == DVB_S ? 'S' : (delsys == DVB_C ? 'C' : 'T')));
+				printf("no valid fec for DVB-%s set.. assume auto\n", (delsys == DVB_S ? "S" : (delsys == DVB_C ? "C" : "T/T2")));
+			/* fall through */
 		case fAuto:
 			fec = FEC_AUTO;
 			break;
@@ -483,6 +557,7 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 		default:
 			if (zapit_debug)
 				printf("no valid fec for DVB-S2 set.. !!\n");
+			/* fall through */
 		case fAuto:
 			fec = FEC_AUTO;
 			break;
@@ -551,8 +626,10 @@ fe_bandwidth_t CFrontend::getBandwidth(const uint8_t bandwidth)
 		return BANDWIDTH_7_MHZ;
 	case 0x02:
 		return BANDWIDTH_6_MHZ;
+#if _HAVE_DVB57
 	case 0x03:
 		return BANDWIDTH_5_MHZ;
+#endif
 	default:
 		return BANDWIDTH_AUTO; // AUTO
 	}
@@ -569,6 +646,14 @@ fe_guard_interval_t CFrontend::getGuardInterval(const uint8_t guard_interval)
 		return GUARD_INTERVAL_1_8;
 	case 0x03:
 		return GUARD_INTERVAL_1_4;
+#if defined GUARD_INTERVAL_1_128
+	case 0x05:
+		return GUARD_INTERVAL_1_128;
+	case 0x06:
+		return GUARD_INTERVAL_19_128;
+	case 0x07:
+		return GUARD_INTERVAL_19_256;
+#endif
 	default:
 		return GUARD_INTERVAL_AUTO;
 	}
@@ -583,6 +668,10 @@ fe_modulation_t CFrontend::getConstellation(const uint8_t constellation)
 		return QAM_16;
 	case 0x02:
 		return QAM_64;
+	case 0x04:
+		return QAM_128;
+	case 0x05:
+		return QAM_256;
 	default:
 		return QAM_AUTO;
 	}
@@ -597,8 +686,32 @@ fe_transmit_mode_t CFrontend::getTransmissionMode(const uint8_t transmission_mod
 		return TRANSMISSION_MODE_8K;
 	case 0x02:
 		return TRANSMISSION_MODE_4K;
+#if defined TRANSMISSION_MODE_1K
+	case 0x04:
+		return TRANSMISSION_MODE_1K;
+	case 0x05:
+		return TRANSMISSION_MODE_16K;
+	case 0x06:
+		return TRANSMISSION_MODE_32K;
+#endif
 	default:
 		return TRANSMISSION_MODE_AUTO;
+	}
+}
+
+fe_pls_mode_t CFrontend::getPLSMode(const uint8_t pls_mode)
+{
+	switch (pls_mode) {
+	case 0x00:
+		return PLS_Root;
+	case 0x01:
+		return PLS_Gold;
+	case 0x02:
+		return PLS_Combo;
+	case 0x03:
+		return PLS_Unknown;
+	default:
+		return PLS_Root;
 	}
 }
 
@@ -615,6 +728,7 @@ uint32_t CFrontend::getRate() const
 fe_status_t CFrontend::getStatus(void) const
 {
 	struct dvb_frontend_event event;
+	event.status = FE_REINIT;
 	fop(ioctl, FE_READ_STATUS, &event.status);
 	return (fe_status_t) (event.status & FE_HAS_LOCK);
 }
@@ -692,7 +806,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 
 		if (pfd.revents & (POLLIN | POLLPRI)) {
 			//FE_TIMER_STOP("poll has event after");
-			timer_msec = time_monotonic_ms() - timer_start; /* FE_TIMER_STOP does this :( */
+			timer_msec = (uint32_t)(time_monotonic_ms() - timer_start); /* FE_TIMER_STOP does this :( */
 			memset(&event, 0, sizeof(struct dvb_frontend_event));
 
 			ret = ioctl(fd, FE_GET_EVENT, &event);
@@ -700,30 +814,30 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 				ERROR("ioctl");
 				continue;
 			}
-			//printf("[fe%d] poll events %d status %x\n", fenumber, pfd.revents, event.status);
+			//printf("[fe%d/%d] poll events %d status %x\n", adapter, fenumber, pfd.revents, event.status);
 			if (event.status == 0) /* some drivers always deliver an empty event after tune */
 				continue;
 
 			if (event.status & FE_HAS_LOCK) {
-				INFO("[fe%d] ******** FE_HAS_LOCK: freq %lu\n", fenumber, (long unsigned int)event.parameters.frequency);
+				INFO("[fe%d/%d] ******** FE_HAS_LOCK: freq %lu\n", adapter, fenumber, (long unsigned int)event.parameters.frequency);
 				tuned = true;
 				break;
 			} else if (event.status & FE_TIMEDOUT) {
 				if(timedout < timer_msec)
 					timedout = timer_msec;
-				INFO("[fe%d] ######## FE_TIMEDOUT (max %d)\n", fenumber, timedout);
+				INFO("[fe%d/%d] ######## FE_TIMEDOUT (max %d)\n", adapter, fenumber, timedout);
 				/*break;*/
 			} else {
 				if (event.status & FE_HAS_SIGNAL)
-					printf("[fe%d] FE_HAS_SIGNAL\n", fenumber);
+					printf("[fe%d/%d] FE_HAS_SIGNAL\n", adapter, fenumber);
 				if (event.status & FE_HAS_CARRIER)
-					printf("[fe%d] FE_HAS_CARRIER\n", fenumber);
+					printf("[fe%d/%d] FE_HAS_CARRIER\n", adapter, fenumber);
 				if (event.status & FE_HAS_VITERBI)
-					printf("[fe%d] FE_HAS_VITERBI\n", fenumber);
+					printf("[fe%d/%d] FE_HAS_VITERBI\n", adapter, fenumber);
 				if (event.status & FE_HAS_SYNC)
-					printf("[fe%d] FE_HAS_SYNC\n", fenumber);
+					printf("[fe%d/%d] FE_HAS_SYNC\n", adapter, fenumber);
 				if (event.status & FE_REINIT)
-					printf("[fe%d] FE_REINIT\n", fenumber);
+					printf("[fe%d/%d] FE_REINIT\n", adapter, fenumber);
 				/* msec = TIME_STEP; */
 			}
 		} else if (pfd.revents & POLLHUP) {
@@ -731,13 +845,28 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 			reset();
 		}
 	}
-	//printf("[fe%d] event after: %d\n", fenumber, tmsec);
+	//printf("[fe%d/%d] event after: %d\n", adapter, fenumber, tmsec);
 	return event;
 }
 
 void CFrontend::getDelSys(int f, int m, const char *&fec, const char *&sys, const char *&mod)
 {
 	return getDelSys(getCurrentDeliverySystem(), f, m, fec, sys, mod);
+}
+
+void CFrontend::forceDelSys(int i)
+{
+	switch (i) {
+		case 1:
+			forcedSystemMask = ALL_TERR;
+			break;
+		case 2:
+			forcedSystemMask = ALL_CABLE;
+			break;
+		default:
+			forcedSystemMask = UNKNOWN_DS;
+			break;
+	}
 }
 
 void CFrontend::getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsys, fe_modulation_t &mod, fe_code_rate_t & fec)
@@ -802,6 +931,7 @@ void CFrontend::getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsy
 		break;
 	default:
 		printf("[frontend] getXMLDelsysFEC: unknown FEC: %d !!!\n", xmlfec);
+		/* fall through */
 	case FEC_S2_AUTO:
 	case FEC_AUTO:
 		fec = FEC_AUTO;
@@ -832,6 +962,7 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 		break;
 	case DVB_C:
 	case DVB_T:
+	case DVB_T2:
 	case DTMB:
 		switch(delsys) {
 		case DVB_C:
@@ -868,15 +999,17 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 		case QAM_256:
 			mod = "QAM_256";
 			break;
+#if _HAVE_DVB57
 		case QAM_4_NR:
 			mod = "QAM_4_NR";
 			break;
+#endif
 		case QPSK:
 			if (delsys == DVB_T || delsys == DVB_T2 || delsys == DTMB) {
 				mod = "QPSK"; // AKA QAM_4
 				break;
 			}
-			/* fallthrouh for FE_QAM... */
+			/* fall through */
 		case QAM_AUTO:
 		default:
 			mod = "QAM_AUTO";
@@ -921,11 +1054,17 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 	case FEC_9_10:
 		fec = "9/10";
 		break;
+#if _HAVE_DVB57
 	case FEC_2_5:
 		fec = "2/5";
 		break;
+	case FEC_NONE:
+		fec = "0";
+		break;
+#endif
 	default:
 		INFO("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
+		/* fall through */
 	case FEC_AUTO:
 		fec = "AUTO";
 		break;
@@ -946,9 +1085,11 @@ fe_delivery_system_t CFrontend::getFEDeliverySystem(delivery_system_t Delsys)
 	case DVB_T:
 		delsys = SYS_DVBT;
 		break;
+#if _HAVE_DVB57
 	case DVB_T2:
 		delsys = SYS_DVBT2;
 		break;
+#endif
 	case DVB_C:
 		delsys = SYS_DVBC_ANNEX_A;
 		break;
@@ -964,15 +1105,17 @@ fe_delivery_system_t CFrontend::getFEDeliverySystem(delivery_system_t Delsys)
 	case ISDBS:
 		delsys = SYS_ISDBS;
 		break;
-	case DTMB:
-		delsys = SYS_DTMB;
-		break;
 	case DSS:
 		delsys = SYS_DSS;
+		break;
+#if _HAVE_DVB57
+	case DTMB:
+		delsys = SYS_DTMB;
 		break;
 	case TURBO:
 		delsys = SYS_TURBO;
 		break;
+#endif
 	default:
 		delsys = SYS_UNDEFINED;
 		break;
@@ -1052,9 +1195,19 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 	case BANDWIDTH_6_MHZ:
 		bandwidth_hz  = 6000000;
 		break;
+#if _HAVE_DVB57
 	case BANDWIDTH_5_MHZ:
 		bandwidth_hz  = 5000000;
 		break;
+	case BANDWIDTH_1_712_MHZ:
+		bandwidth_hz  = 1712000;
+		break;
+	case BANDWIDTH_10_MHZ:
+		bandwidth_hz  = 10000000;
+		break;
+#endif
+	case BANDWIDTH_AUTO:
+		bandwidth_hz  = 0;
 	}
 
 	return bandwidth_hz;
@@ -1075,7 +1228,11 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	case FEC_2_3:
 		fec = FEC_2_3;
 		if (feparams->delsys == DVB_S2 && feparams->modulation == PSK_8)
+#if defined BOXMODEL_VUSOLO4K
+			pilot = PILOT_AUTO;
+#else
 			pilot = PILOT_ON;
+#endif
 		break;
 	case FEC_3_4:
 		fec = FEC_3_4;
@@ -1107,11 +1264,17 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	case FEC_9_10:
 		fec = FEC_9_10;
 		break;
+#if _HAVE_DVB57
 	case FEC_2_5:
 		fec = FEC_2_5;
 		break;
+	case FEC_NONE:
+		fec = FEC_NONE;
+		break;
+#endif
 	default:
-		INFO("[fe%d] DEMOD: unknown FEC: %d\n", fenumber, fec_inner);
+		INFO("[fe%d/%d] DEMOD: unknown FEC: %d\n", adapter, fenumber, fec_inner);
+		/* fall through */
 	case FEC_AUTO:
 		fec = FEC_AUTO;
 		break;
@@ -1143,7 +1306,10 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 			cmdseq.props[MODULATION].u.data	= feparams->modulation;
 			cmdseq.props[ROLLOFF].u.data	= feparams->rolloff;
 			cmdseq.props[PILOTS].u.data	= pilot;
-			if (zapit_debug) printf("[fe%d] tuner pilot %d (feparams %d)\n", fenumber, pilot, feparams->pilot);
+#if ! HAVE_COOL_HARDWARE
+			cmdseq.props[MIS].u.data = feparams->plp_id | (feparams->pls_code << 8) | (feparams->pls_mode << 26);
+#endif
+			if (zapit_debug) printf("[fe%d/%d] tuner pilot %d (feparams %d)\n", adapter, fenumber, pilot, feparams->pilot);
 		} else {
 			memcpy(cmdseq.props, dvbs_cmdargs, sizeof(dvbs_cmdargs));
 			nrOfProps	= FE_DVBS_PROPS;
@@ -1161,7 +1327,6 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		nrOfProps			= FE_DVBC_PROPS;
 		break;
 	case DVB_T:
-	case DVB_T2:
 	case DTMB:
 		memcpy(cmdseq.props, dvbt_cmdargs, sizeof(dvbt_cmdargs));
 		nrOfProps				= FE_DVBT_PROPS;
@@ -1175,6 +1340,21 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		cmdseq.props[HIERARCHY].u.data		= feparams->hierarchy;
 		cmdseq.props[DELIVERY_SYSTEM].u.data	= getFEDeliverySystem(feparams->delsys);
 		cmdseq.props[BANDWIDTH].u.data		= getFEBandwidth(feparams->bandwidth);
+		break;
+	case DVB_T2:
+		memcpy(cmdseq.props, dvbt2_cmdargs, sizeof(dvbt2_cmdargs));
+		nrOfProps				= FE_DVBT2_PROPS;
+		cmdseq.props[FREQUENCY].u.data		= feparams->frequency;
+		cmdseq.props[MODULATION].u.data		= feparams->modulation;
+		cmdseq.props[INVERSION].u.data		= feparams->inversion;
+		cmdseq.props[CODE_RATE_HP].u.data	= feparams->code_rate_HP;
+		cmdseq.props[CODE_RATE_LP].u.data	= feparams->code_rate_LP;
+		cmdseq.props[TRANSMISSION_MODE].u.data	= feparams->transmission_mode;
+		cmdseq.props[GUARD_INTERVAL].u.data	= feparams->guard_interval;
+		cmdseq.props[HIERARCHY].u.data		= feparams->hierarchy;
+		cmdseq.props[DELIVERY_SYSTEM].u.data	= getFEDeliverySystem(feparams->delsys);
+		cmdseq.props[BANDWIDTH].u.data		= getFEBandwidth(feparams->bandwidth);
+		cmdseq.props[PLP_ID].u.data		= feparams->plp_id;
 		break;
 	default:
 		INFO("[frontend] unknown frontend type, exiting\n");
@@ -1201,7 +1381,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 
 int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 {
-	struct dtv_property cmdargs[FE_COMMON_PROPS + FE_DVBT_PROPS]; // WARNING: increase when needed more space
+	struct dtv_property cmdargs[FE_COMMON_PROPS + FE_DVBT2_PROPS]; // WARNING: increase when needed more space
 	struct dtv_properties cmdseq;
 #ifdef PEDANTIC_VALGRIND_SETUP
 	memset(&cmdargs, 0, sizeof(cmdargs));
@@ -1219,7 +1399,7 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 		while (1) {
 			if (ioctl(fd, FE_GET_EVENT, &ev) < 0)
 				break;
-			//printf("[fe%d] DEMOD: event status %d\n", fenumber, ev.status);
+			//printf("[fe%d/%d] DEMOD: event status %d\n", adapter, fenumber, ev.status);
 		}
 	}
 
@@ -1260,7 +1440,7 @@ void CFrontend::secSetTone(const fe_sec_tone_mode_t toneMode, const uint32_t ms)
 	if (currentToneMode == toneMode)
 		return;
 
-	if (config.diseqcType == DISEQC_UNICABLE) {
+	if (config.diseqcType == DISEQC_UNICABLE || config.diseqcType == DISEQC_UNICABLE2) {
 		/* this is too ugly for words. the "currentToneMode" is the only place
 		   where the global "highband" state is saved. So we need to fake it for
 		   unicable and still set the tone on... */
@@ -1270,7 +1450,7 @@ void CFrontend::secSetTone(const fe_sec_tone_mode_t toneMode, const uint32_t ms)
 		return;
 	}
 
-	if (zapit_debug) printf("[fe%d] tone %s\n", fenumber, toneMode == SEC_TONE_ON ? "on" : "off");
+	if (zapit_debug) printf("[fe%d/%d] tone %s\n", adapter, fenumber, toneMode == SEC_TONE_ON ? "on" : "off");
 	//FE_TIMER_INIT();
 	//FE_TIMER_START();
 	if (fop(ioctl, FE_SET_TONE, toneMode) == 0) {
@@ -1282,14 +1462,14 @@ void CFrontend::secSetTone(const fe_sec_tone_mode_t toneMode, const uint32_t ms)
 
 void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 {
-	if (slave || info.type != FE_QPSK)
+	if (slave || ((info.type != FE_QPSK) && (info.type != FE_OFDM)))
 		return;
 
 	if (currentVoltage == voltage)
 		return;
 
-	if (zapit_debug) printf("[fe%d] voltage %s\n", fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18");
-	if (config.diseqcType == DISEQC_UNICABLE && voltage != SEC_VOLTAGE_OFF) {
+	if (zapit_debug) printf("[fe%d/%d] voltage %s\n", adapter, fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18");
+	if (config.diseqcType == DISEQC_UNICABLE || config.diseqcType == DISEQC_UNICABLE2) {
 		/* see my comment in secSetTone... */
 		currentVoltage = voltage; /* need to know polarization for unicable */
 		fop(ioctl, FE_SET_VOLTAGE, unicable_lowvolt); /* voltage must not be 18V */
@@ -1307,7 +1487,7 @@ void CFrontend::sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const
 	if (slave || info.type != FE_QPSK)
 		return;
 
-	printf("[fe%d] Diseqc cmd: ", fenumber);
+	printf("[fe%d/%d] Diseqc cmd: ", adapter, fenumber);
 	for (int i = 0; i < cmd->msg_len; i++)
 		printf("0x%X ", cmd->msg[i]);
 	printf("\n");
@@ -1390,7 +1570,7 @@ void CFrontend::setLnbOffsets(int32_t _lnbOffsetLow, int32_t _lnbOffsetHigh, int
 	lnbOffsetLow = _lnbOffsetLow * 1000;
 	lnbOffsetHigh = _lnbOffsetHigh * 1000;
 	lnbSwitch = _lnbSwitch * 1000;
-	//printf("[fe%d] setLnbOffsets %d/%d/%d\n", fenumber, lnbOffsetLow, lnbOffsetHigh, lnbSwitch);
+	//printf("[fe%d/%d] setLnbOffsets %d/%d/%d\n", adapter, fenumber, lnbOffsetLow, lnbOffsetHigh, lnbSwitch);
 }
 
 void CFrontend::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t command, uint8_t num_parameters, uint8_t parameter1, uint8_t parameter2, int repeat)
@@ -1399,8 +1579,8 @@ void CFrontend::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t comma
 	int i;
 	fe_sec_tone_mode_t oldTone = currentToneMode;
 
-	printf("[fe%d] sendMotorCommand: cmdtype   = %x, address = %x, cmd   = %x\n", fenumber, cmdtype, address, command);
-	printf("[fe%d] sendMotorCommand: num_parms = %d, parm1   = %x, parm2 = %x\n", fenumber, num_parameters, parameter1, parameter2);
+	printf("[fe%d/%d] sendMotorCommand: cmdtype   = %x, address = %x, cmd   = %x\n", adapter, fenumber, cmdtype, address, command);
+	printf("[fe%d/%d] sendMotorCommand: num_parms = %d, parm1   = %x, parm2 = %x\n", adapter, fenumber, num_parameters, parameter1, parameter2);
 
 	cmd.msg[0] = cmdtype;	//command type
 	cmd.msg[1] = address;	//address
@@ -1421,7 +1601,7 @@ void CFrontend::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t comma
 
 	//secSetVoltage(oldVoltage, 15);
 	secSetTone(oldTone, 15);
-	printf("[fe%d] motor command sent.\n", fenumber);
+	printf("[fe%d/%d] motor command sent.\n", adapter, fenumber);
 
 }
 
@@ -1439,7 +1619,7 @@ void CFrontend::positionMotor(uint8_t motorPosition)
 		for (int i = 0; i <= repeatUsals; ++i)
 			sendDiseqcCommand(&cmd, 50);
 
-		printf("[fe%d] motor positioning command sent.\n", fenumber);
+		printf("[fe%d/%d] motor positioning command sent.\n", adapter, fenumber);
 	}
 }
 
@@ -1484,7 +1664,6 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 	if (config.diseqcType == DISEQC_UNICABLE || config.diseqcType == DISEQC_UNICABLE2)
 		return;
 
-
 	if (config.diseqcType != DISEQC_ADVANCED) {
 		setDiseqc(sit->second.diseqc, polarization, frequency);
 		return;
@@ -1502,36 +1681,50 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 
 /* frequency is the IF-frequency (950-2100), what a stupid spec...
    high_band, horizontal, bank are actually bool (0/1)
-   bank specifies the "switch bank" (as in Mini-DiSEqC A/B) */
+   bank specifies the "switch bank" (as in Mini-DiSEqC A/B)
+   bank == 2 => send standby command */
 uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int high_band,
 					     const int horizontal, const int bank)
 {
 	uint32_t bpf = config.uni_qrg;
+	int pin = config.uni_pin;
+	if (config.uni_scr < 0 || config.uni_scr > 7) {
+		WARN("uni_scr out of range (%d)", config.uni_scr);
+		return 0;
+	}
+
 	struct dvb_diseqc_master_cmd cmd = {
 		{0xe0, 0x10, 0x5a, 0x00, 0x00, 0x00}, 5
 	};
 	unsigned int t = (frequency / 1000 + bpf + 2) / 4 - 350;
-	if (t < 1024 && config.uni_scr >= 0 && config.uni_scr < 8)
+	if (bank < 2 && t >= 1024)
 	{
-		uint32_t ret = (t + 350) * 4000 - frequency;
-		INFO("[unicable] 18V=%d TONE=%d, freq=%d qrg=%d scr=%d bank=%d ret=%d", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, config.uni_scr, bank, ret);
-		if (!slave && info.type == FE_QPSK) {
-			cmd.msg[3] = (t >> 8)		|	/* highest 3 bits of t */
-				(config.uni_scr << 5)	|	/* adress */
+		WARN("ooops. t > 1024? (%d)", t);
+		return 0;
+	}
+	if (pin >= 0 && pin < 0x100) {
+		cmd.msg[2] = 0x5c;
+		cmd.msg[5] = config.uni_pin;
+		cmd.msg_len = 6;
+	}
+	uint32_t ret = (t + 350) * 4000 - frequency;
+	INFO("[fe%d/%d] 18V=%d 22k=%d freq=%d qrg=%d scr=%d bank=%d pin=%d ret=%d",
+		adapter, fenumber, horizontal, high_band, frequency, bpf, config.uni_scr, bank, pin, ret);
+	if (!slave && info.type == FE_QPSK) {
+		cmd.msg[3] = (config.uni_scr << 5);		/* adress */
+		if (bank < 2) { /* bank = 0/1 => tune, bank = 2 => standby */
+			cmd.msg[3] |= (t >> 8)		|	/* highest 3 bits of t */
 				(bank << 4)		|	/* input 0/1 */
 				(horizontal << 3)	|	/* horizontal == 0x08 */
 				(high_band) << 2;		/* high_band  == 0x04 */
 			cmd.msg[4] = t & 0xFF;
-			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
-			usleep(15 * 1000);		/* en50494 says: >4ms and < 22 ms */
-			sendDiseqcCommand(&cmd, 50);	/* en50494 says: >2ms and < 60 ms */
-			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
 		}
-		return ret;
+		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
+		usleep(15 * 1000);		/* en50494 says: >4ms and < 22 ms */
+		sendDiseqcCommand(&cmd, 50);	/* en50494 says: >2ms and < 60 ms */
+		fop(ioctl, FE_SET_VOLTAGE, unicable_lowvolt);
 	}
-
-	WARN("ooops. t > 1024? (%d) or uni_scr out of range? (%d)", t, config.uni_scr);
-	return 0;
+	return ret;
 }
 
 uint32_t CFrontend::sendEN50607TuningCommand(const uint32_t frequency, const int high_band, const int horizontal, const int bank)
@@ -1606,7 +1799,7 @@ int CFrontend::setParameters(transponder *TP, bool nowait)
 	feparams = TP->feparams;
 
 	if (!supportsDelivery(feparams.delsys)) {
-		printf("[fe%d]: does not support delivery system %d\n", fenumber, feparams.delsys);
+		printf("[fe%d/%d]: does not support delivery system %d\n", adapter, fenumber, feparams.delsys);
 		return 0;
 	}
 
@@ -1634,6 +1827,7 @@ int CFrontend::setParameters(transponder *TP, bool nowait)
 		if (freq < 1000*1000)
 			feparams.frequency = freq * 1000;
 		getDelSys(feparams.delsys, feparams.fec_inner, feparams.modulation,  f, s, m);
+		secSetVoltage(SEC_VOLTAGE_OFF, 100);
 		break;
 	case DVB_T:
 	case DVB_T2:
@@ -1641,14 +1835,15 @@ int CFrontend::setParameters(transponder *TP, bool nowait)
 		if (freq < 1000*1000)
 			feparams.frequency = freq * 1000;
 		getDelSys(feparams.delsys, feparams.fec_inner, feparams.modulation,  f, s, m);
+		secSetVoltage(config.powered ? SEC_VOLTAGE_13 : SEC_VOLTAGE_OFF, 100);
 		break;
 	default:
-		printf("[fe%d] unknown delsys %d\n", fenumber, feparams.delsys);
+		printf("[fe%d/%d] unknown delsys %d\n", adapter, fenumber, feparams.delsys);
 		break;
 	}
 
-	printf("[fe%d] tune to %d %s %s %s %s srate %d (tuner %d offset %d timeout %d)\n", fenumber, freq, s, m, f,
-			feparams.polarization & 1 ? "V/R" : "H/L", feparams.symbol_rate, feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
+	printf("[fe%d/%d] tune to %d %s %s %s %s srate %d pli %d plc %d plm %d (tuner %d offset %d timeout %d)\n", adapter, fenumber, freq, s, m, f,
+			feparams.polarization & 1 ? "V/R" : "H/L", feparams.symbol_rate, feparams.plp_id, feparams.pls_code, feparams.pls_mode, feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
 	setFrontend(&feparams, nowait);
 
 	return tuned;
@@ -1660,7 +1855,7 @@ bool CFrontend::sendUncommittedSwitchesCommand(int input)
 		{0xe0, 0x10, 0x39, 0x00, 0x00, 0x00}, 4
 	};
 
-	printf("[fe%d] uncommitted  %d -> %d\n", fenumber, uncommitedInput, input);
+	printf("[fe%d/%d] uncommitted  %d -> %d\n", adapter, fenumber, uncommitedInput, input);
 	if ((input < 0) /* || (uncommitedInput == input) */)
 		return false;
 
@@ -1683,7 +1878,7 @@ bool CFrontend::setDiseqcSimple(int sat_no, const uint8_t pol, const uint32_t fr
 		{0xe0, 0x10, 0x38, 0x00, 0x00, 0x00}, 4
 	};
 
-	INFO("[fe%d] diseqc input  %d -> %d", fenumber, currentDiseqc, sat_no);
+	INFO("[fe%d/%d] diseqc input  %d -> %d", adapter, fenumber, currentDiseqc, sat_no);
 	currentDiseqc = sat_no;
 	if (slave)
 		return true;
@@ -1717,7 +1912,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 	if ((config.diseqcType == NO_DISEQC) || sat_no < 0)
 		return;
 
-	if (zapit_debug) printf("[fe%d] diseqc input  %d -> %d\n", fenumber, currentDiseqc, sat_no);
+	if (zapit_debug) printf("[fe%d/%d] diseqc input  %d -> %d\n", adapter, fenumber, currentDiseqc, sat_no);
 	currentDiseqc = sat_no;
 	if (slave)
 		return;
@@ -1739,14 +1934,14 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 
 			delay = 100;	// delay for 1.0 after 1.1 command
 			cmd.msg[2] = 0x39;	/* port group = uncommited switches */
-			/* new code */ 
+#if 0			/* new code */
 			sat_no &= 0x0F;
 			cmd.msg[3] = 0xF0 | sat_no;
 			sendDiseqcCommand(&cmd, delay);	
 			cmd.msg[2] = 0x38;	/* port group = commited switches */
 			cmd.msg[3] = 0xF0 | ((pol & 1) ? 0 : 2) | (high_band ? 1 : 0);
 			sendDiseqcCommand(&cmd, delay);	
-#if 0			/* old code */
+#else			/* old code */
 #if 1
 			/* for 16 inputs */
 			cmd.msg[3] = 0xF0 | ((sat_no / 4) & 0x03);
@@ -1766,7 +1961,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 #endif
 		}
 
-		if (config.diseqcType == DISEQC_1_0) {	/* DISEQC 1.0 */
+		if (config.diseqcType >= DISEQC_1_0) {	/* DISEQC 1.0 */
 			usleep(delay * 1000);
 			//cmd.msg[0] |= 0x01;	/* repeated transmission */
 			cmd.msg[2] = 0x38;	/* port group = commited switches */
@@ -1806,21 +2001,21 @@ void CFrontend::setSec(const uint8_t pol, const bool high_band)
 
 void CFrontend::sendDiseqcPowerOn(uint32_t ms)
 {
-	printf("[fe%d] diseqc power on\n", fenumber);
+	printf("[fe%d/%d] diseqc power on\n", adapter, fenumber);
 	// Send power on to 'all' equipment
 	sendDiseqcZeroByteCommand(0xe0, 0x00, 0x03, ms);
 }
 
 void CFrontend::sendDiseqcReset(uint32_t ms)
 {
-	printf("[fe%d] diseqc reset\n", fenumber);
+	printf("[fe%d/%d] diseqc reset\n", adapter, fenumber);
 	// Send reset to 'all' equipment
 	sendDiseqcZeroByteCommand(0xe0, 0x00, 0x00, ms);
 }
 
 void CFrontend::sendDiseqcStandby(uint32_t ms)
 {
-	printf("[fe%d] diseqc standby\n", fenumber);
+	printf("[fe%d/%d] diseqc standby\n", adapter, fenumber);
 	if (config.diseqcType == DISEQC_UNICABLE)
 		sendEN50494TuningCommand(0, 0, 0, 2);
 	/* en50494 switches don't seem to be hurt by this */
@@ -1829,7 +2024,7 @@ void CFrontend::sendDiseqcStandby(uint32_t ms)
 		/* use ODU_Power_OFF command for unicable or jess here
 		to set the used UB frequency of the frontend to standby */
 		struct dvb_diseqc_master_cmd cmd = {{0}, 6};
-		printf("[fe%d] standby scr: %d\n", fenumber, config.uni_scr);
+		printf("[fe%d/%d] standby scr: %d\n", adapter, fenumber, config.uni_scr);
 		if (config.diseqcType == DISEQC_UNICABLE)
 		{
 			cmd.msg[0] = 0xe0;
@@ -1850,6 +2045,7 @@ void CFrontend::sendDiseqcStandby(uint32_t ms)
 		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
 		return;
 	}
+	/* en50494 switches don't seem to be hurt by this */
 	// Send power off to 'all' equipment
 	sendDiseqcZeroByteCommand(0xe0, 0x00, 0x02, ms);
 }
@@ -1899,7 +2095,7 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 
 		sat_iterator_t sit = satellites.find(satellitePosition);
 		if (sit == satellites.end()) {
-			printf("[fe%d] satellite position %d not found!\n", fenumber, satellitePosition);
+			printf("[fe%d/%d] satellite position %d not found!\n", adapter, fenumber, satellitePosition);
 			return 0;
 		} else {
 			new_position = sit->second.motor_position;
@@ -1909,7 +2105,7 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 		if (sit != satellites.end())
 			old_position = sit->second.motor_position;
 
-		if (zapit_debug) printf("[fe%d] sat pos %d -> %d motor pos %d -> %d usals %s\n", fenumber, rotorSatellitePosition, satellitePosition, old_position, new_position, use_usals ? "on" : "off");
+		if (zapit_debug) printf("[fe%d/%d] sat pos %d -> %d motor pos %d -> %d usals %s\n", adapter, fenumber, rotorSatellitePosition, satellitePosition, old_position, new_position, use_usals ? "on" : "off");
 
 		if (rotorSatellitePosition == satellitePosition)
 			return 0;
@@ -2236,6 +2432,11 @@ bool CFrontend::isHybrid(void)
 bool CFrontend::supportsDelivery(delivery_system_t delsys)
 {
 	return (deliverySystemMask & delsys) != 0;
+}
+
+bool CFrontend::forcedDelivery(delivery_system_t delsys)
+{
+	return (forcedSystemMask & delsys) != 0;
 }
 
 delivery_system_t CFrontend::getCurrentDeliverySystem(void)

@@ -94,7 +94,8 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 					int shadow_mode,
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	cc_item_type 	= CC_ITEMTYPE_BUTTON;
+	cc_item_type.id = CC_ITEMTYPE_BUTTON;
+	cc_item_type.name = "cc_base_button";
 
 	x 		= x_pos;
 	y 		= y_pos;
@@ -106,13 +107,13 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	cc_body_gradient_enable = CC_COLGRAD_OFF/*g_settings.gradiant*/; //TODO: gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
 	setColBodyGradient(cc_body_gradient_enable/*CColorGradient::gradientLight2Dark*/, CFrameBuffer::gradientVertical, CColorGradient::light);
 	col_frame 	= color_frame;
-	col_body	= cc_body_gradient_enable? COL_DARK_GRAY : color_body;
+	col_body	= col_body_old = cc_body_gradient_enable? COL_DARK_GRAY : color_body;
 	col_shadow	= color_shadow;
 
 	cc_item_enabled  = enabled;
 	cc_item_selected = selected;
 	fr_thickness 	= 0; //TODO: parts of the GUI still don't use framed buttons
-	append_x_offset = 6;
+	append_x_offset = OFFSET_INTER;
 	append_y_offset = 0;
 	corner_rad	= RADIUS_SMALL;
 	
@@ -147,14 +148,15 @@ void CComponentsButton::initIcon()
 	if (pos == string::npos)
 		cc_btn_icon = frameBuffer->getIconPath(cc_btn_icon);
 
+	int y_icon = 0;
+	int h_icon = 0;
 	if (cc_btn_icon_obj == NULL){
-		cc_btn_icon_obj = new CComponentsPictureScalable(fr_thickness, 0, cc_btn_icon, this);
+		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, 0, cc_btn_icon, this);
 		cc_btn_icon_obj->SetTransparent(CFrameBuffer::TM_BLACK);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
 
-	int y_icon = cc_btn_icon_obj->getYPos();
-	int h_icon = cc_btn_icon_obj->getHeight();
+	h_icon = cc_btn_icon_obj->getHeight();
 
 	//get required icon height
 	int h_max = height-2*fr_thickness;
@@ -187,6 +189,7 @@ void CComponentsButton::initCaption()
 	}
 
 	//set basic properties
+	int x_offset = (!cc_btn_text_obj || !cc_btn_icon_obj) ? 0 : append_x_offset;
 	int w_frame = fr_thickness;
 	int reduce = 2*w_frame;
 	if (cc_btn_text_obj){
@@ -198,7 +201,7 @@ void CComponentsButton::initCaption()
 		if (cc_btn_font == NULL)
 			cc_btn_font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
 
-		int w_cap = min(width - append_x_offset - x_cap - reduce, cc_btn_font->getRenderWidth(cc_btn_text));
+		int w_cap = min(width - x_offset - x_cap - reduce, cc_btn_font->getRenderWidth(cc_btn_text));
 		int h_cap = min(height - reduce, cc_btn_font->getHeight());
 		/*NOTE:
 			paint of centered text in y direction without y_offset
@@ -235,10 +238,10 @@ void CComponentsButton::initCaption()
 	}
 
 	//handle common position of icon and text inside container required for alignment
-	int w_required 	= w_frame + append_x_offset;
-	w_required 	+= cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() + append_x_offset : 0;
+	int w_required 	= w_frame + x_offset;
+	w_required 	+= cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() + x_offset : 0;
 	w_required 	+= cc_btn_font ? cc_btn_font->getRenderWidth(cc_btn_text) : 0;
-	w_required 	+= append_x_offset + w_frame;
+	w_required 	+= x_offset + w_frame;
 
 	//dynamic width
 	if (w_required > width){
@@ -247,10 +250,10 @@ void CComponentsButton::initCaption()
 	}
 
 	//do center
-	int x_icon = width/2 - w_required/2 /*+ fr_thickness + append_x_offset*/;
+	int x_icon = width/2 - w_required/2 /*+ fr_thickness + x_offset*/;
 	int w_icon = 0;
 	if (cc_btn_icon_obj){
-		x_icon += w_frame + append_x_offset;
+		x_icon += w_frame + x_offset;
 		cc_btn_icon_obj->setXPos(x_icon);
 		w_icon = cc_btn_icon_obj->getWidth();
 		/*in case of dynamic changed height of caption or button opbject itself,
@@ -260,7 +263,7 @@ void CComponentsButton::initCaption()
 		cc_btn_icon_obj->setYPos(y_icon);
 	}
 	if (cc_btn_text_obj){
-		cc_btn_text_obj->setXPos(x_icon + w_icon + append_x_offset);
+		cc_btn_text_obj->setXPos(x_icon + w_icon + x_offset);
 		cc_btn_text_obj->setWidth(width - cc_btn_text_obj->getXPos());
 	}
 }

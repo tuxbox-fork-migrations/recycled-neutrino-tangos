@@ -220,6 +220,18 @@ CZapitChannel * CServiceManager::FindChannelByName(std::string name)
 	return NULL;
 }
 
+//NI
+CZapitChannel * CServiceManager::FindChannelByPattern(std::string pattern)
+{
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+		//INFO("searching for %s in %s", pattern.c_str(), it->second.getName().c_str());
+		if (strncasecmp(it->second.getName().c_str(), pattern.c_str(), pattern.length()) == 0) {
+			return &it->second;
+		}
+	}
+	return NULL;
+}
+
 CZapitChannel * CServiceManager::FindCurrentChannel(const t_channel_id channel_id)
 {
 	channel_map_iterator_t cit = curchans.find(channel_id);
@@ -262,6 +274,11 @@ CZapitChannel* CServiceManager::FindChannelFuzzy(const t_channel_id channel_id,
 	return NULL;
 }
 
+CZapitChannel* CServiceManager::GetCurrentChannel(void)
+{
+	return CZapit::getInstance()->GetCurrentChannel();
+}
+
 bool CServiceManager::GetAllRadioChannels(ZapitChannelList &list, int flags)
 {
 	list.clear();
@@ -294,11 +311,31 @@ bool CServiceManager::GetAllHDChannels(ZapitChannelList &list, int flags)
 	return (!list.empty());
 }
 
+bool CServiceManager::GetAllUHDChannels(ZapitChannelList &list, int flags)
+{
+	list.clear();
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+		if ((it->second.flags & flags) && it->second.isUHD())
+			list.push_back(&(it->second));
+	}
+	return (!list.empty());
+}
+
 bool CServiceManager::GetAllWebTVChannels(ZapitChannelList &list, int flags)
 {
 	list.clear();
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		if ((it->second.flags & flags) && !it->second.getUrl().empty())
+		if ((it->second.flags & flags) && !it->second.getUrl().empty() && (it->second.getServiceType() == ST_DIGITAL_TELEVISION_SERVICE))
+			list.push_back(&(it->second));
+	}
+	return (!list.empty());
+}
+
+bool CServiceManager::GetAllWebRadioChannels(ZapitChannelList &list, int flags)
+{
+	list.clear();
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+		if ((it->second.flags & flags) && !it->second.getUrl().empty() && (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE))
 			list.push_back(&(it->second));
 	}
 	return (!list.empty());
@@ -355,6 +392,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 		t_original_network_id original_network_id = xmlGetNumericAttribute(node, "on", 16);
 		feparams.frequency = xmlGetNumericAttribute(node, "frq", 0);
 		feparams.inversion = (fe_spectral_inversion) xmlGetNumericAttribute(node, "inv", 0);
+		feparams.plp_id = (uint8_t) xmlGetNumericAttribute(node, "pli", 0);
 
 		const char *system = xmlGetAttribute(node, "sys");
 		if (system) {
@@ -372,7 +410,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 					feparams.delsys = DVB_C;
 				
 			} else if (CFrontend::isTerr(delsys)) {
-				feparams.delsys = DVB_T;
+				feparams.delsys = delsys;
 			}
 		}
 
@@ -388,7 +426,12 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			else
 				feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 			/* TODO: add xml tag ? */
-			feparams.pilot = ZPILOT_AUTO_SW;
+			feparams.pilot = ZPILOT_AUTO;
+			feparams.plp_id = xmlGetNumericAttribute(node, "pli", 0);
+			feparams.pls_mode = (fe_pls_mode_t) xmlGetNumericAttribute(node, "plm", 0);
+			feparams.pls_code = xmlGetNumericAttribute(node, "plc", 0);
+			if (feparams.pls_code == 0)
+				feparams.pls_code = 1;
 		}
 		else if (CFrontend::isTerr(delsys)) {
 			//<TS id="0001" on="7ffd" frq="650000" inv="2" bw="3" hp="9" lp="9" con="6" tm="2" gi="0" hi="4" sys="6">
@@ -401,8 +444,8 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			feparams.guard_interval = (fe_guard_interval_t) xmlGetNumericAttribute(node, "gi", 0);
 			feparams.hierarchy = (fe_hierarchy_t) xmlGetNumericAttribute(node, "hi", 0);
 
-			if (feparams.frequency > 1000*1000)
-				feparams.frequency = feparams.frequency/1000; //transponderlist was read from tuxbox
+			if (feparams.frequency < 1000*1000)
+				feparams.frequency = feparams.frequency*1000;
 		}
 		else if (CFrontend::isCable(delsys)) {
 			feparams.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
@@ -413,12 +456,14 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 				feparams.frequency = feparams.frequency/1000; //transponderlist was read from tuxbox
 		}
 
-		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, !CFrontend::isSat(delsys));
+		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, CFrontend::isCable(delsys));
+		if (CFrontend::isTerr(delsys))
+			freq = (freq_id_t) (feparams.frequency/(1000*1000));
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id);
 		transponder t(tid, feparams);
 
-		pair<map<transponder_id_t, transponder>::iterator,bool> ret;
+		std::pair<std::map<transponder_id_t, transponder>::iterator,bool> ret;
 		ret = transponders.insert(transponder_pair_t(tid, t));
 		if (ret.second == false)
 			t.dump("[zapit] duplicate in all transponders:");
@@ -565,7 +610,7 @@ void CServiceManager::FindTransponder(xmlNodePtr search)
 		const char * name = xmlGetAttribute(search, "name");
 		t_satellite_position satellitePosition = GetSatellitePosition(name);
 #endif
-		DBG("going to parse dvb-%c provider %s\n", xmlGetName(search)[0], xmlGetAttribute(search, "name"));
+		INFO("going to parse dvb-%c provider %s", xmlGetName(search)[0], xmlGetAttribute(search, "name"));
 		ParseTransponders(xmlChildrenNode(search), satellitePosition, delsys);
 		newfound++;
 		search = xmlNextNode(search);
@@ -585,7 +630,13 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 		memset(&feparams, 0x00, sizeof(FrontendParameters));
 
 		feparams.frequency = xmlGetNumericAttribute(tps, "frequency", 0);
+		if (feparams.frequency == 0)
+			feparams.frequency = xmlGetNumericAttribute(tps, "centre_frequency", 0);
 		feparams.inversion = INVERSION_AUTO;
+
+		feparams.plp_id = 0; // NO_STREAM_ID_FILTER = ~0U, seems not suitable here
+		feparams.pls_mode = PLS_Root;
+		feparams.pls_code = 1;
 
 		if (CFrontend::isCable(delsys)) {
 			const char *system = xmlGetAttribute(tps, "system");
@@ -617,7 +668,7 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 			const char *rolloff = xmlGetAttribute(tps, "rolloff");
 
 			/* TODO: add xml tag ? */
-			feparams.pilot = ZPILOT_AUTO_SW;
+			feparams.pilot = ZPILOT_AUTO;
 			if (system) {
 				uint32_t s = xmlGetNumericAttribute(tps, "system", 0);
 				switch (s) {
@@ -678,6 +729,11 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 #endif
 			feparams.fec_inner = (fe_code_rate_t) xml_fec;
 			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+			feparams.plp_id = xmlGetNumericAttribute(tps, "is_id", 0);
+			feparams.pls_mode = (fe_pls_mode_t) xmlGetNumericAttribute(tps, "pls_mode", 0);
+			feparams.pls_code = xmlGetNumericAttribute(tps, "pls_code", 0);
+			if (feparams.pls_code == 0)
+				feparams.pls_code = 1;
 		}
 		else if (CFrontend::isTerr(delsys)) {
 			const char *system = xmlGetAttribute(tps, "system");
@@ -701,7 +757,7 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 				}
 			} else {
 				// Set some sane defaults.
-				feparams.delsys = DVB_T;
+				feparams.delsys = DVB_T2;
 			}
 
 			feparams.bandwidth = (fe_bandwidth_t) xmlGetNumericAttribute(tps, "bandwidth", 0);
@@ -717,13 +773,18 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 							xmlGetNumericAttribute(tps, "guard_interval", 0);
 			feparams.hierarchy = (fe_hierarchy_t)
 							xmlGetNumericAttribute(tps, "hierarchy", 0);
-			if (feparams.frequency > 1000*1000)
-				feparams.frequency /= 1000; // old transponder list
+			feparams.plp_id = (uint8_t)
+							xmlGetNumericAttribute(tps, "plp_id", 0);
+			if (feparams.frequency < 1000*1000)
+				feparams.frequency *= 1000;
 		}
 		else	/* we'll probably crash sooner or later, so write to STDERR... */
 			fprintf(stderr, "[getservices] %s: unknown delivery system %d!\n", __func__, delsys);
 
-		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, !CFrontend::isSat(delsys));
+		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, CFrontend::isCable(delsys));
+		if (CFrontend::isTerr(delsys))
+			freq = (freq_id_t) (feparams.frequency/(1000*1000));
+
 		feparams.polarization &= 7;
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
@@ -746,11 +807,16 @@ int CServiceManager::LoadMotorPositions(void)
 
 	printf("[getservices] loading motor positions...\n");
 
+	/* this is only read and never written, so it only serves for
+	 * upgrading from old pre-multituner capable neutrino */
 	if ((fd = fopen(SATCONFIG, "r"))) {
 		fgets(buffer, 255, fd);
 		while(!feof(fd)) {
 			sscanf(buffer, "%d %d %d %d %d %d %d %d %d %d %d", &spos, &mpos, &diseqc, &com, &uncom, &offL, &offH, &sw, &inuse, &usals, &input);
 
+			int configured = 0;
+			if (diseqc != -1 || com != -1 || uncom != -1 || usals != 0 || mpos != 0)
+				configured = 1;
 			satellitePosition = spos;
 			sat_iterator_t sit = satellitePositions.find(satellitePosition);
 			if(sit != satellitePositions.end()) {
@@ -765,6 +831,7 @@ int CServiceManager::LoadMotorPositions(void)
 				sit->second.use_usals = usals;
 				sit->second.input = input;
 				sit->second.position = satellitePosition;
+				sit->second.configured = configured;
 			}
 			fgets(buffer, 255, fd);
 		}
@@ -840,12 +907,11 @@ bool CServiceManager::LoadScanXml(delivery_system_t delsys)
 				InitSatPosition(position, name, false, ALL_SAT);
 			} else if (delivery_name == "terrestrial") {
 				const char * name = xmlGetAttribute(search, "name");
-				position = fake_pos++;
-				position &= 0x0EFF;
+				position = fake_t_pos++;
 				InitSatPosition(position, name, false, ALL_TERR);
 			} else if(delivery_name == "cable") {
 				const char * name = xmlGetAttribute(search, "name");
-				position = fake_pos++;
+				position = fake_c_pos++;
 				InitSatPosition(position, name, false, ALL_CABLE, xmlGetNumericAttribute(search, "nid", 0));
 			} else {
 			}
@@ -881,7 +947,8 @@ bool CServiceManager::LoadServices(bool only_current)
 	dup_numbers = false;
 
 	fake_tid = fake_nid = 0;
-	fake_pos = 0xF00;
+	fake_t_pos = 0xE11;
+	fake_c_pos = 0xF01;
 
 	if (CFEManager::getInstance()->haveSat()) {
 		INFO("Loading satellites...");
@@ -912,12 +979,12 @@ bool CServiceManager::LoadServices(bool only_current)
 			} else if (delivery_name == "terrestrial") {
 				position = GetSatellitePosition(name);
 				if (!position)
-					position = (0x0EFF & fake_pos++);
+					position = fake_t_pos++;
 				InitSatPosition(position, name, false, ALL_TERR);
 			} else if (delivery_name == "cable") {
 				position = GetSatellitePosition(name);
 				if (!position)
-					position = fake_pos++;
+					position = fake_c_pos++;
 				InitSatPosition(position, name, false, ALL_CABLE);
 			} else {
 			}
@@ -942,7 +1009,7 @@ bool CServiceManager::LoadServices(bool only_current)
 do_current:
 #if 0
 	DBG("Loading current..\n");
-	if (CZapit::getInstance()->scanSDT() && (parser = parseXmlFile(CURRENTSERVICES_XML))) {
+	if (CZapit::getInstance()->GetScanSDT() && (parser = parseXmlFile(CURRENTSERVICES_XML))) {
 		newfound = 0;
 		printf("[getservices] " CURRENTSERVICES_XML "  found.\n");
 		FindTransponder(xmlChildrenNode(xmlDocGetRootElement(parser)));
@@ -979,7 +1046,7 @@ void CServiceManager::CopyFile(const char * from, const char * to)
 		}
 		in.close();
 	}
-	sync();
+	// sync();
 }
 
 void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
@@ -1190,11 +1257,11 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 		footer = "</sat>";
 	}
 	else if (CFrontend::isCable(tI->second.feparams.delsys)) {
-		sprintf(satstr, "\t<%s name=\"%s\"\n", "cable", spos_it->second.name.c_str());
+		sprintf(satstr, "\t<%s name=\"%s\">\n", "cable", spos_it->second.name.c_str());
 		footer = "</cable>";
 	}
 	else if (CFrontend::isTerr(tI->second.feparams.delsys)) {
-		sprintf(satstr, "\t<%s name=\"%s\"\n", "terrestrial", spos_it->second.name.c_str());
+		sprintf(satstr, "\t<%s name=\"%s\">\n", "terrestrial", spos_it->second.name.c_str());
 		footer = "</terrestrial>";
 	}
 
@@ -1379,7 +1446,7 @@ bool CServiceManager::GetTransponder(transponder_id_t tid, transponder &t)
 
 void CServiceManager::UpdateSatTransponders(t_satellite_position satellitePosition)
 {
-	pair<map<transponder_id_t, transponder>::iterator,bool> ret;
+	std::pair<std::map<transponder_id_t, transponder>::iterator,bool> ret;
 	transponder_list_t & stransponders = satelliteTransponders[satellitePosition];
 	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); ++tI) {
 		for (stiterator stI = stransponders.begin(); stI != stransponders.end(); ++stI) {

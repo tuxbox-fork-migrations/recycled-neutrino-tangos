@@ -31,19 +31,20 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pty.h>	/* forkpty*/
+#include <sys/ioctl.h>
 #include <inttypes.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/vfs.h>    /* or <sys/statfs.h> */
 #include <sys/time.h>	/* gettimeofday */
-#include <sys/ioctl.h>
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <stdarg.h>
 #include <algorithm>
 #include <mntent.h>
+#include <fstream>
 #include <linux/hdreg.h>
 #include <linux/fs.h>
 #include "debug.h"
@@ -52,9 +53,16 @@
 #include <driver/fontrenderer.h>
 //#include <driver/framebuffer.h>
 #include <system/helpers.h>
+#include <system/helpers-json.h>
 #include <gui/update_ext.h>
 #include <driver/framebuffer.h>
+#include <libmd5sum.h>
+#define MD5_DIGEST_LENGTH 16
 using namespace std;
+
+#if LIBCURL_VERSION_NUM < 0x071507
+#include <curl/types.h>
+#endif
 
 #include <vector>
 #include <fstream>
@@ -313,7 +321,7 @@ int check_dir(const char * dir, bool allow_tmp)
 				ret = 0;	// ok
 		}
 		if(ret == -1)
-			printf("Wrong Filessystem Type: 0x%" PRIx32"\n",s.f_type);
+			printf("Wrong Filessystem Type: 0x%llx\n", (unsigned long long)s.f_type);
 	}
 	return ret;
 }
@@ -531,6 +539,61 @@ std::string& str_replace(const std::string &search, const std::string &replace, 
 	return text;
 }
 
+/*
+ * ported from:
+ * https://stackoverflow.com/questions/779875/what-is-the-function-to-replace-string-in-c
+ *
+ * You must delete the result if result is non-NULL
+ */
+const char *cstr_replace(const char *search, const char *replace, const char *text)
+{
+	const char *result;	// the return string
+	const char *ins;	// the next insert point
+	char *tmp;		// varies
+	int len_search;		// length of search (the string to remove)
+	int len_replace;	// length of replace (the string to replace search with)
+	int len_front;		// distance between search and end of last search
+	int count;		// number of replacements
+
+	// sanity checks and initialization
+	if (!text || !search)
+		return NULL;
+	len_search = strlen(search);
+	if (len_search == 0)
+		return NULL; // empty search causes infinite loop during count
+	if (!replace)
+		replace = "";
+	len_replace = strlen(replace);
+
+	// count the number of replacements needed
+	ins = text;
+	for (count = 0; (tmp = (char*)strstr(ins, search)); ++count)
+		ins = tmp + len_search;
+
+	int len_tmp = strlen(text) + (len_replace - len_search) * count + 1;
+	tmp = new char[len_tmp];
+	memset(tmp, '\0', len_tmp);
+	result = (const char*)tmp;
+
+	if (!result)
+		return NULL;
+
+	// first time through the loop, all the variable are set correctly
+	// from here on,
+	//    tmp points to the end of the result string
+	//    ins points to the next occurrence of search in text
+	//    text points to the remainder of text after "end of search"
+	while (count--) {
+		ins = strstr(text, search);
+		len_front = ins - text;
+		tmp = strncpy(tmp, text, len_front) + len_front;
+		tmp = strncpy(tmp, replace, len_replace) + len_replace;
+		text += len_front + len_search; // move to next "end of search"
+	}
+	strncpy(tmp, text, strlen(text));
+	return result;
+}
+
 std::string& htmlEntityDecode(std::string& text)
 {
 	struct decode_table {
@@ -565,7 +628,6 @@ std::string& htmlEntityDecode(std::string& text)
 CFileHelpers::CFileHelpers()
 {
 	FileBufMaxSize	= 0xFFFF;
-	doCopyFlag	= true;
 	ConsoleQuiet	= false;
 	clearDebugInfo();
 }
@@ -751,8 +813,6 @@ bool CFileHelpers::cp(const char *Src, const char *Dst, const char *Flags/*=""*/
 
 bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*=0*/)
 {
-	doCopyFlag = true;
-
 	/*
 	set mode for Dst
 	----------------
@@ -788,69 +848,28 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t forceMode/*
 	uint32_t block;
 	off64_t fsizeSrc64 = lseek64(fd1, 0, SEEK_END);
 	lseek64(fd1, 0, SEEK_SET);
-	if (fsizeSrc64 > 0x7FFFFFF0) { // > 2GB
-		uint32_t FileBufSize = FileBufMaxSize;
-		FileBuf = initFileBuf(FileBuf, FileBufSize);
-		off64_t fsize64 = fsizeSrc64;
-		block = FileBufSize;
-		//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __FUNCTION__, fsizeSrc64, fsizeSrc64);
-		while(fsize64 > 0) {
-			if(fsize64 < (off64_t)FileBufSize)
-				block = (uint32_t)fsize64;
-			read(fd1, FileBuf, block);
-			write(fd2, FileBuf, block);
-			fsize64 -= block;
-			if (!doCopyFlag)
-				break;
-		}
-		if (doCopyFlag) {
-			lseek64(fd2, 0, SEEK_SET);
-			off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
-			if (fsizeSrc64 != fsizeDst64){
-				close(fd1);
-				close(fd2);
-				FileBuf = deleteFileBuf(FileBuf);
-				return false;
-			}
-		}
+	off64_t fsize64 = fsizeSrc64;
+	uint32_t FileBufSize = (fsizeSrc64 < (off_t)FileBufMaxSize) ? (uint32_t)fsizeSrc64 : FileBufMaxSize;
+	FileBuf = initFileBuf(FileBuf, FileBufSize);
+	block = FileBufSize;
+	//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __func__, fsizeSrc64, fsizeSrc64);
+	while (fsize64 > 0) {
+		if (fsize64 < (off64_t)FileBufSize)
+			block = (uint32_t)fsize64;
+		read(fd1, FileBuf, block);	/* FIXME: short read??? */
+		write(fd2, FileBuf, block);	/* FIXME: short write?? */
+		fsize64 -= block;
 	}
-	else { // < 2GB
-		off_t fsizeSrc = lseek(fd1, 0, SEEK_END);
-		uint32_t FileBufSize = (fsizeSrc < (off_t)FileBufMaxSize) ? fsizeSrc : FileBufMaxSize;
-		FileBuf = initFileBuf(FileBuf, FileBufSize);
-		lseek(fd1, 0, SEEK_SET);
-		off_t fsize = fsizeSrc;
-		block = FileBufSize;
-		//printf("#####[%s] fsizeSrc: %ld 0x%08lX - normal file\n", __FUNCTION__, fsizeSrc, fsizeSrc);
-		while(fsize > 0) {
-			if(fsize < (off_t)FileBufSize)
-				block = (uint32_t)fsize;
-			read(fd1, FileBuf, block);
-			write(fd2, FileBuf, block);
-			fsize -= block;
-			if (!doCopyFlag)
-				break;
-		}
-		if (doCopyFlag) {
-			lseek(fd2, 0, SEEK_SET);
-			off_t fsizeDst = lseek(fd2, 0, SEEK_END);
-			if (fsizeSrc != fsizeDst){
-				close(fd1);
-				close(fd2);
-				FileBuf = deleteFileBuf(FileBuf);
-				return false;
-			}
-		}
-	}
-	close(fd1);
-	close(fd2);
-
-	if (!doCopyFlag) {
-		sync();
-		unlink(Dst);
+	lseek64(fd2, 0, SEEK_SET);
+	off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
+	if (fsizeSrc64 != fsizeDst64) {
+		close(fd1);
+		close(fd2);
 		FileBuf = deleteFileBuf(FileBuf);
 		return false;
 	}
+	close(fd1);
+	close(fd2);
 
 	FileBuf = deleteFileBuf(FileBuf);
 	return true;
@@ -1323,7 +1342,7 @@ bool File_copy(std::string rstr, std::string wstr)
 	}
 }
 
-// rreturns the pid of the first process found in /proc
+// returns the pid of the first process found in /proc
 int getpidof(const char *process)
 {
 	DIR *dp;
@@ -1369,6 +1388,38 @@ int getpidof(const char *process)
 
 std::string filehash(const char *file)
 {
+#if 0
+	int fd;
+	int i;
+	unsigned long size;
+	struct stat s_stat;
+	unsigned char hash[MD5_DIGEST_LENGTH];
+	void *buff;
+	std::ostringstream os;
+ 
+	memset(hash, 0, MD5_DIGEST_LENGTH);
+
+	fd = open(file, O_RDONLY | O_NONBLOCK);
+	if (fd > 0)
+	{
+		// Get the size of the file by its file descriptor
+		fstat(fd, &s_stat);
+		size = s_stat.st_size;
+
+		buff = mmap(0, size, PROT_READ, MAP_SHARED, fd, 0);
+		MD5((const unsigned char *)buff, size, hash);
+		munmap(buff, size);
+
+		// Print the MD5 sum as hex-digits.
+		for(i = 0; i < MD5_DIGEST_LENGTH; ++i) {
+			os.width(2);
+			os.fill('0');
+			os << std::hex << static_cast<int>(hash[i]);
+		}
+		close(fd);
+	}
+	return os.str();
+#endif
 	int i;
 	unsigned char hash[MD5_DIGEST_LENGTH];
 	std::ostringstream os;
@@ -1406,3 +1457,319 @@ std::string readLink(std::string lnk)
 
 	return "";
 }
+
+string readFile(string file)
+{
+	string ret_s;
+	ifstream tmpData(file.c_str(), ifstream::binary);
+	if (tmpData.is_open()) {
+		tmpData.seekg(0, tmpData.end);
+		int length = tmpData.tellg();
+		if (length > 0xffff) { /* longer than 64k? better read in chunks! */
+			cerr << __func__ << ": file " << file << " too big (" << length << " bytes)" << endl;
+			return "";
+		}
+		tmpData.seekg(0, tmpData.beg);
+		char* buffer = new char[length+1];
+		if (! buffer) {
+			cerr << __func__ << ": allocating " << (length + 1) << " bytes for buffer failed" << endl;
+			return "";
+		}
+		tmpData.read(buffer, length);
+		tmpData.close();
+		buffer[length] = '\0';
+		ret_s = (string)buffer;
+		delete [] buffer;
+	}
+	else {
+		cerr << "Error read " << file << endl;
+		return "";
+	}
+
+	return ret_s;
+}
+
+bool parseJsonFromFile(string& jFile, Json::Value *root, string *errMsg)
+{
+	string jData = readFile(jFile);
+	bool ret = parseJsonFromString(jData, root, errMsg);
+	jData.clear();
+	return ret;
+}
+
+bool parseJsonFromString(string& jData, Json::Value *root, string *errMsg)
+{
+	Json::CharReaderBuilder builder;
+	Json::CharReader* reader(builder.newCharReader());
+	JSONCPP_STRING errs = "";
+	const char* jData_c = jData.c_str();
+
+	bool ret = reader->parse(jData_c, jData_c + strlen(jData_c), root, &errs);
+	if (!ret || (!errs.empty())) {
+		ret = false;
+		if (errMsg != NULL)
+			*errMsg = errs;
+	}
+	delete reader;
+	return ret;
+}
+
+std::string iso_8859_1_to_utf8(std::string &str)
+{
+	std::string strOut;
+	for (std::string::iterator it = str.begin(); it != str.end(); ++it)
+	{
+		uint8_t ch = *it;
+		if (ch < 0x80)
+		{
+			strOut.push_back(ch);
+		}
+		else
+		{
+			strOut.push_back(0xc0 | ch >> 6);
+			strOut.push_back(0x80 | (ch & 0x3f));
+		}
+	}
+	return strOut;
+}
+
+bool utf8_check_is_valid(const std::string &str)
+{
+	int c, i, ix, n, j;
+	for (i = 0, ix = str.length(); i < ix; i++)
+	{
+		c = (unsigned char) str[i];
+		/*
+		if (c==0x09 || c==0x0a || c==0x0d || (0x20 <= c && c <= 0x7e))
+			n = 0; // is_printable_ascii
+		*/
+		if (0x00 <= c && c <= 0x7f)
+			n = 0; // 0bbbbbbb
+		else if ((c & 0xE0) == 0xC0)
+			n = 1; // 110bbbbb
+		else if (c == 0xed && i < (ix - 1) && ((unsigned char)str[i + 1] & 0xa0) == 0xa0)
+			return false; // U+d800 to U+dfff
+		else if ((c & 0xF0) == 0xE0)
+			n = 2; // 1110bbbb
+		else if ((c & 0xF8) == 0xF0)
+			n = 3; // 11110bbb
+		/*
+		else if (($c & 0xFC) == 0xF8)
+			n=4; // 111110bb //byte 5, unnecessary in 4 byte UTF-8
+		else if (($c & 0xFE) == 0xFC)
+			n=5; // 1111110b //byte 6, unnecessary in 4 byte UTF-8
+		*/
+		else
+			return false;
+
+		for (j = 0; j < n && i < ix; j++) // n bytes matching 10bbbbbb follow?
+		{
+			if ((++i == ix) || (((unsigned char)str[i] & 0xC0) != 0x80))
+				return false;
+		}
+	}
+	return true;
+}
+
+std::string randomString(unsigned int length)
+{
+	std::string random = "";
+	const char alphanum[] =
+	    "0123456789"
+	    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	    "abcdefghijklmnopqrstuvwxyz";
+	unsigned int i;
+	for(i = 0; i < length; ++i)
+		random += alphanum[rand() % (sizeof(alphanum) - 1)];
+	return random;
+}
+
+std::string randomFile(std::string suffix, std::string directory, unsigned int length)
+{
+	mkdir(directory.c_str(), 0755);
+	return directory + "/" + randomString(length) + "." + suffix;
+}
+
+std::string downloadUrlToRandomFile(std::string url, std::string directory, unsigned int length)
+{
+	if (strstr(url.c_str(), "://"))
+	{
+		std::string file = randomFile(url.substr(url.find_last_of(".") + 1), directory, length);
+		if (downloadUrl(url, file))
+			return file;
+	}
+	return url;
+}
+
+std::string downloadUrlToLogo(std::string url, std::string directory, t_channel_id channel_id)
+{
+
+	if (channel_id == 0)
+		return downloadUrlToRandomFile(url,directory);
+
+	if (strstr(url.c_str(), "://"))
+	{
+		//get channel id as string
+		char strChnId[16];
+		snprintf(strChnId, 16, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
+		strChnId[15] = '\0';
+
+		std::string file = directory + "/" + strChnId + url.substr(url.find_last_of("."));
+		if (file_exists(file))
+			return file;
+		if (downloadUrl(url, file))
+			return file;
+	}
+	return url;
+}
+
+// curl
+static void *myrealloc(void *ptr, size_t size)
+{
+	if(ptr)
+		return realloc(ptr, size);
+	else
+		return malloc(size);
+}
+
+size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
+{
+	size_t realsize = size * nmemb;
+	struct MemoryStruct *mem = (struct MemoryStruct *)data;
+
+	mem->memory = (char *)myrealloc(mem->memory, mem->size + realsize + 1);
+	if (mem->memory) 
+	{
+		memcpy(&(mem->memory[mem->size]), ptr, realsize);
+		mem->size += realsize;
+		mem->memory[mem->size] = 0;
+	}
+	return realsize;
+}
+
+size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
+{
+        std::string* pStr = (std::string*) data;
+        pStr->append((char*) ptr, nmemb);
+	
+        return size*nmemb;
+}
+
+bool getUrl(std::string& url, std::string& answer, std::string userAgent, unsigned int timeout)
+{
+	dprintf(DEBUG_NORMAL, "getUrl: url:%s\n", url.c_str());
+
+	CURL * curl_handle = curl_easy_init();
+
+	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, &CurlWriteToString);
+	curl_easy_setopt(curl_handle, CURLOPT_FILE, (void *)&answer);
+	curl_easy_setopt(curl_handle, CURLOPT_FAILONERROR, 1);
+	curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, timeout);
+	curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, (long)1);
+	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, false);
+	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
+	
+	if (!g_settings.softupdate_proxyserver.empty()) {
+		curl_easy_setopt(curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+		if (!g_settings.softupdate_proxyusername.empty()) {
+			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+			curl_easy_setopt(curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
+		}
+	}
+
+	char cerror[CURL_ERROR_SIZE];
+	curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, cerror);
+	
+	CURLcode httpres = curl_easy_perform(curl_handle);
+
+	curl_easy_cleanup(curl_handle);
+
+	if (httpres != 0 || answer.empty()) 
+	{
+		dprintf(DEBUG_NORMAL, "getUrl: error: %s\n", cerror);
+		return false;
+	}
+	
+	return true;
+}
+
+bool downloadUrl(std::string url, std::string file, std::string userAgent, unsigned int timeout)
+{
+	dprintf(DEBUG_INFO ,"[%s - %d] url: %s\tfile: %s\tuserAgent: %s\n", __func__, __LINE__, url.c_str(), file.c_str(), userAgent.c_str());
+
+	CURL * curl_handle = curl_easy_init();
+
+	FILE * fp = fopen(file.c_str(), "wb");
+	if (fp == NULL) 
+	{
+		perror(file.c_str());
+		return false;
+	}
+	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, NULL);
+	curl_easy_setopt(curl_handle, CURLOPT_FILE, fp);
+	curl_easy_setopt(curl_handle, CURLOPT_FAILONERROR, 1);
+	curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, timeout);
+	curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, (long)1);
+	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, false);
+	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
+
+	if (!g_settings.softupdate_proxyserver.empty()) {
+		curl_easy_setopt(curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+		if (!g_settings.softupdate_proxyusername.empty()) {
+			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+			curl_easy_setopt(curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
+		}
+	}
+
+	char cerror[CURL_ERROR_SIZE];
+	curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, cerror);
+
+	CURLcode httpres = curl_easy_perform(curl_handle);
+
+	double dsize;
+	curl_easy_getinfo(curl_handle, CURLINFO_SIZE_DOWNLOAD, &dsize);
+	curl_easy_cleanup(curl_handle);
+	fclose(fp);
+
+	if (httpres != 0) 
+	{
+		dprintf(DEBUG_NORMAL, "curl error: %s\n", cerror);
+		unlink(file.c_str());
+		return false;
+	}
+
+	return true;
+}
+
+std::string decodeUrl(std::string url)
+{
+	CURL * curl_handle = curl_easy_init();
+
+	char * str = curl_easy_unescape(curl_handle, url.c_str(), 0, NULL);
+
+	curl_easy_cleanup(curl_handle);
+
+	if (str)
+		url = str;
+	curl_free(str);
+	return url;
+}
+
+std::string encodeUrl(std::string txt)
+{
+	CURL * curl_handle = curl_easy_init();
+
+	char * str = curl_easy_escape(curl_handle, txt.c_str(), txt.length());
+
+	curl_easy_cleanup(curl_handle);
+
+	if (str)
+		txt = str;
+	curl_free(str);
+
+	return txt;
+}
+
+//

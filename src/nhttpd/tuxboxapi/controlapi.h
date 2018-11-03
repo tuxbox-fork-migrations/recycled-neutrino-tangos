@@ -41,7 +41,8 @@ private:
 		}
 	} fsort;
 
-	int rc_send(int ev, unsigned int code, unsigned int value);
+	void rc_sync(int fd);
+	int rc_send(int fd, unsigned int code, unsigned int value);
 
 	// send functions for ExecuteCGI (controld api)
 	void SendEventList(CyhookHandler *hh,t_channel_id channel_id);
@@ -73,6 +74,7 @@ private:
 
 	// CGI functions for ExecuteCGI
 	void TimerCGI(CyhookHandler *hh);
+	void TimerSendCGI(CyhookHandler *hh);
 	void SetModeCGI(CyhookHandler *hh);
 	void GetModeCGI(CyhookHandler *hh);
 	void ExecCGI(CyhookHandler *hh);
@@ -153,10 +155,10 @@ public:
 	CControlAPI(CNeutrinoAPI *_NeutrinoAPI);
 
 	// virtual functions for HookHandler/Hook
-	virtual std::string getHookName(void) {return std::string("mod_ControlAPI");}
-	virtual std::string 	getHookVersion(void) {return std::string("$Revision$");}
-	virtual THandleStatus Hook_SendResponse(CyhookHandler *hh);
-	virtual THandleStatus Hook_PrepareResponse(CyhookHandler *hh);
+	virtual std::string	getHookName(void) {return std::string("controlapi");}
+	virtual std::string	getHookVersion(void) {return std::string("$Revision$");}
+	virtual THandleStatus	Hook_SendResponse(CyhookHandler *hh);
+	virtual THandleStatus	Hook_PrepareResponse(CyhookHandler *hh);
 };
 
 #endif /* __nhttpd_neutrinocontrolapi_hpp__ */

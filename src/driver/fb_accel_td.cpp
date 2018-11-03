@@ -5,7 +5,7 @@
 
 	License: GPL
 
-	(C) 2017 Stefan Seyfried
+	(C) 2017-2018 Stefan Seyfried
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -103,43 +103,51 @@ void CFbAccelTD::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 	dfbdest->DrawLine(dfbdest, xa, ya, xb, yb);
 }
 
+#if 0
 void CFbAccelTD::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
 	DFBRectangle src;
 	DFBResult err;
 	IDirectFBSurface *surf;
 	DFBSurfaceDescription dsc;
+	int pitch = width * sizeof(fb_pixel_t);
+	uint8_t *srcbuf = (uint8_t *)fbbuff + (pitch * yp);
 
 	src.x = xp;
-	src.y = yp;
+	src.y = 0; /* y != 0 does not work => add offset to the buffer instead */
 	src.w = width - xp;
-	src.h = height - yp;
+	src.h = height;
 
 	dsc.flags  = (DFBSurfaceDescriptionFlags)(DSDESC_CAPS | DSDESC_WIDTH | DSDESC_HEIGHT | DSDESC_PREALLOCATED);
 	dsc.caps   = DSCAPS_NONE;
 	dsc.width  = width;
 	dsc.height = height;
-	dsc.preallocated[0].data  = fbbuff;
-	dsc.preallocated[0].pitch = width * sizeof(fb_pixel_t);
+	dsc.preallocated[0].data  = srcbuf;
+	dsc.preallocated[0].pitch = pitch;
 	err = dfb->CreateSurface(dfb, &dsc, &surf);
-	/* TODO: maybe we should not die if this fails? */
 	if (err != DFB_OK) {
-		fprintf(stderr, LOGTAG "blit2FB: ");
-		DirectFBErrorFatal("dfb->CreateSurface(dfb, &dsc, &surf)", err);
+		/* probably width or height out of range... */
+		fprintf(stderr, LOGTAG "blit2FB: w:%d h:%d data:0x%p pitch:%d\n", width, height, srcbuf, pitch);
+		DirectFBError("dfb->CreateSurface(dfb, &dsc, &surf)", err);
+		return;
 	}
 
 	if (transp)
-	{
-		surf->SetSrcColorKey(surf, 0, 0, 0);
-		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_SRC_COLORKEY);
-	}
+		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_NOFX);
 	else
 		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_BLEND_ALPHACHANNEL);
 
-	dfbdest->Blit(dfbdest, surf, &src, xoff, yoff);
+	err = dfbdest->Blit(dfbdest, surf, &src, xoff, yoff);
+	if (err != DFB_OK) {
+		/* something wrong with src or x/yoff... */
+		fprintf(stderr, LOGTAG "blit2FB: w:%d h:%d data:0x%p pitch:%d xp:%d yp:%d xo:%d yo:%d\n",
+				width, height, srcbuf, pitch, xp, yp, xoff, yoff);
+		DirectFBError("dfbdest->Blit(dfbdest, surf, &src, xoff, yoff)", err);
+	}
 	surf->Release(surf);
 	return;
 }
+#endif
 
 void CFbAccelTD::init(const char *)
 {

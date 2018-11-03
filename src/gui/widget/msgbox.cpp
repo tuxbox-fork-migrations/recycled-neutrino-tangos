@@ -41,6 +41,8 @@
 #define MIN_WINDOW_WIDTH  (MAX_WINDOW_WIDTH>>1)
 #define MIN_WINDOW_HEIGHT 40
 
+using namespace std; /* TODO: remove all std:: prefixes in this file */
+
 CMsgBox::CMsgBox(	const char* Text,
 			const char* Title,
 			const char* Icon,
@@ -255,6 +257,7 @@ int CMsgBox::exec()
 	{
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
+
 		//***timeout result***
 		if (msg == CRCInput::RC_timeout && timeout > 0)
 		{
@@ -310,9 +313,14 @@ int CMsgBox::exec()
 				loop = false;
 			}
 		}
-		//***action button ok with preselected button***
+		//***action button 'ok' handled with selected button and its predefined result***
 		if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button)){
 			result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
+			loop = false;
+		}
+		//***action button 'home' with general cancel result***
+		else if (msg == CRCInput::RC_home){
+			result = mbrCancel;
 			loop = false;
 		}
 		//***ignore***
@@ -334,7 +342,7 @@ int CMsgBox::exec()
 
 void CMsgBox::refreshFoot(void)
 {
-	ccw_footer->paint(false);
+	ccw_footer->getButtonChainObject()->paint();
 	CFrameBuffer::getInstance()->blit();
 }
 
@@ -416,7 +424,7 @@ int ShowMsg2UTF(	const char * const Title,
 			Text_mode);
 
 	if (color_frame != HINTBOX_DEFAULT_FRAME_COLOR){
-		msgBox.setFrameThickness(4);
+		msgBox.setFrameThickness(OFFSET_INNER_SMALL);
 		msgBox.setColorFrame(color_frame);
 	}
 

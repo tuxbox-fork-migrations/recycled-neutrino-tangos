@@ -4,6 +4,7 @@
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
  *
  * Copyright (C) 2011 CoolStream International Ltd
+ * Copyright (C) 2009,2010,2012,2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,6 +153,8 @@ class CFrontend
 		bool standby;
 
 		uint32_t			deliverySystemMask;
+		uint32_t			forcedSystemMask;
+		bool				isMultistream;
 		//fe_delivery_system_t deliverySystems[MAX_DELSYS];
 		//uint32_t numDeliverySystems;
 		t_channel_id		channel_id;
@@ -186,6 +189,7 @@ class CFrontend
 
 		~CFrontend(void);
 
+		static fe_pls_mode_t		getPLSMode(const uint8_t pls_mode);
 		static fe_code_rate_t		getCodeRate(const uint8_t fec_inner, delivery_system_t delsys);
 		static fe_hierarchy_t		getHierarchy(const uint8_t hierarchy);
 		static fe_transmit_mode_t	getTransmissionMode(const uint8_t transmission_mode);
@@ -209,6 +213,7 @@ class CFrontend
 		fe_status_t			getStatus(void) const;
 		uint32_t			getUncorrectedBlocks(void) const;
 		void				getDelSys(int f, int m, const char * &fec, const char * &sys, const char * &mod);
+		void				forceDelSys(int i);
 		void				getFEInfo(void);
 
 		int32_t				getCurrentSatellitePosition() { return currentSatellitePosition; }
@@ -243,7 +248,7 @@ class CFrontend
 		bool				tuneChannel(CZapitChannel *channel, bool nvod);
 		bool				retuneChannel(void);
 
-		t_channel_id		getChannelID(void) { return channel_id; }
+		t_channel_id			getChannelID(void) { return channel_id; }
 		void				setChannelID(t_channel_id ID) { channel_id = ID; }
 
 		fe_code_rate_t 			getCFEC ();
@@ -297,6 +302,7 @@ class CFrontend
 		bool				hasTerr(void);
 		bool				isHybrid(void);
 		bool				supportsDelivery(delivery_system_t);
+		bool				forcedDelivery(delivery_system_t);
 		delivery_system_t		getCurrentDeliverySystem(void);
 		uint32_t			getSupportedDeliverySystems(void) const;
 		static uint32_t			getXMLDeliverySystem(delivery_system_t delsys);

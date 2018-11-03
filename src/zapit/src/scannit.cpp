@@ -66,7 +66,7 @@ bool CNit::Stop()
 
 void CNit::run()
 {
-	set_threadname("CNit::run");
+	set_threadname("zap:nit");
 	if(Parse())
 		printf("[scan] NIT finished.\n");
 	else
@@ -253,6 +253,10 @@ bool CNit::Parse()
 						ParseTerrestrialDescriptor((TerrestrialDeliverySystemDescriptor *)d, tsinfo);
 						break;
 
+					case EXTENSION_DESCRIPTOR:
+						ParseTerrestrial2Descriptor((T2DeliverySystemDescriptor *)d, tsinfo);
+						break;
+
 					case SERVICE_LIST_DESCRIPTOR:
 						ParseServiceList((ServiceListDescriptor *) d, tsinfo);
 						break;
@@ -329,6 +333,9 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	memset(&feparams, 0, sizeof(feparams));
 	feparams.polarization = sd->getPolarization();
 	feparams.pilot = ZPILOT_AUTO;
+	feparams.plp_id = 0;
+	feparams.pls_code = 1;
+	feparams.pls_mode = PLS_Root;
 
 	switch (modulation_system) {
 	case 0: // DVB-S
@@ -433,11 +440,44 @@ bool CNit::ParseTerrestrialDescriptor(TerrestrialDeliverySystemDescriptor * sd, 
 	if(feparams.frequency > 1000*1000)
 		feparams.frequency /= 1000;
 
-	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, true);
+	freq_id_t freq = (freq_id_t) (feparams.frequency/(1000*1000));
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
 			freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
 
 	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, true);
+	return true;
+}
+bool CNit::ParseTerrestrial2Descriptor(T2DeliverySystemDescriptor * sd, TransportStreamInfo * tsinfo)
+{
+	if (!CServiceScan::getInstance()->GetFrontend()->hasTerr())
+		return false;
+
+	FrontendParameters feparams;
+
+	memset(&feparams, 0, sizeof(feparams));
+
+	feparams.delsys			= DVB_T2;
+	feparams.inversion		= INVERSION_AUTO;
+	feparams.plp_id 		= sd->getPlpId();
+	feparams.code_rate_HP		= CFrontend::getCodeRate(FEC_AUTO, DVB_T2);
+	feparams.code_rate_LP		= CFrontend::getCodeRate(FEC_AUTO, DVB_T2);
+	feparams.modulation		= CFrontend::getConstellation(QAM_AUTO);
+	feparams.bandwidth		= CFrontend::getBandwidth(sd->getBandwidth());
+	feparams.hierarchy		= CFrontend::getHierarchy(HIERARCHY_AUTO);
+	feparams.transmission_mode	= CFrontend::getTransmissionMode(sd->getTransmissionMode());
+
+	for (T2CellConstIterator cell = sd->getCells()->begin(); cell != sd->getCells()->end(); ++cell)
+	{
+		for (T2FrequencyConstIterator T2freq = (*cell)->getCentreFrequencies()->begin(); T2freq != (*cell)->getCentreFrequencies()->end(); ++T2freq)
+		{
+			feparams.frequency = (*T2freq) * 10;
+			freq_id_t freq = (freq_id_t) (feparams.frequency/(1000*1000));
+			transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
+				freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
+
+			CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, true);
+		}
+	}
 	return true;
 }
 

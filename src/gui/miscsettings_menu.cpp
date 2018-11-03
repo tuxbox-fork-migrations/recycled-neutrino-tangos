@@ -1,9 +1,7 @@
 /*
-	$port: miscsettings_menu.cpp,v 1.3 2010/12/05 22:32:12 tuxbox-cvs Exp $
-
 	miscsettings_menu implementation - Neutrino-GUI
 
-	Copyright (C) 2010 T. Graf 'dbt'
+	Copyright (C) 2010, 2018 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
 
@@ -20,8 +18,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -43,7 +40,7 @@
 #include <gui/plugins.h>
 #include <gui/sleeptimer.h>
 #include <gui/zapit_setup.h>
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 #include <gui/kerneloptions.h>
 #endif
 
@@ -67,7 +64,7 @@ extern cVideo *videoDecoder;
 
 CMiscMenue::CMiscMenue()
 {
-	width = 40;
+	width = 50;
 
 	epg_save = NULL;
 	epg_save_standby = NULL;
@@ -154,8 +151,19 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey == "epg_read_now")
 	{
-		printf("Reading epg cache from %s....\n", g_settings.epg_dir.c_str());
-		g_Sectionsd->readSIfromXML(g_settings.epg_dir.c_str());
+		struct stat my_stat;
+		if (stat(g_settings.epg_dir.c_str(), &my_stat) == 0)
+		{
+			printf("Reading epg cache from %s ...\n", g_settings.epg_dir.c_str());
+			g_Sectionsd->readSIfromXML(g_settings.epg_dir.c_str());
+		}
+
+		for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); ++it)
+		{
+			printf("Reading xmltv epg from %s ...\n", (*it).c_str());
+			g_Sectionsd->readSIfromXMLTV((*it).c_str());
+		}
+
 		return menu_return::RETURN_REPAINT;
 	}
 
@@ -188,7 +196,7 @@ const CMenuOptionChooser::keyval CHANNELLIST_NEW_ZAP_MODE_OPTIONS[CHANNELLIST_NE
 };
 
 #ifdef CPU_FREQ
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 #define CPU_FREQ_OPTION_COUNT 6
 const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 {
@@ -281,7 +289,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	misc_menue.addItem(mf);
 
 	//energy, shutdown
-	if(g_info.hw_caps->can_shutdown)
+	if (g_info.hw_caps->can_shutdown)
 	{
 		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, this, "energy", CRCInput::RC_green);
 		mf->setHint("", LOCALE_MENU_HINT_MISC_ENERGY);
@@ -342,7 +350,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	mf->setHint("", LOCALE_MENU_HINT_MISC_CPUFREQ);
 	misc_menue.addItem(mf);
 #endif /*CPU_FREQ*/
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 	// kerneloptions
 	CKernelOptions kernelOptions;
 	mf = new CMenuForwarder(LOCALE_KERNELOPTIONS_HEAD, true, NULL, &kernelOptions, NULL, CRCInput::RC_6);
@@ -406,13 +414,6 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 // 	mc->setHint("", LOCALE_MENU_HINT_START_TOSTANDBY);
 	ms_general->addItem(md);
 }
-
-#define VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT 2
-const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT] =
-{
-	{ VIDEO_HDMI_CEC_MODE_OFF       , LOCALE_OPTIONS_OFF   },
-	{ VIDEO_HDMI_CEC_MODE_TUNER     , LOCALE_OPTIONS_ON    }
-};
 
 //energy and shutdown settings
 int CMiscMenue::showMiscSettingsMenuEnergy()
@@ -514,7 +515,8 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	mf3->setHint("", LOCALE_MENU_HINT_EPG_MAX_EVENTS);
 
 	epg_scan = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN_BOUQUETS, &g_settings.epg_scan, EPG_SCAN_OPTIONS, EPG_SCAN_OPTION_COUNT,
-		g_settings.epg_scan_mode != CEpgScan::MODE_OFF && g_settings.epg_save_mode == 0);
+		true);
+		//(g_settings.epg_scan_mode != CEpgScan::MODE_OFF && g_settings.epg_save_mode == 0);
 	epg_scan->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
 
 	CMenuOptionChooser * mc3 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan_mode, EPG_SCAN_MODE_OPTIONS,
@@ -613,6 +615,10 @@ int CMiscMenue::showMiscSettingsMenuChanlist()
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_EMPTY_FAVS);
 	ms_chanlist->addItem(mc);
 
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_ENABLESDT, &g_settings.enable_sdt,  OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_ENABLESDT);
+	ms_chanlist->addItem(mc);
+
 	int res = ms_chanlist->exec(NULL, "");
 	delete ms_chanlist;
 	if (make_hd_list != g_settings.make_hd_list || make_webtv_list != g_settings.make_webtv_list || show_empty_favorites != g_settings.show_empty_favorites)
@@ -626,40 +632,62 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	CMenuWidget *ms_oservices = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ONLINESERVICES);
 	ms_oservices->addIntroItems(LOCALE_MISCSETTINGS_ONLINESERVICES);
 
-	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_tmdb_api_key());
+	// tmdb
+	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_tmdb_api_key());
 	tmdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_ENABLED);
 	ms_oservices->addItem(tmdb_onoff);
 
+#if ENABLE_TMDB_KEY_MANAGE
 	changeNotify(LOCALE_TMDB_API_KEY, NULL);
 	CKeyboardInput tmdb_api_key_input(LOCALE_TMDB_API_KEY, &g_settings.tmdb_api_key, 32, this);
-	CMenuForwarder *mf = new CMenuForwarder(LOCALE_TMDB_API_KEY, true, tmdb_api_key_short, &tmdb_api_key_input);
-	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_API_KEY);
-	ms_oservices->addItem(mf);
+	CMenuForwarder *mf_tm = new CMenuForwarder(LOCALE_TMDB_API_KEY, true, tmdb_api_key_short, &tmdb_api_key_input);
+	mf_tm->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_API_KEY);
+	ms_oservices->addItem(mf_tm);
 
-#if 0
 	ms_oservices->addItem(GenericMenuSeparator);
+#endif
 
-	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_youtube_dev_id());
+	// omdb
+	omdb_onoff = new CMenuOptionChooser(LOCALE_IMDB_ENABLED, &g_settings.omdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_omdb_api_key());
+// 	omdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_ENABLED);
+	ms_oservices->addItem(omdb_onoff);
+
+#if ENABLE_OMDB_KEY_MANAGE
+	changeNotify(LOCALE_IMDB_API_KEY, NULL);
+	CKeyboardInput omdb_api_key_input(LOCALE_IMDB_API_KEY, &g_settings.omdb_api_key, 8, this);
+	CMenuForwarder *mf_om = new CMenuForwarder(LOCALE_IMDB_API_KEY, true, omdb_api_key_short, &omdb_api_key_input);
+	//mf_om ->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_API_KEY);
+	ms_oservices->addItem(mf_om);
+
+	ms_oservices->addItem(GenericMenuSeparator);
+#endif
+
+	// youtube
+	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_youtube_dev_id());
 	youtube_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_ENABLED);
 	ms_oservices->addItem(youtube_onoff);
 
+#if ENABLE_YOUTUBE_KEY_MANAGE
 	changeNotify(LOCALE_YOUTUBE_DEV_ID, NULL);
 	CKeyboardInput youtube_dev_id_input(LOCALE_YOUTUBE_DEV_ID, &g_settings.youtube_dev_id, 39, this);
-	mf = new CMenuForwarder(LOCALE_YOUTUBE_DEV_ID, true, youtube_dev_id_short, &youtube_dev_id_input);
-	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
-	ms_oservices->addItem(mf);
+	CMenuForwarder *mf_yt = new CMenuForwarder(LOCALE_YOUTUBE_DEV_ID, true, youtube_dev_id_short, &youtube_dev_id_input);
+	mf_yt->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
+	ms_oservices->addItem(mf_yt);
 
 	ms_oservices->addItem(GenericMenuSeparator);
+#endif
 
-	shoutcast_onoff = new CMenuOptionChooser(LOCALE_SHOUTCAST_ENABLED, &g_settings.shoutcast_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, check_shoutcast_dev_id());
+	//shoutcast
+	shoutcast_onoff = new CMenuOptionChooser(LOCALE_SHOUTCAST_ENABLED, &g_settings.shoutcast_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_shoutcast_dev_id());
 	shoutcast_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_ENABLED);
 	ms_oservices->addItem(shoutcast_onoff);
 
+#if ENABLE_SHOUTCAST_KEY_MANAGE
 	changeNotify(LOCALE_SHOUTCAST_DEV_ID, NULL);
 	CKeyboardInput shoutcast_dev_id_input(LOCALE_SHOUTCAST_DEV_ID, &g_settings.shoutcast_dev_id, 16, this);
-	mf = new CMenuForwarder(LOCALE_SHOUTCAST_DEV_ID, true, shoutcast_dev_id_short, &shoutcast_dev_id_input);
-	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_DEV_ID);
-	ms_oservices->addItem(mf);
+	CMenuForwarder *mf_sc = new CMenuForwarder(LOCALE_SHOUTCAST_DEV_ID, true, shoutcast_dev_id_short, &shoutcast_dev_id_input);
+	mf_sc->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_DEV_ID);
+	ms_oservices->addItem(mf_sc);
 #endif
 
 	int res = ms_oservices->exec(NULL, "");
@@ -675,7 +703,7 @@ void CMiscMenue::showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu)
 
 	CCpuFreqNotifier * cpuNotifier = new CCpuFreqNotifier();
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_NORMAL, &g_settings.cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true, cpuNotifier));
-#if HAVE_SPARK_HARDWARE || HAVE_DUCKBOX_HARDWARE
+#if HAVE_SH4_HARDWARE
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_STANDBY, &g_settings.standby_cpufreq, CPU_FREQ_OPTIONS_STANDBY, CPU_FREQ_OPTION_STANDBY_COUNT, true));
 #else
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_STANDBY, &g_settings.standby_cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true));
@@ -700,6 +728,12 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
 		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_CHANNELLIST_ENABLESDT))
+	{
+		CZapit::getInstance()->SetScanSDT(g_settings.enable_sdt);
+
+		ret = menu_return::RETURN_REPAINT;
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_SAVE))
 	{
@@ -741,41 +775,52 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_SCAN))
 	{
-		epg_scan->setActive(g_settings.epg_scan_mode != CEpgScan::MODE_OFF && g_settings.epg_save_mode == 0);
+		epg_scan->setActive(g_settings.epg_scan_mode != CEpgScan::MODE_OFF /*&& g_settings.epg_save_mode == 0*/);
 	}
+#if 0
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_SAVE_MODE))
 	{
 		g_settings.epg_scan = CEpgScan::SCAN_FAV;
 		epg_scan->setActive(g_settings.epg_scan_mode != CEpgScan::MODE_OFF && g_settings.epg_save_mode == 0);
 		ret = menu_return::RETURN_REPAINT;
 	}
+#endif
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_TMDB_API_KEY))
 	{
-		g_settings.tmdb_enabled = check_tmdb_api_key();
+		g_settings.tmdb_enabled = g_settings.tmdb_enabled && CApiKey::check_tmdb_api_key();
 		if (g_settings.tmdb_enabled)
 			tmdb_api_key_short = g_settings.tmdb_api_key.substr(0, 8) + "...";
 		else
 			tmdb_api_key_short.clear();
-		tmdb_onoff->setActive(g_settings.tmdb_enabled);
+		tmdb_onoff->setActive(CApiKey::check_tmdb_api_key());
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_IMDB_API_KEY))
+	{
+		g_settings.omdb_enabled = g_settings.omdb_enabled && CApiKey::check_omdb_api_key();
+		if (g_settings.omdb_enabled)
+			omdb_api_key_short = g_settings.omdb_api_key.substr(0, 8) + "...";
+		else
+			omdb_api_key_short.clear();
+		omdb_onoff->setActive(CApiKey::check_omdb_api_key());
 	}
 #if 0
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_YOUTUBE_DEV_ID))
 	{
-		g_settings.youtube_enabled = check_youtube_dev_id();
+		g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_dev_id();
 		if (g_settings.youtube_enabled)
 			youtube_dev_id_short = g_settings.youtube_dev_id.substr(0, 8) + "...";
 		else
 			youtube_dev_id_short.clear();
-		youtube_onoff->setActive(g_settings.youtube_enabled);
+		youtube_onoff->setActive(CApiKey::check_youtube_dev_id());
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SHOUTCAST_DEV_ID))
 	{
-		g_settings.shoutcast_enabled = check_shoutcast_dev_id();
+		g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && CApiKey::check_shoutcast_dev_id();
 		if (g_settings.shoutcast_enabled)
 			shoutcast_dev_id_short = g_settings.shoutcast_dev_id.substr(0, 8) + "...";
 		else
 			shoutcast_dev_id_short.clear();
-		shoutcast_onoff->setActive(g_settings.shoutcast_enabled);
+		shoutcast_onoff->setActive(CApiKey::check_shoutcast_dev_id());
 	}
 #endif
 	return ret;
