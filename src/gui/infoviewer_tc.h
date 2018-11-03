@@ -70,6 +70,7 @@ private:
 	CComponentsWindowMax *CoverBox;
 	CComponentsForm *recordsbox;
 	CComponentsTimer *recordsblink;
+	CComponentsFrmClock *clock;
 
 	bool           gotTime;
 	bool           recordModeActive;
@@ -110,6 +111,7 @@ private:
 	COSDFader	fader;
 
 	int info_time_width;
+	int time_width;
 	int header_height;
 	bool newfreq ;
 	static const short bar_width = 72;

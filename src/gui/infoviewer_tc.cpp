@@ -65,6 +65,8 @@
 #include <gui/pictureviewer.h>
 #include <gui/keybind_setup.h>
 #include <gui/components/cc_timer.h>
+#include <gui/themes.h>
+#include <gui/skins.h>
 
 #include <system/helpers.h>
 #include <system/hddstat.h>
@@ -93,6 +95,15 @@ extern cVideo * videoDecoder;
 #define INFOFILE "/tmp/infobar.txt"
 
 event_id_t CInfoViewer::last_curr_id = 0, CInfoViewer::last_next_id = 0;
+
+static bool skinPaintBackground()
+{
+	/* we don't resize png has to be correct size to speedup */
+	if (g_settings.skin.skinEnabled && g_PicViewer->DisplayImage(g_settings.skinfiles + g_settings.skin.bgpic, g_settings.skin.bgX, g_settings.skin.bgY, g_settings.skin.bgW, g_settings.skin.bgH))
+		return 1;
+	else
+		return 0;
+}
 
 static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 {
@@ -226,6 +237,11 @@ void CInfoViewer::Init()
 		acc++;
 	}
 
+	if (g_settings.skin.skinEnabled) {
+		g_settings.infobar_casystem_frame = g_settings.skin.CabarEnabled;
+		ca_y_offset = g_settings.skin.CabarOffset;
+	}
+
 	for (int i = 0; i < CInfoViewer::BUTTON_MAX; i++)
 	{
 		tmp_bbButtonInfoText[i] = "";
@@ -234,6 +250,9 @@ void CInfoViewer::Init()
 
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 5;
 	initBBOffset();
+
+	if ((g_settings.infobar_casystem_display < 2) && g_settings.skin.skinEnabled && !g_settings.skin.BbarEnabled)
+		bottom_bar_offset += g_settings.skin.BbarOffset;
 
 	ResetPBars();
 }
@@ -264,6 +283,9 @@ void CInfoViewer::Init()
 */
 void CInfoViewer::start ()
 {
+	if (g_settings.skin.ReloadSkin)
+		CSkins().readSkinFile(g_settings.skinfiles);
+
 	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + OFFSET_INNER_MID;
 
 	InfoHeightY = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight() * 9/8 +
@@ -275,14 +297,44 @@ void CInfoViewer::start ()
 	ChanHeight += g_SignalFont->getHeight()/2;
 	ChanHeight = std::max(75, ChanHeight);
 
-	BoxStartX = g_settings.screen_StartX + OFFSET_INNER_MID;
-	BoxEndX = g_settings.screen_EndX - OFFSET_INNER_MID;
-	BoxEndY = g_settings.screen_EndY - OFFSET_INNER_MID - InfoHeightY_Info - bottom_bar_offset;
-	BoxStartY = BoxEndY - InfoHeightY - ChanHeight / 2;
+	BoxStartX = g_settings.skin.skinEnabled ? g_settings.skin.bgX : g_settings.screen_StartX + OFFSET_INNER_MID;
+	BoxEndX = g_settings.skin.skinEnabled ? (g_settings.skin.bgX + g_settings.skin.bgW) : g_settings.screen_EndX - OFFSET_INNER_MID;
+	BoxEndY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.bgH) : g_settings.screen_EndY - OFFSET_INNER_MID - InfoHeightY_Info - bottom_bar_offset;
+	BoxStartY = g_settings.skin.skinEnabled ? g_settings.skin.bgY : BoxEndY - InfoHeightY - ChanHeight / 2;
 
 	ChanNameY = BoxStartY + (ChanHeight / 2);	//oberkante schatten?
 	ChanInfoX = BoxStartX;
 
+	if (g_settings.skin.skinEnabled)
+		initClock();
+}
+
+void CInfoViewer::initClock()
+{
+	if (!g_settings.skin.clockEnabled)
+		return;
+
+	int gradient_top = g_settings.theme.infobar_gradient_top;
+
+	//basic init for clock object
+	if (clock == NULL){
+		clock = new CComponentsFrmClock();
+		clock->setClockFormat("%H:%M", "%H.%M");
+	}
+
+	CInfoClock::getInstance()->disableInfoClock();
+	clock->clear();
+	clock->enableColBodyGradient(gradient_top, COL_INFOBAR_PLUS_0);
+	clock->doPaintBg(!gradient_top);
+	clock->enableTboxSaveScreen(gradient_top);
+	clock->setColorBody(COL_INFOBAR_PLUS_0);
+	clock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
+	clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CLOCK]);
+	clock->setPos(g_settings.skin.bgX + g_settings.skin.clockX, g_settings.skin.bgY + g_settings.skin.clockY);
+	clock->setTextColor(g_settings.skin.clockColor);
+	clock->doPaintBg(false);
+
+	time_width = g_settings.infobar_anaclock && !g_settings.channellist_show_numbers ? 0 : clock->getWidth();
 }
 
 void CInfoViewer::showRecords()
@@ -371,6 +423,18 @@ void CInfoViewer::showRecords()
 
 void CInfoViewer::paintHead(t_channel_id channel_id,std::string channel_name)
 {
+	if (g_settings.skin.skinEnabled) {
+		int logo_w, logo_h;
+		int logo_x = 0, logo_y = 0;
+		std::string strAbsIconPath;
+		bool logo_available = g_PicViewer->GetLogoName(channel_id, channel_name, strAbsIconPath, &logo_w, &logo_h);
+		bool logoShown = (g_PicViewer->DisplayImage(strAbsIconPath, g_settings.skin.bgX + g_settings.skin.logoX, g_settings.skin.bgY + g_settings.skin.logoY, g_settings.skin.logoW ? g_settings.skin.logoW : logo_w, g_settings.skin.logoH ? g_settings.skin.logoH : logo_h));
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->setSize(g_settings.skin.ChannelNameFontSize);
+			if (g_settings.skin.displayWithLogo || !logoShown) {
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(g_settings.skin.bgX + g_settings.skin.channelNameX, g_settings.skin.bgY + g_settings.skin.channelNameY,g_settings.skin.bgX + g_settings.skin.bgW - time_width ,ChannelName, g_settings.skin.channelNameColor);
+			}
+		return;
+	}
 	int head_x = BoxStartX;
 	int head_w = BoxEndX-head_x;
 	int head_h = std::max(ChanHeight / 2,g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight());
@@ -571,7 +635,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 
 	ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth("888") + OFFSET_INNER_SMALL;
 
-	if (!zap_mode)
+	if (!zap_mode && (g_settings.skin.skinEnabled && g_settings.skin.BbarEnabled))
 		paintshowButtonBar();
 
 	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
@@ -786,12 +850,12 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
 		showClock_analog(ChanInfoX + OFFSET_INNER_MID + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - (OFFSET_INTER/2), ana_clock_size / 2);
 
-	if (showButtonBar)
+	if (showButtonBar || (g_settings.skin.skinEnabled && g_settings.skin.BbarEnabled))
 	{
 		paintshowButtonBar();
 	}
 
-	if ((ChanNum) && (g_settings.channellist_show_numbers))
+	if ((ChanNum) && (g_settings.channellist_show_numbers && !g_settings.skin.skinEnabled))
 	{
 		snprintf (strChanNum, sizeof(strChanNum), "%d", ChanNum);
 		ChanNumWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum) + OFFSET_INNER_MID;
@@ -813,7 +877,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 
 	int ChanNumYPos = (BoxEndY + ChanNameY + header_height) /2 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() /2;
 
-	if ((g_settings.channellist_show_numbers) && (ChanNum))
+	if ((g_settings.channellist_show_numbers && !g_settings.skin.skinEnabled) && (ChanNum))
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->RenderString(
 		    ChanInfoX + OFFSET_INNER_MID, ChanNumYPos,
 		    ChanNumWidth, strChanNum, COL_INFOBAR_TEXT);
@@ -1666,9 +1730,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	 */
 
 	int height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
-	int CurrInfoY = (BoxEndY + ChanNameY + header_height) / 2;
+	int CurrInfoY = g_settings.skin.skinEnabled ? (g_settings.skin.bgY + g_settings.skin.EventsY) : (BoxEndY + ChanNameY + header_height) / 2;
 	int NextInfoY = CurrInfoY/* + height*/;	// lower end of next info box
-	int InfoX = ChanInfoX + ChanNumWidth + (ChanNumWidth > OFFSET_INNER_MID ? OFFSET_INNER_MID : 0);
+	int InfoX = g_settings.skin.skinEnabled ? (g_settings.skin.bgX + g_settings.skin.EventsX) : ChanInfoX + ChanNumWidth + (ChanNumWidth > OFFSET_INNER_MID ? OFFSET_INNER_MID : 0);
 
 	int xStart = InfoX;
 	if (starttimes)
@@ -1703,7 +1767,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - OFFSET_SHADOW, ChanNameY - (pb_h + 10) , pb_w, pb_h);
 	}
 
-	if (showButtonBar)
+	if (showButtonBar && !g_settings.skin.skinEnabled)
 	{
 		if (!g_settings.theme.infobar_gradient_top)
 			frameBuffer->paintHLine(ChanInfoX + OFFSET_INNER_MID, BoxEndX - OFFSET_INNER_MID, CurrInfoY - height - OFFSET_INNER_MIN, COL_INFOBAR_PLUS_3);
@@ -2041,6 +2105,8 @@ void CInfoViewer::killTitle()
 			rec->kill();
 		//printf("killTitle(%d, %d, %d, %d)\n", BoxStartX, BoxStartY, BoxEndX+ OFFSET_SHADOW-BoxStartX, bottom-BoxStartY);
 		//frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ OFFSET_SHADOW, bottom);
+		if (g_settings.skin.skinEnabled)
+			frameBuffer->Clear();
 		if (!(zap_mode & IV_MODE_VIRTUAL_ZAP))
 		{
 			if (infobar_txt)
@@ -2281,7 +2347,7 @@ void CInfoViewer::getIconInfo()
 	showBBIcons_width = 0;
 	BBarY 			= BoxEndY + bottom_bar_offset;
 	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
-	bbIconMinX 		= BoxEndX - 2*OFFSET_INNER_MID;
+	bbIconMinX 		= g_settings.skin.skinEnabled ? g_settings.skin.bgX + g_settings.skin.IconsX : BoxEndX - 2*OFFSET_INNER_MID;
 	bool isRadioMode	= (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio);
 
 	for (int i = 0; i < CInfoViewer::ICON_MAX; i++)
@@ -2483,6 +2549,8 @@ void CInfoViewer::showButtons(bool)
 {
 	if (!is_visible)
 		return;
+	if ((g_settings.skin.skinEnabled) && (!g_settings.skin.BbarEnabled))
+		return;
 	int i;
 	bool paint = false;
 
@@ -2537,6 +2605,10 @@ void CInfoViewer::showIcons(const int modus, const std::string & icon)
 		return;
 	if ((modus >= CInfoViewer::ICON_SUBT) && (modus < CInfoViewer::ICON_MAX) && (bbIconInfo[modus].x != -1) && (is_visible))
 	{
+		if (g_settings.skin.skinEnabled)
+		frameBuffer->paintIcon(icon, bbIconInfo[modus].x, g_settings.skin.bgY + g_settings.skin.IconsY, 
+		                       InfoHeightY_Info, 1, true, !g_settings.theme.infobar_gradient_top, COL_INFOBAR_BUTTONS_BACKGROUND);
+		else
 		frameBuffer->paintIcon(icon, bbIconInfo[modus].x - time_width, ChanNameY + (header_height - bbIconMaxH)/2,
 		                       InfoHeightY_Info, 1, true, !g_settings.theme.infobar_gradient_top, COL_INFOBAR_BUTTONS_BACKGROUND);
 	}
@@ -2594,7 +2666,7 @@ void CInfoViewer::paintFoot(int w)
 
 	foot->setColorBody(g_settings.theme.infobar_gradient_bottom ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_BUTTONS_BACKGROUND);
 	foot->enableColBodyGradient(g_settings.theme.infobar_gradient_bottom, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_bottom_direction);
-	foot->setCorner(RADIUS_LARGE, CORNER_BOTTOM);
+	foot->setCorner(RADIUS_LARGE, g_settings.skin.skinEnabled ? CORNER_ALL : CORNER_BOTTOM);
 
 	foot->paint(CC_SAVE_SCREEN_NO);
 }
@@ -3017,9 +3089,10 @@ void CInfoViewer::showIcon_CA_Status(int notfirst)
 void CInfoViewer::paint_ca_bar()
 {
 	initBBOffset();
-	int ca_x = ChanInfoX + OFFSET_INNER_MID;
+	int ca_width_offset = g_settings.skin.skinEnabled ? 0 : OFFSET_INNER_MID;
+	int ca_x = ChanInfoX + ca_width_offset;
 	int ca_y = BoxEndY;
-	int ca_w = BoxEndX - ChanInfoX - 2*OFFSET_INNER_MID;
+	int ca_w = BoxEndX - ChanInfoX - 2*ca_width_offset;
 
 	if (g_settings.infobar_casystem_frame)
 	{
