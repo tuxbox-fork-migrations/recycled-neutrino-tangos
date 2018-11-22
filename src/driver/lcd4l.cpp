@@ -105,13 +105,13 @@ static void lcd4linux(bool run)
 	const char *buf = "lcd4linux";
 	if (run == true)
 	{
-		if (my_system(2, "/etc/init.d/lcd4linux", "start") != 0)
+		if (my_system(1, buf) != 0)
 			printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, buf);
 		sleep(2);
 	}
 	else
 	{
-		if (my_system(2, "/etc/init.d/lcd4linux", "stop") != 0)
+		if (my_system(3, "killall", "-9", buf) != 0)
 			printf("[CLCD4l] %s: terminating '%s' failed\n", __FUNCTION__, buf);
 	}
 }
