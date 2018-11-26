@@ -107,9 +107,7 @@ libneutrino_gui_a_SOURCES = \
 	webtv_setup.cpp \
 	webradio_setup.cpp \
 	xmltv_setup.cpp \
-	zapit_setup.cpp \
-	lcd4l.cpp \
-	lcd4l_setup.cpp
+	zapit_setup.cpp
 
 if ENABLE_TANGOS
 libneutrino_gui_a_SOURCES += \
@@ -136,6 +134,11 @@ if BOXTYPE_ARMBOX
 libneutrino_gui_a_SOURCES += \
 	psisetup.cpp \
 	3dsetup.cpp
+endif
+
+if ENABLE_LCD4LINUX
+libneutrino_gui_a_SOURCES += \
+	lcd4l_setup.cpp
 endif
 
 if ENABLE_GRAPHLCD

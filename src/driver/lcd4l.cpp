@@ -4,12 +4,27 @@
 	Copyright (C) 2012 'defans'
 	Homepage: http://www.bluepeercrew.us/
 
-	Copyright (C) 2012 'vanhofen'
+	Copyright (C) 2012-2016 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
 	Modded    (C) 2016 'TangoCash'
 
 	License: GPL
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 */
 
 #ifdef HAVE_CONFIG_H
@@ -30,25 +45,36 @@
 
 #include <driver/record.h>
 #include <driver/audioplay.h>
+#include <driver/radiotext.h>
+#include <zapit/capmt.h>
 #include <zapit/zapit.h>
 #include <gui/movieplayer.h>
 #include <eitd/sectionsd.h>
+#include <video.h>
 
 #include "lcd4l.h"
 
 extern CRemoteControl *g_RemoteControl;
+extern cVideo *videoDecoder;
 
 #define LCD_DATADIR		"/tmp/lcd/"
 
-#define LCD_ICONSDIR		"/share/lcd/icons/"
+#define LCD_ICONSDIR		DATADIR "/lcd/icons/"
 #define ICONSEXT		".png"
 
 #define LOGO_DUMMY		LCD_ICONSDIR "blank.png"
 
+#define BRIGHTNESS		LCD_DATADIR "brightness"
+#define BRIGHTNESS_STANDBY	LCD_DATADIR "brightness_standby"
+#define RESOLUTION		LCD_DATADIR "resolution"
+#define ASPECTRATIO		LCD_DATADIR "aspectratio"
+#define VIDEOTEXT		LCD_DATADIR "videotext"
+#define RADIOTEXT		LCD_DATADIR "radiotext"
+#define DOLBYDIGITAL		LCD_DATADIR "dolbydigital"
 #define TUNER			LCD_DATADIR "tuner"
 #define VOLUME			LCD_DATADIR "volume"
 #define MODE_REC		LCD_DATADIR "mode_rec"
-#define MODE_REC_ICON	LCD_DATADIR "mode_rec_icon"
+#define MODE_REC_ICON		LCD_DATADIR "mode_rec_icon"
 #define MODE_TSHIFT		LCD_DATADIR "mode_tshift"
 #define MODE_TIMER		LCD_DATADIR "mode_timer"
 #define MODE_ECM		LCD_DATADIR "mode_ecm"
@@ -60,17 +86,35 @@ extern CRemoteControl *g_RemoteControl;
 #define LAYOUT			LCD_DATADIR "layout"
 
 #define EVENT			LCD_DATADIR "event"
+#define INFO1			LCD_DATADIR "info1"
+#define INFO2			LCD_DATADIR "info2"
 #define PROGRESS		LCD_DATADIR "progress"
 #define DURATION		LCD_DATADIR "duration"
 #define START			LCD_DATADIR "start"
 #define END			LCD_DATADIR "end"
 
-#define FONT			LCD_DATADIR "font"
+#define LCD_FONT			LCD_DATADIR "font"
 #define FGCOLOR			LCD_DATADIR "fgcolor"
 #define BGCOLOR			LCD_DATADIR "bgcolor"
 
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
 #define PIDFILE			"/tmp/lcd4linux.pid"
+
+static void lcd4linux(bool run)
+{
+	const char *buf = "lcd4linux";
+	if (run == true)
+	{
+		if (my_system(2, "/etc/init.d/lcd4linux", "start") != 0)
+			printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, buf);
+		sleep(2);
+	}
+	else
+	{
+		if (my_system(2, "/etc/init.d/lcd4linux", "stop") != 0)
+			printf("[CLCD4l] %s: terminating '%s' failed\n", __FUNCTION__, buf);
+	}
+}
 
 /* ----------------------------------------------------------------- */
 
@@ -99,11 +143,12 @@ void CLCD4l::InitLCD4l()
 
 void CLCD4l::StartLCD4l()
 {
-	if (!thrLCD4l)
+	if (!thrLCD4l && (g_settings.lcd4l_support == 1 || g_settings.lcd4l_support == 2))
 	{
 		printf("[CLCD4l] %s: starting thread\n", __FUNCTION__);
 		pthread_create(&thrLCD4l, NULL, LCD4lProc, (void*) this);
 		pthread_detach(thrLCD4l);
+		lcd4linux(true);
 	}
 }
 
@@ -114,6 +159,7 @@ void CLCD4l::StopLCD4l()
 		printf("[CLCD4l] %s: stopping thread\n", __FUNCTION__);
 		pthread_cancel(thrLCD4l);
 		thrLCD4l = 0;
+		lcd4linux(false);
 	}
 }
 
@@ -163,6 +209,13 @@ void CLCD4l::Init()
 {
 	m_ParseID	= 0;
 
+	m_Brightness	= -1;
+	m_Brightness_standby = -1;
+	m_Resolution	= "n/a";
+	m_AspectRatio	= "n/a";
+	m_Videotext	= -1;
+	m_Radiotext	= -1;
+	m_DolbyDigital	= "n/a";
 	m_Tuner		= -1;
 	m_Volume	= -1;
 	m_ModeRec	= -1;
@@ -177,12 +230,14 @@ void CLCD4l::Init()
 
 	m_Layout	= "n/a";
 
-	m_Ev_Desc	= "n/a";
-	m_Ev_Start	= "00:00";
-	m_Ev_End	= "00:00";
+	m_Event		= "n/a";
+	m_Info1		= "n/a";
+	m_Info2		= "n/a";
 	m_Progress	= -1;
 	for (int i = 0; i < (int)sizeof(m_Duration); i++)
 		m_Duration[i] = ' ';
+	m_Start		= "00:00";
+	m_End		= "00:00";
 
 	if (!access(LCD_DATADIR, F_OK) == 0)
 		mkdir(LCD_DATADIR, 0755);
@@ -220,7 +275,7 @@ void* CLCD4l::LCD4lProc(void* arg)
 		{
 			usleep(5 * 100 * 1000); // 0.5 sec
 			NewParseID = PLCD4l->CompareParseID(p_ParseID);
-			if (NewParseID || p_ParseID == MODE_AUDIO)
+			if (NewParseID || p_ParseID == NeutrinoModes::mode_audio)
 				break;
 		}
 
@@ -231,6 +286,14 @@ void* CLCD4l::LCD4lProc(void* arg)
 		{
 			PLCD4l->WriteFile(FLAG_LCD4LINUX);
 			FirstRun = false;
+		}
+		if (g_settings.lcd4l_support == 0)
+		{
+			lcd4linux(false);
+		}
+		if (g_settings.lcd4l_support == 1 || g_settings.lcd4l_support == 2)
+		{
+			lcd4linux(true);
 		}
 	}
 	return 0;
@@ -244,16 +307,16 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_font.compare(font))
 	{
-		WriteFile(FONT, font);
+		WriteFile(LCD_FONT, font);
 		m_font = font;
 	}
 
 	/* ----------------------------------------------------------------- */
 
-	std::string fgcolor = hexStr(&t.infobar_Text_red)
-	                      + hexStr(&t.infobar_Text_green)
-	                      + hexStr(&t.infobar_Text_blue)
-	                      + hexStr(&t.infobar_Text_alpha);
+	std::string fgcolor	= hexStr(&t.infobar_Text_red)
+				+ hexStr(&t.infobar_Text_green)
+				+ hexStr(&t.infobar_Text_blue)
+				+ hexStr(&t.infobar_Text_alpha);
 
 	if (m_fgcolor.compare(fgcolor))
 	{
@@ -263,15 +326,120 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	std::string bgcolor = hexStr(&t.infobar_red)
-	                      + hexStr(&t.infobar_green)
-	                      + hexStr(&t.infobar_blue)
-	                      + hexStr(&t.infobar_alpha);
+	std::string bgcolor	= hexStr(&t.infobar_red)
+				+ hexStr(&t.infobar_green)
+				+ hexStr(&t.infobar_blue)
+				+ hexStr(&t.infobar_alpha);
 
 	if (m_bgcolor.compare(bgcolor))
 	{
 		WriteFile(BGCOLOR, bgcolor);
 		m_bgcolor = bgcolor;
+	}
+
+	/* ----------------------------------------------------------------- */
+
+	int Brightness = g_settings.lcd4l_brightness;
+	if (m_Brightness != Brightness)
+	{
+		WriteFile(BRIGHTNESS, to_string(Brightness));
+		m_Brightness = Brightness;
+		lcd4linux(false);
+		lcd4linux(true);
+	}
+
+	int Brightness_standby = g_settings.lcd4l_brightness_standby;
+	if (m_Brightness_standby != Brightness_standby)
+	{
+		WriteFile(BRIGHTNESS_STANDBY, to_string(Brightness_standby));
+		m_Brightness_standby = Brightness_standby;
+		lcd4linux(false);
+		lcd4linux(true);
+	}
+
+	/* ----------------------------------------------------------------- */
+
+	int x_res, y_res, framerate;
+	videoDecoder->getPictureInfo(x_res, y_res, framerate);
+
+	if (y_res == 1088)
+		y_res = 1080;
+
+	std::string Resolution = to_string(x_res) + "x" + to_string(y_res);
+	//Resolution += "\n" + to_string(framerate); //TODO
+
+	if (m_Resolution.compare(Resolution))
+	{
+		WriteFile(RESOLUTION, Resolution);
+		m_Resolution = Resolution;
+	}
+
+	/* ----------------------------------------------------------------- */
+
+	std::string AspectRatio;
+	switch (videoDecoder->getAspectRatio())
+	{
+		case 0:
+			AspectRatio = "n/a";
+			break;
+		case 1:
+			AspectRatio = "4:3";
+			break;
+		case 2:
+			AspectRatio = "14:9";
+			break;
+		case 3:
+			AspectRatio = "16:9";
+			break;
+		case 4:
+			AspectRatio = "20:9";
+			break;
+		default:
+			AspectRatio = "n/k";
+			break;
+	}
+
+	if (m_AspectRatio.compare(AspectRatio))
+	{
+		WriteFile(ASPECTRATIO, AspectRatio);
+		m_AspectRatio = AspectRatio;
+	}
+
+	/* ----------------------------------------------------------------- */
+
+	int Videotext = g_RemoteControl->current_PIDs.PIDs.vtxtpid;
+
+	if (m_Videotext != Videotext)
+	{
+		WriteFile(VIDEOTEXT, Videotext ? "yes" : "no");
+		m_Videotext = Videotext;
+	}
+
+	/* ----------------------------------------------------------------- */
+
+	int Radiotext = 0;
+	if (m_Mode == NeutrinoModes::mode_radio && g_settings.radiotext_enable && g_Radiotext)
+		Radiotext = g_Radiotext->haveRadiotext();
+
+	if (m_Radiotext != Radiotext)
+	{
+		WriteFile(RADIOTEXT, Radiotext ? "yes" : "no");
+		m_Radiotext = Radiotext;
+	}
+
+	/* ----------------------------------------------------------------- */
+
+	std::string DolbyDigital;
+	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < g_RemoteControl->current_PIDs.APIDs.size()) &&
+	    (g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
+		DolbyDigital = "yes";
+	else
+		DolbyDigital = g_RemoteControl->has_ac3 ? "available" : "no";
+
+	if (m_DolbyDigital.compare(DolbyDigital))
+	{
+		WriteFile(DOLBYDIGITAL, DolbyDigital);
+		m_DolbyDigital = DolbyDigital;
 	}
 
 	/* ----------------------------------------------------------------- */
@@ -302,18 +470,18 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	int RecordMode = CRecordManager::getInstance()->GetRecordMode();
 	switch (RecordMode)
 	{
-	case CRecordManager::RECMODE_REC_TSHIFT:
-		ModeRec = 1;
-		ModeTshift = 1;
-		break;
-	case CRecordManager::RECMODE_REC:
-		ModeRec = 1;
-		break;
-	case CRecordManager::RECMODE_TSHIFT:
-		ModeTshift = 1;
-		break;
-	default:
-		break;
+		case CRecordManager::RECMODE_REC_TSHIFT:
+			ModeRec = 1;
+			ModeTshift = 1;
+			break;
+		case CRecordManager::RECMODE_REC:
+			ModeRec = 1;
+			break;
+		case CRecordManager::RECMODE_TSHIFT:
+			ModeTshift = 1;
+			break;
+		default:
+			break;
 	}
 
 	if (m_ModeRec != ModeRec)
@@ -383,7 +551,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	if (newID || parseID == MODE_AUDIO || parseID == MODE_TS)
+	if (newID || parseID == NeutrinoModes::mode_audio || parseID == NeutrinoModes::mode_ts)
 	{
 		std::string Service = "";
 		int ChannelNr = 0;
@@ -403,45 +571,82 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 			ChannelNr = CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber();
 		}
-		else if (parseID == MODE_PIC)
+		else if (parseID == NeutrinoModes::mode_audio)
+		{
+			const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
+			if ( (!meta.sc_station.empty()) && (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP))
+				Service = meta.sc_station;
+			else
+			{
+				Service = g_Locale->getText(LOCALE_AUDIOPLAYER_NAME);
+
+				switch (CAudioPlayer::getInstance()->getState())
+				{
+					case CBaseDec::REV:
+						Logo = ICONSDIR "/" NEUTRINO_ICON_REW ICONSEXT;
+						break;
+					case CBaseDec::FF:
+						Logo = ICONSDIR "/" NEUTRINO_ICON_FF ICONSEXT;
+						break;
+					case CBaseDec::PAUSE:
+						Logo = ICONSDIR "/" NEUTRINO_ICON_PAUSE ICONSEXT;
+						break;
+					case CBaseDec::PLAY:
+						Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
+						break;
+					default:
+						;
+				}
+			}
+		}
+		else if (parseID == NeutrinoModes::mode_pic)
 		{
 			Service = g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD);
 		}
-		else if (parseID == MODE_TS)
+		else if (parseID == NeutrinoModes::mode_ts)
 		{
 			if (ModeTshift)
 				Service = g_Locale->getText(LOCALE_RECORDINGMENU_TIMESHIFT);
 			else if (CMoviePlayerGui::getInstance().p_movie_info)
-					if (!CMoviePlayerGui::getInstance().p_movie_info->channelName.empty())
-						Service = CMoviePlayerGui::getInstance().p_movie_info->channelName;
+			{
+				if (!CMoviePlayerGui::getInstance().p_movie_info->channelName.empty())
+					Service = CMoviePlayerGui::getInstance().p_movie_info->channelName;
+			}
 
 			if (Service.empty())
 				Service = g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD);
 
 			switch (CMoviePlayerGui::getInstance().getState())
 			{
-			case 6: /* rewind */
-				Logo = ICONSDIR "/" NEUTRINO_ICON_REW ICONSEXT;
-				break;
-			case 5: /* fast forward */
-				Logo = ICONSDIR "/" NEUTRINO_ICON_FF ICONSEXT;
-				break;
-			case 4: /* pause */
-				Logo = ICONSDIR "/" NEUTRINO_ICON_PAUSE ICONSEXT;
-				break;
-			case 3: /* play */
-				if (CMoviePlayerGui::getInstance().p_movie_info)
-					if (!GetLogoName(	CMoviePlayerGui::getInstance().p_movie_info->channelId,
-				    	                CMoviePlayerGui::getInstance().p_movie_info->channelName, Logo))
+				case 6: /* rewind */
+					Logo = ICONSDIR "/" NEUTRINO_ICON_REW ICONSEXT;
+					break;
+				case 5: /* fast forward */
+					Logo = ICONSDIR "/" NEUTRINO_ICON_FF ICONSEXT;
+					break;
+				case 4: /* pause */
+					Logo = ICONSDIR "/" NEUTRINO_ICON_PAUSE ICONSEXT;
+					break;
+				case 3: /* play */
+					if (ModeTshift && CMoviePlayerGui::getInstance().p_movie_info) /* show channel-logo */
+					{
+						if (!GetLogoName(CMoviePlayerGui::getInstance().p_movie_info->channelId,
+								 CMoviePlayerGui::getInstance().p_movie_info->channelName,
+								 Logo))
+							Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
+					}
+					else /* show play-icon */
 						Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
-				else
-					Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
-				break;
-			default: /* show movieplayer-icon */
-				Logo = ICONSDIR "/" NEUTRINO_ICON_MOVIEPLAYER ICONSEXT;
+					break;
+				default: /* show movieplayer-icon */
+					Logo = ICONSDIR "/" NEUTRINO_ICON_MOVIEPLAYER ICONSEXT;
 			}
 		}
-		else if (parseID == MODE_STANDBY)
+		else if (parseID == NeutrinoModes::mode_upnp)
+		{
+			Service = g_Locale->getText(LOCALE_UPNPBROWSER_HEAD);
+		}
+		else if (parseID == NeutrinoModes::mode_standby)
 		{
 			Service = "STANDBY";
 			ModeStandby = 1;
@@ -479,22 +684,52 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		/* --- */
 
 		std::string Layout;
+
+		std::string DPF_Type;
+		switch (g_settings.lcd4l_dpf_type) {
+			case 3:
+				DPF_Type = "PNG_";
+				break;
+#if defined BOXMODEL_VUSOLO4K
+			case 2:
+				DPF_Type = "VUSolo4K_";
+				break;
+#endif
+			case 1:
+				DPF_Type = "Samsung_";
+				break;
+			case 0:
+			default:
+				DPF_Type = "Pearl_";
+				break;
+		}
+
 		if (ModeStandby)
 		{
-			Layout = "standby";
+			Layout = DPF_Type + "standby";
+		}
+		else if ((g_settings.lcd4l_skin_radio) && (m_Mode == NeutrinoModes::mode_radio || m_Mode == NeutrinoModes::mode_webradio))
+		{
+			Layout = DPF_Type + "radio";
 		}
 		else
 		{
 			switch (g_settings.lcd4l_skin)
 			{
-			case 2:
-				Layout = "spf_large";
-				break;
-			case 1:
-				Layout = "spf_middle";
-				break;
-			default:
-				Layout = "spf_small";
+				case 4:
+					Layout = DPF_Type + "user04";
+					break;
+				case 3:
+					Layout = DPF_Type + "user03";
+					break;
+				case 2:
+					Layout = DPF_Type + "user02";
+					break;
+				case 1:
+					Layout = DPF_Type + "user01";
+					break;
+				default:
+					Layout = DPF_Type + "standard";
 			}
 		}
 
@@ -504,12 +739,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			m_Layout = Layout;
 			if (!firstRun)
 			{
-				const char *buf = "lcd4linux";
-				if (my_system(3, "killall", "-9", buf) != 0)
-					printf("[CLCD4l] %s: terminating '%s' failed\n", __FUNCTION__, buf);
-				sleep(2);
-				if (my_system(1, buf) != 0)
-					printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, buf);
+				lcd4linux(false);
+				lcd4linux(true);
 			}
 		}
 	}
@@ -517,22 +748,35 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	/* ----------------------------------------------------------------- */
 
 	std::string Event = "";
+	std::string Info1 = "";
+	std::string Info2 = "";
 	int Progress = 0;
 	char Duration[sizeof(m_Duration)] = {0};
-
 	char Start[6] = {0};
 	char End[6] = {0};
-	int todo = 0;
 
 	if (m_ModeChannel)
 	{
+		t_channel_id channel_id = parseID & 0xFFFFFFFFFFFFULL;
+
+		CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+		if (channel)
+			channel_id = channel->getEpgID();
+
 		CSectionsdClient::CurrentNextInfo CurrentNext;
-		CEitManager::getInstance()->getCurrentNextServiceKey(parseID & 0xFFFFFFFFFFFFULL, CurrentNext);
+		CEitManager::getInstance()->getCurrentNextServiceKey(channel_id, CurrentNext);
 
 		if (CSectionsdClient::epgflags::has_current)
 		{
 			if (!CurrentNext.current_name.empty())
 				Event = CurrentNext.current_name;
+
+			CShortEPGData shortEpgData;
+			if (CEitManager::getInstance()->getEPGidShort(CurrentNext.current_uniqueKey, &shortEpgData))
+			{
+				Info1 = shortEpgData.info1;
+				Info2 = shortEpgData.info2;
+			}
 
 			if ((CurrentNext.current_zeit.dauer > 0) && (CurrentNext.current_zeit.dauer < 86400))
 			{
@@ -540,7 +784,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 				int total = CurrentNext.current_zeit.dauer / 60;
 				int done = (abs(time(NULL) - CurrentNext.current_zeit.startzeit) + 30) / 60;
-				todo = total - done;
+				int todo = total - done;
 				if ((time(NULL) < CurrentNext.current_zeit.startzeit) && todo >= 0)
 				{
 					done = 0;
@@ -555,28 +799,67 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (CSectionsdClient::epgflags::has_next)
 		{
-			if (todo)
-				Event += "\nin "+ to_string(todo) + " min:" + CurrentNext.next_name;
-			else
-				Event += "\n"+ CurrentNext.next_name;
+			Event += "\n" + CurrentNext.next_name;
 			tm_struct = localtime(&CurrentNext.next_zeit.startzeit);
 			snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 		}
 	}
-	else if (parseID == MODE_TS)
+	else if (parseID == NeutrinoModes::mode_audio)
 	{
-		Event = "Mediaplayer";
+		if (CAudioPlayer::getInstance()->getState() == CBaseDec::STOP)
+		{
+			Event = g_Locale->getText(LOCALE_AUDIOPLAYER_STOP);
+			//snprintf(Duration, sizeof(Duration), "-:--");
+		}
+		else
+		{
+			const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
+			if ( !meta.artist.empty() )
+				Event += meta.artist;
+			if ( !meta.artist.empty() && !meta.title.empty() )
+				Event += " - ";
+			if ( !meta.title.empty() )
+				Event += meta.title;
 
-		if (!CMoviePlayerGui::getInstance().pretty_name.empty())
-			Event = CMoviePlayerGui::getInstance().pretty_name;
+			if (!meta.album.empty())
+				Info1 = meta.album;
 
+			if (!meta.genre.empty())
+				Info2 = meta.genre;
+
+			time_t total = meta.total_time;
+			time_t done = CAudioPlayer::getInstance()->getTimePlayed();
+
+			if ( (total > 0) && (done > 0) )
+			{
+				Progress = 100 * done / total;
+				snprintf(Duration, sizeof(Duration), "%ld:%02ld/%ld:%02ld", done / 60, done % 60, total / 60, total % 60);
+			}
+		}
+
+		time_t sTime = time(NULL);
+		tm_struct = localtime(&sTime);
+
+		snprintf(Start, sizeof(Start), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
+	}
+	else if (parseID == NeutrinoModes::mode_ts)
+	{
 		if (CMoviePlayerGui::getInstance().p_movie_info)
+		{
 			if (!CMoviePlayerGui::getInstance().p_movie_info->epgTitle.empty())
 				Event = CMoviePlayerGui::getInstance().p_movie_info->epgTitle;
 
-		if (CMoviePlayerGui::getInstance().p_movie_info)
 			if (!CMoviePlayerGui::getInstance().p_movie_info->epgInfo1.empty())
-				Event += "\n" + CMoviePlayerGui::getInstance().p_movie_info->epgInfo1;
+				Info1 = CMoviePlayerGui::getInstance().p_movie_info->epgInfo1;
+
+			if (!CMoviePlayerGui::getInstance().p_movie_info->epgInfo2.empty())
+				Info2 = CMoviePlayerGui::getInstance().p_movie_info->epgInfo2;
+		}
+		else if (!CMoviePlayerGui::getInstance().GetFile().empty())
+			Event = CMoviePlayerGui::getInstance().GetFile();
+
+		if (Event.empty())
+			Event = "MOVIE";
 
 		if (!ModeTshift)
 		{
@@ -602,22 +885,35 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	/* ----------------------------------------------------------------- */
 
 	Event += "\n"; // make sure we have at least two lines in event-file
-	if (m_Ev_Desc.compare(Event))
+
+	if (m_Event.compare(Event))
 	{
-		WriteFile(EVENT, Event, true);
-		m_Ev_Desc = Event;
+		WriteFile(EVENT, Event, g_settings.lcd4l_convert);
+		m_Event = Event;
 	}
 
-	if (m_Ev_Start.compare((std::string)Start))
+	if (m_Info1.compare(Info1))
+	{
+		WriteFile(INFO1, Info1, g_settings.lcd4l_convert);
+		m_Info1 = Info1;
+	}
+
+	if (m_Info2.compare(Info2))
+	{
+		WriteFile(INFO2, Info2, g_settings.lcd4l_convert);
+		m_Info2 = Info2;
+	}
+
+	if (m_Start.compare(Start))
 	{
 		WriteFile(START, (std::string)Start);
-		m_Ev_Start = (std::string)Start;
+		m_Start = (std::string)Start;
 	}
 
-	if (m_Ev_End.compare((std::string)End))
+	if (m_End.compare(End))
 	{
 		WriteFile(END, (std::string)End);
-		m_Ev_End = (std::string)End;
+		m_End = (std::string)End;
 	}
 
 	if (Progress > 100)
@@ -642,6 +938,18 @@ bool CLCD4l::WriteFile(const char *file, std::string content, bool convert)
 {
 	bool ret = true;
 
+	if (convert) // align to internal lcd4linux font
+	{
+		strReplace(content, "ä", "\xe4\0");
+		strReplace(content, "ö", "\xf6\0");
+		strReplace(content, "ü", "\xfc\0");
+		strReplace(content, "Ä", "\xc4\0");
+		strReplace(content, "Ö", "\xd6\0");
+		strReplace(content, "Ü", "\xdc\0");
+		if (g_settings.lcd4l_dpf_type == 0) strReplace(content, "ß", "\xe2\0");
+		strReplace(content, "é", "e");
+	}
+
 	if (FILE *f = fopen(file, "w"))
 	{
 		//printf("[CLCD4l] %s: %s -> %s\n", __FUNCTION__, content.c_str(), file);
@@ -663,7 +971,7 @@ uint64_t CLCD4l::GetParseID()
 	m_Mode = (int) ID;
 	m_ModeChannel = 0;
 
-	if (ID == MODE_TV || ID == MODE_RADIO)
+	if (ID == NeutrinoModes::mode_tv || ID == NeutrinoModes::mode_webtv || ID == NeutrinoModes::mode_radio || ID == NeutrinoModes::mode_webradio)
 	{
 		if (!(g_RemoteControl->subChannels.empty()) && (g_RemoteControl->selected_subchannel > 0))
 			m_ModeChannel = 2;
@@ -693,28 +1001,22 @@ bool CLCD4l::CompareParseID(uint64_t &i_ParseID)
 	return ret;
 }
 
-#ifdef NOTNEEDED
-// stolen from gui/movieinfo.cpp
-void CLCD4l::strReplace(std::string & orig, const char *fstr, const std::string rstr)
+void CLCD4l::strReplace(std::string &orig, const std::string &fstr, const std::string &rstr)
 {
-	unsigned int index = 0;
-	unsigned int fstrlen = strlen(fstr);
-	int rstrlen = rstr.size();
-
-	while ((index = orig.find(fstr, index)) != std::string::npos)
+	size_t pos = 0;
+	while ((pos = orig.find(fstr, pos)) != std::string::npos)
 	{
-		orig.replace(index, fstrlen, rstr);
-		index += rstrlen;
+		orig.replace(pos, fstr.length(), rstr);
+		pos += rstr.length();
 	}
 }
-#endif
 
 std::string CLCD4l::hexStr(unsigned char* data)
 {
 	std::stringstream ss;
 	ss << std::hex;
 	for(int i=0; i<1; ++i)
-		ss << std::setw(2) << std::setfill('0') << (int)data[i]*2.55;
+		ss << std::setw(2) << std::setfill('0') << (int)data[i];
 	return ss.str();
 }
 
