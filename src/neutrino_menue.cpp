@@ -52,7 +52,9 @@
 #include "gui/imageinfo.h"
 #include "gui/info_menue.h"
 #include "gui/keybind_setup.h"
+#ifdef ENABLE_LCD4LINUX
 #include "gui/lcd4l_setup.h"
+#endif
 #include "gui/mediaplayer.h"
 #include "gui/mediaplayer_setup.h"
 #include "gui/miscsettings_menu.h"
@@ -361,10 +363,12 @@ void CNeutrinoApp::InitMenuSettings()
 	mf->setHint(NEUTRINO_ICON_HINT_VFD, LOCALE_MENU_HINT_VFD);
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
 
+#ifdef ENABLE_LCD4LINUX
 	// lcd4linux
 	mf = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, true, NULL, new CLCD4lSetup());
 	mf->setHint("", LOCALE_MENU_HINT_LCD4L_SUPPORT);
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
+#endif
 
 	// drive settings
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
