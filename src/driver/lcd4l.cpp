@@ -571,6 +571,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 			ChannelNr = CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber();
 		}
+#if 0
 		else if (parseID == NeutrinoModes::mode_audio)
 		{
 			const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
@@ -599,6 +600,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				}
 			}
 		}
+#endif
 		else if (parseID == NeutrinoModes::mode_pic)
 		{
 			Service = g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD);
@@ -804,6 +806,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 		}
 	}
+#if 0
 	else if (parseID == NeutrinoModes::mode_audio)
 	{
 		if (CAudioPlayer::getInstance()->getState() == CBaseDec::STOP)
@@ -842,6 +845,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		snprintf(Start, sizeof(Start), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 	}
+#endif
 	else if (parseID == NeutrinoModes::mode_ts)
 	{
 		if (CMoviePlayerGui::getInstance().p_movie_info)
