@@ -2203,9 +2203,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			//name
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, ch_name_len, nameAndDescription, color);
 		}
-		if (!firstpaint && curr == selected) {
+		if (!firstpaint && curr == selected)
 			updateVfd();
-	}
 	}
 }
 
@@ -2564,7 +2563,7 @@ void CChannelList::paint_events(CChannelEventList &evtlist)
 		}
 		i++;
 	}
-	if(	channelsPainted)
+	if(channelsPainted)
 		frameBuffer->blit();
 }
 
