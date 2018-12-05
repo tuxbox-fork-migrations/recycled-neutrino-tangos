@@ -37,6 +37,8 @@
 #include <unistd.h>
 #include <iomanip>
 
+#include <sys/stat.h>
+
 #include <global.h>
 #include <neutrino.h>
 
@@ -99,14 +101,26 @@ extern cVideo *videoDecoder;
 
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
 #define PIDFILE			"/tmp/lcd4linux.pid"
+#define PNGFILE			"/tmp/lcd4linux.png"
 
 static void lcd4linux(bool run)
 {
 	const char *buf = "lcd4linux";
+	const char *conf = "/etc/lcd4linux.conf";
+
+	chmod(conf,0x600);
+	chown(conf,0,0);
+
 	if (run == true)
 	{
-		if (my_system(1, buf) != 0)
-			printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, buf);
+		if (g_settings.lcd4l_dpf_type == 3)
+		{
+			if (my_system(3, buf, "-o", PNGFILE) != 0)
+				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, buf, PNGFILE);
+		} else {
+			if (my_system(1, buf) != 0)
+				printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, buf);
+		}
 		sleep(2);
 	}
 	else
