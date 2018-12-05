@@ -720,33 +720,31 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				break;
 		}
 
+		switch (g_settings.lcd4l_skin)
+		{
+			case 4:
+				Layout = DPF_Type + "user04";
+				break;
+			case 3:
+				Layout = DPF_Type + "user03";
+				break;
+			case 2:
+				Layout = DPF_Type + "user02";
+				break;
+			case 1:
+				Layout = DPF_Type + "user01";
+				break;
+			default:
+				Layout = DPF_Type + "standard";
+		}
+
 		if (ModeStandby)
 		{
-			Layout = DPF_Type + "standby";
+			Layout += "_standby";
 		}
 		else if ((g_settings.lcd4l_skin_radio) && (m_Mode == NeutrinoModes::mode_radio || m_Mode == NeutrinoModes::mode_webradio))
 		{
-			Layout = DPF_Type + "radio";
-		}
-		else
-		{
-			switch (g_settings.lcd4l_skin)
-			{
-				case 4:
-					Layout = DPF_Type + "user04";
-					break;
-				case 3:
-					Layout = DPF_Type + "user03";
-					break;
-				case 2:
-					Layout = DPF_Type + "user02";
-					break;
-				case 1:
-					Layout = DPF_Type + "user01";
-					break;
-				default:
-					Layout = DPF_Type + "standard";
-			}
+			Layout += "_radio";
 		}
 
 		if (m_Layout.compare(Layout))
