@@ -114,7 +114,7 @@ std::string CLanguage::getTranslation(std::string id){
 }
 void CLanguage::write_missing_trans(std::string const& entry)
 {
-std::string file = "/tmp/yweb.missing.translation";
+const char *file = "/tmp/yweb.missing.translation";
 std::ifstream in;
 std::ofstream out;
 std::string line;
