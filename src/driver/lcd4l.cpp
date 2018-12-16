@@ -1051,18 +1051,58 @@ bool CLCD4l::GetLogoName(uint64_t channel_id, std::string channel_name, std::str
 		*p = (char) tolower(*p);
 
 	sprintf(str_channel_id, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
+
+	//create E2 filenames
+	char e2filename1[255];
+	e2filename1[0] = '\0';
+	char e2filename2[255];
+	e2filename2[0] = '\0';
+
+	//create special filename from channelname
+	std::string SpecialChannelName = lower_name;
+	SpecialChannelName = str_replace(" ","-",SpecialChannelName);
+	SpecialChannelName = str_replace("ä","a",SpecialChannelName);
+	SpecialChannelName = str_replace("ö","o",SpecialChannelName);
+	SpecialChannelName = str_replace("ü","u",SpecialChannelName);
+	SpecialChannelName = str_replace("+","___plus___",SpecialChannelName);
+	SpecialChannelName = str_replace("&","___and___",SpecialChannelName);
+
+	CZapitChannel * cc = NULL;
+	if (channel_id)
+		if (CNeutrinoApp::getInstance()->channelList)
+			cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
+
+	if (cc)
+	{
+		//create E2 filename1
+		snprintf(e2filename1, sizeof(e2filename1), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
+		         (u_int) cc->getServiceType(true),
+		         (u_int) channel_id & 0xFFFF,
+		         (u_int) (channel_id >> 32) & 0xFFFF,
+		         (u_int) (channel_id >> 16) & 0xFFFF,
+		         (u_int) cc->getSatellitePosition());
+
+		//create E2 filename2
+		snprintf(e2filename2, sizeof(e2filename2), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
+		         (u_int) 1,
+		         (u_int) channel_id & 0xFFFF,
+		         (u_int) (channel_id >> 32) & 0xFFFF,
+		         (u_int) (channel_id >> 16) & 0xFFFF,
+		         (u_int) cc->getSatellitePosition());
+	}
+
 	// the directorys to search in
 	std::string strLogoDir[4] = { g_settings.lcd4l_logodir, LOGODIR_VAR, LOGODIR, g_settings.logo_hdd_dir };
 	// first the channelname, then the upper channelname, then the lower channelname, then the channel-id
-	std::string strLogoName[4] = { channel_name, (std::string)upper_name, (std::string)lower_name, (std::string)str_channel_id };
+	std::string strLogoName[7] = { channel_name, (std::string)upper_name, (std::string)lower_name, (std::string)str_channel_id, SpecialChannelName, (std::string)e2filename1, (std::string)e2filename2};
 	// first png, then jpg, then gif
 	std::string strLogoExt[3] = { ".png", ".jpg", ".gif" };
 
-	//printf("[CLCD4l] %s: ID: %s, Name: %s (u: %s, l: %s)\n", __FUNCTION__, str_channel_id, channel_name.c_str(), upper_name, lower_name);
+	//printf("[CLCD4l] %s: ID: %s, Name: %s (u: %s, l: %s) SpecialName: %s (E2: %s/E2 %s)\n", __FUNCTION__, str_channel_id, channel_name.c_str(), upper_name, lower_name, SpecialChannelName.c_str(), e2filename1, e2filename2);
 
 	for (h = 0; h < 4; h++)
 	{
-		for (i = 0; i < 4; i++)
+		for (i = 0; i < 7; i++)
 		{
 			for (j = 0; j < 3; j++)
 			{
