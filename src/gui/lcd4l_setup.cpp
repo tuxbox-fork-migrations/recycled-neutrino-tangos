@@ -162,35 +162,16 @@ int CLCD4lSetup::show()
 	mc->setHint("", LOCALE_MENU_HINT_LCD4L_SKIN_RADIO);
 	lcd4lSetup->addItem(mc);
 
-	bool enable_brightness;
-	int max_brightness;
-	switch (g_settings.lcd4l_dpf_type) {
-		case 3: // PNG
-			enable_brightness = false;
-			max_brightness = 0;
-			break;
+	int max_brightness = 7;
 #if defined BOXMODEL_VUSOLO4K
-		case 2: // VU Solo4K
-			enable_brightness = true;
-			max_brightness = 10;
-			break;
+	max_brightness = 10;
 #endif
-		case 1: // Samsung
-			enable_brightness = true;
-			max_brightness = 2;
-			break;
-		case 0: // Pearl
-		default:
-			enable_brightness = true;
-			max_brightness = 7;
-			break;
-	}
 
-	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS, (int *)&g_settings.lcd4l_brightness, enable_brightness, 1, max_brightness, this);
+	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS, (int *)&g_settings.lcd4l_brightness, true, 1, max_brightness, this);
 	nc->setHint("", LOCALE_MENU_HINT_LCD4L_BRIGHTNESS);
 	lcd4lSetup->addItem(nc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, enable_brightness, 1, max_brightness, this);
+	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, true, 1, max_brightness, this);
 	nc->setHint("", LOCALE_MENU_HINT_LCD4L_BRIGHTNESS_STANDBY);
 	lcd4lSetup->addItem(nc);
 
