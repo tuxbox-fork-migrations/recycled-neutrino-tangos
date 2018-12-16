@@ -182,7 +182,8 @@ class CTextBox : public sigc::trackable
 		void    refresh(void);
 		void    scrollPageDown(const int pages);
 		void    scrollPageUp(const int pages);
-		void    enableBackgroundPaint(bool mode = true){m_nPaintBackground = mode;}
+		void    enableBackgroundPaint(bool mode = true);
+		void    disableBackgroundPaint();
 		//enable screen saving behind chars, is required for transparent text paint, returns true if mode was changed
 		bool    enableSaveScreen(bool mode = true);
 		bool	setText(const std::string* newText, int max_width = 0, bool force_repaint = true);
@@ -191,7 +192,7 @@ class CTextBox : public sigc::trackable
 		void    setTextBorderWidth(int Hborder, int Vborder);
 		void	setTextFont(Font* font_text);
 		void	setTextMode(const int text_mode){m_nMode = text_mode;};
-		void	setTextRenderModeFullBG(bool mode){ m_renderMode = (mode) ? 2 /*Font::FULLBG*/ : 0; };
+		void	setTextRenderModeFullBG(bool mode);
 		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};
 		void	setWindowPos(const CBox* position){m_cFrame = *position;};
 		void 	setWindowMaxDimensions(const int width, const int height);

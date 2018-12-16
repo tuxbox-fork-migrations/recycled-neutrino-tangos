@@ -247,6 +247,7 @@ class CRCInput
 			RC_stop		= KEY_STOP,
 			RC_timeshift	= KEY_T,
 			RC_mode		= KEY_MODE,
+			RC_switchvideomode = KEY_SWITCHVIDEOMODE,
 			RC_games	= KEY_GAMES,
 			RC_next		= KEY_NEXT,
 			RC_prev		= KEY_PREVIOUS,

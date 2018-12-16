@@ -623,6 +623,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.volume_digits = configfile.getBool("volume_digits", true);
 	g_settings.volume_size = configfile.getInt32("volume_size", 26 );
 	g_settings.volume_external = configfile.getInt32("volume_external", 0);
+
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
 	g_settings.show_menu_hints = configfile.getBool("show_menu_hints", false);
 	g_settings.infobar_show_sysfs_hdd   = configfile.getBool("infobar_show_sysfs_hdd"  , false );
@@ -751,13 +752,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.network_nfs[i].mac = configfile.getString("network_nfs_mac_" + i_str, "11:22:33:44:55:66");
 	}
 	g_settings.network_nfs_audioplayerdir = configfile.getString( "network_nfs_audioplayerdir", "/media/hdd/music" );
+	g_settings.network_nfs_streamripperdir = configfile.getString( "network_nfs_streamripperdir", "/media/hdd/music/streamripper" );
 	g_settings.network_nfs_picturedir = configfile.getString( "network_nfs_picturedir", "/media/hdd/pictures" );
 	g_settings.network_nfs_moviedir = configfile.getString( "network_nfs_moviedir", "/media/hdd/movie" );
 	g_settings.network_nfs_recordingdir = configfile.getString( "network_nfs_recordingdir", "/media/hdd/movie" );
 	g_settings.timeshiftdir = configfile.getString( "timeshiftdir", "" );
 	g_settings.downloadcache_dir = configfile.getString( "downloadcache_dir", g_settings.network_nfs_recordingdir.c_str());
-	g_settings.last_webtv_dir = configfile.getString( "last_webtv_dir", CONFIGDIR);
-	g_settings.last_webradio_dir = configfile.getString( "last_webradio_dir", CONFIGDIR);
+	g_settings.last_webradio_dir = configfile.getString( "last_webradio_dir", WEBRADIODIR_VAR);
+	g_settings.last_webtv_dir = configfile.getString( "last_webtv_dir", WEBTVDIR_VAR);
 
 	g_settings.temp_timeshift = configfile.getInt32( "temp_timeshift", 0 );
 	g_settings.auto_timeshift = configfile.getInt32( "auto_timeshift", 0 );
@@ -1626,13 +1628,14 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		configfile.setString(cfg_key, g_settings.network_nfs[i].mac);
 	}
 	configfile.setString( "network_nfs_audioplayerdir", g_settings.network_nfs_audioplayerdir);
+	configfile.setString( "network_nfs_streamripperdir", g_settings.network_nfs_streamripperdir);
 	configfile.setString( "network_nfs_picturedir", g_settings.network_nfs_picturedir);
 	configfile.setString( "network_nfs_moviedir", g_settings.network_nfs_moviedir);
 	configfile.setString( "network_nfs_recordingdir", g_settings.network_nfs_recordingdir);
 	configfile.setString( "timeshiftdir", g_settings.timeshiftdir);
 	configfile.setString( "downloadcache_dir", g_settings.downloadcache_dir);
-	configfile.setString( "last_webtv_dir", g_settings.last_webtv_dir);
 	configfile.setString( "last_webradio_dir", g_settings.last_webradio_dir);
+	configfile.setString( "last_webtv_dir", g_settings.last_webtv_dir);
 	configfile.setBool  ("filesystem_is_utf8"                 , g_settings.filesystem_is_utf8             );
 
 	//recording (server + vcr)
@@ -1679,14 +1682,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	}
 	configfile.setInt32 ( "webtv_xml_count", g_settings.webtv_xml.size());
 
-	int xmltv_count = 0;
-	for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); ++it) {
-		std::string k = "xmltv_xml_" + to_string(xmltv_count);
-		configfile.setString(k, *it);
-		xmltv_count++;
-	}
-	configfile.setInt32 ( "xmltv_xml_count", g_settings.xmltv_xml.size());
-
 	int webradio_count = 0;
 	for (std::list<std::string>::iterator it = g_settings.webradio_xml.begin(); it != g_settings.webradio_xml.end(); ++it) {
 		std::string k = "webradio_xml_" + to_string(webradio_count);
@@ -1694,6 +1689,14 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		webradio_count++;
 	}
 	configfile.setInt32 ( "webradio_xml_count", g_settings.webradio_xml.size());
+
+	int xmltv_count = 0;
+	for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); ++it) {
+		std::string k = "xmltv_xml_" + to_string(xmltv_count);
+		configfile.setString(k, *it);
+		xmltv_count++;
+	}
+	configfile.setInt32 ( "xmltv_xml_count", g_settings.xmltv_xml.size());
 
 	saveKeys();
 
@@ -2644,8 +2647,8 @@ TIMER_START();
 
 	bootstatus->showStatus(30);
 
-	CFileHelpers::getInstance()->removeDir(LOGODIR_TMP);
 	CFileHelpers::getInstance()->removeDir(COVERDIR_TMP);
+	CFileHelpers::getInstance()->removeDir(LOGODIR_TMP);
 
 	/* set service manager options before starting zapit */
 	CServiceManager::getInstance()->KeepNumbers(g_settings.keep_channel_numbers);
@@ -2692,7 +2695,8 @@ TIMER_START();
 	g_videoSettings = new CVideoSettings;
 	g_videoSettings->setVideoSettings();
 
-	//frameBuffer->showFrame(LOGODIR "/logo.jpg");
+	// show start logo
+	//bool startlogo = frameBuffer->showFrame("logo.jpg");
 
 	g_RCInput = new CRCInput(timer_wakeup);
 
@@ -2863,6 +2867,12 @@ TIMER_START();
 #endif
 
 	bootstatus->showStatus(95);
+
+	// clean up startlogo
+	//if (startlogo){
+	//	sleep(3);
+	//	frameBuffer->stopFrame();
+	//}
 
 	if(loadSettingsErg) {
 		bootstatus->hide();
@@ -3824,10 +3834,12 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == CRCInput::RC_mute_on ) {
 		g_audioMute->AudioMute(true, true);
+
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mute_off ) {
 		g_audioMute->AudioMute(false, true);
+
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_analog_on ) {
@@ -4360,6 +4372,8 @@ void CNeutrinoApp::ExitRun(int exit_code)
 		SDT_ReloadChannels();
 
 	dprintf(DEBUG_INFO, "exit\n");
+	OnShutDown();
+
 	StopSubtitles();
 	stopPlayBack();
 
