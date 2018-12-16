@@ -101,6 +101,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;
+	int            m_ThisMode;
 
 	std::string	cookie_header;
 	std::string	info_1, info_2;
@@ -304,6 +305,8 @@ class CMoviePlayerGui : public CMenuTarget
 	void setLastMode(int m) { m_LastMode = m; }
 	void Pause(bool b = true);
 	void selectAudioPid(void);
+	unsigned int getAPID(void);
+	std::string getAPIDDesc(unsigned int i);
 	bool SetPosition(int pos, bool absolute = false);
 #if 0
 	void selectSubtitle();

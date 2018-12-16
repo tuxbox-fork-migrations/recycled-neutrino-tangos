@@ -136,7 +136,7 @@ audiomenu.avs avs
 audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
 audiomenu.clockrec 
-audiomenu.dolbydigital Prefer Dolby Digital (AC-3)
+audiomenu.dolbydigital Prefer Dolby Digital
 audiomenu.dts DTS passthrough
 audiomenu.hdmi_dd Encoded DD on HDMI
 audiomenu.hdmi_dd_auto auto
@@ -162,6 +162,7 @@ audiomenu.volume_last_used last used
 audiomenu.volume_start Start volume
 audiomenu.volume_step Volume step
 audioplayer.add Add
+audioplayer.add_fav Local radio favorites
 audioplayer.add_ic Icecast
 audioplayer.add_loc Local radio list
 audioplayer.add_sc SHOUTcast
@@ -169,6 +170,7 @@ audioplayer.artist_title Artist, Title
 audioplayer.building_search_index Building search index
 audioplayer.button_select_title_by_id Search by ID
 audioplayer.button_select_title_by_name Search by name
+audioplayer.cover_as_screensaver Cover as screensaver
 audioplayer.defdir Start directory
 audioplayer.delete Remove
 audioplayer.deleteall Remove all
@@ -178,6 +180,7 @@ audioplayer.fastforward Fast forward
 audioplayer.follow Auto select current
 audioplayer.head Audio Playlist
 audioplayer.highprio High decode priority
+audioplayer.internetradio.name Audioplayer and Internetradio
 audioplayer.jump_backwards Jump backwards
 audioplayer.jump_dialog_hint1 Please enter jump target
 audioplayer.jump_dialog_hint2 (relative, in seconds)
@@ -205,6 +208,9 @@ audioplayer.show_playlist Show playlist
 audioplayer.shuffle Shuffle
 audioplayer.spectrum LCD spectrum
 audioplayer.stop Stop
+audioplayer.streamripper_dir Streamripper directory
+audioplayer.streamripper_start Start streamripper
+audioplayer.streamripper_stop Stop streamripper
 audioplayer.title_artist Title, artist
 bookmarkmanager.delete delete
 bookmarkmanager.name bookmarks
@@ -877,6 +883,7 @@ imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license License
 imageinfo.os System:
+imageinfo.policy Privacy Policy
 imageinfo.vcs Git:
 imageinfo.version Version:
 imdb.api_key IMDb API-Key
@@ -899,6 +906,7 @@ imdb.data_website Website
 imdb.data_writer Screenplay author
 imdb.info IMDb-Info
 imdb.info_save save Cover
+inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
 infoviewer.epgnotload EPG not loaded ...
 infoviewer.epgwait waiting for EPG ...
@@ -1117,6 +1125,7 @@ menu.hint_audio_srs_nmgr Noise manager
 menu.hint_audio_srs_volume Reference level to maintain
 menu.hint_audio_volstart Always set selected volume value on boot
 menu.hint_audio_volstep Volume +/- keys increase/decrease step
+menu.hint_audioplayer_cover_as_screensaver Use title's cover or "folder.jpg" as screensaver
 menu.hint_audioplayer_defdir Default audioplayer directory
 menu.hint_audioplayer_follow Move playlist selected pointer\nto current playing song
 menu.hint_audioplayer_highprio Increase playback priority
@@ -1124,6 +1133,7 @@ menu.hint_audioplayer_order Change playlist sort order
 menu.hint_audioplayer_playlist Show playlist items
 menu.hint_audioplayer_repeat Enable playlist repeat when end of list reached
 menu.hint_audioplayer_sc_metadata Enable streaming audio metadata parsing
+menu.hint_audioplayer_streamripper_dir Default streamripper target directory
 menu.hint_audioplayer_title Enable SMS-style title search in playlist
 menu.hint_auto_lang Auto-switch audio to preferred language
 menu.hint_auto_subs Auto-start subtitles for preferred language
@@ -1227,6 +1237,7 @@ menu.hint_inact_timer Shutdown box after inactivity
 menu.hint_inactive_back Change inactive item background color
 menu.hint_inactive_textcolor Change inactive item text color
 menu.hint_inet_radio Internet radio
+menu.hint_inet_radio_autostart Start play of first entry from favorites automatically
 menu.hint_info Show system informations.
 menu.hint_infobar_back Change infobar background color
 menu.hint_infobar_buttons_usertitle Forces userdefined titles for the color keys
@@ -1294,7 +1305,7 @@ menu.hint_key_save Save keybindings to a file named keys.conf
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
 menu.hint_key_sort Assign button to change channel list sort order
 menu.hint_key_special_active Disable or enable some special keys
-menu.hint_key_standby_add Assign additional button to leave standby mode
+menu.hint_key_standbyoff_add Assign additional button to leave standby mode
 menu.hint_key_subchanneldown Assign button for fast switch\n to previous subchannel
 menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
 menu.hint_key_timeshift Assign button to start timeshift

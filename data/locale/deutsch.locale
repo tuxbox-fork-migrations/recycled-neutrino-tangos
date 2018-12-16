@@ -162,6 +162,7 @@ audiomenu.volume_last_used zuletzt verwendet
 audiomenu.volume_start Einschaltlautstärke
 audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen
+audioplayer.add_fav Lokale Radiofavoriten
 audioplayer.add_ic Icecast
 audioplayer.add_loc Lokale Radioliste
 audioplayer.add_sc SHOUTcast
@@ -169,6 +170,7 @@ audioplayer.artist_title Interpret, Titel
 audioplayer.building_search_index Erstelle Suchindex
 audioplayer.button_select_title_by_id Suche nach ID
 audioplayer.button_select_title_by_name Suche nach Name
+audioplayer.cover_as_screensaver Cover als Bildschirmschoner
 audioplayer.defdir Start-Verzeichnis
 audioplayer.delete Entfernen
 audioplayer.deleteall Alle entfernen
@@ -178,6 +180,7 @@ audioplayer.fastforward schneller Vorl.
 audioplayer.follow Selektiere akt. Track
 audioplayer.head Audio Playlist
 audioplayer.highprio Hohe Decodier-Priorität
+audioplayer.internetradio.name Audioplayer und Internetradio
 audioplayer.jump_backwards rückw. springen
 audioplayer.jump_dialog_hint1 Bitte Sprungziel eingeben
 audioplayer.jump_dialog_hint2 (relativ, in Sekunden)
@@ -205,6 +208,9 @@ audioplayer.show_playlist Playlist anzeigen
 audioplayer.shuffle Zufällig
 audioplayer.spectrum LCD Skala
 audioplayer.stop Stopp
+audioplayer.streamripper_dir Streamripper-Verzeichnis
+audioplayer.streamripper_start Streamripper starten
+audioplayer.streamripper_stop Streamripper stoppen
 audioplayer.title_artist Titel, Interpret
 bookmarkmanager.delete Löschen
 bookmarkmanager.name Bookmarks
@@ -883,6 +889,7 @@ imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license Lizenz
 imageinfo.os System:
+imageinfo.policy Datenschutz
 imageinfo.vcs Git:
 imageinfo.version Version:
 imdb.api_key IMDb API Schlüssel
@@ -905,6 +912,7 @@ imdb.data_website Webseite
 imdb.data_writer Drehbuchautor
 imdb.info IMDb-Info
 imdb.info_save Bild speichern
+inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
 infoviewer.analogclock Analog Uhr
 infoviewer.epgnotload Informationen noch nicht geladen ...
@@ -1125,6 +1133,7 @@ menu.hint_audio_srs_nmgr Schalten Sie den NoiseManager ein oder aus
 menu.hint_audio_srs_volume Legen Sie die Referenzlautstärke für SRS TruVolume fest
 menu.hint_audio_volstart Legen Sie die Einschaltlautstärke fest, die immer beim Starten eingestellt werden soll
 menu.hint_audio_volstep Beim Betätigen der Lautstärketasten wird die Lautstärke immer schrittweise nach diesem Wert geändert
+menu.hint_audioplayer_cover_as_screensaver Verwendet das Cover des Titels oder "folder.jpg" als Bildschirmschoner
 menu.hint_audioplayer_defdir Wählen Sie das Startverzeichnis für den Audioplayer
 menu.hint_audioplayer_follow Das Auswählen eines aktuellen Titels in der Wiedergabeliste zulassen
 menu.hint_audioplayer_highprio Erhöhen Sie die Priorität der Wiedergabe
@@ -1132,6 +1141,7 @@ menu.hint_audioplayer_order Ändern der Sortierreihenfolge der Wiedergabeliste
 menu.hint_audioplayer_playlist Aktiviert die Anzeige der Titel in der Wiedergabeliste
 menu.hint_audioplayer_repeat Aktiviert das Wiederholen der Wiedergabeliste, wenn das Ende erreicht ist
 menu.hint_audioplayer_sc_metadata Aktiviert das Anzeigen der Audio-Metadaten
+menu.hint_audioplayer_streamripper_dir Wählen Sie das Aufnahmeverzeichnis für den Streamripper
 menu.hint_audioplayer_title Aktivieren Sie die Titelsuche (SMS-Stil) in der Playliste
 menu.hint_auto_lang Wählen Sie, ob automatisch ihre bevorzugte Tonspur ausgewählt wird, wenn sie vorhanden ist
 menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Sprache
@@ -1145,7 +1155,7 @@ menu.hint_cache_txt Startet das Zwischenspeichern des Teletextes nach einem Kana
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
-menu.hint_cec_volume Beim Betätigen der Lautstärketasten wird die Lautstärke an angeschlossenem Audiogerät reguliert
+menu.hint_cec_volume Beim Betätigen der Lautstärketasten wird die Lautstärke am angeschlossenen Audiogerät reguliert
 menu.hint_channellist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_channellist_enablesdt Ermöglicht die dynamische Senderaktualisierung im laufenden Betrieb
 menu.hint_channellist_epg_align Legen Sie fest, wie der Text für das EPG in der Liste rechts vom Programmnamen ausgerichtet wird
@@ -1236,6 +1246,7 @@ menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten.\nDie Box
 menu.hint_inactive_back Ändern Sie die Hintergrundfarbe für deaktivierte Fensterinhalte
 menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fensterinhalte
 menu.hint_inet_radio Internetradio
+menu.hint_inet_radio_autostart Spielt automatisch den ersten Eintrag der Favoriten-Liste ab
 menu.hint_info Systeminformationen anzeigen.
 menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
 menu.hint_infobar_buttons_usertitle Erzwingt die benutzerdefinierten Titel der Farbtasten
@@ -2682,7 +2693,7 @@ videomenu.hdmi_cec_mode_tuner als Sat/Kabel STB
 videomenu.hdmi_cec_standby Aktiviere CEC Standby
 videomenu.hdmi_cec_standby_not_timer nicht bei Timer
 videomenu.hdmi_cec_view_on Aktiviere CEC View on
-videomenu.hdmi_cec_volume Aktiviere CEC Lautstärkeregelung
+videomenu.hdmi_cec_volume Aktiviere CEC Lautstärke Regelung
 videomenu.hue Farbton
 videomenu.letterbox Letterbox
 videomenu.masksetup Bildmaske

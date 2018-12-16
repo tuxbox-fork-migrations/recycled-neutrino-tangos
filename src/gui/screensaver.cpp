@@ -47,6 +47,9 @@
 #include <video.h>
 extern cVideo * videoDecoder;
 
+
+
+
 using namespace std;
 
 CScreenSaver::CScreenSaver()
@@ -56,10 +59,12 @@ CScreenSaver::CScreenSaver()
 
 	index 		= 0;
 	status_mute	= CAudioMute::getInstance()->getStatus();
+
 	scr_clock	= NULL;
 	clr.i_color	= COL_DARK_GRAY;
 	pip_channel_id	= 0;
 	idletime	= time(NULL);
+	force_refresh	= false;
 }
 
 CScreenSaver::~CScreenSaver()
@@ -92,6 +97,9 @@ void CScreenSaver::Start()
 
 	if(!CInfoClock::getInstance()->isBlocked())
 		CInfoClock::getInstance()->disableInfoClock();
+
+
+
 
 #ifdef ENABLE_PIP
 	pip_channel_id = CZapit::getInstance()->GetPipChannelID();
@@ -134,6 +142,7 @@ void CScreenSaver::Stop()
 
 	m_frameBuffer->paintBackground(); //clear entire screen
 
+
 	CAudioMute::getInstance()->enableMuteIcon(status_mute);
 	if (!OnAfterStop.empty()){
 		OnAfterStop();
@@ -150,26 +159,52 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 
 	CScreenSaver * PScreenSaver = static_cast<CScreenSaver*>(arg);
 
-	PScreenSaver->ReadDir(); //TODO kill Screensaver if false
 	PScreenSaver->m_frameBuffer->Clear();
 
 	if (g_settings.screensaver_timeout)
 	{
 		while(PScreenSaver)
 		{
+			PScreenSaver->ReadDir();
 			PScreenSaver->paint();
-			sleep(g_settings.screensaver_timeout);
+			int t = g_settings.screensaver_timeout;
+			while (t--)
+			{
+				sleep(1);
+				if (PScreenSaver->force_refresh)
+				{
+					PScreenSaver->force_refresh = false;
+					break;
+				}
+			}
 		}
 	}
 	else
-		PScreenSaver->paint(); //just paint first found picture
+		PScreenSaver->paint();
 
 	return 0;
 }
 
 bool CScreenSaver::ReadDir()
 {
-	string d = g_settings.screensaver_dir;
+	bool show_audiocover = false;
+
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_audio && g_settings.audioplayer_cover_as_screensaver)
+	{
+		if (access(COVERDIR_TMP, F_OK) == 0)
+		{
+			struct dirent **coverlist;
+			int n = scandir(COVERDIR_TMP, &coverlist, 0, alphasort);
+			if (n > 2) // we always have the "." and ".." entrys
+				show_audiocover = true;
+		}
+	}
+
+	string d;
+	if (show_audiocover)
+		d = COVERDIR_TMP;
+	else
+		d = g_settings.screensaver_dir;
 	if (d.length() > 1)
 	{
 		//remove trailing slash
@@ -233,8 +268,10 @@ bool CScreenSaver::ReadDir()
 
 	if(!v_bg_files.empty())
 		ret = true;
+#if 0
 	else
 		dprintf(DEBUG_NORMAL, "[CScreenSaver]  %s - %d : no picture found\n",  __func__, __LINE__);
+#endif
 
 	return ret;
 }
@@ -264,7 +301,7 @@ void CScreenSaver::paint()
 		}
 
 		dprintf(DEBUG_INFO, "[CScreenSaver]  %s - %d : %s\n",  __func__, __LINE__, v_bg_files.at(index).c_str());
-		paintImage(v_bg_files.at(index), 0, 0, m_frameBuffer->getScreenWidth(true), m_frameBuffer->getScreenHeight(true));
+		m_frameBuffer->showFrame(v_bg_files.at(index));
 
 		if (!g_settings.screensaver_random)
 			index++;
@@ -276,12 +313,12 @@ void CScreenSaver::paint()
 	}
 	else{
 		if (!scr_clock){
-			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H:%M:%S", "%H:%M %S", true,
-						1, NULL, CC_SHADOW_OFF, COL_BLACK, COL_BLACK);
+			scr_clock = new CComponentsFrmClock(1, 1, NULL, "%H:%M:%S", "%H:%M %S", true, 1, NULL, CC_SHADOW_OFF, COL_BLACK, COL_BLACK);
 			scr_clock->setCornerType(CORNER_NONE);
 			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
 			scr_clock->disableSaveBg();
 			scr_clock->doPaintBg(false);
+			m_frameBuffer->showFrame("blackscreen.jpg");
 		}
 
 		scr_clock->setTextColor(clr.i_color);
@@ -337,6 +374,7 @@ bool CScreenSaver::ignoredMsg(neutrino_msg_t msg)
 		   msg == NeutrinoMessages::EVT_CURRENTEPG
 		|| msg == NeutrinoMessages::EVT_NEXTEPG
 		|| msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG
+		|| msg == NeutrinoMessages::EVT_NOEPG_YET
 		|| msg == NeutrinoMessages::EVT_TIMESET
 		|| msg == NeutrinoMessages::EVT_PROGRAMLOCKSTATUS
 		|| msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES

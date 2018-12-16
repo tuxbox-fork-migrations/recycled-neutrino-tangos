@@ -48,8 +48,8 @@
 #define CABLES_XML      CONFIGDIR "/cables.xml"
 #define SATELLITES_XML  CONFIGDIR "/satellites.xml" 
 #define TERRESTRIAL_XML CONFIGDIR "/terrestrial.xml"
-#define WEBTV_XML	CONFIGDIR "/webtv_usr.xml"
-#define WEBRADIO_XML	CONFIGDIR "/webradio_usr.xml"
+#define WEBTV_XML	WEBTVDIR_VAR "/webtv_usr.xml"
+#define WEBRADIO_XML	WEBRADIODIR_VAR "/webradio_usr.xml"
 
 #if HAVE_TRIPLEDRAGON == 0
 #define AUDIO_DEVICE          "/dev/dvb/adapter0/audio0"

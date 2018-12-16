@@ -306,6 +306,8 @@ struct SNeutrinoSettings
 	int ci_save_pincode;
 	int ci_check_live;
 	int ci_tuner;
+
+
 	std::string ci_pincode;
 	int radiotext_enable;
 
@@ -357,6 +359,7 @@ struct SNeutrinoSettings
 	std::list<std::string> webtv_xml;
 	std::list<std::string> webradio_xml;
 	std::list<std::string> xmltv_xml; // see http://wiki.xmltv.org/
+
 
 	//personalize
 	enum PERSONALIZE_SETTINGS  //settings.h
@@ -505,6 +508,7 @@ struct SNeutrinoSettings
 		std::string password;
 	} network_nfs[NETWORK_NFS_NR_OF_ENTRIES];
 	std::string network_nfs_audioplayerdir;
+	std::string network_nfs_streamripperdir;
 	std::string network_nfs_picturedir;
 	std::string network_nfs_moviedir;
 	std::string network_nfs_recordingdir;
