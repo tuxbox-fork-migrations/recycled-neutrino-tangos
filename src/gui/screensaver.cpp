@@ -189,6 +189,7 @@ bool CScreenSaver::ReadDir()
 {
 	bool show_audiocover = false;
 
+#if 0
 	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_audio && g_settings.audioplayer_cover_as_screensaver)
 	{
 		if (access(COVERDIR_TMP, F_OK) == 0)
@@ -199,6 +200,7 @@ bool CScreenSaver::ReadDir()
 				show_audiocover = true;
 		}
 	}
+#endif
 
 	string d;
 	if (show_audiocover)

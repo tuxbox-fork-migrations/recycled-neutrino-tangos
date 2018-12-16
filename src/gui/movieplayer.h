@@ -305,8 +305,6 @@ class CMoviePlayerGui : public CMenuTarget
 	void setLastMode(int m) { m_LastMode = m; }
 	void Pause(bool b = true);
 	void selectAudioPid(void);
-	unsigned int getAPID(void);
-	std::string getAPIDDesc(unsigned int i);
 	bool SetPosition(int pos, bool absolute = false);
 #if 0
 	void selectSubtitle();
