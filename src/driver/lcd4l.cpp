@@ -816,7 +816,10 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (CSectionsdClient::epgflags::has_next)
 		{
-			Event += "\n" + CurrentNext.next_name;
+			if (todo)
+				Event += "\nin "+ to_string(todo) + " min:" + CurrentNext.next_name;
+			else
+				Event += "\n"+ CurrentNext.next_name;
 			tm_struct = localtime(&CurrentNext.next_zeit.startzeit);
 			snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 		}
@@ -1035,6 +1038,6 @@ std::string CLCD4l::hexStr(unsigned char* data)
 	std::stringstream ss;
 	ss << std::hex;
 	for(int i=0; i<1; ++i)
-		ss << std::setw(2) << std::setfill('0') << (int)data[i];
+		ss << std::setw(2) << std::setfill('0') << (int)data[i]*2.55;
 	return ss.str();
 }
