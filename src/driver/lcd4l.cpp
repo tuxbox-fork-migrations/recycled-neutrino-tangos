@@ -815,10 +815,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (CSectionsdClient::epgflags::has_next)
 		{
-			if (todo)
-				Event += "\nin "+ to_string(todo) + " min:" + CurrentNext.next_name;
-			else
-				Event += "\n"+ CurrentNext.next_name;
+			Event += "\n" + CurrentNext.next_name;
 			tm_struct = localtime(&CurrentNext.next_zeit.startzeit);
 			snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 		}
