@@ -770,7 +770,6 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	char Duration[sizeof(m_Duration)] = {0};
 	char Start[6] = {0};
 	char End[6] = {0};
-	int todo = 0;
 
 	if (m_ModeChannel)
 	{
@@ -801,7 +800,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 				int total = CurrentNext.current_zeit.dauer / 60;
 				int done = (abs(time(NULL) - CurrentNext.current_zeit.startzeit) + 30) / 60;
-				todo = total - done;
+				int todo = total - done;
 				if ((time(NULL) < CurrentNext.current_zeit.startzeit) && todo >= 0)
 				{
 					done = 0;
