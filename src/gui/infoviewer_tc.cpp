@@ -398,6 +398,7 @@ void CInfoViewer::paintHead(t_channel_id channel_id,std::string channel_name)
 		time_width = header->getClockObject()->getWidth();
 	}
 
+	header->getChannelLogoObject()->enableEventLogo(true);
 	header->setChannelLogo(channel_id,channel_name,CCHeaderTypes::CC_LOGO_LEFT);
 	header->setCaptionMaxWidth(header->getWidth() - time_width - 3*OFFSET_INNER_MID - showBBIcons_width);
 
