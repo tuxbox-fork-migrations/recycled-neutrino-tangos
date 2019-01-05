@@ -228,11 +228,13 @@ int CLCD4l::GetMaxBrightness()
 
 	switch (g_settings.lcd4l_dpf_type)
 	{
-		case SAMSUNG:
-		case VUSOLO4K:
+		case SAMSUNG800x480:
+		case SAMSUNG800x600:
+		case SAMSUNG1024x600:
+		case VUSOLO4K480x320:
 			max_brightness = 10;
 			break;
-		case PEARL:
+		case PEARL320x240:
 		default:
 			max_brightness = 7;
 			break;
@@ -768,22 +770,31 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		std::string Layout;
 
-		std::string DPF_Type;
-		switch (g_settings.lcd4l_dpf_type) {
-			case 3:
-				DPF_Type = "PNG_";
+		std::string DisplayType;
+		switch (g_settings.lcd4l_display_type) {
+			case PNG:
+				DisplayType = "PNG_";
 				break;
 #if defined BOXMODEL_VUSOLO4K
-			case 2:
-				DPF_Type = "VUSolo4K_";
+			case VUSOLO4K480x320:
+				DisplayType = "VUSolo4K_";
 				break;
 #endif
-			case 1:
-				DPF_Type = "Samsung_";
+			case SAMSUNG800x480:
+				//DisplayType = "Samsung800x480_";
+				DisplayType = "Samsung_";
 				break;
-			case 0:
+			case SAMSUNG800x600:
+				//DisplayType = "Samsung800x600_";
+				DisplayType = "Samsung_";
+				break;
+			case SAMSUNG1024x600:
+				//DisplayType = "Samsung1024x600_";
+				DisplayType = "Samsung_";
+				break;
+			case PEARL320x240:
 			default:
-				DPF_Type = "Pearl_";
+				DisplayType = "Pearl_";
 				break;
 		}
 
@@ -1031,7 +1042,28 @@ bool CLCD4l::WriteFile(const char *file, std::string content, bool convert)
 		strReplace(content, "Ä", "\xc4\0");
 		strReplace(content, "Ö", "\xd6\0");
 		strReplace(content, "Ü", "\xdc\0");
-		if (g_settings.lcd4l_dpf_type == 0) strReplace(content, "ß", "\xe2\0");
+		if (g_settings.lcd4l_display_type == PEARL320x240)
+			strReplace(content, "ß", "\xe2\0");
+
+		strReplace(content, "Ą", "\x41\0");
+		strReplace(content, "ą", "\x61\0");
+		strReplace(content, "Ć", "\x43\0");
+		strReplace(content, "ć", "\x63\0");
+		strReplace(content, "Ę", "\x45\0");
+		strReplace(content, "ę", "\x65\0");
+		strReplace(content, "Ł", "\x4c\0");
+		strReplace(content, "ł", "\x6c\0");
+		strReplace(content, "Ń", "\x4e\0");
+		strReplace(content, "ń", "\x6e\0");
+		strReplace(content, "Ó", "\x4f\0");
+		strReplace(content, "ó", "\x6f\0");
+		strReplace(content, "Ś", "\x53\0");
+		strReplace(content, "ś", "\x73\0");
+		strReplace(content, "Ź", "\x5a\0");
+		strReplace(content, "ź", "\x7a\0");
+		strReplace(content, "Ź", "\x5a\0");
+		strReplace(content, "ż", "\x7a\0");
+
 		strReplace(content, "é", "e");
 	}
 
