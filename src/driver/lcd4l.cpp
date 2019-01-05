@@ -118,7 +118,7 @@ static void lcd4linux(bool run)
 
 	if (run == true)
 	{
-		if (g_settings.lcd4l_dpf_type == 3)
+		if (g_settings.lcd4l_display_type == CLCD4l::PNG)
 		{
 			if (my_system(3, buf, "-o", PNGFILE) != 0)
 				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, buf, PNGFILE);
@@ -226,7 +226,7 @@ int CLCD4l::GetMaxBrightness()
 {
 	int max_brightness;
 
-	switch (g_settings.lcd4l_dpf_type)
+	switch (g_settings.lcd4l_display_type)
 	{
 		case SAMSUNG800x480:
 		case SAMSUNG800x600:
@@ -798,19 +798,19 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		switch (g_settings.lcd4l_skin)
 		{
 			case 4:
-				Layout = DPF_Type + "user04";
+				Layout = DisplayType + "user04";
 				break;
 			case 3:
-				Layout = DPF_Type + "user03";
+				Layout = DisplayType + "user03";
 				break;
 			case 2:
-				Layout = DPF_Type + "user02";
+				Layout = DisplayType + "user02";
 				break;
 			case 1:
-				Layout = DPF_Type + "user01";
+				Layout = DisplayType + "user01";
 				break;
 			default:
-				Layout = DPF_Type + "standard";
+				Layout = DisplayType + "standard";
 		}
 
 		if (ModeStandby)

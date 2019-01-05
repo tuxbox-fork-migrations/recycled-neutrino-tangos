@@ -64,7 +64,7 @@ const CMenuOptionChooser::keyval LCD4L_SUPPORT_OPTIONS[] =
 };
 #define LCD4L_SUPPORT_OPTION_COUNT (sizeof(LCD4L_SUPPORT_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
-const CMenuOptionChooser::keyval_ext LCD4L_DPF_TYPE_OPTIONS[] =
+const CMenuOptionChooser::keyval_ext LCD4L_DISPLAY_TYPE_OPTIONS[] =
 {
 	{ CLCD4l::PEARL320x240,    NONEXISTANT_LOCALE, "320x240 Pearl DPF"},
 	{ CLCD4l::SAMSUNG800x480,  NONEXISTANT_LOCALE, "800x480 Samsung SPF"},
@@ -75,7 +75,7 @@ const CMenuOptionChooser::keyval_ext LCD4L_DPF_TYPE_OPTIONS[] =
 #endif
 	{ CLCD4l::PNG,		NONEXISTANT_LOCALE, "800x600 PNG"}
 };
-#define LCD4L_DPF_TYPE_OPTION_COUNT (sizeof(LCD4L_DPF_TYPE_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
+#define LCD4L_DISPLAY_TYPE_OPTION_COUNT (sizeof(LCD4L_DISPLAY_TYPE_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
 
 const CMenuOptionChooser::keyval LCD4L_SKIN_OPTIONS[] =
 {
@@ -227,12 +227,16 @@ int CLCD4lSetup::show()
 	if (g_settings.lcd4l_skin != temp_lcd4l_skin)
 	{
 		g_settings.lcd4l_skin = temp_lcd4l_skin;
-		LCD4l->InitLCD4l();
+		initlcd4l = true;
 	}
 
 	if (g_settings.lcd4l_brightness != temp_lcd4l_brightness)
 	{
 		g_settings.lcd4l_brightness = temp_lcd4l_brightness;
+		initlcd4l =  true;
+	}
+
+	if (initlcd4l)
 		LCD4l->InitLCD4l();
 	}
 
