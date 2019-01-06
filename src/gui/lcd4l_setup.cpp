@@ -77,7 +77,7 @@ const CMenuOptionChooser::keyval_ext LCD4L_DISPLAY_TYPE_OPTIONS[] =
 };
 #define LCD4L_DISPLAY_TYPE_OPTION_COUNT (sizeof(LCD4L_DISPLAY_TYPE_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
 
-const CMenuOptionChooser::keyval LCD4L_SKIN_OPTIONS[] =
+const CMenuOptionChooser::keyval LCD4L_PEARL_SKIN_OPTIONS[] =
 {
 	{ 0, LOCALE_LCD4L_SKIN_0 },
 	{ 1, LOCALE_LCD4L_SKIN_1 },
@@ -85,7 +85,14 @@ const CMenuOptionChooser::keyval LCD4L_SKIN_OPTIONS[] =
 	{ 3, LOCALE_LCD4L_SKIN_3 },
 	{ 4, LOCALE_LCD4L_SKIN_4 }
 };
-#define LCD4L_SKIN_OPTION_COUNT (sizeof(LCD4L_SKIN_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
+#define LCD4L_PEARL_SKIN_OPTION_COUNT (sizeof(LCD4L_PEARL_SKIN_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
+
+const CMenuOptionChooser::keyval LCD4L_SAMSUNG_SKIN_OPTIONS[] =
+{
+	{ 0, LOCALE_LCD4L_SKIN_0 },
+	{ 4, LOCALE_LCD4L_SKIN_4 }
+};
+#define LCD4L_SAMSUNG_SKIN_OPTION_COUNT (sizeof(LCD4L_SAMSUNG_SKIN_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
 CLCD4lSetup::CLCD4lSetup()
 {
@@ -108,7 +115,7 @@ CLCD4lSetup* CLCD4lSetup::getInstance()
 	return me;
 }
 
-int CLCD4lSetup::exec(CMenuTarget* parent, const std::string &actionkey)
+int CLCD4lSetup::exec(CMenuTarget *parent, const std::string &actionkey)
 {
 	printf("CLCD4lSetup::exec: actionkey %s\n", actionkey.c_str());
 	int res = menu_return::RETURN_REPAINT;
@@ -116,7 +123,8 @@ int CLCD4lSetup::exec(CMenuTarget* parent, const std::string &actionkey)
 	if (parent)
 		parent->hide();
 
-	if (actionkey == "lcd4l_logodir") {
+	if (actionkey == "lcd4l_logodir")
+	{
 		const char *action_str = "lcd4l_logodir";
 		chooserDir(g_settings.lcd4l_logodir, false, action_str);
 		return menu_return::RETURN_REPAINT;
@@ -194,7 +202,7 @@ int CLCD4lSetup::show()
 
 	const char *flag_lcd4l_clock_a = FLAGDIR "/.lcd-clock_a";
 	int fake_lcd4l_clock_a = file_exists(flag_lcd4l_clock_a);
-	CTouchFileNotifier * lcd_clock_a = new CTouchFileNotifier(flag_lcd4l_clock_a);
+	CTouchFileNotifier *lcd_clock_a = new CTouchFileNotifier(flag_lcd4l_clock_a);
 	mc = new CMenuOptionChooser(LOCALE_LCD4L_CLOCK_A, &fake_lcd4l_clock_a, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, ((file_exists(LCD4L_ICONSDIR "/clock/analog")) || (file_exists(LCD4L_ICONSDIR_VAR "/clock/analog"))), lcd_clock_a, CRCInput::convertDigitToKey(shortcut++));
 	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_CLOCK_A);
 	lcd4lSetup->addItem(mc);
@@ -233,12 +241,11 @@ int CLCD4lSetup::show()
 	if (g_settings.lcd4l_brightness != temp_lcd4l_brightness)
 	{
 		g_settings.lcd4l_brightness = temp_lcd4l_brightness;
-		initlcd4l =  true;
+		initlcd4l = true;
 	}
 
 	if (initlcd4l)
 		LCD4l->InitLCD4l();
-	}
 
 	return res;
 }
@@ -253,6 +260,12 @@ int CLCD4lSetup::showTypeSetup()
 		if (g_settings.lcd4l_brightness_standby > 7)
 			g_settings.lcd4l_brightness_standby = 7;
 	}
+	else
+	{
+		// fix skin value for Samsung SPF
+		if (temp_lcd4l_skin > 0 && temp_lcd4l_skin < 4)
+			temp_lcd4l_skin = 0;
+	}
 
 	int shortcut = 1;
 
@@ -262,7 +275,10 @@ int CLCD4lSetup::showTypeSetup()
 	CMenuWidget *typeSetup = new CMenuWidget(LOCALE_LCD4L_DISPLAY_TYPE_SETUP, NEUTRINO_ICON_SETTINGS, width);
 	typeSetup->addIntroItems(); //FIXME: show lcd4l display type
 
-	mc = new CMenuOptionChooser(LOCALE_LCD4L_SKIN, &temp_lcd4l_skin, LCD4L_SKIN_OPTIONS, LCD4L_SKIN_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+	if (temp_lcd4l_display_type == CLCD4l::PEARL320x240)
+		mc = new CMenuOptionChooser(LOCALE_LCD4L_SKIN, &temp_lcd4l_skin, LCD4L_PEARL_SKIN_OPTIONS, LCD4L_PEARL_SKIN_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+	else
+		mc = new CMenuOptionChooser(LOCALE_LCD4L_SKIN, &temp_lcd4l_skin, LCD4L_SAMSUNG_SKIN_OPTIONS, LCD4L_SAMSUNG_SKIN_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
 	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SKIN);
 	typeSetup->addItem(mc);
 
