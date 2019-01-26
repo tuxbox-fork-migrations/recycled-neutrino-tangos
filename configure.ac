@@ -351,6 +351,7 @@ AC_SUBST(BLURAY_LIBS)
 AC_OUTPUT([
 Makefile
 data/Makefile
+data/config/Makefile
 data/control/Makefile
 data/fonts/Makefile
 data/icons/Makefile
@@ -402,6 +403,7 @@ data/y-web/images/Makefile
 data/y-web/languages/Makefile
 data/y-web/scripts/Makefile
 data/y-web/styles/Makefile
+data/zapit/Makefile
 lib/Makefile
 lib/connection/Makefile
 lib/hardware/coolstream/Makefile

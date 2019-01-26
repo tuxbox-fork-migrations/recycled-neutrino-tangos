@@ -1,6 +1,22 @@
+installdir = $(CONTROLDIR)
 
-installdir = $(CONFIGDIR)
-install_DATA = flash.start
-
-install-data-hook:
-	chmod 0755 $(DESTDIR)$(CONFIGDIR)/flash.start
+install_SCRIPTS = \
+	audioplayer.start \
+	audioplayer.end \
+	deepstandby.on \
+	deepstandby.off \
+	flash.start \
+	inactivity.on \
+	migration.sh \
+	movieplayer.start \
+	movieplayer.end \
+	neutrino.start \
+	pictureviewer.start \
+	pictureviewer.end \
+	recording.timer \
+	recording.start \
+	recording.end \
+	scan.start \
+	scan.stop \
+	standby.on \
+	standby.off
