@@ -1,11 +1,11 @@
 SUBDIRS = \
+	control \
 	fonts \
 	icons \
 	inetradio \
 	iso-codes \
 	license \
 	locale \
-	neutrino-scripts \
 	pictures \
 	policy \
 	scripts \
