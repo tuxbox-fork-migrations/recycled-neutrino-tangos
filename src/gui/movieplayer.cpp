@@ -427,10 +427,10 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	else if (actionKey == "timeshift") {
 		timeshift = TSHIFT_MODE_ON;
 	}
-	else if (actionKey == "ptimeshift") {
+	else if (actionKey == "timeshift_pause") {
 		timeshift = TSHIFT_MODE_PAUSE;
 	}
-	else if (actionKey == "rtimeshift") {
+	else if (actionKey == "timeshift_rewind") {
 		timeshift = TSHIFT_MODE_REWIND;
 	}
 #if 0 // TODO ?
@@ -2481,7 +2481,7 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 			break;
 		case 6: /*DTS*/
 			apidtitle.append(" (DTS)");
-#if ! defined(HAVE_SPARK_HARDWARE) && ! defined (BOXMODEL_CS_HD2)
+#if ! defined (BOXMODEL_CS_HD2)
 			enabled = false;
 #endif
 			break;

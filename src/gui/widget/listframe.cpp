@@ -68,7 +68,7 @@
 #define TITLE_FONT_COLOR COL_MENUHEAD_TEXT
 
 #define HEADER_LIST_BACKGROUND_COLOR COL_MENUCONTENT_PLUS_0
-#define HEADER_LIST_FONT_COLOR COL_MENUCONTENT_TEXT
+#define HEADER_LIST_FONT_COLOR COL_MENUCONTENTDARK_TEXT_PLUS_2
 
 #define FONT_LIST g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]
 #define FONT_HEADER_LIST g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]
@@ -270,9 +270,9 @@ void CListFrame::initFramesRel(void)
 	if(m_nMode & SCROLL)
 	{
 		m_cFrameScrollRel.iX		= m_cFrame.iWidth - SCROLLBAR_WIDTH;
-		m_cFrameScrollRel.iY		= m_cFrameTitleRel.iHeight;
+		m_cFrameScrollRel.iY		= m_cFrameTitleRel.iHeight + m_cFrameHeaderListRel.iHeight;
 		m_cFrameScrollRel.iWidth	= SCROLLBAR_WIDTH;
-		m_cFrameScrollRel.iHeight	= m_cFrameHeaderListRel.iHeight + m_cFrameListRel.iHeight - m_nBgRadius;
+		m_cFrameScrollRel.iHeight	= m_cFrameHeaderListRel.iHeight + m_cFrameListRel.iHeight - m_cFrameHeaderListRel.iHeight - m_nBgRadius;
 	}
 	else
 	{
@@ -286,7 +286,7 @@ void CListFrame::initFramesRel(void)
 
 	if(m_nMode & HEADER_LINE)
 	{
-		m_cFrameHeaderListRel.iWidth	= m_cFrame.iWidth - m_cFrameScrollRel.iWidth;
+		m_cFrameHeaderListRel.iWidth	= m_cFrame.iWidth;
 	}
 
 	m_nLinesPerPage = (m_cFrameListRel.iHeight - (2*OFFSET_INNER_MID)) / m_nFontListHeight;
@@ -377,7 +377,7 @@ void CListFrame::refreshScroll(void)
 	if (1)
 	{
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
-				m_cFrameScrollRel.iWidth, m_cFrameHeaderListRel.iHeight + m_cFrameListRel.iHeight, COL_MENUCONTENT_PLUS_0,
+				m_cFrameScrollRel.iWidth, m_cFrameHeaderListRel.iHeight, COL_MENUCONTENT_PLUS_0,
 				m_nBgRadius, CORNER_BOTTOM_RIGHT);
 	}
 
@@ -478,7 +478,7 @@ void CListFrame::refreshHeaderList(void)
 
 	int width;
 	int x = m_cFrameHeaderListRel.iX + OFFSET_INNER_MID;
-	int y = m_cFrameHeaderListRel.iY + m_nFontHeaderListHeight + 2;
+	int y = m_cFrameHeaderListRel.iY + m_nFontHeaderListHeight;
 	int net_width = m_cFrameHeaderListRel.iWidth - OFFSET_INNER_SMALL * (m_pLines->rows - 1);
 	bool loop = true;
 	for(int row = 0; row < m_pLines->rows && loop == true; row++)
