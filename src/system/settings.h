@@ -169,6 +169,8 @@ struct SNeutrinoTheme
 	unsigned char progressbar_passive_red;
 	unsigned char progressbar_passive_green;
 	unsigned char progressbar_passive_blue;
+
+	int rounded_corners;
 };
 
 struct timer_remotebox_item
@@ -299,7 +301,6 @@ struct SNeutrinoSettings
 	int show_empty_favorites;
 	int avsync;
 	int clockrec;
-	int rounded_corners;
 	int ci_standby_reset;
 	int ci_clock;
 	int ci_ignore_messages;
@@ -524,13 +525,13 @@ struct SNeutrinoSettings
 	int recording_audio_pids_std;
 	int recording_audio_pids_alt;
 	int recording_audio_pids_ac3;
+	int recording_stream_vtxt_pid;
+	int recording_stream_subtitle_pids;
+	int recording_stream_pmt_pid;
 #if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 	int recording_bufsize;
 	int recording_bufsize_dmx;
 #endif
-	int recording_stream_vtxt_pid;
-	int recording_stream_subtitle_pids;
-	int recording_stream_pmt_pid;
 	int recording_choose_direct_rec_dir;
 	int recording_epg_for_filename;
 	int recording_epg_for_end;
@@ -543,6 +544,13 @@ struct SNeutrinoSettings
 	int timer_followscreenings;
 	std::string recording_filename_template;
 	int recording_already_found_check;
+
+	// timeshift
+	int timeshift_pause;
+	int timeshift_auto;
+	int timeshift_temp;
+	int timeshift_delete;
+	int timeshift_hours;
 
 	int filesystem_is_utf8;
 	// default plugin for ts-movieplayer (red button)
@@ -582,12 +590,7 @@ struct SNeutrinoSettings
 	int key_standby_off_add;
 	int menu_left_exit;
 	int audio_run_player;
-	int timeshift_pause;
-	int auto_timeshift;
-	int temp_timeshift;
-	int auto_delete;
 	int record_hours;
-	int timeshift_hours;
 	int key_record;
 	int key_help;
 	int key_next43mode;
@@ -1073,11 +1076,11 @@ const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLIN
 #define CORNER_RADIUS_MIN	CFrameBuffer::getInstance()->scale2Res(3)
 #define CORNER_RADIUS_NONE	0
 
-#define RADIUS_LARGE	(g_settings.rounded_corners ? CORNER_RADIUS_LARGE : CORNER_RADIUS_NONE)
-#define RADIUS_MID	(g_settings.rounded_corners ? CORNER_RADIUS_MID   : CORNER_RADIUS_NONE)
-#define RADIUS_SMALL	(g_settings.rounded_corners ? CORNER_RADIUS_SMALL : CORNER_RADIUS_NONE)
-#define RADIUS_MIN	(g_settings.rounded_corners ? CORNER_RADIUS_MIN   : CORNER_RADIUS_NONE)
-#define RADIUS_NONE	0
+#define RADIUS_LARGE		(g_settings.theme.rounded_corners ? CORNER_RADIUS_LARGE : CORNER_RADIUS_NONE)
+#define RADIUS_MID		(g_settings.theme.rounded_corners ? CORNER_RADIUS_MID   : CORNER_RADIUS_NONE)
+#define RADIUS_SMALL		(g_settings.theme.rounded_corners ? CORNER_RADIUS_SMALL : CORNER_RADIUS_NONE)
+#define RADIUS_MIN		(g_settings.theme.rounded_corners ? CORNER_RADIUS_MIN   : CORNER_RADIUS_NONE)
+#define RADIUS_NONE		0
 
 // offsets
 #define OFFSET_SHADOW		CFrameBuffer::getInstance()->scale2Res(6)
