@@ -781,20 +781,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir.c_str());
 
-<<<<<<< HEAD
 	// remove old timeshift recordings
-	if (g_settings.auto_delete)
-	{
-		/*
-		   Why only remove old timeshift recordings
-		   if timeshift-dir == recording-dir?
-		*/
-		//if (g_settings.timeshiftdir == g_settings.network_nfs_recordingdir)
-		{
-=======
 	if(g_settings.timeshift_delete) {
 		if(g_settings.timeshiftdir == g_settings.network_nfs_recordingdir) {
->>>>>>> c6638ede16085a872b7f9caafb94f0808838ef09
 			DIR *d = opendir(timeshiftDir.c_str());
 			if (d)
 			{
