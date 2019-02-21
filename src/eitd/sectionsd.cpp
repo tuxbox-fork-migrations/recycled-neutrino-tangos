@@ -1540,10 +1540,7 @@ void CTimeThread::run()
 		sleep_time = ntprefresh * 60;
 		if(success) {
 			if(dvb_time) {
-				bool ret = setSystemTime(dvb_time);
-				if (! ret) {
-					debug(DEBUG_ERROR, "%s: time looks wrong, trying again", name.c_str());
-				}
+				setSystemTime(dvb_time);
 				/* retry a second time immediately after start, to get TOT ? */
 				if(first_time)
 					sleep_time = 5;
