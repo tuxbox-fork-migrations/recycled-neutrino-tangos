@@ -238,8 +238,8 @@ void CListFrame::initFramesRel(void)
 	{
 		m_cFrameTitleRel.iX		= 0;
 		m_cFrameTitleRel.iY		= 0;
-		m_cFrameTitleRel.iHeight	= m_nFontTitleHeight +2 ;
-		m_cFrameTitleRel.iWidth		= m_cFrame.iWidth ;
+		m_cFrameTitleRel.iHeight	= m_nFontTitleHeight + 2*OFFSET_INNER_MIN;
+		m_cFrameTitleRel.iWidth		= m_cFrame.iWidth;
 	}
 	else
 	{
@@ -252,8 +252,8 @@ void CListFrame::initFramesRel(void)
 	if(m_nMode & HEADER_LINE)
 	{
 		m_cFrameHeaderListRel.iX	= 0;
-		m_cFrameHeaderListRel.iY	= 0 + m_cFrameTitleRel.iHeight;
-		m_cFrameHeaderListRel.iHeight	= m_nFontHeaderListHeight ;
+		m_cFrameHeaderListRel.iY	= m_cFrameTitleRel.iHeight;
+		m_cFrameHeaderListRel.iHeight	= m_nFontHeaderListHeight + 2*OFFSET_INNER_MIN;
 	}
 	else
 	{
@@ -272,7 +272,7 @@ void CListFrame::initFramesRel(void)
 		m_cFrameScrollRel.iX		= m_cFrame.iWidth - SCROLLBAR_WIDTH;
 		m_cFrameScrollRel.iY		= m_cFrameTitleRel.iHeight + m_cFrameHeaderListRel.iHeight;
 		m_cFrameScrollRel.iWidth	= SCROLLBAR_WIDTH;
-		m_cFrameScrollRel.iHeight	= m_cFrameHeaderListRel.iHeight + m_cFrameListRel.iHeight - m_cFrameHeaderListRel.iHeight - m_nBgRadius;
+		m_cFrameScrollRel.iHeight	= m_cFrameListRel.iHeight - m_nBgRadius;
 	}
 	else
 	{
@@ -289,7 +289,7 @@ void CListFrame::initFramesRel(void)
 		m_cFrameHeaderListRel.iWidth	= m_cFrame.iWidth;
 	}
 
-	m_nLinesPerPage = (m_cFrameListRel.iHeight - (2*OFFSET_INNER_MID)) / m_nFontListHeight;
+	m_nLinesPerPage = m_cFrameListRel.iHeight / m_nFontListHeight;
 }
 
 void CListFrame::onNewLineArray(void)
@@ -311,7 +311,7 @@ void CListFrame::onNewLineArray(void)
 		{
 			reSizeMainFrameHeight(m_nNrOfLines * m_nFontListHeight);
 		}
-		m_nLinesPerPage = (m_cFrameListRel.iHeight - (2*OFFSET_INNER_MID)) / m_nFontListHeight;
+		m_nLinesPerPage = m_cFrameListRel.iHeight / m_nFontListHeight;
 
 		if(m_nLinesPerPage <= 0)
 			m_nLinesPerPage = 1;
@@ -336,7 +336,7 @@ void CListFrame::onNewLineArray(void)
 		m_nCurrentLine = 0;
 		m_nSelectedLine = 0;
 		m_nLinesPerPage = 1;
-		m_nNrOfPages = 0;
+		m_nNrOfPages = 1;
 	}
 
 //	TRACE_1(" m_nNrOfPages:     %d\r\n",m_nNrOfPages);
@@ -358,8 +358,8 @@ void CListFrame::refreshTitle(void)
 			m_nBgRadius, CORNER_TOP);
 
 	m_pcFontTitle->RenderString(m_cFrameTitleRel.iX + OFFSET_INNER_MID + m_cFrame.iX,
-			m_cFrameTitleRel.iY + m_cFrameTitleRel.iHeight + m_cFrame.iY,
-			m_cFrameTitleRel.iWidth - (OFFSET_INNER_MID << 1),
+			m_cFrameTitleRel.iY + m_cFrameTitleRel.iHeight - OFFSET_INNER_MIN + m_cFrame.iY,
+			m_cFrameTitleRel.iWidth - 2*OFFSET_INNER_MID,
 			m_textTitle.c_str(), TITLE_FONT_COLOR);
 }
 
@@ -377,7 +377,7 @@ void CListFrame::refreshScroll(void)
 	if (1)
 	{
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
-				m_cFrameScrollRel.iWidth, m_cFrameHeaderListRel.iHeight, COL_MENUCONTENT_PLUS_0,
+				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight, COL_MENUCONTENT_PLUS_0,
 				m_nBgRadius, CORNER_BOTTOM_RIGHT);
 	}
 
@@ -433,7 +433,7 @@ void CListFrame::refreshLine(int line)
 
 	fb_pixel_t color, bgcolor;
 	int rel_line = line - m_nCurrentLine;
-	int y = m_cFrameListRel.iY + OFFSET_INNER_MID + (rel_line*m_nFontListHeight);
+	int y = m_cFrameListRel.iY + (rel_line*m_nFontListHeight);
 	int radius = 0;
 
 	bool selected = (line == m_nSelectedLine && m_showSelection == true);
@@ -478,8 +478,9 @@ void CListFrame::refreshHeaderList(void)
 
 	int width;
 	int x = m_cFrameHeaderListRel.iX + OFFSET_INNER_MID;
-	int y = m_cFrameHeaderListRel.iY + m_nFontHeaderListHeight;
+	int y = m_cFrameHeaderListRel.iY + m_nFontHeaderListHeight + OFFSET_INNER_MIN;
 	int net_width = m_cFrameHeaderListRel.iWidth - OFFSET_INNER_SMALL * (m_pLines->rows - 1);
+	net_width -= m_cFrameScrollRel.iWidth;
 	bool loop = true;
 	for(int row = 0; row < m_pLines->rows && loop == true; row++)
 	{
