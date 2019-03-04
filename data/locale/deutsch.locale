@@ -162,6 +162,7 @@ audiomenu.volume_last_used zuletzt verwendet
 audiomenu.volume_start Einschaltlautstärke
 audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen
+audioplayer.add_fav Lokale Radiofavoriten
 audioplayer.add_ic Icecast
 audioplayer.add_loc Lokale Radioliste
 audioplayer.add_sc SHOUTcast
@@ -169,6 +170,7 @@ audioplayer.artist_title Interpret, Titel
 audioplayer.building_search_index Erstelle Suchindex
 audioplayer.button_select_title_by_id Suche nach ID
 audioplayer.button_select_title_by_name Suche nach Name
+audioplayer.cover_as_screensaver Cover als Bildschirmschoner
 audioplayer.defdir Start-Verzeichnis
 audioplayer.delete Entfernen
 audioplayer.deleteall Alle entfernen
@@ -178,6 +180,7 @@ audioplayer.fastforward schneller Vorl.
 audioplayer.follow Selektiere akt. Track
 audioplayer.head Audio Playlist
 audioplayer.highprio Hohe Decodier-Priorität
+audioplayer.internetradio.name Audioplayer und Internetradio
 audioplayer.jump_backwards rückw. springen
 audioplayer.jump_dialog_hint1 Bitte Sprungziel eingeben
 audioplayer.jump_dialog_hint2 (relativ, in Sekunden)
@@ -205,6 +208,9 @@ audioplayer.show_playlist Playlist anzeigen
 audioplayer.shuffle Zufällig
 audioplayer.spectrum LCD Skala
 audioplayer.stop Stopp
+audioplayer.streamripper_dir Streamripper-Verzeichnis
+audioplayer.streamripper_start Streamripper starten
+audioplayer.streamripper_stop Streamripper stoppen
 audioplayer.title_artist Titel, Interpret
 bookmarkmanager.delete Löschen
 bookmarkmanager.name Bookmarks
@@ -277,6 +283,7 @@ channellist.new_zap_mode_allow erlauben
 channellist.new_zap_mode_off aus
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(Menü-Taste -> Service)
 channellist.numeric_adjust Bei numerischem Zap Kanalliste nachführen
+channellist.primetime Primetime
 channellist.provs Anbieter
 channellist.recordable_channels Aufnehmbare Sender
 channellist.recording_not_possible Aufnahme nicht möglich!
@@ -287,6 +294,7 @@ channellist.sats Satelliten
 channellist.show_channellogo Senderlogos zeigen
 channellist.show_channelnumber Kanalnummern zeigen
 channellist.show_empty_favs Zeige leere Favoriten-Bouquets
+channellist.show_eventlogo Eventlogos zeigen
 channellist.show_infobox Sendungsfenster anzeigen
 channellist.show_res_icon Auflösung signalisieren
 channellist.since seit
@@ -335,7 +343,7 @@ colormenu.fade Ein-/Ausblenden
 colormenu.font Verwendete Schriftart
 colormenu.font_sub Untertitel-Schriftart
 colormenu.font_ttx Teletext-Schriftart
-colormenu.menucolors Farben
+colormenu.menucolors Themes
 colormenu.osd_preset Monitor Auswahl
 colormenu.osd_resolution OSD-Auflösung
 colormenu.progressbar_active Farbe des aktiven Teil
@@ -430,8 +438,6 @@ eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
 eventlistbar.recordevent Aufnehmen
 extra.add_to_bouquet dem Bouquet zufügen
-extra.auto_delete Automatisches Löschen
-extra.auto_timeshift Automatische Aufnahme
 extra.cache_txt Teletext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt ...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet.\n
@@ -503,8 +509,10 @@ extra.sms_channel SMS-Modus bei Kanalsuche
 extra.sms_movie SMS-Modus bei Filmsuche
 extra.south Süden
 extra.start_tostandby Standby nach Boxstart
-extra.temp_timeshift Temporäres Timeshift
-extra.timeshift_pause Pausierte Aufnahme
+extra.timeshift_auto Automatische Aufnahme, Sek. (0 = deakt.)
+extra.timeshift_delete Automatisches Löschen
+extra.timeshift_pause Timeshift Pause
+extra.timeshift_temp Temporäres Timeshift
 extra.tp_bandwidth Bandbreite
 extra.tp_bandwidth_10mhz 10Mhz
 extra.tp_bandwidth_1_712mhz 1.712Mhz
@@ -884,6 +892,7 @@ imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license Lizenz
 imageinfo.os System:
+imageinfo.policy Datenschutz
 imageinfo.vcs Git:
 imageinfo.version Version:
 imdb.api_key IMDb API Schlüssel
@@ -906,6 +915,7 @@ imdb.data_website Webseite
 imdb.data_writer Drehbuchautor
 imdb.info IMDb-Info
 imdb.info_save Bild speichern
+inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
 infoviewer.analogclock Analog Uhr
 infoviewer.epgnotload Informationen noch nicht geladen ...
@@ -994,17 +1004,24 @@ keychoosermenu.setnone Keine Taste
 languagesetup.head Sprache und Zeitzonen
 languagesetup.osd Menüsprache
 languagesetup.select Sprache
+lcd4l_brightness Helligkeit
+lcd4l_brightness_standby Helligkeit im Standby-Modus
 lcd4l_clock_a Analog-Uhr im Standby-Modus
+lcd4l_convert Konvertiere Umlaute
+lcd4l_display_type Display-Typ
+lcd4l_display_type_setup Display-Typ einstellen
 lcd4l_logodir Senderlogo-Verzeichnis
 lcd4l_skin Display-Style
-lcd4l_skin_0 SPF  7" Klein
-lcd4l_skin_1 SPF  8" Mittel
-lcd4l_skin_2 SPF 10" Groß
+lcd4l_skin_0 Standard
+lcd4l_skin_1 Benutzer 1
+lcd4l_skin_2 Benutzer 2
+lcd4l_skin_3 Benutzer 3
+lcd4l_skin_4 Benutzer 4
+lcd4l_skin_radio Radio-Style aktivieren
 lcd4l_support LCD4Linux-Unterstützung
 lcd4l_support_auto automatisch
 lcd4l_support_off aus
 lcd4l_support_on ein
-lcd4l_weather Wetter im Standby-Modus
 lcd_info_line Zeige in Infozeile
 lcd_info_line_channel Kanalname
 lcd_info_line_clock Uhrzeit
@@ -1120,6 +1137,7 @@ menu.hint_audio_srs_nmgr Schalten Sie den NoiseManager ein oder aus
 menu.hint_audio_srs_volume Legen Sie die Referenzlautstärke für SRS TruVolume fest
 menu.hint_audio_volstart Legen Sie die Einschaltlautstärke fest, die immer beim Starten eingestellt werden soll
 menu.hint_audio_volstep Beim Betätigen der Lautstärketasten wird die Lautstärke immer schrittweise nach diesem Wert geändert
+menu.hint_audioplayer_cover_as_screensaver Verwendet das Cover des Titels oder "folder.jpg" als Bildschirmschoner
 menu.hint_audioplayer_defdir Wählen Sie das Startverzeichnis für den Audioplayer
 menu.hint_audioplayer_follow Das Auswählen eines aktuellen Titels in der Wiedergabeliste zulassen
 menu.hint_audioplayer_highprio Erhöhen Sie die Priorität der Wiedergabe
@@ -1127,6 +1145,7 @@ menu.hint_audioplayer_order Ändern der Sortierreihenfolge der Wiedergabeliste
 menu.hint_audioplayer_playlist Aktiviert die Anzeige der Titel in der Wiedergabeliste
 menu.hint_audioplayer_repeat Aktiviert das Wiederholen der Wiedergabeliste, wenn das Ende erreicht ist
 menu.hint_audioplayer_sc_metadata Aktiviert das Anzeigen der Audio-Metadaten
+menu.hint_audioplayer_streamripper_dir Wählen Sie das Aufnahmeverzeichnis für den Streamripper
 menu.hint_audioplayer_title Aktivieren Sie die Titelsuche (SMS-Stil) in der Playliste
 menu.hint_auto_lang Wählen Sie, ob automatisch ihre bevorzugte Tonspur ausgewählt wird, wenn sie vorhanden ist
 menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Sprache
@@ -1140,7 +1159,7 @@ menu.hint_cache_txt Startet das Zwischenspeichern des Teletextes nach einem Kana
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
-menu.hint_cec_volume Beim Betätigen der Lautstärketasten wird die Lautstärke an angeschlossenem Audiogerät reguliert
+menu.hint_cec_volume Beim Betätigen der Lautstärketasten wird die Lautstärke am angeschlossenen Audiogerät reguliert
 menu.hint_channellist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_channellist_enablesdt Ermöglicht die dynamische Senderaktualisierung im laufenden Betrieb
 menu.hint_channellist_epg_align Legen Sie fest, wie der Text für das EPG in der Liste rechts vom Programmnamen ausgerichtet wird
@@ -1150,10 +1169,12 @@ menu.hint_channellist_foot Definiert, welche Informationen im unteren Sendungsfe
 menu.hint_channellist_hdicon Zeigt HD/UHD Symbol in der Kanalliste
 menu.hint_channellist_mode Wählen Sie die Start-Kanalliste im TV-Modus
 menu.hint_channellist_mode_radio Wählen Sie die Start-Kanalliste im Radio-Modus
+menu.hint_channellist_primetime Was läuft zur Hauptzeit
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channellist_show_channellogo Zeigt Senderlogos in Kanalliste, Eventliste, EPG-Plus, EPG-Ansicht und Moviebrowser.
 menu.hint_channellist_show_channelnumber Zeigt Kanalnummer in der Kanalliste.
 menu.hint_channellist_show_empty_favs Zeigt oder versteckt leere Bouquets in den Favoriten
+menu.hint_channellist_show_eventlogo Eventlogos aktivieren/deaktivieren.
 menu.hint_channellist_show_infobox Zeigt oder versteckt das untere Sendungsfenster
 menu.hint_channellist_show_res_icon Zeigt oder versteckt das Icon zur Signalisierung der Auflösung
 menu.hint_channellogos_setup Wählen Sie die globalen Optionen für die Senderlogos aus
@@ -1231,6 +1252,7 @@ menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten.\nDie Box
 menu.hint_inactive_back Ändern Sie die Hintergrundfarbe für deaktivierte Fensterinhalte
 menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fensterinhalte
 menu.hint_inet_radio Internetradio
+menu.hint_inet_radio_autostart Spielt automatisch den ersten Eintrag der Favoriten-Liste ab
 menu.hint_info Systeminformationen anzeigen.
 menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
 menu.hint_infobar_buttons_usertitle Erzwingt die benutzerdefinierten Titel der Farbtasten
@@ -1315,10 +1337,13 @@ menu.hint_last_radio Wählen Sie den Start-Sender im Radio-Modus
 menu.hint_last_tv Wählen Sie den Start-Sender im TV-Modus
 menu.hint_last_use Speichert den aktuellen Kanal beim Herunterfahren der Box
 menu.hint_lcd4l_clock_a Zeigt im Standby-Betrieb eine Analog-Uhr anstatt einer Digital-Uhr
+menu.hint_lcd4l_convert Konvertiert Umlaute für die eingebaute LCD4Linux-Schriftart
+menu.hint_lcd4l_display_type Wählen Sie den Typ des externen Displays
+menu.hint_lcd4l_display_type_setup Einstellungen für den Typ des externen Displays
 menu.hint_lcd4l_logodir Verzeichnis für Senderlogos\nBei ungültigem Eintrag Fallback auf Standard-Logoverzeichnis
-menu.hint_lcd4l_skin Auswahl der verfügbaren Darstellungsarten\nStandard, SPF Groß, SPF klein, Benutzerdefiniert
-menu.hint_lcd4l_support LCD4Linux aktivieren/deaktivieren\nUnterstützte Displays: Samsung SPF
-menu.hint_lcd4l_weather Zeigt im Standby-Betrieb die entsprechenden Daten des ersten Favoriteneintrags von tuxwetter auf dem Display an
+menu.hint_lcd4l_skin Auswahl der verfügbaren Darstellungsarten\nStandard, Benutzerdefiniert, etc.
+menu.hint_lcd4l_skin_radio Wechselt die Darstellungsart, wenn der Radio-Modus aktiviert wird
+menu.hint_lcd4l_support LCD4Linux aktivieren/deaktivieren\nUnterstützte Displays: Pearl DPF, Samsung DPF, VU+SOLO4K, PNG
 menu.hint_leds_blink Die Power-LEDs blinken, wenn sich der Receiver im Deep-Standby befindet und ein Timer aktiv ist
 menu.hint_leds_deepstandby Definiert den Status der Power-LEDs im Deep-Standby
 menu.hint_leds_record Definiert, ob die Power-LEDs blinken sollen, wenn eine Aufnahme aktiv ist
@@ -2263,11 +2288,12 @@ recordingmenu.vcr Videorekorder
 recordingmenu.vtxt_pid Teletext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
-remotebox_add hinzufügen
+remotebox_add Hinzufügen
 remotebox_channel_na Kanal auf Remote-Box nicht verfügbar
-remotebox_del löschen
+remotebox_del Löschen
 remotebox_head Remote-Boxen
-remotebox_mod bearbeiten
+remotebox_mod Bearbeiten
+remotebox_onoff Ein/Aus
 remotebox_pass Passwort
 remotebox_port Port
 remotebox_rbaddr Adresse
@@ -2675,7 +2701,7 @@ videomenu.hdmi_cec_mode_tuner als Sat/Kabel STB
 videomenu.hdmi_cec_standby Aktiviere CEC Standby
 videomenu.hdmi_cec_standby_not_timer nicht bei Timer
 videomenu.hdmi_cec_view_on Aktiviere CEC View on
-videomenu.hdmi_cec_volume Aktiviere CEC Lautstärkeregelung
+videomenu.hdmi_cec_volume Aktiviere CEC Lautstärke Regelung
 videomenu.hue Farbton
 videomenu.letterbox Letterbox
 videomenu.masksetup Bildmaske

@@ -208,6 +208,9 @@ class CMenuItem : public  CComponentsSignals
 		void setParentWidget(CMenuWidget* parent){parent_widget = parent;}
 		void setInfoIconRight(const char * const IconName_Info_right);
 		const char* getInfoIconRight(){return iconName_Info_right;}
+#ifdef ENABLE_LCD4LINUX
+		std::string lcd4l_text;
+#endif
 };
 
 class CMenuSeparator : public CMenuItem
@@ -661,6 +664,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 
 		void setNextShortcut(int sc) { nextShortcut = sc; };
 		int getNextShortcut() { return nextShortcut; };
+		bool gotAction() { return !no_action; };
 };
 
 class CPINProtection

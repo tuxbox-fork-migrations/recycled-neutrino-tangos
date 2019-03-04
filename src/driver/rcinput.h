@@ -228,7 +228,7 @@ class CRCInput
 			RC_tv		= KEY_TV,
 			RC_radio	= KEY_RADIO,
 			RC_text		= KEY_TEXT,
-#if defined BOXMODEL_VUSOLO4K
+#if BOXMODEL_VUSOLO4K
 			RC_info		= 0xFFFE,
 			RC_epg		= KEY_INFO,
 #else
@@ -247,6 +247,7 @@ class CRCInput
 			RC_stop		= KEY_STOP,
 			RC_timeshift	= KEY_T,
 			RC_mode		= KEY_MODE,
+			RC_switchvideomode = KEY_SWITCHVIDEOMODE,
 			RC_games	= KEY_GAMES,
 			RC_next		= KEY_NEXT,
 			RC_prev		= KEY_PREVIOUS,

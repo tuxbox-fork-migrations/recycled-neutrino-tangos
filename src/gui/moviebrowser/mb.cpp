@@ -493,8 +493,9 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.browserRowWidth[7] = m_defaultRowWidth[m_settings.browserRowItem[7]];
 	m_settings.browserRowWidth[8] = m_defaultRowWidth[m_settings.browserRowItem[8]];
 
-	m_settings.ts_only = 0;
 	m_settings.browserAdditional = 1;
+
+	m_settings.ts_only = 0;
 #if 0
 	m_settings.ytmode = cYTFeedParser::MOST_POPULAR;
 	m_settings.ytorderby = cYTFeedParser::ORDERBY_PUBLISHED;
@@ -937,13 +938,13 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			m_movieSelectionHandler->bookmarks.user[i].pos =0;
 		}
 	}
-	else if (actionKey == "show_menu")
+	else if(actionKey == "show_menu")
 	{
 		showMenu(true);
 		saveSettings(&m_settings);
 	}
 #if 0
-	else if (actionKey == "show_ytmenu")
+	else if(actionKey == "show_ytmenu")
 	{
 		showYTMenu(true);
 		saveSettings(&m_settings);
@@ -1667,7 +1668,7 @@ void CMovieBrowser::refreshDetailsLine(int pos)
 		int theight = m_pcBrowser->getTitleHeight();
 
 		int xpos  = m_cBoxFrameBrowserList.iX - DETAILSLINE_WIDTH;
-		int ypos1 = m_cBoxFrameBrowserList.iY + hheight + theight + OFFSET_INNER_MID + pos*fheight + (fheight/2);
+		int ypos1 = m_cBoxFrameBrowserList.iY + hheight + theight + pos*fheight + (fheight/2);
 		int ypos2 = m_cBoxFrameInfo1.iY + (m_cBoxFrameInfo1.iHeight/2);
 
 		if (m_detailsLine == NULL)
@@ -1685,20 +1686,6 @@ void CMovieBrowser::info_hdd_level(bool paint_hdd)
 		return;
 #endif
 
-/*
-	struct statfs s;
-	long	blocks_percent_used =0;
-	static long tmp_blocks_percent_used = 0;
-	if (getSelectedFile() != NULL) {
-		if (::statfs(getSelectedFile()->Name.c_str(), &s) == 0) {
-			long blocks_used = s.f_blocks - s.f_bfree;
-			blocks_percent_used = (blocks_used * 1000 / (blocks_used + s.f_bavail) + 5)/10;
-		}
-	}
-
-	if (tmp_blocks_percent_used != blocks_percent_used || paint_hdd) {
-		tmp_blocks_percent_used = blocks_percent_used;
-*/
 	if (g_settings.infobar_show_sysfs_hdd && paint_hdd) {
 		const short pbw = 100;
 		const short border = m_cBoxFrameTitleRel.iHeight/4;
@@ -2121,7 +2108,8 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 					extension = "." + extension;
 					str_replace(extension, ".jpg", cover_file);
 					printf("TMDB: %s : %s\n",m_movieSelectionHandler->file.Name.c_str(),cover_file.c_str());
-					cTmdb* tmdb = new cTmdb(m_movieSelectionHandler->epgTitle);
+					cTmdb* tmdb = cTmdb::getInstance();
+					tmdb->setTitle(m_movieSelectionHandler->epgTitle);
 					if ((tmdb->getResults() > 0) && (tmdb->hasCover())) {
 						if (!cover_file.empty())
 							if (tmdb->getSmallCover(cover_file))

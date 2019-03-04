@@ -70,7 +70,7 @@
 #include <sys/mount.h>
 #include <json/json.h>
 
-#include <video.h>
+#include <hardware/video.h>
 #include <libtuxtxt/teletext.h>
 #include <zapit/zapit.h>
 #include <system/set_threadname.h>
@@ -81,7 +81,7 @@
 #include <algorithm>
 #include <iconv.h>
 #include <libdvbsub/dvbsub.h>
-#include <audio.h>
+#include <hardware/audio.h>
 #ifdef ENABLE_GRAPHLCD
 #include <driver/nglcd.h>
 bool glcd_play = false;
@@ -315,22 +315,22 @@ void CMoviePlayerGui::cutNeutrino()
 	g_Zapit->setStandby(true);
 #endif
 
-	int new_mode = NeutrinoModes::mode_unknown;
+	m_ThisMode = NeutrinoModes::mode_unknown;
 	m_LastMode = CNeutrinoApp::getInstance()->getMode();
-	printf("%s: old mode %d\n", __func__, m_LastMode);fflush(stdout);
+	printf("%s: last mode %d\n", __func__, m_LastMode);fflush(stdout);
 	if (isWebChannel)
 	{
 		bool isRadioMode = (m_LastMode == NeutrinoModes::mode_radio || m_LastMode == NeutrinoModes::mode_webradio);
-		new_mode = (isRadioMode) ? NeutrinoModes::mode_webradio : NeutrinoModes::mode_webtv;
+		m_ThisMode = (isRadioMode) ? NeutrinoModes::mode_webradio : NeutrinoModes::mode_webtv;
 		m_LastMode |= NeutrinoModes::norezap;
 	}
 	else
 	{
-		new_mode = NeutrinoModes::mode_ts;
+		m_ThisMode = NeutrinoModes::mode_ts;
 	}
-	printf("%s: new mode %d\n", __func__, new_mode);fflush(stdout);
+	printf("%s: this mode %d\n", __func__, m_ThisMode);fflush(stdout);
 	printf("%s: save mode %x\n", __func__, m_LastMode);fflush(stdout);
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::norezap | new_mode);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::norezap | m_ThisMode);
 }
 
 void CMoviePlayerGui::restoreNeutrino()
@@ -427,10 +427,10 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	else if (actionKey == "timeshift") {
 		timeshift = TSHIFT_MODE_ON;
 	}
-	else if (actionKey == "ptimeshift") {
+	else if (actionKey == "timeshift_pause") {
 		timeshift = TSHIFT_MODE_PAUSE;
 	}
-	else if (actionKey == "rtimeshift") {
+	else if (actionKey == "timeshift_rewind") {
 		timeshift = TSHIFT_MODE_REWIND;
 	}
 #if 0 // TODO ?
@@ -1179,19 +1179,43 @@ bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &scri
 
 	if (_script.find("/") == std::string::npos)
 	{
-		std::string _s = g_settings.livestreamScriptPath + "/" + _script;
-		printf("[%s:%s:%d] script: %s\n", __file__, __func__, __LINE__, _s.c_str());
-		if (!file_exists(_s.c_str()))
+		std::list<std::string> paths;
+		// try livestreamScript from user's livestreamScriptPath
+		// Note: livestreamScriptPath is disabled in webtv-setup; just here for compatibility
+		paths.push_back(g_settings.livestreamScriptPath);
+		// try livestreamScripts from webradio/webtv autoload directories
+		if (m_ThisMode == NeutrinoModes::mode_webradio)
 		{
-			_s = std::string(WEBTVDIR_VAR) + "/" + _script;
-			printf("[%s:%s:%d] script: %s\n", __file__, __func__, __LINE__, _s.c_str());
+			paths.push_back(WEBRADIODIR_VAR);
+			paths.push_back(WEBRADIODIR);
 		}
-		if (!file_exists(_s.c_str()))
+		else
 		{
-			_s = std::string(WEBTVDIR) + "/" + _script;
-			printf("[%s:%s:%d] script: %s\n", __file__, __func__, __LINE__, _s.c_str());
+			paths.push_back(WEBTVDIR_VAR);
+			paths.push_back(WEBTVDIR);
 		}
-		_script = _s;
+
+		std::string _s;
+		_s.clear();
+
+		for (std::list<std::string>::iterator it = paths.begin(); it != paths.end(); ++it)
+		{
+			_s = *it + "/" + _script;
+			if (file_exists(_s.c_str()))
+				break;
+			_s.clear();
+		}
+
+		if (!_s.empty())
+		{
+			_script = _s;
+			printf("[%s:%s:%d] script: %s\n", __file__, __func__, __LINE__, _script.c_str());
+		}
+		else
+		{
+			printf(">>>>> [%s:%s:%d] script not found: %s\n", __file__, __func__, __LINE__, _script.c_str());
+			return false;
+		}
 	}
 	size_t pos = _script.find(".lua");
 	if (!file_exists(_script.c_str()) || (pos == std::string::npos) || (_script.length()-pos != 4)) {
@@ -2457,7 +2481,7 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& en
 			break;
 		case 6: /*DTS*/
 			apidtitle.append(" (DTS)");
-#if ! defined(HAVE_SPARK_HARDWARE) && ! defined (BOXMODEL_CS_HD2)
+#if ! defined (BOXMODEL_CS_HD2)
 			enabled = false;
 #endif
 			break;
@@ -2867,7 +2891,7 @@ void CMoviePlayerGui::UpdatePosition()
 
 void CMoviePlayerGui::StopSubtitles(bool enable_glcd_mirroring __attribute__((unused)))
 {
-#if HAVE_SH4_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 	printf("[CMoviePlayerGui] %s\n", __FUNCTION__);
 	int ttx, ttxpid, ttxpage;
 
@@ -2918,7 +2942,7 @@ void CMoviePlayerGui::showHelp()
 
 void CMoviePlayerGui::StartSubtitles(bool show __attribute__((unused)))
 {
-#if HAVE_SH4_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 	printf("[CMoviePlayerGui] %s: %s\n", __FUNCTION__, show ? "Show" : "Not show");
 #ifdef ENABLE_GRAPHLCD
 	nGLCD::MirrorOSD(false);

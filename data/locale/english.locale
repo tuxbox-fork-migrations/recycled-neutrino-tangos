@@ -136,7 +136,7 @@ audiomenu.avs avs
 audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
 audiomenu.clockrec 
-audiomenu.dolbydigital Prefer Dolby Digital (AC-3)
+audiomenu.dolbydigital Prefer Dolby Digital
 audiomenu.dts DTS passthrough
 audiomenu.hdmi_dd Encoded DD on HDMI
 audiomenu.hdmi_dd_auto auto
@@ -162,6 +162,7 @@ audiomenu.volume_last_used last used
 audiomenu.volume_start Start volume
 audiomenu.volume_step Volume step
 audioplayer.add Add
+audioplayer.add_fav Local radio favorites
 audioplayer.add_ic Icecast
 audioplayer.add_loc Local radio list
 audioplayer.add_sc SHOUTcast
@@ -169,6 +170,7 @@ audioplayer.artist_title Artist, Title
 audioplayer.building_search_index Building search index
 audioplayer.button_select_title_by_id Search by ID
 audioplayer.button_select_title_by_name Search by name
+audioplayer.cover_as_screensaver Cover as screensaver
 audioplayer.defdir Start directory
 audioplayer.delete Remove
 audioplayer.deleteall Remove all
@@ -178,6 +180,7 @@ audioplayer.fastforward Fast forward
 audioplayer.follow Auto select current
 audioplayer.head Audio Playlist
 audioplayer.highprio High decode priority
+audioplayer.internetradio.name Audioplayer and Internetradio
 audioplayer.jump_backwards Jump backwards
 audioplayer.jump_dialog_hint1 Please enter jump target
 audioplayer.jump_dialog_hint2 (relative, in seconds)
@@ -205,6 +208,9 @@ audioplayer.show_playlist Show playlist
 audioplayer.shuffle Shuffle
 audioplayer.spectrum LCD spectrum
 audioplayer.stop Stop
+audioplayer.streamripper_dir Streamripper directory
+audioplayer.streamripper_start Start streamripper
+audioplayer.streamripper_stop Stop streamripper
 audioplayer.title_artist Title, artist
 bookmarkmanager.delete delete
 bookmarkmanager.name bookmarks
@@ -277,6 +283,7 @@ channellist.new_zap_mode_allow Allow
 channellist.new_zap_mode_off Off
 channellist.nonefound No channels were found!\nPlease execute a scan\n(Menu key -> Service)
 channellist.numeric_adjust Numeric Zap Adjust
+channellist.primetime Primetime
 channellist.provs Providers
 channellist.recordable_channels Recordable channels
 channellist.recording_not_possible Recording not possible!
@@ -287,6 +294,7 @@ channellist.sats Satellites
 channellist.show_channellogo Show channel logos
 channellist.show_channelnumber Show channel numbers
 channellist.show_empty_favs Show empty favorites bouquets
+channellist.show_eventlogo Show event logos
 channellist.show_infobox Show bottom infobox
 channellist.show_res_icon Signalize resolution
 channellist.since since
@@ -335,7 +343,7 @@ colormenu.fade Fade GUI
 colormenu.font Select GUI font
 colormenu.font_sub Select Subtitle font
 colormenu.font_ttx Select Teletext font
-colormenu.menucolors Colors
+colormenu.menucolors Themes
 colormenu.osd_preset TV preset
 colormenu.osd_resolution OSD resolution
 colormenu.progressbar_active Active part color
@@ -426,8 +434,6 @@ eventlistbar.channelswitch schedule
 eventlistbar.eventsort sorting
 eventlistbar.recordevent record
 extra.add_to_bouquet Add to bouquet
-extra.auto_delete Automatic deletion
-extra.auto_timeshift Automatic recording
 extra.cache_txt Cache teletext
 extra.chadded The current channel has been added to selected bouquet.\n
 extra.chalreadyinbq The current channel is already in selected bouquet.\n
@@ -498,8 +504,10 @@ extra.sms_channel SMS-mode channel
 extra.sms_movie SMS-mode movie
 extra.south South
 extra.start_tostandby Startup to standby
-extra.temp_timeshift Temporary timeshift
-extra.timeshift_pause Paused recording
+extra.timeshift_auto Automatic recording, sec (0 = disable)
+extra.timeshift_delete Automatic deletion
+extra.timeshift_pause Timeshift pause
+extra.timeshift_temp Temporary timeshift
 extra.tp_bandwidth Bandwidth
 extra.tp_bandwidth_10mhz 10Mhz
 extra.tp_bandwidth_1_712mhz 1.712Mhz
@@ -877,6 +885,7 @@ imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license License
 imageinfo.os System:
+imageinfo.policy Privacy Policy
 imageinfo.vcs Git:
 imageinfo.version Version:
 imdb.api_key IMDb API-Key
@@ -899,6 +908,7 @@ imdb.data_website Website
 imdb.data_writer Screenplay author
 imdb.info IMDb-Info
 imdb.info_save save Cover
+inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
 infoviewer.epgnotload EPG not loaded ...
 infoviewer.epgwait waiting for EPG ...
@@ -984,9 +994,27 @@ keychoosermenu.currentkey Current key
 keychoosermenu.setnew Setup new key
 keychoosermenu.setnone No key
 languagesetup.head Language and timezone
-languagesetup.osd OSD language
-languagesetup.select OSD language
-lcd_info_line Show in infoline
+languagesetup.osd OSD Language
+languagesetup.select OSD Language
+lcd4l_brightness Brightness
+lcd4l_brightness_standby Brightness in standby
+lcd4l_clock_a Analog clock in Standby-Mode
+lcd4l_convert Convert umlauts
+lcd4l_display_type Display type
+lcd4l_display_type_setup Display type setup
+lcd4l_logodir Channellogo-Directory
+lcd4l_skin Display-Style
+lcd4l_skin_0 Standard
+lcd4l_skin_1 User 1
+lcd4l_skin_2 User 2
+lcd4l_skin_3 User 3
+lcd4l_skin_4 User 4
+lcd4l_skin_radio Activate Radio-Style
+lcd4l_support LCD4Linux-Support
+lcd4l_support_auto automatic
+lcd4l_support_off off
+lcd4l_support_on on
+lcd_info_line show in infoline
 lcd_info_line_channel Channelname
 lcd_info_line_clock Clock
 lcdcontroler.brightness Normal mode
@@ -1100,6 +1128,7 @@ menu.hint_audio_srs_nmgr Noise manager
 menu.hint_audio_srs_volume Reference level to maintain
 menu.hint_audio_volstart Always set selected volume value on boot
 menu.hint_audio_volstep Volume +/- keys increase/decrease step
+menu.hint_audioplayer_cover_as_screensaver Use title's cover or "folder.jpg" as screensaver
 menu.hint_audioplayer_defdir Default audioplayer directory
 menu.hint_audioplayer_follow Move playlist selected pointer\nto current playing song
 menu.hint_audioplayer_highprio Increase playback priority
@@ -1107,6 +1136,7 @@ menu.hint_audioplayer_order Change playlist sort order
 menu.hint_audioplayer_playlist Show playlist items
 menu.hint_audioplayer_repeat Enable playlist repeat when end of list reached
 menu.hint_audioplayer_sc_metadata Enable streaming audio metadata parsing
+menu.hint_audioplayer_streamripper_dir Default streamripper target directory
 menu.hint_audioplayer_title Enable SMS-style title search in playlist
 menu.hint_auto_lang Auto-switch audio to preferred language
 menu.hint_auto_subs Auto-start subtitles for preferred language
@@ -1130,10 +1160,12 @@ menu.hint_channellist_foot Show additional information\nin bottom box
 menu.hint_channellist_hdicon Show HD/UHD icons in channel list
 menu.hint_channellist_mode Use the selected channel list mode on startup if last mode is TV
 menu.hint_channellist_mode_radio Use the selected channel list mode on startup if last mode is Radio
+menu.hint_channellist_primetime Show what's on primetime
 menu.hint_channellist_setup Configure channel list GUI options
 menu.hint_channellist_show_channellogo Show channel logos in channellist, eventlist, EPG Plus, EPG-viewer and moviebrowser
 menu.hint_channellist_show_channelnumber Show channel number in channel list
 menu.hint_channellist_show_empty_favs Show or hide empty bouquets in favorites
+menu.hint_channellist_show_eventlogo Enable/disable event logos.
 menu.hint_channellist_show_infobox Show or hide bottom infobox of channellist
 menu.hint_channellist_show_res_icon Show or hide the icon to signalize resolution
 menu.hint_channellogos_setup Configure global channelogos options
@@ -1210,6 +1242,7 @@ menu.hint_inact_timer Shutdown box after inactivity
 menu.hint_inactive_back Change inactive item background color
 menu.hint_inactive_textcolor Change inactive item text color
 menu.hint_inet_radio Internet radio
+menu.hint_inet_radio_autostart Start play of first entry from favorites automatically
 menu.hint_info Show system informations.
 menu.hint_infobar_back Change infobar background color
 menu.hint_infobar_buttons_usertitle Forces userdefined titles for the color keys
@@ -1277,7 +1310,7 @@ menu.hint_key_save Save keybindings to a file named keys.conf
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
 menu.hint_key_sort Assign button to change channel list sort order
 menu.hint_key_special_active Disable or enable some special keys
-menu.hint_key_standby_add Assign additional button to leave standby mode
+menu.hint_key_standbyoff_add Assign additional button to leave standby mode
 menu.hint_key_subchanneldown Assign button for fast switch\n to previous subchannel
 menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
 menu.hint_key_timeshift Assign button to start timeshift
@@ -1292,6 +1325,14 @@ menu.hint_language OSD language, timezone\nPrefered audio and subtitles language
 menu.hint_last_radio Start box on selected channel\nif last mode is Radio
 menu.hint_last_tv Start box on selected channel\nif last mode is TV
 menu.hint_last_use Start box on last used channel
+menu.hint_lcd4l_clock_a Shows an analog clock instead of a digital clock on display at standby
+menu.hint_lcd4l_convert Convert umlauts for the built-in LCD4Linux font
+menu.hint_lcd4l_display_type Choose type of external display
+menu.hint_lcd4l_display_type_setup Settings for the type of external display
+menu.hint_lcd4l_logodir Logo directory.\nFallback to default on invalid entry.
+menu.hint_lcd4l_skin Switch between styles\nDefault, User defined, etc.
+menu.hint_lcd4l_skin_radio Switch style when Radio-Mode is activated
+menu.hint_lcd4l_support Activate/deactivate LCD4Linux\nSupported displays: Pearl DPF, Samsung SPF, VU+SOLO4K, PNG
 menu.hint_leds_blink Blinking LEDs in deep-standby
 menu.hint_leds_deepstandby LEDs state in deep-standby mode
 menu.hint_leds_record LEDs state when box recording
@@ -2239,11 +2280,12 @@ recordingmenu.vcr vcr
 recordingmenu.vtxt_pid record teletext
 recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Recording starts in a few minutes
-remotebox_add add
+remotebox_add Add
 remotebox_channel_na Channel not available on Remote-Box
-remotebox_del delete
+remotebox_del Delete
 remotebox_head Remote-Boxes
-remotebox_mod modify
+remotebox_mod Modify
+remotebox_onoff On/Off
 remotebox_pass Password
 remotebox_port Port
 remotebox_rbaddr Address

@@ -24,93 +24,82 @@ if test "$DEBUG" = "yes"; then
 	AC_DEFINE(DEBUG, 1, [enable debugging code])
 fi
 
-
 # tmdb
 AC_ARG_WITH(tmdb-dev-key,
-	AS_HELP_STRING([--with-tmdb-dev-key=KEY], [API dev key to get data from tmdb data base, required for additional epg informations.]),
+	AS_HELP_STRING([--with-tmdb-dev-key=KEY], [API dev key to get data from tmdb data base, required for additional movie informations]),
 	[TMDB_DEV_KEY="$withval"],
 	[TMDB_DEV_KEY=""])
-AC_DEFINE_UNQUOTED([TMDB_DEV_KEY], ["$TMDB_DEV_KEY"], [API dev key to get data from tmdb data base, required for additional epg informations.])
-
+AC_DEFINE_UNQUOTED([TMDB_DEV_KEY], ["$TMDB_DEV_KEY"], [API dev key to get data from tmdb data base, required for additional movie informations])
 
 AC_ARG_ENABLE([tmdb-key-manage],
-	[AS_HELP_STRING([--enable-tmdb-key-manage], [Enable manage tmdb api dev key via gui for additional epg informations. @<:@default=yes@:>@])],
+	AS_HELP_STRING([--enable-tmdb-key-manage], [Enable manage tmdb api dev key via gui for additional movie informations @<:@default=yes@:>@]),
 	[enable_tmdb_key_manage="$enableval"],
 	[enable_tmdb_key_manage="yes"])
-tmdb_key_manage_val=1
-if test "$enable_tmdb_key_manage" = "no" ; then
-	tmdb_key_manage_val=0
-fi
-AC_DEFINE_UNQUOTED([ENABLE_TMDB_KEY_MANAGE],[$tmdb_key_manage_val],[Enable manage tmdb api dev key via gui for additional epg informations.])
-# end tmdb
 
+if test "$enable_tmdb_key_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_TMDB_KEY_MANAGE], 1, [Enable manage tmdb api dev key via gui for additional movie informations])
+fi
+# tmdb end
 
 # omdb
 AC_ARG_WITH(omdb-api-key,
-	AS_HELP_STRING([--with-omdb-api-key=KEY], [API key to get additional epg data from omdb database at http://www.omdbapi.com, this database gets data from imdb service.]),
+	AS_HELP_STRING([--with-omdb-api-key=KEY], [API key to get additional epg data from omdb database at http://www.omdbapi.com, this database gets data from imdb service]),
 	[OMDB_API_KEY="$withval"],
 	[OMDB_API_KEY=""])
-AC_DEFINE_UNQUOTED([OMDB_API_KEY], ["$OMDB_API_KEY"], [API key to get additional epg data from omdb database at http://www.omdbapi.com, this database gets data from imdb service.])
+AC_DEFINE_UNQUOTED([OMDB_API_KEY], ["$OMDB_API_KEY"], [API key to get additional epg data from omdb database at http://www.omdbapi.com, this database gets data from imdb service])
 
 AC_ARG_ENABLE([omdb-key-manage],
-	[AS_HELP_STRING([--enable-omdb-key-manage], [Enable manage omdb (imdb) api dev key via gui for additional epg informations. @<:@default=yes@:>@])],
+	AS_HELP_STRING([--enable-omdb-key-manage], [Enable manage omdb (imdb) api dev key via gui for additional movie informations @<:@default=yes@:>@]),
 	[enable_omdb_key_manage="$enableval"],
 	[enable_omdb_key_manage="yes"])
-omdb_key_manage_val=1
-if test "$enable_omdb_key_manage" = "no" ; then
-	omdb_key_manage_val=0
-fi
-AC_DEFINE_UNQUOTED([ENABLE_OMDB_KEY_MANAGE],[$omdb_key_manage_val],[Enable manage omdb (imdb) api dev key via gui for additional epg informations.])
-# end omdb
 
+if test "$enable_omdb_key_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_OMDB_KEY_MANAGE], 1, [Enable manage omdb (imdb) api dev key via gui for additional movie informations])
+fi
+# omdb end
 
 # youtube
 AC_ARG_WITH(youtube-dev-key,
-	AS_HELP_STRING([--with-youtube-dev-key=KEY], [API dev key for YouTube streaming.]),
+	AS_HELP_STRING([--with-youtube-dev-key=KEY], [API dev key for YouTube streaming]),
 	[YT_DEV_KEY="$withval"],
 	[YT_DEV_KEY=""])
-AC_DEFINE_UNQUOTED([YT_DEV_KEY], ["$YT_DEV_KEY"], [API dev key for YouTube streaming.])
+AC_DEFINE_UNQUOTED([YT_DEV_KEY], ["$YT_DEV_KEY"], [API dev key for YouTube streaming])
 
 AC_ARG_ENABLE([youtube-key-manage],
-	[AS_HELP_STRING([--enable-youtube-key-manage], [Enable manage youtube dev key via gui for additional epg informations. @<:@default=yes@:>@])],
+	AS_HELP_STRING([--enable-youtube-key-manage], [Enable manage YouTube dev key via gui @<:@default=yes@:>@]),
 	[enable_youtube_key_manage="$enableval"],
 	[enable_youtube_key_manage="yes"])
-youtube_key_manage_val=1
-if test "$enable_youtube_key_manage" = "no" ; then
-	youtube_key_manage_val=0
+
+if test "$enable_youtube_key_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_YOUTUBE_KEY_MANAGE], 1, [Enable manage YouTube dev key via gui])
 fi
-AC_DEFINE_UNQUOTED([ENABLE_YOUTUBE_KEY_MANAGE],[$youtube_key_manage_val], [Enable manage youtube dev key via gui for additional epg informations.])
 
 AC_ARG_ENABLE([youtube-player],
-	[AS_HELP_STRING([--enable-youtube-player], [Enable play and control youtube streams with moviebrowser. @<:@default=yes@:>@])],
+	AS_HELP_STRING([--enable-youtube-player], [Enable play and control youtube streams with moviebrowser @<:@default=yes@:>@]),
 	[enable_youtube_player="$enableval"],
 	[enable_youtube_player="yes"])
-youtube_player_val=1
-if test "$enable_youtube_player" = "no" ; then
-	youtube_player_val=0
-fi
-AC_DEFINE_UNQUOTED([ENABLE_YOUTUBE_PLAYER],[$youtube_player_val], [Enable play and control YouTube streams with moviebrowser.])
-# end youtube
 
+if test "$enable_youtube_player" = "yes" ; then
+	AC_DEFINE([ENABLE_YOUTUBE_PLAYER], 1, [Enable play and control YouTube streams with moviebrowser])
+fi
+# youtube end
 
 # shoutcast
 AC_ARG_WITH(shoutcast-dev-key,
-	AS_HELP_STRING([--with-shoutcast-dev-key=KEY], [API dev key to get stream data lists from ShoutCast service.]),
+	AS_HELP_STRING([--with-shoutcast-dev-key=KEY], [API dev key to get stream data lists from ShoutCast service]),
 	[SHOUTCAST_DEV_KEY="$withval"],
 	[SHOUTCAST_DEV_KEY=""])
-AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_KEY], ["$SHOUTCAST_DEV_KEY"], [API dev key to get stream data lists from ShoutCast service.])
+AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_KEY], ["$SHOUTCAST_DEV_KEY"], [API dev key to get stream data lists from ShoutCast service])
 
 AC_ARG_ENABLE([shoutcast-key-manage],
-	[AS_HELP_STRING([--enable-shoutcast-key-manage], [Enable manage of api dev key to get stream data lists from ShoutCast service via gui. @<:@default=yes@:>@])],
+	AS_HELP_STRING([--enable-shoutcast-key-manage], [Enable manage of api dev key to get stream data lists from ShoutCast service via gui @<:@default=yes@:>@]),
 	[enable_shoutcast_key_manage="$enableval"],
 	[enable_shoutcast_key_manage="yes"])
-shoutcast_key_manage_val=1
-if test "$enable_shoutcast_key_manage" = "no" ; then
-	shoutcast_key_manage_val=0
-fi
-AC_DEFINE_UNQUOTED([ENABLE_SHOUTCAST_KEY_MANAGE],[$shoutcast_key_manage_val], [Enable manage of api dev key to get stream data lists from ShoutCast service via gui.])
-# end shoutcast
 
+if test "$enable_shoutcast_key_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_SHOUTCAST_KEY_MANAGE], 1, [Enable manage of api dev key to get stream data lists from ShoutCast service via gui])
+fi
+# shoutcast end
 
 AC_ARG_WITH(libcoolstream-static-dir,
 	AS_HELP_STRING([--with-libcoolstream-static-dir=PATH], [path for static libcoolstream [[NONE]]]),
@@ -128,10 +117,10 @@ AM_CONDITIONAL(ENABLE_RESCHANGE, test "$enable_reschange" = "yes")
 
 # default theme
 AC_ARG_WITH(default-theme,
-	AS_HELP_STRING([--with-default-theme=THEMENAME], [Default theme for gui. Default it is empty for internal fallback to default colors.]),
+	AS_HELP_STRING([--with-default-theme=THEMENAME], [Default theme for gui @<:@default is empty@:>@]),
 	[default_theme="$withval"],
 	[default_theme=""])
-AC_DEFINE_UNQUOTED([DEFAULT_THEME], ["$default_theme"], [Default theme for gui.])
+AC_DEFINE_UNQUOTED([DEFAULT_THEME], ["$default_theme"], [Default theme for gui])
 
 AC_MSG_CHECKING(target)
 
@@ -268,6 +257,12 @@ TUXBOX_APPS_DIRECTORY_ONE(plugindir_mnt, PLUGINDIR_MNT, mntdir, /mnt, /plugins,
 TUXBOX_APPS_DIRECTORY_ONE(luaplugindir, LUAPLUGINDIR, libdir, /lib, /tuxbox/luaplugins,
 	[--with-luaplugindir=PATH], [where to find Lua plugins])
 
+TUXBOX_APPS_DIRECTORY_ONE(webradiodir, WEBRADIODIR, datadir, /share, /tuxbox/neutrino/webradio,
+	[--with-webradiodir=PATH], [where to find webradio content])
+
+TUXBOX_APPS_DIRECTORY_ONE(webradiodir_var, WEBRADIODIR_VAR, localstatedir, /var, /tuxbox/webradio,
+	[--with-webradiodir_var=PATH], [where to find webradio content in /var])
+
 TUXBOX_APPS_DIRECTORY_ONE(webtvdir, WEBTVDIR, datadir, /share, /tuxbox/neutrino/webtv,
 	[--with-webtvdir=PATH], [where to find webtv content])
 
@@ -292,6 +287,12 @@ TUXBOX_APPS_DIRECTORY_ONE(iconsdir, ICONSDIR, datadir, /share, /tuxbox/neutrino/
 TUXBOX_APPS_DIRECTORY_ONE(iconsdir_var, ICONSDIR_VAR, localstatedir, /var, /tuxbox/icons,
 	[--with-iconsdir_var=PATH], [where to find icons in /var])
 
+TUXBOX_APPS_DIRECTORY_ONE(lcd4liconsdir, LCD4L_ICONSDIR, datadir, /share, /tuxbox/neutrino/lcd/icons,
+	[--with-lcd4liconsdir=PATH], [where to find lcd4linux icons])
+
+TUXBOX_APPS_DIRECTORY_ONE(lcd4liconsdir_var, LCD4L_ICONSDIR_VAR, localstatedir, /var, /tuxbox/lcd/icons,
+	[--with-lcd4liconsdir_var=PATH], [where to find lcd4linux icons in /var])
+
 TUXBOX_APPS_DIRECTORY_ONE(private_httpddir, PRIVATE_HTTPDDIR, datadir, /share, /tuxbox/neutrino/httpd,
 	[--with-private_httpddir=PATH], [where to find private httpd files])
 
@@ -314,6 +315,8 @@ AC_SUBST(PLUGINDIR)
 AC_SUBST(PLUGINDIR_VAR)
 AC_SUBST(PLUGINDIR_MNT)
 AC_SUBST(LUAPLUGINDIR)
+AC_SUBST(WEBRADIODIR)
+AC_SUBST(WEBRADIODIR_VAR)
 AC_SUBST(WEBTVDIR)
 AC_SUBST(WEBTVDIR_VAR)
 AC_SUBST(LOCALEDIR)
@@ -322,6 +325,8 @@ AC_SUBST(THEMESDIR)
 AC_SUBST(THEMESDIR_VAR)
 AC_SUBST(ICONSDIR)
 AC_SUBST(ICONSDIR_VAR)
+AC_SUBST(LCD4L_ICONSDIR)
+AC_SUBST(LCD4L_ICONSDIR_VAR)
 AC_SUBST(PRIVATE_HTTPDDIR)
 AC_SUBST(PUBLIC_HTTPDDIR)
 AC_SUBST(HOSTED_HTTPDDIR)
@@ -459,15 +464,7 @@ AC_ARG_WITH(boxtype,
 			BOXTYPE="duckbox"
 			BOXMODEL="$withval"
 		;;
-		vusolo4k)
-			BOXTYPE="armbox"
-			BOXMODEL="$withval"
-		;;
-		hd51)
-			BOXTYPE="armbox"
-			BOXMODEL="$withval"
-		;;
-		hd60)
+		hd51|hd60|bre2ze4k|vusolo4k)
 			BOXTYPE="armbox"
 			BOXMODEL="$withval"
 		;;
@@ -481,7 +478,7 @@ AC_ARG_WITH(boxmodel,
 	AS_HELP_STRING([--with-boxmodel], [valid for coolstream: hd1, hd2])
 AS_HELP_STRING([], [valid for duckbox: ufs910, ufs912, ufs913, ufs922, atevio7500, fortis_hdbox, octagon1008, hs7110, hs7810a, hs7119, hs7819, dp7000, cuberevo, cuberevo_mini, cuberevo_mini2, cuberevo_250hd, cuberevo_2000hd, cuberevo_3000hd, ipbox9900, ipbox99, ipbox55, arivalink200, tf7700, hl101])
 AS_HELP_STRING([], [valid for spark: spark, spark7162])
-AS_HELP_STRING([], [valid for armbox: hd51, hd60, vusolo4k])
+AS_HELP_STRING([], [valid for armbox: hd51, hd60, vusolo4k, bre2ze4k])
 AS_HELP_STRING([], [valid for generic: raspi]),
 	[case "${withval}" in
 		hd1|hd2)
@@ -517,21 +514,7 @@ AS_HELP_STRING([], [valid for generic: raspi]),
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
 		;;
-		vusolo4k)
-			if test "$BOXTYPE" = "armbox"; then
-				BOXMODEL="$withval"
-			else
-				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
-			fi
-		;;
-		hd51)
-			if test "$BOXTYPE" = "armbox"; then
-				BOXMODEL="$withval"
-			else
-				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
-			fi
-		;;
-		hd60)
+		hd51|hd60|bre2ze4k|vusolo4k)
 			if test "$BOXTYPE" = "armbox"; then
 				BOXMODEL="$withval"
 			else
@@ -595,6 +578,7 @@ AM_CONDITIONAL(BOXMODEL_HL101, test "$BOXMODEL" = "hl101")
 AM_CONDITIONAL(BOXMODEL_HD51, test "$BOXMODEL" = "hd51")
 AM_CONDITIONAL(BOXMODEL_HD60, test "$BOXMODEL" = "hd60")
 AM_CONDITIONAL(BOXMODEL_VUSOLO4K, test "$BOXMODEL" = "vusolo4k")
+AM_CONDITIONAL(BOXMODEL_BRE2ZE4K, test "$BOXMODEL" = "bre2ze4k")
 
 AM_CONDITIONAL(BOXMODEL_RASPI, test "$BOXMODEL" = "raspi")
 
@@ -682,6 +666,9 @@ elif test "$BOXMODEL" = "hd60"; then
 	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
 elif test "$BOXMODEL" = "vusolo4k"; then
 	AC_DEFINE(BOXMODEL_VUSOLO4K, 1, [vusolo4k])
+	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
+elif test "$BOXMODEL" = "bre2ze4k"; then
+	AC_DEFINE(BOXMODEL_BRE2ZE4K, 1, [bre2ze4k])
 	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
 elif test "$BOXMODEL" = "raspi"; then
 	AC_DEFINE(BOXMODEL_RASPI, 1, [raspberry pi])

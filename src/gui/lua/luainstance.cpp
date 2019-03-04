@@ -36,12 +36,8 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <driver/fontrenderer.h>
 #include <neutrino.h>
-#if HAVE_COOL_HARDWARE
-#include <video_cs.h>
-#endif
-#if USE_STB_HAL
-#include <video_hal.h>
-#endif
+
+#include <hardware/video.h>
 
 #include "luainstance.h"
 #include "lua_cc_header.h"
@@ -274,7 +270,7 @@ static void set_lua_variables(lua_State *L)
 		{ "TOP_RIGHT",		CORNER_TOP_RIGHT },
 		{ "BOTTOM_LEFT",	CORNER_BOTTOM_LEFT },
 		{ "BOTTOM_RIGHT",	CORNER_BOTTOM_RIGHT },
-		{ "RADIUS_LARGE",	RADIUS_LARGE },	/* those depend on g_settings.rounded_corners */
+		{ "RADIUS_LARGE",	RADIUS_LARGE },	/* those depend on g_settings.theme.rounded_corners */
 		{ "RADIUS_MID",		RADIUS_MID },
 		{ "RADIUS_SMALL",	RADIUS_SMALL },
 		{ "RADIUS_MIN",		RADIUS_MIN },

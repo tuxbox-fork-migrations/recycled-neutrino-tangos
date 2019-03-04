@@ -74,7 +74,7 @@
 #include <zapit/femanager.h>
 #include <zapit/zapit.h>
 #include <eitd/sectionsd.h>
-#include <video.h>
+#include <hardware/video.h>
 
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
@@ -974,7 +974,7 @@ bool CInfoViewer::showLivestreamInfo()
 					tmp2 = "25fps";
 					break;
 				case 3:
-					tmp2 = "29,976fps";
+					tmp2 = "29,97fps";
 					break;
 				case 4:
 					tmp2 = "30fps";
@@ -983,7 +983,7 @@ bool CInfoViewer::showLivestreamInfo()
 					tmp2 = "50fps";
 					break;
 				case 6:
-					tmp2 = "50,94fps";
+					tmp2 = "59,94fps";
 					break;
 				case 7:
 					tmp2 = "60fps";
@@ -1004,7 +1004,7 @@ bool CInfoViewer::showLivestreamInfo()
 			std::string title = "";
 			std::vector<std::string> keys, values;
 			cPlayback *playback = CMoviePlayerGui::getInstance().getPlayback();
-			if (playback)
+			if (playback && playback->IsPlaying())
 				playback->GetMetadata(keys, values);
 			size_t count = keys.size();
 			if (count > 0)
@@ -1653,7 +1653,10 @@ void CInfoViewer::showSNR ()
 				polarisation = transponder::pol(CFEManager::getInstance()->getLiveFE()->getPolarization());
 
 			int frequency = CFEManager::getInstance()->getLiveFE()->getFrequency();
-			snprintf (freq, sizeof(freq), "%d.%d MHz %s", frequency / 1000, frequency % 1000, polarisation.c_str());
+			int freqfactor = 1000;
+			if (CFrontend::isTerr(CFEManager::getInstance()->getLiveFE()->getCurrentDeliverySystem()))
+				freqfactor = 1000000;
+			snprintf (freq, sizeof(freq), "%d.%d MHz %s", frequency / freqfactor, frequency % freqfactor, polarisation.c_str());
 
 			int freqWidth = g_SignalFont->getRenderWidth(freq);
 			if (freqWidth > numbox_maxtxtwidth)
@@ -1803,16 +1806,17 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			txt_curr_start->setText(runningStart, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
 			txt_curr_start->paint(CC_SAVE_SCREEN_YES);
 		}
-	}
-	// we have always runningRest, except it is NULL
-	if (runningRest)
-	{
-		if (txt_curr_rest == NULL)
-			txt_curr_rest = new CComponentsTextTransp(NULL, currTimeX, CurrInfoY - height, currTimeW, height);
-		else {
-			if (txt_curr_rest->isPainted())
-				txt_curr_rest->kill();
-			txt_curr_rest->setDimensionsAll(currTimeX, CurrInfoY - height, currTimeW, height);
+
+		if (runningRest){
+			if (txt_curr_rest == NULL)
+				txt_curr_rest = new CComponentsTextTransp(NULL, currTimeX, CurrInfoY - height, currTimeW, height);
+			else {
+				if (txt_curr_rest->isPainted())
+					txt_curr_rest->kill();
+				txt_curr_rest->setDimensionsAll(currTimeX, CurrInfoY - height, currTimeW, height);
+			}
+			txt_curr_rest->setText(runningRest, CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
+			txt_curr_rest->paint(CC_SAVE_SCREEN_YES);
 		}
 		txt_curr_rest->setItemName("txt_curr_rest");
 		txt_curr_rest->setText(runningRest, CTextBox::RIGHT, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT);
@@ -2155,7 +2159,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 	int start_x = ChanNameX;
 	int chan_w = BoxEndX - (start_x + 2*OFFSET_INNER_MID) - time_width - OFFSET_INNER_MID;
 
-	bool logo_available = g_PicViewer->GetLogoName(logo_channel_id, ChannelName, strAbsIconPath, &logo_w, &logo_h);
+	bool logo_available = g_PicViewer->GetLogoName(logo_channel_id, ChannelName, strAbsIconPath, &logo_w, &logo_h, false, true);
 
 	//fprintf(stderr, "%s: logo_available: %d file: %s\n", __FUNCTION__, logo_available, strAbsIconPath.c_str());
 

@@ -26,12 +26,11 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <stdio.h>    /* printf       */
 #include <sys/time.h> /* gettimeofday */
-#include <map>
-#include <pthread.h>
 #include <inttypes.h>
 class CPictureViewer
 {
@@ -68,7 +67,7 @@ class CPictureViewer
 	static double m_aspect_ratio_correction;
 	bool DisplayImage (const std::string & name, int posx, int posy, int width, int height, int transp=0 /*CFrameBuffer::TM_EMPTY*/);
 // 	bool DisplayLogo (uint64_t channel_id, int posx, int posy, int width, int height);
-	bool GetLogoName(const uint64_t& channel_id, const std::string& ChanName, std::string & name, int *width = NULL, int *height = NULL);
+	bool GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width = NULL, int *height = NULL, bool lcd4l_mode = false, bool enable_event_logo = false);
 	fb_pixel_t * getImage (const std::string & name, int width, int height);
 	fb_pixel_t * getIcon (const std::string & name, int *width, int *height);
 	void getSize(const char *name, int* width, int *height);
@@ -109,15 +108,6 @@ class CPictureViewer
 	int m_endx;
 	int m_endy;
 	
-	std::string logo_hdd_dir;
-	struct logo_data {
-		std::string name;
-		int width;
-		int height;
-	};
-	std::map<uint64_t, logo_data> logo_map;
-	pthread_mutex_t logo_map_mutex;
-
 	CFormathandler * fh_getsize(const char *name,int *x,int *y, int width_wanted, int height_wanted);
 	void init_handlers(void);
 	void add_format(int (*picsize)(const char *,int *,int*,int,int),int (*picread)(const char *,unsigned char **,int*,int*), int (*id)(const char*));

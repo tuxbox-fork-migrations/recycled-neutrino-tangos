@@ -54,23 +54,19 @@
 #include <zapit/zapit.h>
 #include <xmlinterface.h>
 
-#include <ca_cs.h>
-
 #include <zapit/satconfig.h>
 #include <zapit/femanager.h>
-#include <dmx.h>
+
 #if HAVE_COOL_HARDWARE
 #include <record_cs.h>
 #include <playback_cs.h>
 #include <pwrmngr.h>
-#include <audio_cs.h>
-#include <video_cs.h>
-#include <ca_cs.h>
 #endif
-#if USE_STB_HAL
-#include <video_hal.h>
-#include <audio_hal.h>
-#endif
+
+#include <hardware/audio.h>
+#include <hardware/ca.h>
+#include <hardware/dmx.h>
+#include <hardware/video.h>
 
 #include <driver/abstime.h>
 #include <driver/rcinput.h>
@@ -2269,7 +2265,7 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 		audioDemux->pesFilter(audio_pid);
 	if (video_pid)
 		videoDemux->pesFilter(video_pid);
-	audioDecoder->SetSyncMode(AVSYNC_ENABLED);
+//	audioDecoder->SetSyncMode(AVSYNC_ENABLED);
 
 #if 0 //FIXME hack ?
 	if(thisChannel->getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) {
@@ -2348,13 +2344,14 @@ bool CZapit::StopPlayBack(bool send_pmt, bool blank)
 	audioDemux->Stop();
 	audioDecoder->Stop();
 #else
+	videoDecoder->Stop(false);
 	videoDemux->Stop();
 	audioDemux->Stop();
 	pcrDemux->Stop();
 	audioDecoder->Stop();
 
 	/* hack. if standby, dont blank video -> for paused timeshift */
-	videoDecoder->Stop(standby ? false : blank);
+	//videoDecoder->Stop(standby ? false : blank);
 #endif
 #ifdef USE_VBI
 	videoDecoder->StopVBI();

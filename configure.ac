@@ -1,6 +1,6 @@
 define(ver_major, 3)
-define(ver_minor, 7)
-define(ver_micro, 1)
+define(ver_minor, 8)
+define(ver_micro, 0)
 
 AC_INIT(Neutrino-MP, ver_major.ver_minor.ver_micro)
 AM_INIT_AUTOMAKE([nostdinc foreign])
@@ -162,6 +162,15 @@ AC_ARG_ENABLE(graphlcd,
 AM_CONDITIONAL(ENABLE_GRAPHLCD, test "$enable_graphlcd" = "yes")
 if test "$enable_graphlcd" = "yes"; then
 	AC_DEFINE(ENABLE_GRAPHLCD, 1, [include GraphLCD support])
+fi
+
+AC_ARG_ENABLE(lcd4linux,
+	AS_HELP_STRING([--enable-lcd4linux], [enable Lcd4Linux support]),
+	,[enable_lcd4linux=no])
+
+AM_CONDITIONAL(ENABLE_LCD4LINUX, test "$enable_lcd4linux" = "yes")
+if test "$enable_lcd4linux" = "yes"; then
+	AC_DEFINE(ENABLE_LCD4LINUX, 1, [include Lcd4Linux support])
 fi
 
 AC_ARG_ENABLE(keyboard-no-rc,
@@ -372,6 +381,7 @@ data/neutrino-scripts/Makefile
 data/pictures/Makefile
 data/pictures/backgrounds/Makefile
 data/pictures/screensaver/Makefile
+data/policy/Makefile
 data/scripts/Makefile
 data/themes/Makefile
 data/themes/TangoCash-Skin1/Makefile
@@ -385,6 +395,8 @@ data/themes/Neutrino-3.0/icons/buttons/Makefile
 data/themes/Olive-3.0/Makefile
 data/themes/Olive-3.0/icons/Makefile
 data/themes/Olive-3.0/icons/buttons/Makefile
+data/webradio/Makefile
+data/webtv/Makefile
 data/y-web/Makefile
 data/y-web/images/Makefile
 data/y-web/languages/Makefile

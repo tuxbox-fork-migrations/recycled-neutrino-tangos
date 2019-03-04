@@ -88,6 +88,11 @@
 
 #include <semaphore.h>
 
+#ifdef ENABLE_LCD4LINUX
+#include "driver/lcd4l.h"
+extern CLCD4l *LCD4l;
+#endif
+
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 extern CBouquetList   * AllFavBouquetList;
@@ -175,6 +180,14 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 	CChannelEventList events;
 	if (displayNext) {
 		time_t atime = time(NULL);
+		if (g_settings.channellist_primetime && primetime)
+		{
+			struct tm * timeinfo;
+			timeinfo = localtime (&atime);
+			timeinfo->tm_hour = 20;
+			timeinfo->tm_min = 0;
+			atime = mktime(timeinfo);
+		}
 		unsigned int count;
 		for (count = from; count < to; count++) {
 			CEitManager::getInstance()->getEventsServiceKey((*chanlist)[count]->getEpgID(), events);
@@ -470,6 +483,7 @@ int CChannelList::exec()
 {
 	displayNext = 0; // always start with current events
 	displayList = 1; // always start with event list
+	primetime  = 0;
 	int nNewChannel = show();
 	if ( nNewChannel > -1 && nNewChannel < (int) (*chanlist).size()) {
 		if(this->historyMode && (*chanlist)[nNewChannel]) {
@@ -868,7 +882,15 @@ int CChannelList::show()
 				if (g_settings.channellist_additional)
 					displayList = !displayList;
 				else
-					displayNext = !displayNext;
+				{
+					if (primetime && displayNext)
+						primetime = 0;
+					else
+					{
+						primetime = 0;
+						displayNext = !displayNext;
+					}
+				}
 
 				paint();
 			}
@@ -887,6 +909,18 @@ int CChannelList::show()
 					CNeutrinoApp::getInstance()->SetChannelMode(mode);
 					oldselected = selected;
 					paint();
+				} else {
+					if (g_settings.channellist_primetime)
+					{
+						if (displayNext && !primetime)
+							primetime = 1;
+						else
+						{
+							primetime = 1;
+							displayNext = !displayNext;
+						}
+						paint();
+					}
 				}
 			}
 		}
@@ -942,6 +976,10 @@ int CChannelList::show()
 		cancelMoveChannel();
 	if (edit_state)
 		editMode(false);
+
+#ifdef ENABLE_LCD4LINUX
+	LCD4l->RemoveFile("/tmp/lcd/menu");
+#endif
 
 	if(!dont_hide){
 		if (new_zap_mode && (g_settings.channellist_new_zap_mode != new_zap_mode))
@@ -1229,7 +1267,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 	}
 	if(new_zap_mode != 2 /* not active */) {
 		/* remove recordModeActive from infobar */
-		if(g_settings.auto_timeshift && !CNeutrinoApp::getInstance()->recordingstatus)
+		if(g_settings.timeshift_auto && !CNeutrinoApp::getInstance()->recordingstatus)
 			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 0);
 
 		g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
@@ -1846,7 +1884,17 @@ void CChannelList::paintButtonBar(bool is_current)
 						break;
 				}
 			} else
-				continue;
+			{
+				if (g_settings.channellist_primetime)
+				{
+					if (displayNext && primetime)
+						Button[bcnt].locale = LOCALE_INFOVIEWER_NOW;
+					else
+						Button[bcnt].locale = LOCALE_CHANNELLIST_PRIMETIME;
+				}
+				else
+					continue;
+			}
 		}
 		if (i == 3) {
 			//manage now/next button
@@ -1856,7 +1904,7 @@ void CChannelList::paintButtonBar(bool is_current)
 				else
 					Button[bcnt].locale = LOCALE_FONTMENU_EVENTLIST;
 			} else {
-				if (displayNext)
+				if (displayNext && !primetime)
 					Button[bcnt].locale = LOCALE_INFOVIEWER_NOW;
 				else
 					Button[bcnt].locale = LOCALE_INFOVIEWER_NEXT;
@@ -2194,9 +2242,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			//name
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, ch_name_len, nameAndDescription, color);
 		}
-		if (!firstpaint && curr == selected) {
+		if (!firstpaint && curr == selected)
 			updateVfd();
-	}
 	}
 }
 
@@ -2223,6 +2270,11 @@ void CChannelList::updateVfd()
 #endif
 	if (chan)
 		CVFD::getInstance()->showMenuText(0, chan->getName().c_str(), -1, true); // UTF-8
+
+#ifdef ENABLE_LCD4LINUX
+	if (g_settings.lcd4l_support)
+		LCD4l->CreateFile("/tmp/lcd/menu", chan->getName().c_str(), g_settings.lcd4l_convert);
+#endif
 }
 
 void CChannelList::paint()
@@ -2257,7 +2309,7 @@ void CChannelList::paintHead()
 	    (bouquet->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked))
 		header->setIcon(NEUTRINO_ICON_LOCK);
 	else
-		header->setIcon(NULL);
+		header->setIcon(edit_state ? NEUTRINO_ICON_EDIT : NULL);
 
 	std::string header_txt 		= !edit_state ? name : std::string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name;
 	fb_pixel_t header_txt_col 	= (edit_state ? COL_RED : COL_MENUHEAD_TEXT);
@@ -2330,7 +2382,8 @@ void CChannelList::paintBody()
 	if (g_settings.channellist_additional)
 	{
 		// disable displayNext
-		displayNext = false;
+		if (!g_settings.channellist_primetime)
+			displayNext = false;
 		// paint background for right box
 		frameBuffer->paintBoxRel(x+width,y+theight+pig_height,infozone_width,infozone_height,COL_MENUCONTENT_PLUS_0);
 	}
@@ -2553,7 +2606,7 @@ void CChannelList::paint_events(CChannelEventList &evtlist)
 		}
 		i++;
 	}
-	if(	channelsPainted)
+	if(channelsPainted)
 		frameBuffer->blit();
 }
 
@@ -2584,6 +2637,8 @@ void CChannelList::showdescription(int index)
 	ffheight = g_Font[eventFont]->getHeight();
 	CZapitChannel* chan = (*chanlist)[index];
 	CChannelEvent *p_event = &chan->currentEvent;
+	if (displayNext && primetime)
+		p_event = &chan->nextEvent;
 	epgData.info1.clear();
 	epgData.info2.clear();
 	epgText.clear();
