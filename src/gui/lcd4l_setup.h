@@ -4,7 +4,7 @@
 	Copyright (C) 2012 'defans'
 	Homepage: http://www.bluepeercrew.us/
 
-	Copyright (C) 2012-2016 'vanhofen'
+	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
 	Modded    (C) 2016 'TangoCash'
@@ -36,16 +36,20 @@
 class CLCD4lSetup : public CMenuTarget, CChangeObserver
 {
 	private:
-		CMenuOptionChooser *mc;
-		CMenuForwarder * mf;
+		bool lcd4l_display_type_changed;
+		int temp_lcd4l_display_type;
+		int temp_lcd4l_skin;
+		int temp_lcd4l_brightness;
 
 		int width;
 		int show();
+		int showTypeSetup();
 
 	public:
+		static CLCD4lSetup* getInstance();
 		CLCD4lSetup();
 		~CLCD4lSetup();
-		int exec(CMenuTarget* parent, const std::string &actionkey);
+		int exec(CMenuTarget *parent, const std::string &actionkey);
 		virtual bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 };
 

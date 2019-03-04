@@ -38,6 +38,7 @@
 #include "widget/menue.h"
 #include <gui/components/cc.h>
 #include <string>
+#include <hardware/ca.h>
 
 class CFrameBuffer;
 class CInfoViewerBB

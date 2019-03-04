@@ -53,6 +53,7 @@
 #define TVG_INFO_NAME_MARKER    "tvg-name="
 #define TVG_INFO_LOGO_MARKER    "tvg-logo="
 #define TVG_INFO_SHIFT_MARKER   "tvg-shift="
+#define GROUP_PREFIX_MARKER     "group-prefix="
 #define GROUP_NAME_MARKER       "group-title="
 
 extern CBouquetManager *g_bouquetManager;
@@ -427,7 +428,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			const char* useci = xmlGetAttribute(search, "ci");
 			newBouquet->bHidden = hidden ? (strcmp(hidden, "1") == 0) : false;
 			newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
-			newBouquet->bFav = (strcmp(name, DEFAULT_BQ_NAME_FAV) == 0);
+			newBouquet->bFav = (strcasecmp(name, DEFAULT_BQ_NAME_FAV) == 0);
 			if (newBouquet->bFav)
 				newBouquet->bName = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
 			else
@@ -765,6 +766,8 @@ int CBouquetManager::existsUBouquet(char const * const name, bool myfav)
 			if (Bouquets[i]->bFav)
 				return (int)i;
 		}
+		else if (Bouquets[i]->bUser && (Bouquets[i]->Name == name))
+			return (int)i;
 		else if (Bouquets[i]->bUser && (Bouquets[i]->bName == name))
 			return (int)i;
 	}
@@ -874,27 +877,29 @@ void CBouquetManager::loadWebchannels(int mode)
 		std::string tmp_name = randomFile(extension, LOGODIR_TMP);
 		bool remove_tmp = false;
 
-		if (filename.compare(0,1,"/") == 0)
+		if (filename.compare(0, 1, "/") == 0)
 			tmp_name = filename;
-		else {
-			if (::downloadUrl(filename,tmp_name))
-				remove_tmp = true;}
+		else
+		{
+			if (::downloadUrl(filename, tmp_name))
+				remove_tmp = true;
+		}
 
 		if (!access(tmp_name.c_str(), R_OK))
 		{
 			INFO("Loading %s from %s ...", (mode == MODE_WEBTV) ? "webtv" : "webradio", filename.c_str());
 
 			// check for extension
-			bool e2tv = false;
 			bool xml = false;
 			bool m3u = false;
+			bool e2tv = false;
 
-			if( strcasecmp("tv", extension.c_str()) == 0)
-				e2tv = true;
-			if( strcasecmp("m3u", extension.c_str()) == 0)
-				m3u = true;
-			if( strcasecmp("xml", extension.c_str()) == 0)
+			if (strcasecmp("xml", extension.c_str()) == 0)
 				xml = true;
+			if (strcasecmp("m3u", extension.c_str()) == 0)
+				m3u = true;
+			if (strcasecmp("tv", extension.c_str()) == 0)
+				e2tv = true;
 
 			if (xml)
 			{
@@ -911,13 +916,11 @@ void CBouquetManager::loadWebchannels(int mode)
 					if (!prov)
 						prov = (mode == MODE_WEBTV) ? "WebTV" : "WebRadio";
 					pbouquet = addBouquetIfNotExist(prov);
-					if (mode == MODE_WEBTV) {
+					if (mode == MODE_WEBTV)
 						pbouquet->bWebtv = true;
-					}
 					else
-					{
 						pbouquet->bWebradio = true;
-					}
+
 					while ((xmlGetNextOccurence(l1, (mode == MODE_WEBTV) ? "webtv" : "webradio")))
 					{
 						const char *title = xmlGetAttribute(l1, "title");
@@ -929,7 +932,6 @@ void CBouquetManager::loadWebchannels(int mode)
 						t_channel_id epg_id = 0;
 						if (epgid)
 						{
-							//NI
 							if (strcmp(epgid, "auto") == 0 && title)
 							{
 								CZapitChannel * channel = CServiceManager::getInstance()->FindChannelByPattern(title);
@@ -939,12 +941,11 @@ void CBouquetManager::loadWebchannels(int mode)
 									INFO("* auto epg_id found for %s: " PRINTF_CHANNEL_ID_TYPE "\n", title, epg_id);
 								}
 							}
-						else
+							else
 							epg_id = strtoull(epgid, NULL, 16);
 						}
 
 						CZapitBouquet* gbouquet = pbouquet;
-
 						if (genre)
 						{
 							std::string bname = prov ? std::string(std::string(prov) + " ") + genre : genre;
@@ -963,17 +964,19 @@ void CBouquetManager::loadWebchannels(int mode)
 							if (gbouquet)
 								gbouquet->addService(channel);
 						}
-					l1 = xmlNextNode(l1);
+
+						l1 = xmlNextNode(l1);
 					}
 				}
 				xmlFreeDoc(parser);
 			}
-			else if(m3u)
+			else if (m3u)
 			{
 				std::ifstream infile;
 				char cLine[1024];
 				std::string desc = "";
 				std::string title = "";
+				std::string prefix = "";
 				std::string group = "";
 				std::string epgid = "";
 				std::string alogo = "";
@@ -1000,6 +1003,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						int iColon = (int)strLine.find_first_of(':');
 						int iComma = (int)strLine.find_last_of(',');
 						title = "";
+						prefix = "";
 						group = "";
 						desc = "";
 						alogo = "";
@@ -1011,6 +1015,7 @@ void CBouquetManager::loadWebchannels(int mode)
 							title = strLine.substr(iComma);
 							std::string strInfoLine = strLine.substr(iColon, --iComma - iColon);
 							desc = ReadMarkerValue(strInfoLine, TVG_INFO_NAME_MARKER);
+							prefix = ReadMarkerValue(strInfoLine, GROUP_PREFIX_MARKER);
 							group = ReadMarkerValue(strInfoLine, GROUP_NAME_MARKER);
 							epgid = ReadMarkerValue(strInfoLine, TVG_INFO_ID_MARKER);
 							alogo = ReadMarkerValue(strInfoLine, TVG_INFO_LOGO_MARKER);
@@ -1023,7 +1028,6 @@ void CBouquetManager::loadWebchannels(int mode)
 							pbouquet->bWebradio = true;
 
 					}
-
 					else if (strLine[0] != '#')
 					{
 						char *url = NULL;
@@ -1037,8 +1041,10 @@ void CBouquetManager::loadWebchannels(int mode)
 								CZapitBouquet* gbouquet = pbouquet;
 								if (!group.empty())
 								{
-									std::string bname = (mode == MODE_WEBTV) ? "[WebTV] " : "[WebRadio] ";
-									bname += group;
+									std::string bname = prefix;
+									if (bname.compare("") == 0)
+										bname = (mode == MODE_WEBTV) ? "WebTV" : "WebRadio";
+									bname += ": " + group;
 									gbouquet = addBouquetIfNotExist(bname);
 									if (mode == MODE_WEBTV)
 										gbouquet->bWebtv = true;
@@ -1139,11 +1145,9 @@ void CBouquetManager::loadWebchannels(int mode)
 
 						}
 					}
-
 					fclose(f);
 				}
 			}
-
 		}
 		if (remove_tmp)
 			remove(tmp_name.c_str());
@@ -1298,7 +1302,8 @@ void CBouquetManager::readEPGMapping()
 		if(epgmap)
 			epgmap = xmlChildrenNode(epgmap);
 
-		while (epgmap) {
+		while (epgmap)
+		{
 			const char *channelid = xmlGetAttribute(epgmap, "channel_id");
 			const char *epgid = xmlGetAttribute(epgmap, "new_epg_id");
 			const char *xmlepg = xmlGetData(epgmap); // returns empty string, not NULL if nothing found

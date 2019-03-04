@@ -50,7 +50,7 @@ extern CPictureViewer *g_PicViewer;
 // nhttpd
 #include "neutrinoapi.h"
 #include "controlapi.h"
-#include <video.h>
+#include <hardware/video.h>
 #include <zapit/femanager.h>
 
 extern cVideo * videoDecoder;
@@ -888,11 +888,15 @@ unsigned int revert_translate(unsigned int code)
 {
 	switch(code)
 	{
+		case RC_home:
+			return KEY_EXIT;
 		case RC_page_up:
 			return KEY_CHANNELUP;
 		case RC_page_down:
 			return KEY_CHANNELDOWN;
 #ifdef HAVE_ARM_HARDWARE
+		case RC_mode:
+			return KEY_SWITCHVIDEOMODE;
 		case RC_play:
 		case RC_pause:
 			return KEY_PLAYPAUSE;
@@ -3298,6 +3302,10 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 	else
 		host = "http://" + hh->HeaderList["Host"];
 
+	// get hostname
+	char hostname[HOST_NAME_MAX];
+	gethostname(hostname, HOST_NAME_MAX);
+
 	// build url
 	std::string url = host;
 	/* strip off optional custom port */
@@ -3327,6 +3335,7 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 					result += " tvg-logo=\"" + host + NeutrinoAPI->getLogoFile(channel->getChannelID()) + "\"";
 				else
 					result += " tvg-logo=\"\"";
+				result += " group-prefix=\"" + std::string(hostname) + "\"";
 				result += " group-title=\"" + bouq_name + "\",";
 				result += channel->getName() + "\n";
 				result += url + string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID()) + "\n";

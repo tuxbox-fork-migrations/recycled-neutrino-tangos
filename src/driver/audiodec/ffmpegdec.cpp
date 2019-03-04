@@ -36,7 +36,7 @@
 
 #include <global.h>
 #include <driver/audioplay.h>
-#include <zapit/include/audio.h>
+#include <hardware/audio.h>
 #include <eitd/edvbstring.h> // UTF8
 #include "ffmpegdec.h"
 
@@ -52,7 +52,9 @@ extern "C" {
 #define av_frame_free	avcodec_free_frame
 #endif
 
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57, 8, 0 ))
+#if (LIBAVCODEC_VERSION_MAJOR > 55)
+#define	av_free_packet av_packet_unref
+#else
 #define av_packet_unref	av_free_packet
 #endif
 
@@ -71,20 +73,21 @@ static OpenThreads::Mutex mutex;
 
 static int cover_count = 0;
 
-static void log_callback(void *, int, const char *format, va_list ap)
+static void __attribute__ ((unused)) log_callback(void *, int, const char *format, va_list ap)
 {
 	vfprintf(stderr, format, ap);
 }
 
 CFfmpegDec::CFfmpegDec(void)
 {
-	av_log_set_callback(log_callback);
 	meta_data_valid = false;
 	buffer_size = 0x1000;
 	buffer = NULL;
 	avc = NULL;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
 	avcodec_register_all();
 	av_register_all();
+#endif
 }
 
 CFfmpegDec::~CFfmpegDec(void)
@@ -128,7 +131,12 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 	bitrate = 0;
 
 #ifdef FFDEC_DEBUG
+	av_log_set_flags(AV_LOG_SKIP_REPEATED);
 	av_log_set_level(AV_LOG_DEBUG);
+	av_log_set_callback(log_callback);
+#else
+	av_log_set_flags(AV_LOG_SKIP_REPEATED);
+	av_log_set_level(AV_LOG_INFO);
 #endif
 
 	AVIOContext *avioc = NULL;
@@ -184,7 +192,11 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 		char buf[200]; av_strerror(r, buf, sizeof(buf));
 		fprintf(stderr, "%d %s %d: %s\n", __LINE__, __func__,r,buf);
 		if (avioc)
-			av_freep(avioc);
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100))
+			av_free(avioc);
+#else
+			avio_context_free(&avioc);
+#endif
 		if (avc) {
 			avformat_close_input(&avc);
 			avformat_free_context(avc);
@@ -198,15 +210,16 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 void CFfmpegDec::DeInit(void)
 {
 	if (avc) {
-		avformat_close_input(&avc);
-#if 0
-		av_freep(&avc->pb);
+		if (avc->pb)
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100))
+			av_free(avc->pb);
+#else
+			avio_context_free(&avc->pb);
 #endif
+		avformat_close_input(&avc);
 		avformat_free_context(avc);
 		avc = NULL;
 	}
-//	if (buffer)
-//		av_freep(&buffer);
 	in = NULL;
 }
 
@@ -401,7 +414,11 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 					fprintf(stderr,"%s: PCM write error (%s).\n", ProgName, strerror(errno));
 					Status=WRITE_ERR;
 				}
+#if (LIBAVUTIL_VERSION_MAJOR < 54)
 				pts = av_frame_get_best_effort_timestamp(frame);
+#else
+				pts = frame->best_effort_timestamp;
+#endif
 				if (!start_pts)
 					start_pts = pts;
 			}

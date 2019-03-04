@@ -171,6 +171,8 @@ struct SNeutrinoTheme
 	unsigned char progressbar_passive_red;
 	unsigned char progressbar_passive_green;
 	unsigned char progressbar_passive_blue;
+
+	int rounded_corners;
 };
 
 struct SNeutrinoSkin
@@ -231,6 +233,7 @@ struct timer_remotebox_item
 		std::string pass;
 		std::string rbname;
 		std::string rbaddress;
+		bool enabled;
 		bool online;
 };
 
@@ -351,13 +354,14 @@ struct SNeutrinoSettings
 	int show_empty_favorites;
 	int avsync;
 	int clockrec;
-	int rounded_corners;
 	int ci_standby_reset;
 	int ci_clock;
 	int ci_ignore_messages;
 	int ci_save_pincode;
 	int ci_check_live;
 	int ci_tuner;
+
+
 	std::string ci_pincode;
 	int radiotext_enable;
 
@@ -410,26 +414,6 @@ struct SNeutrinoSettings
 	std::list<std::string> webradio_xml;
 	std::list<std::string> xmltv_xml; // see http://wiki.xmltv.org/
 
-#ifdef ENABLE_GRAPHLCD
-	int glcd_enable;
-	uint32_t glcd_color_fg;
-	uint32_t glcd_color_bg;
-	uint32_t glcd_color_bar;
-	std::string glcd_font;
-	int glcd_percent_channel;
-	int glcd_percent_epg;
-	int glcd_percent_bar;
-	int glcd_percent_time;
-	int glcd_percent_time_standby;
-	int glcd_percent_logo;
-	int glcd_mirror_osd;
-	int glcd_mirror_video;
-	int glcd_time_in_standby;
-	int glcd_show_logo;
-	int glcd_brightness;
-	int glcd_brightness_standby;
-	int glcd_scroll_speed;
-#endif
 
 	//personalize
 	enum PERSONALIZE_SETTINGS  //settings.h
@@ -580,6 +564,7 @@ struct SNeutrinoSettings
 		std::string password;
 	} network_nfs[NETWORK_NFS_NR_OF_ENTRIES];
 	std::string network_nfs_audioplayerdir;
+	std::string network_nfs_streamripperdir;
 	std::string network_nfs_picturedir;
 	std::string network_nfs_moviedir;
 	std::string network_nfs_recordingdir;
@@ -595,13 +580,13 @@ struct SNeutrinoSettings
 	int recording_audio_pids_std;
 	int recording_audio_pids_alt;
 	int recording_audio_pids_ac3;
+	int recording_stream_vtxt_pid;
+	int recording_stream_subtitle_pids;
+	int recording_stream_pmt_pid;
 #if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
 	int recording_bufsize;
 	int recording_bufsize_dmx;
 #endif
-	int recording_stream_vtxt_pid;
-	int recording_stream_subtitle_pids;
-	int recording_stream_pmt_pid;
 	int recording_choose_direct_rec_dir;
 	int recording_epg_for_filename;
 	int recording_epg_for_end;
@@ -614,6 +599,13 @@ struct SNeutrinoSettings
 	int timer_followscreenings;
 	std::string recording_filename_template;
 	int recording_already_found_check;
+
+	// timeshift
+	int timeshift_pause;
+	int timeshift_auto;
+	int timeshift_temp;
+	int timeshift_delete;
+	int timeshift_hours;
 
 	int filesystem_is_utf8;
 	// default plugin for ts-movieplayer (red button)
@@ -653,12 +645,7 @@ struct SNeutrinoSettings
 	int key_standby_off_add;
 	int menu_left_exit;
 	int audio_run_player;
-	int timeshift_pause;
-	int auto_timeshift;
-	int temp_timeshift;
-	int auto_delete;
 	int record_hours;
-	int timeshift_hours;
 	int key_record;
 	int key_help;
 	int key_next43mode;
@@ -749,9 +736,11 @@ struct SNeutrinoSettings
 	int channellist_sort_mode;
 	int channellist_numeric_adjust;
 	int channellist_show_channellogo;
+	int channellist_show_eventlogo;
 	int channellist_show_infobox;
 	int channellist_show_numbers;
 	int channellist_show_res_icon;
+	int channellist_primetime;
 	int repeat_blocker;
 	int repeat_genericblocker;
 #define LONGKEYPRESS_OFF 499
@@ -873,6 +862,40 @@ struct SNeutrinoSettings
 	int infoClockSeconds;
 	int infoClockBackground;
 
+#ifdef ENABLE_GRAPHLCD
+	// graphlcd
+	int glcd_enable;
+	uint32_t glcd_color_fg;
+	uint32_t glcd_color_bg;
+	uint32_t glcd_color_bar;
+	std::string glcd_font;
+	int glcd_percent_channel;
+	int glcd_percent_epg;
+	int glcd_percent_bar;
+	int glcd_percent_time;
+	int glcd_percent_time_standby;
+	int glcd_percent_logo;
+	int glcd_mirror_osd;
+	int glcd_mirror_video;
+	int glcd_time_in_standby;
+	int glcd_show_logo;
+	int glcd_brightness;
+	int glcd_brightness_standby;
+	int glcd_scroll_speed;
+#endif
+
+#ifdef ENABLE_LCD4LINUX
+	// lcd4linux
+	int lcd4l_support;
+	std::string lcd4l_logodir;
+	int lcd4l_brightness;
+	int lcd4l_brightness_standby;
+	int lcd4l_display_type;
+	int lcd4l_skin;
+	int lcd4l_skin_radio;
+	int lcd4l_convert;
+#endif
+
 	// lcdd
 	enum LCD_SETTINGS {
 		LCD_BRIGHTNESS         = 0,
@@ -883,7 +906,7 @@ struct SNeutrinoSettings
 		LCD_SHOW_VOLUME        ,
 		LCD_AUTODIMM           ,
 		LCD_DEEPSTANDBY_BRIGHTNESS,
-#if HAVE_TRIPLEDRAGON || USE_STB_HAL
+#if USE_STB_HAL
 		LCD_EPGMODE            ,
 #endif
 #if HAVE_SPARK_HARDWARE
@@ -961,10 +984,6 @@ struct SNeutrinoSettings
 	std::string	ttx_font_file;
 	std::string	sub_font_file;
 
-	int		lcd4l_support;
-	std::string	lcd4l_logodir;
-	int		lcd4l_skin;
-
 	int		show_ecm_pos;
 
 	int font_scaling_x;
@@ -1026,6 +1045,9 @@ struct SNeutrinoSettings
 		ITEM_TUNER_RESTART = 33,
 		ITEM_THREE_D_MODE = 34,
 		ITEM_TIMESHIFT = 35,
+#ifdef ENABLE_LCD4LINUX
+		ITEM_LCD4LINUX = 36,
+#endif
 		ITEM_MAX // MUST be always the last in the list
 	} USER_ITEM;
 
@@ -1111,11 +1133,11 @@ const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLIN
 #define CORNER_RADIUS_MIN	CFrameBuffer::getInstance()->scale2Res(3)
 #define CORNER_RADIUS_NONE	0
 
-#define RADIUS_LARGE	(g_settings.rounded_corners ? CORNER_RADIUS_LARGE : CORNER_RADIUS_NONE)
-#define RADIUS_MID	(g_settings.rounded_corners ? CORNER_RADIUS_MID   : CORNER_RADIUS_NONE)
-#define RADIUS_SMALL	(g_settings.rounded_corners ? CORNER_RADIUS_SMALL : CORNER_RADIUS_NONE)
-#define RADIUS_MIN	(g_settings.rounded_corners ? CORNER_RADIUS_MIN   : CORNER_RADIUS_NONE)
-#define RADIUS_NONE	0
+#define RADIUS_LARGE		(g_settings.theme.rounded_corners ? CORNER_RADIUS_LARGE : CORNER_RADIUS_NONE)
+#define RADIUS_MID		(g_settings.theme.rounded_corners ? CORNER_RADIUS_MID   : CORNER_RADIUS_NONE)
+#define RADIUS_SMALL		(g_settings.theme.rounded_corners ? CORNER_RADIUS_SMALL : CORNER_RADIUS_NONE)
+#define RADIUS_MIN		(g_settings.theme.rounded_corners ? CORNER_RADIUS_MIN   : CORNER_RADIUS_NONE)
+#define RADIUS_NONE		0
 
 // offsets
 #define OFFSET_SHADOW		CFrameBuffer::getInstance()->scale2Res(6)

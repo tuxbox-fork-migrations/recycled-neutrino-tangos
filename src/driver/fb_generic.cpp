@@ -51,8 +51,12 @@
 #include <gui/pictureviewer.h>
 #include <system/debug.h>
 #include <global.h>
-#include <video.h>
+#include <hardware/video.h>
 #include <cs_api.h>
+
+#ifdef ENABLE_GRAPHLCD
+#include <driver/nglcd.h>
+#endif
 
 extern cVideo * videoDecoder;
 
@@ -1546,10 +1550,17 @@ void CFrameBuffer::Clear()
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 }
 
-void CFrameBuffer::showFrame(const std::string & filename)
+bool CFrameBuffer::showFrame(const std::string & filename)
 {
 	std::string picture = getIconPath(filename, "");
-	videoDecoder->ShowPicture(picture.c_str());
+	if (access(picture.c_str(), F_OK) == 0){
+		videoDecoder->ShowPicture(picture.c_str());
+		return true;
+	}
+	else
+		printf("[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
+
+	return false;
 }
 
 void CFrameBuffer::stopFrame()
@@ -1930,4 +1941,11 @@ CFrameBuffer::Mode3D CFrameBuffer::get3DMode()
 
 void CFrameBuffer::set3DMode(Mode3D m)
 {
+}
+
+void CFrameBuffer::blit()
+{
+#ifdef ENABLE_GRAPHLCD
+	nGLCD::Blit();
+#endif
 }

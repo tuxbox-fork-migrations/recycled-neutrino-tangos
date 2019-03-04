@@ -602,14 +602,21 @@ void CTextBox::refreshText(void)
 	bool has_changed = hasChanged(&ax, &ay, &dx, &dy);
 
 	//clean up possible screen on any changes
-	if (has_changed || m_bgpixbuf){
+	if (has_changed || m_bgpixbuf) {
 		/*TODO/FIXME: in some cases could be required, that we must restore old saved screen. eg. if a text without bg was painted
 		 * and another text should be painted as next on the same position like current text, but new text will be overpaint and is
 		 * not visible. It's currently solvable only with appropriate order of text items
 		*/
-		if (m_bgpixbuf)
+		if (has_changed)
+			clearScreenBuffer();
+
+		if(m_bgpixbuf && (m_old_cText != m_cText))
 			frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
-		clearScreenBuffer();
+
+		if (m_bgpixbuf){
+			frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
+			clearScreenBuffer();
+		}
 	}
 
 #if !HAVE_SH4_HARDWARE
@@ -939,3 +946,19 @@ int CTextBox::getMaxLineWidth(const std::string& text, Font* font)
 
 	return len;
 }
+
+void CTextBox::enableBackgroundPaint(bool mode)
+{
+	m_nPaintBackground = mode;
+}
+
+void CTextBox::disableBackgroundPaint()
+{
+	enableBackgroundPaint(false);
+}
+
+void CTextBox::setTextRenderModeFullBG(bool mode)
+{
+	m_renderMode = (mode) ? 2 /*Font::FULLBG*/ : 0;
+}
+

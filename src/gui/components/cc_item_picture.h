@@ -155,21 +155,21 @@ class CComponentsPicture : public CComponentsItem
 		int getHeight();
 
 		///set width of object and image, value >0 causes scale of image, parameter keep_aspect = true causes scaling of height with same aspect, default = false
-		virtual void setWidth(const int& w, bool keep_aspect = false);
+		void setWidth(const int& w, bool keep_aspect = false);
 		///set height of object and image, value >0 causes scale of image, parameter keep_aspect = true causes scaling of width with same aspect, , default = false
-		virtual void setHeight(const int& h, bool keep_aspect = false);
+		void setHeight(const int& h, bool keep_aspect = false);
 		///set width of object and image related to current screen size, see also CComponentsItem::setWidthP(), parameter as uint8_t
-		virtual void setWidthP(const uint8_t& w_percent){CComponentsItem::setWidthP(w_percent), do_scale = true; need_init = hasChanges(); initCCItem();}
+		void setWidthP(const uint8_t& w_percent){CComponentsItem::setWidthP(w_percent), do_scale = true; need_init = hasChanges(); initCCItem();}
 		///set height of object and image related to current screen size, see also CComponentsItem::setHeightP(), parameter as uint8_t
-		virtual void setHeightP(const uint8_t& h_percent){CComponentsItem::setHeightP(h_percent), do_scale = true; need_init = hasChanges(); initCCItem();}
+		void setHeightP(const uint8_t& h_percent){CComponentsItem::setHeightP(h_percent), do_scale = true; need_init = hasChanges(); initCCItem();}
 
 		///set screen x-position, parameter as int
-		virtual void setXPos(const int& xpos);
+		void setXPos(const int& xpos);
 		///set screen y-position, parameter as int
-		virtual void setYPos(const int& ypos);
+		void setYPos(const int& ypos);
 
 		///return paint mode of internal image, true=image was painted, please do not to confuse with isPainted()! isPainted() is related to item itself.
-		virtual inline bool isPicPainted(){return is_image_painted;};
+		bool isPicPainted(){return is_image_painted;};
 
 		/**sets transparency mode if icons
 		 * @param[in] t 	Transparency mode
@@ -179,18 +179,18 @@ class CComponentsPicture : public CComponentsItem
 		void SetTransparent(int t){ image_transparent = t; }
 
 		///paint item
-		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		///hide item, see also CComponents::hide();
-		virtual void hide();
+		void hide();
 
-		virtual bool hasChanges();
+		bool hasChanges();
 
 		///remove possible cache
-		virtual void clearCache();
+		void clearCache();
 		///enable/disable image cache
-		virtual void enableCache(bool enable = true){if (enable_cache == enable) return; enable_cache = enable; if (!enable_cache) clearCache();}
+		void enableCache(bool enable = true){if (enable_cache == enable) return; enable_cache = enable; if (!enable_cache) clearCache();}
 		///disable image cache, makes clean up too
-		virtual void disableCache(){enableCache(false);}
+		void disableCache(){enableCache(false);}
 };
 
 class CComponentsChannelLogo : public CComponentsPicture
@@ -200,7 +200,10 @@ class CComponentsChannelLogo : public CComponentsPicture
 		uint64_t channel_id;
 		///channel name
 		std::string channel_name;
-		
+
+		///mode of event logo
+		bool enable_event_logo;
+
 		///alternate image file, if no channel logo is available
 		std::string alt_pic_name;
 		
@@ -250,7 +253,11 @@ class CComponentsChannelLogo : public CComponentsPicture
 		void setAltLogo(const std::string& picture_name);
 		///set an alternate logo if no logo is available, NOTE: value of has_logo will set to true
 		void setAltLogo(const char* picture_name);
-		
+
+		///enable/disable eventlogo
+		void enableEventLogo(bool enable = true){enable_event_logo = enable;}
+		void disableEventLogo(){enableEventLogo(false);}
+
 		///returns true, if any logo is available, also if an alternate logo was setted
 		bool hasLogo(){return has_logo;};
 		

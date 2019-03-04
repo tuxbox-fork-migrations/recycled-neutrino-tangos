@@ -1320,6 +1320,8 @@ _remount:
 			safe_mkdir(cmd);
 			snprintf(cmd, sizeof(cmd), "%s/logos", dst.c_str());
 			safe_mkdir(cmd);
+			snprintf(cmd, sizeof(cmd), "%s/logos/events", dst.c_str());
+			safe_mkdir(cmd);
 			snprintf(cmd, sizeof(cmd), "%s/plugins", dst.c_str());
 			safe_mkdir(cmd);
 			// sync();

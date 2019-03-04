@@ -56,6 +56,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		COnOffNotifier* screensaverNotifier;
 		COnOffNotifier* channellistNotifier;
 		COnOffNotifier* infobarNotifier;
+		COnOffNotifier* channellogoNotifier;
 		COnOffNotifier* infobarHddNotifier;
 		CGenericMenuActivate casystemActivate;
 		CGenericMenuActivate screensaverActivate;
@@ -88,7 +89,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		void paintWindowSize(int w, int h);
 
  		void AddFontSettingItem(CMenuWidget &font_Settings, const SNeutrinoSettings::FONT_TYPES number_of_fontsize_entry);
-
+		void resetRadioText();
 	public:
 		enum INFOBAR_CHANNEL_LOGO_POS_OPTIONS	
 		{

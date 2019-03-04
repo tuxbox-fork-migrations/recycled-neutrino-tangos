@@ -50,9 +50,9 @@ extern "C" {
 #include <daemonc/remotecontrol.h>
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
-#include <video.h>
-#include <audio.h>
-#include <dmx.h>
+#include <hardware/video.h>
+#include <hardware/audio.h>
+#include <hardware/dmx.h>
 #include <zapit/satconfig.h>
 #include <string>
 #include <system/helpers.h>
@@ -150,30 +150,67 @@ void CStreamInfo2::analyzeStream(AVFormatContext *avfc, unsigned int idx)
 			m["language"] = getISO639Description(lang->value);
 	}
 
+#if (LIBAVFORMAT_VERSION_MAJOR > 57) || ((LIBAVFORMAT_VERSION_MAJOR == 57) && (LIBAVFORMAT_VERSION_MINOR > 32))
+	AVCodecContext *avctx;
+	int ret;
+
+	avctx = avcodec_alloc_context3(NULL);
+	if (!avctx)
+		return;
+
+	ret = avcodec_parameters_to_context(avctx, st->codecpar);
+	if (ret < 0) {
+		avcodec_free_context(&avctx);
+		return;
+	}
+#endif
+
 	char buf[256];
+#if (LIBAVFORMAT_VERSION_MAJOR > 57) || ((LIBAVFORMAT_VERSION_MAJOR == 57) && (LIBAVFORMAT_VERSION_MINOR > 32))
+	avcodec_string(buf, sizeof(buf), avctx, 0);
+	avcodec_free_context(&avctx);
+#else
 	avcodec_string(buf, sizeof(buf), st->codec, 0);
+#endif
 	m["codec"] = buf;
 	size_t pos = m["codec"].find_first_of(":");
 	if (pos != std::string::npos)
 		m["codec"] = m["codec"].erase(0,pos+2);
+#if (LIBAVFORMAT_VERSION_MAJOR > 57) || ((LIBAVFORMAT_VERSION_MAJOR == 57) && (LIBAVFORMAT_VERSION_MINOR > 32))
+	m["codec_type"] = av_get_media_type_string(st->codecpar->codec_type);
+#else
 	m["codec_type"] = av_get_media_type_string(st->codec->codec_type);
+#endif
 	m["codec_type"][0] ^= 'a' ^ 'A';
 
 	m["pid"] = to_string(st->id);
 
+#if (LIBAVFORMAT_VERSION_MAJOR > 57) || ((LIBAVFORMAT_VERSION_MAJOR == 57) && (LIBAVFORMAT_VERSION_MINOR > 32))
+	if (st->sample_aspect_ratio.num && av_cmp_q(st->sample_aspect_ratio, st->codecpar->sample_aspect_ratio))
+#else
 	if (st->sample_aspect_ratio.num && av_cmp_q(st->sample_aspect_ratio, st->codec->sample_aspect_ratio))
+#endif
 	{
 		AVRational display_aspect_ratio;
 		av_reduce(&display_aspect_ratio.num, &display_aspect_ratio.den,
+#if (LIBAVFORMAT_VERSION_MAJOR > 57) || ((LIBAVFORMAT_VERSION_MAJOR == 57) && (LIBAVFORMAT_VERSION_MINOR > 32))
+			  st->codecpar->width * st->sample_aspect_ratio.num,
+			  st->codecpar->height * st->sample_aspect_ratio.den,
+#else
 			  st->codec->width * st->sample_aspect_ratio.num,
 			  st->codec->height * st->sample_aspect_ratio.den,
+#endif
 			  1024 * 1024);
 		snprintf(buf, sizeof(buf), "%d:%d", st->sample_aspect_ratio.num, st->sample_aspect_ratio.den);
 		m["sar"] = buf;
 		snprintf(buf, sizeof(buf), "%d:%d", display_aspect_ratio.num, display_aspect_ratio.den);
 		m["dar"] = buf;
 	}
+#if (LIBAVFORMAT_VERSION_MAJOR > 57) || ((LIBAVFORMAT_VERSION_MAJOR == 57) && (LIBAVFORMAT_VERSION_MINOR > 32))
+	if (st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+#else
 	if (st->codec->codec_type == AVMEDIA_TYPE_VIDEO)
+#endif
 	{
 		if (st->avg_frame_rate.den && st->avg_frame_rate.num)
 			m["fps"] = fps_str(av_q2d(st->avg_frame_rate));
@@ -183,8 +220,10 @@ void CStreamInfo2::analyzeStream(AVFormatContext *avfc, unsigned int idx)
 #endif
 		if (st->time_base.den && st->time_base.num)
 			m["tbn"] = fps_str(1 / av_q2d(st->time_base));
+#if (LIBAVFORMAT_VERSION_MAJOR < 57) || ((LIBAVFORMAT_VERSION_MAJOR == 57) && (LIBAVFORMAT_VERSION_MINOR < 33))
 		if (st->codec->time_base.den && st->codec->time_base.num)
 			m["tbc"] = fps_str(1 / av_q2d(st->codec->time_base));
+#endif
 	}
 
 	m["disposition"] = "";
@@ -288,9 +327,10 @@ void CStreamInfo2::probeStreams()
 #ifdef ENABLE_FFMPEG_LOGGING
 		av_log_set_callback(log_callback);
 #endif
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
 		avcodec_register_all();
 		av_register_all();
-
+#endif
 		AVIOContext *avioc = NULL;
 		int buffer_size = 188 * 128;
 		unsigned char *buffer = (unsigned char *) av_malloc(buffer_size);
@@ -768,6 +808,8 @@ struct row {
 void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 {
 	char buf[100];
+	bool has_vpid = false;
+	bool is_webchan = false;
 	int xres = 0, yres = 0, aspectRatio = 0, framerate = -1, i = 0;
 	// paint labels
 	int ypos1 = ypos;
@@ -778,7 +820,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		frameBuffer->paintBoxRel (0, ypos, box_width, box_h, COL_MENUCONTENT_PLUS_0);
 
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
-	if (!channel)
+	if (!channel && !mp)
 		return;
 
 	ypos += iheight;
@@ -893,10 +935,22 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		}
 
 	}
+	if (channel)
+	{
+		has_vpid   = channel->getVideoPid();
+		is_webchan = IS_WEBCHAN(channel->getChannelID());
+	}
 #if BOXMODEL_UFS910
-	if ((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) || channel->getVideoPid())
+	int _mode = CNeutrinoApp::getInstance()->getMode();
+	if ((has_vpid ||
+		(is_webchan && _mode == NeutrinoModes::mode_webtv) ||
+		_mode == NeutrinoModes::mode_ts))
 #else
-	if (((mp && IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) || channel->getVideoPid()) && !(videoDecoder->getBlank()))
+	int _mode = CNeutrinoApp::getInstance()->getMode();
+	if ((has_vpid ||
+		(is_webchan && _mode == NeutrinoModes::mode_webtv) ||
+		_mode == NeutrinoModes::mode_ts) &&
+		!(videoDecoder->getBlank()))
 #endif
 	{
 		 videoDecoder->getPictureInfo(xres, yres, framerate);
@@ -1032,10 +1086,10 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.key = r.val = "";
 		v.push_back(r);
 
-		// picon
+		// channellogo
 		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		{
-			r.key = "Picon";
+			r.key = "Logo";
 			r.key += ": ";
 			snprintf(buf, sizeof(buf), "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
 			r.val = buf;
@@ -1078,8 +1132,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.key = r.val = "";
 		v.push_back(r);
 
-		// picon
-		r.key = "Picon";
+		// channellogo
+		r.key = "Logo";
 		r.key += ": ";
 		snprintf(buf, sizeof(buf), "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
 		r.val = buf;

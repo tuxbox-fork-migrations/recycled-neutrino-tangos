@@ -48,9 +48,9 @@
 #include <daemonc/remotecontrol.h>
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
-#include <video.h>
-#include <audio.h>
-#include <dmx.h>
+#include <hardware/video.h>
+#include <hardware/audio.h>
+#include <hardware/dmx.h>
 #include <zapit/satconfig.h>
 #include <string>
 #include <system/helpers.h>
@@ -517,6 +517,8 @@ void CStreamInfo2::paint (int /*mode*/)
 void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 {
 	char buf[100];
+	bool has_vpid = false;
+	bool is_webchan = false;
 	int xres = 0, yres = 0, aspectRatio = 0, framerate = -1;
 	// paint labels
 	int spaceoffset = 0,i = 0;
@@ -528,7 +530,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		frameBuffer->paintBoxRel (0, ypos, box_width, box_h, COL_MENUCONTENT_PLUS_0);
 
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
-	if(!channel)
+	if(!channel && !mp)
 		return;
 
 	int array[]= {g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION)),
@@ -549,11 +551,21 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	average_bitrate_offset = spaceoffset;
 	int box_width2 = box_width-(spaceoffset+xpos);
 
-	if((channel->getVideoPid() || (IS_WEBCHAN(channel->getChannelID()) && CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv)) && !(videoDecoder->getBlank())){
-		 videoDecoder->getPictureInfo(xres, yres, framerate);
-		 if (yres == 1088)
-		 	yres = 1080;
-		 aspectRatio = videoDecoder->getAspectRatio();
+	if (channel)
+	{
+		has_vpid   = channel->getVideoPid();
+		is_webchan = IS_WEBCHAN(channel->getChannelID());
+	}
+	int _mode = CNeutrinoApp::getInstance()->getMode();
+	if ((has_vpid ||
+		(is_webchan && _mode == NeutrinoModes::mode_webtv) ||
+		_mode == NeutrinoModes::mode_ts) &&
+		!(videoDecoder->getBlank()))
+	{
+		videoDecoder->getPictureInfo(xres, yres, framerate);
+		if (yres == 1088)
+			yres = 1080;
+		aspectRatio = videoDecoder->getAspectRatio();
 	}
 
 	//Video RESOLUTION
@@ -626,7 +638,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			snprintf (buf,sizeof(buf), "25fps");
 			break;
 		case 3:
-			snprintf (buf,sizeof(buf), "29,976fps");
+			snprintf (buf,sizeof(buf), "29,97fps");
 			break;
 		case 4:
 			snprintf (buf,sizeof(buf), "30fps");
@@ -635,7 +647,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			snprintf (buf,sizeof(buf), "50fps");
 			break;
 		case 6:
-			snprintf (buf,sizeof(buf), "50,94fps");
+			snprintf (buf,sizeof(buf), "59,94fps");
 			break;
 		case 7:
 			snprintf (buf,sizeof(buf), "60fps");

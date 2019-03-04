@@ -9,6 +9,7 @@ install_DATA =	channels.js \
 		index.html \
 		prototype.js \
 		robots.txt \
+		lcd4linux.html \
 		Y_About.yhtm \
 		Y_Baselib.js \
 		Y_blank.htm \
@@ -106,7 +107,26 @@ install-data-hook:
 	find $(DESTDIR)$(PRIVATE_HTTPDDIR)/ -type f -print0 | xargs --no-run-if-empty -0 \
 		sed -i \
 			-e 's|%(CONFIGDIR)|$(CONFIGDIR)|g' \
+			-e 's|%(DATADIR)|$(DATADIR)|g' \
+			-e 's|%(FONTDIR)|$(FONTDIR)|g' \
+			-e 's|%(FONTDIR_VAR)|$(FONTDIR_VAR)|g' \
+			-e 's|%(LIBDIR)|$(LIBDIR)|g' \
+			-e 's|%(GAMESDIR)|$(GAMESDIR)|g' \
+			-e 's|%(ICONSDIR_VAR)|$(ICONSDIR_VAR)|g' \
+			-e 's|%(LOCALEDIR)|$(LOCALEDIR)|g' \
+			-e 's|%(LOCALEDIR_VAR)|$(LOCALEDIR_VAR)|g' \
 			-e 's|%(PLUGINDIR_VAR)|$(PLUGINDIR_VAR)|g' \
+			-e 's|%(LUAPLUGINDIR)|$(LUAPLUGINDIR)|g' \
+			-e 's|%(THEMESDIR)|$(THEMESDIR)|g' \
+			-e 's|%(THEMESDIR_VAR)|$(THEMESDIR_VAR)|g' \
+			-e 's|%(WEBRADIODIR)|$(WEBRADIODIR)|g' \
+			-e 's|%(WEBRADIODIR_VAR)|$(WEBRADIODIR_VAR)|g' \
+			-e 's|%(LOGODIR)|$(LOGODIR)|g' \
+			-e 's|%(LOGODIR_VAR)|$(LOGODIR_VAR)|g' \
+			-e 's|%(LCD4L_ICONSDIR)|$(LCD4L_ICONSDIR)|g' \
+			-e 's|%(LCD4L_ICONSDIR_VAR)|$(LCD4L_ICONSDIR_VAR)|g' \
 			-e 's|%(PRIVATE_HTTPDDIR)|$(PRIVATE_HTTPDDIR)|g' \
 			-e 's|%(PUBLIC_HTTPDDIR)|$(PUBLIC_HTTPDDIR)|g' \
+			-e 's|%(HOSTED_HTTPDDIR)|$(HOSTED_HTTPDDIR)|g' \
+			-e 's|%(FLAGDIR)|$(FLAGDIR)|g' \
 	;

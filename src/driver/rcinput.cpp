@@ -1803,6 +1803,8 @@ int CRCInput::translate(int code)
 		case KEY_CHANNELDOWN:
 			return RC_page_down;
 #ifdef HAVE_ARM_HARDWARE
+		case KEY_SWITCHVIDEOMODE:
+			return RC_mode;
 		case KEY_VIDEO:
 			return RC_favorites;
 		case KEY_FASTFORWARD:

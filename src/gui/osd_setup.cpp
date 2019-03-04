@@ -66,11 +66,11 @@
 #include <system/helpers.h>
 #include "cs_api.h"
 
-#if HAVE_COOL_HARDWARE
-#include <video_cs.h>
-#endif
-#if USE_STB_HAL
-#include <video_hal.h>
+#include <hardware/video.h>
+
+#ifdef ENABLE_LCD4LINUX
+#include "driver/lcd4l.h"
+extern CLCD4l *LCD4l;
 #endif
 
 extern CRemoteControl * g_RemoteControl;
@@ -90,6 +90,7 @@ COsdSetup::COsdSetup(int wizard_mode)
 	screensaverNotifier = NULL;
 	channellistNotifier = NULL;
 	infobarNotifier = NULL;
+	channellogoNotifier = NULL;
 	infobarHddNotifier = NULL;
 	osd_menu = NULL;
 	submenu_menus = NULL;
@@ -595,6 +596,7 @@ const CMenuOptionChooser::keyval OPTIONS_CHANNELLOGO_POSITION[OPTIONS_CHANNELLOG
 int COsdSetup::showOsdSetup()
 {
 	int shortcut = 1;
+	CMenuOptionChooser * mc = NULL;
 
 	//osd main menu
 	osd_menu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP);
@@ -702,9 +704,19 @@ int COsdSetup::showOsdSetup()
 	mf->setHint("", LOCALE_MENU_HINT_SCREENSAVER_SETUP);
 	osd_menu->addItem(mf);
 
-#ifdef ENABLE_CHANGE_OSD_RESOLUTION
 	osd_menu->addItem(GenericMenuSeparatorLine);
 
+	// radiotext
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_RADIOTEXT);
+	osd_menu->addItem(mc);
+
+	// scrambled
+	mc = new CMenuOptionChooser(LOCALE_EXTRA_SCRAMBLED_MESSAGE, &g_settings.scrambled_message, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_SCRAMBLED_MESSAGE);
+	osd_menu->addItem(mc);
+
+#ifdef ENABLE_CHANGE_OSD_RESOLUTION
 	// osd resolution
 	size_t resCount = frameBuffer->osd_resolutions.size();
 	struct CMenuOptionChooser::keyval_ext kext[resCount];
@@ -734,19 +746,19 @@ int COsdSetup::showOsdSetup()
 #endif
 
 	//monitor
-	CMenuOptionChooser * mc;
 	if (cs_get_revision() != 1) { /* 1 == Tripledragon */
 		mc = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this);
 		mc->setHint("", LOCALE_MENU_HINT_OSD_PRESET);
 		osd_menu->addItem(mc);
 	}
 
-	osd_menu->addItem(GenericMenuSeparatorLine);
-
+#if 0
 	// round corners
-	mc = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
+	mc = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.theme.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_ROUNDED_CORNERS);
 	osd_menu->addItem(mc);
+#endif
+
 #if !HAVE_ARM_HARDWARE //FIXME: make it usable for AX51
 	// fade windows
 	mc = new CMenuOptionChooser(LOCALE_COLORMENU_FADE, &g_settings.widget_fade, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
@@ -762,11 +774,6 @@ int COsdSetup::showOsdSetup()
 
 	osd_menu->addItem(GenericMenuSeparatorLine);
 
-	// scrambled
-	mc = new CMenuOptionChooser(LOCALE_EXTRA_SCRAMBLED_MESSAGE, &g_settings.scrambled_message, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_SCRAMBLED_MESSAGE);
-	osd_menu->addItem(mc);
-
 	// subchannel menu position
 	mc = new CMenuOptionChooser(LOCALE_INFOVIEWER_SUBCHAN_DISP_POS, &g_settings.infobar_subchan_disp_pos, INFOBAR_SUBCHAN_DISP_POS_OPTIONS, INFOBAR_SUBCHAN_DISP_POS_OPTIONS_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SUBCHANNEL_POS);
@@ -776,6 +783,8 @@ int COsdSetup::showOsdSetup()
 	int oldInfoClockSize = g_settings.infoClockFontSize;
 
 	int res = osd_menu->exec(NULL, "");
+
+	resetRadioText();
 
 	if (oldVolumeSize != g_settings.volume_size)
 		CVolumeHelper::getInstance()->refresh();
@@ -793,6 +802,7 @@ int COsdSetup::showOsdSetup()
 	delete screensaverNotifier;
 	delete channellistNotifier;
 	delete infobarNotifier;
+	delete channellogoNotifier;
 	delete infobarHddNotifier;
 	delete osd_menu;
 	return res;
@@ -841,9 +851,19 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	CColorChooser* chProgressbar_active = new CColorChooser(LOCALE_COLORMENU_PROGRESSBAR_ACTIVE, &t.progressbar_active_red, &t.progressbar_active_green, &t.progressbar_active_blue,
 			NULL, colorSetupNotifier);
 
+	CMenuOptionChooser *oj;
+
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_EXTRA_ROUNDED_CORNERS));
+
+	// round corners
+	oj = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.theme.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
+	oj->OnAfterChangeOption.connect(sigc::mem_fun(menu_colors, &CMenuWidget::hide));
+	oj->setHint("", LOCALE_MENU_HINT_ROUNDED_CORNERS);
+	menu_colors->addItem(oj);
+
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUHEAD));
 
-	CMenuOptionChooser *oj;
+
 #if 0
 	oj = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT_C2C, &g_settings.theme.gradient_c2c, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
 	oj->OnAfterChangeOption.connect(slot_repaint);
@@ -1247,6 +1267,7 @@ void COsdSetup::showOsdChannellogosSetup(CMenuWidget *menu_channellogos)
 {
 	menu_channellogos->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLOGOS);
 
+	channellogoNotifier = new COnOffNotifier();
 	CMenuOptionChooser * mc;
 	CMenuForwarder * mf;
 
@@ -1258,9 +1279,15 @@ void COsdSetup::showOsdChannellogosSetup(CMenuWidget *menu_channellogos)
 	menu_channellogos->addItem(GenericMenuSeparatorLine);
 
 	// show channellogos
-	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_CHANNELLOGO, &g_settings.channellist_show_channellogo, OPTIONS_CHANNELLOGO_POSITION, OPTIONS_CHANNELLOGO_POSITION_COUNT, true);
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_CHANNELLOGO, &g_settings.channellist_show_channellogo, OPTIONS_CHANNELLOGO_POSITION, OPTIONS_CHANNELLOGO_POSITION_COUNT, true, channellogoNotifier);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_CHANNELLOGO);
 	menu_channellogos->addItem(mc);
+
+	// show eventlogos
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_EVENTLOGO, &g_settings.channellist_show_eventlogo, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.channellist_show_channellogo, this);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_EVENTLOGO);
+	menu_channellogos->addItem(mc);
+	channellogoNotifier->addItem(mc);
 }
 
 //infobar
@@ -1286,6 +1313,18 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	// resolution
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_RES, &g_settings.infobar_show_res, INFOBAR_SHOW_RES_MODE_OPTIONS, INFOBAR_SHOW_RES_MODE_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_RES);
+	menu_infobar->addItem(mc);
+#endif
+
+	// show on epg change
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW, &g_settings.infobar_show, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_ON_EPG);
+	menu_infobar->addItem(mc);
+
+#if ENABLE_TANGOS
+	// radiotext
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_RADIOTEXT);
 	menu_infobar->addItem(mc);
 #endif
 
@@ -1371,16 +1410,6 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_TUNER);
 	menu_infobar->addItem(mc);
 
-	// show on epg change
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW, &g_settings.infobar_show, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_ON_EPG);
-	menu_infobar->addItem(mc);
-
-	// radiotext
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_RADIOTEXT);
-	menu_infobar->addItem(mc);
-
 #ifndef ENABLE_TANGOS
 	// DD icon
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_DD_AVAILABLE, &g_settings.infobar_show_dd_available, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
@@ -1411,6 +1440,11 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 	// channellist additional
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_ADDITIONAL, &g_settings.channellist_additional, CHANNELLIST_ADDITIONAL_OPTIONS, CHANNELLIST_ADDITIONAL_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_ADDITIONAL);
+	menu_chanlist->addItem(mc);
+
+	// channellist primetime
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_PRIMETIME, &g_settings.channellist_primetime, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_PRIMETIME);
 	menu_chanlist->addItem(mc);
 
 	// epg align
@@ -1603,21 +1637,11 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 #endif
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_ROUNDED_CORNERS)) {
 		osd_menu->hide();
-		g_settings.rounded_corners = * (int*) data;
+		g_settings.theme.rounded_corners = * (int*) data;
 		return true;
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_RADIOTEXT)) {
-		if (g_settings.radiotext_enable) {
-			if (g_Radiotext == NULL)
-				g_Radiotext = new CRadioText;
-			if (g_Radiotext && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoModes::mode_radio))
-				g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
-		} else {
-			if (g_Radiotext)
-				g_Radiotext->radiotext_stop();
-			delete g_Radiotext;
-			g_Radiotext = NULL;
-		}
+		resetRadioText();
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_VOLUME_DIGITS)) {
 		CVolumeHelper::getInstance()->refresh();
@@ -1630,6 +1654,12 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 		g_settings.show_menu_hints_line = * (int*) data;
 		return true;
 	}
+#ifdef ENABLE_LCD4LINUX
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CHANNELLIST_SHOW_EVENTLOGO))
+	{
+		LCD4l->ResetParseID();
+	}
+#endif
 	else if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_INFOCLOCK)) ||
 		 (ARE_LOCALES_EQUAL(OptionName, LOCALE_CLOCK_SIZE_HEIGHT)) ||
 		 (ARE_LOCALES_EQUAL(OptionName, LOCALE_CLOCK_SECONDS))) {
@@ -1648,6 +1678,25 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 
 	return false;
 }
+
+
+void COsdSetup::resetRadioText()
+{
+	if (g_settings.radiotext_enable) {
+		if (g_Radiotext == NULL)
+			g_Radiotext = new CRadioText;
+		if (g_Radiotext && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoModes::mode_radio)){
+			printf("\033[32m[COsdSetup] %s - %d: %d\033[0m\n", __func__, __LINE__, g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
+			g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
+		}
+	} else {
+		if (g_Radiotext)
+			g_Radiotext->radiotext_stop();
+		delete g_Radiotext;
+		g_Radiotext = NULL;
+	}
+}
+
 
 int COsdSetup::showContextChanlistMenu(CChannelList *parent_channellist)
 {

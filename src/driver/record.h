@@ -32,12 +32,7 @@
 #include <neutrinoMessages.h>
 #include <driver/movieinfo.h>
 
-#if HAVE_COOL_HARDWARE
-#include <record_cs.h>
-#endif
-#if USE_STB_HAL
-#include <record_hal.h>
-#endif
+#include <hardware/record.h>
 
 #include <OpenThreads/Mutex>
 #include <OpenThreads/Thread>
@@ -57,11 +52,6 @@ extern "C" {
 #else
 #define RECORD_MAX_COUNT 8
 #endif
-
-#define TSHIFT_MODE_OFF		0
-#define TSHIFT_MODE_ON		1
-#define TSHIFT_MODE_PAUSE	2
-#define TSHIFT_MODE_REWIND	3
 
 class CFrontend;
 class CZapitChannel;

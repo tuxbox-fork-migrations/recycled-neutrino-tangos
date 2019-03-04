@@ -49,7 +49,7 @@
 
 #include <string.h>
 
-#include <dmx.h>
+#include <hardware/dmx.h>
 #include <zapit/capmt.h>
 #include <zapit/zapit.h>
 #include <zapit/pat.h>
@@ -63,7 +63,9 @@
 
 #include <cs_api.h>
 
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57, 8, 0 ))
+#if (LIBAVCODEC_VERSION_MAJOR > 55)
+#define	av_free_packet av_packet_unref
+#else
 #define av_packet_unref	av_free_packet
 #endif
 
@@ -813,8 +815,10 @@ bool CStreamStream::Open()
 	}
 
 	//av_log_set_level(AV_LOG_VERBOSE);
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
 	av_register_all();
 	avcodec_register_all();
+#endif
 	avformat_network_init();
 
 	printf("%s: Open input [%s]....\n", __FUNCTION__, url.c_str());
@@ -855,8 +859,13 @@ bool CStreamStream::Open()
 	AVIOInterruptCB int_cb = { Interrupt, this };
 	ifcx->interrupt_callback = int_cb;
 
+#if (LIBAVFORMAT_VERSION_MAJOR < 58)
 	snprintf(ifcx->filename, sizeof(ifcx->filename), "%s", channel->getUrl().c_str());
 	av_dump_format(ifcx, 0, ifcx->filename, 0);
+#else
+	snprintf(ifcx->url, channel->getUrl().size() + 1, "%s", channel->getUrl().c_str());
+	av_dump_format(ifcx, 0, ifcx->url, 0);
+#endif
 
 	buf = (unsigned char *) av_malloc(IN_SIZE);
 	if (buf == NULL) {
@@ -892,7 +901,11 @@ bool CStreamStream::Open()
 		ost->id = stid++;
 	}
 	av_log_set_level(AV_LOG_VERBOSE);
+#if (LIBAVFORMAT_VERSION_MAJOR < 58)
 	av_dump_format(ofcx, 0, ofcx->filename, 1);
+#else
+	av_dump_format(ofcx, 0, ofcx->url, 1);
+#endif
 	av_log_set_level(AV_LOG_WARNING);
 #if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
 	bsfc = av_bitstream_filter_init("h264_mp4toannexb");

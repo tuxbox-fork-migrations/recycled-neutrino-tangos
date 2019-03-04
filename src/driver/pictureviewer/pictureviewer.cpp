@@ -2,6 +2,8 @@
 #include <global.h>
 #include <neutrino.h>
 #include "pictureviewer.h"
+#include <gui/movieplayer.h>
+#include <eitd/sectionsd.h>
 #include "pv_config.h"
 #include <system/debug.h>
 #include <system/helpers.h>
@@ -419,11 +421,6 @@ CPictureViewer::CPictureViewer ()
 	m_aspect_ratio_correction = m_aspect / ((double) xs / ys);
 
 	m_busy_buffer = NULL;
-	logo_hdd_dir = std::string(g_settings.logo_hdd_dir);
-	pthread_mutexattr_t attr;
-	pthread_mutexattr_init(&attr);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK_NP);
-	pthread_mutex_init(&logo_map_mutex, &attr);
 
 	init_handlers ();
 }
@@ -538,239 +535,160 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
-#if HAVE_SH4_HARDWARE
-bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
-{
-	char strChanId[16];
-
-	name = "";
-
-	pthread_mutex_lock(&logo_map_mutex);
-
-	if ((logo_hdd_dir != g_settings.logo_hdd_dir)) {
-		logo_map.clear();
-		logo_hdd_dir = g_settings.logo_hdd_dir;
-	}
-
-	std::map<uint64_t, logo_data>::iterator it;
-	it = logo_map.find(channel_id);
-	if (it != logo_map.end()) {
-		if (it->second.name == "") {
-			pthread_mutex_unlock(&logo_map_mutex);
-			return false;
-		} else {
-			name = it->second.name;
-			if (width)
-				*width = it->second.width;
-			if (height)
-				*height = it->second.height;
-			pthread_mutex_unlock(&logo_map_mutex);
-			return true;
-		}
-	}
-
-	sprintf(strChanId, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
-
-	std::string strLogoE2[2] = { "", "" };
-	CZapitChannel * cc = NULL;
-	if (channel_id)
-		if (CNeutrinoApp::getInstance()->channelList)
-			cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
-	if (cc) {
-		char fname[255];
-		snprintf(fname, sizeof(fname), "1_0_%X_%X_%X_%X_%X0000_0_0_0.png",
-			(u_int) cc->getServiceType(true),
-			(u_int) channel_id & 0xFFFF,
-			(u_int) (channel_id >> 32) & 0xFFFF,
-			(u_int) (channel_id >> 16) & 0xFFFF,
-			(u_int) cc->getSatellitePosition());
-		strLogoE2[0] = std::string(fname);
-		snprintf(fname, sizeof(fname), "1_0_%X_%X_%X_%X_%X0000_0_0_0.png",
-			(u_int) 1,
-			(u_int) channel_id & 0xFFFF,
-			(u_int) (channel_id >> 32) & 0xFFFF,
-			(u_int) (channel_id >> 16) & 0xFFFF,
-			(u_int) cc->getSatellitePosition());
-		strLogoE2[1] = std::string(fname);
-	}
-	/* first the channel-id, then the channelname */
-	std::string strLogoName[2] = { (std::string)strChanId, ChannelName };
-	/* first png, then jpg, then gif */
-	std::string strLogoExt[3] = { ".png", ".jpg" , ".gif" };
-	std::string dirs[1] = { g_settings.logo_hdd_dir };
-
-	std::string tmp;
-
-	for (int k = 0; k < 2; k++) {
-		if (dirs[k].length() < 1)
-			continue;
-		for (int i = 0; i < 2; i++)
-			for (int j = 0; j < 3; j++) {
-				tmp = dirs[k] + "/" + strLogoName[i] + strLogoExt[j];
-				if (!access(tmp.c_str(), R_OK))
-					goto found;
-			}
-		if (!cc)
-			continue;
-		for (int i = 0; i < 2; i++) {
-			tmp = dirs[k] + "/" + strLogoE2[i];
-			if (!access(tmp.c_str(), R_OK))
-				goto found;
-		}
-	}
-	if (cc) {
-		if (!cc->getAlternateLogo().empty())
-		{
-			std::string lname = downloadUrlToLogo(cc->getAlternateLogo(), LOGODIR_TMP, cc->getChannelID());
-			tmp = lname;
-			cc->setAlternateLogo(lname);
-			goto found;
-		}
-	}
-	logo_map[channel_id].name = "";
-	pthread_mutex_unlock(&logo_map_mutex);
-	return false;
-
-found:
-	int w, h;
-	getSize(tmp.c_str(), &w, &h);
-	if(width && height)
-		*width = w, *height = h;
-	name = tmp;
-	logo_map[channel_id].name = name;
-	logo_map[channel_id].width = w;
-	logo_map[channel_id].height = h;
-	pthread_mutex_unlock(&logo_map_mutex);
-	return true;
-}
-#else
-bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
+bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width, int *height, bool lcd4l_mode, bool enable_event_logo)
 {
 	std::string fileType[] = { ".png", ".jpg", ".gif" };
+	std::vector<std::string> v_path;
+	std::vector<std::string> v_file;
 
-	//get channel id as string
+	// create eventname for eventlogos; Note: We don't process channellogos if any eventlogo was found.
+	std::string EventName = "";
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	if (!g_settings.channellist_show_eventlogo)
+		enable_event_logo = false;
+	if (enable_event_logo && (ChannelID || mode == NeutrinoModes::mode_ts))
+	{
+		// TODO: fix eventlogo in moviebrowser
+
+		if (mode == NeutrinoModes::mode_ts)
+		{
+			if (CMoviePlayerGui::getInstance().p_movie_info && !CMoviePlayerGui::getInstance().p_movie_info->epgTitle.empty())
+				EventName = CMoviePlayerGui::getInstance().p_movie_info->epgTitle;
+		}
+		else
+		{
+			CSectionsdClient::CurrentNextInfo CurrentNext;
+			CEitManager::getInstance()->getCurrentNextServiceKey(ChannelID, CurrentNext);
+
+			if (CSectionsdClient::epgflags::has_current && !CurrentNext.current_name.empty())
+				EventName = CurrentNext.current_name;
+		}
+
+		// add neccessary paths to v_path
+		v_path.clear();
+		if (lcd4l_mode)
+			v_path.push_back(g_settings.lcd4l_logodir);
+		v_path.push_back(g_settings.logo_hdd_dir);
+		if (g_settings.logo_hdd_dir != LOGODIR_VAR)
+			v_path.push_back(LOGODIR_VAR);
+		if (g_settings.logo_hdd_dir != LOGODIR)
+			v_path.push_back(LOGODIR);
+
+		std::transform(EventName.begin(), EventName.end(), EventName.begin(), ::tolower);
+		EventName = str_replace(" ", "-", EventName);
+		EventName = str_replace(",", "-", EventName);
+		EventName = str_replace(";", "-", EventName);
+		EventName = str_replace(":", "-", EventName);
+		EventName = str_replace("+", "-", EventName);
+		EventName = str_replace("&", "-", EventName);
+		EventName = str_replace("ä", "ae", EventName);
+		EventName = str_replace("ö", "oe", EventName);
+		EventName = str_replace("ü", "ue", EventName);
+		EventName = str_replace("ß", "ss", EventName);
+		//printf("GetLogoName(): EventName \"%s\"\n", EventName.c_str());
+
+		for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
+		{
+			for (size_t j = 0; j < v_path.size(); j++)
+			{
+				for (size_t k = EventName.length(); k > 0; k--)
+				{
+					std::string EventLogo = v_path[j] + "/events/" + EventName.substr(0, k) + fileType[i];
+					//printf("GetLogoName(): EventLogo \"%s\"\n", EventLogo.c_str());
+					if (access(EventLogo.c_str(), R_OK) == 0)
+					{
+						if (width && height)
+							getSize(EventLogo.c_str(), width, height);
+						name = EventLogo;
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	// create special filename from channelname
+	std::string SpecialChannelName = ChannelName;
+	std::transform(SpecialChannelName.begin(), SpecialChannelName.end(), SpecialChannelName.begin(), ::tolower);
+	SpecialChannelName = str_replace(" ", "-", SpecialChannelName);
+	SpecialChannelName = str_replace("ä", "a", SpecialChannelName);
+	SpecialChannelName = str_replace("ö", "o", SpecialChannelName);
+	SpecialChannelName = str_replace("ü", "u", SpecialChannelName);
+	SpecialChannelName = str_replace("+", "___plus___", SpecialChannelName);
+	SpecialChannelName = str_replace("&", "___and___", SpecialChannelName);
+
+	// create channel id as string
 	char strChnId[16];
-	snprintf(strChnId, 16, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
+	snprintf(strChnId, 16, "%llx", ChannelID & 0xFFFFFFFFFFFFULL);
 	strChnId[15] = '\0';
 
-	//create E2 filenames
+	// create E2 filenames
 	char e2filename1[255];
 	e2filename1[0] = '\0';
 	char e2filename2[255];
 	e2filename2[0] = '\0';
 
 	CZapitChannel * cc = NULL;
-	if (channel_id)
-		if (CNeutrinoApp::getInstance()->channelList)
-			cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel_id);
+	if (ChannelID && CNeutrinoApp::getInstance()->channelList)
+		cc = CNeutrinoApp::getInstance()->channelList->getChannel(ChannelID);
 
 	if (cc)
 	{
-		//create E2 filename1
+		// create E2 filename1
 		snprintf(e2filename1, sizeof(e2filename1), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
 		         (u_int) cc->getServiceType(true),
-		         (u_int) channel_id & 0xFFFF,
-		         (u_int) (channel_id >> 32) & 0xFFFF,
-		         (u_int) (channel_id >> 16) & 0xFFFF,
+		         (u_int) ChannelID & 0xFFFF,
+		         (u_int) (ChannelID >> 32) & 0xFFFF,
+		         (u_int) (ChannelID >> 16) & 0xFFFF,
 		         (u_int) cc->getSatellitePosition());
 
-		//create E2 filename2
+		// create E2 filename2
 		snprintf(e2filename2, sizeof(e2filename2), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
 		         (u_int) 1,
-		         (u_int) channel_id & 0xFFFF,
-		         (u_int) (channel_id >> 32) & 0xFFFF,
-		         (u_int) (channel_id >> 16) & 0xFFFF,
+		         (u_int) ChannelID & 0xFFFF,
+		         (u_int) (ChannelID >> 32) & 0xFFFF,
+		         (u_int) (ChannelID >> 16) & 0xFFFF,
 		         (u_int) cc->getSatellitePosition());
 	}
 
-	for (size_t i = 0; i<(sizeof(fileType) / sizeof(fileType[0])); i++){
-		std::vector<std::string> v_path;
-		std::string id_tmp_path;
+	// add neccessary file masks to v_file
+	if (!ChannelName.empty())
+		v_file.push_back(ChannelName);
+	if (!SpecialChannelName.empty())
+		v_file.push_back(SpecialChannelName);
+	if (strcmp(strChnId, "0") != 0)
+		v_file.push_back(strChnId);
+	if (strcmp(e2filename1, "") != 0)
+		v_file.push_back(std::string(e2filename1));
+	if (strcmp(e2filename2, "") != 0)
+		v_file.push_back(std::string(e2filename2));
 
-		//create filename with channel name (logo_hdd_dir)
-		id_tmp_path = g_settings.logo_hdd_dir + "/";
-		id_tmp_path += ChannelName + fileType[i];
-		v_path.push_back(id_tmp_path);
+	for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
+	{
+		v_path.clear();
 
-		//create filename with id (logo_hdd_dir)
-		id_tmp_path = g_settings.logo_hdd_dir + "/";
-		id_tmp_path += strChnId + fileType[i];
-		v_path.push_back(id_tmp_path);
-
-		if (e2filename1[0] != '\0')
+		for (size_t f = 0; f < v_file.size(); f++)
 		{
-			//create E2 filename1
-			id_tmp_path = g_settings.logo_hdd_dir + "/";
-			id_tmp_path += std::string(e2filename1) + fileType[i];
-			v_path.push_back(id_tmp_path);
+			// process g_settings.lcd4l_logodir
+			if (lcd4l_mode)
+				v_path.push_back(g_settings.lcd4l_logodir + "/" + v_file[f] + fileType[i]);
+			// process g_settings.logo_hdd_dir
+			v_path.push_back(g_settings.logo_hdd_dir + "/" + v_file[f] + fileType[i]);
+			// process LOGODIR_VAR
+			if (g_settings.logo_hdd_dir != LOGODIR_VAR)
+				v_path.push_back(std::string(LOGODIR_VAR) + "/" + v_file[f] + fileType[i]);
+			// process LOGODIR
+			if (g_settings.logo_hdd_dir != LOGODIR)
+				v_path.push_back(std::string(LOGODIR) + "/" + v_file[f] + fileType[i]);
 		}
 
-		if (e2filename2[0] != '\0')
-		{
-			//create E2 filename2
-			id_tmp_path = g_settings.logo_hdd_dir + "/";
-			id_tmp_path += std::string(e2filename2) + fileType[i];
-			v_path.push_back(id_tmp_path);
-		}
-
-		if(g_settings.logo_hdd_dir != LOGODIR_VAR){
-			//create filename with channel name (LOGODIR_VAR)
-			id_tmp_path = LOGODIR_VAR "/";
-			id_tmp_path += ChannelName + fileType[i];
-			v_path.push_back(id_tmp_path);
-
-			//create filename with id (LOGODIR_VAR)
-			id_tmp_path = LOGODIR_VAR "/";
-			id_tmp_path += strChnId + fileType[i];
-			v_path.push_back(id_tmp_path);
-
-			if (e2filename1[0] != '\0')
-			{
-				//create E2 filename1 (LOGODIR_VAR)
-				id_tmp_path = LOGODIR_VAR "/";
-				id_tmp_path += std::string(e2filename1) + fileType[i];
-				v_path.push_back(id_tmp_path);
-			}
-
-			if (e2filename2[0] != '\0')
-			{
-				//create E2 filename2 (LOGODIR_VAR)
-				id_tmp_path = LOGODIR_VAR "/";
-				id_tmp_path += std::string(e2filename2) + fileType[i];
-				v_path.push_back(id_tmp_path);
-			}
-		}
-		if(g_settings.logo_hdd_dir != LOGODIR){
-			//create filename with channel name (LOGODIR)
-			id_tmp_path = LOGODIR "/";
-			id_tmp_path += ChannelName + fileType[i];
-			v_path.push_back(id_tmp_path);
-
-			//create filename with id (LOGODIR)
-			id_tmp_path = LOGODIR "/";
-			id_tmp_path += strChnId + fileType[i];
-			v_path.push_back(id_tmp_path);
-
-			if (e2filename1[0] != '\0')
-			{
-				//create E2 filename1 (LOGODIR)
-				id_tmp_path = LOGODIR "/";
-				id_tmp_path += std::string(e2filename1) + fileType[i];
-				v_path.push_back(id_tmp_path);
-			}
-
-			if (e2filename2[0] != '\0')
-			{
-				//create E2 filename2 (LOGODIR)
-				id_tmp_path = LOGODIR "/";
-				id_tmp_path += std::string(e2filename2) + fileType[i];
-				v_path.push_back(id_tmp_path);
-			}
-		}
 		//check if file is available, name with real name is preferred, return true on success
-		for (size_t j = 0; j < v_path.size(); j++){
-			if (access(v_path[j].c_str(), R_OK) != -1){
-				if(width && height)
+		for (size_t j = 0; j < v_path.size(); j++)
+		{
+			//printf("GetLogoName(): v_path[%d] \"%s\"\n", j, v_path[j].c_str());
+			if (access(v_path[j].c_str(), R_OK) != -1)
+			{
+				if (width && height)
 					getSize(v_path[j].c_str(), width, height);
 				name = v_path[j];
 				return true;
@@ -792,7 +710,6 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 	}
 	return false;
 }
-#endif
 #if 0
 bool CPictureViewer::DisplayLogo (uint64_t channel_id, int posx, int posy, int width, int height)
 {
