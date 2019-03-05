@@ -1987,8 +1987,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		paintbuttons = true;
 	}
 
-//NI
-#if 0
+#ifdef ENABLE_TANGOS
 	if (displayMode != DISPLAY_MODE_NOW)
 	{
 		/*
