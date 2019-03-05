@@ -248,13 +248,13 @@ buildinfo.creator Creator
 buildinfo.kernel Kernel version
 buildinfo.menu Build information
 cablesetup.provider cable provider
-channellist.additional Additional informations
+channellist.additional Additional Informations
 channellist.additional_desc Description
 channellist.additional_list Event list
-channellist.additional_off off
-channellist.additional_on on
-channellist.additional_on_minitv on (with MiniTV)
-channellist.current_tp Current transponder
+channellist.additional_off Off
+channellist.additional_on On
+channellist.additional_on_minitv On (with MiniTV)
+channellist.current_tp Current Transponder
 channellist.edit Edit
 channellist.epgtext_align_left Left
 channellist.epgtext_align_right Right
@@ -1162,7 +1162,6 @@ menu.hint_channellist_foot Show additional information\nin bottom box
 menu.hint_channellist_hdicon Show HD/UHD icons in channel list
 menu.hint_channellist_mode Use the selected channel list mode on startup if last mode is TV
 menu.hint_channellist_mode_radio Use the selected channel list mode on startup if last mode is Radio
-menu.hint_channellist_primetime Show what's on primetime
 menu.hint_channellist_setup Configure channel list GUI options
 menu.hint_channellist_show_channellogo Show channel logos in channellist, eventlist, EPG Plus, EPG-viewer and moviebrowser
 menu.hint_channellist_show_channelnumber Show channel number in channel list
