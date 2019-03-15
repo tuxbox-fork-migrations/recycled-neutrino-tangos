@@ -150,6 +150,7 @@ CInfoViewer::CInfoViewer ()
 	recordsbox = NULL;
 	recordsblink = NULL;
 	showBBIcons_width = 0;
+	weather = NULL;
 	Init();
 }
 
@@ -790,6 +791,8 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	if (showButtonBar)
 	{
 		paintshowButtonBar();
+		weather = CWeather::getInstance();
+		weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
 	}
 
 	if ((ChanNum) && (g_settings.channellist_show_numbers))
@@ -2030,7 +2033,8 @@ void CInfoViewer::killTitle()
 	if (is_visible)
 	{
 		is_visible = false;
-		is_visible = false;
+		if (weather)
+			weather->hide();
 		int bottom = BoxEndY + OFFSET_SHADOW + bottom_bar_offset;
 		if (showButtonBar)
 			bottom += InfoHeightY_Info;

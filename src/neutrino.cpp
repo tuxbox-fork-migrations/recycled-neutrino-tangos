@@ -1055,6 +1055,18 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.movieplayer_display_playtime = configfile.getInt32("movieplayer_display_playtime", 1);
 
 	//online services
+	std::string weather_api_key = WEATHER_DEV_KEY;
+#if ENABLE_WEATHER_KEY_MANAGE
+	g_settings.weather_api_key = configfile.getString("weather_api_key", weather_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : weather_api_key);
+	g_settings.weather_enabled = configfile.getInt32("weather_enabled", 1);
+#else
+	g_settings.weather_api_key = weather_api_key;
+	g_settings.weather_enabled = 1;
+#endif
+	g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
+	g_settings.weather_location = configfile.getString("weather_location", "52.52,13.40" );
+	g_settings.weather_city = configfile.getString("weather_city", "Berlin" );
+
 	std::string yt_api_key = YT_DEV_KEY;
 #if ENABLE_YOUTUBE_KEY_MANAGE
 	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id", yt_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : yt_api_key);
@@ -1818,6 +1830,12 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "movieplayer_repeat_on", g_settings.movieplayer_repeat_on );
 
 	//online services
+#ifndef WEATHER_DEV_KEY
+	configfile.setString( "weather_api_key", g_settings.weather_api_key );
+	configfile.setInt32( "weather_enabled", g_settings.weather_enabled );
+#endif
+	configfile.setString( "weather_location", g_settings.weather_location );
+	configfile.setString( "weather_city", g_settings.weather_city );
 #ifndef YT_DEV_KEY
 	configfile.setString( "youtube_dev_id", g_settings.youtube_dev_id );
 	configfile.setInt32( "youtube_enabled", g_settings.youtube_enabled );
@@ -2925,6 +2943,8 @@ TIMER_START();
 	cSysLoad::getInstance();
 	if ((g_settings.infobar_casystem_display < 2) && g_settings.infobar_show_sysfs_hdd)
 		cHddStat::getInstance();
+
+	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
 
 TIMER_STOP("################################## after all ##################################");
 	if (g_settings.softupdate_autocheck) {
