@@ -1364,7 +1364,7 @@ menu.hint_misc_epg Save/load EPG options, EPG cache options\nEPG save directory
 menu.hint_misc_filebrowser Filesystem encoding, file rights\ndeny directory leave
 menu.hint_misc_general Start to standby, cache teletext, swp rotor\nplugin hdd dir
 menu.hint_misc_kerneloptions Select the kernel modules to be loaded in addition to the standard ones
-menu.hint_misc_onlineservices Configure and control online services like YouTube, SHOUTCast and TMDb
+menu.hint_misc_onlineservices Configure and control online services like Weather, YouTube, SHOUTCast and TMDb
 menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
 menu.hint_moviebrowser_fonts Change moviebrowser (My recordings) font sizes
@@ -1658,6 +1658,9 @@ menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
 menu.hint_volume_size Select volume indicator height
+menu.hint_weather_api_key Type your Dark Sky API key. An empty input disables Weather support
+menu.hint_weather_enabled Enable or disable Weather support (darksky.net)
+menu.hint_weather_location Select your weather location
 menu.hint_webradio_setup WebRadio channels configured here will be available in the standard channel lists.
 menu.hint_webtv_setup WebTV channels configured here will be available in the standard channel lists.
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
@@ -2722,6 +2725,9 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
+weather.api_key Dark Sky API key
+weather.enabled Weather support
+weather.location Weather Location
 webradio.head WebRadio
 webradio.xml WebRadio XML files
 webradio.xml.add Add XML file

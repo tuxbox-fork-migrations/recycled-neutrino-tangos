@@ -42,6 +42,7 @@
 #include <string>
 #include <zapit/channel.h>
 #include <gui/components/cc.h>
+#include <gui/weather.h>
 #include <driver/fade.h>
 #include "widget/menue.h"
 
@@ -70,6 +71,8 @@ private:
 	CComponentsWindowMax *CoverBox;
 	CComponentsForm *recordsbox;
 	CComponentsTimer *recordsblink;
+
+	CWeather *weather;
 
 	bool           gotTime;
 	bool           recordModeActive;
