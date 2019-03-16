@@ -99,6 +99,7 @@
 #include "gui/update.h"
 #include "gui/videosettings.h"
 #include "gui/audio_select.h"
+#include "gui/weather.h"
 
 #include "gui/widget/hintbox.h"
 #include "gui/widget/icons.h"

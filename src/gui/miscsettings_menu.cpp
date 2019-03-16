@@ -34,6 +34,7 @@
 #include <system/helpers.h>
 #include <system/debug.h>
 #include <gui/miscsettings_menu.h>
+#include <gui/weather.h>
 #include <gui/cec_setup.h>
 #include <gui/filebrowser.h>
 #include <gui/keybind_setup.h>
