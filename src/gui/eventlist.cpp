@@ -1054,9 +1054,12 @@ void CEventList::paintFoot(t_channel_id channel_id)
 	}
 
 	// epg button for epg-plus
-	buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_EPG_SMALL;
-	buttons[btn_cnt].locale = LOCALE_EPGPLUS_HEAD;
-	btn_cnt++;
+	if (g_settings.eventlist_epgplus)
+	{
+		buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_EPG_SMALL;
+		buttons[btn_cnt].locale = LOCALE_EPGPLUS_HEAD;
+		btn_cnt++;
+	}
 
 	buttons[btn_cnt].button = g_info.hw_caps->has_button_timer ? NEUTRINO_ICON_BUTTON_TIMER : NEUTRINO_ICON_BUTTON_0;
 	buttons[btn_cnt].locale = LOCALE_TIMERLIST_NAME;

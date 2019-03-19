@@ -2163,6 +2163,7 @@ void CMenuOptionStringChooser::init(	const std::string &OptionName,
 	optionValuePtr	= pOptionValue ? pOptionValue : &optionValue;
 	observ		= Observ;
 	pulldown	= Pulldown;
+	hold_last_item 	= false;
 }
 
 
@@ -2204,7 +2205,7 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 
 		std::string title_str = title.empty() ? getName() : title;
 
-		CMenuWidget* menu = new CMenuWidget(title_str, NEUTRINO_ICON_SETTINGS);
+		CMenuWidget* menu = new CMenuWidget(title_str, NEUTRINO_ICON_SETTINGS, 20, hold_last_item ? MN_WIDGET_ID_MENU_SELECT_STRING : -1);
 		menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 		//if(parent) menu->move(20, 0);
 		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
@@ -2244,6 +2245,7 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 	else if(observ) {
 		wantsRepaint = observ->changeNotify(name, (void *)(optionValuePtr ? optionValuePtr->c_str() : ""));
 	}
+	OnAfterChangeOption();
 	if (wantsRepaint)
 		ret = menu_return::RETURN_REPAINT;
 

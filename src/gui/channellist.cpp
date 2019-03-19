@@ -886,9 +886,8 @@ int CChannelList::show()
 
 				if (g_settings.channellist_additional)
 				{
-					// show event description in primetime mode
-					if (displayMode == DISPLAY_MODE_PRIME)
-						descMode = true;
+					// show event description per default in primetime mode only
+					descMode = (displayMode == DISPLAY_MODE_PRIME) ? true : false;
 				}
 
 				paint();
@@ -1816,8 +1815,7 @@ void CChannelList::showChannelLogo()
 		header->setChannelLogo(0, std::string());
 }
 
-#define NUM_LIST_BUTTONS_SORT 9
-struct button_label SChannelListButtons_SMode[NUM_LIST_BUTTONS_SORT] =
+struct button_label SChannelListButtons_SMode[] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED,             LOCALE_MISCSETTINGS_EPG_HEAD},
 	{ NEUTRINO_ICON_BUTTON_GREEN,           LOCALE_CHANNELLIST_FOOT_SORT_ALPHA},
@@ -1829,9 +1827,9 @@ struct button_label SChannelListButtons_SMode[NUM_LIST_BUTTONS_SORT] =
 	{ NEUTRINO_ICON_BUTTON_MENU_SMALL,      NONEXISTANT_LOCALE},
 	{ NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, NONEXISTANT_LOCALE}
 };
+int NUM_LIST_BUTTONS_SORT = sizeof(SChannelListButtons_SMode)/sizeof(SChannelListButtons_SMode[0]);
 
-#define NUM_LIST_BUTTONS_EDIT 6
-const struct button_label SChannelListButtons_Edit[NUM_LIST_BUTTONS_EDIT] =
+const struct button_label SChannelListButtons_Edit[] =
 {
         { NEUTRINO_ICON_BUTTON_RED   , LOCALE_BOUQUETEDITOR_DELETE     },
         { NEUTRINO_ICON_BUTTON_GREEN , LOCALE_BOUQUETEDITOR_ADD        },
@@ -1840,6 +1838,7 @@ const struct button_label SChannelListButtons_Edit[NUM_LIST_BUTTONS_EDIT] =
         { NEUTRINO_ICON_BUTTON_FORWARD  , LOCALE_BOUQUETEDITOR_MOVE_TO },
         { NEUTRINO_ICON_BUTTON_STOP  , LOCALE_BOUQUETEDITOR_LOCK       }
 };
+int NUM_LIST_BUTTONS_EDIT = sizeof(SChannelListButtons_Edit)/sizeof(SChannelListButtons_Edit[0]);
 
 void CChannelList::paintButtonBar(bool is_current)
 {
@@ -2313,11 +2312,22 @@ void CChannelList::paintHead()
 	else
 		header->setIcon(edit_state ? NEUTRINO_ICON_EDIT : NULL);
 
-	std::string header_txt 		= !edit_state ? name : std::string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name;
-	fb_pixel_t header_txt_col 	= (edit_state ? COL_RED : COL_MENUHEAD_TEXT);
-	header->setColorBody(COL_MENUHEAD_PLUS_0);
+	std::string header_txt;
+	if (edit_state)
+	{
+		header_txt = std::string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name;
+	}
+	else
+	{
+		header_txt = name;
+		if (displayMode == DISPLAY_MODE_NEXT)
+			header_txt += " - " + std::string(g_Locale->getText(LOCALE_INFOVIEWER_NEXT));
+		else if (displayMode == DISPLAY_MODE_PRIME)
+			header_txt += " - " + std::string(g_Locale->getText(LOCALE_CHANNELLIST_PRIMETIME));
+	}
 
-	header->setCaption(header_txt, DEFAULT_TITLE_ALIGN, header_txt_col);
+	header->setColorBody(COL_MENUHEAD_PLUS_0);
+	header->setCaption(header_txt, DEFAULT_TITLE_ALIGN, edit_state ? COL_RED : COL_MENUHEAD_TEXT);
 
 //	if (timeset) {
 		if(!edit_state){
