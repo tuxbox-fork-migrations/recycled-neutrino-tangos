@@ -1045,16 +1045,16 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		int forecast = CWeather::getInstance()->getForecastSize();
 
-		std::string wtemp = CWeather::getInstance()->getActTemp();
+		std::string wtemp = CWeather::getInstance()->getCurrentTemperature();
 		for (int i = 1; i < forecast; i++) // 0 is current day
-			wtemp += "\n" + CWeather::getInstance()->getForecastMinTemp(i) + " - " + CWeather::getInstance()->getForecastMaxTemp(i);
+			wtemp += "\n" + CWeather::getInstance()->getForecastTempMin(i) + " - " + CWeather::getInstance()->getForecastTempMax(i);
 		if (m_wtemp.compare(wtemp))
 		{
 			WriteFile(WEATHER_TEMP, wtemp);
 			m_wtemp = wtemp;
 		}
 
-		std::string wicon = CWeather::getInstance()->getActIcon();
+		std::string wicon = CWeather::getInstance()->getCurrentIcon();
 		for (int i = 1; i < forecast; i++) // 0 is current day
 			wicon += "\n" + CWeather::getInstance()->getForecastIcon(i);
 		if (m_wicon.compare(wicon))
