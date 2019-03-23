@@ -43,9 +43,10 @@
 
 #define UPDATE_CYCLE 15 // minutes
 
+CWeather *weather = NULL;
+
 CWeather *CWeather::getInstance()
 {
-	static CWeather *weather = NULL;
 	if (!weather)
 		weather = new CWeather();
 	return weather;
@@ -75,7 +76,7 @@ void CWeather::setCoords(std::string new_coords, std::string new_city)
 	{
 		coords = new_coords;
 		city = new_city;
-		GetWeatherDetails();
+		checkUpdate(true);
 	}
 }
 
@@ -127,6 +128,9 @@ bool CWeather::GetWeatherDetails()
 	{
 		timezone = DataValues["timezone"].asString();
 		act_temp = DataValues["currently"].get("temperature", "").asFloat();
+		act_pressure = DataValues["currently"].get("pressure", "").asFloat();
+		act_humidity = DataValues["currently"].get("humidity", "").asFloat();
+		act_windspeed = DataValues["currently"].get("windSpeed", "").asFloat();
 		act_wicon = DataValues["currently"].get("icon", "").asString();
 		if (act_wicon.empty())
 			act_wicon = "unknown.png";
@@ -139,6 +143,9 @@ bool CWeather::GetWeatherDetails()
 		for (unsigned int i = 0; i < elements.size(); i++)
 		{
 			weatherinfo.timestamp = elements[i].get("time", 0).asDouble();
+			weatherinfo.weekday = (int)(localtime(&weatherinfo.timestamp)->tm_wday);
+			weatherinfo.sunrisetime = elements[i].get("sunriseTime", 0).asDouble();
+			weatherinfo.sunsettime = elements[i].get("sunsetTime", 0).asDouble();
 			weatherinfo.wicon = elements[i].get("icon", "").asString();
 			if (weatherinfo.wicon.empty())
 				weatherinfo.wicon = "unknown.png";
