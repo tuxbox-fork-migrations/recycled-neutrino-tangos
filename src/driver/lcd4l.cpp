@@ -106,7 +106,9 @@ extern CPictureViewer *g_PicViewer;
 #define PBCOLOR			LCD_DATADIR "pbcolor"
 
 #define WEATHER_CITY		LCD_DATADIR "weather_city"
+#define WEATHER_TIMESTAMP	LCD_DATADIR "weather_timestamp"
 #define WEATHER_TEMP		LCD_DATADIR "weather_temp"
+#define WEATHER_WIND		LCD_DATADIR "weather_wind"
 #define WEATHER_ICON		LCD_DATADIR "weather_icon"
 
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
@@ -286,7 +288,9 @@ void CLCD4l::Init()
 	m_End		= "00:00";
 
 	m_wcity		= "";
+	m_wtimestamp	= "";
 	m_wtemp		= "";
+	m_wwind		= "";
 	m_wicon		= "";
 
 	if (!access(LCD_DATADIR, F_OK) == 0)
