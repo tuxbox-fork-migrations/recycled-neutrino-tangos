@@ -144,7 +144,7 @@ bool CWeather::GetWeatherDetails()
 		for (unsigned int i = 0; i < elements.size(); i++)
 		{
 			daily_data.timestamp = elements[i].get("time", 0).asDouble();
-			daily_data.weekday = (int)(localtime(&weatherinfo.timestamp)->tm_wday);
+			daily_data.weekday = (int)(localtime(&daily_data.timestamp)->tm_wday);
 			daily_data.icon = elements[i].get("icon", "").asString();
 			if (daily_data.icon.empty())
 				daily_data.icon = "unknown.png";
