@@ -1043,19 +1043,42 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			m_wcity = wcity;
 		}
 
+		std::string wtimestamp = to_string((int)CWeather::getInstance()->getCurrentTimestamp());
+		if (m_wtimestamp.compare(wtimestamp))
+		{
+			WriteFile(WEATHER_TIMESTAMP, wtimestamp);
+			m_wtimestamp = wtimestamp;
+		}
+
 		int forecast = CWeather::getInstance()->getForecastSize();
 
 		std::string wtemp = CWeather::getInstance()->getCurrentTemperature();
 		for (int i = 1; i < forecast; i++) // 0 is current day
-			wtemp += "\n" + CWeather::getInstance()->getForecastTempMin(i) + " - " + CWeather::getInstance()->getForecastTempMax(i);
+		{
+			wtemp += "\n" + CWeather::getInstance()->getForecastTemperatureMin(i);
+			wtemp += "|" + CWeather::getInstance()->getForecastTemperatureMax(i);
+		}
 		if (m_wtemp.compare(wtemp))
 		{
 			WriteFile(WEATHER_TEMP, wtemp);
 			m_wtemp = wtemp;
 		}
 
-		std::string wicon = CWeather::getInstance()->getCurrentIcon();
+		std::string wwind = CWeather::getInstance()->getCurrentWindSpeed();
+		wwind += "|" + CWeather::getInstance()->getCurrentWindBearing();
 		for (int i = 1; i < forecast; i++) // 0 is current day
+		{
+			wwind += "\n" + CWeather::getInstance()->getForecastWindSpeed(i);
+			wwind += "|" + CWeather::getInstance()->getForecastWindBearing(i);
+		}
+		if (m_wwind.compare(wwind))
+		{
+			WriteFile(WEATHER_WIND, wwind);
+			m_wwind = wwind;
+		}
+
+		std::string wicon = CWeather::getInstance()->getCurrentIcon();
+		for (int i = 0; i < 1 + forecast; i++)
 			wicon += "\n" + CWeather::getInstance()->getForecastIcon(i);
 		if (m_wicon.compare(wicon))
 		{
