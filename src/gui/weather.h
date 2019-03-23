@@ -41,6 +41,9 @@ typedef struct
 	float min_temp;
 	float max_temp;
 	time_t timestamp;
+	time_t sunrisetime;
+	time_t sunsettime;
+	int weekday; //0=Sunday, 1=Monday, ....
 } forecast_data;
 
 class CWeather
@@ -51,6 +54,9 @@ class CWeather
 		std::string timezone;
 		std::string act_wicon;
 		float act_temp;
+		float act_humidity;
+		float act_pressure;
+		float act_windspeed;
 		std::vector<forecast_data> v_forecast;
 		CComponentsForm *form;
 		std::string key;
@@ -69,13 +75,43 @@ class CWeather
 		{
 			return city;
 		};
+		std::string getActHumidity()
+		{
+			return to_string((int)(act_humidity * 100.0));
+		};
+		std::string getActPressure()
+		{
+			return to_string(act_pressure);
+		};
+		std::string getActWindSpeed()
+		{
+			return to_string(act_windspeed);
+		};
 		std::string getActTemp()
 		{
 			return to_string((int)(act_temp + 0.5));
 		};
-		std::string getForecastTemp(int i = 0)
+		int getForecastSize()
 		{
+			return (int)v_forecast.size();
+		};
+		std::string getForecastMinTemp(int i = 0)
+		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
+			return to_string((int)(v_forecast[i].min_temp + 0.5));
+		};
+		std::string getForecastMaxTemp(int i = 0)
+		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
 			return to_string((int)(v_forecast[i].max_temp + 0.5));
+		};
+		int getForecastWeekday(int i = 0)
+		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
+			return v_forecast[i].weekday;
 		};
 		std::string getActIcon()
 		{
@@ -83,6 +119,8 @@ class CWeather
 		};
 		std::string getForecastIcon(int i = 0)
 		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
 			return ICONSDIR"/weather/" + v_forecast[i].wicon;
 		};
 };
