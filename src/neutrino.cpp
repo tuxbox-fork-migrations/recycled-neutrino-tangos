@@ -5452,7 +5452,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	//rc-key configuration
 	tconfig->setInt32( "key_tvradio_mode", g_settings.key_tvradio_mode );
 	tconfig->setInt32( "key_power_off", g_settings.key_power_off );
-	tconfig->etInt32( "key_standby_off_add", g_settings.key_standby_off_add );
+	tconfig->setInt32( "key_standby_off_add", g_settings.key_standby_off_add );
 
 	tconfig->setInt32( "key_channelList_pageup", g_settings.key_pageup );
 	tconfig->setInt32( "key_channelList_pagedown", g_settings.key_pagedown );
