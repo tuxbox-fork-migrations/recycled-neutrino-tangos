@@ -476,6 +476,18 @@ std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
 	return result.erase(0, result.find_first_not_of(trimChars));
 }
 
+std::string ltrim(std::string &str, const std::string &trimChars)
+{
+	str.erase(0, str.find_first_not_of(trimChars));
+	return str;
+}
+
+std::string rtrim(std::string &str, const std::string &trimChars)
+{
+	str.erase(str.find_last_not_of(trimChars) + 1);
+	return str;
+}
+
 std::string cutString(const std::string str, int msgFont, const int width)
 {
 	Font *msgFont_ = g_Font[msgFont];
@@ -1770,6 +1782,15 @@ std::string encodeUrl(std::string txt)
 	curl_free(str);
 
 	return txt;
+}
+
+bool isDigitWord(std::string str)
+{
+	for (size_t i=0; i < str.size(); i++)
+		if (!isdigit(str[i]))
+			return false;
+
+	return true;
 }
 
 //

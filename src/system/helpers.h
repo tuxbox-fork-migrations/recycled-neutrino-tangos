@@ -69,6 +69,8 @@ std::string getFileName(std::string &file);
 std::string getFileExt(std::string &file);
 std::string getNowTimeStr(const char* format);
 std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
+std::string ltrim(std::string &str, const std::string &trimChars = " \n\r\t");
+std::string rtrim(std::string &str, const std::string &trimChars = " \n\r\t");
 std::string cutString(const std::string str, int msgFont, const int width);
 std::string strftime(const char *format, const struct tm *tm);
 std::string strftime(const char *format, time_t when, bool gm = false);
@@ -181,6 +183,8 @@ std::string decodeUrl(std::string url);
 
 bool getUrl(std::string &url, std::string &answer, const std::string userAgent = " ", unsigned int timeout = 60);
 bool downloadUrl(std::string url, std::string file, const std::string userAgent = " ", unsigned int timeout = 60);
+
+bool isDigitWord(std::string str);
 
 //
 #endif
