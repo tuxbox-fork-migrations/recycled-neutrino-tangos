@@ -28,6 +28,7 @@ install_DATA = \
 	Olive-1.0.theme \
 	Olive-2.0.theme \
 	Olive-3.0.theme \
+	Origin.theme \
 	Red.theme \
 	Sportster.theme \
 	VirginMedia.theme

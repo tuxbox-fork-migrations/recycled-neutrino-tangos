@@ -230,7 +230,7 @@ class CMenuSeparator : public CMenuItem
 			ALIGN_CENTER	= 4,
 			ALIGN_LEFT	= 8,
 			ALIGN_RIGHT	= 16,
-			SUB_HEAD	= 32
+			SUB_HEAD	= 0 //32 deprecated and invalid, only here for compatibility //TODO: remove global
 		};
 
 
@@ -284,6 +284,7 @@ class CMenuForwarder : public CMenuItem
 	neutrino_locale_t getTextLocale() const {return name;}
 	CMenuTarget* getTarget() const {return jumpTarget;}
 	const char *getActionKey(){return actionKey.c_str();}
+	void setActionKey(const std::string& ActionKey){actionKey = ActionKey;}
 
 	int exec(CMenuTarget* parent);
 	void setOption(const std::string &Option);
@@ -551,8 +552,9 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		CComponentsDetailsLine	*details_line;
 		CComponentsInfoBox	*info_box;
 		int			hint_height;
-		CComponentsHeader 	*header;
+		CComponentsHeader 	*header, *sub_header;
 		CComponentsFooter 	*footer;
+		std::string		subhead_text;
 		unsigned int saveScreen_width ;
 		unsigned int saveScreen_height;
 		unsigned int saveScreen_y;
@@ -607,6 +609,8 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		void saveScreen();
 		void restoreScreen();
 		void setMenuPos(const int& menu_width);
+		void initHeader();
+		void initSubHeader();
 
 	public:
 		CMenuWidget();
@@ -629,7 +633,8 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 			BRIEF_HINT_NO	= 0,
 			BRIEF_HINT_YES	= 1
 		};
-		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO);
+		void addIntroItems(neutrino_locale_t l_subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO);
+		void addIntroItems(const std::string& s_subhead_text, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO);
 		bool hasItem();
 		void resetWidget(bool delete_items = false);
 		void insertItem(const uint& item_id, CMenuItem* menuItem);
