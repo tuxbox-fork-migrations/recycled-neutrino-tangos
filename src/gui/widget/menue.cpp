@@ -31,7 +31,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <gui/widget/menue.h>
+#include "menue.h"
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
@@ -645,6 +645,7 @@ void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, c
 	//caption and icon
 	nameString 	= NameString;
 	iconfile 	= Icon;
+	subhead_text	= std::string();
 
 	//basic attributes
 	iconOffset 	= 0;
@@ -672,6 +673,7 @@ void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, c
 	details_line	= NULL;
 	info_box	= NULL;
 	header 		= NULL;
+	sub_header	= NULL;
 	footer		= NULL;
 	frameBuffer 	= CFrameBuffer::getInstance();
 	mglobal 	= CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
@@ -723,6 +725,11 @@ void CMenuWidget::ResetModules()
 		header->hide();
 		delete header;
 		header = NULL;
+	}
+	if (sub_header){
+		sub_header->hide();
+		delete sub_header;
+		sub_header = NULL;
 	}
 	if (details_line){
 		details_line->hide();
@@ -1170,6 +1177,8 @@ void CMenuWidget::hide()
 	} else {
 		if (header)
 			header->kill();
+		if (sub_header)
+			sub_header->kill();
 		if (info_box)
 			info_box->kill();
 		if (details_line)
@@ -1254,7 +1263,11 @@ void CMenuWidget::calcSize()
 	if (neededWidth > width - frameBuffer->scale2Res(48)) {
 		width = neededWidth + frameBuffer->scale2Res(48)+1;
 	}
-	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+
+	initHeader();
+	hheight = header->getHeight();
+	if (sub_header)
+		hheight += sub_header->getHeight();
 
 	int heightCurrPage=0;
 	page_start.clear();
@@ -1361,8 +1374,11 @@ void CMenuWidget::paint()
 
 	if (CInfoClock::getInstance()->isRun())
 		CInfoClock::getInstance()->disableInfoClock();
+
 	calcSize();
+
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, nameString.c_str()*/);
+
 
 	/* prepare footer:
 	 * We must prepare footer, to get current footer dimensions,
@@ -1373,17 +1389,10 @@ void CMenuWidget::paint()
 	OnBeforePaint();
 
 	// paint head
-	if (header == NULL){
-		header = new CComponentsHeader(x, y, width + scrollbar_width, hheight, getName(), iconfile);
-		header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
-		header->setOffset(OFFSET_INNER_MID);
-	}
-	header->setCaption(getName());
-	header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
-	header->setCaptionColor(COL_MENUHEAD_TEXT);
-	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0);
-	header->enableGradientBgCleanUp(savescreen);
+	initHeader();
 	header->paint(CC_SAVE_SCREEN_NO);
+	if (sub_header)
+		sub_header->paint(CC_SAVE_SCREEN_NO);
 
 	// paint body background
 	PaintBoxRel(x, y+hheight, width + scrollbar_width, height-hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE,
@@ -1396,6 +1405,46 @@ void CMenuWidget::paint()
 	// Finally paint footer if buttons are defined.
 	if (footer && fbutton_count)
 		footer->paint(CC_SAVE_SCREEN_NO);
+}
+
+void CMenuWidget::initHeader()
+{
+	int dx = width + scrollbar_width;
+	if (!header){
+		header = new CComponentsHeader(x, y, dx, 0, getName(), iconfile);
+		header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
+		header->setOffset(OFFSET_INNER_MID);
+	}
+	header->setWidth(dx);
+	header->setCaption(getName());
+	header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
+	header->setCaptionColor(COL_MENUHEAD_TEXT);
+	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
+	header->enableGradientBgCleanUp(savescreen);
+
+	if (!subhead_text.empty())
+		initSubHeader();
+	else
+		if (sub_header){
+			delete sub_header;
+			sub_header = NULL;
+		}
+}
+
+void CMenuWidget::initSubHeader()
+{
+	if (!sub_header){
+		sub_header = new CComponentsHeader(x, y + header->getHeight(), header->getWidth(), 0, CComponentsHeader::CC_HEADER_SIZE_SMALL, subhead_text);
+		sub_header->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
+		sub_header->setOffset(OFFSET_INNER_MID);
+		sub_header->setCorner(CORNER_NONE);
+	}
+	sub_header->setWidth(header->getWidth());
+	sub_header->setCaption(subhead_text);
+	sub_header->setColorAll(COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
+	sub_header->setCaptionColor(COL_MENUHEAD_TEXT);
+	sub_header->enableColBodyGradient(g_settings.theme.menu_SubHead_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_SubHead_gradient_direction);
+	sub_header->enableGradientBgCleanUp(savescreen);
 }
 
 void CMenuWidget::setMenuPos(const int& menu_width)
@@ -1493,12 +1542,11 @@ void CMenuWidget::paintItems()
 }
 
 /*adds the typical menu intro with optional subhead, separator, back or cancel button and separatorline to menu*/
-void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_t section_text, int buttontype, bool brief_hint)
+void CMenuWidget::addIntroItems(const std::string& s_subhead_text, neutrino_locale_t section_text, int buttontype, bool brief_hint)
 {
 	brief_hints = brief_hint;
 
-	if (subhead_text != NONEXISTANT_LOCALE)
-		addItem(new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, subhead_text));
+	subhead_text = s_subhead_text;
 
 	addItem(GenericMenuSeparator);
 	
@@ -1519,6 +1567,12 @@ void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_
 		addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, section_text));
 	else if (buttontype != BTN_TYPE_NO)
 		addItem(GenericMenuSeparatorLine);
+}
+
+void CMenuWidget::addIntroItems(neutrino_locale_t l_subhead_text, neutrino_locale_t section_text, int buttontype, bool brief_hint)
+{
+	std::string str = l_subhead_text == NONEXISTANT_LOCALE ? "" : g_Locale->getText(l_subhead_text);
+	addIntroItems(str, section_text, buttontype, brief_hint);
 }
 
 void CMenuWidget::saveScreen()
@@ -2423,17 +2477,6 @@ int CMenuSeparator::paint(bool selected)
 {
 	height = getHeight();
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
-	
-	if ((type & SUB_HEAD))
-	{
-		item_color = COL_MENUHEAD_TEXT;
-		item_bgcolor = g_settings.theme.menu_Head_gradient ? COL_MENUCONTENT_PLUS_0 : COL_MENUHEAD_PLUS_0;
-	}
-	else
-	{
-		item_color = COL_MENUCONTENTINACTIVE_TEXT;
-		item_bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
 
 	frameBuffer->paintBoxRel(x, y, dx, height, item_bgcolor);
 	if ((type & LINE))
@@ -2453,7 +2496,7 @@ int CMenuSeparator::paint(bool selected)
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)
-				name_start_x = x + (!(type & SUB_HEAD) ? name_start_x : 2*OFFSET_INNER_MID + iconwidth);
+				name_start_x = x + (2*OFFSET_INNER_MID + iconwidth);
 			else if (type & ALIGN_RIGHT)
 				name_start_x = x + dx - stringwidth - 2*OFFSET_INNER_MID;
 			else /* ALIGN_CENTER */

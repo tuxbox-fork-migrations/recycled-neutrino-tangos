@@ -565,7 +565,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 				frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
 				v_fbdata[i].is_painted = true;
 				if (CCDraw_debug)
-					frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, 1, COL_RED);
+					frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, 1, COL_RANDOM);
 				continue;
 			}
 		}
@@ -701,7 +701,7 @@ void CCDraw::paintFbItems(bool do_save_bg)
 			}
 		}
 		if (CCDraw_debug)
-			frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, 1, COL_RED);
+			frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, 1, getRandomColor({255, 255}, {1,255}, {1, 255}));
 	}
 
 	//set is_painted attribut. if any layer was painted set it to true;
