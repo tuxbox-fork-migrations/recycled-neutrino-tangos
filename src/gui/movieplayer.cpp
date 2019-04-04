@@ -1585,8 +1585,8 @@ bool CMoviePlayerGui::PlayFileStart(void)
 	getCurrentAudioName(is_file_player, currentaudioname);
 	if (is_file_player)
 		selectAutoLang();
-	if(!isLuaPlay)
-		enableOsdElements(MUTE);
+
+	enableOsdElements(MUTE);
 	return res;
 }
 
