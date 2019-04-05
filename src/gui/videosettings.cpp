@@ -62,7 +62,7 @@
 
 #include <cs_api.h>
 #include <hardware/video.h>
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #include "3dsetup.h"
 #include <zapit/zapit.h>
 #include "screensetup.h"
@@ -521,10 +521,11 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(md);
 #endif
 
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	CMenuForwarder *mf;
 	CMenuOptionNumberChooser *mc;
 
+#if !HAVE_MIPS_HARDWARE
 	CPSISetup *psiSetup = CPSISetup::getInstance();
 
 	videosetup->addItem(GenericMenuSeparatorLine);
@@ -553,6 +554,7 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(mc);
 
 	videosetup->addItem(GenericMenuSeparatorLine);
+#endif
 
 	mf = new CMenuForwarder(LOCALE_THREE_D_SETTINGS, true, NULL, CNeutrinoApp::getInstance(), "3dmode", CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_VIDEO_THREE_D);
