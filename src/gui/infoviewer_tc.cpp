@@ -150,7 +150,7 @@ CInfoViewer::CInfoViewer ()
 	recordsbox = NULL;
 	recordsblink = NULL;
 	showBBIcons_width = 0;
-	weather = NULL;
+	weather = CWeather::getInstance();
 	Init();
 }
 
@@ -576,6 +576,8 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	if (!zap_mode)
 		paintshowButtonBar();
 
+	weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
+
 	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
 
 	// show_Data
@@ -791,7 +793,6 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	if (showButtonBar)
 	{
 		paintshowButtonBar();
-		weather = CWeather::getInstance();
 		weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
 	}
 
