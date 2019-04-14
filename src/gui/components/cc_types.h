@@ -205,7 +205,7 @@ typedef struct button_label_cc
 	button_label_cc(): 	button(NULL),
 				text(std::string()),
 				locale(NONEXISTANT_LOCALE),
-				directKeys(0, CRCInput::RC_nokey),
+				directKeys(0, RC_NOKEY /*CRCInput::RC_nokey*/),
 				order_id(0){}
 	bool operator< (const button_label_cc& i) const
 	{
