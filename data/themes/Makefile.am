@@ -31,4 +31,5 @@ install_DATA = \
 	Origin.theme \
 	Red.theme \
 	Sportster.theme \
-	VirginMedia.theme
+	VirginMedia.theme \
+	TangoCash.theme
