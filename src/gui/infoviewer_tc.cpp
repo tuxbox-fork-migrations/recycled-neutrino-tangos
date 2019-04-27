@@ -92,7 +92,7 @@ extern cVideo * videoDecoder;
 #define NEUTRINO_ICON_LOGO "/tmp/logo.png"
 #define INFOFILE "/tmp/infobar.txt"
 
-event_id_t CInfoViewer::last_curr_id = 0, CInfoViewer::last_next_id = 0;
+t_event_id CInfoViewer::last_curr_id = 0, CInfoViewer::last_next_id = 0;
 
 static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 {
