@@ -70,10 +70,7 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 	else
 #endif
 	if (g_settings.volume_external)
-	{
-		if (my_system((newValue) ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT) != 0)
-				perror((newValue) ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT " failed");
-	}
+		exec_controlscript((newValue) ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT)
 	else
 		g_Zapit->muteAudio(newValue);
 

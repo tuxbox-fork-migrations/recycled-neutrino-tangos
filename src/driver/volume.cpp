@@ -151,8 +151,7 @@ void CVolume::setVolume(const neutrino_msg_t key)
 				}
 				else if (g_settings.volume_external)
 				{
-					if (my_system((dir > 0) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT) != 0)
-							perror((dir > 0) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT " failed");
+					exec_controlscript((dir > 0) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT)
 					do_vol = false;
 				} else
 					do_vol = true;
