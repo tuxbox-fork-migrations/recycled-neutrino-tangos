@@ -30,26 +30,26 @@
 #endif
 
 #define NEUTRINO_SETTINGS_FILE          CONFIGDIR "/neutrino.conf"
-
-#define NEUTRINO_RECORDING_TIMER_SCRIPT CONFIGDIR "/recording.timer"
-#define NEUTRINO_RECORDING_START_SCRIPT CONFIGDIR "/recording.start"
-#define NEUTRINO_RECORDING_ENDED_SCRIPT CONFIGDIR "/recording.end"
-#define NEUTRINO_ENTER_STANDBY_SCRIPT   CONFIGDIR "/standby.on"
-#define NEUTRINO_LEAVE_STANDBY_SCRIPT   CONFIGDIR "/standby.off"
-#define NEUTRINO_ENTER_INACTIVITY_SCRIPT	CONFIGDIR "/inactivity.on"
-#define NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT	CONFIGDIR "/deepstandby.on"
-#define NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT	CONFIGDIR "/deepstandby.off"
-#define NEUTRINO_ENTER_FLASH_SCRIPT	CONFIGDIR "/flash.start"
-#define NEUTRINO_APP_START_SCRIPT	CONFIGDIR "/neutrino.start"
-#define MOVIEPLAYER_START_SCRIPT        CONFIGDIR "/movieplayer.start"
-#define MOVIEPLAYER_END_SCRIPT          CONFIGDIR "/movieplayer.end"
-#define VOLUME_UP_SCRIPT                CONFIGDIR "/volume.up"
-#define VOLUME_DOWN_SCRIPT              CONFIGDIR "/volume.down"
-#define MUTE_ON_SCRIPT                  CONFIGDIR "/mute.on"
-#define MUTE_OFF_SCRIPT                 CONFIGDIR "/mute.off"
-
 #define NEUTRINO_SCAN_SETTINGS_FILE     CONFIGDIR "/scan.conf"
 #define NEUTRINO_PARENTALLOCKED_FILE    DATADIR   "/neutrino/.plocked"
+
+
+#define NEUTRINO_RECORDING_TIMER_SCRIPT "recording.timer"
+#define NEUTRINO_RECORDING_START_SCRIPT "recording.start"
+#define NEUTRINO_RECORDING_ENDED_SCRIPT "recording.end"
+#define NEUTRINO_ENTER_STANDBY_SCRIPT   "standby.on"
+#define NEUTRINO_LEAVE_STANDBY_SCRIPT   "standby.off"
+#define NEUTRINO_ENTER_INACTIVITY_SCRIPT	"inactivity.on"
+#define NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT	"deepstandby.on"
+#define NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT	"deepstandby.off"
+#define NEUTRINO_ENTER_FLASH_SCRIPT	"flash.start"
+#define NEUTRINO_APP_START_SCRIPT	"neutrino.start"
+#define MOVIEPLAYER_START_SCRIPT        "movieplayer.start"
+#define MOVIEPLAYER_END_SCRIPT          "movieplayer.end"
+#define VOLUME_UP_SCRIPT                "volume.up"
+#define VOLUME_DOWN_SCRIPT              "volume.down"
+#define MUTE_ON_SCRIPT                  "mute.on"
+#define MUTE_OFF_SCRIPT                 "mute.off"
 
 #define COVERDIR_TMP	"/tmp/.cover"
 
