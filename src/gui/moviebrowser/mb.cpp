@@ -1212,6 +1212,9 @@ void CMovieBrowser::hide(void)
 	if (m_header)	{
 		delete m_header; m_header = NULL;
 	}
+	if (m_detailsLine){
+		delete m_detailsLine; m_detailsLine = NULL;
+	}
 	old_EpgId = 0;
 	old_ChannelName.clear();
 	framebuffer->paintBackground();
