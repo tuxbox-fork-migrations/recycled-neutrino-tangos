@@ -1245,6 +1245,13 @@ std::string to_string(unsigned long long i)
 	s << i;
 	return s.str();
 }
+
+std::string to_string(char i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
 #endif
 
 /**
