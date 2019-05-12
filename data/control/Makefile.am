@@ -19,4 +19,8 @@ install_SCRIPTS = \
 	scan.start \
 	scan.stop \
 	standby.on \
-	standby.off
+	standby.off \
+	volume.down \
+	volume.up \
+	mute.off \
+	mute.on

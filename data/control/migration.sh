@@ -2,9 +2,6 @@
 
 cd /var/tuxbox/config
 if [ -e neutrino.conf ]; then
-	# remove NG leftovers
-	sed -i 's|ng_netfs_\(.*\)|netfs_\1|' neutrino.conf
-
 	# webradio_usr.xml was moved
 	sed -i "s|/var/tuxbox/config/webradio_usr.xml|/var/tuxbox/webradio/webradio_usr.xml|" neutrino.conf
 	mkdir -p /var/tuxbox/webradio/
@@ -41,6 +38,10 @@ controlscripts="\
 	scan.stop \
 	standby.on \
 	standby.off \
+	volume.down \
+	volume.up \
+	mute.off \
+	mute.on
 "
 
 mkdir -p /var/tuxbox/control/
