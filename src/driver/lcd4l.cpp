@@ -789,7 +789,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			case PNG:
 				DisplayType = "PNG_";
 				break;
-#if defined BOXMODEL_VUSOLO4K
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K
 			case VUSOLO4K480x320:
 				DisplayType = "VUSolo4K_";
 				break;
