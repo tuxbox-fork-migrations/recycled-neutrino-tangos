@@ -378,10 +378,10 @@ void CMovieBrowser::init(void)
 	if (m_settings.parentalLock >= MB_PARENTAL_LOCK_MAX_NUMBER)
 		m_settings.parentalLock = MB_PARENTAL_LOCK_OFF;
 
+	m_settings.browserFrameHeight = m_settings.browserAdditional ? m_settings.browserFrameHeightAdditional : m_settings.browserFrameHeightGeneral;
 	/* convert from old pixel-based to new percent values */
 	if (m_settings.browserFrameHeight > 100)
 		m_settings.browserFrameHeight = 50;
-
 	if (m_settings.browserFrameHeight < MIN_BROWSER_FRAME_HEIGHT)
 		m_settings.browserFrameHeight = MIN_BROWSER_FRAME_HEIGHT;
 	if (m_settings.browserFrameHeight > MAX_BROWSER_FRAME_HEIGHT)
@@ -470,7 +470,9 @@ void CMovieBrowser::initGlobalSettings(void)
 	}
 
 	/***** Browser List **************/
-	m_settings.browserFrameHeight = 65; /* percent */
+	m_settings.browserFrameHeightGeneral = 65; /* percent */
+	m_settings.browserFrameHeightAdditional = 75; /* percent */
+	m_settings.browserFrameHeight = m_settings.browserFrameHeightGeneral; /* percent */
 
 	m_settings.browserRowNr = 6;
 	m_settings.browserRowItem[0] = MB_INFO_TITLE;
@@ -534,8 +536,9 @@ void CMovieBrowser::initFrames(void)
 		m_cBoxFrameBrowserList.iWidth =	m_cBoxFrame.iWidth / 3 * 2;
 	else
 		m_cBoxFrameBrowserList.iWidth =	m_cBoxFrame.iWidth;
-	if (m_settings.browserAdditional)
-		m_settings.browserFrameHeight = BROWSERFRAMEHEIGHT;
+
+	m_settings.browserFrameHeight = m_settings.browserAdditional ? m_settings.browserFrameHeightAdditional : m_settings.browserFrameHeightGeneral;
+
 	m_cBoxFrameBrowserList.iHeight = 	m_cBoxFrame.iHeight * m_settings.browserFrameHeight / 100;
 
 
@@ -657,7 +660,9 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 		settings->storageDirUsed[i] = configfile.getInt32("mb_dir_used" + to_string(i), false);
 	}
 	/* these variables are used for the listframes */
-	settings->browserFrameHeight = configfile.getInt32("mb_browserFrameHeight", 50);
+	settings->browserFrameHeightGeneral = configfile.getInt32("mb_browserFrameHeightGeneral", 65);
+	settings->browserFrameHeightAdditional = configfile.getInt32("mb_browserFrameHeightAdditional", 75);
+	settings->browserFrameHeight = configfile.getInt32("mb_browserFrameHeight", settings->browserFrameHeightGeneral);
 	settings->browserRowNr = configfile.getInt32("mb_browserRowNr", 0);
 	for (int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 	{
@@ -726,7 +731,9 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 		configfile.setInt32("mb_dir_used" + to_string(i), settings->storageDirUsed[i]); // do not save this so far
 	}
 	/* these variables are used for the listframes */
-	configfile.setInt32("mb_browserFrameHeight", settings->browserFrameHeight);
+	configfile.setInt32("mb_browserFrameHeightGeneral", settings->browserFrameHeightGeneral);
+	configfile.setInt32("mb_browserFrameHeightAdditional", settings->browserFrameHeightAdditional);
+	configfile.setInt32("mb_browserFrameHeight", settings->browserAdditional ? settings->browserFrameHeightAdditional : settings->browserFrameHeightGeneral);
 	configfile.setInt32("mb_browserRowNr",settings->browserRowNr);
 	for (int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 	{
@@ -1986,6 +1993,8 @@ void CMovieBrowser::refreshTitle(void)
 
 	if (!m_header){
 		m_header = new CComponentsHeader(x, y, w, h, title.c_str(), icon, CComponentsHeader::CC_BTN_LEFT | CComponentsHeader::CC_BTN_RIGHT | CComponentsHeader::CC_BTN_HELP);
+	}else{
+		m_header->setCaption(title.c_str());
 	}
 
 	if (timeset) {
@@ -3496,6 +3505,7 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	return res;
 }
 
+
 int CMovieBrowser::showMovieCutMenu()
 {
 	CMenuWidget movieCutMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
@@ -3525,6 +3535,23 @@ int CMovieBrowser::showMovieCutMenu()
 
 	int res = movieCutMenu.exec(NULL,"");
 	return res;
+}
+
+void CMovieBrowser::changeBrowserHeight(CMenuForwarder* fw1, CMenuForwarder* fw2)
+{
+	if (m_settings.browserAdditional)
+	{
+		fw1->setActive(false);
+		fw2->setActive(true);
+	}
+	else
+	{
+		fw1->setActive(true);
+		fw2->setActive(false);
+	}
+
+	fw1->paint();
+	fw2->paint();
 }
 
 bool CMovieBrowser::showMenu(bool calledExternally)
@@ -3580,15 +3607,29 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	int oldAdditional = m_settings.browserAdditional;
 	CIntInput playMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_PLAY_MAX_ITEMS,      (int *)&m_settings.lastPlayMaxItems,    3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 	CIntInput recMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_RECORD_MAX_ITEMS,     (int *)&m_settings.lastRecordMaxItems,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-	CIntInput browserFrameUserIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int *)&m_settings.browserFrameHeight,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+
+	CIntInput* browserFrameUserIntInputAdd = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int *)&m_settings.browserFrameHeightAdditional,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+	CIntInput* browserFrameUserIntInputGen = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int *)&m_settings.browserFrameHeightGeneral,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+
 	CIntInput browserRowNrIntInput(LOCALE_MOVIEBROWSER_BROWSER_ROW_NR,          (int *)&m_settings.browserRowNr,        1, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 
 	CMenuWidget optionsMenuBrowser(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
 	optionsMenuBrowser.addIntroItems(LOCALE_MOVIEBROWSER_OPTION_BROWSER);
 	optionsMenuBrowser.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_LAST_PLAY_MAX_ITEMS,    true, playMaxUserIntInput.getValue(),   &playMaxUserIntInput));
 	optionsMenuBrowser.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_LAST_RECORD_MAX_ITEMS,  true, recMaxUserIntInput.getValue(), &recMaxUserIntInput));
-	optionsMenuBrowser.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,     true, browserFrameUserIntInput.getValue(), &browserFrameUserIntInput));
-	optionsMenuBrowser.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_BROWSER_ADDITIONAL, (int*)(&m_settings.browserAdditional), MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true));
+	optionsMenuBrowser.addItem(GenericMenuSeparatorLine);
+
+	CMenuForwarder* fw1 = new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,     !m_settings.browserAdditional, browserFrameUserIntInputGen->getValue(), browserFrameUserIntInputGen);
+	CMenuForwarder* fw2 = new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH_ADDITIONAL,     m_settings.browserAdditional, browserFrameUserIntInputAdd->getValue(), browserFrameUserIntInputAdd);
+
+	CMenuOptionChooser *oj = new CMenuOptionChooser(LOCALE_MOVIEBROWSER_BROWSER_ADDITIONAL, (int*)(&m_settings.browserAdditional), MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true);
+	oj->OnAfterChangeOption.connect(sigc::bind(sigc::mem_fun(*this, &CMovieBrowser::changeBrowserHeight), fw1, fw2));
+
+	optionsMenuBrowser.addItem(oj);
+	optionsMenuBrowser.addItem(fw1);
+	optionsMenuBrowser.addItem(fw2);
+
+	optionsMenuBrowser.addItem(GenericMenuSeparatorLine);
 	optionsMenuBrowser.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_BROWSER_ROW_HEAD));
 	optionsMenuBrowser.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BROWSER_ROW_NR,     true, browserRowNrIntInput.getValue(), &browserRowNrIntInput));
 	optionsMenuBrowser.addItem(GenericMenuSeparator);
@@ -3652,10 +3693,13 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 	// post menu handling
 	if (m_parentalLock != MB_PARENTAL_LOCK_OFF_TMP)
 		m_settings.parentalLock = m_parentalLock;
+
+	m_settings.browserFrameHeight = m_settings.browserAdditional ? m_settings.browserFrameHeightAdditional : m_settings.browserFrameHeightGeneral;
 	if (m_settings.browserFrameHeight < MIN_BROWSER_FRAME_HEIGHT)
 		m_settings.browserFrameHeight = MIN_BROWSER_FRAME_HEIGHT;
 	if (m_settings.browserFrameHeight > MAX_BROWSER_FRAME_HEIGHT)
 		m_settings.browserFrameHeight = MAX_BROWSER_FRAME_HEIGHT;
+
 	if (m_settings.browserRowNr > MB_MAX_ROWS)
 		m_settings.browserRowNr = MB_MAX_ROWS;
 	if (m_settings.browserRowNr < 1)
@@ -3679,7 +3723,7 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 		);
 
 		if (reInitFrames) {
-#if 1
+#if 0
 			if (oldAdditional != m_settings.browserAdditional)
 			{
 				/*
@@ -4079,7 +4123,7 @@ void CMovieBrowser::loadYTitles(int mode, std::string search, std::string id)
 	for (unsigned i = 0; i < ylist.size(); i++) {
 		MI_MOVIE_INFO movieInfo;
 		movieInfo.channelName = ylist[i].author;
-		movieInfo.epgTitle = ylist[i].title;
+		movieInfo.epgTitle = htmlEntityDecode(ylist[i].title);
 		movieInfo.epgInfo1 = ylist[i].category;
 		movieInfo.epgInfo2 = ylist[i].description;
 		movieInfo.length = ylist[i].duration/60 ;
@@ -4247,6 +4291,7 @@ class CYTHistory : public CMenuTarget
 	private:
 		int width;
 		int selected;
+		bool allexit;
 		std::string *search;
 		MB_SETTINGS *settings;
 	public:
@@ -4260,6 +4305,7 @@ CYTHistory::CYTHistory(MB_SETTINGS &_settings, std::string &_search)
 	selected = -1;
 	settings = &_settings;
 	search = &_search;
+	allexit = false;
 }
 
 int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -4279,7 +4325,12 @@ int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
 		m->exec(NULL, "");
 		m->hide();
 		delete m;
-		return menu_return::RETURN_REPAINT;
+		if(!allexit) {
+			return menu_return::RETURN_REPAINT;
+		}else {
+			allexit = false;
+			return menu_return::RETURN_EXIT_ALL;
+		}
 	}
 	if (actionKey == "clearYThistory") {
 		settings->ytsearch_history.clear();
@@ -4287,7 +4338,7 @@ int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_EXIT;
 	}
 	*search = actionKey;
-	g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_blue, 0);
+	allexit = true;
 	return menu_return::RETURN_EXIT;
 }
 
@@ -4364,6 +4415,8 @@ bool CMovieBrowser::showYTMenu(bool calledExternally)
 
 	CFileChooser fc(&m_settings.ytthumbnaildir);
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_CACHE_DIR, true, m_settings.ytthumbnaildir, &fc));
+	CFileChooser fcdl(&g_settings.downloadcache_dir);
+	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_DL_DIR, true, g_settings.downloadcache_dir, &fcdl));
 
 	yt_menue = &mainMenu;
 	yt_menue_end = yt_menue->getItemsCount();
@@ -4372,7 +4425,7 @@ bool CMovieBrowser::showYTMenu(bool calledExternally)
 	yt_menue->addKey(CRCInput::RC_spkr, ytcache_selector, "rc_spkr");
 	refreshYTMenu();
 
-	mainMenu.exec(NULL, "");
+	int ret = mainMenu.exec(NULL, "");
 
 	ytparser.SetConcurrentDownloads(m_settings.ytconcconn);
 	ytparser.SetThumbnailDir(m_settings.ytthumbnaildir);
@@ -4390,6 +4443,10 @@ bool CMovieBrowser::showYTMenu(bool calledExternally)
 	}
 	if (calledExternally)
 		return true;
+
+	if (ret == menu_return::RETURN_EXIT_ALL && !search.empty() && !m_settings.ytsearch.empty() && search != m_settings.ytsearch){
+		select = cYTFeedParser::SEARCH;
+	}
 
 	printf("MovieBrowser::showYTMenu(): selected: %d\n", select);
 	if (select >= 0) {

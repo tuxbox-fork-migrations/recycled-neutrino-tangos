@@ -1847,6 +1847,7 @@ moviebrowser.book_type_backward Repeat
 moviebrowser.book_type_forward Jump over
 moviebrowser.browser_additional Additional informations
 moviebrowser.browser_frame_high Browser height [%]
+moviebrowser.browser_frame_high_additional Browser height with additional info [%]
 moviebrowser.browser_row_head Row settings
 moviebrowser.browser_row_item Row item
 moviebrowser.browser_row_nr Number of rows
@@ -2008,6 +2009,7 @@ moviebrowser.yt_cancel_transfer Cancel download?
 moviebrowser.yt_clear Clear
 moviebrowser.yt_completed Completed downloads
 moviebrowser.yt_concurrent_connections Concurrent connections
+moviebrowser.yt_dl_dir YouTube download directory
 moviebrowser.yt_error Failed to load YouTube feed
 moviebrowser.yt_failed Failed downloads
 moviebrowser.yt_history Search history
