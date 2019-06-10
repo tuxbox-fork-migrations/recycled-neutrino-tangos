@@ -643,6 +643,7 @@ std::string& htmlEntityDecode(std::string& text)
 		{"„",  "&#8222;"},
 		{"•",  "&#8226;"},
 		{"…",  "&#8230;"},
+		{"'",  "&#39;"},
 		{NULL,  NULL}
 	};
 	for (int i = 0; dt[i].code != NULL; i++)
