@@ -2323,9 +2323,9 @@ void CInfoViewer::getIconInfo()
 		case CInfoViewer::ICON_TUNER:
 			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBCHAN(get_current_channel_id()) && CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts)
 #if 0
-				iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
+				iconView = checkIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 #endif
-				iconView = checkBBIcon("tuner_1", &w, &h);
+				iconView = checkIcon("tuner_1", &w, &h);
 			break;
 		case CInfoViewer::ICON_UPDATE:
 			if ((access("/tmp/.update_avail", F_OK) == 0))
