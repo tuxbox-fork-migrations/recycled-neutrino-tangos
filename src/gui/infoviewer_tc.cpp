@@ -2322,7 +2322,10 @@ void CInfoViewer::getIconInfo()
 			break;
 		case CInfoViewer::ICON_TUNER:
 			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBCHAN(get_current_channel_id()) && CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts)
-				iconView = checkIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
+#if 0
+				iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
+#endif
+				iconView = checkBBIcon("tuner_1", &w, &h);
 			break;
 		case CInfoViewer::ICON_UPDATE:
 			if ((access("/tmp/.update_avail", F_OK) == 0))
@@ -2761,6 +2764,7 @@ void CInfoViewer::showIcon_Tuner()
 	if (CFEManager::getInstance()->getEnabledCount() <= 1 || !g_settings.infobar_show_tuner)
 		return;
 
+#if 0
 	std::string icon_name;
 	switch (CFEManager::getInstance()->getLiveFE()->getNumber())
 	{
@@ -2778,6 +2782,10 @@ void CInfoViewer::showIcon_Tuner()
 		icon_name = NEUTRINO_ICON_TUNER_1;
 		break;
 	}
+#else
+	char icon_name[12];
+	sprintf(icon_name, "tuner_%d", CFEManager::getInstance()->getLiveFE()->getNumber() + 1);
+#endif
 	showIcons(CInfoViewer::ICON_TUNER, icon_name);
 }
 
@@ -2856,10 +2864,10 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 	int py = BoxEndY + OFFSET_INNER_SMALL;
 	int px = 0;
 	static std::map<int, std::pair<int,const char*> > icon_map;
-	const int icon_number = 12;
+	const int icon_number = 14;
 
-	static int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0};
-	static int icon_sizeW [icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0};
+	static int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	static int icon_sizeW [icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	static bool init_flag = false;
 
 	if (!init_flag)
@@ -2874,12 +2882,14 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 		icon_map[0x2600] = std::make_pair(index++,"biss");
 		icon_map[0x4A00] = std::make_pair(index++,"d");
 		icon_map[0x0600] = std::make_pair(index++,"ird");
+		icon_map[0x1700] = std::make_pair(index++,"bc");
 		icon_map[0x0100] = std::make_pair(index++,"seca");
 		icon_map[0x0500] = std::make_pair(index++,"via");
 		icon_map[0x1800] = std::make_pair(index++,"nagra");
 		icon_map[0x0B00] = std::make_pair(index++,"conax");
 		icon_map[0x0D00] = std::make_pair(index++,"cw");
-		icon_map[0x0900] = std::make_pair(index,"nds");
+		icon_map[0x0900] = std::make_pair(index++,"nds");
+		icon_map[0x5600] = std::make_pair(index  ,"vmx");
 
 		for (it=icon_map.begin(); it!=icon_map.end(); ++it)
 		{
@@ -2940,7 +2950,7 @@ void CInfoViewer::showIcon_CA_Status(int notfirst)
 		return;
 	}
 
-	int caids[] = {  0x900, 0xD00, 0xB00, 0x1800, 0x0500, 0x0100, 0x600, 0x4a00, 0x2600, 0x1000, 0x0E00, 0x0000 };
+	int caids[] = {  0x5600, 0x0900, 0x0D00, 0x0B00, 0x1800, 0x0500, 0x0100, 0x1700, 0x0600, 0x4A00, 0x2600, 0x1000, 0x0E00, 0x0000 };
 	const char *green = "green";
 	const char *white = "white";
 	const char *yellow = "yellow";
