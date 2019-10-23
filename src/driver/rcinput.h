@@ -277,10 +277,9 @@ class CRCInput
 			RC_bookmarks	= KEY_BOOKMARKS,
 			RC_program	= KEY_PROGRAM,
 			RC_playpause	= KEY_PLAYPAUSE,
-#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_BRE2ZE4K
+#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
 			RC_playpause_long = KEY_PLAYPAUSE_LONG,
 #endif
-
 			RC_power_on	= KEY_POWERON,
 			RC_power_off	= KEY_POWEROFF,
 			RC_standby_on	= KEY_STANDBYON,
