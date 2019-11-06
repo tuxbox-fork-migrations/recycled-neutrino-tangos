@@ -490,7 +490,7 @@ AC_ARG_WITH(boxtype,
 			BOXTYPE="duckbox"
 			BOXMODEL="$withval"
 		;;
-		hd51|hd60|hd61|bre2ze4k|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k)
+		hd51|hd60|hd61|bre2ze4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k)
 			BOXTYPE="armbox"
 			BOXMODEL="$withval"
 		;;
@@ -743,7 +743,7 @@ elif test "$BOXMODEL" = "vuuno4k"; then
 	AC_DEFINE(BOXMODEL_VUUNO4K, 1, [vuuno4k])
 	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
 elif test "$BOXMODEL" = "h7"; then
-	AC_DEFINE(BOXMODEL_ZGEMMAH7, 1, [h7])
+	AC_DEFINE(BOXMODEL_H7, 1, [h7])
 	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
 elif test "$BOXMODEL" = "osmio4k"; then
 	AC_DEFINE(BOXMODEL_OSMIO4K, 1, [osmio4k])
