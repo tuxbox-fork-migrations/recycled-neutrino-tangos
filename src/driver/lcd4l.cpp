@@ -789,9 +789,14 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			case PNG:
 				DisplayType = "PNG_";
 				break;
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
-			case VUSOLO4K480x320:
-				DisplayType = "VUSolo4K_";
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+			case VUPLUS4K480x320:
+				DisplayType = "VUPLUS4K_";
+				break;
+#endif
+#if BOXMODEL_VUULTIMO4K
+			case VUPLUS4K800x480:
+				DisplayType = "VUPLUS4K_";
 				break;
 #endif
 			case SAMSUNG800x480:

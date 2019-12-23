@@ -600,7 +600,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 	g_settings.timer_followscreenings = configfile.getInt32( "timer_followscreenings", CFollowScreenings::FOLLOWSCREENINGS_ON );
 
-	g_settings.infobar_anaclock = configfile.getInt32("infobar_anaclock", 0);
 #if ENABLE_TANGOS
 	g_settings.infobar_sat_display   = false; //configfile.getBool("infobar_sat_display"  , false );
 	g_settings.infobar_show_channeldesc   = false; //configfile.getBool("infobar_show_channeldesc"  , false );
@@ -610,6 +609,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #endif
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
 	g_settings.infobar_buttons_usertitle = configfile.getBool("infobar_buttons_usertitle", false );
+	g_settings.infobar_analogclock = configfile.getInt32("infobar_analogclock", 0);
 	g_settings.infobar_show = configfile.getInt32("infobar_show", configfile.getInt32("infobar_cn", 1));
 #if ENABLE_TANGOS
 	g_settings.infobar_show_channellogo   = 2; //configfile.getInt32("infobar_show_channellogo"  , 2 );
@@ -1519,11 +1519,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32 ("timer_remotebox_ip_count", g_settings.timer_remotebox_ip.size());
 	configfile.setInt32 ("timer_followscreenings", g_settings.timer_followscreenings);
 
-	configfile.setInt32("infobar_anaclock", g_settings.infobar_anaclock);
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
 	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
 	configfile.setBool("infobar_buttons_usertitle", g_settings.infobar_buttons_usertitle);
+	configfile.setInt32("infobar_analogclock", g_settings.infobar_analogclock);
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setInt32("infobar_progressbar"  , g_settings.infobar_progressbar  );
@@ -5371,9 +5371,13 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.key_list_start = tconfig->getInt32( "key_list_start", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_list_end = tconfig->getInt32( "key_list_end", (unsigned int)CRCInput::RC_nokey );
+<<<<<<< HEAD
 #if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
+=======
+#if BOXMODEL_BRE2ZE4K || BOXMODEL_HD51 || BOXMODEL_H7
+>>>>>>> a83181d44022e2ab3ed3d914d09ef30cc7990d0d
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_playpause_long ); // FIXME
-#elif BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUZERO4K || BOXMODEL_VUDUO || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+#elif BOXMODEL_VUPLUS_ALL
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_playpause );
 #else
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_pause );
@@ -5409,7 +5413,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 #if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
 	g_settings.mpkey_play = tconfig->getInt32( "mpkey.play", CRCInput::RC_playpause );
 	g_settings.mpkey_pause = tconfig->getInt32( "mpkey.pause", CRCInput::RC_playpause );
-#elif BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUZERO4K || BOXMODEL_VUDUO || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+#elif BOXMODEL_VUPLUS_ALL
 	g_settings.mpkey_play = tconfig->getInt32( "mpkey.play", CRCInput::RC_play );
 	g_settings.mpkey_pause = tconfig->getInt32( "mpkey.pause", CRCInput::RC_playpause );
 #else

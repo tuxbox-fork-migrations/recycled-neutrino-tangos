@@ -234,7 +234,7 @@ struct SNeutrinoSettings
 	int record_safety_time_before;
 	int record_safety_time_after;
 	int zapto_pre_time;
-	int infobar_anaclock;
+	int infobar_analogclock;
 	int infobar_sat_display;
 	int infobar_show_channeldesc;
 	int infobar_subchan_disp_pos;
