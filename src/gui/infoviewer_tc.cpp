@@ -390,7 +390,7 @@ void CInfoViewer::paintHead(t_channel_id channel_id,std::string channel_name)
 	header->setCaptionFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
 	header->setColorBody(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
 	header->enableColBodyGradient(g_settings.theme.infobar_gradient_top, COL_INFOBAR_PLUS_0, g_settings.theme.infobar_gradient_top_direction);
-	if (!g_settings.infobar_anaclock || g_settings.channellist_show_numbers)
+	if (!g_settings.infobar_analogclock || g_settings.channellist_show_numbers)
 	{
 		header->enableClock(true, "%H:%M ", "%H.%M ", true);
 		header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
@@ -568,10 +568,10 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 
 	showRecords();
 	ana_clock_size = (BoxEndY - (ChanNameY + header_height) - OFFSET_INTER);
-	if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
+	if (!g_settings.channellist_show_numbers && g_settings.infobar_analogclock)
 		showClock_analog(ChanInfoX + OFFSET_INNER_MID + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - (OFFSET_INTER/2), ana_clock_size / 2);
 
-	ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth("888") + OFFSET_INNER_SMALL;
+	ChanNumWidth = g_settings.infobar_analogclock ? ana_clock_size : g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth("888") + OFFSET_INNER_SMALL;
 
 	if (!zap_mode)
 		paintshowButtonBar();
@@ -787,7 +787,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 
 	showRecords();
 	ana_clock_size = (BoxEndY - (ChanNameY + header_height) - OFFSET_INTER);
-	if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
+	if (!g_settings.channellist_show_numbers && g_settings.infobar_analogclock)
 		showClock_analog(ChanInfoX + OFFSET_INNER_MID + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - (OFFSET_INTER/2), ana_clock_size / 2);
 
 	if (showButtonBar)
@@ -802,7 +802,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		ChanNumWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum) + OFFSET_INNER_MID;
 	}
 	else
-		ChanNumWidth = g_settings.infobar_anaclock ? ana_clock_size : OFFSET_INNER_MID;
+		ChanNumWidth = g_settings.infobar_analogclock ? ana_clock_size : OFFSET_INNER_MID;
 
 	if (fileplay)
 	{
@@ -1091,7 +1091,7 @@ void CInfoViewer::loop()
 				showIcon_Update (blink);
 				blink = !blink;
 				showInfoFile();
-				if (!g_settings.channellist_show_numbers && g_settings.infobar_anaclock)
+				if (!g_settings.channellist_show_numbers && g_settings.infobar_analogclock)
 					showClock_analog(ChanInfoX + OFFSET_INNER_MID + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - (OFFSET_INTER/2), ana_clock_size / 2);
 				if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio))
 					showRadiotext();

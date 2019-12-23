@@ -274,8 +274,8 @@ typedef enum {
 	DMX_SOURCE_FRONT23,
 #endif
 #endif
-#if BOXMODEL_VUULTIMO4K
-	DMX_SOURCE_DVR0   = 24,
+#if BOXMODEL_VUPLUS_ARM
+	DMX_SOURCE_DVR0   = 32,
 #else
 	DMX_SOURCE_DVR0   = 16,
 #endif

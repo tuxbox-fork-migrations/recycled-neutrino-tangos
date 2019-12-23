@@ -230,8 +230,8 @@ void CInfoViewer::start ()
 	time_height = std::max(ChanHeight / 2, clock->getHeight());
 	time_width = clock->getWidth();
 
-	analogclock_offset = !g_settings.infobar_anaclock ? 0 : OFFSET_INNER_MID;
-	analogclock_size   = !g_settings.infobar_anaclock ? 0 : InfoHeightY - 2*analogclock_offset;
+	analogclock_offset = !g_settings.infobar_analogclock ? 0 : OFFSET_INNER_MID;
+	analogclock_size   = !g_settings.infobar_analogclock ? 0 : InfoHeightY - 2*analogclock_offset;
 	clock->setXPos(clock->getXPos() - analogclock_offset - analogclock_size);
 }
 
@@ -603,7 +603,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	bool show_dot = true;
 	if (timeset)
 	{
-		if (g_settings.infobar_anaclock)
+		if (g_settings.infobar_analogclock)
 			showAnalogClock(BoxEndX - analogclock_offset - analogclock_size/2, BoxEndY - analogclock_offset - analogclock_size/2, analogclock_size/2);
 		else
 			clock->paint(CC_SAVE_SCREEN_NO);
@@ -787,7 +787,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	bool show_dot = true;
 	if (timeset)
 	{
-		if (g_settings.infobar_anaclock)
+		if (g_settings.infobar_analogclock)
 			showAnalogClock(BoxEndX - analogclock_offset - analogclock_size/2, BoxEndY - analogclock_offset - analogclock_size/2, analogclock_size/2);
 		else
 			clock->paint(CC_SAVE_SCREEN_NO);
@@ -1197,7 +1197,7 @@ void CInfoViewer::loop(bool show_dot)
 
 				if (timeset)
 				{
-					if (g_settings.infobar_anaclock)
+					if (g_settings.infobar_analogclock)
 						showAnalogClock(BoxEndX - analogclock_offset - analogclock_size/2, BoxEndY - analogclock_offset - analogclock_size/2, analogclock_size/2);
 					else
 						clock->paint(CC_SAVE_SCREEN_NO);
@@ -1804,7 +1804,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	if (pb_pos > -1)
 	{
 		int pb_w = 112;
-		int pb_startx = BoxEndX - pb_w - OFFSET_SHADOW;
+		int pb_startx = BoxEndX - pb_w;
 		int pb_starty = ChanNameY - (pb_h + OFFSET_INNER_MID);
 		if (g_settings.infobar_progressbar)
 		{
