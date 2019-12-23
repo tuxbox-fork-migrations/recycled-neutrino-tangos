@@ -238,7 +238,8 @@ int CLCD4l::GetMaxBrightness()
 		case SAMSUNG800x480:
 		case SAMSUNG800x600:
 		case SAMSUNG1024x600:
-		case VUSOLO4K480x320:
+		case VUPLUS4K480x320:
+		case VUPLUS4K800x480:
 		case PNG:
 			max_brightness = 10;
 			break;
