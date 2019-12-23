@@ -5371,11 +5371,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.key_list_start = tconfig->getInt32( "key_list_start", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_list_end = tconfig->getInt32( "key_list_end", (unsigned int)CRCInput::RC_nokey );
-<<<<<<< HEAD
 #if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
-=======
-#if BOXMODEL_BRE2ZE4K || BOXMODEL_HD51 || BOXMODEL_H7
->>>>>>> a83181d44022e2ab3ed3d914d09ef30cc7990d0d
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_playpause_long ); // FIXME
 #elif BOXMODEL_VUPLUS_ALL
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_playpause );
