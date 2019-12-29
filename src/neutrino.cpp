@@ -4459,11 +4459,6 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	printf("entering off state\n");
 	mode = NeutrinoModes::mode_off;
 
-	time_t t = timer_minutes * 60;
-	struct tm *tm = localtime(&t);
-	char date[30];
-	strftime(date, sizeof(date), "%c", tm);
-	printf("[neutrino] next timer wakeup: %s (%ld)\n", date, timer_minutes * 60);
 	int leds = 0;
 	int bright = 0;
 #if HAVE_COOL_HARDWARE
