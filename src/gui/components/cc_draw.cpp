@@ -784,22 +784,23 @@ void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const in
 					r = corner_radius;
 			}
 
-			if (v_fbdata[i].dx > 0 && v_fbdata[i].dy > 0){
-				frameBuffer->paintBoxRel(v_fbdata[i].x,
-							v_fbdata[i].y,
-							v_fbdata[i].dx,
-							v_fbdata[i].dy,
-							bg_color,
-							r,
-							v_fbdata[i].rtype);
-
-				if (v_fbdata[i].fbdata_type & CC_FBDATA_TYPE_FRAME){
-					if (v_fbdata[i].frame_thickness)
-							frameBuffer->paintBoxFrame(v_fbdata[i].x,
-										v_fbdata[i].y,
-										v_fbdata[i].dx,
-										v_fbdata[i].dy,
-										v_fbdata[i].frame_thickness,
+			if (v_fbdata.at(i).dx > 0 && v_fbdata.at(i).dy > 0){
+				if (v_fbdata.at(i).fbdata_type & (CC_FBDATA_TYPE_BOX | CC_FBDATA_TYPE_SHADOW_BOX) && v_fbdata.at(i).enabled){
+					frameBuffer->paintBoxRel(v_fbdata.at(i).x,
+								v_fbdata.at(i).y,
+								v_fbdata.at(i).dx,
+								v_fbdata.at(i).dy,
+								bg_color,
+								r,
+								v_fbdata.at(i).rtype);
+				}
+				if (v_fbdata.at(i).fbdata_type & CC_FBDATA_TYPE_FRAME){
+					if (v_fbdata.at(i).frame_thickness)
+							frameBuffer->paintBoxFrame(v_fbdata.at(i).x,
+										v_fbdata.at(i).y,
+										v_fbdata.at(i).dx,
+										v_fbdata.at(i).dy,
+										v_fbdata.at(i).frame_thickness,
 										bg_color,
 										v_fbdata[i].r,
 										v_fbdata[i].rtype);
