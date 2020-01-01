@@ -316,7 +316,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 
 	t_channel_id chid = channel->getChannelID();
 	if (CRecordManager::getInstance()->RecordingStatus(chid)) {
-		printf("CStreamManager::FindFrontend: channel %" PRIx64 " recorded, aborting..\n", chid);
+		printf("CStreamManager::%s: channel %" PRIx64 " recorded, aborting..\n", __func__, chid);
 		return frontend;
 	}
 

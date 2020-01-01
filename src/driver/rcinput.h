@@ -54,6 +54,10 @@
 
 #include <driver/neutrino_msg_t.h>
 
+#ifndef KEY_NONEXISTING
+#define KEY_NONEXISTING  0x0
+#endif
+
 #ifndef KEY_OK
 #define KEY_OK           0x160
 #endif
@@ -230,7 +234,7 @@ class CRCInput
 			RC_radio	= KEY_RADIO,
 			RC_text		= KEY_TEXT,
 #if BOXMODEL_VUPLUS_ALL
-			RC_info		= 0xFFFE,
+			RC_info		= KEY_NONEXISTING,
 			RC_epg		= KEY_INFO,
 #else
 			RC_info		= KEY_INFO,
@@ -246,7 +250,7 @@ class CRCInput
 			RC_forward	= KEY_FORWARD,
 			RC_rewind	= KEY_REWIND,
 			RC_stop		= KEY_STOP,
-			RC_timeshift	= KEY_T,
+			RC_timeshift	= KEY_TIME,
 			RC_mode		= KEY_MODE,
 			RC_switchvideomode = KEY_SWITCHVIDEOMODE,
 			RC_games	= KEY_GAMES,
@@ -346,8 +350,8 @@ class CRCInput
 
 		void getMsgAbsoluteTimeout(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t *TimeoutEnd, bool bAllowRepeatLR= false);
 		void getMsg(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);        //get message, timeout in 1/10 secs :)
-		void getMsg_ms(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);     //get message, timeout in msecs :)
-		void getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t Timeout, bool bAllowRepeatLR= false);//get message, timeout in µsecs :)
+		void getMsg_ms(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);     //get message, timeout in milisecs :)
+		void getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t Timeout, bool bAllowRepeatLR= false);//get message, timeout in microsecs :)
 		void postMsg(const neutrino_msg_t msg, const neutrino_msg_data_t data, const bool Priority = true);            // push message back into buffer
 		void clearRCMsg();
 
