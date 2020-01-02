@@ -262,7 +262,7 @@ unsigned int CFrameBuffer::getStride() const
 	return stride;
 }
 
-unsigned int CFrameBuffer::getScreenWidth(bool real)
+unsigned int CFrameBuffer::getScreenWidth(const bool& real) const
 {
 	if(real)
 		return xRes;
@@ -270,7 +270,7 @@ unsigned int CFrameBuffer::getScreenWidth(bool real)
 		return g_settings.screen_EndX - g_settings.screen_StartX;
 }
 
-unsigned int CFrameBuffer::getScreenHeight(bool real)
+unsigned int CFrameBuffer::getScreenHeight(const bool& real) const
 {
 	if(real)
 		return yRes;
@@ -1532,10 +1532,16 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 
 }
 
-void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
+void CFrameBuffer::RestoreScreen(const int& x, const int& y, const int& dx, const int& dy, fb_pixel_t * const memp)
 {
 	if (!getActive())
 		return;
+
+	if (dx > (int)xRes || dy > (int)yRes)
+	{
+		dprintf(DEBUG_NORMAL, "\033[31m[CFrameBuffer]\[%s - %d], dimension error dx [%d]  dy [%d] \033[0m\n", __func__, __LINE__, dx, dy);
+		return;
+	}
 
 	checkFbArea(x, y, dx, dy, true);
 	fb_pixel_t * fbpos = getFrameBufferPointer() + x + swidth * y;
@@ -1556,18 +1562,72 @@ void CFrameBuffer::Clear()
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 }
 
-bool CFrameBuffer::showFrame(const std::string & filename)
+bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 {
 	std::string picture = getIconPath(filename, "");
-	if (access(picture.c_str(), F_OK) == 0){
-		videoDecoder->ShowPicture(picture.c_str());
-		return true;
+	bool ret = false;
+
+	if (access(picture.c_str(), F_OK) == 0)
+	{
+		if (videoDecoder)
+		{
+#if HAVE_COOL_HARDWARE //FIXME: inside libcs no return value available
+			videoDecoder->ShowPicture(picture.c_str());
+			ret = true;
+#else
+			if (videoDecoder->ShowPicture(picture.c_str()))
+				ret = true;
+#endif
+		}
+		else
+			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], no videoplayer instance available\n", __func__, __LINE__);
 	}
 	else
-		printf("[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
+	{
+		dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
+		picture = "";
+	}
 
-	return false;
+	if (!ret)
+	{
+		if (fallback_mode)
+		{
+			if ((fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE) && !picture.empty())
+				ret = g_PicViewer->DisplayImage(picture, 0, 0, getScreenWidth(true), getScreenHeight(true), TM_NONE);
+			else
+				ret = false;
+
+			if (!ret && (fallback_mode & SHOW_FRAME_FALLBACK_MODE_BLACKSCREEN))
+			{
+				paintBoxRel(0, 0, getScreenWidth(true), getScreenHeight(true), COL_BLACK, 0);
+				ret = true;
+			}
+
+			if (fallback_mode & SHOW_FRAME_FALLBACK_MODE_CALLBACK)
+			{
+				if (!OnFallbackShowFrame.empty())
+				{
+					OnFallbackShowFrame();
+					OnFallbackShowFrame.clear();
+					ret = true;
+				}
+				else
+				{
+					dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], fallback mode SHOW_FRAME_FALLBACK_MODE_CALLBACK is enabled but empty, callback ignored...\n", __func__, __LINE__);
+					ret = false;
+				}
+			}
+		}
+		else
+		{
+			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], fallback mode is disabled, ignore black screen, image paint and callback actions: %s\n", __func__, __LINE__, picture.c_str());
+			ret = false;
+		}
+	}
+
+	return ret;
 }
+
 
 void CFrameBuffer::stopFrame()
 {
@@ -1782,7 +1842,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	}
 }
 
-void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
+void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, const uint32_t& width, const uint32_t& height, const uint32_t& xoff, const uint32_t& yoff)
 {
 	if(width <1 || height <1 || !boxBuf )
 		return;
@@ -1879,7 +1939,7 @@ void CFrameBuffer::setFbArea(int element, int _x, int _y, int _dx, int _dy)
 	}
 }
 
-int CFrameBuffer::checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t *area)
+int CFrameBuffer::checkFbAreaElement(const int& _x, const int& _y, const int& _dx, const int& _dy, const fb_area_t *area)
 {
 	if (fb_no_check)
 		return FB_PAINTAREA_MATCH_NO;
@@ -1895,7 +1955,7 @@ int CFrameBuffer::checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t
 	return FB_PAINTAREA_MATCH_OK;
 }
 
-bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
+bool CFrameBuffer::_checkFbArea(const int& _x, const int& _y, const int& _dx, const int& _dy, const bool& prev)
 {
 	if (v_fbarea.empty())
 		return true;

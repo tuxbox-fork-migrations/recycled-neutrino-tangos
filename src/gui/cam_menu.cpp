@@ -129,7 +129,7 @@ int CCAMMenuHandler::doMainMenu()
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_IGNORE_MSG, &g_settings.ci_ignore_messages, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_SAVE_PINCODE, &g_settings.ci_save_pincode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_CHECK_LIVE_SLOT, &g_settings.ci_check_live, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
-
+	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_REC_ZAPTO, &g_settings.ci_rec_zapto, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 #ifdef BOXMODEL_CS_HD2
 	int fecount = CFEManager::getInstance()->getFrontendCount();
 	char fename[fecount+1][255];

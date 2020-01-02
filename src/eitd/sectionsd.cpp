@@ -1454,9 +1454,19 @@ void CTimeThread::addFilters()
 
 void CTimeThread::run()
 {
-	set_threadname(name.c_str());
+#if HAVE_GENERIC_HARDWARE
+	if (getuid()){
+		debug(DEBUG_NORMAL, "Set Neutrino time from system (PC). You are not root.");
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		sendTimeEvent(0, tv.tv_sec);
+		return;
+	}
+#endif
+
 	time_t dvb_time = 0;
-	debug(DEBUG_ERROR, "%s::run:: starting, pid %d (%lu)", name.c_str(), getpid(), pthread_self());	const std::string tn = ("sd:" + name).c_str();
+	debug(DEBUG_ERROR, "%s::run:: starting, pid %d (%lu)", name.c_str(), getpid(), pthread_self());
+	const std::string tn = ("sd:" + name).c_str();
 	set_threadname(tn.c_str());
 	addFilters();
 	DMX::start();

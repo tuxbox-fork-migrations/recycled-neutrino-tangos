@@ -25,6 +25,10 @@
 #include <config.h>
 #endif
 
+#if USE_STB_HAL
+#include <version_hal.h>
+#endif
+
 #include <gui/imageinfo.h>
 
 #include <global.h>
@@ -49,7 +53,9 @@
 #include <ctype.h>
 
 #define VERSION_FILE "/.version"
-#define RELEASE_FILE "/etc/os-release"
+
+#define OS_RELEASE_FILE "/etc/os-release"
+#define OE_IMAGE_VERSION_FILE "/etc/image-version"
 
 using namespace std;
 
@@ -289,11 +295,18 @@ void CImageInfo::InitInfoData()
 {
 	v_info.clear();
 
-	image_info_t pretty_name = {LOCALE_IMAGEINFO_OS,""};
-	if (file_exists(RELEASE_FILE)){
-		config.loadConfig(RELEASE_FILE);
+	image_info_t pretty_name = {g_Locale->getText(LOCALE_IMAGEINFO_OS),""};
+	if (file_exists(OS_RELEASE_FILE)){
+		config.loadConfig(OS_RELEASE_FILE);
 		string tmpstr = config.getString("PRETTY_NAME", "");
 		pretty_name.info_text = str_replace("\"", "", tmpstr);
+		config.clear();
+	}
+
+	string oe_image_version = "";
+	if (file_exists(OE_IMAGE_VERSION_FILE)){
+		config.loadConfig(OE_IMAGE_VERSION_FILE);
+		oe_image_version = config.getString("imageversion", "");
 		config.clear();
 	}
 
@@ -330,20 +343,23 @@ void CImageInfo::InitInfoData()
 	}
 	if (is_version_code && version_string.size() == 16){
 		static CFlashVersionInfo versionInfo(version_string.c_str());
-		version_string = versionInfo.getReleaseCycle();
-		version_string += " ";
-		version_string += versionInfo.getType();
-		version_string += " (";
-		version_string += versionInfo.getDate();
-		version_string += ")";
+		if (oe_image_version.empty()){
+			version_string = versionInfo.getReleaseCycle();
+			version_string += " ";
+			version_string += versionInfo.getType();
+			version_string += " (";
+			version_string += versionInfo.getDate();
+			version_string += ")";
+		}else
+			version_string = oe_image_version;
 	}else
 		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s], internal release cycle [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str(), RELEASE_CYCLE);
 #endif
 #endif
 
-	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE,	config.getString("imagename", PACKAGE_NAME)};
+	image_info_t imagename 	= {g_Locale->getText(LOCALE_IMAGEINFO_IMAGE),	config.getString("imagename", PACKAGE_NAME)};
 	if (!version_string.empty()){
-		image_info_t version	= {LOCALE_IMAGEINFO_VERSION,	version_string};
+		image_info_t version	= {g_Locale->getText(LOCALE_IMAGEINFO_VERSION),	version_string};
 		imagename.info_text += " ";
 		imagename.info_text += version_string;
 		v_info.push_back(imagename);
@@ -353,26 +369,36 @@ void CImageInfo::InitInfoData()
 	if (!pretty_name.info_text.empty())
 		v_info.push_back(pretty_name);
 
+	//kernel
 	struct utsname uts_info;
-	if (uname(&uts_info) == 0) {
-		image_info_t kernel	= {LOCALE_IMAGEINFO_KERNEL,	uts_info.release};
-		v_info.push_back(kernel);
-	}
+	if (uname(&uts_info) == 0)
+		v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_KERNEL),	uts_info.release});
 
-	image_info_t date	= {LOCALE_IMAGEINFO_DATE,	builddate};
-	v_info.push_back(date);
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DATE),	builddate});
 
-	image_info_t creator	= {LOCALE_IMAGEINFO_CREATOR,	config.getString("creator", "n/a")};
-	v_info.push_back(creator);
+	//creator
+	string creator = config.getString("creator", "");
+	if (!creator.empty())
+		v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_CREATOR), creator});
 
-	image_info_t gui	= {LOCALE_IMAGEINFO_GUI, config.getString("gui", PACKAGE_NAME)};
-	v_info.push_back(gui);
+	//gui
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_GUI), config.getString("gui", PACKAGE_STRING)});
 
 #ifdef VCS
-	image_info_t vcs	= {LOCALE_IMAGEINFO_VCS,	VCS};
-	v_info.push_back(vcs);
+	//gui vcs
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS),	VCS});
 #endif
 
+#if USE_STB_HAL
+	hal_libversion_t ver;
+	hal_get_lib_version(&ver);
+	//libstb-hal version
+	v_info.push_back({"libstb-hal:", ver.vVersion});
+	//libstb-hal git status
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS), ver.vGitDescribe});
+#endif
+
+	//internal api versions
 	string s_api;
 #ifdef ENABLE_LUA
 	s_api	+= "LUA " + to_string(LUA_API_VERSION_MAJOR) + "." + to_string(LUA_API_VERSION_MINOR);
@@ -388,15 +414,14 @@ void CImageInfo::InitInfoData()
 	s_api	+= YHTTPD_NAME;
 	s_api	+= + " ";
 	s_api	+= YHTTPD_VERSION;
-	image_info_t api	= {LOCALE_IMAGEINFO_API,	s_api};
-	v_info.push_back(api);
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_API),	s_api});
 
-	image_info_t www	= {LOCALE_IMAGEINFO_HOMEPAGE,	config.getString("homepage", "n/a")};
-	v_info.push_back(www);
-	image_info_t doc	= {LOCALE_IMAGEINFO_DOKUMENTATION, config.getString("docs", "http://wiki.neutrino-hd.de")};
-	v_info.push_back(doc);
-	image_info_t forum	= {LOCALE_IMAGEINFO_FORUM,	config.getString("forum", "http://forum.tuxbox.org")};
-	v_info.push_back(forum);
+	//www
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE),	config.getString("homepage", PACKAGE_URL)});
+	//doc
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DOKUMENTATION), config.getString("docs", "http://wiki.neutrino-hd.de")});
+	//support
+	v_info.push_back( {g_Locale->getText(LOCALE_IMAGEINFO_FORUM),	config.getString("forum", "http://forum.tuxbox.org")});
 }
 
 
@@ -419,7 +444,7 @@ void CImageInfo::InitInfos()
 	//create label and text items
 	y_tmp = 0;
 	for (size_t i=0; i<v_info.size(); i++) {
-		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, y_tmp, cc_info->getWidth(), 0, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
+		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, y_tmp, cc_info->getWidth(), 0, v_info[i].caption, v_info[i].info_text);
 		item->setLabelWidthPercent(15);
 
 		if (!item_font){
@@ -435,7 +460,7 @@ void CImageInfo::InitInfos()
 			cc_info->addCCItem(item);
 
 		//add an offset before homepage and license and at the end
-		if (v_info[i].caption == LOCALE_IMAGEINFO_CREATOR || v_info[i].caption == LOCALE_IMAGEINFO_FORUM){
+		if (v_info[i].caption == g_Locale->getText(LOCALE_IMAGEINFO_CREATOR) || v_info[i].caption == g_Locale->getText(LOCALE_IMAGEINFO_FORUM)){
 			CComponentsShapeSquare *spacer = new CComponentsShapeSquare(1, y_tmp+=item_offset, 1, item_offset);
 			//spacer ist not visible!
 			spacer->allowPaint(false);

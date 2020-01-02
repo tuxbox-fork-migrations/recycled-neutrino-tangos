@@ -175,6 +175,7 @@ struct SNeutrinoTheme
 	unsigned char progressbar_passive_blue;
 
 	int rounded_corners;
+	int message_frame_enable;
 };
 
 struct timer_remotebox_item
@@ -311,8 +312,7 @@ struct SNeutrinoSettings
 	int ci_save_pincode;
 	int ci_check_live;
 	int ci_tuner;
-
-
+	int ci_rec_zapto;
 	std::string ci_pincode;
 	int radiotext_enable;
 

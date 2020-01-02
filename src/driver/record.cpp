@@ -345,7 +345,7 @@ bool CRecordInstance::Stop(bool remove_event)
 
 	CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
-        if((autoshift && g_settings.timeshift_delete) /* || autoshift_delete*/)
+	if (autoshift && g_settings.timeshift_delete)
 		CMoviePlayerGui::getInstance().deleteTimeshift();
 
 	if(recording_id && remove_event) {

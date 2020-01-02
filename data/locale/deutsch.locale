@@ -314,6 +314,7 @@ ci.ignore_msg CA Meldungen ignorieren
 ci.init_failed CAM-Init fehlgeschlagen
 ci.init_ok CAM-Init beendet
 ci.inserted CAM im Slot
+ci.rec_zapto Umschalten bei Aufnahmen mit CAM
 ci.removed CAM entfernt -> Slot
 ci.reset Reset
 ci.reset_standby Reset nach Standby
@@ -1654,7 +1655,7 @@ menu.hint_sw_update System aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
 menu.hint_timeouts Anpassen von Timeouts und Anzeigeverhalten für Meldungen, Fenster, Menüs, Infobar usw.
 menu.hint_timeouts_static_messages Anzeigedauer für bestimmte Meldungen mit Benutzerinteraktion
-menu.hint_timer_followscreenings Zeige weitere Termine für Timerprogrammierung.
+menu.hint_timer_followscreenings Zeige Terminauswahl mit Folge-Events zur Timerprogrammierung. "Immer" zeigt die Auswahl auch dann, wenn nur ein Event gefunden wurde.
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
 menu.hint_tmdb_api_key Geben Sie den TMDb API Schlüssel ein. Eine leere Eingabe schaltet die TMDb-Unterstützung aus
@@ -1715,6 +1716,8 @@ menu.hint_ytplay Wiedergabe von ausgewählten YouTube Feeds
 menu.hint_ytplay_setup Konfigurieren Sie YouTube-spezifische Optionen wie maximale Ergebnisse bei Suchen oder Cache-Verzeichnis
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
 menu.next Weiter
+message.frame_enable Rahmen für Meldungen und Hinweisfenster
+message.frame_enable_hint Aktivieren von Rahmen für Meldungen und Hinweisfenster.
 messagebox.accept Wollen Sie die Änderungen beibehalten?
 messagebox.back Zurück
 messagebox.cancel Abbruch
@@ -1881,6 +1884,7 @@ moviebrowser.book_type Sprung (<0: zurück, >0: vor):
 moviebrowser.book_type_backward Wiederholung
 moviebrowser.book_type_forward Überspringen
 moviebrowser.browser_additional Zusätzliche Informationen
+moviebrowser.browser_cut_long_rowtext Text in Spalten abschneiden
 moviebrowser.browser_frame_high Anzeigehöhe oberes Fenster [%]
 moviebrowser.browser_frame_high_additional Anzeigehöhe oberes Fenster mit Zusatzinfos [%]
 moviebrowser.browser_row_head Spalten Einstellungen
@@ -1945,6 +1949,7 @@ moviebrowser.hint_truncate Entfernt den Filmteil hinter der Filmende-Markierung
 moviebrowser.imdb_data Lade IMDb-Daten
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
+moviebrowser.info_elapsed Letzer Wiedergabe Stop
 moviebrowser.info_file Datei
 moviebrowser.info_filename Dateiname
 moviebrowser.info_genre_major Genre
@@ -1981,7 +1986,9 @@ moviebrowser.menu_copy_onefile Film kopieren
 moviebrowser.menu_copy_several Film kopieren und teilen
 moviebrowser.menu_cut Film schneiden
 moviebrowser.menu_cut_head Kopieren, Schneiden und Kürzen
+moviebrowser.menu_data_request Online-Datenbank abfragen
 moviebrowser.menu_directories_head Verzeichnisse de/aktivieren
+moviebrowser.menu_edit bearbeiten
 moviebrowser.menu_main_bookmarks Markierungen
 moviebrowser.menu_main_head Film-Info und Einstellungen
 moviebrowser.menu_nfs_head NFS Einstellung
@@ -1995,6 +2002,7 @@ moviebrowser.menu_save Veränderungen speichern
 moviebrowser.menu_save_all Starte Übernahme in allen sichtbaren Filminfos
 moviebrowser.menu_settings Einstellungen
 moviebrowser.menu_truncate Film kürzen
+moviebrowser.message_keep_storage_settings Sollen die Depot-Einstellungen für verwendete und aktivierte Verzeichnisse beibehalten werden?
 moviebrowser.option_browser Anzeigeoptionen
 moviebrowser.reload_at_start Filminfos neu laden bei Start
 moviebrowser.remount_at_start Filmdepot verbinden bei Start
@@ -2007,6 +2015,7 @@ moviebrowser.short_audio Audio
 moviebrowser.short_book Mark.
 moviebrowser.short_channel Kanal
 moviebrowser.short_country Land
+moviebrowser.short_elapsed Letzter Stop
 moviebrowser.short_filename Name
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
@@ -2166,6 +2175,7 @@ nvodselector.directormode Bildregie-Modus
 nvodselector.head Bildregie
 nvodselector.starttime Anfangszeit auswählen
 nvodselector.subservice Perspektiven
+options.always immer
 options.default Voreinstellungen benutzen
 options.fb framebuffer
 options.hint_default Setzen Sie die Werte auf die Voreinstellung zurück.
@@ -2284,7 +2294,10 @@ rclock.title Fernbedienung sperren
 rclock.unlockmsg Fernbedienung reaktiviert
 recording.already_found %s\nwurde bereits gefunden. Trotzdem aufnehmen?
 recording.already_found_check Prüfe Aufnahmen
+recording.end Aufnahmeende festlegen
+recording.end_text Soll die Aufnahme zum Ende der aktuellen Sendung stoppen?
 recording.failed Aufzeichnung ist fehlgeschlagen!
+recording.fill_text Das Aufnahmemedium ist zu %d%% gefüllt. Trotzdem aufnehmen?
 recording.is_running Folgende Aufnahme läuft bereits! Neue Aufnahme starten?
 recording.start Starte Aufnahme, bitte warten ...
 recording.startstop_msg Meldung bei Aufnahme Start/Ende

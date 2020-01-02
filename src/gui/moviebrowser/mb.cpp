@@ -280,17 +280,15 @@ CMovieBrowser::~CMovieBrowser()
 void CMovieBrowser::clearListLines()
 {
 	for (int i = 0; i < MB_MAX_ROWS; i++)
-	{
-		m_browserListLines.lineArray[i].clear();
-		m_FilterLines.lineArray[i].clear();
-	}
+		m_pcBrowser->cleanupRow(&m_FilterLines, i);
+
 	m_browserListLines.Icon.clear();
 	m_browserListLines.marked.clear();
 
 	for (int i = 0; i < 3; i++)
 	{
-		m_recordListLines.lineArray[i].clear();
-		m_playListLines.lineArray[i].clear();
+		m_pcLastRecord->cleanupRow(&m_recordListLines, i);
+		m_pcLastPlay->cleanupRow(&m_playListLines, i);
 	}
 	m_recordListLines.marked.clear();
 	m_playListLines.marked.clear();
@@ -1723,7 +1721,7 @@ void CMovieBrowser::refreshFilterList(void)
 	std::string string_item;
 
 	m_FilterLines.rows = 1;
-	m_FilterLines.lineArray[0].clear();
+	m_pcFilter->cleanupRow(&m_FilterLines, 0);
 	m_FilterLines.rowWidth[0] = 100;
 	m_FilterLines.lineHeader[0] = "";
 
@@ -1734,36 +1732,39 @@ void CMovieBrowser::refreshFilterList(void)
 	{
 		// show Main List
 		string_item = g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_GENRE_MAJOR);
-		m_FilterLines.lineArray[0].push_back(string_item);
+		m_pcFilter->addLine2Row(&m_FilterLines, 0, string_item);
+
 		string_item = g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_INFO1);
-		m_FilterLines.lineArray[0].push_back(string_item);
+		m_pcFilter->addLine2Row(&m_FilterLines, 0, string_item);
+
 		string_item = g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_PATH);
-		m_FilterLines.lineArray[0].push_back(string_item);
+		m_pcFilter->addLine2Row(&m_FilterLines, 0, string_item);
+
 		string_item = g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_SERIE);
-		m_FilterLines.lineArray[0].push_back(string_item);
+		m_pcFilter->addLine2Row(&m_FilterLines, 0, string_item);
 	}
 	else
 	{
 		std::string tmp = g_Locale->getText(LOCALE_MOVIEBROWSER_FILTER_OFF);
-		m_FilterLines.lineArray[0].push_back(tmp);
+		m_pcFilter->addLine2Row(&m_FilterLines, 0, tmp);
 
 		if (m_settings.filter.item == MB_INFO_FILEPATH)
 		{
 			for (unsigned int i = 0 ; i < m_dirNames.size(); i++)
-				m_FilterLines.lineArray[0].push_back(m_dirNames[i]);
+				m_pcFilter->addLine2Row(&m_FilterLines, 0, m_dirNames[i]);
 		}
 		else if (m_settings.filter.item == MB_INFO_INFO1)
 		{
 			for (unsigned int i = 0; i < m_vMovieInfo.size(); i++)
 			{
 				bool found = false;
-				for (unsigned int t = 0; t < m_FilterLines.lineArray[0].size() && found == false; t++)
+				for (unsigned int t = 0; t < m_FilterLines.lineArray[0].v_text.size() && found == false; t++)
 				{
-					if (strcmp(m_FilterLines.lineArray[0][t].c_str(),m_vMovieInfo[i].epgInfo1.c_str()) == 0)
+					if (strcmp(m_FilterLines.lineArray[0].v_text[t].c_str(),m_vMovieInfo[i].epgInfo1.c_str()) == 0)
 						found = true;
 				}
 				if (found == false)
-					m_FilterLines.lineArray[0].push_back(m_vMovieInfo[i].epgInfo1);
+					m_pcFilter->addLine2Row(&m_FilterLines, 0, m_vMovieInfo[i].epgInfo1);
 			}
 		}
 		else if (m_settings.filter.item == MB_INFO_MAJOR_GENRE)
@@ -1771,14 +1772,14 @@ void CMovieBrowser::refreshFilterList(void)
 			for (int i = 0; i < GENRE_ALL_COUNT; i++)
 			{
 				std::string tmpl = g_Locale->getText(GENRE_ALL[i].value);
-				m_FilterLines.lineArray[0].push_back(tmpl);
+				m_pcFilter->addLine2Row(&m_FilterLines, 0, tmpl);
 			}
 		}
 		else if (m_settings.filter.item == MB_INFO_SERIE)
 		{
 			updateSerienames();
 			for (unsigned int i = 0; i < m_vHandleSerienames.size(); i++)
-				m_FilterLines.lineArray[0].push_back(m_vHandleSerienames[i]->serieName);
+				m_pcFilter->addLine2Row(&m_FilterLines, 0, m_vHandleSerienames[i]->serieName);
 		}
 	}
 	m_pcFilter->setLines(&m_FilterLines);
@@ -1793,7 +1794,7 @@ void CMovieBrowser::refreshLastPlayList(void) //P2
 	m_playListLines.rows = m_settings.lastPlayRowNr;
 	for (int row = 0 ;row < m_settings.lastPlayRowNr; row++)
 	{
-		m_playListLines.lineArray[row].clear();
+		m_pcLastPlay->cleanupRow(&m_playListLines, row);
 		m_playListLines.rowWidth[row] = m_settings.lastPlayRowWidth[row];
 		m_playListLines.lineHeader[row] = g_Locale->getText(m_localizedItemName[m_settings.lastPlayRow[row]]);
 	}
@@ -1829,7 +1830,7 @@ void CMovieBrowser::refreshLastPlayList(void) //P2
 				if (m_settings.lastPlayRow[row] == MB_INFO_TITLE)
 					getMovieInfoItem(*m_vHandlePlayList[handle], MB_INFO_FILENAME, &string_item);
 			}
-			m_playListLines.lineArray[row].push_back(string_item);
+			m_pcLastPlay->addLine2Row(&m_playListLines, row, string_item);
 		}
 		m_playListLines.marked.push_back(m_vHandlePlayList[handle]->marked);
 	}
@@ -1850,7 +1851,7 @@ void CMovieBrowser::refreshLastRecordList(void) //P2
 	m_recordListLines.rows = m_settings.lastRecordRowNr;
 	for (int row = 0 ;row < m_settings.lastRecordRowNr; row++)
 	{
-		m_recordListLines.lineArray[row].clear();
+		m_pcLastRecord->cleanupRow(&m_recordListLines, row);
 		m_recordListLines.rowWidth[row] = m_settings.lastRecordRowWidth[row];
 		m_recordListLines.lineHeader[row] = g_Locale->getText(m_localizedItemName[m_settings.lastRecordRow[row]]);
 	}
@@ -1886,7 +1887,7 @@ void CMovieBrowser::refreshLastRecordList(void) //P2
 				if (m_settings.lastRecordRow[row] == MB_INFO_TITLE)
 					getMovieInfoItem(*m_vHandleRecordList[handle], MB_INFO_FILENAME, &string_item);
 			}
-			m_recordListLines.lineArray[row].push_back(string_item);
+			m_pcLastRecord->addLine2Row(&m_recordListLines, row, string_item);
 		}
 		m_recordListLines.marked.push_back(m_vHandleRecordList[handle]->marked);
 	}
@@ -1908,7 +1909,7 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 	m_browserListLines.rows = m_settings.browserRowNr;
 	for (int row = 0; row < m_settings.browserRowNr; row++)
 	{
-		m_browserListLines.lineArray[row].clear();
+		m_pcBrowser->cleanupRow(&m_browserListLines, row);
 		m_browserListLines.rowWidth[row] = m_settings.browserRowWidth[row];
 		m_browserListLines.lineHeader[row] = g_Locale->getText(m_localizedItemName[m_settings.browserRowItem[row]]);
 	}
@@ -1951,7 +1952,7 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 					getMovieInfoItem(*m_vHandleBrowserList[handle], MB_INFO_FILENAME, &string_item);
 			}
 
-			m_browserListLines.lineArray[row].push_back(string_item);
+			m_pcBrowser->addLine2Row(&m_browserListLines, row, string_item, NULL);
 		}
 		if (CRecordManager::getInstance()->getRecordInstance(m_vHandleBrowserList[handle]->file.Name) != NULL)
 			m_browserListLines.Icon.push_back(NEUTRINO_ICON_MARKER_RECORD);
@@ -3253,7 +3254,7 @@ void CMovieBrowser::updateInfoSelection(void)
 void CMovieBrowser::updateFilterSelection(void)
 {
 	//TRACE("[mb]->updateFilterSelection \n");
-	if (m_FilterLines.lineArray[0].empty()) return;
+	if (m_FilterLines.lineArray[0].v_text.empty()) return;
 
 	bool result = true;
 	int selected_line = m_pcFilter->getSelectedLine();
@@ -3262,12 +3263,12 @@ void CMovieBrowser::updateFilterSelection(void)
 
 	if (m_settings.filter.item == MB_INFO_FILEPATH)
 	{
-		m_settings.filter.optionString = m_FilterLines.lineArray[0][selected_line+1];
+		m_settings.filter.optionString = m_FilterLines.lineArray[0].v_text[selected_line+1];
 		m_settings.filter.optionVar = selected_line;
 	}
 	else if (m_settings.filter.item == MB_INFO_INFO1)
 	{
-		m_settings.filter.optionString = m_FilterLines.lineArray[0][selected_line+1];
+		m_settings.filter.optionString = m_FilterLines.lineArray[0].v_text[selected_line+1];
 	}
 	else if (m_settings.filter.item == MB_INFO_MAJOR_GENRE)
 	{
@@ -3276,7 +3277,7 @@ void CMovieBrowser::updateFilterSelection(void)
 	}
 	else if (m_settings.filter.item == MB_INFO_SERIE)
 	{
-		m_settings.filter.optionString = m_FilterLines.lineArray[0][selected_line+1];
+		m_settings.filter.optionString = m_FilterLines.lineArray[0].v_text[selected_line+1];
 	}
 	else
 	{

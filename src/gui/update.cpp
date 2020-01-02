@@ -42,6 +42,7 @@
 #include <neutrino_menue.h>
 #include <mymenu.h>
 
+#include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
@@ -260,12 +261,6 @@ bool CFlashUpdate::selectHttpImage(void)
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILE));
 
 	char current[200];
-#if 0
-	snprintf(current, 200, "%s: %s %s %s %s %s", g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSION_SEP), curInfo.getReleaseCycle(), 
-		g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSIONDATE), curInfo.getDate(), 
-		g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSIONTIME), curInfo.getTime());
-#endif
-
 	snprintf(current, 200, "%s %s %s %s", curInfo.getReleaseCycle(), curInfo.getType(true), curInfo.getDate(), curInfo.getTime());
 
 
@@ -293,7 +288,7 @@ bool CFlashUpdate::selectHttpImage(void)
 		}
 		else
 		{
-// 			update_php(url, curInfo.getType());
+//			update_php(url, curInfo.getType());
 			startpos = url.find('/', startpos+2)+1;
 		}
 		endpos = std::string::npos;
@@ -335,7 +330,6 @@ bool CFlashUpdate::selectHttpImage(void)
 				description += versionInfo.getTime();
 
 				descriptions.push_back(description); /* workaround since CMenuForwarder does not store the Option String itself */
-
 
 				if (!separator)
 				{
@@ -399,6 +393,7 @@ bool CFlashUpdate::selectHttpImage(void)
 		}
 	}
 #endif
+
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if (gotImage && (filename.substr(filename.find_last_of(".") + 1) == "tgz" || filename.substr(filename.find_last_of(".") + 1) == "zip"))
 	{
@@ -455,7 +450,7 @@ bool CFlashUpdate::checkVersion4Update()
 		versionInfo = new CFlashVersionInfo(newVersion);//Memory leak: versionInfo
 		sprintf(msg, g_Locale->getText(msg_body), versionInfo->getDate(), versionInfo->getTime(), versionInfo->getReleaseCycle(), versionInfo->getType(true));
 
-		if (fileType <= '2')
+		if (gotImage)
 		{
 			if ((strncmp(RELEASE_CYCLE, versionInfo->getReleaseCycle(), 2) != 0) &&
 			    (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_WRONGBASE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes))
@@ -888,7 +883,11 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		dprintf(DEBUG_NORMAL, "[update] calling %s %s %s %s\n", ofgwrite_caller.c_str(), g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
 #ifndef DRYRUN
 		if (flashing)
+		{
+			CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
+			CVFD::getInstance()->showMenuText(0, "ofgwrite Flashing Tool", -1, true);
 			my_system(4, ofgwrite_caller.c_str(), g_settings.update_dir.c_str(), filename.c_str(), ofgwrite_options.c_str());
+		}
 
 		/*
 		   TODO: fix osd-flickering

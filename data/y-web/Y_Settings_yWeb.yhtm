@@ -142,10 +142,6 @@ select {
 						<option value="8">CST HD-2 | Trinity Duo</option>
 						<option value="9">AX | HD51</option>
 						<option value="10">Mutant | HD51</option>
-<<<<<<< HEAD
-						<option value="11">WWIO | BRE2ZE 4K</option>
-						<option value="12">VU+ | Solo 4K</option>
-=======
 						<option value="11">VU+ | Solo 4K</option>
 						<option value="12">VU+ | Duo 4k</option>
 						<option value="13">VU+ | Ultimo 4K</option>
@@ -155,7 +151,6 @@ select {
 						<option value="17">VU+ | Uno 4K</option>
 						<option value="18">Zgemma | H7</option>
 						<option value="19">WWIO | BRE2ZE 4k</option>
->>>>>>> a83181d44022e2ab3ed3d914d09ef30cc7990d0d
 					</select>
 				</td>
 			</tr>

@@ -29,16 +29,16 @@
   #define NEUTRINO_CPP extern
 #endif
 
-#define NEUTRINO_SETTINGS_FILE          CONFIGDIR "/neutrino.conf"
-#define NEUTRINO_SCAN_SETTINGS_FILE     CONFIGDIR "/scan.conf"
-#define NEUTRINO_PARENTALLOCKED_FILE    DATADIR   "/neutrino/.plocked"
+#define NEUTRINO_SETTINGS_FILE		CONFIGDIR "/neutrino.conf"
+#define NEUTRINO_SCAN_SETTINGS_FILE	CONFIGDIR "/scan.conf"
+#define NEUTRINO_PARENTALLOCKED_FILE	DATADIR   "/neutrino/.plocked"
 
-
-#define NEUTRINO_RECORDING_TIMER_SCRIPT "recording.timer"
-#define NEUTRINO_RECORDING_START_SCRIPT "recording.start"
-#define NEUTRINO_RECORDING_ENDED_SCRIPT "recording.end"
-#define NEUTRINO_ENTER_STANDBY_SCRIPT   "standby.on"
-#define NEUTRINO_LEAVE_STANDBY_SCRIPT   "standby.off"
+// control scripts
+#define NEUTRINO_RECORDING_TIMER_SCRIPT	"recording.timer"
+#define NEUTRINO_RECORDING_START_SCRIPT	"recording.start"
+#define NEUTRINO_RECORDING_ENDED_SCRIPT	"recording.end"
+#define NEUTRINO_ENTER_STANDBY_SCRIPT	"standby.on"
+#define NEUTRINO_LEAVE_STANDBY_SCRIPT	"standby.off"
 #define NEUTRINO_ENTER_INACTIVITY_SCRIPT	"inactivity.on"
 #define NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT	"deepstandby.on"
 #define NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT	"deepstandby.off"

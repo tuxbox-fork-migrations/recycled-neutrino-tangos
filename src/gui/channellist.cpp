@@ -2467,6 +2467,14 @@ bool CChannelList::SameTP(CZapitChannel * channel)
 		if (IS_WEBCHAN(channel->getChannelID()))
 			return true;
 
+#if 0 //Usable CI channel while recording
+		if(g_settings.ci_mode != 0 && channel->bUseCI && CRecordManager::getInstance()->getUseCI()) {
+			if(g_settings.ci_mode == 1)
+				return (CRecordManager::getInstance()->SameTransponder(channel->getChannelID())); // SameTransponder
+			else
+				return false; // No other CI channel
+		}
+#endif
 		iscurrent = CFEManager::getInstance()->canTune(channel);
 	}
 	return iscurrent;

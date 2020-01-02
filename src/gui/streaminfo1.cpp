@@ -898,7 +898,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 	if (box_h2 > ypos+(iheight*2))
 		frameBuffer->paintBox(0, ypos+(iheight*2), box_width, box_h2, COL_MENUCONTENT_PLUS_0);
 
-	std::string casys[NUM_CAIDS]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","Biss:","DreCrypt:","PowerVU:","Tandberg:","Verimatrix:"};
+	std::string casys[NUM_CAIDS]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax:","Cryptoworks:","Videoguard:","Biss:","DreCrypt:","PowerVU:","Tandberg:","Verimatrix:"};
 	bool caids[NUM_CAIDS];
 	int array[NUM_CAIDS];
 	char tmp[100];
