@@ -433,7 +433,7 @@ int CStreamInfo2::doSignalStrengthLoop()
 		neutrino_msg_data_t data;
 
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS(10);
-		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
+		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
 		if (!mp)
 		{

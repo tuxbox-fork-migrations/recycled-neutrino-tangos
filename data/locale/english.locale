@@ -314,6 +314,7 @@ ci.ignore_msg Ignore CA messages
 ci.init_failed CAM init failed
 ci.init_ok CAM init complete
 ci.inserted CAM inserted in slot
+ci.rec_zapto Zap when recording needs CAM
 ci.removed CAM removed from slot
 ci.reset Reset
 ci.reset_standby Reset after standby
@@ -1644,7 +1645,7 @@ menu.hint_sw_update Update software
 menu.hint_theme Select pre-defined color theme\nSave or load theme from files
 menu.hint_timeouts Customize display behavior and timeouts for messages, windows, menus, infobar, etc.
 menu.hint_timeouts_static_messages Timeout for specific messages with user interaction
-menu.hint_timer_followscreenings Show selection with followscreenings for timer programming
+menu.hint_timer_followscreenings Show selection with followscreenings for timer programming. "Always" shows selection even if just one event is found.
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
 menu.hint_timezone Select your timezone
 menu.hint_tmdb_api_key Type your TMDb API key. An empty input disables TMDb support
@@ -1705,6 +1706,8 @@ menu.hint_ytplay Play selected YouTube feeds
 menu.hint_ytplay_setup Configure YouTube-specific options, e.g. an upper limit for search results
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next
+message.frame_enable Message and hint box frames
+message.frame_enable_hint Enable frames around message and hint boxes.
 messagebox.accept Do you want to keep the changes?
 messagebox.back Back
 messagebox.cancel Cancel
@@ -1871,6 +1874,7 @@ moviebrowser.book_type Jump (<0: backward, >0: forward):
 moviebrowser.book_type_backward Repeat
 moviebrowser.book_type_forward Jump over
 moviebrowser.browser_additional Additional informations
+moviebrowser.browser_cut_long_rowtext Cut long row text
 moviebrowser.browser_frame_high Browser height [%]
 moviebrowser.browser_frame_high_additional Browser height with additional info [%]
 moviebrowser.browser_row_head Row settings
@@ -1935,6 +1939,7 @@ moviebrowser.hint_truncate Truncating all data beyond the end-bookmark
 moviebrowser.imdb_data Get IMDb data
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
+moviebrowser.info_elapsed Last Play Stop
 moviebrowser.info_file File
 moviebrowser.info_filename Filename
 moviebrowser.info_genre_major Genre
@@ -1971,7 +1976,9 @@ moviebrowser.menu_copy_onefile Copy movie
 moviebrowser.menu_copy_several Copy and split movie
 moviebrowser.menu_cut Cut movie
 moviebrowser.menu_cut_head Copy, cut and truncate
+moviebrowser.menu_data_request Online database request
 moviebrowser.menu_directories_head Directories de/activate
+moviebrowser.menu_edit edit
 moviebrowser.menu_main_bookmarks Bookmarks
 moviebrowser.menu_main_head Movie info and settings
 moviebrowser.menu_nfs_head NFS settings
@@ -1985,6 +1992,7 @@ moviebrowser.menu_save Save changes
 moviebrowser.menu_save_all Start update of movie info files
 moviebrowser.menu_settings Settings
 moviebrowser.menu_truncate Truncate movie
+moviebrowser.message_keep_storage_settings Do You want to keep storage settings for used and enabled directories?
 moviebrowser.option_browser Browser Options
 moviebrowser.reload_at_start Reload movie info at start
 moviebrowser.remount_at_start Remount at start
@@ -1997,6 +2005,7 @@ moviebrowser.short_audio Audio
 moviebrowser.short_book Book
 moviebrowser.short_channel Channel
 moviebrowser.short_country Country
+moviebrowser.short_elapsed 
 moviebrowser.short_filename Name
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
@@ -2159,6 +2168,7 @@ nvodselector.directormode Director mode
 nvodselector.head Subservices
 nvodselector.starttime Select starting time
 nvodselector.subservice Select subservice
+options.always always
 options.default Reset to defaults
 options.fb framebuffer
 options.hint_default Reset the values to their defaults
@@ -2277,7 +2287,10 @@ rclock.title Lock remote control
 rclock.unlockmsg Remote control unlocked
 recording.already_found %s\nwas already found. Nevertheless start record?
 recording.already_found_check Check recordings
+recording.end Set record end
+recording.end_text Stop this record at the end of current show?
 recording.failed Recording failed!
+recording.fill_text Record medium is filled up to %d%%. Nevertheless start record?
 recording.is_running This channel already recording. Start new record?
 recording.start Start recording, please wait ...
 recording.startstop_msg Message when recording is start/stop

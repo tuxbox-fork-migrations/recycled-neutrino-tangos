@@ -597,7 +597,7 @@ void CComponentsHeader::initCaption()
 		cch_text_x = cch_offset;
 
 	//calc width of text object in header
-	cc_text_w = width-cch_text_x/*-cch_offset*/;
+	cc_text_w = width-cch_text_x-cch_offset;
 
 	//context buttons
 	int buttons_w = 0;
@@ -618,7 +618,7 @@ void CComponentsHeader::initCaption()
 		cch_cl_obj->refresh();
 
 		//get width of clock object
-		int clock_w = cch_cl_enable ? cch_cl_obj->getWidth() : 0;
+		int clock_w = cch_cl_enable ? cch_cl_obj->getWidth() + cch_offset : 0;
 
 		//set x position of clock
 		cch_cl_obj->setXPos(width - buttons_w - clock_w);
@@ -710,7 +710,7 @@ void CComponentsHeader::initCCItems()
 	initLogo();
 }
 
-void CComponentsHeader::paint(bool do_save_bg)
+void CComponentsHeader::paint(const bool &do_save_bg)
 {
 	//prepare items
 	initCCItems();

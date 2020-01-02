@@ -326,10 +326,10 @@ bool CComponentsFrmClock::startClock()
 		return false;
 	}
 
-	if (cl_timer == NULL){
+	if (cl_timer == NULL)
 		cl_timer = new CComponentsTimer(0);
-		cl_timer->setThreadName("frmClock");
-	}
+
+	cl_timer->setThreadName(getItemName());
 
 	if (cl_timer->OnTimer.empty()){
 		dprintf(DEBUG_INFO,"\033[33m[CComponentsFrmClock]\t[%s] init slot...\033[0m\n", __func__);
@@ -381,7 +381,7 @@ bool CComponentsFrmClock::Stop()
 	return false;
 }
 
-void CComponentsFrmClock::paint(bool do_save_bg)
+void CComponentsFrmClock::paint(const bool &do_save_bg)
 {
 	//prepare items before paint
 	initCCLockItems();

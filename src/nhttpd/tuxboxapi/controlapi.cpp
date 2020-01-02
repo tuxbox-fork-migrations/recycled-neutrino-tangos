@@ -61,9 +61,12 @@ extern CBouquetManager *g_bouquetManager;
 #define RC_DEVICE "/dev/input/event0"
 #elif HAVE_SPARK_HARDWARE || HAVE_COOL_HARDWARE
 #define RC_DEVICE "/dev/input/nevis_ir"
+#elif BOXMODEL_H7
+#define RC_DEVICE "/dev/input/event2"
 #else
 #define RC_DEVICE "/dev/input/event1"
 #endif
+#define RC_DEVICE_FALLBACK "/dev/input/event0"
 
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -975,6 +978,8 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 #endif
 #if 1
 	int evd = open(RC_DEVICE, O_RDWR);
+	if (evd < 0)
+		evd = open(RC_DEVICE_FALLBACK, O_RDWR);
 	if (evd < 0) {
 		perror("opening " RC_DEVICE " failed");
 		hh->SendError();

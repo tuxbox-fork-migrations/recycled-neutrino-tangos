@@ -184,8 +184,8 @@ class CFrameBuffer : public sigc::trackable
 		fb_pixel_t * getFrameBufferPointer() const; // pointer to framebuffer
 		virtual fb_pixel_t * getBackBufferPointer() const;  // pointer to backbuffer
 		virtual unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
-		unsigned int getScreenWidth(bool real = false);
-		unsigned int getScreenHeight(bool real = false);
+		unsigned int getScreenWidth(const bool& real = false) const;
+		unsigned int getScreenHeight(const bool& real = false) const;
 		unsigned int getWindowWidth(bool force_small = false);
 		unsigned int getWindowHeight(bool force_small = false);
 		unsigned int getScreenX();
@@ -263,10 +263,18 @@ class CFrameBuffer : public sigc::trackable
 		void paintBackground();
 
 		void SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp);
-		void RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp);
+		void RestoreScreen(const int& x, const int& y, const int& dx, const int& dy, fb_pixel_t * const memp);
 
 		void Clear();
-		bool showFrame(const std::string & filename);
+
+		enum
+			{
+				SHOW_FRAME_FALLBACK_MODE_OFF		= 0,
+				SHOW_FRAME_FALLBACK_MODE_IMAGE		= 1,
+				SHOW_FRAME_FALLBACK_MODE_BLACKSCREEN	= 2,
+				SHOW_FRAME_FALLBACK_MODE_CALLBACK	= 4
+			};
+		bool showFrame(const std::string & filename, int fallback_mode = SHOW_FRAME_FALLBACK_MODE_OFF);
 		void stopFrame();
 		bool loadBackgroundPic(const std::string & filename, bool show = true);
 		bool Lock(void);
@@ -278,7 +286,7 @@ class CFrameBuffer : public sigc::trackable
 		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
 		virtual void fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, uint32_t dst_y, uint32_t src_x, uint32_t src_y);
 		virtual void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
-		virtual void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
+		virtual void blitBox2FB(const fb_pixel_t* boxBuf, const uint32_t& width, const uint32_t& height, const uint32_t& xoff, const uint32_t& yoff);
 
 		virtual void mark(int x, int y, int dx, int dy);
 		enum Mode3D { Mode3D_off = 0, Mode3D_SideBySide, Mode3D_TopAndBottom, Mode3D_SIZE };
@@ -326,8 +334,8 @@ class CFrameBuffer : public sigc::trackable
 		v_fbarea_t v_fbarea;
 		bool do_paint_mute_icon;
 
-		bool _checkFbArea(int _x, int _y, int _dx, int _dy, bool prev);
-		int checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t *area);
+		bool _checkFbArea(const int& _x, const int& _y, const int& _dx, const int& _dy, const bool& prev);
+		int checkFbAreaElement(const int& _x, const int& _y, const int& _dx, const int& _dy, const fb_area_t *area);
 
 	public:
 		enum {
@@ -338,11 +346,12 @@ class CFrameBuffer : public sigc::trackable
 			FB_PAINTAREA_MAX
 		};
 
-		inline bool checkFbArea(int _x, int _y, int _dx, int _dy, bool prev) { return (fbAreaActiv && !fb_no_check) ? _checkFbArea(_x, _y, _dx, _dy, prev) : true; }
+		inline bool checkFbArea(const int& _x, const int& _y, const int& _dx, const int& _dy, const bool& prev) { return (fbAreaActiv && !fb_no_check) ? _checkFbArea(_x, _y, _dx, _dy, prev) : true; }
 		void setFbArea(int element, int _x=0, int _y=0, int _dx=0, int _dy=0);
 		void fbNoCheck(bool noCheck) { fb_no_check = noCheck; }
 		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }
 		sigc::signal<void> OnAfterSetPallette;
+		sigc::signal<void> OnFallbackShowFrame;
 		const char *fb_name;
 };
 

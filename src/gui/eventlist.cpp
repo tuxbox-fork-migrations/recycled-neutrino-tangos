@@ -534,7 +534,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					CFollowScreenings m(used_id,
 						evtlist[selected].startTime,
 						evtlist[selected].startTime + evtlist[selected].duration,
-						evtlist[selected].description, evtlist[selected].eventID, TIMERD_APIDS_CONF, true, "", &evtlist);
+						evtlist[selected].description, evtlist[selected].eventID, TIMERD_APIDS_CONF, true, "", &evtlist, false);
 					m.exec(NULL, "");
 					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 				}
@@ -1069,6 +1069,7 @@ void CEventList::paintFoot(t_channel_id channel_id)
 		btn_cnt++;
 	}
 
+	// timerlist button
 	buttons[btn_cnt].button = g_info.hw_caps->has_button_timer ? NEUTRINO_ICON_BUTTON_TIMER : NEUTRINO_ICON_BUTTON_0;
 	buttons[btn_cnt].locale = LOCALE_TIMERLIST_NAME;
 	btn_cnt++;

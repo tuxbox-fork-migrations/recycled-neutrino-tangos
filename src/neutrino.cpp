@@ -525,6 +525,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.ci_check_live = configfile.getInt32("ci_check_live", 0);
 	g_settings.ci_pincode = configfile.getString("ci_pincode", "");
 	g_settings.ci_tuner = configfile.getInt32("ci_tuner", -1);
+	g_settings.ci_rec_zapto = configfile.getInt32("ci_rec_zapto", 0);
 
 #ifndef CPU_FREQ
 	g_settings.cpufreq = 0;
@@ -1357,6 +1358,34 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		//remove easymenu
 		configfile.deleteKey("easymenu");
 	}
+	if (g_settings.version_pseudo < "20190106000000")
+	{
+#ifdef ENABLE_LCD4LINUX
+		// move lcd4linux user skin from value 4 to value 100
+		if (g_settings.lcd4l_skin == 4)
+			g_settings.lcd4l_skin = 100;
+#endif
+	}
+	if (g_settings.version_pseudo < "20190115220100")
+	{
+		// rename timeshift keys
+		g_settings.timeshift_auto = configfile.getInt32("auto_timeshift", 0);
+		configfile.deleteKey("auto_timeshift");
+		g_settings.timeshift_temp = configfile.getInt32("temp_timeshift", 1);
+		configfile.deleteKey("temp_timeshift");
+		g_settings.timeshift_delete = configfile.getInt32("auto_delete", 1);
+		configfile.deleteKey("auto_delete");
+	}
+
+	if (g_settings.version_pseudo < "20161411235900")
+	{
+		//convert and remove obsolete recording_tevents key
+		bool recording_tevents = configfile.getBool("recording_tevents", false);
+		if (recording_tevents)
+			g_settings.timer_followscreenings = 2 /*always*/;
+		configfile.deleteKey("recording_tevents");
+	}
+
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
 	configfile.setString("version_pseudo", g_settings.version_pseudo);
 
@@ -1468,6 +1497,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("ci_check_live", g_settings.ci_check_live);
 	configfile.setString("ci_pincode", g_settings.ci_pincode);
 	configfile.setInt32("ci_tuner", g_settings.ci_tuner);
+	configfile.setInt32("ci_rec_zapto", g_settings.ci_rec_zapto);
 
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
 	configfile.setInt32( "make_webtv_list", g_settings.make_webtv_list);
@@ -2385,6 +2415,7 @@ void CNeutrinoApp::SetupFrameBuffer()
 
 void CNeutrinoApp::SetupFonts(int fmode)
 {
+	OnBeforeSetupFonts();
 	if (neutrinoFonts == NULL)
 		neutrinoFonts = CNeutrinoFonts::getInstance();
 
@@ -4014,7 +4045,12 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			if((eventinfo->channel_id != live_channel_id) && !(SAME_TRANSPONDER(live_channel_id, eventinfo->channel_id)))
 				zapTo(eventinfo->channel_id);
 		}
-
+		// zap to CI Channel
+		if(g_settings.ci_rec_zapto){
+			CZapitChannel * ch = CServiceManager::getInstance()->FindChannel(eventinfo->channel_id);
+			if (ch && ch->bUseCI && (eventinfo->channel_id != live_channel_id))
+				zapTo(eventinfo->channel_id);
+		}
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
 			CRecordManager::getInstance()->Record(eventinfo);
 			autoshift = CRecordManager::getInstance()->TimeshiftOnly();
@@ -4565,7 +4601,7 @@ void CNeutrinoApp::saveEpg(int _mode)
 	{
 		if (_mode == NeutrinoModes::mode_standby)
 		{
-			// skip save epg in standby mode, if last saveepg time < 15 Min.
+			// skip save epg in standby mode, if last saveepg time < 15 minutes
 			std::string index_xml = g_settings.epg_dir.c_str();
 			index_xml += "/index.xml";
 			time_t t=0;
@@ -4575,6 +4611,7 @@ void CNeutrinoApp::saveEpg(int _mode)
 					return;
 			}
 		}
+
 		CVFD::getInstance()->Clear();
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_EPG_SAVING));
@@ -5459,12 +5496,15 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_volumedown = tconfig->getInt32( "key_volumedown", CRCInput::RC_minus );
 
 	if (fname)
+	{
 		delete tconfig;
+		tconfig = NULL;
+	}
 }
 
 void CNeutrinoApp::saveKeys(const char * fname)
 {
-	CConfigFile *tconfig;
+	CConfigFile *tconfig = NULL;
 
 	if (fname)
 		tconfig = new CConfigFile(',');
@@ -5553,6 +5593,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	{
 		tconfig->saveConfig(fname);
 		delete tconfig;
+		tconfig = NULL;
 	}
 }
 

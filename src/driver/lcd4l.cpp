@@ -7,7 +7,7 @@
 	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Copyright (C) 2016-2019  'TangoCash'
+	Copyright (C) 2016-2019 'TangoCash'
 
 	License: GPL
 
@@ -119,6 +119,7 @@ static void lcd4linux(bool run)
 {
 	const char *buf = "lcd4linux";
 	const char *conf = "/etc/lcd4linux.conf";
+	std::string lcd4l_bin = find_executable(buf);
 
 	chmod(conf,0x600);
 	chown(conf,0,0);
@@ -127,10 +128,10 @@ static void lcd4linux(bool run)
 	{
 		if (g_settings.lcd4l_display_type == CLCD4l::PNG)
 		{
-			if (my_system(3, buf, "-o", PNGFILE) != 0)
+			if (my_system(3, lcd4l_bin.c_str(), "-o", PNGFILE) != 0)
 				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, buf, PNGFILE);
 		} else {
-			if (my_system(1, buf) != 0)
+			if (my_system(1, lcd4l_bin.c_str()) != 0)
 				printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, buf);
 		}
 		sleep(2);

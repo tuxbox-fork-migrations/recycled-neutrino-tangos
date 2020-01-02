@@ -45,11 +45,12 @@ class CComponentsTimer;
 class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 {
 	private:
-		CComponentsTimer *cl_timer;
 		void ShowTime();
 		bool may_blit;
 
 	protected:
+		CComponentsTimer *cl_timer;
+
 		///slot for timer event, reserved for ShowTime()
 		sigc::slot0<void> cl_sl_show;
 
@@ -156,7 +157,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		void setClockInterval(const int& seconds){cl_interval = seconds;}
 
 		///show clock on screen
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 		///hide clock on screen
 		void hide(){Stop(); CComponentsForm::hide();}
 		///does the same like kill() from base class, but stopping clock before kill

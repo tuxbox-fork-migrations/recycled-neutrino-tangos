@@ -64,6 +64,8 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		bool ccf_button_shadow_force_paint;
 		///enable/disable button frame in icon color, predefined for red, green, yellow and blue, default disabled
 		bool btn_auto_frame_col;
+		///extra button container y pos, overwrites internal default y centered position if value > 0
+		int ccf_button_container_y;
 
 		///property: set font for label caption, see also setButtonFont()
 		Font* ccf_btn_font;
@@ -81,6 +83,8 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 					fb_pixel_t color_body = COL_MENUFOOT_PLUS_0,
 					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 					int sizeMode = CC_HEADER_SIZE_LARGE);
+		
+		virtual ~CComponentsFooter(){};
 
 		///add button labels with string label type as content, count as size_t, chain_width as int, label width as int
 		void setButtonLabels(const struct button_label_cc * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
@@ -88,7 +92,7 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		void setButtonLabels(const std::vector<button_label_cc> &v_content, const int& chain_width, const int& label_width);
 
 		///enable/disable button frame in icon color, predefined for red, green, yellow and blue
-		inline void enableButtonFrameColor(bool enable = true){btn_auto_frame_col = enable;}
+		void enableButtonFrameColor(bool enable = true){btn_auto_frame_col = enable;}
 
 		///add button labels with old label type, count as size_t, chain_width as int, label width as int
 		///NOTE: for compatibility with older button handler find in gui/widget/buttons.h, if possible, don't use this
@@ -143,7 +147,7 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 					const int& label_width = 0,
 					const int& context_buttons = 0,
 					Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT],
-					bool do_save_bg = CC_SAVE_SCREEN_NO
+					const bool &do_save_bg = CC_SAVE_SCREEN_NO
 				);
 
 		enum
@@ -160,6 +164,8 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		void disbaleButtonShadow(){enableButtonShadow(CC_SHADOW_OFF);}
 		///get button label object with defined item id
 		CComponentsButton* getButtonLabel(const uint& item_id);
+		/// allows to allign buttons on the top of footer, default parameter is true
+		void ButtonsOnTop(const bool& enable = true) { ccf_button_container_y = enable ? 0 : -1;}
 };
 
 
