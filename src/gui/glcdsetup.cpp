@@ -34,6 +34,7 @@
 #include <driver/screen_max.h>
 #include "glcdsetup.h"
 #include <mymenu.h>
+#include <system/helpers.h>
 
 #define KEY_GLCD_BLACK			0
 #define KEY_GLCD_WHITE			1
