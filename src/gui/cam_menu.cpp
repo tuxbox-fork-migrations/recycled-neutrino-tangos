@@ -54,6 +54,25 @@
 #include <zapit/zapit.h>
 #include <driver/abstime.h>
 
+// CA init
+extern Zapit_config zapitCfg;
+
+const CMenuOptionChooser::keyval OPTIONS_CA_INIT_OPTIONS[] =
+{
+	{ 0, LOCALE_CA_INIT_0 },
+	{ 1, LOCALE_CA_INIT_1 },
+	{ 2, LOCALE_CA_INIT_2 }
+};
+#define OPTIONS_CA_INIT_OPTION_COUNT (sizeof(OPTIONS_CA_INIT_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
+
+const CMenuOptionChooser::keyval OPTIONS_CI_MODE_OPTIONS[] =
+{
+	{ 0, LOCALE_CI_MODE_0 },
+	{ 1, LOCALE_CI_MODE_1 },
+	{ 2, LOCALE_CI_MODE_2 }
+};
+#define OPTIONS_CI_MODE_OPTION_COUNT (sizeof(OPTIONS_CI_MODE_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
+
 #define CI_CLOCK_OPTION_COUNT 2
 static const CMenuOptionChooser::keyval CI_CLOCK_OPTIONS[CI_CLOCK_OPTION_COUNT] = {
 	{ 6, LOCALE_CI_CLOCK_NORMAL },
@@ -115,6 +134,13 @@ int CCAMMenuHandler::doMainMenu()
 	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CI_SETTINGS, NEUTRINO_ICON_SETTINGS);
 	cammenu->addIntroItems();
 
+	// CA init CI|CARD|BOTH
+	CZapit::getInstance()->GetConfig(zapitCfg);
+	CMenuOptionChooser *ca_init = new CMenuOptionChooser(LOCALE_CA_INIT, (int *)&zapitCfg.cam_ci, OPTIONS_CA_INIT_OPTIONS, OPTIONS_CA_INIT_OPTION_COUNT, true, NULL);
+	ca_init->setHint(NEUTRINO_ICON_HINT_DEFAULT, LOCALE_MENU_HINT_CA_INIT);
+	cammenu->addItem(ca_init);
+	cammenu->addItem(GenericMenuSeparator);
+
 	int CiSlots = ca ? ca->GetNumberCISlots() : 0;
 	if(CiSlots) {
 		cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_RESET_STANDBY, &g_settings.ci_standby_reset, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
@@ -130,6 +156,10 @@ int CCAMMenuHandler::doMainMenu()
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_SAVE_PINCODE, &g_settings.ci_save_pincode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_CHECK_LIVE_SLOT, &g_settings.ci_check_live, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_REC_ZAPTO, &g_settings.ci_rec_zapto, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
+	CMenuOptionChooser *ci_mode = new CMenuOptionChooser(LOCALE_CI_MODE, &g_settings.ci_mode, OPTIONS_CI_MODE_OPTIONS, OPTIONS_CI_MODE_OPTION_COUNT, true, NULL);
+	ci_mode->setHint(NEUTRINO_ICON_HINT_DEFAULT, LOCALE_MENU_HINT_CI_MODE);
+	cammenu->addItem(ci_mode);
+
 #ifdef BOXMODEL_CS_HD2
 	int fecount = CFEManager::getInstance()->getFrontendCount();
 	char fename[fecount+1][255];
@@ -216,6 +246,10 @@ int CCAMMenuHandler::doMainMenu()
 	ret = cammenu->exec(NULL, "");
 	delete cammenu;
 	in_menu = false;
+
+	// CA init
+	CZapit::getInstance()->SetConfig(&zapitCfg);
+
 	return ret;
 }
 
