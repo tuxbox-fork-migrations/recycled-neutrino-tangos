@@ -1753,7 +1753,7 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 		return;
 
 	if (zapit_debug) printf("[fe%d/%d] voltage %s\n", adapter, fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18");
-	if (config.diseqcType == DISEQC_UNICABLE || config.diseqcType == DISEQC_UNICABLE2) {
+	if ((config.diseqcType == DISEQC_UNICABLE || config.diseqcType == DISEQC_UNICABLE2) && voltage != SEC_VOLTAGE_OFF) {
 		/* see my comment in secSetTone... */
 		currentVoltage = voltage; /* need to know polarization for unicable */
 		fop(ioctl, FE_SET_VOLTAGE, unicable_lowvolt); /* voltage must not be 18V */
@@ -2256,7 +2256,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 #endif
 		}
 
-		if (config.diseqcType >= DISEQC_1_0) {	/* DISEQC 1.0 */
+		if (config.diseqcType == DISEQC_1_0) {	/* DISEQC 1.0 */
 			usleep(delay * 1000);
 			//cmd.msg[0] |= 0x01;	/* repeated transmission */
 			cmd.msg[2] = 0x38;	/* port group = commited switches */

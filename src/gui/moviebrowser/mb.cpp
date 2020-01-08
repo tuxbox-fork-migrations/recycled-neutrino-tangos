@@ -2952,7 +2952,6 @@ void CMovieBrowser::updateDir(void)
 void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 {
 	//TRACE("[mb]->loadAllTsFileNamesFromStorage \n");
-	size_t i,size;
 
 	m_movieSelectionHandler = NULL;
 	m_dirNames.clear();
@@ -2960,8 +2959,11 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 
 	updateDir();
 
+	size_t i, size;
 	size = m_dir.size();
-	for (i=0; i < size;i++)
+
+	size_t used_dirs = 0;
+	for (i = 0; i < size;i++)
 	{
 		if (*m_dir[i].used == true){
 			OnGlobalProgress(i + 1, size, m_dir[i].name);
@@ -2969,7 +2971,7 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 		}
 	}
 
-	TRACE("[mb] Dir%d, Files:%d\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size());
+	TRACE("[mb] Dir %d, Files: %d, size %u, used_dirs %u\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size(), size, used_dirs);
 }
 
 bool CMovieBrowser::gotMovie(const char *rec_title)

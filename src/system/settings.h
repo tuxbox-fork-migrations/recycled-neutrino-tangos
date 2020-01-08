@@ -581,6 +581,7 @@ struct SNeutrinoSettings
 	int key_channelList_addremind;
 
 	int key_playbutton;
+	int key_favorites;
 	int key_quickzap_up;
 	int key_quickzap_down;
 	int key_bouquet_up;
@@ -805,6 +806,8 @@ struct SNeutrinoSettings
 		FONT_TYPE_MESSAGE_TEXT,
 		FONT_TYPE_BUTTON_TEXT,
 		FONT_TYPE_WINDOW_GENERAL,
+		FONT_TYPE_WINDOW_RADIOTEXT_TITLE,
+		FONT_TYPE_WINDOW_RADIOTEXT_DESC,
 		FONT_TYPE_COUNT
 	};
 

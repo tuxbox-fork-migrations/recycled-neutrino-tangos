@@ -461,8 +461,8 @@ int CAudioPlayerGui::show()
 			if (m_state != CAudioPlayerGui::STOP)
 				stop();
 		}
-		//add RC_favorites for internetradio
-		else if ((msg == CRCInput::RC_favorites) && (m_inetmode))
+		//add key_favorites for internetradio
+		else if ((msg == (neutrino_msg_t) g_settings.key_favorites) && (m_inetmode))
 		{
 			if (m_key_level == 0)
 			{
@@ -2966,10 +2966,11 @@ void CAudioPlayerGui::cleanupCovers()
 			while (n--)
 			{
 				const char *coverfile = coverlist[n]->d_name;
-				if (strcmp(coverfile, ".") == 0 || strcmp(coverfile, "..") == 0)
-					continue;
-				printf("[audioplayer] removing cover %s/%s\n", COVERDIR_TMP, coverfile);
-				unlink(((std::string)COVERDIR_TMP + "/" + coverfile).c_str());
+				if (strcmp(coverfile, ".") != 0 && strcmp(coverfile, "..") != 0)
+				{
+					printf("[audioplayer] removing cover %s/%s\n", COVERDIR_TMP, coverfile);
+					unlink(((std::string)COVERDIR_TMP + "/" + coverfile).c_str());
+				}
 				free(coverlist[n]);
 			}
 			free(coverlist);
