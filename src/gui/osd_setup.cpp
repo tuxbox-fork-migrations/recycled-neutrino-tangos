@@ -710,10 +710,12 @@ int COsdSetup::showOsdSetup()
 
 	osd_menu->addItem(GenericMenuSeparatorLine);
 
+#ifndef ENABLE_TANGOS
 	// radiotext
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_RADIOTEXT);
 	osd_menu->addItem(mc);
+#endif
 
 	// scrambled
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_SCRAMBLED_MESSAGE, &g_settings.scrambled_message, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
