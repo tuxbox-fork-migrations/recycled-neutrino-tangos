@@ -97,6 +97,7 @@
 #include "gui/sleeptimer.h"
 #include "gui/update_ext.h"
 #include "gui/update.h"
+//#include "gui/update_check.h"
 #include "gui/videosettings.h"
 #include "gui/audio_select.h"
 #include "gui/weather.h"
@@ -2770,7 +2771,7 @@ TIMER_START();
 	g_videoSettings->setVideoSettings();
 
 	// show start logo
-	//bool startlogo = frameBuffer->showFrame("logo.jpg");
+	//bool startlogo = frameBuffer->showFrame("start.jpg");
 
 	g_RCInput = new CRCInput(timer_wakeup);
 
@@ -3068,6 +3069,7 @@ void CNeutrinoApp::showMainMenu()
 {
 	StopSubtitles();
 	InfoClock->enableInfoClock(false);
+
 	int old_ttx = g_settings.cacheTXT;
 	int old_epg = g_settings.epg_scan;
 	int old_mode = g_settings.epg_scan_mode;
@@ -3075,6 +3077,7 @@ void CNeutrinoApp::showMainMenu()
 	mainMenu->exec(NULL, "");
 	CVFD::getInstance()->UpdateIcons();
 	InfoClock->enableInfoClock(true);
+
 	StartSubtitles();
 	saveSetup(NEUTRINO_SETTINGS_FILE);
 
@@ -3144,7 +3147,6 @@ void CNeutrinoApp::RealRun()
 			{
 				if (CScreenSaver::getInstance()->canStart() && !CScreenSaver::getInstance()->isActive())
 				{
-					CInfoClock::getInstance()->block();
 					CScreenSaver::getInstance()->Start();
 				}
 			}
@@ -3171,10 +3173,12 @@ void CNeutrinoApp::RealRun()
 		if( ( mode == NeutrinoModes::mode_tv ) || ( mode == NeutrinoModes::mode_radio ) || ( mode == NeutrinoModes::mode_webtv ) || ( mode == NeutrinoModes::mode_webradio ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
 				InfoClock->enableInfoClock(false);
+
 				StopSubtitles();
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				g_EpgData->show(live_channel_id);
 				InfoClock->enableInfoClock(true);
+
 				StartSubtitles();
 			}
 			/* the only hardcoded key to check before key bindings */
@@ -3190,6 +3194,10 @@ void CNeutrinoApp::RealRun()
 #endif
 			{
 				quickZap(msg);
+			}
+			else if (msg == (neutrino_msg_t) g_settings.key_favorites)
+			{
+				showChannelList(msg);
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_tvradio_mode ) {
 				switchTvRadioMode();
@@ -3336,10 +3344,12 @@ void CNeutrinoApp::RealRun()
 			}
 			else if( msg == CRCInput::RC_epg ) {
 				InfoClock->enableInfoClock(false);
+
 				StopSubtitles();
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				g_EventList->exec(live_channel_id, channelList->getActiveChannelName());
 				InfoClock->enableInfoClock(true);
+
 				StartSubtitles();
 			}
 			else if (CRCInput::isNumeric(msg)) {
@@ -3469,6 +3479,7 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 
 	neutrino_msg_t msg = _msg;
 	InfoClock->enableInfoClock(false);//TODO: use callback in channel list class
+
 	StopSubtitles();
 
 	int nNewChannel = -1;
@@ -3493,13 +3504,13 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 	} else if(msg == CRCInput::RC_sat) {
 		SetChannelMode(LIST_MODE_SAT);
 		nNewChannel = bouquetList->exec(true);
-	} else if(msg == CRCInput::RC_favorites) {
-		SetChannelMode(LIST_MODE_FAV);
+	} else if(msg == CRCInput::RC_www) {
+		SetChannelMode(LIST_MODE_WEB);
 		if (bouquetList->Bouquets.empty())
 			SetChannelMode(LIST_MODE_PROV);
 		nNewChannel = bouquetList->exec(true);
-	} else if(msg == CRCInput::RC_www) {
-		SetChannelMode(LIST_MODE_WEB);
+	} else if(msg == (neutrino_msg_t) g_settings.key_favorites) {
+		SetChannelMode(LIST_MODE_FAV);
 		if (bouquetList->Bouquets.empty())
 			SetChannelMode(LIST_MODE_PROV);
 		nNewChannel = bouquetList->exec(true);
@@ -3641,10 +3652,13 @@ bool CNeutrinoApp::listModeKey(const neutrino_msg_t msg)
 {
 	if (
 		   msg == CRCInput::RC_sat
-		|| msg == CRCInput::RC_favorites
 		|| msg == CRCInput::RC_www
+		|| msg == (neutrino_msg_t) g_settings.key_favorites
 	)
+	{
+		printf("CNeutrinoApp::listModeKey: true\n");
 		return true;
+	}
 	return false;
 }
 
@@ -3916,12 +3930,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == CRCInput::RC_mute_on ) {
 		g_audioMute->AudioMute(true, true);
-
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mute_off ) {
 		g_audioMute->AudioMute(false, true);
-
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_analog_on ) {
@@ -5409,6 +5421,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_power_off = tconfig->getInt32( "key_power_off", CRCInput::RC_standby );
 	g_settings.key_standby_off_add = tconfig->getInt32( "key_standby_off_add", CRCInput::RC_ok );
 
+	g_settings.key_favorites = tconfig->getInt32( "key_favorites", CRCInput::RC_favorites );
 	g_settings.key_pageup = tconfig->getInt32( "key_channelList_pageup",  CRCInput::RC_page_up );
 	g_settings.key_pagedown = tconfig->getInt32( "key_channelList_pagedown", CRCInput::RC_page_down );
 	g_settings.key_channelList_sort = tconfig->getInt32( "key_channelList_sort",  CRCInput::RC_blue );
@@ -5524,6 +5537,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig->setInt32( "key_channelList_addrecord", g_settings.key_channelList_addrecord );
 	tconfig->setInt32( "key_channelList_addremind", g_settings.key_channelList_addremind );
 
+	tconfig->setInt32( "key_favorites", g_settings.key_favorites );
 	tconfig->setInt32( "key_list_start", g_settings.key_list_start );
 	tconfig->setInt32( "key_list_end", g_settings.key_list_end );
 	tconfig->setInt32( "key_timeshift", g_settings.key_timeshift );

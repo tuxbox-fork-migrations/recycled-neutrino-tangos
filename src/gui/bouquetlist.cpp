@@ -474,7 +474,7 @@ int CBouquetList::show(bool bShowChannelList)
 		}
 		else if ((msg == CRCInput::RC_timeout                             ) ||
 				(msg == CRCInput::RC_home) ||
-				((msg == CRCInput::RC_favorites) && (CNeutrinoApp::getInstance()->GetChannelMode() == LIST_MODE_FAV)))
+				((msg == (neutrino_msg_t) g_settings.key_favorites) && (CNeutrinoApp::getInstance()->GetChannelMode() == LIST_MODE_FAV)))
 		{
 			selected = oldselected;
 			if(fader.StartFadeOut()) {
@@ -483,7 +483,7 @@ int CBouquetList::show(bool bShowChannelList)
 			} else
 				loop=false;
 		}
-		else if(msg == CRCInput::RC_red || msg == CRCInput::RC_favorites) {
+		else if(msg == CRCInput::RC_red || msg == (neutrino_msg_t) g_settings.key_favorites) {
 			if (!favonly && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_FAV) {
 				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_FAV);
 				hide();
@@ -596,6 +596,10 @@ int CBouquetList::show(bool bShowChannelList)
 	}
 	hide();
 
+#ifdef ENABLE_GRAPHLCD
+	nGLCD::unlockChannel();
+#endif
+
 #ifdef ENABLE_LCD4LINUX
 	LCD4l->RemoveFile("/tmp/lcd/menu");
 #endif
@@ -658,6 +662,10 @@ void CBouquetList::paintItem(int pos)
 	{
 		if(npos < (int) Bouquets.size())
 			CVFD::getInstance()->showMenuText(0, lname, -1, true);
+#ifdef ENABLE_GRAPHLCD
+		if(g_settings.glcd_enable)
+			nGLCD::lockChannel(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), lname, 0);
+#endif
 #ifdef ENABLE_LCD4LINUX
 		if(g_settings.lcd4l_support)
 			LCD4l->CreateFile("/tmp/lcd/menu", lname, g_settings.lcd4l_convert);
@@ -718,7 +726,7 @@ void CBouquetList::paintHead()
 void CBouquetList::paint()
 {
 	//ensure stop info clock before paint this window
-	CInfoClock::getInstance()->disableInfoClock();
+	CInfoClock::getInstance()->block();
 	liststart = (selected/listmaxshow)*listmaxshow;
 	int lastnum =  liststart + listmaxshow;
 

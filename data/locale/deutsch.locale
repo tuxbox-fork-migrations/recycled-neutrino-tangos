@@ -503,9 +503,9 @@ extra.fec_3_5_L 3/5L
 extra.fec_2_3_L 2/3L
 extra.fec_5_9_L 5/9L
 extra.fec_26_45_L 26/45L
-extra.key_current_transponder Aktuelle Transponder Taste
+extra.key_current_transponder Aktueller Transponder
 extra.key_format_mode Videoformat
-extra.key_help Hilfe-Taste
+extra.key_help Hilfe
 extra.key_list_end Listenende
 extra.key_list_start Listenanfang
 extra.key_next43mode Nächstes Seitenformat
@@ -514,11 +514,11 @@ extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
-extra.key_record Aufnahme-Taste
-extra.key_screenshot Screenshot Taste
+extra.key_record Aufnahme
+extra.key_screenshot Screenshot
 extra.key_switchformat Nächste Auflösung
 extra.key_timeshift Timeshift
-extra.key_unlock Entsperrtaste
+extra.key_unlock Entsperren
 extra.ladirection Breitengrad-Ausrichtung
 extra.latitude Breitengrad
 extra.loadconfig Einstellungen laden
@@ -832,6 +832,8 @@ fontsize.moviebrowser_head Überschriften
 fontsize.moviebrowser_info Info-Fenster
 fontsize.moviebrowser_list Listen-Einträge
 fontsize.subtitles Text Untertitel
+fontsize.window_radiotext_desc0 Radiotext Infos
+fontsize.window_radiotext_desc1 Radiotext Zusatzinfo
 fsk.all aus
 fsk.from_12 ab 12
 fsk.from_16 ab 16
@@ -863,7 +865,7 @@ glcd.color.golden Golden
 glcd.display Display-Typ
 glcd.enable GraphLCD aktiv
 glcd.font Schrift
-glcd.head GraphLCD
+glcd.head GraphLCD-Unterstützung
 glcd.mirror_osd OSD-Menü auf GraphLCD anzeigen
 glcd.mirror_video Videobild auf GraphLCD anzeigen
 glcd.restart Neu erkennen
@@ -992,6 +994,7 @@ keybindingmenu.channeldown Kanal runter
 keybindingmenu.channellist Kanalliste
 keybindingmenu.channelup Kanal hoch
 keybindingmenu.edit Tastenbelegungen bearbeiten
+keybindingmenu.favorites Favoriten
 keybindingmenu.head Tastenbelegungen
 keybindingmenu.lastchannel Letzter Kanal
 keybindingmenu.longkeypress_duration Langer Tastendruck
@@ -1326,6 +1329,7 @@ menu.hint_key_cancel Weisen Sie eine Taste für das Schließen der Menüs zu
 menu.hint_key_channeldown Weisen Sie eine Taste für das Herunterschalten in der Kanalliste zu
 menu.hint_key_channellist Konfigurieren Sie die Tastenbelegung für die Kanalliste
 menu.hint_key_channelup Weisen Sie eine Taste für das Hochschalten in der Kanalliste zu
+menu.hint_key_favorites Weisen Sie eine Taste für das Anzeigen der Favoriten zu
 menu.hint_key_format_mode_active Die Taste für das Videoformat deaktivieren/aktivieren
 menu.hint_key_hardware Definieren Sie, welche Fernbedienung Sie verwenden möchten. Die Bestätigung erfolgt mit der Ausgewählten
 menu.hint_key_history Definieren Sie eine Taste für das Anzeigen der letzten Programme, die Sie schauten

@@ -46,7 +46,7 @@
 class CFrameBuffer;
 class COSDFader;
 class CInfoViewerBB;
-class CInfoViewer
+class CInfoViewer : public sigc::trackable
 {
  private:
 
@@ -135,8 +135,7 @@ class CInfoViewer
 	void showMotorMoving(int duration);
    	void showLcdPercentOver();
 	int showChannelLogo(const t_channel_id logo_channel_id, const int channel_number_width);
-	void showRadiotext();
-	void killRadiotext();
+	void enableRadiotext();
 
 	//small infobox, shows a small textbox with a short message text,
 	//text must be located in a file named /tmp/infobar.txt
@@ -220,6 +219,8 @@ class CInfoViewer
 	void 	ResetModules(bool kill = false);
 	void	KillModules() {ResetModules(true); };
 	bool 	hasTimeout();
+	sigc::signal<void> OnAfterKillTitle;
+	sigc::signal<void> OnEnableRadiotext;
 };
 #endif
 

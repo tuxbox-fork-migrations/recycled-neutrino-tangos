@@ -498,22 +498,22 @@ extra.fec_3_5_L 3/5L
 extra.fec_2_3_L 2/3L
 extra.fec_5_9_L 5/9L
 extra.fec_26_45_L 26/45L
-extra.key_current_transponder Current Transponder Key
+extra.key_current_transponder Current transponder
 extra.key_format_mode Video format
-extra.key_help Help key
-extra.key_list_end end
-extra.key_list_start home
+extra.key_help Help
+extra.key_list_end End
+extra.key_list_start Home
 extra.key_next43mode Next aspect ratio
 extra.key_pic_mode Screen format
 extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
-extra.key_record Record key
-extra.key_screenshot Screenshot key
+extra.key_record Record
+extra.key_screenshot Screenshot
 extra.key_switchformat Next resolution
 extra.key_timeshift Timeshift
-extra.key_unlock Unlock key
+extra.key_unlock Unlock
 extra.ladirection LaDirection
 extra.latitude Latitude
 extra.loadconfig Load settings
@@ -826,6 +826,8 @@ fontsize.moviebrowser_head Headers
 fontsize.moviebrowser_info Info window
 fontsize.moviebrowser_list List items
 fontsize.subtitles Text subtitles
+fontsize.window_radiotext_desc0 Radiotext infos
+fontsize.window_radiotext_desc1 Radiotext additional infos
 fsk.all off
 fsk.from_12 from 12
 fsk.from_16 from 16
@@ -845,19 +847,19 @@ glcd.color.red Red
 glcd.color.white White
 glcd.color.yellow Yellow
 glcd.color.orange Orange
-glcd.color.light_gray Light_Gray
+glcd.color.light_gray Light Gray
 glcd.color.gray Gray
-glcd.color.dark_gray Dark_Gray
-glcd.color.dark_red Dark_Red
-glcd.color.dark_green Dark_Green
-glcd.color.dark_blue Dark_Blue
+glcd.color.dark_gray Dark Gray
+glcd.color.dark_red Dark Red
+glcd.color.dark_green Dark Green
+glcd.color.dark_blue Dark Blue
 glcd.color.purple Purple
 glcd.color.mint Mint
 glcd.color.golden Golden
-glcd.display Display-Type
+glcd.display Display type
 glcd.enable GraphLCD enabled
 glcd.font Font
-glcd.head GraphLCD
+glcd.head GraphLCD-Support
 glcd.mirror_osd Show OSD menu on GraphLCD
 glcd.mirror_video Show running video on GraphLCD
 glcd.restart Rescan
@@ -985,6 +987,7 @@ keybindingmenu.channeldown channel down
 keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
 keybindingmenu.edit Edit keybindings
+keybindingmenu.favorites Favorites
 keybindingmenu.head Keybindings
 keybindingmenu.lastchannel Quick zap
 keybindingmenu.longkeypress_duration Long key-press
@@ -1316,6 +1319,7 @@ menu.hint_key_cancel Assign button to close GUI window
 menu.hint_key_channeldown Assign button for fast switch to previous\nchannel in channel list
 menu.hint_key_channellist Configure keybingdings for channel list
 menu.hint_key_channelup Assign button for fast switch to next\nchannel in channel list
+menu.hint_key_favorites Assign button to show favorites
 menu.hint_key_format_mode_active Disable/enable key for the video format conversion
 menu.hint_key_hardware Change remote control type
 menu.hint_key_history Assign button to show channel\nchannel switch history

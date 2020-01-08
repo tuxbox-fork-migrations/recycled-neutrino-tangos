@@ -49,7 +49,7 @@
 #include <system/fsmounter.h>
 #include <system/helpers.h>
 
-
+#include <driver/display.h>
 #include <driver/record.h>
 #ifdef ENABLE_GRAPHLCD
 #include <driver/nglcd.h>

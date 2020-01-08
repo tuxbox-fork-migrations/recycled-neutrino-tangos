@@ -94,6 +94,9 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 	actObserv	= NULL;
 	parent_widget	= NULL;
 
+#ifdef ENABLE_GRAPHLCD
+	graphlcd_text	= "";
+#endif
 #ifdef ENABLE_LCD4LINUX
 	lcd4l_text	= "";
 #endif
@@ -243,6 +246,10 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 			char str[len];
 			snprintf(str, len, "%s %s", left_text, right_text);
 			CVFD::getInstance()->showMenuText(0, str, -1, true);
+#ifdef ENABLE_GRAPHLCD
+			if (g_settings.glcd_enable)
+				graphlcd_text = str;
+#endif
 #ifdef ENABLE_LCD4LINUX
 			if(g_settings.lcd4l_support)
 				lcd4l_text = str;
@@ -251,12 +258,20 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 		else
 		{
 			CVFD::getInstance()->showMenuText(0, left_text, -1, true);
+#ifdef ENABLE_GRAPHLCD
+			if (g_settings.glcd_enable)
+				graphlcd_text = left_text;
+#endif
 #ifdef ENABLE_LCD4LINUX
 			if (g_settings.lcd4l_support)
 				lcd4l_text = left_text;
 #endif
 		}
 
+#ifdef ENABLE_GRAPHLCD
+		if (g_settings.glcd_enable)
+			nGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), graphlcd_text, 0);
+#endif
 #ifdef ENABLE_LCD4LINUX
 		if (g_settings.lcd4l_support)
 			LCD4l->CreateFile("/tmp/lcd/menu", lcd4l_text, g_settings.lcd4l_convert);
@@ -476,6 +491,12 @@ void CMenuItem::setIconName()
 			break;
 		case CRCInput::RC_info:
 			iconName = NEUTRINO_ICON_BUTTON_INFO_SMALL;
+			break;
+		case CRCInput::RC_epg:
+			iconName = NEUTRINO_ICON_BUTTON_EPG;
+			break;
+		case CRCInput::RC_pause:
+			iconName = NEUTRINO_ICON_BUTTON_PAUSE;
 			break;
 		case CRCInput::RC_stop:
 			iconName = NEUTRINO_ICON_BUTTON_STOP;
@@ -1025,6 +1046,9 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			case (CRCInput::RC_right):
 			case (CRCInput::RC_ok):
 				if (hasItem() && selected > -1 && (int)items.size() > selected) {
+#ifdef ENABLE_GRAPHLCD
+					nGLCD::unlockChannel();
+#endif
 #ifdef ENABLE_LCD4LINUX
 					LCD4l->RemoveFile("/tmp/lcd/menu");
 #endif
@@ -1042,6 +1066,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					fader.StopFade();
 					int rv = item->exec( this );
 
+#ifdef ENABLE_GRAPHLCD
+					if (g_settings.glcd_enable)
+						nGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), item->graphlcd_text, 0);
+#endif
 #ifdef ENABLE_LCD4LINUX
 					if (g_settings.lcd4l_support)
 						LCD4l->CreateFile("/tmp/lcd/menu", item->lcd4l_text, g_settings.lcd4l_convert);
@@ -1131,6 +1159,9 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		if(oldLcdMode != CVFD::getInstance()->getMode())
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
+#ifdef ENABLE_GRAPHLCD
+	nGLCD::unlockChannel();
+#endif
 #ifdef ENABLE_LCD4LINUX
 	LCD4l->RemoveFile("/tmp/lcd/menu");
 #endif
@@ -1322,7 +1353,8 @@ void CMenuWidget::calcSize()
 	CMenuItem *separator = new CMenuSeparator();
 	height += separator->getHeight();
 	delete separator;
-	
+	separator = NULL;
+
 	//scrollbar width
 	scrollbar_width=0;
 	if (total_pages > 1)
@@ -1377,7 +1409,7 @@ void CMenuWidget::paint()
 	}
 
 	if (CInfoClock::getInstance()->isRun())
-		CInfoClock::getInstance()->disableInfoClock();
+		CInfoClock::getInstance()->block();
 
 	calcSize();
 
@@ -1587,6 +1619,7 @@ void CMenuWidget::saveScreen()
 		return;
 
 	delete[] background;
+	background = NULL;
 	int hint_h = 0;
 	if (hint_height)
 		hint_h = OFFSET_INTER + hint_height + OFFSET_SHADOW;
@@ -2111,8 +2144,8 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 			*optionValue = options[select].key;
 			optionValname = (char *) options[select].valname;
 		}
-		delete menu;
-		delete selector;
+		delete menu; menu = NULL;
+		delete selector; selector = NULL;
 	} else {
 		for(unsigned int count = 0; count < number_of_options; count++) {
 			if (options[count].key == (*optionValue)) {
@@ -2284,8 +2317,8 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 		ret = menu_return::RETURN_REPAINT;
 		if(select >= 0 && optionValuePtr)
 			*optionValuePtr = options[select];
-		delete menu;
-		delete selector;
+		delete menu; menu = NULL;
+		delete selector; selector = NULL;
 	} else {
 		//select next value
 		for(unsigned int count = 0; count < options.size(); count++) {
@@ -2537,7 +2570,7 @@ bool CPINProtection::check()
 		cPIN = "";
 		CPINInput* PINInput = new CPINInput(title, &cPIN, 4, hint);
 		PINInput->exec( getParent(), "");
-		delete PINInput;
+		delete PINInput; PINInput = NULL;
 		hint = LOCALE_PINPROTECTION_WRONGCODE;
 	} while ((cPIN != *validPIN) && !cPIN.empty());
 	return (cPIN == *validPIN);
@@ -2556,7 +2589,7 @@ bool CZapProtection::check()
 		CPLPINInput* PINInput = new CPLPINInput(title, &cPIN, 4, hint, fsk);
 
 		res = PINInput->exec(getParent(), "");
-		delete PINInput;
+		delete PINInput; PINInput = NULL;
 		cPIN[4] = 0;
 
 		hint = LOCALE_PINPROTECTION_WRONGCODE;

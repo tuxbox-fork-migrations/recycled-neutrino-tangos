@@ -84,6 +84,9 @@
 extern cVideo * videoDecoder;
 #endif
 
+#if 0 //softupdate
+#include <sys/stat.h>
+#endif
 extern int allow_flash;
 
 //#define DRYRUN
@@ -176,8 +179,12 @@ void CFlashUpdate::update_php(std::string &url, const char* type)
 	if (url.find("update.php") != std::string::npos)
 	{
 		url += "?revision=" + to_string(cs_get_revision());
+		url += "&boxname=";
+		url += g_info.hw_caps->boxname;
 		url += "&chip_type=" + to_string(cs_get_chip_type());
 		url += "&image_type=" + (std::string)type;
+
+		url = str_replace(" ", "%20", url);
 		printf("[update_php] url %s\n", url.c_str());
 	}
 }
@@ -211,6 +218,7 @@ bool CFlashUpdate::checkOnlineVersion()
 		std::string host;
 		startpos = url.find("//");
 		if (startpos != std::string::npos) {
+			//update_php(url, curInfo.getType()); //NI
 			startpos += 2;
 			endpos    = url.find('/', startpos);
 			host = url.substr(startpos, endpos - startpos);
@@ -250,8 +258,14 @@ bool CFlashUpdate::selectHttpImage(void)
 
 	CConfigFile _configfile('\t');
 	std::string versionString = "????????????????";
-	if (_configfile.loadConfig("/.version"))
+	std::string imagedescription = "";
+	std::string imageversion = "n/a";
+	if (_configfile.loadConfig(TARGET_PREFIX "/.version"))
+	{
 		versionString = _configfile.getString("version", "????????????????");
+		imagedescription = _configfile.getString("imagedescription", "");
+		imageversion = _configfile.getString("imageversion", "n/a");
+	}
 
 	CFlashVersionInfo curInfo(versionString.c_str());
 	dprintf(DEBUG_NORMAL, "[update] current flash-version: %s (%d) date %s (%ld)\n", versionString.c_str(), curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
@@ -260,17 +274,18 @@ bool CFlashUpdate::selectHttpImage(void)
 	httpTool.setStatusViewer(this);
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILE));
 
-	char current[200];
-	snprintf(current, 200, "%s %s %s %s", curInfo.getReleaseCycle(), curInfo.getType(true), curInfo.getDate(), curInfo.getTime());
-
+	char currentleft[200];
+	char currentright[200];
+	snprintf(currentleft, 200, "%s %d - %s, %s", curInfo.getType(true), curInfo.getVersion(), curInfo.getDate(), curInfo.getTime());
+	snprintf(currentright, 200, "%s %s", imagedescription.c_str(), imageversion.c_str());
 
 	CMenuWidget SelectionWidget(LOCALE_FLASHUPDATE_SELECTIMAGE, NEUTRINO_ICON_UPDATE, listWidth, MN_WIDGET_ID_IMAGESELECTOR);
 
 	SelectionWidget.addItem(GenericMenuSeparator);
 	SelectionWidget.addItem(GenericMenuBack);
-	SelectionWidget.addItem(new CMenuSeparator(CMenuSeparator::LINE));
+	SelectionWidget.addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSION_SEP)));
+	SelectionWidget.addItem(new CMenuForwarder(currentleft, false, currentright));
 
-	SelectionWidget.addItem(new CMenuForwarder(current, false, g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSION_SEP)));
 	std::ifstream urlFile(g_settings.softupdate_url_file.c_str());
 	dprintf(DEBUG_NORMAL, "[update] file %s\n", g_settings.softupdate_url_file.c_str());
 
@@ -321,12 +336,12 @@ bool CFlashUpdate::selectHttpImage(void)
 				if(!allow_flash && (versionInfo.snapshot <= '2'))
 					enabled = false;
 				fileTypes[i] = versionInfo.snapshot;
-				std::string description = versionInfo.getReleaseCycle();
-				description += ' ';
-				description += versionInfo.getType(true);
-				description += ' ';
+				std::string description = versionInfo.getType(true);
+				description += " ";
+				description += versionInfo.getVersion();
+				description += " - ";
 				description += versionInfo.getDate();
-				description += ' ';
+				description += ", ";
 				description += versionInfo.getTime();
 
 				descriptions.push_back(description); /* workaround since CMenuForwarder does not store the Option String itself */
@@ -341,7 +356,7 @@ bool CFlashUpdate::selectHttpImage(void)
 				CUpdateMenuTarget * up = new CUpdateMenuTarget(i, &selected);
 				mf = new CMenuDForwarder(descriptions[i].c_str(), enabled, names[i].c_str(), up);
 				//TODO mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, "");
-				SelectionWidget.addItem(mf);
+				SelectionWidget.addItem(mf, i == 0); // first entry is preselected
 				i++;
 			}
 		}
@@ -382,8 +397,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	}
 	gotImage = (fileType <= '9');
 
-//NI #ifdef BOXMODEL_CS_HD2
-#if 0
+#if 0 //#ifdef BOXMODEL_CS_HD2
 	if (gotImage)
 	{
 		int esize = CMTDInfo::getInstance()->getMTDEraseSize(sysfs);
@@ -393,7 +407,6 @@ bool CFlashUpdate::selectHttpImage(void)
 		}
 	}
 #endif
-
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if (gotImage && (filename.substr(filename.find_last_of(".") + 1) == "tgz" || filename.substr(filename.find_last_of(".") + 1) == "zip"))
 	{
@@ -697,126 +710,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		// get active partition
 		char c[2] = {0};
-		FILE *f;
-#if BOXMODEL_VUPLUS_ARM
-		f = fopen("/proc/cmdline", "r");
-		if (f) {
-#if BOXMODEL_VUUNO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUSOLO4K || BOXMODEL_VUULTIMO4K
-			char buf[256] = "";
-			while(fgets(buf, sizeof(buf), f) != NULL) {
-				if (strstr(buf, "mmcblk0p5") != NULL) {
-					c[0] = '1';
-					c[1] = '\0';
-					break;
-				}
-				if (strstr(buf, "mmcblk0p7") != NULL) {
-					c[0] = '2';
-					c[1] = '\0';
-					break;
-				}
-				if (strstr(buf, "mmcblk0p9") != NULL) {
-					c[0] = '3';
-					c[1] = '\0';
-					break;
-				}
-				if (strstr(buf, "mmcblk0p11") != NULL) {
-					c[0] = '4';
-					c[1] = '\0';
-					break;
-				}
-			}
-#elif BOXMODEL_VUZERO4K
-			char buf[256] = "";
-			while(fgets(buf, sizeof(buf), f) != NULL) {
-				if (strstr(buf, "mmcblk0p8") != NULL) {
-					c[0] = '1';
-					c[1] = '\0';
-					break;
-				}
-				if (strstr(buf, "mmcblk0p10") != NULL) {
-					c[0] = '2';
-					c[1] = '\0';
-					break;
-				}
-				if (strstr(buf, "mmcblk0p12") != NULL) {
-					c[0] = '3';
-					c[1] = '\0';
-					break;
-				}
-				if (strstr(buf, "mmcblk0p14") != NULL) {
-					c[0] = '4';
-					c[1] = '\0';
-					break;
-				}
-			}
-#elif BOXMODEL_VUDUO4K
-			char buf[256] = "";
-			while(fgets(buf, sizeof(buf), f) != NULL) {
-				if (strstr(buf, "mmcblk0p10") != NULL) {
-					c[0] = '1';
-					c[1] = '\0';
-					break;
-				}
-				if (strstr(buf, "mmcblk0p12") != NULL) {
-					c[0] = '2';
-					c[1] = '\0';
-					break;
-				}
-				if (strstr(buf, "mmcblk0p14") != NULL) {
-					c[0] = '3';
-					c[1] = '\0';
-					break;
-				}
-				if (strstr(buf, "mmcblk0p16") != NULL) {
-					c[0] = '4';
-					c[1] = '\0';
-					break;
-				}
-			}
-#else
-			printf("VU+ not found.\n");
-#endif
-			fclose(f);
-		}
-#else
-		char line[1024];
-		char *pch;
-		// first check for hd51 new layout
-		f = fopen("/sys/firmware/devicetree/base/chosen/bootargs", "r");
-		if (f)
-		{
-			if (fgets (line , sizeof(line), f) != NULL)
-			{
-				pch = strtok(line, " =");
-				while (pch != NULL)
-				{
-					if (strncmp("linuxrootfs", pch, 11) == 0)
-					{
-						strncpy(c, pch + 11, 1);
-						c[1] = '\0';
-						dprintf(DEBUG_NORMAL, "[update] Current partition: %s\n", c);
-						break;
-					}
-					pch = strtok(NULL, " =");
-				}
-			}
-			fclose(f);
-		}
-		// if no new layout
-		if (!atoi(c))
-		{
-			f = fopen("/sys/firmware/devicetree/base/chosen/kerneldev", "r");
-			if (f)
-			{
-				if (fseek(f, -2, SEEK_END) == 0)
-				{
-					c[0] = fgetc(f);
-					dprintf(DEBUG_NORMAL, "[update] Current partition: %s\n", c);
-				}
-				fclose(f);
-			}
-		}
-#endif
+		sprintf(c, "%d", getActivePartition());
 
 		// select partition
 		int selected = 0;
@@ -829,13 +723,14 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		for (int i = 1; i < 4+1; i++)
 		{
 			bool active = !strcmp(c, to_string(i).c_str());
+			bool enable = true;
 			std::string m_title = "Partition " + to_string(i);
 #if BOXMODEL_VUPLUS_ARM
 			// own partition blocked, because fix needed for flashing own partition
-			mf = new CMenuForwarder(m_title, !active, NULL, selector, to_string(i).c_str(), CRCInput::convertDigitToKey(i));
-#else
-			mf = new CMenuForwarder(m_title, true, NULL, selector, to_string(i).c_str(), CRCInput::convertDigitToKey(i));
+			if (active)
+				enable = false;
 #endif
+			mf = new CMenuForwarder(m_title, enable, NULL, selector, to_string(i).c_str(), CRCInput::convertDigitToKey(i));
 			mf->iconName_Info_right = active ? NEUTRINO_ICON_MARKER_DIALOG_OK : NULL;
 			m.addItem(mf, active);
 		}

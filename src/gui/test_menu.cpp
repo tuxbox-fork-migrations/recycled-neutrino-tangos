@@ -439,7 +439,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (sq == NULL)
 			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_OLIVE, COL_LIGHT_GRAY, COL_RED);
 
-		sq->paintBlink(50, true);
+		sq->paintBlink(500);
 			sleep(10);
 
 		if (sq->cancelBlink())
@@ -451,7 +451,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (pic == NULL)
 			pic = new CComponentsPicture (50, 50, 50, 50, ICONSDIR "/btn_pause.png");
 
-		pic->paintBlink(50, true);
+		pic->paintBlink(500);
 			sleep(10);
 
 		if (pic->cancelBlink())
@@ -530,7 +530,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			ptmp->kill();
 		}
 
-		if (static_cast<CComponentsPicture*>(form->getCCItem(0))-> paintBlink(50, true)){
+		if (static_cast<CComponentsPicture*>(form->getCCItem(0))-> paintBlink(500)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking embedded image ...", 700, 10);
 		}
 		if (form->getCCItem(0)->cancelBlink()){
@@ -561,7 +561,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
 		}
 
-		if (txt->paintBlink(50, true)){
+		if (txt->paintBlink(50)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking text is running ...", 700, 10);
 		}
 		if (txt->cancelBlink()){
@@ -592,7 +592,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			text_ext->setFrameThickness(2);
 		}
 
-		if (text_ext->paintBlink(50, true)){
+		if (text_ext->paintBlink(500)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text is running ...", 700, 10);
 		}
 		if (text_ext->cancelBlink()){
@@ -739,7 +739,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CComponentsPicture* img = static_cast<CComponentsPicture*>(iconform->getCCItem(2));
 		img->kill();
 
-		if (img->paintBlink(50, true)){
+		if (img->paintBlink(500)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking image is running ...", 700, 10);
 		}
 		if (img->cancelBlink(true)){
@@ -849,50 +849,69 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "progress_window"){
 		//classical
-		CProgressWindow pw0("Progress Single Test");
+		CProgressWindow pw0("Test 1: Local Bar Classic");
 		pw0.paint();
-		size_t max = 3;
-		for(size_t i = 0; i< max; i++){
+		size_t max = 4;
+		for(size_t i = 0; i<= max; i++){
 			pw0.showStatus(i, max, to_string(i));
 			sleep(1);
 		}
 		pw0.hide();
 
-		CProgressWindow pw1("Progress Local/Global Test");
+		CProgressWindow pw1("Test 2: Local/Global Bars Classic");
 		pw1.paint();
-		for(size_t i = 0; i< max; i++){
+		for(size_t i = 1; i<= max; i++){
 			pw1.showGlobalStatus(i, max, to_string(i));
-			for(size_t j = 0; j< max; j++){
+			for(size_t j = 1; j<= max; j++){
 				pw1.showLocalStatus(j, max, to_string(j));
 				sleep(1);
 			}
 		}
+		sleep(1);
 		pw1.hide();
 
 		//with signals
-		sigc::signal<void, size_t, size_t, std::string> OnProgress0, OnProgress1;
-		CProgressWindow pw2("Progress Single Test -> single Signal", CCW_PERCENT 50, CCW_PERCENT 30, &OnProgress0);
+		sigc::signal<void, size_t, size_t, std::string> OnProgress, OnProgress1;
+		CProgressWindow pw2("Test 3: Local Bar via Signal/Slot", CCW_PERCENT 50, CCW_PERCENT 30, &OnProgress);
 		pw2.paint();
 
-		for(size_t i = 0; i< max; i++){
-			OnProgress0(i, max, to_string(i));
+		for(size_t i = 0; i<= max; i++){
+			OnProgress(i, max, to_string(i));
 			sleep(1);
 		}
+		sleep(1);
 		pw2.hide();
 
-		OnProgress0.clear();
+		OnProgress.clear();
 		OnProgress1.clear();
-		CProgressWindow pw3("Progress Single Test -> dub Signal", CCW_PERCENT 50, CCW_PERCENT 20, NULL, &OnProgress0, &OnProgress1);
+		CProgressWindow pw3("Test 4: Local/Global via Signal/Slot", CCW_PERCENT 50, CCW_PERCENT 20, &OnProgress, &OnProgress1);
 		pw3.paint();
 
-		for(size_t i = 0; i< max; i++){
+		for(size_t i = 1; i <= max; i++){
 			OnProgress1(i, max, to_string(i));
-				for(size_t j = 0; j< max; j++){
-					OnProgress0(j, max, to_string(j));
+				for(size_t j = 1; j<= 7; j++){
+					OnProgress(j, 7, to_string(j));
 					sleep(1);
 				}
 		}
+		sleep(1);
 		pw3.hide();
+
+		OnProgress.clear();
+		//sigc::signal<void, size_t> OnSetGlobalMax;
+
+		CProgressWindowA pw4("Test 5, Local/Adaptive Global", CCW_PERCENT 50, CCW_PERCENT 20, &OnProgress, NULL/*&OnSetGlobalMax*/);
+		pw4.paint();
+		//OnSetGlobalMax(max);
+		pw4.setGlobalMax(max);
+		for(size_t i = 1; i <= max; i++){
+			for(size_t j = 1; j<= 8; j++){
+				pw4.showStatus(j, 8, to_string(j));
+				sleep(1);
+			}
+		}
+		sleep(1);
+		pw4.hide();
 
 		return menu_return::RETURN_REPAINT;
 	}

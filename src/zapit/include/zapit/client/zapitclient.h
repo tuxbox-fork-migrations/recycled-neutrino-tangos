@@ -44,7 +44,7 @@ class CZapitClient:public CBasicClient
  public:
 	enum events
 		{
-			FIRST_EVENT_MARKER,           // <- no actual event, needed by pzapit
+			FIRST_EVENT_MARKER, // <- no actual event, needed by pzapit
 			EVT_ZAP_COMPLETE = FIRST_EVENT_MARKER,
 			EVT_ZAP_COMPLETE_IS_NVOD,
 			EVT_ZAP_FAILED,
@@ -77,7 +77,7 @@ class CZapitClient:public CBasicClient
 			EVT_TUNE_COMPLETE,
 			EVT_BACK_ZAP_COMPLETE,
 			EVT_WEBTV_ZAP_COMPLETE,
-			LAST_EVENT_MARKER             // <- no actual event, needed by pzapit
+			LAST_EVENT_MARKER // <- no actual event, needed by pzapit
 		};
 
 	enum zapStatus
