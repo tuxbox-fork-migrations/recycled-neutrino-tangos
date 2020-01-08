@@ -54,6 +54,7 @@
 #include <zapit/zapit.h>
 #include <driver/abstime.h>
 
+#if !ENABLE_TANGOS
 // CA init
 extern Zapit_config zapitCfg;
 
@@ -72,6 +73,7 @@ const CMenuOptionChooser::keyval OPTIONS_CI_MODE_OPTIONS[] =
 	{ 2, LOCALE_CI_MODE_2 }
 };
 #define OPTIONS_CI_MODE_OPTION_COUNT (sizeof(OPTIONS_CI_MODE_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
+#endif
 
 #define CI_CLOCK_OPTION_COUNT 2
 static const CMenuOptionChooser::keyval CI_CLOCK_OPTIONS[CI_CLOCK_OPTION_COUNT] = {
@@ -134,12 +136,14 @@ int CCAMMenuHandler::doMainMenu()
 	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CI_SETTINGS, NEUTRINO_ICON_SETTINGS);
 	cammenu->addIntroItems();
 
+#if !ENABLE_TANGOS
 	// CA init CI|CARD|BOTH
 	CZapit::getInstance()->GetConfig(zapitCfg);
 	CMenuOptionChooser *ca_init = new CMenuOptionChooser(LOCALE_CA_INIT, (int *)&zapitCfg.cam_ci, OPTIONS_CA_INIT_OPTIONS, OPTIONS_CA_INIT_OPTION_COUNT, true, NULL);
 	ca_init->setHint(NEUTRINO_ICON_HINT_DEFAULT, LOCALE_MENU_HINT_CA_INIT);
 	cammenu->addItem(ca_init);
 	cammenu->addItem(GenericMenuSeparator);
+#endif
 
 	int CiSlots = ca ? ca->GetNumberCISlots() : 0;
 	if(CiSlots) {
@@ -156,9 +160,12 @@ int CCAMMenuHandler::doMainMenu()
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_SAVE_PINCODE, &g_settings.ci_save_pincode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_CHECK_LIVE_SLOT, &g_settings.ci_check_live, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_REC_ZAPTO, &g_settings.ci_rec_zapto, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
+
+#if !ENABLE_TANGOS
 	CMenuOptionChooser *ci_mode = new CMenuOptionChooser(LOCALE_CI_MODE, &g_settings.ci_mode, OPTIONS_CI_MODE_OPTIONS, OPTIONS_CI_MODE_OPTION_COUNT, true, NULL);
 	ci_mode->setHint(NEUTRINO_ICON_HINT_DEFAULT, LOCALE_MENU_HINT_CI_MODE);
 	cammenu->addItem(ci_mode);
+#endif
 
 #ifdef BOXMODEL_CS_HD2
 	int fecount = CFEManager::getInstance()->getFrontendCount();
@@ -247,8 +254,10 @@ int CCAMMenuHandler::doMainMenu()
 	delete cammenu;
 	in_menu = false;
 
+#if !ENABLE_TANGOS
 	// CA init
 	CZapit::getInstance()->SetConfig(&zapitCfg);
+#endif
 
 	return ret;
 }
