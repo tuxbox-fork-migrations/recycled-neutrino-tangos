@@ -297,7 +297,7 @@ void CInfoViewer::showRecords()
 		box_posY += g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2 + OFFSET_SHADOW;
 
 	if (!recordsblink)
-		recordsblink = new CComponentsTimer(1);
+		recordsblink = new CComponentsTimer();
 
 	if (crm->RecordingStatus())
 	{
@@ -827,7 +827,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 	{
 		if ((g_settings.radiotext_enable) && (!recordModeActive) && (!calledFromNumZap))
-			showRadiotext();
+			enableRadiotext();
 		else
 			showIcon_RadioText(false);
 	}
@@ -1094,7 +1094,7 @@ void CInfoViewer::loop()
 				if (!g_settings.channellist_show_numbers && g_settings.infobar_analogclock)
 					showClock_analog(ChanInfoX + OFFSET_INNER_MID + ana_clock_size/2,BoxEndY - ana_clock_size / 2 - (OFFSET_INTER/2), ana_clock_size / 2);
 				if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio))
-					showRadiotext();
+					enableRadiotext();
 
 				showIcon_16_9();
 				//showIcon_CA_Status(0);
@@ -1340,100 +1340,9 @@ void CInfoViewer::showMotorMoving (int duration)
 	ShowHint (LOCALE_MESSAGEBOX_INFO, text, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (text) + OFFSET_INNER_MID, duration);	// UTF-8
 }
 
-void CInfoViewer::killRadiotext()
+void CInfoViewer::enableRadiotext() //TODO: remove this roundabout way
 {
-	if (g_Radiotext->S_RtOsd)
-		frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
-	rt_x = rt_y = rt_h = rt_w = 0;
-	CInfoClock::getInstance()->enableInfoClock(true);
-}
-
-void CInfoViewer::showRadiotext()
-{
-	char stext[3][100];
-	bool RTisIsUTF = false;
-
-	if (g_Radiotext == NULL) return;
-	showIcon_RadioText(g_Radiotext->haveRadiotext());
-
-	bool blit = false;
-
-	if (g_Radiotext->S_RtOsd)
-	{
-		CInfoClock::getInstance()->enableInfoClock(false);
-		// dimensions of radiotext window
-		int /*yoff = 8,*/ ii = 0;
-		rt_dx = BoxEndX - BoxStartX;
-		rt_dy = OFFSET_INNER_LARGE + OFFSET_INNER_SMALL;
-		rt_x = BoxStartX;
-		rt_y = g_settings.screen_StartY + OFFSET_INNER_MID;
-		rt_h = rt_y + 7 + rt_dy*(g_Radiotext->S_RtOsdRows+1)+OFFSET_SHADOW;
-		rt_w = rt_x+rt_dx+OFFSET_SHADOW;
-
-		int lines = 0;
-		for (int i = 0; i < g_Radiotext->S_RtOsdRows; i++)
-		{
-			if (g_Radiotext->RT_Text[i][0] != '\0') lines++;
-		}
-		if (lines == 0)
-			frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
-
-		if (g_Radiotext->RT_MsgShow)
-		{
-
-			if (g_Radiotext->S_RtOsdTitle == 1)
-			{
-
-				// Title
-				//	sprintf(stext[0], g_Radiotext->RT_PTY == 0 ? "%s - %s %s%s" : "%s - %s (%s)%s",
-				//	g_Radiotext->RT_Titel, tr("Radiotext"), g_Radiotext->RT_PTY == 0 ? g_Radiotext->RDS_PTYN : g_Radiotext->ptynr2string(g_Radiotext->RT_PTY), g_Radiotext->RT_MsgShow ? ":" : tr("  [waiting ...]"));
-				if ((lines) || (g_Radiotext->RT_PTY !=0))
-				{
-					sprintf(stext[0], g_Radiotext->RT_PTY == 0 ? "%s %s%s" : "%s (%s)%s", tr("Radiotext"), g_Radiotext->RT_PTY == 0 ? g_Radiotext->RDS_PTYN : g_Radiotext->ptynr2string(g_Radiotext->RT_PTY), ":");
-
-					// shadow
-					frameBuffer->paintBoxRel(rt_x+OFFSET_SHADOW, rt_y+OFFSET_SHADOW, rt_dx, rt_dy, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-					frameBuffer->paintBoxRel(rt_x, rt_y, rt_dx, rt_dy, COL_INFOBAR_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rt_x+OFFSET_INNER_MID, rt_y+ 3*OFFSET_INNER_MID, rt_dx-2*OFFSET_INNER_MID, stext[0], COL_INFOBAR_TEXT, 0, RTisIsUTF);
-					blit = true;
-				}
-//				yoff = 17;
-				ii = 1;
-
-			}
-			// Body
-			if (lines)
-			{
-				frameBuffer->paintBoxRel(rt_x+OFFSET_SHADOW, rt_y+rt_dy+OFFSET_SHADOW, rt_dx, 7+rt_dy* g_Radiotext->S_RtOsdRows, COL_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
-				frameBuffer->paintBoxRel(rt_x, rt_y+rt_dy, rt_dx, 7+rt_dy* g_Radiotext->S_RtOsdRows, COL_INFOBAR_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
-
-				// RT-Text roundloop
-				int ind = (g_Radiotext->RT_Index == 0) ? g_Radiotext->S_RtOsdRows - 1 : g_Radiotext->RT_Index - 1;
-				int rts_x = rt_x+OFFSET_INNER_MID;
-				int rts_y = rt_y+ 3*OFFSET_INNER_MID;
-				int rts_dx = rt_dx-2*OFFSET_INNER_MID;
-				if (g_Radiotext->S_RtOsdLoop == 1)   // latest bottom
-				{
-					for (int i = ind+1; i < g_Radiotext->S_RtOsdRows; i++)
-						g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rts_x, rts_y + (ii++)*rt_dy, rts_dx, g_Radiotext->RT_Text[i], COL_INFOBAR_TEXT, 0, RTisIsUTF);
-					for (int i = 0; i <= ind; i++)
-						g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rts_x, rts_y + (ii++)*rt_dy, rts_dx, g_Radiotext->RT_Text[i], COL_INFOBAR_TEXT, 0, RTisIsUTF);
-				}
-				else   // latest top
-				{
-					for (int i = ind; i >= 0; i--)
-						g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rts_x, rts_y + (ii++)*rt_dy, rts_dx, g_Radiotext->RT_Text[i], COL_INFOBAR_TEXT, 0, RTisIsUTF);
-					for (int i = g_Radiotext->S_RtOsdRows-1; i > ind; i--)
-						g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rts_x, rts_y + (ii++)*rt_dy, rts_dx, g_Radiotext->RT_Text[i], COL_INFOBAR_TEXT, 0, RTisIsUTF);
-				}
-				blit = true;
-			}
-		}
-	}
-	g_Radiotext->RT_MsgShow = false;
-	if (blit)
-		frameBuffer->blit();
-
+	OnEnableRadiotext();
 }
 
 int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
@@ -2056,12 +1965,6 @@ void CInfoViewer::killTitle()
 		header->kill();
 
 		body->kill();
-
-		if (g_settings.radiotext_enable && g_Radiotext)
-		{
-			g_Radiotext->S_RtOsd = g_Radiotext->haveRadiotext() ? 1 : 0;
-			killRadiotext();
-		}
 
 		killInfobarText();
 

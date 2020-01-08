@@ -48,7 +48,7 @@
 
 class CFrameBuffer;
 class COSDFader;
-class CInfoViewer
+class CInfoViewer : public sigc::trackable
 {
 public:
 	enum
@@ -146,8 +146,7 @@ private:
 	void showFailure();
 	void showMotorMoving(int duration);
 	void showLcdPercentOver();
-	void showRadiotext();
-	void killRadiotext();
+	void enableRadiotext();
 
 	void showInfoFile();
 	void killInfobarText();
@@ -321,6 +320,9 @@ public:
 		ResetModules(true);
 	};
 	bool 	hasTimeout();
+
+	sigc::signal<void> OnAfterKillTitle;
+	sigc::signal<void> OnEnableRadiotext;
 
 	int bottom_bar_offset, InfoHeightY_Info, showBBIcons_width;
 
