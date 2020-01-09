@@ -204,7 +204,7 @@ bool CFlashUpdate::checkOnlineVersion()
 
 	CConfigFile _configfile('\t');
 	std::string versionString = "????????????????";
-	if (_configfile.loadConfig("/.version"))
+	if (_configfile.loadConfig(TARGET_PREFIX "/.version"))
 		versionString = _configfile.getString("version", "????????????????");
 	dprintf(DEBUG_NORMAL, "[update] file %s\n", g_settings.softupdate_url_file.c_str());
 	CFlashVersionInfo curInfo(versionString.c_str());
