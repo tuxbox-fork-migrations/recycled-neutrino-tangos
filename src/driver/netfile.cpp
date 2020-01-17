@@ -1769,11 +1769,13 @@ void CacheFillThread(void *c)
 						char ch = buf[0];
 						if(ch > 0)
 						{
+							size_t icybufsize = 256*16+1;
+							char icybuf[icybufsize];
+							memset(icybuf,0, icybufsize);
 							int len = (ch * 16);
-							memset(buf,0, meta_interval);
-							rval = http_read_stream_all(scache->fd, buf,len );
+							rval = http_read_stream_all(scache->fd, icybuf,len );
 							chunkSize -= rval;
-							ShoutCAST_ParseMetaData(buf, scache->filter_arg->state);
+							ShoutCAST_ParseMetaData(icybuf, scache->filter_arg->state);
 							if(scache->filter_arg->state->cb)
 								scache->filter_arg->state->cb(scache->filter_arg->state);
 						}
