@@ -311,8 +311,10 @@ channellist.since seit
 channellist.start Start
 ci.check_live_slot CI-Slot auf Live-TV Nutzung prüfen
 ci.clock CI Takt (Mhz)
+ci.clock_extra_high extra hoch
 ci.clock_high hoch
 ci.clock_normal normal
+ci.delay DVB-CI-Verzögerung
 ci.empty Kein CAM im Slot
 ci.ignore_msg CA Meldungen ignorieren
 ci.init_failed CAM-Init fehlgeschlagen
@@ -326,6 +328,7 @@ ci.rec_zapto Umschalten bei Aufnahmen mit CAM
 ci.removed CAM entfernt -> Slot
 ci.reset Reset
 ci.reset_standby Reset nach Standby
+ci.rpr Relevant PIDs Routing
 ci.save_pincode Jugendschutz-PIN speichern
 ci.settings CI-Module
 ci.timeout CAM antwortet nicht
