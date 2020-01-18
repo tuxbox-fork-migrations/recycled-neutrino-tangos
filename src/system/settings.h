@@ -307,18 +307,18 @@ struct SNeutrinoSettings
 	int avsync;
 	int clockrec;
 	int ci_standby_reset;
-	int ci_clock;		// TODO: for each slot
+	int ci_clock[4];
 #if BOXMODEL_VUPLUS_ALL
 	int ci_delay;
-	int ci_rpr;		// TODO: for each slot
+	int ci_rpr[4];
 #endif
-	int ci_ignore_messages;	// TODO: for each slot
-	int ci_save_pincode;	// TODO: for each slot
+	int ci_ignore_messages[4];
+	int ci_save_pincode[4];
+	std::string ci_pincode[4];
 	int ci_check_live;
 	int ci_tuner;
 	int ci_rec_zapto;
 	int ci_mode;
-	std::string ci_pincode;	// TODO: for each slot
 	int radiotext_enable;
 
 	//screen saver
