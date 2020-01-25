@@ -90,7 +90,7 @@ int sig_delay = 2; // seconds between signal check
 /* the bouquet manager */
 CBouquetManager *g_bouquetManager = NULL;
 
-//int cam_ci = 2; //  CA_INIT_SC 0 or CA_INIT_CI 1 or CA_INIT_BOTH 2
+//int cam_ci = 2; // CA_INIT_SC 0 or CA_INIT_CI 1 or CA_INIT_BOTH 2
 cCA *ca = NULL;
 extern cDemux *pmtDemux;
 extern cVideo *videoDecoder;
@@ -343,7 +343,7 @@ void CZapit::LoadSettings()
 	config.noSameFE				= configfile.getInt32("noSameFE", 0);
 	config.highVoltage			= configfile.getBool("highVoltage", 0);
 
-	config.gotoXXLatitude 			= strtod(configfile.getString("gotoXXLatitude", "0.0").c_str(), NULL);
+	config.gotoXXLatitude			= strtod(configfile.getString("gotoXXLatitude", "0.0").c_str(), NULL);
 	config.gotoXXLongitude			= strtod(configfile.getString("gotoXXLongitude", "0.0").c_str(), NULL);
 	config.gotoXXLaDirection		= configfile.getInt32("gotoXXLaDirection", 1);
 	config.gotoXXLoDirection		= configfile.getInt32("gotoXXLoDirection", 0);
@@ -456,7 +456,7 @@ audio_map_set_t * CZapit::GetSavedPids(const t_channel_id channel_id)
 
 bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &transponder_change, bool send_event)
 {
-	if(channel  == NULL || frontend == NULL)
+	if(channel == NULL || frontend == NULL)
 		return false;
 
 	transponder_change = frontend->setInput(channel, current_is_nvod);
@@ -896,7 +896,7 @@ int CZapit::GetPidVolume(t_channel_id channel_id, int pid, bool ac3)
 	if (percent < 0) {
 		percent = ac3 ? volume_percent_ac3 : volume_percent_pcm;
 		if ((channel_id == live_channel_id) && current_channel) {
-			for (int  i = 0; i < current_channel->getAudioChannelCount(); i++) {
+			for (int i = 0; i < current_channel->getAudioChannelCount(); i++) {
 				if (pid == current_channel->getAudioPid(i)) {
 					percent = (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3
 						|| current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) ?
@@ -1360,10 +1360,10 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
 	}
 #if 0
-       case CZapitMessages::CMD_IS_TV_CHANNEL: {
-               t_channel_id                             requested_channel_id;
-               CZapitMessages::responseGeneralTrueFalse response;
-               CBasicServer::receive_data(connfd, &requested_channel_id, sizeof(requested_channel_id));
+	case CZapitMessages::CMD_IS_TV_CHANNEL: {
+		t_channel_id requested_channel_id;
+		CZapitMessages::responseGeneralTrueFalse response;
+		CBasicServer::receive_data(connfd, &requested_channel_id, sizeof(requested_channel_id));
 
 		/* if in doubt (i.e. unknown channel) answer yes */
 		response.status = true;
@@ -1374,7 +1374,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
-        }
+	}
 #endif
 	case CZapitMessages::CMD_BQ_RESTORE: {
 		//2004.08.02 g_bouquetManager->restoreBouquets();
@@ -1391,9 +1391,9 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_REINIT_CHANNELS: {
 		// Houdini: save actual channel to restore it later, old version's channel was set to scans.conf initial channel
-  		t_channel_id cid= current_channel ? current_channel->getChannelID() : 0;
+		t_channel_id cid= current_channel ? current_channel->getChannelID() : 0;
 
-   		PrepareChannels();
+		PrepareChannels();
 
 		current_channel = CServiceManager::getInstance()->FindChannel(cid);
 		ParsePatPmt(current_channel);//reinit pids 
@@ -1408,12 +1408,12 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		SendCmdReady(connfd);
 #endif
 		DBG("[zapit] sending EVT_SERVICES_CHANGED\n");
-  	        SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
+		SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
 		live_fe->setTsidOnid(0);
 		//ZapIt(live_channel_id, current_is_nvod);
 		//SendEvent(CZapitClient::EVT_BOUQUETS_CHANGED);
-  	        break;
-  	}
+		break;
+	}
 	case CZapitMessages::CMD_SCANSTART: {
 		int scan_mode;
 		CBasicServer::receive_data(connfd, &scan_mode, sizeof(scan_mode));
@@ -1429,7 +1429,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 #if 0
 	case CZapitMessages::CMD_SETCONFIG:
 		Zapit_config Cfg;
-                CBasicServer::receive_data(connfd, &Cfg, sizeof(Cfg));
+		CBasicServer::receive_data(connfd, &Cfg, sizeof(Cfg));
 		SetConfig(&Cfg);
 		break;
 	case CZapitMessages::CMD_GETCONFIG:
@@ -1457,7 +1457,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 				//FIXME check scanProviders.size() !
 				t_satellite_position satellitePosition = scanProviders.begin()->first;
 				printf("[zapit] tune to sat %s freq %d rate %d fec %d pol %d\n", name, TP.feparams.frequency, TP.feparams.symbol_rate, TP.feparams.fec_inner, TP.feparams.polarization);
-				live_fe->setInput(satellitePosition, TP.feparams.frequency,  TP.feparams.polarization);
+				live_fe->setInput(satellitePosition, TP.feparams.frequency, TP.feparams.polarization);
 				live_fe->driveToSatellitePosition(satellitePosition);
 			} else if (CFrontend::isCable(TP.feparams.delsys)) {
 				printf("[zapit] tune to cable %s freq %d rate %d fec %d\n", name, TP.feparams.frequency, TP.feparams.symbol_rate, TP.feparams.fec_inner);
@@ -2577,23 +2577,24 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	if(ZapStart_arg->uselastchannel == 0){
 		live_channel_id = (currentMode & RADIO_MODE) ? ZapStart_arg->startchannelradio_id : ZapStart_arg->startchanneltv_id ;
 		lastChannelRadio = ZapStart_arg->startchannelradio_id;
-		lastChannelTV    = ZapStart_arg->startchanneltv_id;
+		lastChannelTV = ZapStart_arg->startchanneltv_id;
 	}
 
 	/* CA_INIT_CI or CA_INIT_SC or CA_INIT_BOTH */
-	switch(config.cam_ci){
-	  case 2:
-		ca->SetInitMask(CA_INIT_BOTH);
-	    break;
-	  case 1:
-		ca->SetInitMask(CA_INIT_CI);
-	    break;
-	  case 0:
-		ca->SetInitMask(CA_INIT_SC);
-	    break;
-	  default:
-		ca->SetInitMask(CA_INIT_BOTH);
-	  break;
+	switch(config.cam_ci)
+	{
+		case 2:
+			ca->SetInitMask(CA_INIT_BOTH);
+			break;
+		case 1:
+			ca->SetInitMask(CA_INIT_CI);
+			break;
+		case 0:
+			ca->SetInitMask(CA_INIT_SC);
+			break;
+		default:
+			ca->SetInitMask(CA_INIT_BOTH);
+			break;
 	}
 
 	// set ci clock to ZapStart_arg->ci_clock
@@ -2833,11 +2834,11 @@ void CZapitSdtMonitor::run()
 {
 	set_threadname("CZapitSdtMonitor::run");
 	time_t /*tstart,*/ tcur = 0, wtime = 0;
-	t_transport_stream_id           transport_stream_id = 0;
-	t_original_network_id           original_network_id = 0;
-	t_satellite_position            satellitePosition = 0;
-	freq_id_t                       freq = 0;
-	transponder_id_t 		tpid = 0;
+	t_transport_stream_id transport_stream_id = 0;
+	t_original_network_id original_network_id = 0;
+	t_satellite_position satellitePosition = 0;
+	freq_id_t freq = 0;
+	transponder_id_t tpid = 0;
 	set_threadname("zap:sdtmonitor");
 
 	//tstart = time(0);
