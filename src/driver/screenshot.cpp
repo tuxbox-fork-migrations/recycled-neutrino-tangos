@@ -46,7 +46,8 @@
 #include <system/set_threadname.h>
 #include <system/helpers.h>
 
-CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
+/* constructor, defaults is empty fname and CScreenShot::FORMAT_PNG format */
+CScreenShot::CScreenShot(const std::string &fname, screenshot_format_t fmt)
 {
 	format = fmt;
 	filename = fname;

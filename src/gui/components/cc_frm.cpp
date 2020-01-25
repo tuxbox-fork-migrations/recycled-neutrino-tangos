@@ -284,6 +284,12 @@ CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id) const
 	return NULL;
 }
 
+CComponentsItem* CComponentsForm::getCCItem(const std::string &item_name) const
+{
+	uint32_t id = getCCItemId(item_name);
+	return getCCItem(id);
+}
+
 CComponentsItem* CComponentsForm::getPrevCCItem(CComponentsItem* current_cc_item) const
 {
 	return getCCItem(getCCItemId(current_cc_item) - 1);
@@ -506,8 +512,8 @@ void CComponentsForm::paintCCItems()
 			}
 			//positionize vertical centered
 			else if (xpos == CC_CENTERED){
-				auto_x =  this_w/2 - w_item/2;
-				v_cc_items.at(i)->setRealXPos(this_x + auto_x + w_parent_frame);
+				auto_x =  this_w/2 - w_item/2 - w_parent_frame/2;
+				v_cc_items.at(i)->setRealXPos(this_x + auto_x);
 			}
 			else{
 				v_cc_items.at(i)->setRealXPos(this_x + xpos + w_parent_frame);
@@ -527,8 +533,8 @@ void CComponentsForm::paintCCItems()
 			}
 			//positionize hor centered
 			else if (ypos == CC_CENTERED){
-				auto_y =  height/2 - h_item/2;
-				v_cc_items.at(i)->setRealYPos(this_y + auto_y + w_parent_frame);
+				auto_y =  height/2 - h_item/2 - w_parent_frame/2;
+				v_cc_items.at(i)->setRealYPos(this_y + auto_y);
 			}
 			else{
 				v_cc_items.at(i)->setRealYPos(this_y + ypos + w_parent_frame);

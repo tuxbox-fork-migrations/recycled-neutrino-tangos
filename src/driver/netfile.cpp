@@ -195,11 +195,11 @@ STATIC STREAM_TYPE stream_type[CACHEENTMAX];
 static int  ConnectToServer(char *hostname, int port);
 static int  parse_response(URL *url, void *, CSTATE*);
 static int  request_file(URL *url);
-static void readln(int, char *);
+//static void readln(int, char *);
 static int  getCacheSlot(FILE *fd);
 static int  push(FILE *fd, char *buf, long len);
 static int  pop(FILE *fd, char *buf, long len);
-static void CacheFillThread(void *url);
+static void *CacheFillThread(void *url);
 static void ShoutCAST_MetaFilter(STREAM_FILTER *);
 static void ShoutCAST_DestroyFilter(void *a);
 static STREAM_FILTER *ShoutCAST_InitFilter(int);
@@ -544,7 +544,7 @@ int request_file(URL *url)
 		pthread_create(
 			&cache[slot].fill_thread,
 			&cache[slot].attr,
-			(void *(*)(void*))&CacheFillThread, (void*)&cache[slot]);
+			CacheFillThread, (void*)&cache[slot]);
 		dprintf(stderr, "request_file: slot %d fill_thread 0x%x\n", slot, (int)cache[slot].fill_thread);
 	}
 
@@ -581,12 +581,14 @@ int request_file(URL *url)
     b[i] = 0; \
   } }
 
+/*
 void readln(int fd, char *buf)
 {
 	for(recv(fd, buf, 1, 0); (buf && isalnum(*buf)); recv(fd, ++buf, 1, 0)){};
 	if(buf)
 		*buf = 0;
 }
+*/
 
 int parse_response(URL *url, void * /*opt*/, CSTATE *state)
 {
@@ -1665,12 +1667,12 @@ static bool getChunkSizeLine(STREAM_CACHE *scache,char *line,int size)
 	return false;
 }
 
-void CacheFillThread(void *c)
+void *CacheFillThread(void *c)
 {
 	STREAM_CACHE *scache = (STREAM_CACHE*)c;
 
 	if(scache->closed)
-		return;
+		return NULL;
 
 	set_threadname("netfile:cache");
 	dprintf(stderr, "CacheFillThread: thread started, using stream %p\n", scache->fd);
