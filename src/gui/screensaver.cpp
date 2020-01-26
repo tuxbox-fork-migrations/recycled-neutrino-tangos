@@ -258,6 +258,7 @@ bool CScreenSaver::ReadDir()
 	struct dirent *dirpointer;
 	DIR *dir;
 	char curr_ext[6];
+	int curr_lenght;
 	bool ret = false;
 
 	v_bg_files.clear();
