@@ -1790,7 +1790,7 @@ CEitThread::CEitThread()
 {
 }
 
-CEitThread::CEitThread(std::string tname, unsigned short pid)
+CEitThread::CEitThread(const std::string &tname, unsigned short pid)
 	: CEventsThread(tname, pid)
 {
 }
@@ -1829,7 +1829,7 @@ void CEitThread::beforeSleep()
 				sizeof(messaging_current_servicekey));
 	}
 	if(notify_complete)
-		system(CONFIGDIR "/epgdone.sh");
+		int ignored __attribute__((unused)) = system(CONFIGDIR "/epgdone.sh");
 }
 
 /********************************************************************************/
