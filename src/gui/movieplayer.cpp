@@ -1830,6 +1830,9 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			if (timeshift == TSHIFT_MODE_OFF || timeshift_stopped)
 			{
 				playstate = CMoviePlayerGui::STOPPED;
+#if HAVE_SH4_HARDWARE
+				playback->RequestAbort();
+#endif
 				keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
 				ClearQueue();
 			}

@@ -167,11 +167,13 @@ CUpnpBrowserGui::~CUpnpBrowserGui()
 	sigPall.disconnect();
 
 	delete m_socket;
-	if (dline){
-		delete dline; dline = NULL;
+	if (dline) {
+		delete dline;
+		dline = NULL;
 	}
-	if (image){
-		delete image; image = NULL;
+	if (image) {
+		delete image;
+		image = NULL;
 	}
 }
 
