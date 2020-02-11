@@ -1580,7 +1580,7 @@ bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 	std::string picture = getIconPath(filename, "");
 	bool ret = false;
 
-	if (access(picture.c_str(), F_OK) == 0)
+	if (access(picture.c_str(), F_OK) == 0 && !(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
 	{
 		if (videoDecoder)
 		{
@@ -1597,16 +1597,28 @@ bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 	}
 	else
 	{
-		dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
-		picture = "";
+		if (!(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
+		{
+			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
+			picture = "";
+		}
 	}
 
 	if (!ret)
 	{
 		if (fallback_mode)
 		{
-			if ((fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE) && !picture.empty())
-				ret = g_PicViewer->DisplayImage(picture, 0, 0, getScreenWidth(true), getScreenHeight(true), TM_NONE);
+			if (fallback_mode & (SHOW_FRAME_FALLBACK_MODE_IMAGE | SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED) && !picture.empty())
+			{
+				if (fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED)
+				{
+					SetTransparent(TM_NONE);
+					ret = g_PicViewer->ShowImage(picture.c_str(), false);
+					SetTransparentDefault();
+				}
+				else
+					ret = g_PicViewer->DisplayImage(picture, 0, 0, getScreenWidth(true), getScreenHeight(true), TM_NONE);
+			}
 			else
 				ret = false;
 
@@ -1798,8 +1810,8 @@ void CFrameBuffer::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, u
 void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
 	uint32_t xc, yc;
-	xc = (width > xRes) ? xRes : width;
-	yc = (height > yRes) ? yRes : height;
+	xc = (width > xRes) ? xRes + xp : width;
+	yc = (height > yRes) ? yRes + yp: height;
 
 	if (xp >= xc || yp >= yc) {
 		printf(LOGTAG "%s: invalid parameters, xc: %u <= xp: %u or yc: %u <= yp: %u\n", __func__, xc, xp, yc, yp);
