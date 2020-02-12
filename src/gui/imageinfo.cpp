@@ -444,7 +444,7 @@ void CImageInfo::InitInfos()
 	//create label and text items
 	y_tmp = 0;
 	for (size_t i=0; i<v_info.size(); i++) {
-		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, y_tmp, cc_info->getWidth(), 0, g_Locale->getText(v_info[i].caption), v_info[i].info_text, item_font);
+		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, y_tmp, cc_info->getWidth(), 0, v_info[i].caption, v_info[i].info_text, item_font);
 		item->setLabelWidthPercent(15);
 
 		//calculate initial height for info form
