@@ -102,6 +102,14 @@ if BOXMODEL_BRE2ZE4K
 install_DATA += rc_wwio_bre2ze4k.png
 endif
 
+if BOXMODEL_OSMIO4K
+install_DATA += rc_osmio4k.png
+endif
+
+if BOXMODEL_OSMIO4KPLUS
+install_DATA += rc_osmio4k.png
+endif
+
 if BOXMODEL_VUPLUS_ALL
 install_DATA += rc_vuplus.png
 endif
