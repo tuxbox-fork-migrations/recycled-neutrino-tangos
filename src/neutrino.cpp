@@ -509,39 +509,44 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.standby_cpufreq = configfile.getInt32("standby_cpufreq", 100);
 #endif
 
+	// ci-settings
 	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
-
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	for (unsigned int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
-		sprintf(cfg_key, "ci_clock_%d", i);
-		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 6);
-	}
-#else
-	for (unsigned int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
-		sprintf(cfg_key, "ci_clock_%d", i);
-		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 9);
-	}
-#endif
-
+	g_settings.ci_check_live = configfile.getInt32("ci_check_live", 0);
+	g_settings.ci_tuner = configfile.getInt32("ci_tuner", -1);
+	g_settings.ci_rec_zapto = configfile.getInt32("ci_rec_zapto", 0);
+	g_settings.ci_mode = configfile.getInt32("ci_mode", 0);
 #if BOXMODEL_VUPLUS_ALL
 	g_settings.ci_delay = configfile.getInt32("ci_delay", 128);
-	for (unsigned int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
-		sprintf(cfg_key, "ci_rpr_%d", i);
-		g_settings.ci_rpr[i] = configfile.getInt32(cfg_key, 9);
-	}
 #endif
-	for (unsigned int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
+	// ci-settings for each slot
+	unsigned int ci_slots = cCA::GetInstance()->GetNumberCISlots();
+	if (strcmp(g_info.hw_caps->boxvendor, "Coolstream") == 0)
+	{
+		/*
+		   CST hardware isn't initialized here,
+		   so we assume one ci-slot (two for HD1 BSE).
+		*/
+		ci_slots = (strcmp(g_info.hw_caps->boxname, "HD1") == 0) ? 2 : 1;
+	}
+	for (unsigned int i = 0; i < ci_slots; i++) {
 		sprintf(cfg_key, "ci_ignore_messages_%d", i);
 		g_settings.ci_ignore_messages[i] = configfile.getInt32(cfg_key, 0);
 		sprintf(cfg_key, "ci_save_pincode_%d", i);
 		g_settings.ci_save_pincode[i] = configfile.getInt32(cfg_key, 0);
 		sprintf(cfg_key, "ci_pincode_%d", i);
 		g_settings.ci_pincode[i] = configfile.getString(cfg_key, "");
+		sprintf(cfg_key, "ci_clock_%d", i);
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 6);
+#else
+		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 9);
+#endif
+#if BOXMODEL_VUPLUS_ALL
+		sprintf(cfg_key, "ci_rpr_%d", i);
+		g_settings.ci_rpr[i] = configfile.getInt32(cfg_key, 9);
+#endif
 	}
-	g_settings.ci_check_live = configfile.getInt32("ci_check_live", 0);
-	g_settings.ci_tuner = configfile.getInt32("ci_tuner", -1);
-	g_settings.ci_rec_zapto = configfile.getInt32("ci_rec_zapto", 0);
-	g_settings.ci_mode = configfile.getInt32("ci_mode", 0);
+
 
 #ifndef CPU_FREQ
 	g_settings.cpufreq = 0;
@@ -1512,19 +1517,16 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "cpufreq", g_settings.cpufreq);
 	configfile.setInt32( "standby_cpufreq", g_settings.standby_cpufreq);
 
+	// ci-settings
 	configfile.setInt32("ci_standby_reset", g_settings.ci_standby_reset);
-	for (unsigned int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
-		sprintf(cfg_key, "ci_clock_%d", i);
-		configfile.setInt32(cfg_key, g_settings.ci_clock[i]);
-	}
-
+	configfile.setInt32("ci_check_live", g_settings.ci_check_live);
+	configfile.setInt32("ci_tuner", g_settings.ci_tuner);
+	configfile.setInt32("ci_rec_zapto", g_settings.ci_rec_zapto);
+	configfile.setInt32("ci_mode", g_settings.ci_mode);
 #if BOXMODEL_VUPLUS_ALL
 	configfile.setInt32("ci_delay", g_settings.ci_delay);
-	for (unsigned int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
-		sprintf(cfg_key, "ci_rpr_%d", i);
-		configfile.setInt32(cfg_key, g_settings.ci_rpr[i]);
-	}
 #endif
+	// ci-settings for each slot
 	for (unsigned int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++) {
 		sprintf(cfg_key, "ci_ignore_messages_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_ignore_messages[i]);
@@ -1532,12 +1534,14 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		configfile.setInt32(cfg_key, g_settings.ci_save_pincode[i]);
 		sprintf(cfg_key, "ci_pincode_%d", i);
 		configfile.setString(cfg_key, g_settings.ci_pincode[i]);
+		sprintf(cfg_key, "ci_clock_%d", i);
+		configfile.setInt32(cfg_key, g_settings.ci_clock[i]);
+#if BOXMODEL_VUPLUS_ALL
+		sprintf(cfg_key, "ci_rpr_%d", i);
+		configfile.setInt32(cfg_key, g_settings.ci_rpr[i]);
+#endif
 	}
 
-	configfile.setInt32("ci_check_live", g_settings.ci_check_live);
-	configfile.setInt32("ci_tuner", g_settings.ci_tuner);
-	configfile.setInt32("ci_rec_zapto", g_settings.ci_rec_zapto);
-	configfile.setInt32("ci_mode", g_settings.ci_mode);
 
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
 	configfile.setInt32( "make_webtv_list", g_settings.make_webtv_list);
