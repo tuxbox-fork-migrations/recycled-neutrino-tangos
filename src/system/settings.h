@@ -316,7 +316,7 @@ struct SNeutrinoSettings
 	int ci_tuner;
 	int ci_rec_zapto;
 	int ci_mode;
-#if BOXMODEL_VUPLUS_all
+#if BOXMODEL_VUPLUS_ALL
 	int ci_delay;
 #endif
 	// ci-settings for each slot
