@@ -2110,11 +2110,15 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			if (!cancel && (3 == sscanf(Value.c_str(), "%d:%d:%d", &hh, &mm, &ss)))
 				SetPosition(1000 * (hh * 3600 + mm * 60 + ss), true);
 
+#if BOXMODEL_VUPLUS_ALL
+		} else if (msg == CRCInput::RC_help) {
+#else
 		} else if (msg == CRCInput::RC_help) {
 			disableOsdElements(NO_MUTE);
 			showHelp();
 			enableOsdElements(NO_MUTE);
 		} else if (msg == CRCInput::RC_info) {
+#endif
 			callInfoViewer();
 			update_lcd = true;
 #if 0
