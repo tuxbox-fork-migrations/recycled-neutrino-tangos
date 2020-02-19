@@ -162,6 +162,7 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		{
 			printf("Reading epg cache from %s ...\n", g_settings.epg_dir.c_str());
 			g_Sectionsd->readSIfromXML(g_settings.epg_dir.c_str());
+			return menu_return::RETURN_EXIT_ALL;
 		}
 
 		for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); ++it)
@@ -693,21 +694,6 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 
 	ms_oservices->addItem(GenericMenuSeparator);
 
-	// youtube
-	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_youtube_dev_id());
-	youtube_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_ENABLED);
-	ms_oservices->addItem(youtube_onoff);
-
-#if ENABLE_YOUTUBE_KEY_MANAGE
-	changeNotify(LOCALE_YOUTUBE_DEV_ID, NULL);
-	CKeyboardInput youtube_dev_id_input(LOCALE_YOUTUBE_DEV_ID, &g_settings.youtube_dev_id, 39, this);
-	CMenuForwarder *mf_yt = new CMenuForwarder(LOCALE_YOUTUBE_DEV_ID, true, youtube_dev_id_short, &youtube_dev_id_input);
-	mf_yt->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
-	ms_oservices->addItem(mf_yt);
-#endif
-
-	ms_oservices->addItem(GenericMenuSeparator);
-
 	//shoutcast
 	shoutcast_onoff = new CMenuOptionChooser(LOCALE_SHOUTCAST_ENABLED, &g_settings.shoutcast_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_shoutcast_dev_id());
 	shoutcast_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_ENABLED);
@@ -877,25 +863,5 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 			omdb_api_key_short.clear();
 		omdb_onoff->setActive(CApiKey::check_omdb_api_key());
 	}
-#if 0
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_YOUTUBE_DEV_ID))
-	{
-		g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_dev_id();
-		if (g_settings.youtube_enabled)
-			youtube_dev_id_short = g_settings.youtube_dev_id.substr(0, 8) + "...";
-		else
-			youtube_dev_id_short.clear();
-		youtube_onoff->setActive(CApiKey::check_youtube_dev_id());
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SHOUTCAST_DEV_ID))
-	{
-		g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && CApiKey::check_shoutcast_dev_id();
-		if (g_settings.shoutcast_enabled)
-			shoutcast_dev_id_short = g_settings.shoutcast_dev_id.substr(0, 8) + "...";
-		else
-			shoutcast_dev_id_short.clear();
-		shoutcast_onoff->setActive(CApiKey::check_shoutcast_dev_id());
-	}
-#endif
 	return ret;
 }

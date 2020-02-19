@@ -79,6 +79,7 @@
 #include <gui/update_menue.h>
 #include <gui/hdd_menu.h>
 #include <gui/webtv_setup.h>
+#include <gui/miscsettings_menu.h>
 
 #include <driver/radiotext.h>
 #include <driver/record.h>
@@ -193,7 +194,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 
 	bool _mode_ts    = CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts;
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
-				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+				(CZapit::getInstance()->GetCurrentChannel() && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
 	bool timeshift = CMoviePlayerGui::getInstance().timeshift;
 	bool adzap_active = CAdZapMenu::getInstance()->isActive();
@@ -244,6 +245,11 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_EPG_MISC:
 		{
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_READ_NOW, g_settings.epg_read, NULL, new CMiscMenue(), "epg_read_now", key, icon);
+			menu_item->setHint("", LOCALE_MENU_HINT_EPG_READ_NOW);
+			menu->addItem(menu_item, false);
+
 			dummy = g_Sectionsd->getIsScanningActive();
 			keyhelper.get(&key,&icon);
 			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_PAUSESECTIONSD, &dummy, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this , key, icon );
@@ -413,15 +419,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_SCRIPTS);
 			break;
 		}
-#if 0 //ENABLE_YOUTUBE_PLAYER
-		case SNeutrinoSettings::ITEM_YOUTUBE:
-		{
-			keyhelper.get(&key,&icon);
-			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, !_mode_ts, NULL, neutrino, "ytplayback", key, icon);
-			menu_item->setHint(NEUTRINO_ICON_HINT_YTPLAY, LOCALE_MENU_HINT_YTPLAY);
-			break;
-		}
-#endif
 		case SNeutrinoSettings::ITEM_FILEPLAY:
 		{
 			keyhelper.get(&key,&icon);

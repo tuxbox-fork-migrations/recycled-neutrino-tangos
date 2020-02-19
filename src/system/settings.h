@@ -452,7 +452,6 @@ struct SNeutrinoSettings
 		P_MPLAYER_MBROWSER,
 		P_MPLAYER_FILEPLAY,
 		P_MPLAYER_INETPLAY,
-		P_MPLAYER_YTPLAY,
 		P_MPLAYER_GUI_MOUNT,
 
 		//feature keys
@@ -1018,7 +1017,6 @@ struct SNeutrinoSettings
 		ITEM_CLOCK = 19,
 		ITEM_GAMES = 20,
 		ITEM_SCRIPTS = 21,
-		ITEM_YOUTUBE = 22,
 		ITEM_FILEPLAY = 23,
 		ITEM_TOOLS = 24,
 		ITEM_LUA = 25,

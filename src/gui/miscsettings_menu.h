@@ -50,7 +50,6 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		CMenuOptionChooser * weather_onoff;
 		CMenuOptionChooser * tmdb_onoff;
 		CMenuOptionChooser * omdb_onoff;
-		CMenuOptionChooser * youtube_onoff;
 		CMenuOptionChooser * shoutcast_onoff;
 		CMenuForwarder * epg_dir;
 		CMenuForwarder * epg_read_now;
@@ -63,7 +62,6 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		std::string weather_api_key_short;
 		std::string tmdb_api_key_short;
 		std::string omdb_api_key_short;
-		std::string youtube_dev_id_short;
 		std::string shoutcast_dev_id_short;
 
 		int showMiscSettingsMenu();

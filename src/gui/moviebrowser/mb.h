@@ -56,9 +56,6 @@
 #include <driver/movieinfo.h>
 #include <driver/file.h>
 #include <driver/fb_window.h>
-#if 0
-#include <system/ytparser.h>
-#endif
 #include <gui/widget/progresswindow.h>
 #include <gui/imdb.h>
 
@@ -113,42 +110,13 @@ typedef struct
 	MB_INFO_ITEM lastRecordRow[3];
 	int lastRecordRowWidth[3];
 
-#if 0
-	int ytmode;
-	int ytorderby;
-	int ytresults;
-	int ytquality;
-	int ytconcconn;
-	int ytsearch_history_size;
-	int ytsearch_history_max;
-	std::string ytregion;
-	std::string ytvid;
-	std::string ytsearch;
-	std::string ytthumbnaildir;
-	std::list<std::string> ytsearch_history;
-#endif
 } MB_SETTINGS;
 
 class CMovieBrowser;
 
-#if 0
-class CYTCacheSelectorTarget : public CMenuTarget
-{
-	private:
-		class CMovieBrowser *movieBrowser;
-        public:
-		CYTCacheSelectorTarget(CMovieBrowser *mb) { movieBrowser = mb; };
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-};
-#endif
-
 // Priorities for Developmemt: P1: critical feature, P2: important feature, P3: for next release, P4: looks nice, lets see
 class CMovieBrowser : public CMenuTarget, public CProgressSignals
 {
-#if 0
-	friend class CYTCacheSelectorTarget;
-#endif
-
 	public: // Variables /////////////////////////////////////////////////
 		int Multi_Select;    // for FileBrowser compatibility, not used in MovieBrowser
 		int Dirs_Selectable; // for FileBrowser compatibility, not used in MovieBrowser
@@ -244,27 +212,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 
 		int menu_ret;
 
-#if 0
-		cYTFeedParser ytparser;
-#endif
 		int show_mode;
-#if 0
-		CMenuWidget *yt_menue;
-		CYTCacheSelectorTarget *ytcache_selector;
-		u_int yt_menue_end;
-		int yt_pending_offset;
-		int yt_completed_offset;
-		int yt_failed_offset;
-		int yt_pending_end;
-		int yt_completed_end;
-		int yt_failed_end;
-		std::vector<MI_MOVIE_INFO> yt_pending;
-		std::vector<MI_MOVIE_INFO> yt_completed;
-		std::vector<MI_MOVIE_INFO> yt_failed;
-		void loadYTitles(int mode, std::string search = "", std::string id = "");
-		bool showYTMenu(bool calledExternally = false);
-		void refreshYTMenu();
-#endif
 		CIMDB *imdb;
 
 	public:  // Functions //////////////////////////////////////////////////////////7
