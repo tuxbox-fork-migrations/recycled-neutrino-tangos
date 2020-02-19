@@ -483,7 +483,9 @@ std::string getPathName(std::string &path)
 
 std::string getBaseName(std::string &path)
 {
-	return _getBaseName(path, "/");
+	std::string p = path;
+	p = _getPathName(p, "?");
+	return _getBaseName(p, "/");
 }
 
 std::string getFileName(std::string &file)
@@ -493,7 +495,9 @@ std::string getFileName(std::string &file)
 
 std::string getFileExt(std::string &file)
 {
-	return _getBaseName(file, ".");
+	std::string f = file;
+	f = _getPathName(f, "?");
+	return _getBaseName(f, ".");
 }
 
 
