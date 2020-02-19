@@ -100,7 +100,6 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_mplayer_mbrowser"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_mplayer_fileplay"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_mplayer_inetplay"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
-	{"personalize_mplayer_ytplay"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_mplayer_gui_mount"	, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	
 	//key

@@ -121,10 +121,6 @@
 #endif
 #include <system/set_threadname.h>
 
-#if 0
-#include <system/ytcache.h>
-#endif
-
 #include <hardware/audio.h>
 #include <hardware/ca.h>
 #include <hardware/video.h>
@@ -1103,16 +1099,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.weather_location = configfile.getString("weather_location", "52.52,13.40" );
 	g_settings.weather_city = configfile.getString("weather_city", "Berlin" );
 
-	std::string yt_api_key = YT_DEV_KEY;
-#if ENABLE_YOUTUBE_KEY_MANAGE
-	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id", yt_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : yt_api_key);
-	g_settings.youtube_enabled = configfile.getInt32("youtube_enabled", 0);
-#else
-	g_settings.youtube_dev_id = yt_api_key;
-	g_settings.youtube_enabled = 0;
-#endif
-	g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_dev_id();
-
 	std::string tmdb_api_key = TMDB_DEV_KEY;
 #if ENABLE_TMDB_KEY_MANAGE
 	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key", tmdb_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : tmdb_api_key);
@@ -1926,10 +1912,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 #endif
 	configfile.setString( "weather_location", g_settings.weather_location );
 	configfile.setString( "weather_city", g_settings.weather_city );
-#ifndef YT_DEV_KEY
-	configfile.setString( "youtube_dev_id", g_settings.youtube_dev_id );
-	configfile.setInt32( "youtube_enabled", g_settings.youtube_enabled );
-#endif
 #ifndef TMDB_DEV_KEY
 	configfile.setString( "tmdb_api_key", g_settings.tmdb_api_key );
 	configfile.setInt32( "tmdb_enabled", g_settings.tmdb_enabled );
@@ -4487,7 +4469,7 @@ void CNeutrinoApp::ExitRun(int exit_code)
 {
 	bool do_exiting = true;
 	CRecordManager::getInstance()->StopAutoRecord();
-	if(CRecordManager::getInstance()->RecordingStatus() /*|| cYTCache::getInstance()->isActive()*/)
+	if(CRecordManager::getInstance()->RecordingStatus())
 	{
 		do_exiting = (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECORDING_QUERY, CMsgBox::mbrNo,
 					CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, DEFAULT_TIMEOUT, true) == CMsgBox::mbrYes);
