@@ -45,7 +45,7 @@ CWebRadioSetup::CWebRadioSetup()
 	changed = false;
 }
 
-#define CWebRadioSetupFooterButtonCount 3
+#define CWebRadioSetupFooterButtonCount 4
 static const struct button_label CWebRadioSetupFooterButtons[CWebRadioSetupFooterButtonCount] = {
 	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_WEBRADIO_XML_DEL },
 	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_WEBRADIO_XML_ADD },
