@@ -79,7 +79,7 @@
 #endif
 
 #ifndef KEY_PLAYPAUSE_LONG
-#define KEY_PLAYPAUSE_LONG 0X4A4
+#define KEY_PLAYPAUSE_LONG 0x4a4
 #endif
 
 #ifndef KEY_GAMES
@@ -284,6 +284,7 @@ class CRCInput
 			RC_playpause	= KEY_PLAYPAUSE,
 #if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 			RC_playpause_long = KEY_PLAYPAUSE_LONG,
+			RC_switchvideomode = KEY_SWITCHVIDEOMODE,
 #endif
 			RC_power_on	= KEY_POWERON,
 			RC_power_off	= KEY_POWEROFF,

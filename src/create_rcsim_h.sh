@@ -14,7 +14,7 @@ cat << EOF
 #endif
 
 #ifndef KEY_PLAYPAUSE_LONG
-#define KEY_PLAYPAUSE_LONG 0x4A4
+#define KEY_PLAYPAUSE_LONG 0x4a4
 #endif
 
 #ifndef KEY_GAMES
