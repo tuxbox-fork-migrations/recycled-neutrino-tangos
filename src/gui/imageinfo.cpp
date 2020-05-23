@@ -25,10 +25,6 @@
 #include <config.h>
 #endif
 
-#if USE_STB_HAL
-#include <version_hal.h>
-#endif
-
 #include "imageinfo.h"
 
 #include <global.h>
@@ -42,9 +38,7 @@
 #include <daemonc/remotecontrol.h>
 #include <system/flashtool.h>
 #include <system/helpers.h>
-#ifdef VCS
 #include "version.h"
-#endif
 #include <gui/buildinfo.h>
 #define LICENSEDIR DATADIR "/neutrino/license/"
 #define POLICY_DIR DATADIR "/neutrino/policy/"
@@ -389,15 +383,6 @@ void CImageInfo::InitInfoData()
 #ifdef VCS
 	//gui vcs
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS),	VCS});
-#endif
-
-#if USE_STB_HAL
-	hal_libversion_t ver;
-	hal_get_lib_version(&ver);
-	//libstb-hal version
-	v_info.push_back({"libstb-hal:", ver.vStr});
-	//libstb-hal git status
-	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS), ver.vGitDescribe});
 #endif
 
 	//internal api versions
