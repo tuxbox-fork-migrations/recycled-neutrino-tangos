@@ -3,7 +3,6 @@ installdir = $(CONFIGDIR)/zapit
 install_DATA = \
 	myservices.xml \
 	bouquets.xml \
-	frontend.conf \
 	services.xml \
 	ubouquets.xml
 
