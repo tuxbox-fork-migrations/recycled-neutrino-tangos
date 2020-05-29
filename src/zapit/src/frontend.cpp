@@ -250,7 +250,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 	config.diseqcType	= NO_DISEQC;
 	config.diseqcRepeats	= 0;
 	config.uni_scr		= 0;		/* the unicable SCR address 0-7 */
-	config.uni_qrg		= 0;		/* the unicable frequency in MHz */
+	config.uni_freq		= 0;		/* the unicable frequency in MHz */
 	config.uni_lnb		= 0;		/* for two-position switches */
 	config.uni_pin		= 0;		/* for MDU setups */
 	config.highVoltage	= false;
@@ -1953,7 +1953,7 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 	if (config.diseqcType == DISEQC_UNICABLE || config.diseqcType == DISEQC_UNICABLE2)
 		return;
 
-	if (config.diseqcType != DISEQC_ADVANCED) {
+	if ((config.diseqcType != DISEQC_1_1) && (config.diseqcType != DISEQC_ADVANCED)) {
 		setDiseqc(sit->second.diseqc, polarization, frequency);
 		return;
 	}
@@ -1975,7 +1975,7 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int high_band,
 					     const int horizontal, const int bank)
 {
-	uint32_t bpf = config.uni_qrg;
+	uint32_t bpf = config.uni_freq;
 	int pin = config.uni_pin;
 	if (config.uni_scr < 0 || config.uni_scr > 7) {
 		WARN("uni_scr out of range (%d)", config.uni_scr);
@@ -1997,7 +1997,7 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 		cmd.msg_len = 6;
 	}
 	uint32_t ret = (t + 350) * 4000 - frequency;
-	INFO("[fe%d/%d] 18V=%d 22k=%d freq=%d qrg=%d scr=%d bank=%d pin=%d ret=%d",
+	INFO("[fe%d/%d] 18V=%d 22k=%d freq=%d uni_freq=%d scr=%d bank=%d pin=%d ret=%d",
 		adapter, fenumber, horizontal, high_band, frequency, bpf, config.uni_scr, bank, pin, ret);
 	if (!slave && info.type == FE_QPSK) {
 		cmd.msg[3] = (config.uni_scr << 5);		/* adress */
@@ -2018,7 +2018,7 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 
 uint32_t CFrontend::sendEN50607TuningCommand(const uint32_t frequency, const int high_band, const int horizontal, const int bank)
 {
-	uint32_t bpf = config.uni_qrg;
+	uint32_t bpf = config.uni_freq;
 	int pin = config.uni_pin;
 	struct dvb_diseqc_master_cmd cmd = { {0x70, 0x00, 0x00, 0x00, 0x00, 0x00}, 4 };
 
@@ -2032,7 +2032,7 @@ uint32_t CFrontend::sendEN50607TuningCommand(const uint32_t frequency, const int
 	if (t < 0x800 && config.uni_scr >= 0 && config.uni_scr < 32)
 	{
 		uint32_t ret = bpf * 1000;
-		INFO("[unicable-JESS] 18V=%d TONE=%d, freq=%d qrg=%d scr=%d bank=%d pin=%d ret=%d", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, config.uni_scr, bank, pin, ret);
+		INFO("[unicable-JESS] 18V=%d TONE=%d, freq=%d uni_freq=%d scr=%d bank=%d pin=%d ret=%d", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, config.uni_scr, bank, pin, ret);
 		if (!slave && info.type == FE_QPSK)
 		{
 			cmd.msg[1] = ((config.uni_scr & 0x1F) << 3)	|	/* user band adress ( 0 to 31) */
@@ -2234,7 +2234,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 #if 0			/* new code */
 			sat_no &= 0x0F;
 			cmd.msg[3] = 0xF0 | sat_no;
-			sendDiseqcCommand(&cmd, delay);	
+			sendDiseqcCommand(&cmd, delay);
 			cmd.msg[2] = 0x38;	/* port group = commited switches */
 			cmd.msg[3] = 0xF0 | ((pol & 1) ? 0 : 2) | (high_band ? 1 : 0);
 			sendDiseqcCommand(&cmd, delay);	
@@ -2244,7 +2244,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 			cmd.msg[3] = 0xF0 | ((sat_no / 4) & 0x03);
 			//send the command to setup second uncommited switch and
 			// wait 100 ms.
-			sendDiseqcCommand(&cmd, 100);	
+			sendDiseqcCommand(&cmd, 100);
 #else
 			/* for 64 inputs */
 			uint8_t cascade_input[16] = {0xF0, 0xF4, 0xF8, 0xFC, 0xF1, 0xF5, 0xF9, 0xFD, 0xF2, 0xF6, 0xFA,
@@ -2258,7 +2258,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 #endif
 		}
 
-		if (config.diseqcType == DISEQC_1_0) {	/* DISEQC 1.0 */
+		if (config.diseqcType >= DISEQC_1_0) {	/* DISEQC 1.0 or 1.1 */
 			usleep(delay * 1000);
 			//cmd.msg[0] |= 0x01;	/* repeated transmission */
 			cmd.msg[2] = 0x38;	/* port group = commited switches */
