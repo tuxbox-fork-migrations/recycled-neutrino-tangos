@@ -11,6 +11,9 @@ cat << EOF
 
 #ifndef KEY_NONEXISTING
 #define KEY_NONEXISTING  0x0
+
+#ifndef KEY_HELP_LONG
+#define KEY_HELP_LONG	0x48a
 #endif
 
 #ifndef KEY_PLAYPAUSE_LONG
