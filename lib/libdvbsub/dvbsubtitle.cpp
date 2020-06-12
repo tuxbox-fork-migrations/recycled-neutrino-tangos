@@ -11,6 +11,10 @@
  * dvbsubtitle for HD1 ported by Coolstream LTD
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "dvbsubtitle.h"
 
 extern "C" {
@@ -71,16 +75,8 @@ fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, 
 	fb_pixel_t  *cr,*l;
 	int i,j,k,ip;
 
-#if !HAVE_SH4_HARDWARE
-	cr = (fb_pixel_t *) malloc(dx*dy*sizeof(fb_pixel_t));
-
-	if(cr == NULL) {
-		printf("Error: malloc\n");
-		return NULL;
-	}
-#else
 	cr = CFrameBuffer::getInstance()->getBackBufferPointer();
-#endif
+
 	l = cr;
 
 	for(j = 0; j < dy; j++, l += dx)
