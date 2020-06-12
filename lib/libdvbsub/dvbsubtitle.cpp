@@ -76,7 +76,6 @@ fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, 
 	int i,j,k,ip;
 
 	cr = CFrameBuffer::getInstance()->getBackBufferPointer();
-
 	l = cr;
 
 	for(j = 0; j < dy; j++, l += dx)
@@ -275,10 +274,6 @@ void cDvbSubtitleConverter::Pause(bool pause)
 		running = false;
 		Unlock();
 	} else {
-		// Assume that we've switched channel. Drop the existing display_definition.
-		avctx->width = 0;
-		avctx->height = 0;
-		//Reset();
 		running = true;
 	}
 }
@@ -377,20 +372,6 @@ int cDvbSubtitleConverter::Action(void)
 		dbgconverter("cDvbSubtitleConverter::Action: no context\n");
 		return -1;
 	}
-
-#if HAVE_SH4_HARDWARE
-	min_x = min_y = 0;
-	max_x = 720;
-	max_y = 576;
-
-	if (avctx->width && avctx->height) {
-		min_x = 0;
-		min_y = 0;
-		max_x = avctx->width;
-		max_y = avctx->height;
-		dbgconverter("cDvbSubtitleConverter::Action: Display Definition: min_x=%d min_y=%d max_x=%d max_y=%d\n", min_x, min_y, max_x, max_y);
-	}
-#endif
 
 	Lock();
 	if (cDvbSubtitleBitmaps *sb = bitmaps->First()) {

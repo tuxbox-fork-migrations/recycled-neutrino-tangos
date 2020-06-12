@@ -88,7 +88,7 @@ int dvbsub_init() {
 	dvbsub_stopped = 1;
 	pid_change_req = 1;
 	// reader-Thread starten
-	trc = pthread_create(&threadReader, 0, reader_thread, NULL);
+	trc = pthread_create(&threadReader, 0, reader_thread, (void *) NULL);
 	if (trc) {
 		fprintf(stderr, "[dvb-sub] failed to create reader-thread (rc=%d)\n", trc);
 		reader_running = false;
@@ -339,6 +339,7 @@ extern "C" void dvbsub_ass_clear(void);
 extern "C" void dvbsub_ass_write(AVCodecContext *c, AVSubtitle *sub, int pid);
 extern "C" void dvbsub_write(AVSubtitle *sub, int64_t pts);
 #endif
+
 struct ass_data
 {
 	AVCodecContext *c;
@@ -761,10 +762,10 @@ static void* reader_thread(void * /*arg*/)
 		if(!dvbsub_stopped /*!dvbsub_paused*/) {
 			sub_debug.print(Debug::VERBOSE, "[subtitles] *** new packet, len %d buf 0x%x pts-stc diff %lld ***\n", count, buf, get_pts_stc_delta(get_pts(buf)));
 			/* Packet now in memory */
-			pthread_mutex_lock(&packetMutex);
 			packet_queue.push(buf);
 			/* TODO: allocation exception */
 			// wake up dvb thread
+			pthread_mutex_lock(&packetMutex);
 			pthread_cond_broadcast(&packetCond);
 			pthread_mutex_unlock(&packetMutex);
 		} else {
@@ -790,7 +791,6 @@ static void* dvbsub_thread(void* /*arg*/)
 	struct timespec restartWait;
 	struct timeval now;
 	set_threadname("dvbsub:main");
-
 	sub_debug.print(Debug::VERBOSE, "%s started\n", __FUNCTION__);
 	if (!dvbSubtitleConverter)
 		dvbSubtitleConverter = new cDvbSubtitleConverter;
@@ -955,6 +955,7 @@ static void* dvbsub_thread(void* /*arg*/)
 			} else {
 				sub_debug.print(Debug::INFO, "End_of_PES is missing\n");
 			}
+
 next_round:
 			if (packet)
 				free(packet);
