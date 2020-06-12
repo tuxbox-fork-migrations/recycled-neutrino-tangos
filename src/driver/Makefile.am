@@ -54,8 +54,8 @@ endif
 
 if BOXTYPE_DUCKBOX
 libneutrino_driver_a_SOURCES += \
-	fb_generic_sti_ddt.cpp \
-	fb_accel_sti_ddt.cpp \
+	fb_generic.cpp \
+	fb_accel_sti.cpp \
 	vfd.cpp
 endif
 
@@ -86,8 +86,8 @@ endif
 
 if BOXTYPE_SPARK
 libneutrino_driver_a_SOURCES += \
-	fb_generic_sti_ddt.cpp \
-	fb_accel_sti_ddt.cpp \
+	fb_generic.cpp \
+	fb_accel_sti.cpp \
 	simple_display.cpp
 endif
 
@@ -100,12 +100,6 @@ if USE_STB_HAL
 AM_CPPFLAGS += \
 	@DIRECTFB_CFLAGS@
 endif
-
-#if BOXTYPE_SPARK
-#libneutrino_driver_a_SOURCES += \
-#	fb_accel_sti.cpp \
-#	simple_display.cpp
-#endif
 
 if BOXTYPE_GENERIC
 libneutrino_driver_a_SOURCES += \
