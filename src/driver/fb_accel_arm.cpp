@@ -39,7 +39,10 @@
 
 #include <stdlib.h>
 
+#if ENABLE_ARM_ACC
 #include <driver/abstime.h>
+#endif
+
 #include <system/set_threadname.h>
 #include <gui/color.h>
 
@@ -242,7 +245,9 @@ static int exec_list(void)
 
 CFbAccelARM::CFbAccelARM()
 {
+#if ENABLE_ARM_ACC
 	blit_thread = false;
+#endif
 	fb_name  = "armbox framebuffer";
 	fb_fd = open(FB_DEVICE, O_RDWR);
 	if (fb_fd < 0)
@@ -266,18 +271,21 @@ CFbAccelARM::CFbAccelARM()
 	/* hardware doesn't allow us to detect whether the opcode is working */
 	supportblendingflags = false;
 #endif
+#if ENABLE_ARM_ACC
 	OpenThreads::Thread::start();
+#endif
 }
 
 CFbAccelARM::~CFbAccelARM()
 {
+#if ENABLE_ARM_ACC
 	if (blit_thread)
 	{
 		blit_thread = false;
 		blit(); /* wakes up the thread */
 		OpenThreads::Thread::join();
 	}
-
+#endif
 	if (fb_fd >= 0)
 	{
 		close(fb_fd);
@@ -414,6 +422,7 @@ void CFbAccelARM::set3DMode(Mode3D m)
 	}
 }
 
+#if ENABLE_ARM_ACC
 #define BLIT_INTERVAL_MIN 40
 #define BLIT_INTERVAL_MAX 250
 void CFbAccelARM::run()
@@ -459,14 +468,14 @@ void CFbAccelARM::_blit()
 		printf("FBIO_BLIT");
 }
 
-#if ENABLE_ARM_ACC
-#if BOXMODEL_BRE2ZE4K || BOXMODEL_HD51 || BOXMODEL_H7 || BOXMODEL_VUPLUS_ARM
 void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col)
 {
 	if(dx <1 || dy <1 )
 		return;
 
-	bcm_accel_fill(fix.smem_start, screeninfo.xres, screeninfo.yres, stride,x, y, dx, dy,col);
+	// do not accelerate small areas
+	if (fix.smem_start != 0 && dx > 25 && dy > 25)
+		bcm_accel_fill(fix.smem_start, screeninfo.xres, screeninfo.yres, stride,x, y, dx, dy,col);
 
 	int line = 0;
 	fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
@@ -480,7 +489,6 @@ void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy
 	}
 
 	mark(x, y, x+dx, y+dy);
-	blit();
+	//blit();
 }
-#endif
 #endif

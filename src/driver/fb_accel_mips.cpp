@@ -39,7 +39,10 @@
 
 #include <stdlib.h>
 
+#if ENABLE_MIPS_ACC
 #include <driver/abstime.h>
+#endif
+
 #include <system/set_threadname.h>
 #include <gui/color.h>
 
@@ -51,16 +54,13 @@
 static unsigned int displaylist[1024];
 static int ptr;
 static bool supportblendingflags = true;
+static bool accumulateoperations = false;
 
 #define P(x, y) do { displaylist[ptr++] = x; displaylist[ptr++] = y; } while (0)
 #define C(x) P(x, 0)
 
 static int fb_fd = -1;
 static int exec_list(void);
-
-#if BOXMODEL_VUPLUS_MIPS
-static bool accumulateoperations = false;
-
 bool bcm_accel_has_alphablending()
 {
 	return supportblendingflags;
@@ -224,7 +224,6 @@ void bcm_accel_fill(
 
 	if (!accumulateoperations) exec_list();
 }
-#endif
 
 static int exec_list(void)
 {
@@ -246,7 +245,9 @@ static int exec_list(void)
 
 CFbAccelMIPS::CFbAccelMIPS()
 {
+#if ENABLE_MIPS_ACC
 	blit_thread = false;
+#endif
 	fb_name  = "mipsbox framebuffer";
 	fb_fd = open(FB_DEVICE, O_RDWR);
 	if (fb_fd < 0)
@@ -270,18 +271,21 @@ CFbAccelMIPS::CFbAccelMIPS()
 	/* hardware doesn't allow us to detect whether the opcode is working */
 	supportblendingflags = false;
 #endif
+#if ENABLE_MIPS_ACC
 	OpenThreads::Thread::start();
+#endif
 }
 
 CFbAccelMIPS::~CFbAccelMIPS()
 {
+#if ENABLE_MIPS_ACC
 	if (blit_thread)
 	{
 		blit_thread = false;
 		blit(); /* wakes up the thread */
 		OpenThreads::Thread::join();
 	}
-
+#endif
 	if (fb_fd >= 0)
 	{
 		close(fb_fd);
@@ -418,6 +422,7 @@ void CFbAccelMIPS::set3DMode(Mode3D m)
 	}
 }
 
+#if ENABLE_MIPS_ACC
 #define BLIT_INTERVAL_MIN 40
 #define BLIT_INTERVAL_MAX 250
 void CFbAccelMIPS::run()
@@ -463,14 +468,14 @@ void CFbAccelMIPS::_blit()
 		printf("FBIO_BLIT");
 }
 
-#if ENABLE_MIPS_ACC
-#if BOXMODEL_VUPLUS_MIPS
 void CFbAccelMIPS::paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col)
 {
 	if(dx <1 || dy <1 )
 		return;
 
-	bcm_accel_fill(fix.smem_start, screeninfo.xres, screeninfo.yres, stride,x, y, dx, dy,col);
+	// do not accelerate small areas
+        if (fix.smem_start != 0 && dx > 25 && dy > 25)
+		bcm_accel_fill(fix.smem_start, screeninfo.xres, screeninfo.yres, stride,x, y, dx, dy,col);
 
 	int line = 0;
 	fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
@@ -484,7 +489,6 @@ void CFbAccelMIPS::paintRect(const int x, const int y, const int dx, const int d
 	}
 
 	mark(x, y, x+dx, y+dy);
-	blit();
+	//blit();
 }
-#endif
 #endif
