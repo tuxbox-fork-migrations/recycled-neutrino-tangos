@@ -401,13 +401,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 
 	// video
-#if HAVE_TRIPLEDRAGON
-	int vid_Mode_default = VIDEO_STD_PAL;
-#else
-	int vid_Mode_default = VIDEO_STD_720P50;
+	int vid_Mode_default = VIDEO_STD_1080P50;
 	if (getenv("NEUTRINO_DEFAULT_SCART") != NULL)
 		vid_Mode_default = VIDEO_STD_PAL;
-#endif
 	g_settings.video_Mode = configfile.getInt32("video_Mode", vid_Mode_default);
 #ifdef ANALOG_MODE
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_MODE(BOTH,SD,RGB)); // default RGB
@@ -959,7 +955,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_show_res_icon = configfile.getInt32("channellist_show_res_icon", 0);
 
 	//screen configuration
-	g_settings.osd_resolution      = (osd_resolution_tmp == -1) ? configfile.getInt32("osd_resolution", 0) : osd_resolution_tmp;
+	g_settings.osd_resolution      = (osd_resolution_tmp == -1) ? configfile.getInt32("osd_resolution", 1) : osd_resolution_tmp;
 	COsdHelpers::getInstance()->g_settings_osd_resolution_save = g_settings.osd_resolution;
 	g_settings.screen_StartX_crt_0 = configfile.getInt32("screen_StartX_crt_0",   80);
 	g_settings.screen_StartY_crt_0 = configfile.getInt32("screen_StartY_crt_0",   45);
