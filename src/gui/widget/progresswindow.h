@@ -407,7 +407,7 @@ class CProgressSignals : public sigc::trackable
 *
 * 			for(size_t i = 1; i <= max; i++){
 * 				for(size_t j = 1; j<= 8; j++){
-* 					pw.showStatus(j, 8, to_string(j));
+* 					pw.showStatus(j, 8, std::to_string(j));
 * 					sleep(1);
 * 				}
 * 			}

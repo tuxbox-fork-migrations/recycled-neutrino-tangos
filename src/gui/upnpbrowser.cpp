@@ -1022,7 +1022,7 @@ void CUpnpBrowserGui::paintDevice(unsigned int _pos)
 	if (pos >= m_devices.size())
 		return;
 
-	std::string num = to_string(pos + 1);
+	std::string num = std::to_string(pos + 1);
 	std::string name = m_devices[pos].friendlyname;
 
 	int w = g_Font[font_item]->getRenderWidth(name);

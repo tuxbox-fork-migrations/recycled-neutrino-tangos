@@ -276,7 +276,7 @@ void CRadioTextGUI::InitInfoItems()
 		{
 			static CComponentsTextTransp* item = NULL;
 			item = new CComponentsTextTransp(NULL, OFFSET_INNER_MID, y_info, w_info, h_info, "");
-			item->setItemName("desc" + to_string(i));
+			item->setItemName("desc" + std::to_string(i));
 			addWindowItem(item);
 			y_info += h_info;
 		}

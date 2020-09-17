@@ -440,7 +440,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	int Brightness = g_settings.lcd4l_brightness;
 	if (m_Brightness != Brightness)
 	{
-		WriteFile(BRIGHTNESS, to_string(Brightness));
+		WriteFile(BRIGHTNESS, std::to_string(Brightness));
 		m_Brightness = Brightness;
 		lcd4linux(false);
 		lcd4linux(true);
@@ -449,7 +449,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	int Brightness_standby = g_settings.lcd4l_brightness_standby;
 	if (m_Brightness_standby != Brightness_standby)
 	{
-		WriteFile(BRIGHTNESS_STANDBY, to_string(Brightness_standby));
+		WriteFile(BRIGHTNESS_STANDBY, std::to_string(Brightness_standby));
 		m_Brightness_standby = Brightness_standby;
 		lcd4linux(false);
 		lcd4linux(true);
@@ -463,8 +463,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	if (y_res == 1088)
 		y_res = 1080;
 
-	std::string Resolution = to_string(x_res) + "x" + to_string(y_res);
-	//Resolution += "\n" + to_string(framerate); //TODO
+	std::string Resolution = std::to_string(x_res) + "x" + std::to_string(y_res);
+	//Resolution += "\n" + std::to_string(framerate); //TODO
 
 	if (m_Resolution.compare(Resolution))
 	{
@@ -546,7 +546,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_Tuner != Tuner)
 	{
-		WriteFile(TUNER, to_string(Tuner));
+		WriteFile(TUNER, std::to_string(Tuner));
 		m_Tuner = Tuner;
 	}
 
@@ -556,7 +556,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_Volume != Volume)
 	{
-		WriteFile(VOLUME, to_string(Volume));
+		WriteFile(VOLUME, std::to_string(Volume));
 		m_Volume = Volume;
 	}
 
@@ -763,7 +763,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (m_ChannelNr != ChannelNr)
 		{
-			WriteFile(CHANNELNR, to_string(ChannelNr));
+			WriteFile(CHANNELNR, std::to_string(ChannelNr));
 			m_ChannelNr = ChannelNr;
 		}
 
@@ -778,7 +778,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (m_ModeLogo != ModeLogo)
 		{
-			WriteFile(MODE_LOGO, to_string(ModeLogo));
+			WriteFile(MODE_LOGO, std::to_string(ModeLogo));
 			m_ModeLogo = ModeLogo;
 		}
 
@@ -1038,7 +1038,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_Progress != Progress)
 	{
-		WriteFile(PROGRESS, to_string(Progress));
+		WriteFile(PROGRESS, std::to_string(Progress));
 		m_Progress = Progress;
 	}
 
@@ -1059,10 +1059,10 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		int forecast = CWeather::getInstance()->getForecastSize();
 
-		std::string wtimestamp = to_string((int)CWeather::getInstance()->getCurrentTimestamp());
+		std::string wtimestamp = std::to_string((int)CWeather::getInstance()->getCurrentTimestamp());
 		for (int i = 1; i < forecast; i++) // 0 is current day
 		{
-			wtimestamp += "\n" + to_string(CWeather::getInstance()->getForecastWeekday(i));
+			wtimestamp += "\n" + std::to_string(CWeather::getInstance()->getForecastWeekday(i));
 		}
 		if (m_wtimestamp.compare(wtimestamp))
 		{
