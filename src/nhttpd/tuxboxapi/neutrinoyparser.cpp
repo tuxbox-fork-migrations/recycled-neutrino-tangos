@@ -854,7 +854,7 @@ std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 	std::string boxname(g_info.hw_caps->boxname);
 
 	if (boxvendor.compare("SPARK") == 0)
-		boxname = to_string(g_info.hw_caps->boxtype);
+		boxname = std::to_string(g_info.hw_caps->boxtype);
 
 	return boxvendor + " " + boxname;
 }

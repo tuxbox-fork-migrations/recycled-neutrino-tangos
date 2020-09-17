@@ -388,7 +388,7 @@ void CImageInfo::InitInfoData()
 	//internal api versions
 	string s_api;
 #ifdef ENABLE_LUA
-	s_api	+= "LUA " + to_string(LUA_API_VERSION_MAJOR) + "." + to_string(LUA_API_VERSION_MINOR);
+	s_api	+= "LUA " + std::to_string(LUA_API_VERSION_MAJOR) + "." + std::to_string(LUA_API_VERSION_MINOR);
 	s_api	+= ", ";
 #endif
 	s_api	+= "yWeb ";

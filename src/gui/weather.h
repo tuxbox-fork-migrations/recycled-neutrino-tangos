@@ -98,7 +98,7 @@ class CWeather
 #if 0
 		std::string getCurrentTimestamp()
 		{
-			return to_string((int)(current.timestamp));
+			return std::to_string((int)(current.timestamp));
 		};
 #endif
 		time_t getCurrentTimestamp()
@@ -107,23 +107,23 @@ class CWeather
 		};
 		std::string getCurrentTemperature()
 		{
-			return to_string((int)(current.temperature + 0.5));
+			return std::to_string((int)(current.temperature + 0.5));
 		};
 		std::string getCurrentHumidity()
 		{
-			return to_string((int)(current.humidity * 100.0));
+			return std::to_string((int)(current.humidity * 100.0));
 		};
 		std::string getCurrentPressure()
 		{
-			return to_string(current.pressure);
+			return std::to_string(current.pressure);
 		};
 		std::string getCurrentWindSpeed()
 		{
-			return to_string(current.windSpeed);
+			return std::to_string(current.windSpeed);
 		};
 		std::string getCurrentWindBearing()
 		{
-			return to_string(current.windBearing);
+			return std::to_string(current.windBearing);
 		};
 		std::string getCurrentIcon()
 		{
@@ -145,25 +145,25 @@ class CWeather
 		{
 			if (i > (int)v_forecast.size())
 				i = (int)v_forecast.size();
-			return to_string((int)(v_forecast[i].temperatureMin + 0.5));
+			return std::to_string((int)(v_forecast[i].temperatureMin + 0.5));
 		};
 		std::string getForecastTemperatureMax(int i = 0)
 		{
 			if (i > (int)v_forecast.size())
 				i = (int)v_forecast.size();
-			return to_string((int)(v_forecast[i].temperatureMax + 0.5));
+			return std::to_string((int)(v_forecast[i].temperatureMax + 0.5));
 		};
 		std::string getForecastWindSpeed(int i = 0)
 		{
 			if (i > (int)v_forecast.size())
 				i = (int)v_forecast.size();
-			return to_string(v_forecast[i].windSpeed);
+			return std::to_string(v_forecast[i].windSpeed);
 		};
 		std::string getForecastWindBearing(int i = 0)
 		{
 			if (i > (int)v_forecast.size())
 				i = (int)v_forecast.size();
-			return to_string(v_forecast[i].windBearing);
+			return std::to_string(v_forecast[i].windBearing);
 		};
 		std::string getForecastIcon(int i = 0)
 		{

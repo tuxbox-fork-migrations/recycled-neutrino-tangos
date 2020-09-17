@@ -99,7 +99,7 @@ bool CScreenShot::Start(const std::string custom_cmd)
 		cmd += "-d ";
 
 	if (xres)
-		cmd += "-w " + to_string(xres) + " ";
+		cmd += "-w " + std::to_string(xres) + " ";
 
 	cmd += "'";
 	cmd += filename;

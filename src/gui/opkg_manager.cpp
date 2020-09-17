@@ -999,7 +999,7 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 
 void COPKGManager::showErr(int* res)
 {
-	string err = to_string(*res);
+	string err = std::to_string(*res);
 	string errtest = err_list[1].id;
 	if (!silent)
 		DisplayErrorMessage(errtest.c_str());
@@ -1087,7 +1087,7 @@ void COPKGManager::showMenuConfigFeed(CMenuWidget *feed_menu)
 	feed_menu->addIntroItems(LOCALE_OPKG_FEED_ADDRESSES);
 
 	for(size_t i=0; i<OPKG_MAX_FEEDS ;i++){
-		CKeyboardInput *feedinput = new CKeyboardInput("Feed " +to_string(i+1), &config_src[i], 0, NULL, NULL, LOCALE_OPKG_ENTER_FEED_ADDRESS, LOCALE_OPKG_ENTER_FEED_ADDRESS_EXAMPLE);
+		CKeyboardInput *feedinput = new CKeyboardInput("Feed " + std::to_string(i+1), &config_src[i], 0, NULL, NULL, LOCALE_OPKG_ENTER_FEED_ADDRESS, LOCALE_OPKG_ENTER_FEED_ADDRESS_EXAMPLE);
 		CMenuForwarder *fw = new CMenuDForwarder( string(), true , config_src[i], feedinput, NULL, CRCInput::convertDigitToKey(i));
 		feed_menu->addItem( fw);
 	}
@@ -1105,13 +1105,13 @@ void COPKGManager::loadConfig()
 
 	//package feeds
 	for(size_t i=0; i<OPKG_MAX_FEEDS ;i++){
-		string src_key = "src " + to_string(i);
+		string src_key = "src " + std::to_string(i);
 		config_src[i] = opkg_conf.getString(src_key, string());
 	}
 
 	//dest dir default keys, predefined in constructor
 	for(size_t j=0; j<config_dest.size() ;j++){
-		string dest_key = "dest " + to_string(j);
+		string dest_key = "dest " + std::to_string(j);
 		opkg_conf.getString(dest_key, config_dest[j]);
 	}
 
@@ -1124,7 +1124,7 @@ void COPKGManager::saveConfig()
 {
 	//set package feeds
 	for(size_t i=0; i<OPKG_MAX_FEEDS ;i++){
-		string src_key = "src " + to_string(i);
+		string src_key = "src " + std::to_string(i);
 
 		if (!config_src[i].empty())
 			opkg_conf.setString(src_key, config_src[i]);
@@ -1134,7 +1134,7 @@ void COPKGManager::saveConfig()
 
 	//set dest dir default key values
 	for(size_t j=0; j<config_dest.size() ;j++){
-		string dest_key = "dest " + to_string(j);
+		string dest_key = "dest " + std::to_string(j);
 		opkg_conf.setString(dest_key, config_dest[j]);
 	}
 

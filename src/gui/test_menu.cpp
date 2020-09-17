@@ -357,8 +357,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFrontend *frontend = CFEManager::getInstance()->getFE(fnum);
 		if (frontend->hasSat()) {
 			scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]);
-			scansettings.sat_TP_freq = to_string((fnum & 1) ? /*12439000*/ 3951000 : 4000000);
-			scansettings.sat_TP_rate = to_string((fnum & 1) ? /*2500*1000*/ 9520*1000 : 27500*1000);
+			scansettings.sat_TP_freq = std::to_string((fnum & 1) ? /*12439000*/ 3951000 : 4000000);
+			scansettings.sat_TP_rate = std::to_string((fnum & 1) ? /*2500*1000*/ 9520*1000 : 27500*1000);
 			scansettings.sat_TP_fec = FEC_3_4; //(fnum & 1) ? FEC_3_4 : FEC_1_2;
 			scansettings.sat_TP_pol = (fnum & 1) ? 1 : 0;
 		} else if (frontend->hasCable()) {
@@ -853,7 +853,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		pw0.paint();
 		size_t max = 4;
 		for(size_t i = 0; i<= max; i++){
-			pw0.showStatus(i, max, to_string(i));
+			pw0.showStatus(i, max, std::to_string(i));
 			sleep(1);
 		}
 		pw0.hide();
@@ -861,9 +861,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CProgressWindow pw1("Test 2: Local/Global Bars Classic");
 		pw1.paint();
 		for(size_t i = 1; i<= max; i++){
-			pw1.showGlobalStatus(i, max, to_string(i));
+			pw1.showGlobalStatus(i, max, std::to_string(i));
 			for(size_t j = 1; j<= max; j++){
-				pw1.showLocalStatus(j, max, to_string(j));
+				pw1.showLocalStatus(j, max, std::to_string(j));
 				sleep(1);
 			}
 		}
@@ -876,7 +876,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		pw2.paint();
 
 		for(size_t i = 0; i<= max; i++){
-			OnProgress(i, max, to_string(i));
+			OnProgress(i, max, std::to_string(i));
 			sleep(1);
 		}
 		sleep(1);
@@ -888,9 +888,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		pw3.paint();
 
 		for(size_t i = 1; i <= max; i++){
-			OnProgress1(i, max, to_string(i));
+			OnProgress1(i, max, std::to_string(i));
 				for(size_t j = 1; j<= 7; j++){
-					OnProgress(j, 7, to_string(j));
+					OnProgress(j, 7, std::to_string(j));
 					sleep(1);
 				}
 		}
@@ -906,7 +906,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		pw4.setGlobalMax(max);
 		for(size_t i = 1; i <= max; i++){
 			for(size_t j = 1; j<= 8; j++){
-				pw4.showStatus(j, 8, to_string(j));
+				pw4.showStatus(j, 8, std::to_string(j));
 				sleep(1);
 			}
 		}
@@ -925,7 +925,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -937,7 +937,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		msgBox->hide();
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgBox->getResult());
+		msg_txt += std::to_string(msgBox->getResult());
 		delete msgBox;
 
 		ShowHint("MsgBox test returns", msg_txt.c_str(), 700, 10, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
@@ -948,7 +948,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbAll, NULL, 700);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -956,7 +956,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbCancel, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -964,7 +964,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbOk | CMsgBox::mbCancel, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -972,7 +972,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbNoYes, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -980,7 +980,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press ok key! ...", CMsgBox::mbrOk, CMsgBox::mbOk, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -988,7 +988,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press ok key or wait! ...", CMsgBox::mbrCancel, CMsgBox::mbOKCancel, NULL, 500, 6, true);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -1023,7 +1023,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		msgBox.hide();
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgBox.getResult());
+		msg_txt += std::to_string(msgBox.getResult());
 
 		ShowHint("MsgBox test returns", msg_txt.c_str(), 700, 10, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
 
