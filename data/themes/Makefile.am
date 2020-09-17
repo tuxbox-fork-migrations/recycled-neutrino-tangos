@@ -1,4 +1,5 @@
 SUBDIRS = \
+	Grey-3.0/icons/buttons \
 	Grey-Blue/icons/buttons \
 	Neutrino-3.0/icons/buttons \
 	Olive-3.0/icons/buttons
@@ -27,6 +28,7 @@ install_DATA = \
 	Material_Grey_(Medium).theme \
 	megasat4000.theme \
 	Grey.theme \
+	Grey-3.0.theme \
 	Grey-Black.theme \
 	Grey-Blue.theme \
 	Lechuk.theme \

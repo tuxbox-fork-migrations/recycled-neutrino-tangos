@@ -413,6 +413,9 @@ data/pictures/screensaver/Makefile
 data/policy/Makefile
 data/scripts/Makefile
 data/themes/Makefile
+data/themes/Grey-3.0/Makefile
+data/themes/Grey-3.0/icons/Makefile
+data/themes/Grey-3.0/icons/buttons/Makefile
 data/themes/Grey-Blue/Makefile
 data/themes/Grey-Blue/icons/Makefile
 data/themes/Grey-Blue/icons/buttons/Makefile
