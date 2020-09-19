@@ -35,10 +35,8 @@ install_DATA = \
 	MonoChrom.theme \
 	nesh.theme \
 	NovaTux.theme \
-	Neutrino3.0.theme \
+	Neutrino-3.0.theme \
 	Olive.theme \
-	Olive-1.0.theme \
-	Olive-2.0.theme \
 	Olive-3.0.theme \
 	Origin.theme \
 	Red.theme \
