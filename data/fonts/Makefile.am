@@ -14,12 +14,8 @@ install_DATA = \
 	micron_bold.ttf \
 	micron_italic.ttf \
 	micron.ttf \
-	tuxtxt.otb
-
-
-if BOXMODEL_CS_HD2
-install_DATA += UnDotum.ttf
-endif
+	tuxtxt.otb \
+	UnDotum.ttf
 
 install-data-hook:
 	cd $(DESTDIR)$(FONTDIR); \
