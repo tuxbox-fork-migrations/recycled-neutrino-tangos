@@ -178,4 +178,5 @@ bool isDigitWord(std::string str);
 
 int getActivePartition();
 
+std::string GetSpecialName(std::string NormalName);
 #endif
