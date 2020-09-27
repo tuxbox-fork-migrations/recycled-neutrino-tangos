@@ -9,8 +9,16 @@
 cat << EOF
 // rcsim.h - automatically created from driver/rcinput.h
 
+#ifndef KEY_NONEXISTING
+#define KEY_NONEXISTING  0x0
+#endif
+
+#ifndef KEY_HELP_LONG
+#define KEY_HELP_LONG	0x48a
+#endif
+
 #ifndef KEY_PLAYPAUSE_LONG
-#define KEY_PLAYPAUSE_LONG 0x4A4
+#define KEY_PLAYPAUSE_LONG 0x4a4
 #endif
 
 #ifndef KEY_GAMES

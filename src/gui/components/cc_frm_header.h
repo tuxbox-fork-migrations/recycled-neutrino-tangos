@@ -84,7 +84,9 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow);
+					fb_pixel_t color_shadow,
+					int sizeMode
+				);
 
 	protected:
 		///object: icon object, see also setIcon()
@@ -147,6 +149,8 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		void initCaptionFont();
 		///init default fonts for size modes
 		void initDefaultFonts();
+		///init large or small mode considered assigned height
+		void initSizeMode();
 		///sub: init icon object
 		void initIcon();
 		///sub: init caption object
@@ -169,7 +173,26 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 			CC_HEADER_ITEM_BUTTONS	= 2
 		};
 
+		enum
+		{
+			CC_HEADER_SIZE_LARGE 	= 0,
+			CC_HEADER_SIZE_SMALL 	= 1
+		};
+
 		CComponentsHeader(CComponentsForm *parent = NULL);
+
+		CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
+					int sizeMode = CC_HEADER_SIZE_LARGE,
+					const std::string& caption = std::string(),
+					CComponentsForm *parent = NULL
+				);
+
+		CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
+					int sizeMode = CC_HEADER_SIZE_LARGE,
+					neutrino_locale_t caption_locale = NONEXISTANT_LOCALE,
+					CComponentsForm *parent = NULL
+				);
+
 		CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
 					const std::string& caption = std::string(),
 					const std::string& icon_name = std::string(),
@@ -178,7 +201,9 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
+					int sizeMode = CC_HEADER_SIZE_LARGE
+				);
 
 		CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
 					neutrino_locale_t caption_locale = NONEXISTANT_LOCALE,
@@ -188,7 +213,9 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
+					int sizeMode = CC_HEADER_SIZE_LARGE
+				);
 
 		virtual ~CComponentsHeader();
 
@@ -219,25 +246,6 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;}
 		///set max width for caption
 		virtual void setCaptionMaxWidth(int max_width){cch_text_max_w = max_width;}
-
-		enum
-		{
-			CC_HEADER_SIZE_LARGE 	= 0,
-			CC_HEADER_SIZE_SMALL 	= 1
-		};
-		/**Set size mode of header.
-		 * These modes are using fonts SNeutrinoSettings::FONT_TYPE_MENU_TITLE for large mode (default)
-		 * and SNeutrinoSettings::FONT_TYPE_MENU for small mode to set required height.
-		 * If other size wanted then use set setCaptionFont() and setHeight()
-		 * @return void
-		 *
-		 * @param[in] size_mode	expects type int (enums)
-		 *			possible modes are:
-		 *			CC_HEADER_SIZE_LARGE
-		 * 			CC_HEADER_SIZE_SMALL
-		 * @see			setCaption(), setHeight()
-		*/
-		void setSizeMode(const int& size_mode){cch_size_mode = size_mode; initCCItems();}
 
 		///set offset between items
 		void setOffset(const int offset){cch_offset = offset;};
@@ -324,7 +332,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		void disableClock();
 
 		///paint header
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///hides item, arg: no_restore see hideCCItem()
 		void hide(){disableClock(); CComponentsForm::hide();}

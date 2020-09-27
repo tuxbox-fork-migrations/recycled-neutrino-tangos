@@ -13,6 +13,7 @@
 #include <gui/timeosd.h>
 #include <gui/volumebar.h>
 #include <gui/osd_helpers.h>
+#include <gui/radiotext_window.h>
 
 #include <hardware/video.h>
 
@@ -41,6 +42,7 @@ COsdHelpers* COsdHelpers::getInstance()
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
 void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bool forceOsdReset/*=false*/)
 {
+	OnBeforeChangeResolution();
 	size_t idx = 0;
 	bool resetOsd = false;
 	uint32_t modeNew;
@@ -97,7 +99,7 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 //printf("\n>>>>>[%s:%d] New res: %dx%dx%d\n \n", __func__, __LINE__, resW, resH, bpp);
 			g_settings.osd_resolution = modeNew;
 			if (InfoClock)
-				InfoClock->enableInfoClock(false);
+				InfoClock->StopInfoClock(true);
 			frameBuffer->Clear();
 			if (resetOsd) {
 				CNeutrinoApp::getInstance()->setScreenSettings();
@@ -111,7 +113,7 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 					CNeutrinoApp::getInstance()->channelList->ResetModules();
 			}
 			if (InfoClock)
-				InfoClock->enableInfoClock(true);
+				InfoClock->enableInfoClock();
 		}
 		if (g_InfoViewer) {
 			g_InfoViewer->ResetModules();
@@ -126,7 +128,13 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 #endif
 			CNeutrinoApp::getInstance()->StartSubtitles();
 		}
+		if (g_RadiotextWin) {
+			delete g_RadiotextWin;
+			g_RadiotextWin = new CRadioTextGUI();
+			g_RadiotextWin->allowPaint(false);
+		}
 	}
+	OnAfterChangeResolution();
 }
 #else
 void COsdHelpers::changeOsdResolution(uint32_t, bool, bool)

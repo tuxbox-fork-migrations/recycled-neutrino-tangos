@@ -58,7 +58,7 @@
 #include <pthread.h>
 #include <ctype.h>
 #include <config.h>
-
+#include <system/debug.h>
 #include <global.h>
 #include <system/settings.h>
 #include <system/set_threadname.h>
@@ -67,6 +67,7 @@
 
 #include "radiotext.h"
 #include "radiotools.h"
+#include <gui/radiotext_window.h>
 
 rtp_classes rtp_content;
 
@@ -263,6 +264,7 @@ if (i < 0) { fprintf(stderr, "RT %s: i < 0 (%d)\n", __FUNCTION__, i); break; }
 									have_radiotext = true;
 									/* fall through */
 								case 0x46:			// RTplus-Tags
+								case 0xda:			// RASS
 								case 0x07:			// PTY
 								case 0x3e:			// PTYN
 								case 0x02:			// PS
@@ -318,6 +320,8 @@ if (i < 0) { fprintf(stderr, "RT %s: i < 0 (%d)\n", __FUNCTION__, i); break; }
 									if (S_Verbose >= 2)
 										printf("(RDS-MEC '%02x') -> RDS_PsPtynDecode - %d\n", mec, index);
 									RDS_PsPtynDecode(false, mtext, index);	// PS
+									break;
+								case 0xda:
 									break;
 								}
 							}
@@ -380,20 +384,31 @@ fprintf(stderr, "MEC=0x%02x DSN=0x%02x PSN=0x%02x MEL=%02d STATUS=0x%02x MFL=%02
 			// +Memory
 			char *temp;
 			asprintf(&temp, "%s", RT_Text[RT_Index]);
-		if (++rtp_content.rt_Index >= 2*MAX_RTPC)
-		    rtp_content.rt_Index = 0;
-		asprintf(&rtp_content.radiotext[rtp_content.rt_Index], "%s", rtrim(temp));
-		free(temp);
-		if (S_Verbose >= 1)
-		    printf("Radiotext[%d]: %s\n", RT_Index, RT_Text[RT_Index]);
-		RT_Index +=1; if (RT_Index >= S_RtOsdRows) RT_Index = 0;
+			if (++rtp_content.rt_Index >= 2*MAX_RTPC)
+				rtp_content.rt_Index = 0;
+			asprintf(&rtp_content.radiotext[rtp_content.rt_Index], "%s", rtrim(temp));
+			free(temp);
+			if (S_Verbose >= 1)
+				printf("Radiotext[%d]: %s\n", RT_Index, RT_Text[RT_Index]);
+			RT_Index +=1;
+			if (RT_Index >= S_RtOsdRows)
+				RT_Index = 0;
 		}
 		RTP_TToggle = 0x03;		// Bit 0/1 = Title/Artist
 		RT_MsgShow = true;
 		S_RtOsd = 1;
 		RT_Info = (RT_Info > 0) ? RT_Info : 1;
 		RadioStatusMsg();
-		OnAfterDecodeLine();
+
+		if (!OnAfterDecodeLine.empty()) {
+			if (!OnAfterDecodeLine.blocked()){
+				dprintf(DEBUG_DEBUG, "\033[36m[CRadioText] %s - %d: signal OnAfterDecodeLine contains %d slot(s)\033[0m\n", __func__, __LINE__, (int)OnAfterDecodeLine.size());
+				OnAfterDecodeLine();
+			}
+			else{
+				dprintf(DEBUG_DEBUG, "\033[31m[CRadioText] %s - %d: signal OnAfterDecodeLine blocked\033[0m\n", __func__, __LINE__);
+			}
+		}
 	}
 
 	else if (RTP_TToggle > 0 && mtext[5] == 0x46 && S_RtFunc >= 2) {	// RTplus tags V2.0, only if RT
@@ -667,6 +682,10 @@ CRadioText::~CRadioText(void)
 	radiotext_stop();
 	cond.broadcast();
 	OpenThreads::Thread::join();
+	if (g_RadiotextWin){
+		delete g_RadiotextWin;
+		g_RadiotextWin = NULL;
+	}
 	printf("CRadioText::~CRadioText done\n");
 }
 
@@ -719,6 +738,10 @@ void CRadioText::radiotext_stop(void)
 void CRadioText::setPid(uint inPid)
 {
 	printf("CRadioText::setPid: ###################### old pid 0x%x new pid 0x%x ######################\n", pid, inPid);
+	if (!g_RadiotextWin){
+		g_RadiotextWin = new CRadioTextGUI();
+		g_RadiotextWin->allowPaint(false);
+	}
 	if (pid != inPid) {
 		mutex.lock();
 		pid = inPid;
@@ -734,7 +757,7 @@ void CRadioText::run()
 	uint current_pid = 0;
 
 	printf("CRadioText::run: ###################### Starting thread ######################\n");
-#if HAVE_SH4_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int buflen = 0;
 	unsigned char *buf = NULL;
 	audioDemux = new cDemux(0); // live demux
@@ -765,7 +788,7 @@ void CRadioText::run()
 		}
 		mutex.unlock();
 		if (pid) {
-#if HAVE_SH4_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			int n;
 			unsigned char tmp[6];
 
@@ -808,7 +831,7 @@ void CRadioText::run()
 			}
 		}
 	}
-#if HAVE_SH4_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_GENERIC_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if (buf)
 		free(buf);
 #endif

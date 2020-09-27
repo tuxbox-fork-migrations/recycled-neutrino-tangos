@@ -346,5 +346,5 @@ void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutr
 	// paint color name
 	paintTextBoxRel(g_Locale->getText(text), px + OFFSET_INNER_MID, py, text_width,  item_height, font);
 	// paint color rate
-	paintTextBoxRel(to_string(*spos), x_bar + w_bar + 2*OFFSET_INTER, py, w_col_rate,  item_height, font, CTextBox::RIGHT);
+	paintTextBoxRel(std::to_string(*spos), x_bar + w_bar + 2*OFFSET_INTER, py, w_col_rate,  item_height, font, CTextBox::RIGHT);
 }

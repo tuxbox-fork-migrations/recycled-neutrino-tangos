@@ -508,16 +508,17 @@ std::string CNeutrinoAPI::getAudioInfoAsString(void)
 }
 
 //-------------------------------------------------------------------------
+
+#define NUM_CAIDS 13
 std::string CNeutrinoAPI::getCryptInfoAsString(void)
 {
 	std::stringstream out;
-	std::string casys[12]=	{"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","Biss:","DreCrypt:","PowerVU:","Tandberg:"};
-	int caids[] =		{ 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00, 0x1000 };
-
+	std::string casys[NUM_CAIDS] = {"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax:","Cryptoworks:","Videoguard:","Biss:","DreCrypt:","PowerVU:","Tandberg:","Verimatrix:"};
+	int caids[] =                  { 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00, 0x1000, 0x5600 };
 	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 	if(channel) {
-                for (unsigned short i = 0; i < 12; i++) {
+                for (unsigned short i = 0; i < NUM_CAIDS; i++) {
                         for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
                                 int caid = (*it) & 0xFF00;
                                 if(caid == caids[i])
@@ -549,7 +550,7 @@ std::string CNeutrinoAPI::GetRemoteBoxIP(std::string _rbname)
 			if (!it->user.empty() && !it->pass.empty())
 				c_url += it->user + ":" + it->pass +"@";
 			c_url += it->rbaddress;
-			c_url += ":" + to_string(it->port);
+			c_url += ":" + std::to_string(it->port);
 			break;
 		}
 	}
@@ -574,9 +575,9 @@ void CNeutrinoAPI::SendAllTimers(std::string url, bool force)
 			r_url = "http://";
 			r_url += url;
 			r_url += "/control/timer?action=new";
-			r_url += "&alarm=" + to_string((int)timer->alarmTime + pre);
-			r_url += "&stop=" + to_string((int)timer->stopTime - post);
-			r_url += "&announce=" + to_string((int)timer->announceTime + pre);
+			r_url += "&alarm=" + std::to_string((int)timer->alarmTime + pre);
+			r_url += "&stop=" + std::to_string((int)timer->stopTime - post);
+			r_url += "&announce=" + std::to_string((int)timer->announceTime + pre);
 			r_url += "&channel_id=" + string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer->channel_id);
 			r_url += "&aj=on";
 			r_url += "&rs=on";

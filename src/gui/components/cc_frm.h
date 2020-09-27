@@ -29,19 +29,20 @@
 #include "config.h"
 #include "cc_base.h"
 #include "cc_item.h"
-
+#include <mutex>
 #define DEFAULT_SEL_FRAME_WIDTH 1
 
 class CComponentsForm : public CComponentsItem
 {
 	protected:
 		std::vector<CComponentsItem*>	v_cc_items;
-		void paintForm(bool do_save_bg);
+		void paintForm(const bool &do_save_bg);
 		///generates next possible index for an item, see also cc_item_index, getIndex(), setIndex()
 		int genIndex();
 
 		///scrollbar object
 		CComponentsScrollBar *sb;
+		std::mutex cc_frm_mutex;
 
 		int append_x_offset;
 		int append_y_offset;
@@ -77,7 +78,7 @@ class CComponentsForm : public CComponentsItem
 		virtual ~CComponentsForm();
 
 		///paints current form on screen, for paint a page use paintPage()
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///same like CComponentsItem::kill(), but erases all embedded items inside of parent at once, this = parent
 		///NOTE: Items always have parent bindings to "this" and use the parent background color as default! Set parameter 'ignore_parent=true' to ignore parent background color!
@@ -99,10 +100,26 @@ class CComponentsForm : public CComponentsItem
 		int addCCItem(const std::vector<CComponentsItem*> &cc_items);
 		void insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item);
 
-		///removes item object from container and deallocates instance
+		/**Function to remove item from item collection and deallocates instance.
+		 * @param[in]  cc_item_id
+		 * 	@li item id as unsigned int
+		*/
 		void removeCCItem(const uint& cc_item_id);
-		///removes item object from container and deallocates instance
+
+		/**Function to remove item from item collection and deallocates instance.
+		 * @param[in]  cc_Item
+		 * 	@li CComponentsItem*
+		 */
 		void removeCCItem(CComponentsItem* cc_Item);
+
+		/**Function to remove item from item collection and deallocates instance.
+		 * @param[in]  item_name
+		 * 	@li std::string
+		 * NOTE: Requires that unique names are assigned!
+		 * @see
+		 * 	getItemName()
+		 */
+		void removeCCItem(const std::string &item_name);
 
 		void replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item);
 		void replaceCCItem(CComponentsItem* old_cc_Item, CComponentsItem* new_cc_Item);
@@ -115,7 +132,19 @@ class CComponentsForm : public CComponentsItem
 		* @return
 		*	int, in case of not found item returns -1
 		*/
-		int getCCItemId(CComponentsItem* cc_Item);
+		int getCCItemId(CComponentsItem* cc_Item) const;
+
+		/**Function to get current item id from passed item name.
+		 * @param[in]  item_name
+		 * 	@li std::string
+		 * @return
+		 *	int, in case of not found item returns -1
+		 * NOTE: Requires that unique names are assigned!
+		 * @see
+		 * 	setItemName()
+		 * 	getItemName()
+		 */
+		int getCCItemId(const std::string &item_name) const;
 
 		/**Function to get current item from item collection.
 		* @param[in]  cc_item_id
@@ -123,7 +152,15 @@ class CComponentsForm : public CComponentsItem
 		* @return
 		*	CComponentsItem*, in case of not found item returns NULL
 		*/
-		CComponentsItem* getCCItem(const uint& cc_item_id);
+		CComponentsItem* getCCItem(const uint& cc_item_id) const;
+
+		/**Function to get current item from item collection by name.
+		 * @param[in]  item_name
+		 * 	@li std::string
+		 * @return
+		 *	CComponentsItem*, in case of not found item returns NULL
+		 */
+		CComponentsItem* getCCItem(const std::string &item_name) const;
 
 		/**Function to get previous item from item collection.
 		* @param[in]  current_cc_item
@@ -131,7 +168,7 @@ class CComponentsForm : public CComponentsItem
 		* @return
 		*	CComponentsItem*, in case of not found item returns NULL
 		*/
-		CComponentsItem* getPrevCCItem(CComponentsItem* current_cc_item);
+		CComponentsItem* getPrevCCItem(CComponentsItem* current_cc_item) const;
 
 		/**Function to get next item from item collection.
 		* @param[in]  current_cc_item
@@ -139,20 +176,20 @@ class CComponentsForm : public CComponentsItem
 		* @return
 		*	CComponentsItem*, in case of not found item returns NULL
 		*/
-		CComponentsItem* getNextCCItem(CComponentsItem* current_cc_item);
+		CComponentsItem* getNextCCItem(CComponentsItem* current_cc_item) const;
 
 		void paintCCItems();
 
 		///clean up and deallocate existant items from v_cc_items at once
-		virtual	void clear();
+		void clear();
 		///return true, if no items available
-		virtual	bool empty(){return v_cc_items.empty();};
+		bool empty() const {return v_cc_items.empty();}
 		///return size (count) of available items
-		virtual	size_t size(){return v_cc_items.size();};
+		size_t size() const {return v_cc_items.size();}
 		///return reference to first item
-		virtual	CComponentsItem* front(){return v_cc_items.front();};
+		CComponentsItem* front() const {return v_cc_items.front();}
 		///return reference to last item
-		virtual	CComponentsItem* back(){return v_cc_items.back();};
+		CComponentsItem* back() const {return v_cc_items.back();}
 
 		///sets alignment offset between items
 		void setAppendOffset(const int &x_offset, const int& y_offset){append_x_offset = x_offset; append_y_offset = y_offset;};
@@ -168,9 +205,9 @@ class CComponentsForm : public CComponentsItem
 		///sets current page
 		void setCurrentPage(const uint8_t& current_page){cur_page = current_page;};
 		///get current page
-		uint8_t getCurrentPage(){return cur_page;};
+		uint8_t getCurrentPage() const {return cur_page;}
 		///paint defined page number 0...n
-		void paintPage(const uint8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
+		void paintPage(const uint8_t& page_number, const bool &do_save_bg = CC_SAVE_SCREEN_NO);
 		///enum page scroll modes
 		enum
 		{
@@ -184,34 +221,34 @@ class CComponentsForm : public CComponentsItem
 		///set width of scrollbar
 		void setScrollBarWidth(const int& scrollbar_width){w_sb = scrollbar_width;};
 		///returns id of selected item, return value as int, returns -1: if is nothing selected
-		int getSelectedItem();
+		int getSelectedItem() const;
 
 		/**Function to get consumed  space of items inside form in y direction.
 		* @return
 		*	int, used lines
 		*/
-		int getUsedDY();
+		int getUsedDY() const;
 
 		/**Function to get consumed  space of items inside form in x direction.
 		* @return
 		*	int, used lines
 		*/
-		int getUsedDX();
+		int getUsedDX() const;
 
 		/**Function to get free usable space of items inside form in y direction.
 		* @return
 		*	int, free lines
 		*/
-		int getFreeDY(){return height - getUsedDY();}
+		int getFreeDY() const {return height - getUsedDY();}
 
 		/**Function to get free usable space of items inside form in x direction.
 		* @return
 		*	int, free lines
 		*/
-		int getFreeDX(){return width - getUsedDX();}
+		int getFreeDX() const {return width - getUsedDX();}
 
 		///returns pointer to selected item, return value as CComponentsItem*, returns NULL: if is nothing selected
-		CComponentsItem* getSelectedItemObject();
+		CComponentsItem* getSelectedItemObject() const;
 		///select a definied item, parameter1 as size_t
 		void setSelectedItem(	int item_id,
 						const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,

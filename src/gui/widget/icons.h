@@ -111,6 +111,7 @@
 #define NEUTRINO_ICON_PERSONALIZE	"personalize"
 #define NEUTRINO_ICON_PICTUREVIEWER	"pictureviewer"
 #define NEUTRINO_ICON_QUESTION		"question"
+#define NEUTRINO_ICON_RADIOTEXT		"radiotext"
 #define NEUTRINO_ICON_RECORDING		"recording"
 #define NEUTRINO_ICON_SETTINGS		"settings"
 #define NEUTRINO_ICON_SHELL		"shell"
@@ -278,10 +279,12 @@
 #define NEUTRINO_ICON_SCRAMBLED2_GREY	"ca2_gray"
 #define NEUTRINO_ICON_SUBT		"subt"
 #define NEUTRINO_ICON_SUBT_GREY		"subt_gray"
+#if 0
 #define NEUTRINO_ICON_TUNER_1		"tuner_1"
 #define NEUTRINO_ICON_TUNER_2		"tuner_2"
 #define NEUTRINO_ICON_TUNER_3		"tuner_3"
 #define NEUTRINO_ICON_TUNER_4		"tuner_4"
+#endif
 #define NEUTRINO_ICON_VTXT		"vtxt"
 #define NEUTRINO_ICON_VTXT_GREY		"vtxt_gray"
 

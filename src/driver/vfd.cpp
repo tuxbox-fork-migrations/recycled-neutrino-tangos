@@ -56,10 +56,8 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 #define VFDLENGTH 8
 #elif defined (BOXMODEL_FORTIS_HDBOX) || defined (BOXMODEL_ATEVIO7500)
 #define VFDLENGTH 12
-#elif defined (BOXMODEL_HS7810A) || defined (BOXMODEL_HS7119) || defined (BOXMODEL_HS7819) || defined (BOXMODEL_CUBEREVO_250HD) || defined (BOXMODEL_IPBOX55)
+#elif  defined (BOXMODEL_CUBEREVO_250HD) || defined (BOXMODEL_IPBOX55)
 #define VFDLENGTH 4
-#elif defined (BOXMODEL_HS7110)
-#define VFDLENGTH 0
 #elif defined (BOXMODEL_IPBOX9900) || defined (BOXMODEL_IPBOX99)
 #define VFDLENGTH 14
 #else
@@ -84,7 +82,7 @@ struct vfd_ioctl_data {
 
 static void write_to_vfd(unsigned int DevType, struct vfd_ioctl_data * data, bool force = false)
 {
-	int file_closed = 0;
+	int __attribute__ ((unused)) file_closed = 0;
 	if (blocked) {
 		if (file_vfd > -1) {
 			blocked_counter++;
@@ -436,7 +434,6 @@ printf("CVFD::setlcdparameter dimm %d power %d\n", dimm, power);
 #else
 // Brightness
 	struct vfd_ioctl_data data;
-#if !defined (BOXMODEL_HS7810A) && !defined (BOXMODEL_HS7119) && !defined (BOXMODEL_HS7819)
 	memset(&data, 0, sizeof(struct vfd_ioctl_data));
 	data.start = brightness & 0x07;
 	data.length = 0;
@@ -473,13 +470,6 @@ printf("CVFD::setlcdparameter dimm %d power %d\n", dimm, power);
 	data.data[4] = brightness*2;
 	data.length = 5;
 	write_to_vfd(VFDPWRLED, &data);
-#elif defined (BOXMODEL_HS7810A) || defined (BOXMODEL_HS7819)
-	memset(&data, 0, sizeof(struct vfd_ioctl_data));
-	data.start = 0;
-	data.data[0] = 0x02; // logo
-	data.data[4] = (brightness & 0x07);
-	data.length = 5;
-	write_to_vfd(VFDPWRLED, &data);
 #elif !defined (BOXMODEL_UFS912) && !defined (BOXMODEL_UFS913) && !defined (BOXMODEL_OCTAGON1008)
 // Power on/off
 	if (power) {
@@ -489,7 +479,6 @@ printf("CVFD::setlcdparameter dimm %d power %d\n", dimm, power);
 	}
 	data.length = 0;
 	write_to_vfd(VFDDISPLAYWRITEONOFF, &data, true);
-#endif
 #endif
 }
 
@@ -643,32 +632,19 @@ void CVFD::showTime(bool force)
 			if(force || ( switch_name_time_cnt == 0 && ((hour != t->tm_hour) || (minute != t->tm_min))) ) {
 				hour = t->tm_hour;
 				minute = t->tm_min;
-#if !defined (BOXMODEL_HS7810A) && !defined (BOXMODEL_HS7819)
 #if defined (BOXMODEL_OCTAGON1008)
 				ShowIcon(ICON_COLON2, true);
-#elif defined (BOXMODEL_OCTAGON1008) || defined (BOXMODEL_HS7119) || defined (BOXMODEL_CUBEREVO_250HD)
+#elif defined (BOXMODEL_OCTAGON1008) || defined (BOXMODEL_CUBEREVO_250HD)
 				strftime(timestr, 5, "%H%M", t);
 #else
 				strftime(timestr, 6, "%H:%M", t);
 #endif
 				ShowText(timestr);
-#else //HS7810A or HS7819, string should not scroll
-				strftime(timestr, 6, "%H:%M", t);
-				struct vfd_ioctl_data data;
-				memset(data.data, ' ', 6);
-				memcpy (data.data, timestr, 6);
-				data.start = 0;
-				data.length = 5;
-				write_to_vfd(VFDDISPLAYCHARS, &data);
-#endif
 				if (support_text) {
 					strftime(timestr, 20, "%H:%M", t);
 					ShowText(timestr);
 				} else if (support_numbers && has_led_segment) {
 					ShowNumber((t->tm_hour*100) + t->tm_min);
-#ifdef BOXMODEL_CS_HD2
-					ioctl(fd, IOC_FP_SET_COLON, 0x01);
-#endif
 				}
 			}
 		}
@@ -804,7 +780,7 @@ void CVFD::showVolume(const char vol, const bool force_update)
 			char vol_chr[64] = "";
 			snprintf(vol_chr, sizeof(vol_chr)-1, "VOL=%3d", (int)vol);
 			ShowText(vol_chr);
-#elif defined (BOXMODEL_HS7119) || defined (BOXMODEL_HS7810A) || defined (BOXMODEL_HS7819) || defined (BOXMODEL_CUBEREVO_250HD) || defined (BOXMODEL_IPBOX55)
+#elif defined (BOXMODEL_CUBEREVO_250HD) || defined (BOXMODEL_IPBOX55)
 			char vol_chr[64] = "";
 			snprintf(vol_chr, sizeof(vol_chr)-1, "v%3d", (int)vol);
 			ShowText(vol_chr);
@@ -838,7 +814,7 @@ printf("CVFD::showVolume: %d, bar %d\n", (int) vol, pp);
 	}
 }
 
-void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update*/, const MODES origin)
+void CVFD::showPercentOver(const unsigned char __attribute__ ((unused)) perc, const bool /*perform_update*/, const MODES __attribute__ ((unused)) origin)
 {
 #if HAVE_DUCKBOX_HARDWARE
 	return;
@@ -1200,7 +1176,7 @@ void CVFD::Clear()
 	else
 		text.clear();
 #else
-#if defined (BOXMODEL_HS7810A) || defined (BOXMODEL_HS7119) || defined (BOXMODEL_HS7819) || defined (BOXMODEL_CUBEREVO_250HD) || defined (BOXMODEL_IPBOX55)
+#if defined (BOXMODEL_CUBEREVO_250HD) || defined (BOXMODEL_IPBOX55)
 	ShowText("    ");
 #elif defined (BOXMODEL_OCTAGON1008) || defined (BOXMODEL_TF7700)
 	ShowText("        ");
@@ -1208,8 +1184,6 @@ void CVFD::Clear()
 	ShowText("            ");
 #elif defined (BOXMODEL_IPBOX9900) || defined (BOXMODEL_IPBOX99)
 	ShowText("              ");
-#elif !defined (BOXMODEL_HS7110)
-	ShowText("                ");
 #endif
 #endif
 }
@@ -1223,7 +1197,7 @@ void CVFD::ShowIcon(fp_icon icon, bool show)
 	if(ret < 0)
 		perror(show ? "IOC_FP_SET_ICON" : "IOC_FP_CLEAR_ICON");
 #else
-#if defined (BOXMODEL_ATEVIO7500) || defined (BOXMODEL_HS7110) || defined (BOXMODEL_HS7810A) || defined (BOXMODEL_HS7119) || defined (BOXMODEL_HS7819)
+#if defined (BOXMODEL_ATEVIO7500)
 	return;
 #endif
 	if (icon == 0)
@@ -1249,7 +1223,7 @@ void CVFD::ShowIcon(fp_icon icon, bool show)
 #ifdef HAVE_DUCKBOX_HARDWARE
 void CVFD::ClearIcons()
 {
-#if defined (BOXMODEL_ATEVIO7500) || defined (BOXMODEL_HS7110) || defined (BOXMODEL_HS7810A) || defined (BOXMODEL_HS7119) || defined (BOXMODEL_HS7819)
+#if defined (BOXMODEL_ATEVIO7500)
 	return;
 #endif
 	for (int id = 0x10; id < FP_ICON_MAX; id++) {
@@ -1282,18 +1256,16 @@ void CVFD::ShowText(const char * str)
 }
 void CVFD::repaintIcons()
 {
-	char * model = g_info.hw_caps->boxname;
-	if(strstr(model, "ufs912") || strstr(model, "ufs913"))
+#if BOXMODEL_UFS912 || BOXMODEL_UFS913
+	bool tmp_icon[16] = {false};
+	printf("VFD repaint icons\n");
+	for (int i = 0x10; i < FP_ICON_MAX; i++)
 	{
-		bool tmp_icon[16] = {false};
-		printf("VFD repaint icons boxmodel: %s\n", model);
-		for (int i = 0x10; i < FP_ICON_MAX; i++)
-		{
-			tmp_icon[i & 0x0F] = active_icon[i & 0x0F];
-			active_icon[i & 0x0F] = false;
-			ShowIcon((fp_icon)i, tmp_icon[i & 0x0F]);
-		}
+		tmp_icon[i & 0x0F] = active_icon[i & 0x0F];
+		active_icon[i & 0x0F] = false;
+		ShowIcon((fp_icon)i, tmp_icon[i & 0x0F]);
 	}
+#endif
 }
 #else
 void CVFD::ShowText(const char * str)

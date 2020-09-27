@@ -476,8 +476,9 @@ int CRCInput::addTimer(uint64_t Interval, bool oneshot, bool correct_time )
 		_newtimer.times_out = Interval;
 
 	_newtimer.correct_time = correct_time;
-
 //printf("adding timer %d (0x%" PRIx64 ", 0x%" PRIx64 ")\n", _newtimer.id, _newtimer.times_out, Interval);
+
+	timer_mutex.lock();
 
 	std::vector<timer>::iterator e;
 	for ( e= timers.begin(); e!= timers.end(); ++e )
@@ -485,6 +486,8 @@ int CRCInput::addTimer(uint64_t Interval, bool oneshot, bool correct_time )
 			break;
 
 	timers.insert(e, _newtimer);
+
+	timer_mutex.unlock();
 	return _newtimer.id;
 }
 
@@ -494,6 +497,7 @@ void CRCInput::killTimer(uint32_t &id)
 	if(id == 0)
 		return;
 
+	timer_mutex.lock();
 	std::vector<timer>::iterator e;
 	for ( e= timers.begin(); e!= timers.end(); ++e )
 		if ( e->id == id )
@@ -502,12 +506,14 @@ void CRCInput::killTimer(uint32_t &id)
 			break;
 		}
 	id = 0;
+	timer_mutex.unlock();
 }
 
 int CRCInput::checkTimers()
 {
 	int _id = 0;
 	uint64_t timeNow = time_monotonic_us();
+	timer_mutex.lock();
 	std::vector<timer>::iterator e;
 	for ( e= timers.begin(); e!= timers.end(); ++e )
 		if ( e->times_out< timeNow+ 2000 )
@@ -525,12 +531,13 @@ int CRCInput::checkTimers()
 				else
 					_newtimer.times_out = e->times_out + e->interval;
 
-		            	timers.erase(e);
+				timers.erase(e);
 				for ( e= timers.begin(); e!= timers.end(); ++e )
 					if ( e->times_out> _newtimer.times_out )
 						break;
 
-				timers.insert(e, _newtimer);
+				if(e != timers.end())
+					timers.insert(e, _newtimer);
 			}
 			else
 				timers.erase(e);
@@ -540,6 +547,7 @@ int CRCInput::checkTimers()
 //        else
 //    		printf("skipped timer %d %llx %llx\n",e->id,e->times_out, timeNow );
 //printf("checkTimers: return %d\n", _id);
+	timer_mutex.unlock();
 	return _id;
 }
 
@@ -737,7 +745,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 #ifdef KEYBOARD_INSTEAD_OF_REMOTE_CONTROL
 		if (FD_ISSET(fd_keyb, &rfds))
 		{
-			uint32_t trkey;
+			uint32_t trkey = 0;
 			char key = 0;
 			read(fd_keyb, &key, sizeof(key));
 
@@ -1146,6 +1154,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 							case CZapitClient::EVT_PMT_CHANGED:
 								*msg          = NeutrinoMessages::EVT_PMT_CHANGED;
 								*data = (neutrino_msg_data_t) p;
+								dont_delete_p = true;
 								break;
 							case CZapitClient::EVT_TUNE_COMPLETE:
 								*msg          = NeutrinoMessages::EVT_TUNE_COMPLETE;
@@ -1346,7 +1355,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					now_pressed -= (t2.tv_usec + t2.tv_sec * 1000000ULL);
 				}
 				SHTDCNT::getInstance()->resetSleepTimer();
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 				if ((ev.code == 0 || ev.code == 1) && ev.value && firstKey)
 					continue;
 #endif
@@ -1749,9 +1758,11 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "program";
 			case RC_playpause:
 				return "play / pause";
-#if BOXMODEL_HD51 || BOXMODEL_HD60
+#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 			case RC_playpause_long:
 				return "play / pause long";
+			case RC_switchvideomode:
+				return "videomode";
 #endif
 			default:
 				printf("unknown key: %d (0x%x) \n", key, key);
@@ -1802,13 +1813,15 @@ int CRCInput::translate(int code)
 			return RC_page_up;
 		case KEY_CHANNELDOWN:
 			return RC_page_down;
-#ifdef HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 		case KEY_SWITCHVIDEOMODE:
 			return RC_mode;
 		case KEY_VIDEO:
 			return RC_favorites;
 		case KEY_FASTFORWARD:
 			return RC_forward;
+		case 0xb0: // vuplus timer key
+			return RC_timer;
 #endif
 #ifdef HAVE_AZBOX_HARDWARE
 		case KEY_HOME:

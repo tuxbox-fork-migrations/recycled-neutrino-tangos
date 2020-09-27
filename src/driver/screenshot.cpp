@@ -46,7 +46,8 @@
 #include <system/set_threadname.h>
 #include <system/helpers.h>
 
-CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
+/* constructor, defaults is empty fname and CScreenShot::FORMAT_PNG format */
+CScreenShot::CScreenShot(const std::string &fname, screenshot_format_t fmt)
 {
 	format = fmt;
 	filename = fname;
@@ -98,7 +99,7 @@ bool CScreenShot::Start(const std::string custom_cmd)
 		cmd += "-d ";
 
 	if (xres)
-		cmd += "-w " + to_string(xres) + " ";
+		cmd += "-w " + std::to_string(xres) + " ";
 
 	cmd += "'";
 	cmd += filename;

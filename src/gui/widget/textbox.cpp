@@ -610,8 +610,9 @@ void CTextBox::refreshText(void)
 		if (has_changed)
 			clearScreenBuffer();
 
-		if(m_bgpixbuf && (m_old_cText != m_cText))
-			frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
+		if(m_bgpixbuf)
+			if (m_old_cText != m_cText)
+				frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
 
 		if (m_bgpixbuf){
 			frameBuffer->RestoreScreen(m_old_x, m_old_y, m_old_dx, m_old_dy, m_bgpixbuf);
@@ -663,7 +664,7 @@ void CTextBox::refreshText(void)
 		}
 	}
 	else{
-		if (m_bgpixbuf){
+		if (m_bgpixbuf && m_bg_painted){
 			if (allow_paint_bg){
 				//TRACE("[CTextBox] %s restore bg %d\r\n", __FUNCTION__, __LINE__);
 				frameBuffer->RestoreScreen(ax, ay, dx, dy, m_bgpixbuf);
@@ -712,7 +713,8 @@ void CTextBox::refreshText(void)
 		//calculate xpos
 		if ((m_nMode & CENTER) || (m_nMode & RIGHT))
 		{
-			x_center = m_cFrameTextRel.iWidth - m_cFrameTextRel.iX - 2*text_Hborder_width - m_pcFontText->getRenderWidth(m_cLineArray[i], m_utf8_encoded);
+			std::string tmpline = !m_cLineArray.empty() ? m_cLineArray[i] : "";
+			x_center = m_cFrameTextRel.iWidth - m_cFrameTextRel.iX - 2*text_Hborder_width - m_pcFontText->getRenderWidth(tmpline, m_utf8_encoded);
 			if (m_nMode & CENTER)
 				x_center /= 2;
 			if (m_nMode & SCROLL)
@@ -883,7 +885,7 @@ bool CTextBox::clearScreenBuffer()
 	return false;
 }
 
-bool CTextBox::enableSaveScreen(bool mode)
+bool CTextBox::enableSaveScreen(const bool& mode)
 {
 	if (m_SaveScreen == mode)
 		return false;
@@ -947,7 +949,7 @@ int CTextBox::getMaxLineWidth(const std::string& text, Font* font)
 	return len;
 }
 
-void CTextBox::enableBackgroundPaint(bool mode)
+void CTextBox::enableBackgroundPaint(const bool& mode)
 {
 	m_nPaintBackground = mode;
 }
@@ -957,7 +959,7 @@ void CTextBox::disableBackgroundPaint()
 	enableBackgroundPaint(false);
 }
 
-void CTextBox::setTextRenderModeFullBG(bool mode)
+void CTextBox::setTextRenderModeFullBG(const bool& mode)
 {
 	m_renderMode = (mode) ? 2 /*Font::FULLBG*/ : 0;
 }

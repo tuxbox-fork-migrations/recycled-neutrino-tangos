@@ -24,6 +24,23 @@ if test "$DEBUG" = "yes"; then
 	AC_DEFINE(DEBUG, 1, [enable debugging code])
 fi
 
+# weather
+AC_ARG_WITH(weather-dev-key,
+	AS_HELP_STRING([--with-weather-dev-key=KEY], [API dev key to get data from weather data base, required for additional weather informations]),
+	[WEATHER_DEV_KEY="$withval"],
+	[WEATHER_DEV_KEY=""])
+AC_DEFINE_UNQUOTED([WEATHER_DEV_KEY], ["$WEATHER_DEV_KEY"], [API dev key to get data from weather data base, required for additional weather informations])
+
+AC_ARG_ENABLE([weather-key-manage],
+	AS_HELP_STRING([--enable-weather-key-manage], [Enable manage weather api dev key via gui for additional weather informations @<:@default=yes@:>@]),
+	[enable_weather_key_manage="$enableval"],
+	[enable_weather_key_manage="yes"])
+
+if test "$enable_weather_key_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_WEATHER_KEY_MANAGE], 1, [Enable manage weather api dev key via gui for additional weather informations])
+fi
+# weather end
+
 # tmdb
 AC_ARG_WITH(tmdb-dev-key,
 	AS_HELP_STRING([--with-tmdb-dev-key=KEY], [API dev key to get data from tmdb data base, required for additional movie informations]),
@@ -134,9 +151,6 @@ if test "$TARGET" = "native"; then
 	if test "$prefix" = "NONE"; then
 		prefix=/usr/local
 	fi
-	if test "$exec_prefix" = "NONE"; then
-		exec_prefix=$prefix
-	fi
 	targetprefix=$prefix
 	TARGET_PREFIX=$prefix
 	AC_DEFINE_UNQUOTED(TARGET_PREFIX, "$TARGET_PREFIX", [The targets prefix])
@@ -162,6 +176,10 @@ elif test "$TARGET" = "cdk"; then
 else
 	AC_MSG_RESULT(none)
 	AC_MSG_ERROR([invalid target $TARGET, choose on from native,cdk]);
+fi
+
+if test "$exec_prefix" = "NONE"; then
+	exec_prefix=$prefix
 fi
 
 AC_CANONICAL_BUILD
@@ -232,6 +250,12 @@ TUXBOX_APPS_DIRECTORY_ONE(configdir, CONFIGDIR, localstatedir, /var, /tuxbox/con
 
 TUXBOX_APPS_DIRECTORY_ONE(datadir, DATADIR, datadir, /share, /tuxbox,
 	[--with-datadir=PATH], [where to find data files])
+
+TUXBOX_APPS_DIRECTORY_ONE(controldir, CONTROLDIR, datadir, /share, /tuxbox/neutrino/control,
+	[--with-controldir=PATH], [where to find control scripts])
+
+TUXBOX_APPS_DIRECTORY_ONE(controldir_var, CONTROLDIR_VAR, localstatedir, /var, /tuxbox/control,
+	[--with-controldir_var=PATH], [where to find control scripts in /var])
 
 TUXBOX_APPS_DIRECTORY_ONE(fontdir, FONTDIR, datadir, /share, /fonts,
 	[--with-fontdir=PATH], [where to find fonts])
@@ -306,6 +330,8 @@ TUXBOX_APPS_DIRECTORY_ONE(hosted_httpddir, HOSTED_HTTPDDIR, mntdir, /mnt, /hoste
 dnl automake <= 1.6 needs this specifications
 AC_SUBST(CONFIGDIR)
 AC_SUBST(DATADIR)
+AC_SUBST(CONTROLDIR)
+AC_SUBST(CONTROLDIR_VAR)
 AC_SUBST(FONTDIR)
 AC_SUBST(FONTDIR_VAR)
 AC_SUBST(GAMESDIR)
@@ -407,17 +433,13 @@ _TUXBOX_APPS_LIB_PKGCONFIG($1,$2)
 
 AC_DEFUN([TUXBOX_BOXTYPE], [
 AC_ARG_WITH(boxtype,
-	AS_HELP_STRING([--with-boxtype], [valid values: tripledragon, coolstream, spark, azbox, generic, armbox, duckbox, spark7162]),
+	AS_HELP_STRING([--with-boxtype], [valid values: tripledragon, coolstream, spark, azbox, generic, armbox, duckbox, spark7162, mipsbox]),
 	[case "${withval}" in
 		tripledragon|coolstream|azbox|generic|armbox)
 			BOXTYPE="$withval"
 		;;
 		spark|spark7162)
 			BOXTYPE="spark"
-			BOXMODEL="$withval"
-		;;
-		dm*)
-			BOXTYPE="dreambox"
 			BOXMODEL="$withval"
 		;;
 		ufs*)
@@ -440,10 +462,6 @@ AC_ARG_WITH(boxtype,
 			BOXTYPE="duckbox"
 			BOXMODEL="$withval"
 		;;
-		dp*)
-			BOXTYPE="duckbox"
-			BOXMODEL="$withval"
-		;;
 		cuberevo*)
 			BOXTYPE="duckbox"
 			BOXMODEL="$withval"
@@ -452,20 +470,16 @@ AC_ARG_WITH(boxtype,
 			BOXTYPE="duckbox"
 			BOXMODEL="$withval"
 		;;
-		arivalink200)
-			BOXTYPE="duckbox"
-			BOXMODEL="$withval"
-		;;
 		tf*)
 			BOXTYPE="duckbox"
 			BOXMODEL="$withval"
 		;;
-		hl101)
-			BOXTYPE="duckbox"
+		hd51|hd60|hd61|bre2ze4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k)
+			BOXTYPE="armbox"
 			BOXMODEL="$withval"
 		;;
-		hd51|hd60|bre2ze4k|vusolo4k)
-			BOXTYPE="armbox"
+		vuduo)
+			BOXTYPE="mipsbox"
 			BOXMODEL="$withval"
 		;;
 		*)
@@ -476,9 +490,10 @@ AC_ARG_WITH(boxtype,
 
 AC_ARG_WITH(boxmodel,
 	AS_HELP_STRING([--with-boxmodel], [valid for coolstream: hd1, hd2])
-AS_HELP_STRING([], [valid for duckbox: ufs910, ufs912, ufs913, ufs922, atevio7500, fortis_hdbox, octagon1008, hs7110, hs7810a, hs7119, hs7819, dp7000, cuberevo, cuberevo_mini, cuberevo_mini2, cuberevo_250hd, cuberevo_2000hd, cuberevo_3000hd, ipbox9900, ipbox99, ipbox55, arivalink200, tf7700, hl101])
+AS_HELP_STRING([], [valid for duckbox: ufs910, ufs912, ufs913, ufs922, atevio7500, fortis_hdbox, octagon1008, cuberevo, cuberevo_mini, cuberevo_mini2, cuberevo_250hd, cuberevo_2000hd, cuberevo_3000hd, ipbox9900, ipbox99, ipbox55, tf7700])
 AS_HELP_STRING([], [valid for spark: spark, spark7162])
-AS_HELP_STRING([], [valid for armbox: hd51, hd60, vusolo4k, bre2ze4k])
+AS_HELP_STRING([], [valid for armbox: hd51, hd60, hd61, bre2ze4k, osmio4k, osmio4kplus, h7, vusolo4k, vuduo4k, vuultimo4k, vuzero4k, vuuno4kse, vuuno4k])
+AS_HELP_STRING([], [valid for mipsbox: vuduo])
 AS_HELP_STRING([], [valid for generic: raspi]),
 	[case "${withval}" in
 		hd1|hd2)
@@ -500,7 +515,7 @@ AS_HELP_STRING([], [valid for generic: raspi]),
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
 		;;
-		ufs910|ufs912|ufs913|ufs922|atevio7500|fortis_hdbox|octagon1008|hs7110|hs7810a|hs7119|hs7819|dp7000|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|ipbox9900|ipbox99|ipbox55|arivalink200|tf7700|hl101)
+		ufs910|ufs912|ufs913|ufs922|atevio7500|fortis_hdbox|octagon1008|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|ipbox9900|ipbox99|ipbox55|tf7700)
 			if test "$BOXTYPE" = "duckbox"; then
 				BOXMODEL="$withval"
 			else
@@ -514,8 +529,15 @@ AS_HELP_STRING([], [valid for generic: raspi]),
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
 		;;
-		hd51|hd60|bre2ze4k|vusolo4k)
+		hd51|hd60|hd61|bre2ze4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k)
 			if test "$BOXTYPE" = "armbox"; then
+				BOXMODEL="$withval"
+			else
+				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
+			fi
+		;;
+		vuduo)
+			if test "$BOXTYPE" = "mipsbox"; then
 				BOXMODEL="$withval"
 			else
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
@@ -543,6 +565,7 @@ AM_CONDITIONAL(BOXTYPE_SPARK, test "$BOXTYPE" = "spark")
 AM_CONDITIONAL(BOXTYPE_GENERIC, test "$BOXTYPE" = "generic")
 AM_CONDITIONAL(BOXTYPE_DUCKBOX, test "$BOXTYPE" = "duckbox")
 AM_CONDITIONAL(BOXTYPE_ARMBOX, test "$BOXTYPE" = "armbox")
+AM_CONDITIONAL(BOXTYPE_MIPSBOX, test "$BOXTYPE" = "mipsbox")
 
 AM_CONDITIONAL(BOXMODEL_CS_HD1, test "$BOXMODEL" = "hd1")
 AM_CONDITIONAL(BOXMODEL_CS_HD2, test "$BOXMODEL" = "hd2")
@@ -556,11 +579,6 @@ AM_CONDITIONAL(BOXMODEL_SPARK7162, test "$BOXMODEL" = "spark7162")
 AM_CONDITIONAL(BOXMODEL_ATEVIO7500, test "$BOXMODEL" = "atevio7500")
 AM_CONDITIONAL(BOXMODEL_FORTIS_HDBOX, test "$BOXMODEL" = "fortis_hdbox")
 AM_CONDITIONAL(BOXMODEL_OCTAGON1008, test "$BOXMODEL" = "octagon1008")
-AM_CONDITIONAL(BOXMODEL_HS7110, test "$BOXMODEL" = "hs7110")
-AM_CONDITIONAL(BOXMODEL_HS7810A, test "$BOXMODEL" = "hs7810a")
-AM_CONDITIONAL(BOXMODEL_HS7119, test "$BOXMODEL" = "hs7119")
-AM_CONDITIONAL(BOXMODEL_HS7819, test "$BOXMODEL" = "hs7819")
-AM_CONDITIONAL(BOXMODEL_DP7000, test "$BOXMODEL" = "dp7000")
 
 AM_CONDITIONAL(BOXMODEL_CUBEREVO, test "$BOXMODEL" = "cuberevo")
 AM_CONDITIONAL(BOXMODEL_CUBEREVO_MINI, test "$BOXMODEL" = "cuberevo_mini")
@@ -571,16 +589,29 @@ AM_CONDITIONAL(BOXMODEL_CUBEREVO_3000HD, test "$BOXMODEL" = "cuberevo_3000hd")
 AM_CONDITIONAL(BOXMODEL_IPBOX9900, test "$BOXMODEL" = "ipbox9900")
 AM_CONDITIONAL(BOXMODEL_IPBOX99, test "$BOXMODEL" = "ipbox99")
 AM_CONDITIONAL(BOXMODEL_IPBOX55, test "$BOXMODEL" = "ipbox55")
-AM_CONDITIONAL(BOXMODEL_ARIVALINK200, test "$BOXMODEL" = "arivalink200")
 AM_CONDITIONAL(BOXMODEL_TF7700, test "$BOXMODEL" = "tf7700")
-AM_CONDITIONAL(BOXMODEL_HL101, test "$BOXMODEL" = "hl101")
 
 AM_CONDITIONAL(BOXMODEL_HD51, test "$BOXMODEL" = "hd51")
 AM_CONDITIONAL(BOXMODEL_HD60, test "$BOXMODEL" = "hd60")
-AM_CONDITIONAL(BOXMODEL_VUSOLO4K, test "$BOXMODEL" = "vusolo4k")
+AM_CONDITIONAL(BOXMODEL_HD61, test "$BOXMODEL" = "hd61")
 AM_CONDITIONAL(BOXMODEL_BRE2ZE4K, test "$BOXMODEL" = "bre2ze4k")
+AM_CONDITIONAL(BOXMODEL_OSMIO4K, test "$BOXMODEL" = "osmio4k")
+AM_CONDITIONAL(BOXMODEL_OSMIO4KPLUS, test "$BOXMODEL" = "osmio4kplus")
+AM_CONDITIONAL(BOXMODEL_H7, test "$BOXMODEL" = "h7")
+AM_CONDITIONAL(BOXMODEL_VUDUO, test "$BOXMODEL" = "vuduo")
+AM_CONDITIONAL(BOXMODEL_VUSOLO4K, test "$BOXMODEL" = "vusolo4k")
+AM_CONDITIONAL(BOXMODEL_VUDUO4K, test "$BOXMODEL" = "vuduo4k")
+AM_CONDITIONAL(BOXMODEL_VUULTIMO4K, test "$BOXMODEL" = "vuultimo4k")
+AM_CONDITIONAL(BOXMODEL_VUUNO4KSE, test "$BOXMODEL" = "vuuno4kse")
+AM_CONDITIONAL(BOXMODEL_VUUNO4K, test "$BOXMODEL" = "vuuno4k")
+AM_CONDITIONAL(BOXMODEL_VUDUO, test "$BOXMODEL" = "vuduo")
+AM_CONDITIONAL(BOXMODEL_VUZERO4K, test "$BOXMODEL" = "vuzero4k")
 
 AM_CONDITIONAL(BOXMODEL_RASPI, test "$BOXMODEL" = "raspi")
+
+AM_CONDITIONAL(BOXMODEL_VUPLUS_ALL, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuzero4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k" -o "$BOXMODEL" = "vuduo")
+AM_CONDITIONAL(BOXMODEL_VUPLUS_ARM, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuzero4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k")
+AM_CONDITIONAL(BOXMODEL_VUPLUS_MIPS, test "$BOXMODEL" = "vuduo")
 
 if test "$BOXTYPE" = "azbox"; then
 	AC_DEFINE(HAVE_AZBOX_HARDWARE, 1, [building for an azbox])
@@ -598,6 +629,8 @@ elif test "$BOXTYPE" = "generic"; then
 	AC_DEFINE(HAVE_GENERIC_HARDWARE, 1, [building for a generic device like a standard PC])
 elif test "$BOXTYPE" = "armbox"; then
 	AC_DEFINE(HAVE_ARM_HARDWARE, 1, [building for an armbox])
+elif test "$BOXTYPE" = "mipsbox"; then
+	AC_DEFINE(HAVE_MIPS_HARDWARE, 1, [building for an mipsbox])
 fi
 
 # TODO: do we need more defines?
@@ -624,16 +657,6 @@ elif test "$BOXMODEL" = "fortis_hdbox"; then
 	AC_DEFINE(BOXMODEL_FORTIS_HDBOX, 1, [fortis_hdbox])
 elif test "$BOXMODEL" = "octagon1008"; then
 	AC_DEFINE(BOXMODEL_OCTAGON1008, 1, [octagon1008])
-elif test "$BOXMODEL" = "hs7110"; then
-	AC_DEFINE(BOXMODEL_HS7110, 1, [hs7110])
-elif test "$BOXMODEL" = "hs7810a"; then
-	AC_DEFINE(BOXMODEL_HS7810A, 1, [hs7810a])
-elif test "$BOXMODEL" = "hs7119"; then
-	AC_DEFINE(BOXMODEL_HS7119, 1, [hs7119])
-elif test "$BOXMODEL" = "hs7819"; then
-	AC_DEFINE(BOXMODEL_HS7819, 1, [hs7819])
-elif test "$BOXMODEL" = "dp7000"; then
-	AC_DEFINE(BOXMODEL_DP7000, 1, [dp7000])
 elif test "$BOXMODEL" = "cuberevo"; then
 	AC_DEFINE(BOXMODEL_CUBEREVO, 1, [cuberevo])
 elif test "$BOXMODEL" = "cuberevo_mini"; then
@@ -652,27 +675,69 @@ elif test "$BOXMODEL" = "ipbox99"; then
 	AC_DEFINE(BOXMODEL_IPBOX99, 1, [ipbox99])
 elif test "$BOXMODEL" = "ipbox55"; then
 	AC_DEFINE(BOXMODEL_IPBOX55, 1, [ipbox55])
-elif test "$BOXMODEL" = "arivalink200"; then
-	AC_DEFINE(BOXMODEL_ARIVALINK200, 1, [arivalink200])
 elif test "$BOXMODEL" = "tf7700"; then
 	AC_DEFINE(BOXMODEL_TF7700, 1, [tf7700])
-elif test "$BOXMODEL" = "hl101"; then
-	AC_DEFINE(BOXMODEL_HL101, 1, [hl101])
 elif test "$BOXMODEL" = "hd51"; then
 	AC_DEFINE(BOXMODEL_HD51, 1, [hd51])
-	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
 elif test "$BOXMODEL" = "hd60"; then
 	AC_DEFINE(BOXMODEL_HD60, 1, [hd60])
-	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
-elif test "$BOXMODEL" = "vusolo4k"; then
-	AC_DEFINE(BOXMODEL_VUSOLO4K, 1, [vusolo4k])
-	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
+elif test "$BOXMODEL" = "hd61"; then
+	AC_DEFINE(BOXMODEL_HD61, 1, [hd61])
 elif test "$BOXMODEL" = "bre2ze4k"; then
 	AC_DEFINE(BOXMODEL_BRE2ZE4K, 1, [bre2ze4k])
-	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
+elif test "$BOXMODEL" = "vuduo"; then
+	AC_DEFINE(BOXMODEL_VUDUO, 1, [vuduo])
+elif test "$BOXMODEL" = "vusolo4k"; then
+	AC_DEFINE(BOXMODEL_VUSOLO4K, 1, [vusolo4k])
+elif test "$BOXMODEL" = "vuduo4k"; then
+	AC_DEFINE(BOXMODEL_VUDUO4K, 1, [vuduo4k])
+elif test "$BOXMODEL" = "vuultimo4k"; then
+	AC_DEFINE(BOXMODEL_VUULTIMO4K, 1, [vuultimo4k])
+elif test "$BOXMODEL" = "vuzero4k"; then
+	AC_DEFINE(BOXMODEL_VUZERO4K, 1, [vuzero4k])
+elif test "$BOXMODEL" = "vuuno4kse"; then
+	AC_DEFINE(BOXMODEL_VUUNO4KSE, 1, [vuuno4kse])
+elif test "$BOXMODEL" = "vuuno4k"; then
+	AC_DEFINE(BOXMODEL_VUUNO4K, 1, [vuuno4k])
+elif test "$BOXMODEL" = "h7"; then
+	AC_DEFINE(BOXMODEL_H7, 1, [h7])
+elif test "$BOXMODEL" = "vuduo"; then
+	AC_DEFINE(BOXMODEL_VUDUO, 1, [vuduo])
 elif test "$BOXMODEL" = "raspi"; then
 	AC_DEFINE(BOXMODEL_RASPI, 1, [raspberry pi])
+elif test "$BOXMODEL" = "osmio4k"; then
+	AC_DEFINE(BOXMODEL_OSMIO4K, 1, [osmio4k])
+elif test "$BOXMODEL" = "osmio4kplus"; then
+	AC_DEFINE(BOXMODEL_OSMIO4KPLUS, 1, [osmio4kplus])
 fi
+
+# Support Boxmodel with OSD-Resolution
+case "$BOXMODEL" in
+	bre2ze4k|hd51|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|vuduo|h7|osmio4k|osmio4kplus)
+		AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable to change osd resolution])
+	;;
+esac
+
+# all vuplus BOXMODELs
+case "$BOXMODEL" in
+	vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|vuduo)
+		AC_DEFINE(BOXMODEL_VUPLUS_ALL, 1, [vuplus_all])
+	;;
+esac
+
+# all vuplus arm BOXMODELs
+case "$BOXMODEL" in
+	vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k)
+		AC_DEFINE(BOXMODEL_VUPLUS_ARM, 1, [vuplus_arm])
+	;;
+esac
+
+# all vuplus mips BOXMODELs
+case "$BOXMODEL" in
+	vuduo)
+		AC_DEFINE(BOXMODEL_VUPLUS_MIPS, 1, [vuplus_mips])
+	;;
+esac
 ])
 
 dnl backward compatiblity

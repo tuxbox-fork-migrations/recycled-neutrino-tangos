@@ -208,6 +208,10 @@ class CMenuItem : public  CComponentsSignals
 		void setParentWidget(CMenuWidget* parent){parent_widget = parent;}
 		void setInfoIconRight(const char * const IconName_Info_right);
 		const char* getInfoIconRight(){return iconName_Info_right;}
+
+#ifdef ENABLE_GRAPHLCD
+		std::string graphlcd_text;
+#endif
 #ifdef ENABLE_LCD4LINUX
 		std::string lcd4l_text;
 #endif
@@ -230,7 +234,7 @@ class CMenuSeparator : public CMenuItem
 			ALIGN_CENTER	= 4,
 			ALIGN_LEFT	= 8,
 			ALIGN_RIGHT	= 16,
-			SUB_HEAD	= 32
+			SUB_HEAD	= 32 // description "SUB_HEAD" seems is misleading
 		};
 
 
@@ -284,6 +288,7 @@ class CMenuForwarder : public CMenuItem
 	neutrino_locale_t getTextLocale() const {return name;}
 	CMenuTarget* getTarget() const {return jumpTarget;}
 	const char *getActionKey(){return actionKey.c_str();}
+	void setActionKey(const std::string& ActionKey){actionKey = ActionKey;}
 
 	int exec(CMenuTarget* parent);
 	void setOption(const std::string &Option);
@@ -309,7 +314,7 @@ class CMenuDForwarder : public CMenuForwarder
 			const char * const IconName = NULL, const char * const IconName_Info_right = NULL)
 			: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right) { };
 
-	~CMenuDForwarder() { delete jumpTarget; }
+	~CMenuDForwarder() { delete jumpTarget;  jumpTarget = NULL;}
 };
 
 class CAbstractMenuOptionChooser : public CMenuItem
@@ -375,7 +380,7 @@ private:
 	int exec(CMenuTarget* parent);
 	int isMenueOptionChooser(void) const{return 1;}
 	int getWidth(void);
-	void setNumberFormat(std::string format) { numberFormat = format; }
+	void setNumberFormat(const std::string &format) { numberFormat = format; }
 	void setNumberFormat(std::string (*fun)(int)) { numberFormatFunction = fun; }
 	void setNumericInput(bool _numeric_input) { numeric_input = _numeric_input; }
 	void setLocalizedValue(int special_value, neutrino_locale_t special_value_name)
@@ -503,7 +508,7 @@ class CMenuOptionStringChooser : public CMenuItem
 				std::string* pOptionValue,
 				CChangeObserver * const Observ,
 				bool Pulldown );
-
+		bool 		hold_last_item;
 	public:
 		CMenuOptionStringChooser(const neutrino_locale_t Name, std::string* OptionValue, bool Active = false,
 					 CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = RC_NOKEY,
@@ -528,6 +533,8 @@ class CMenuOptionStringChooser : public CMenuItem
 			*optionValuePtr = val;
 		}
 		std::string getOptionValue() { return *optionValuePtr; }
+		sigc::signal<void> OnAfterChangeOption;
+		void rememberLastItem(bool remember = true) {hold_last_item = remember;}
 };
 
 class CMenuGlobal
@@ -549,8 +556,10 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		CComponentsDetailsLine	*details_line;
 		CComponentsInfoBox	*info_box;
 		int			hint_height;
-		CComponentsHeader 	*header;
+		CComponentsHeader 	*header, *sub_header;
 		CComponentsFooter 	*footer;
+		std::string		subhead_text;
+		int			w_pos_mode;
 		unsigned int saveScreen_width ;
 		unsigned int saveScreen_height;
 		unsigned int saveScreen_y;
@@ -605,6 +614,8 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		void saveScreen();
 		void restoreScreen();
 		void setMenuPos(const int& menu_width);
+		void initHeader();
+		void initSubHeader();
 
 	public:
 		CMenuWidget();
@@ -627,7 +638,8 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 			BRIEF_HINT_NO	= 0,
 			BRIEF_HINT_YES	= 1
 		};
-		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO);
+		void addIntroItems(neutrino_locale_t l_subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO);
+		void addIntroItems(const std::string& s_subhead_text, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO);
 		bool hasItem();
 		void resetWidget(bool delete_items = false);
 		void insertItem(const uint& item_id, CMenuItem* menuItem);
@@ -657,7 +669,9 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 			MENU_POS_TOP_LEFT	,
 			MENU_POS_TOP_RIGHT	,
 			MENU_POS_BOTTOM_LEFT	,
-			MENU_POS_BOTTOM_RIGHT
+			MENU_POS_BOTTOM_RIGHT	,
+
+			MENU_POS_PRESET
 		};
 		void addKey(neutrino_msg_t key, CMenuTarget *menue, const std::string &action);
 		void setFooter(const struct button_label *_fbutton_label, const int _fbutton_count, bool repaint = false);
@@ -665,6 +679,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		void setNextShortcut(int sc) { nextShortcut = sc; };
 		int getNextShortcut() { return nextShortcut; };
 		bool gotAction() { return !no_action; };
+		void setMenuPosMode(int pos_mode){w_pos_mode = pos_mode;}
 };
 
 class CPINProtection
@@ -675,11 +690,9 @@ class CPINProtection
 		virtual CMenuTarget* getParent() = 0;
 		neutrino_locale_t title, hint;
 	public:
-		CPINProtection(std::string &validpin)
+		CPINProtection(std::string &validpin): title( LOCALE_PINPROTECTION_HEAD),hint(NONEXISTANT_LOCALE)
 		{ 
 			validPIN = &validpin;
-			hint = NONEXISTANT_LOCALE;
-			title = LOCALE_PINPROTECTION_HEAD;
 		};
 		virtual ~CPINProtection(){}
 		virtual void setTitle(neutrino_locale_t Title){title = Title;};

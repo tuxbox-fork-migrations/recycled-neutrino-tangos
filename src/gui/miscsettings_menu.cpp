@@ -34,13 +34,15 @@
 #include <system/helpers.h>
 #include <system/debug.h>
 #include <gui/miscsettings_menu.h>
+#include <gui/weather.h>
+#include <gui/weather_locations.h>
 #include <gui/cec_setup.h>
 #include <gui/filebrowser.h>
 #include <gui/keybind_setup.h>
 #include <gui/plugins.h>
 #include <gui/sleeptimer.h>
 #include <gui/zapit_setup.h>
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #include <gui/kerneloptions.h>
 #endif
 
@@ -149,7 +151,11 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		return showMiscSettingsMenuOnlineServices();
 	}
-	else if(actionKey == "epg_read_now")
+	else if(actionKey == "select_location")
+	{
+		return showMiscSettingsSelectWeatherLocation();
+	}
+	else if(actionKey == "epg_read_now" || actionKey == "epg_read_now_usermenu")
 	{
 		struct stat my_stat;
 		if (stat(g_settings.epg_dir.c_str(), &my_stat) == 0)
@@ -164,7 +170,10 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 			g_Sectionsd->readSIfromXMLTV((*it).c_str());
 		}
 
-		return menu_return::RETURN_REPAINT;
+		if (actionKey == "epg_read_now_usermenu")
+			return menu_return::RETURN_EXIT_ALL;
+		else
+			return menu_return::RETURN_REPAINT;
 	}
 
 	return showMiscSettingsMenu();
@@ -355,7 +364,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	mf->setHint("", LOCALE_MENU_HINT_MISC_CPUFREQ);
 	misc_menue.addItem(mf);
 #endif /*CPU_FREQ*/
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	// kerneloptions
 	CKernelOptions kernelOptions;
 	mf = new CMenuForwarder(LOCALE_KERNELOPTIONS_HEAD, true, NULL, &kernelOptions, NULL, CRCInput::convertDigitToKey(shortcut++));
@@ -429,7 +438,7 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	CMenuOptionChooser *m1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL_RCDELAY, &g_settings.shutdown_real_rcdelay, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !g_settings.shutdown_real);
 	m1->setHint("", LOCALE_MENU_HINT_SHUTDOWN_RCDELAY);
 
-	std::string shutdown_count = to_string(g_settings.shutdown_count);
+	std::string shutdown_count = std::to_string(g_settings.shutdown_count);
 	if (shutdown_count.length() < 3)
 		shutdown_count.insert(0, 3 - shutdown_count.length(), ' ');
 	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, &shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
@@ -468,6 +477,7 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 {
 	ms_epg->addIntroItems(LOCALE_MISCSETTINGS_EPG_HEAD);
+	ms_epg->addKey(CRCInput::RC_help, this, "info");
 	ms_epg->addKey(CRCInput::RC_info, this, "info");
 
 	epg_save = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
@@ -491,28 +501,28 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	epg_read_now = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_READ_NOW, g_settings.epg_read, NULL, this, "epg_read_now");
 	epg_read_now->setHint("", LOCALE_MENU_HINT_EPG_READ_NOW);
 
-	epg_cache = to_string(g_settings.epg_cache);
+	epg_cache = std::to_string(g_settings.epg_cache);
 	if (epg_cache.length() < 2)
 		epg_cache.insert(0, 2 - epg_cache.length(), ' ');
 	CStringInput * miscSettings_epg_cache = new CStringInput(LOCALE_MISCSETTINGS_EPG_CACHE, &epg_cache, 2,LOCALE_MISCSETTINGS_EPG_CACHE_HINT1, LOCALE_MISCSETTINGS_EPG_CACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
 	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_CACHE, true, epg_cache, miscSettings_epg_cache);
 	mf->setHint("", LOCALE_MENU_HINT_EPG_CACHE);
 
-	epg_extendedcache = to_string(g_settings.epg_extendedcache);
+	epg_extendedcache = std::to_string(g_settings.epg_extendedcache);
 	if (epg_extendedcache.length() < 3)
 		epg_extendedcache.insert(0, 3 - epg_extendedcache.length(), ' ');
 	CStringInput * miscSettings_epg_cache_e = new CStringInput(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, &epg_extendedcache, 3,LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT1, LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
 	CMenuForwarder * mf1  = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, true, epg_extendedcache, miscSettings_epg_cache_e);
 	mf1->setHint("", LOCALE_MENU_HINT_EPG_EXTENDEDCACHE);
 
-	epg_old_events = to_string(g_settings.epg_old_events);
+	epg_old_events = std::to_string(g_settings.epg_old_events);
 	if (epg_old_events.length() < 3)
 		epg_old_events.insert(0, 3 - epg_old_events.length(), ' ');
 	CStringInput * miscSettings_epg_old_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, &epg_old_events, 3,LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
 	CMenuForwarder * mf2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, true, epg_old_events, miscSettings_epg_old_events);
 	mf2->setHint("", LOCALE_MENU_HINT_EPG_OLD_EVENTS);
 
-	epg_max_events = to_string(g_settings.epg_max_events);
+	epg_max_events = std::to_string(g_settings.epg_max_events);
 	if (epg_max_events.length() < 6)
 		epg_max_events.insert(0, 6 - epg_max_events.length(), ' ');
 	CStringInput * miscSettings_epg_max_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, &epg_max_events, 6,LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
@@ -637,6 +647,25 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	CMenuWidget *ms_oservices = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ONLINESERVICES);
 	ms_oservices->addIntroItems(LOCALE_MISCSETTINGS_ONLINESERVICES);
 
+	// weather
+	weather_onoff = new CMenuOptionChooser(LOCALE_WEATHER_ENABLED, &g_settings.weather_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_weather_api_key());
+	weather_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_ENABLED);
+	ms_oservices->addItem(weather_onoff);
+
+#if ENABLE_WEATHER_KEY_MANAGE
+	changeNotify(LOCALE_WEATHER_API_KEY, NULL);
+	CKeyboardInput weather_api_key_input(LOCALE_WEATHER_API_KEY, &g_settings.weather_api_key, 32, this);
+	CMenuForwarder *mf_we = new CMenuForwarder(LOCALE_WEATHER_API_KEY, true, weather_api_key_short, &weather_api_key_input);
+	mf_we->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_API_KEY);
+	ms_oservices->addItem(mf_we);
+#endif
+
+	CMenuForwarder *mf_wl = new CMenuForwarder(LOCALE_WEATHER_LOCATION, g_settings.weather_enabled, g_settings.weather_city, this, "select_location");
+	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
+	ms_oservices->addItem(mf_wl);
+
+	ms_oservices->addItem(GenericMenuSeparator);
+
 	// tmdb
 	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_tmdb_api_key());
 	tmdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_ENABLED);
@@ -648,9 +677,9 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	CMenuForwarder *mf_tm = new CMenuForwarder(LOCALE_TMDB_API_KEY, true, tmdb_api_key_short, &tmdb_api_key_input);
 	mf_tm->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_TMDB_API_KEY);
 	ms_oservices->addItem(mf_tm);
+#endif
 
 	ms_oservices->addItem(GenericMenuSeparator);
-#endif
 
 	// omdb
 	omdb_onoff = new CMenuOptionChooser(LOCALE_IMDB_ENABLED, &g_settings.omdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_omdb_api_key());
@@ -663,24 +692,9 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	CMenuForwarder *mf_om = new CMenuForwarder(LOCALE_IMDB_API_KEY, true, omdb_api_key_short, &omdb_api_key_input);
 	//mf_om ->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_API_KEY);
 	ms_oservices->addItem(mf_om);
-
-	ms_oservices->addItem(GenericMenuSeparator);
 #endif
 
-	// youtube
-	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_youtube_dev_id());
-	youtube_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_ENABLED);
-	ms_oservices->addItem(youtube_onoff);
-
-#if ENABLE_YOUTUBE_KEY_MANAGE
-	changeNotify(LOCALE_YOUTUBE_DEV_ID, NULL);
-	CKeyboardInput youtube_dev_id_input(LOCALE_YOUTUBE_DEV_ID, &g_settings.youtube_dev_id, 39, this);
-	CMenuForwarder *mf_yt = new CMenuForwarder(LOCALE_YOUTUBE_DEV_ID, true, youtube_dev_id_short, &youtube_dev_id_input);
-	mf_yt->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
-	ms_oservices->addItem(mf_yt);
-
 	ms_oservices->addItem(GenericMenuSeparator);
-#endif
 
 	//shoutcast
 	shoutcast_onoff = new CMenuOptionChooser(LOCALE_SHOUTCAST_ENABLED, &g_settings.shoutcast_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_shoutcast_dev_id());
@@ -697,6 +711,40 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 
 	int res = ms_oservices->exec(NULL, "");
 	delete ms_oservices;
+	return res;
+}
+
+int CMiscMenue::showMiscSettingsSelectWeatherLocation()
+{
+	int select = 0;
+	int res = 0;
+
+	if (WEATHER_LOCATION_OPTION_COUNT > 1)
+	{
+		CMenuWidget *m = new CMenuWidget(LOCALE_WEATHER_LOCATION, NEUTRINO_ICON_LANGUAGE);
+		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+
+		m->addItem(GenericMenuSeparator);
+
+		CMenuForwarder* mf;
+		for (size_t i = 0; i < WEATHER_LOCATION_OPTION_COUNT; i++)
+		{
+			mf = new CMenuForwarder(WEATHER_LOCATION_OPTIONS[i].key, true, NULL, selector, std::to_string(i).c_str());
+			mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, WEATHER_LOCATION_OPTIONS[i].value.c_str());
+			m->addItem(mf);
+		}
+
+		m->enableSaveScreen();
+		res = m->exec(NULL, "");
+
+		if (!m->gotAction())
+			return res;
+
+		delete selector;
+	}
+	g_settings.weather_location = WEATHER_LOCATION_OPTIONS[select].value;
+	g_settings.weather_city = std::string(WEATHER_LOCATION_OPTIONS[select].key);
+	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
 	return res;
 }
 
@@ -790,6 +838,15 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		ret = menu_return::RETURN_REPAINT;
 	}
 #endif
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_WEATHER_API_KEY))
+	{
+		g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
+		if (g_settings.weather_enabled)
+			weather_api_key_short = g_settings.weather_api_key.substr(0, 8) + "...";
+		else
+			weather_api_key_short.clear();
+		weather_onoff->setActive(CApiKey::check_weather_api_key());
+	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_TMDB_API_KEY))
 	{
 		g_settings.tmdb_enabled = g_settings.tmdb_enabled && CApiKey::check_tmdb_api_key();
@@ -808,25 +865,5 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 			omdb_api_key_short.clear();
 		omdb_onoff->setActive(CApiKey::check_omdb_api_key());
 	}
-#if 0
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_YOUTUBE_DEV_ID))
-	{
-		g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_dev_id();
-		if (g_settings.youtube_enabled)
-			youtube_dev_id_short = g_settings.youtube_dev_id.substr(0, 8) + "...";
-		else
-			youtube_dev_id_short.clear();
-		youtube_onoff->setActive(CApiKey::check_youtube_dev_id());
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SHOUTCAST_DEV_ID))
-	{
-		g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && CApiKey::check_shoutcast_dev_id();
-		if (g_settings.shoutcast_enabled)
-			shoutcast_dev_id_short = g_settings.shoutcast_dev_id.substr(0, 8) + "...";
-		else
-			shoutcast_dev_id_short.clear();
-		shoutcast_onoff->setActive(CApiKey::check_shoutcast_dev_id());
-	}
-#endif
 	return ret;
 }

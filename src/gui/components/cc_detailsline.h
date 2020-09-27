@@ -58,7 +58,7 @@ class CComponentsDetailsLine : public CComponents
 		CComponentsDetailsLine(	const int& x_pos = 1,const int& y_pos_top = 1, const int& y_pos_down = 1,
 					const int& h_mark_top_ = CC_HEIGHT_MIN , const int& h_mark_down_ = CC_HEIGHT_MIN,
 					fb_pixel_t color_line = COL_FRAME_PLUS_0, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
-		~CComponentsDetailsLine();
+		virtual~CComponentsDetailsLine();
 
 		///set colors
 		void setColors(fb_pixel_t color_line, fb_pixel_t color_shadow){col_body = color_line; col_shadow = color_shadow;};
@@ -77,7 +77,7 @@ class CComponentsDetailsLine : public CComponents
 		void setLineWidth(const int& w){dl_w = w;}
 
 		///paint all to screen
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 #endif

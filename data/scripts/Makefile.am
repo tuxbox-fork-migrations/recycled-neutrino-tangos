@@ -1,11 +1,7 @@
 installdir = $(bindir)
 
-install_DATA = \
+install_SCRIPTS = \
 	backup.sh \
 	restore.sh \
 	install.sh 
 
-install-data-hook:
-	chmod 0755 $(DESTDIR)$(bindir)/backup.sh
-	chmod 0755 $(DESTDIR)$(bindir)/restore.sh
-	chmod 0755 $(DESTDIR)$(bindir)/install.sh

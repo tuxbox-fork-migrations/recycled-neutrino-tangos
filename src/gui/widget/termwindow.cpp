@@ -66,6 +66,7 @@ fprintf(stderr, "%s:%d %s\n", __func__, __LINE__, argv[0]);
 		if (res)
 			*res = ret;
 		delete y;
+		y = NULL;
 fprintf(stderr, "%s:%d\n", __func__, __LINE__);
 		showResult();
 	}
@@ -120,8 +121,8 @@ void CTermWindow::showResult()
 
 			} while (msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout);
 		}
+		frameBuffer->Clear();
 	}
-	frameBuffer->Clear();
 }
 
 #if 0

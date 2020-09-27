@@ -131,15 +131,24 @@ void nGLCD::LcdAnalogClock(int posx,int posy,int dia)
 	mAngleInRad = ((6 * tm_) * (2*pi_ / 360));
 	mAngleSave = mAngleInRad;
 	mAngleInRad -= pi_/2;
-
+#if BOXMODEL_VUUNO4KSE
+	mx_ = int((dia * 0.55 * cos(mAngleInRad)));
+	my_ = int((dia * 0.55 * sin(mAngleInRad)));
+#else
 	mx_ = int((dia * 0.7 * cos(mAngleInRad)));
 	my_ = int((dia * 0.7 * sin(mAngleInRad)));
+#endif
 
 	hAngleInRad = ((30 * th_)* (2*pi_ / 360));
 	hAngleInRad += mAngleSave / 12;
 	hAngleInRad -= pi_/2;
+#if BOXMODEL_VUUNO4KSE
+	hx_ = int((dia * 0.25 * cos(hAngleInRad)));
+	hy_ = int((dia * 0.25 * sin(hAngleInRad)));
+#else
 	hx_ = int((dia * 0.4 * cos(hAngleInRad)));
 	hy_ = int((dia * 0.4 * sin(hAngleInRad)));
+#endif
 
 	std::string a_clock = "";
 
@@ -210,6 +219,7 @@ void nGLCD::Exec() {
 				GLCD::cFont font_tmp;
 
 				int fw = font_epg.Width(Epg);
+				fw = (fw == 0) ? 1 : fw;
 				font_tmp.LoadFT2(g_settings.glcd_font, "UTF-8", fontsize_epg * (bitmap->Width() - 4) / fw);
 				fw = font_tmp.Width(Epg);
 
@@ -248,8 +258,8 @@ void nGLCD::Exec() {
 	}
 
 	if (CNeutrinoApp::getInstance()->recordingstatus) {
-#if defined BOXMODEL_VUSOLO4K
-		for (int bx = 0; bx < 6; bx++) {
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+		for (int bx = 0; bx < 9; bx++) {
 #else
 		for (int bx = 0; bx < 3; bx++) {
 #endif
@@ -257,8 +267,8 @@ void nGLCD::Exec() {
 		}
 	} else
 	if (CNeutrinoApp::getInstance()->isMuted()) {
-#if defined BOXMODEL_VUSOLO4K
-		for (int bx = 0; bx < 6; bx++) {
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+		for (int bx = 0; bx < 9; bx++) {
 #else
 		for (int bx = 0; bx < 3; bx++) {
 #endif
@@ -553,7 +563,11 @@ void nGLCD::Run(void)
 			break;
 
 		int warmUp = 10;
-		lcd = GLCD::CreateDriver(GLCD::Config.driverConfigs[0].id, &GLCD::Config.driverConfigs[0]);
+
+		if ((g_settings.glcd_selected_config < 0) || (g_settings.glcd_selected_config > GetConfigSize() - 1))
+			g_settings.glcd_selected_config = 0;
+
+		lcd = GLCD::CreateDriver(GLCD::Config.driverConfigs[g_settings.glcd_selected_config].id, &GLCD::Config.driverConfigs[g_settings.glcd_selected_config]);
 		if (!lcd) {
 #ifdef GLCD_DEBUG
 			fprintf(stderr, "CreateDriver failed.\n");
@@ -593,12 +607,14 @@ void nGLCD::Run(void)
 					bitmap->Clear(GLCD::cColor::Black);
 					ts.tv_sec = 0; // don't wait
 					static CFrameBuffer* fb = CFrameBuffer::getInstance();
+#if !defined BOXMODEL_VUSOLO4K && !defined BOXMODEL_VUDUO4K && !defined BOXMODEL_VUULTIMO4K && !defined BOXMODEL_VUUNO4KSE
 					static int fb_width = fb->getScreenWidth(true);
+#endif
 					static int fb_height = fb->getScreenHeight(true);
 					static uint32_t *fbp = fb->getFrameBufferPointer();
 					int lcd_width = bitmap->Width();
 					int lcd_height = bitmap->Height();
-#ifdef BOXMODEL_VUSOLO4K
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
 					unsigned int fb_stride = fb->getStride()/4;
 					if (!showImage(fbp, fb_stride, fb_height, 0, 0, lcd_width, lcd_height, false)) {
 #else
@@ -948,3 +964,14 @@ int nGLCD::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t /* data */)
 	return messages_return::unhandled;
 }
 
+int nGLCD::GetConfigSize()
+{
+	return (int) GLCD::Config.driverConfigs.size();
+}
+
+std::string nGLCD::GetConfigName(int driver)
+{
+	if ((driver < 0) || (driver > GetConfigSize() - 1))
+		driver = 0;
+	return GLCD::Config.driverConfigs[driver].name;
+}

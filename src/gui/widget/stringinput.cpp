@@ -160,7 +160,7 @@ void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
 			else if (current_value >= upper_bound)
 				current_value = upper_bound - 1;
 			if (tmp != current_value)
-				*valueString = to_string(current_value).substr(0, size);
+				*valueString = std::to_string(current_value).substr(0, size);
 		}
 		if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 			if (selected < (size - 1))
@@ -259,7 +259,7 @@ void CStringInput::keyUpPressed()
 		else if (current_value >= upper_bound)
 			current_value = upper_bound - 1;
 		if (tmp != current_value)
-			*valueString = to_string(current_value).substr(0, size);
+			*valueString = std::to_string(current_value).substr(0, size);
 	}
 	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 		if (tmp != current_value)
@@ -300,7 +300,7 @@ void CStringInput::keyDownPressed()
 		else if (current_value >= upper_bound)
 			current_value = upper_bound - 1;
 		if (tmp != current_value)
-			*valueString = to_string(current_value).substr(0, size);
+			*valueString = std::to_string(current_value).substr(0, size);
 	}
 	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 		if (tmp != current_value)
@@ -394,6 +394,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 
 	if (pixBuf)
 		delete[] pixBuf;
+	pixBuf = NULL;
 	if (!parent || force_saveScreen) {
 		pixBuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
 		if (pixBuf)
@@ -916,6 +917,7 @@ int CPLPINInput::exec( CMenuTarget* parent, const std::string & )
 	{
 		frameBuffer->RestoreScreen(x - borderwidth, y- borderwidth, width+ 2* borderwidth, height+ 2* borderwidth, pixbuf);
 		delete[] pixbuf;//Mismatching allocation and deallocation: pixbuf
+		pixBuf = NULL;
 	}
 
 	return ( res );

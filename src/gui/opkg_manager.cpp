@@ -33,7 +33,7 @@
 #include <config.h>
 #endif
 
-#include <gui/opkg_manager.h>
+#include "opkg_manager.h"
 #include <gui/widget/termwindow.h>
 /* hack, so we don't have to change all code below */
 #define CShellWindow CTermWindow
@@ -146,6 +146,7 @@ void COPKGManager::init()
 	local_dir = &g_settings.update_dir_opkg;
 	v_bad_pattern = getBadPackagePatternList();
 	CFileHelpers::createDir(OPKG_TMP_DIR);
+	silent = false;
 }
 
 COPKGManager::~COPKGManager()
@@ -457,34 +458,37 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 	if (!hasOpkgSupport())
 		return false;
 
+	silent = !show_progress;
+
 	doUpdate();
 
 	bool ret = false;
 
 	size_t i = 0;
-	CProgressWindow status;
-	status.showHeader(false);
+	CProgressWindow *status = NULL;
 
 	if (show_progress){
-		status.paint();
-		status.showStatusMessageUTF(g_Locale->getText(LOCALE_OPKG_UPDATE_READING_LISTS));
-		status.showStatus(25); /* after do_update, we have actually done the hardest work already */
+		status = new CProgressWindow();
+		status->showHeader(false);
+		status->paint();
+		status->showStatusMessageUTF(g_Locale->getText(LOCALE_OPKG_UPDATE_READING_LISTS));
+		status->showStatus(25); /* after do_update, we have actually done the hardest work already */
 	}
 
 	getPkgData(OM_LIST);
 	if (show_progress)
-		status.showStatus(50);
+		status->showStatus(50);
 	getPkgData(OM_LIST_UPGRADEABLE);
 	if (show_progress)
-		status.showStatus(75);
+		status->showStatus(75);
 
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it){
 		dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  Update check for...%s\n", __func__, __LINE__, it->second.name.c_str());
 		if (show_progress){
 			/* showing the names only makes things *much* slower...
-			status.showStatusMessageUTF(it->second.name);
+			status->showStatusMessageUTF(it->second.name);
 			 */
-			status.showStatus(75 + 25*i /  pkg_map.size());
+			status->showStatus(75 + 25*i /  pkg_map.size());
 		}
 
 		if (it->second.upgradable){
@@ -499,28 +503,41 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 	}
 
 	if (show_progress){
-		status.showGlobalStatus(100);
-		status.showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
-		status.hide();
+		status->showGlobalStatus(100);
+		status->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
+		status->hide();
 	}
 
+	if (status) {
+		delete status; status = NULL;
+	}
 #if 0
 	pkg_map.clear();
 #endif
-
 	return ret;
 }
 
 int COPKGManager::doUpdate()
 {
-	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_OPKG_UPDATE_CHECK);
-	hintBox.paint();
+	CHintBox *hintBox = NULL;
+
+	if (!silent ) {
+		hintBox = new CHintBox (LOCALE_MESSAGEBOX_INFO, LOCALE_OPKG_UPDATE_CHECK);
+		hintBox->paint();
+	}
+
 	int r = execCmd(pkg_types[OM_UPDATE], CShellWindow::QUIET);
-	hintBox.hide();
+
+	if (hintBox){
+		hintBox->hide();
+		delete hintBox; hintBox = NULL;
+	}
+
 	if (r) {
 		string msg = string(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE));
 		msg += '\n' + tmp_str;
-		DisplayErrorMessage(msg.c_str());
+		if (!silent)
+			DisplayErrorMessage(msg.c_str());
 		return r;
 	}
 	return 0;
@@ -568,6 +585,7 @@ int COPKGManager::showMenu()
 
 	menu_offset = menu->getItemsCount();
 
+	menu->addKey(CRCInput::RC_help, this, "rc_info");
 	menu->addKey(CRCInput::RC_info, this, "rc_info");
 	menu->addKey(CRCInput::RC_blue, this, "rc_blue");
 	menu->addKey(CRCInput::RC_yellow, this, "rc_yellow");
@@ -981,9 +999,10 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 
 void COPKGManager::showErr(int* res)
 {
-	string err = to_string(*res);
+	string err = std::to_string(*res);
 	string errtest = err_list[1].id;
-	DisplayErrorMessage(errtest.c_str());
+	if (!silent)
+		DisplayErrorMessage(errtest.c_str());
 }	
 
 void COPKGManager::showError(const char* local_msg, char* err_message, const string& additional_text)
@@ -993,14 +1012,16 @@ void COPKGManager::showError(const char* local_msg, char* err_message, const str
 		msg += string(err_message) + ":\n";
 	if (!additional_text.empty())
 		msg += additional_text;
-	DisplayErrorMessage(msg.c_str());
+	if (!silent)
+		DisplayErrorMessage(msg.c_str());
 }
 
 bool COPKGManager::installPackage(const string& pkg_name, string options, bool force_configure)
 {
 	//check package size...cancel installation if size check failed
 	if (!checkSize(pkg_name)){
-		DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_SIZE_ERROR));
+		if (!silent)
+			DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_SIZE_ERROR));
 	}
 	else{
 		string opts = " " + options + " ";
@@ -1066,7 +1087,7 @@ void COPKGManager::showMenuConfigFeed(CMenuWidget *feed_menu)
 	feed_menu->addIntroItems(LOCALE_OPKG_FEED_ADDRESSES);
 
 	for(size_t i=0; i<OPKG_MAX_FEEDS ;i++){
-		CKeyboardInput *feedinput = new CKeyboardInput("Feed " +to_string(i+1), &config_src[i], 0, NULL, NULL, LOCALE_OPKG_ENTER_FEED_ADDRESS, LOCALE_OPKG_ENTER_FEED_ADDRESS_EXAMPLE);
+		CKeyboardInput *feedinput = new CKeyboardInput("Feed " + std::to_string(i+1), &config_src[i], 0, NULL, NULL, LOCALE_OPKG_ENTER_FEED_ADDRESS, LOCALE_OPKG_ENTER_FEED_ADDRESS_EXAMPLE);
 		CMenuForwarder *fw = new CMenuDForwarder( string(), true , config_src[i], feedinput, NULL, CRCInput::convertDigitToKey(i));
 		feed_menu->addItem( fw);
 	}
@@ -1084,13 +1105,13 @@ void COPKGManager::loadConfig()
 
 	//package feeds
 	for(size_t i=0; i<OPKG_MAX_FEEDS ;i++){
-		string src_key = "src " + to_string(i);
+		string src_key = "src " + std::to_string(i);
 		config_src[i] = opkg_conf.getString(src_key, string());
 	}
 
 	//dest dir default keys, predefined in constructor
 	for(size_t j=0; j<config_dest.size() ;j++){
-		string dest_key = "dest " + to_string(j);
+		string dest_key = "dest " + std::to_string(j);
 		opkg_conf.getString(dest_key, config_dest[j]);
 	}
 
@@ -1103,7 +1124,7 @@ void COPKGManager::saveConfig()
 {
 	//set package feeds
 	for(size_t i=0; i<OPKG_MAX_FEEDS ;i++){
-		string src_key = "src " + to_string(i);
+		string src_key = "src " + std::to_string(i);
 
 		if (!config_src[i].empty())
 			opkg_conf.setString(src_key, config_src[i]);
@@ -1113,13 +1134,14 @@ void COPKGManager::saveConfig()
 
 	//set dest dir default key values
 	for(size_t j=0; j<config_dest.size() ;j++){
-		string dest_key = "dest " + to_string(j);
+		string dest_key = "dest " + std::to_string(j);
 		opkg_conf.setString(dest_key, config_dest[j]);
 	}
 
 	//finally save config file
 	if (!opkg_conf.saveConfig(OPKG_CONFIG_FILE, '\t')){
 		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  Error: error while saving opkg config file! -> %s\n", __func__, __LINE__, OPKG_CONFIG_FILE);
-		DisplayErrorMessage("Error while saving opkg config file!");
+		if (!silent)
+			DisplayErrorMessage("Error while saving opkg config file!");
 	}
 }

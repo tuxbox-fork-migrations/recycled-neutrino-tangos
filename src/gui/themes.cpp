@@ -296,6 +296,11 @@ void CThemes::setTheme(CConfigFile &configfile)
 
 	configfile.setInt32( "menu_Head_gradient" , t.menu_Head_gradient);
 	configfile.setInt32( "menu_Head_gradient_direction" , t.menu_Head_gradient_direction);
+
+	configfile.setInt32( "menu_SubHead_gradient" , t.menu_SubHead_gradient);
+	configfile.setInt32( "menu_SubHead_gradient_direction" , t.menu_SubHead_gradient_direction);
+
+
 	configfile.setInt32( "menu_Separator_gradient_enable" , t.menu_Separator_gradient_enable);
 
 	configfile.setInt32( "menu_Content_alpha", t.menu_Content_alpha );
@@ -391,6 +396,9 @@ void CThemes::setTheme(CConfigFile &configfile)
 
 	// corners
 	configfile.setInt32( "rounded_corners", t.rounded_corners);
+
+	// message frames
+	configfile.setInt32( "message_frame_enable", t.message_frame_enable);
 }
 
 void CThemes::getTheme(CConfigFile &configfile)
@@ -404,8 +412,12 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.menu_Head_Text_green = configfile.getInt32( "menu_Head_Text_green", 0x46 );
 	t.menu_Head_Text_blue = configfile.getInt32( "menu_Head_Text_blue", 0x00 );
 
-	t.menu_Head_gradient = configfile.getInt32("menu_Head_gradient", CC_COLGRAD_OFF); /* no bling */
+	t.menu_Head_gradient = configfile.getInt32("menu_Head_gradient", CC_COLGRAD_OFF);
 	t.menu_Head_gradient_direction = configfile.getInt32( "menu_Head_gradient_direction", CFrameBuffer::gradientVertical);
+
+	t.menu_SubHead_gradient = configfile.getInt32("menu_SubHead_gradient", CC_COLGRAD_OFF);
+	t.menu_SubHead_gradient_direction = configfile.getInt32( "menu_SubHead_gradient_direction", CFrameBuffer::gradientVertical);
+
 	t.menu_Separator_gradient_enable = configfile.getInt32( "menu_Separator_gradient_enable", 0);
 
 	t.menu_Content_alpha = configfile.getInt32( "menu_Content_alpha", 0x14 );
@@ -507,6 +519,9 @@ void CThemes::getTheme(CConfigFile &configfile)
 	// corners
 	t.rounded_corners = configfile.getInt32( "rounded_corners", 1);
 
+	// message frames
+	t.message_frame_enable = configfile.getInt32( "message_frame_enable", 0);
+
 	if (g_settings.theme_name.empty())
 		applyDefaultTheme();
 }
@@ -538,7 +553,9 @@ void CThemes::move_userDir()
 				const char *target = ((std::string)THEMESDIR_VAR + "/" + file).c_str();
 				printf("[neutrino theme] moving %s to %s\n", dest, target);
 				rename(dest, target);
+				free(themelist[count]);
 			}
+			free(themelist);
 		}
 		printf("[neutrino theme] removing %s\n", USERDIR);
 		remove(USERDIR);

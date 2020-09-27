@@ -7,7 +7,7 @@
 	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Copyright (C) 2016-2018 'TangoCash'
+	Copyright (C) 2016-2019 'TangoCash'
 
 	License: GPL
 
@@ -45,8 +45,9 @@ class CLCD4l
 			SAMSUNG800x480	= 1,
 			SAMSUNG800x600	= 2,
 			SAMSUNG1024x600	= 3,
-			VUSOLO4K480x320	= 4,
-			PNG		= 5
+			VUPLUS4K480x320	= 4,
+			PNG		= 5,
+			VUPLUS4K800x480 = 6
 		};
 
 		// Functions
@@ -110,7 +111,7 @@ class CLCD4l
 		std::string	m_Info1;
 		std::string	m_Info2;
 		int		m_Progress;
-		char		m_Duration[15];
+		char		m_Duration[24];
 		std::string	m_Start;
 		std::string	m_End;
 
@@ -120,6 +121,12 @@ class CLCD4l
 		std::string	m_fcolor1;
 		std::string	m_fcolor2;
 		std::string	m_pbcolor;
+
+		std::string	m_wcity;
+		std::string	m_wtimestamp;
+		std::string	m_wtemp;
+		std::string	m_wwind;
+		std::string	m_wicon;
 };
 
 #endif

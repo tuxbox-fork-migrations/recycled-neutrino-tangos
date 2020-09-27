@@ -34,6 +34,7 @@
 #include <driver/screen_max.h>
 #include "glcdsetup.h"
 #include <mymenu.h>
+#include <system/helpers.h>
 
 #define KEY_GLCD_BLACK			0
 #define KEY_GLCD_WHITE			1
@@ -56,46 +57,46 @@
 #define GLCD_COLOR_OPTION_COUNT		18
 static const CMenuOptionChooser::keyval GLCD_COLOR_OPTIONS[GLCD_COLOR_OPTION_COUNT] =
 {
-	  { KEY_GLCD_BLACK,		LOCALE_GLCD_COLOR_BLACK }
-	, { KEY_GLCD_WHITE,		LOCALE_GLCD_COLOR_WHITE }
-	, { KEY_GLCD_RED,		LOCALE_GLCD_COLOR_RED }
-	, { KEY_GLCD_GREEN,		LOCALE_GLCD_COLOR_GREEN }
-	, { KEY_GLCD_BLUE,		LOCALE_GLCD_COLOR_BLUE }
-	, { KEY_GLCD_MAGENTA,		LOCALE_GLCD_COLOR_MAGENTA }
-	, { KEY_GLCD_CYAN,		LOCALE_GLCD_COLOR_CYAN }
-	, { KEY_GLCD_YELLOW,		LOCALE_GLCD_COLOR_YELLOW }
-	, { KEY_GLCD_ORANGE,		LOCALE_GLCD_COLOR_ORANGE }
-	, { KEY_GLCD_LIGHT_GRAY,	LOCALE_GLCD_COLOR_LIGHT_GRAY }
-	, { KEY_GLCD_GRAY,		LOCALE_GLCD_COLOR_GRAY }
-	, { KEY_GLCD_DARK_GRAY,		LOCALE_GLCD_COLOR_DARK_GRAY }
-	, { KEY_GLCD_DARK_RED,		LOCALE_GLCD_COLOR_DARK_RED }
-	, { KEY_GLCD_DARK_GREEN,	LOCALE_GLCD_COLOR_DARK_GREEN }
-	, { KEY_GLCD_DARK_BLUE,		LOCALE_GLCD_COLOR_DARK_BLUE }
-	, { KEY_GLCD_PURPLE,		LOCALE_GLCD_COLOR_PURPLE }
-	, { KEY_GLCD_MINT,		LOCALE_GLCD_COLOR_MINT }
-	, { KEY_GLCD_GOLDEN,		LOCALE_GLCD_COLOR_GOLDEN }
+	{ KEY_GLCD_BLACK,	LOCALE_GLCD_COLOR_BLACK },
+	{ KEY_GLCD_WHITE,	LOCALE_GLCD_COLOR_WHITE },
+	{ KEY_GLCD_RED,		LOCALE_GLCD_COLOR_RED },
+	{ KEY_GLCD_GREEN,	LOCALE_GLCD_COLOR_GREEN },
+	{ KEY_GLCD_BLUE,	LOCALE_GLCD_COLOR_BLUE },
+	{ KEY_GLCD_MAGENTA,	LOCALE_GLCD_COLOR_MAGENTA },
+	{ KEY_GLCD_CYAN,	LOCALE_GLCD_COLOR_CYAN },
+	{ KEY_GLCD_YELLOW,	LOCALE_GLCD_COLOR_YELLOW },
+	{ KEY_GLCD_ORANGE,	LOCALE_GLCD_COLOR_ORANGE },
+	{ KEY_GLCD_LIGHT_GRAY,	LOCALE_GLCD_COLOR_LIGHT_GRAY },
+	{ KEY_GLCD_GRAY,	LOCALE_GLCD_COLOR_GRAY },
+	{ KEY_GLCD_DARK_GRAY,	LOCALE_GLCD_COLOR_DARK_GRAY },
+	{ KEY_GLCD_DARK_RED,	LOCALE_GLCD_COLOR_DARK_RED },
+	{ KEY_GLCD_DARK_GREEN,	LOCALE_GLCD_COLOR_DARK_GREEN },
+	{ KEY_GLCD_DARK_BLUE,	LOCALE_GLCD_COLOR_DARK_BLUE },
+	{ KEY_GLCD_PURPLE,	LOCALE_GLCD_COLOR_PURPLE },
+	{ KEY_GLCD_MINT,	LOCALE_GLCD_COLOR_MINT },
+	{ KEY_GLCD_GOLDEN,	LOCALE_GLCD_COLOR_GOLDEN }
 };
 
 static const uint32_t colormap[GLCD_COLOR_OPTION_COUNT] =
 {
-	  GLCD::cColor::Black
-	, GLCD::cColor::White
-	, GLCD::cColor::Red
-	, GLCD::cColor::Green
-	, GLCD::cColor::Blue
-	, GLCD::cColor::Magenta
-	, GLCD::cColor::Cyan
-	, GLCD::cColor::Yellow
-	, GLCD::cColor::Orange
-	, GLCD::cColor::Light_Gray
-	, GLCD::cColor::Gray
-	, GLCD::cColor::Dark_Gray
-	, GLCD::cColor::Dark_Red
-	, GLCD::cColor::Dark_Green
-	, GLCD::cColor::Dark_Blue
-	, GLCD::cColor::Purple
-	, GLCD::cColor::Mint
-	, GLCD::cColor::Golden
+	GLCD::cColor::Black,
+	GLCD::cColor::White,
+	GLCD::cColor::Red,
+	GLCD::cColor::Green,
+	GLCD::cColor::Blue,
+	GLCD::cColor::Magenta,
+	GLCD::cColor::Cyan,
+	GLCD::cColor::Yellow,
+	GLCD::cColor::Orange,
+	GLCD::cColor::Light_Gray,
+	GLCD::cColor::Gray,
+	GLCD::cColor::Dark_Gray,
+	GLCD::cColor::Dark_Red,
+	GLCD::cColor::Dark_Green,
+	GLCD::cColor::Dark_Blue,
+	GLCD::cColor::Purple,
+	GLCD::cColor::Mint,
+	GLCD::cColor::Golden
 };
 
 int GLCD_Menu::color2index(uint32_t color) {
@@ -121,6 +122,13 @@ int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 	nGLCD *nglcd = nGLCD::getInstance();
 	if(actionKey == "rescan") {
 		nglcd->Rescan();
+		return res;
+	}
+	if(actionKey == "select_driver") {
+		if(parent)
+			parent->hide();
+		GLCD_Menu_Select_Driver();
+		nglcd->Exit();
 		return res;
 	}
 	if(actionKey == "select_font") {
@@ -220,6 +228,9 @@ void GLCD_Menu::GLCD_Menu_Settings()
 
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_ENABLE, &g_settings.glcd_enable,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
+
+	m.addItem(new CMenuForwarder(LOCALE_GLCD_DISPLAY, (nGLCD::getInstance()->GetConfigSize() > 1),
+							     nGLCD::getInstance()->GetConfigName(g_settings.glcd_selected_config).c_str(), this, "select_driver"));
 	int shortcut = 1;
 	m.addItem(GenericMenuSeparatorLine);
 	m.addItem(new CMenuOptionChooser(LOCALE_GLCD_SELECT_FG, &color_fg,
@@ -270,4 +281,35 @@ void GLCD_Menu::GLCD_Menu_Settings()
 	selected = m.getSelected();
 	nGLCD::getInstance()->StandbyMode(false);
 	m.hide();
+}
+
+void GLCD_Menu::GLCD_Menu_Select_Driver()
+{
+	int select = 0;
+
+	if (nGLCD::getInstance()->GetConfigSize() > 1)
+	{
+		CMenuWidget *m = new CMenuWidget(LOCALE_GLCD_HEAD, NEUTRINO_ICON_SETTINGS);
+		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+
+		// we don't show introitems, so we add a separator for a smoother view
+		m->addItem(GenericMenuSeparator);
+
+		CMenuForwarder* mf;
+		for (int i = 0; i != nGLCD::getInstance()->GetConfigSize() - 1; i++)
+		{
+			mf = new CMenuForwarder(nGLCD::getInstance()->GetConfigName(i), true, NULL, selector, std::to_string(i).c_str());
+			m->addItem(mf);
+		}
+
+		m->enableSaveScreen();
+		m->exec(NULL, "");
+
+		if (!m->gotAction())
+			return;
+
+		delete selector;
+		m->hide();
+	}
+	g_settings.glcd_selected_config = select;
 }

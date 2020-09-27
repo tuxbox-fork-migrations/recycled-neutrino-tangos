@@ -49,7 +49,25 @@ using namespace std;
 CComponentsHeader::CComponentsHeader(CComponentsForm* parent)
 {
 	//CComponentsHeader
-	initVarHeader(1, 1, 0, 0, "", "", 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0);
+	initVarHeader(1, 1, 0, 0, "", "", 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0, CC_HEADER_SIZE_LARGE);
+}
+
+CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					int sizeMode,
+					neutrino_locale_t caption_locale,
+					CComponentsForm* parent
+				)
+{
+	initVarHeader(x_pos, y_pos, w, h, g_Locale->getText(caption_locale), "", 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0, sizeMode);
+}
+
+CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					int sizeMode,
+					const std::string& caption,
+					CComponentsForm* parent
+				)
+{
+	initVarHeader(x_pos, y_pos, w, h, caption, "", 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUHEAD_PLUS_0, COL_SHADOW_PLUS_0, sizeMode);
 }
 
 CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -60,9 +78,11 @@ CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const 
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow)
+					fb_pixel_t color_shadow,
+					int sizeMode
+				)
 {
-	initVarHeader(x_pos, y_pos, w, h, caption, icon_name, buttons, parent, shadow_mode, color_frame, color_body, color_shadow);
+	initVarHeader(x_pos, y_pos, w, h, caption, icon_name, buttons, parent, shadow_mode, color_frame, color_body, color_shadow, sizeMode);
 }
 
 CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -73,9 +93,11 @@ CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const 
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow)
+					fb_pixel_t color_shadow,
+					int sizeMode
+				)
 {
-	initVarHeader(x_pos, y_pos, w, h, g_Locale->getText(caption_locale), icon_name, buttons, parent, shadow_mode, color_frame, color_body, color_shadow);
+	initVarHeader(x_pos, y_pos, w, h, g_Locale->getText(caption_locale), icon_name, buttons, parent, shadow_mode, color_frame, color_body, color_shadow, sizeMode);
 };
 
 void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -86,7 +108,9 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow)
+					fb_pixel_t color_shadow,
+					int sizeMode
+				)
 {
 	cc_item_type.id		= CC_ITEMTYPE_FRM_HEADER;
 	cc_item_type.name 	= "cc_header";
@@ -97,11 +121,15 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 
 	//init header width
 	width 	= width_old = w == 0 ? frameBuffer->getScreenWidth(true) : w;
-	height 	= height_old = h;
 
 	cch_font		= NULL;
-	initDefaultFonts();
-	cch_size_mode		= CC_HEADER_SIZE_LARGE;
+	cch_size_mode		= sizeMode;
+
+	//init font and height
+	initSizeMode();
+	if (h)
+		setHeight(h);
+
 	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CComponentsHeader::resetFont));
 
 	shadow		= shadow_mode;
@@ -109,9 +137,10 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	col_body = col_body_old		= color_body;
 	col_shadow = col_shadow_old	= color_shadow;
 
-	cc_body_gradient_enable	 	= cc_body_gradient_enable_old	= g_settings.theme.menu_Head_gradient;
-	cc_body_gradient_direction	= cc_body_gradient_direction_old = g_settings.theme.menu_Head_gradient_direction;
+	cc_body_gradient_enable	 	= cc_body_gradient_enable_old	= (cch_size_mode == CC_HEADER_SIZE_SMALL ? g_settings.theme.menu_SubHead_gradient : g_settings.theme.menu_Head_gradient);
+	cc_body_gradient_direction	= cc_body_gradient_direction_old = (cch_size_mode == CC_HEADER_SIZE_SMALL ? g_settings.theme.menu_SubHead_gradient_direction : g_settings.theme.menu_Head_gradient_direction);
 	cc_body_gradient_mode		= CColorGradient::gradientLight2Dark;
+
 	cch_text	= caption;
 	cch_icon_name	= icon_name;
 
@@ -199,16 +228,16 @@ void CComponentsHeader::initDefaultFonts()
 
 void CComponentsHeader::initCaptionFont()
 {
-	if (cch_font == NULL){
-		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? l_font : s_font);
-		//select matching height
-		if (cch_size_mode == CC_HEADER_SIZE_LARGE)
-			height	= std::max(height, l_font->getHeight());
-		else
-			height	= std::min(height, s_font->getHeight());
-	}
-	else
-		height = std::max(height, cch_font->getHeight());
+	initDefaultFonts();
+	if (!cch_font)
+		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE ? l_font : s_font);
+}
+
+void CComponentsHeader::initSizeMode()
+{
+	initCaptionFont();
+	int h_new = cch_font->getHeight();
+	setHeight(h_new);
 }
 
 void CComponentsHeader::setIcon(const char* icon_name)
@@ -488,11 +517,15 @@ void CComponentsHeader::enableClock(bool enable, const char* format, const char*
 {
 	cch_cl_enable	= enable;
 	cch_cl_format 	= format;
+
 	if (cch_cl_obj && cch_cl_enable)
 		cch_cl_obj->clear();
+
 	if (sec_format_str)
 		cch_cl_sec_format = sec_format_str;
+
 	cch_cl_enable_run 	= run;
+
 	if (!cch_cl_enable){
 		if (cch_cl_obj){
 			cch_cl_enable_run = false;
@@ -500,6 +533,7 @@ void CComponentsHeader::enableClock(bool enable, const char* format, const char*
 			cch_cl_obj = NULL;
 		}
 	}
+
 	initCCItems();
 }
 
@@ -568,7 +602,7 @@ void CComponentsHeader::initCaption()
 		cch_text_x = cch_offset;
 
 	//calc width of text object in header
-	cc_text_w = width-cch_text_x/*-cch_offset*/;
+	cc_text_w = width-cch_text_x-cch_offset;
 
 	//context buttons
 	int buttons_w = 0;
@@ -589,7 +623,7 @@ void CComponentsHeader::initCaption()
 		cch_cl_obj->refresh();
 
 		//get width of clock object
-		int clock_w = cch_cl_enable ? cch_cl_obj->getWidth() : 0;
+		int clock_w = cch_cl_enable ? cch_cl_obj->getWidth() + cch_offset : 0;
 
 		//set x position of clock
 		cch_cl_obj->setXPos(width - buttons_w - clock_w);
@@ -681,7 +715,7 @@ void CComponentsHeader::initCCItems()
 	initLogo();
 }
 
-void CComponentsHeader::paint(bool do_save_bg)
+void CComponentsHeader::paint(const bool &do_save_bg)
 {
 	//prepare items
 	initCCItems();

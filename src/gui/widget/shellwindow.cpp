@@ -303,4 +303,5 @@ CShellWindow::~CShellWindow()
 {
 	if (textBox)
 		delete textBox;
+	textBox = NULL;
 }

@@ -469,7 +469,6 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 
 	while ((programme = xmlGetNextOccurence(programme,"programme")))
 	{
-
 		const char *chan = xmlGetAttribute(programme, "channel");
 		const char *start = xmlGetAttribute(programme, "start");
 		const char *stop  = xmlGetAttribute(programme, "stop");
@@ -539,28 +538,44 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 
 t_channel_id getepgid(std::string epg_name)
 {
-	t_channel_id epgid;
+	t_channel_id epgid = 0;
+	bool match_found = false;
 
 	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
 
-	for (; !(cit.EndOfChannels()); cit++)
+	for (int m = CZapitClient::MODE_TV; m < CZapitClient::MODE_ALL; m++)
 	{
-		std::string tvg_id = (*cit)->getScriptName();
+		if (m == CZapitClient::MODE_RADIO)
+			cit = g_bouquetManager->radioChannelsBegin();
 
-		if (tvg_id.empty())
-			continue;
-
-		std::size_t found = tvg_id.find("#"+epg_name);
-  		if (found != std::string::npos)
+		for (; !(cit.EndOfChannels()); cit++)
 		{
-			tvg_id = tvg_id.substr(tvg_id.find_first_of("="));
-			sscanf(tvg_id.c_str(), "=%" SCNx64, &epgid);
-			return epgid;
+			std::string tvg_id = (*cit)->getScriptName();
+
+			if (tvg_id.empty())
+				continue;
+
+			std::size_t found = tvg_id.find("#"+epg_name);
+			if (found != std::string::npos)
+			{
+				if (match_found)
+				{
+					if ((*cit)->getEpgID() == epgid) continue;
+					(*cit)->setEPGid(epgid);
+				}
+				else
+				{
+					tvg_id = tvg_id.substr(tvg_id.find_first_of("="));
+					sscanf(tvg_id.c_str(), "=%" SCNx64, &epgid);
+					match_found = true;
+				}
+			}
+			else
+				continue;
 		}
-		else
-			continue;
 	}
-	return 0;
+
+	return epgid;
 }
 
 static int my_filter(const struct dirent *entry)
@@ -609,8 +624,8 @@ void *insertEventsfromFile(void * data)
 
 	if (index_parser == NULL) {
 		readEventsFromDir(epg_dir, ev_count);
-		debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events)",
-				time_monotonic_ms()-now, ev_count);
+		debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events) from %s",
+				time_monotonic_ms()-now, ev_count, epg_dir.c_str());
 		reader_ready = true;
 		pthread_exit(NULL);
 	}
@@ -627,12 +642,13 @@ void *insertEventsfromFile(void * data)
 		epgname = epg_dir + filename;
 		readEventsFromFile(epgname, ev_count);
 
+		debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events) from %s",
+			time_monotonic_ms()-now, ev_count, epgname.c_str());
+
 		eventfile = xmlNextNode(eventfile);
 	}
 
 	xmlFreeDoc(index_parser);
-	debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events)",
-			time_monotonic_ms()-now, ev_count);
 
 	reader_ready = true;
 
@@ -649,7 +665,8 @@ void *insertEventsfromXMLTV(void * data)
 		reader_ready = true;
 		pthread_exit(NULL);
 	}
-	std::string url = (char *) data;
+	std::string url = "";
+	url = (std::string)(char *) data;
 	std::string tmp_name = randomFile(getFileExt(url), "/tmp", 8);
 
 	int64_t now = time_monotonic_ms();
@@ -669,8 +686,8 @@ void *insertEventsfromXMLTV(void * data)
 		pthread_exit(NULL);
 	}
 
-	debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events)",
-	       time_monotonic_ms()-now, ev_count);
+	debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events) from %s",
+	       time_monotonic_ms()-now, ev_count, url.c_str());
 
 	reader_ready = true;
 

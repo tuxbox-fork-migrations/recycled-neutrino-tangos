@@ -854,7 +854,7 @@ std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 	std::string boxname(g_info.hw_caps->boxname);
 
 	if (boxvendor.compare("SPARK") == 0)
-		boxname = to_string(g_info.hw_caps->boxtype);
+		boxname = std::to_string(g_info.hw_caps->boxtype);
 
 	return boxvendor + " " + boxname;
 }
@@ -884,6 +884,7 @@ std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, s
 	hh->ParamList["tsfrequency"] = string_printf("%d.%d MHz", serviceinfo.tsfrequency/1000, serviceinfo.tsfrequency%1000);
 	hh->ParamList["polarisation"] = serviceinfo.polarisation==1?"h":"v";
 	hh->ParamList["ServiceName"] = NeutrinoAPI->GetServiceName(CZapit::getInstance()->GetCurrentChannelID());
+	hh->ParamList["Url"] = CZapit::getInstance()->GetCurrentChannel()->getUrl().c_str();
 	hh->ParamList["VideoFormat"] = NeutrinoAPI->getVideoResolutionAsString();
 //	hh->ParamList["BitRate"] = NeutrinoAPI->getVideoFramerateAsString();
 	hh->ParamList["AspectRatio"] = NeutrinoAPI->getVideoAspectRatioAsString();
@@ -976,10 +977,10 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 					}
 					sAddData += ')';
 				}
-				if(timer->epgID!=0)
+				if(timer->epg_id!=0)
 				{
 					CEPGData epgdata;
-					if (CEitManager::getInstance()->getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
+					if (CEitManager::getInstance()->getEPGid(timer->epg_id, timer->epg_starttime, &epgdata))
 						sAddData+="<br/>" + epgdata.title;
 					else
 						sAddData+=std::string("<br/>")+timer->epgTitle;

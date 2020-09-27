@@ -209,7 +209,7 @@ int CVfdSetup::showSetup()
 		vfds->addItem(oj);
 	}
 
-#if !defined BOXMODEL_VUSOLO4K
+#if !defined BOXMODEL_VUSOLO4K && !defined BOXMODEL_VUDUO4K && !defined BOXMODEL_VUULTIMO4K && !defined BOXMODEL_VUUNO4KSE
 #if ENABLE_LCD4LINUX && ENABLE_GRAPHLCD
 	if (g_settings.glcd_enable != 0 && g_settings.lcd4l_support != 0) {
 		g_settings.glcd_enable = 0;
@@ -219,7 +219,7 @@ int CVfdSetup::showSetup()
 #endif
 
 #ifdef ENABLE_LCD4LINUX
-#if !defined (BOXMODEL_VUSOLO4K) && defined (ENABLE_GRAPHLCD)
+#if !defined (BOXMODEL_VUSOLO4K) && !defined BOXMODEL_VUDUO4K && !defined BOXMODEL_VUULTIMO4K && !defined BOXMODEL_VUUNO4KSE && defined (ENABLE_GRAPHLCD)
 	if (g_settings.glcd_enable == 0)
 #endif
 	{
@@ -231,7 +231,7 @@ int CVfdSetup::showSetup()
 #ifdef ENABLE_GRAPHLCD
 	GLCD_Menu glcdMenu;
 #ifdef ENABLE_LCD4LINUX
-#if !defined BOXMODEL_VUSOLO4K
+#if !defined BOXMODEL_VUSOLO4K && !defined BOXMODEL_VUDUO4K && !defined BOXMODEL_VUULTIMO4K && !defined BOXMODEL_VUUNO4KSE
 	if (g_settings.lcd4l_support == 0)
 #endif
 #endif
@@ -254,15 +254,7 @@ int CVfdSetup::showBrightnessSetup()
 
 	CMenuWidget *mn_widget = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD,width, MN_WIDGET_ID_VFDSETUP_LCD_SLIDERS);
 
-	mn_widget->addItem(new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, LOCALE_LCDMENU_LCDCONTROLER));
-	mn_widget->addItem(GenericMenuSeparator);
-
-	mf = new CMenuForwarder(LOCALE_MENU_BACK, true);
-	mf->setItemButton(!g_settings.menu_left_exit ? NEUTRINO_ICON_BUTTON_HOME : NEUTRINO_ICON_BUTTON_LEFT);
-	mf->setActivateObserver(this);
-	mn_widget->addItem(mf);
-
-	mn_widget->addItem(GenericMenuSeparatorLine);
+	mn_widget->addIntroItems(LOCALE_LCDMENU_LCDCONTROLER);
 
 	brightness = CVFD::getInstance()->getBrightness();
 	brightnessstandby = CVFD::getInstance()->getBrightnessStandby();

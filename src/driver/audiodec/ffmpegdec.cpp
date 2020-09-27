@@ -84,6 +84,8 @@ CFfmpegDec::CFfmpegDec(void)
 	buffer_size = 0x1000;
 	buffer = NULL;
 	avc = NULL;
+	c = NULL;//codec
+	avioc = NULL;
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
 	avcodec_register_all();
 	av_register_all();
@@ -110,7 +112,10 @@ int64_t CFfmpegDec::Seek(int64_t offset, int whence)
 	if (whence == AVSEEK_SIZE)
 		return (int64_t) -1;
 
-	fseek((FILE *) in, (long) offset, whence);
+	int ret = fseek((FILE *) in, (long) offset, whence);
+	if(ret < 0) {
+		return -1;
+	}
 	return (int64_t) ftell((FILE *) in);
 }
 
@@ -139,7 +144,6 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 	av_log_set_level(AV_LOG_INFO);
 #endif
 
-	AVIOContext *avioc = NULL;
 	in = _in;
 	is_stream = fseek((FILE *)in, 0, SEEK_SET);
 	buffer = (unsigned char *) av_malloc(buffer_size);
@@ -151,8 +155,9 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 		return false;
 	}
 
-	if (is_stream)
+	if (is_stream){
 		avc->probesize = 128 * 1024;
+	}
 
 	av_opt_set_int(avc, "analyzeduration", 1 * AV_TIME_BASE, 0);
 
@@ -191,17 +196,7 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 	if (r) {
 		char buf[200]; av_strerror(r, buf, sizeof(buf));
 		fprintf(stderr, "%d %s %d: %s\n", __LINE__, __func__,r,buf);
-		if (avioc)
-#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100))
-			av_free(avioc);
-#else
-			avio_context_free(&avioc);
-#endif
-		if (avc) {
-			avformat_close_input(&avc);
-			avformat_free_context(avc);
-			avc = NULL;
-		}
+		DeInit();
 		return false;
 	}
 	return true;
@@ -209,13 +204,26 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 
 void CFfmpegDec::DeInit(void)
 {
-	if (avc) {
-		if (avc->pb)
+	if(c)
+	{
 #if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100))
-			av_free(avc->pb);
+		avcodec_close(c);
 #else
-			avio_context_free(&avc->pb);
+		avcodec_free_context(&c);
 #endif
+		c = NULL;
+	}
+	if (avioc)
+	{
+#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100))
+		av_free(avioc);
+#else
+		av_freep(&avioc->buffer);
+		avio_context_free(&avioc);
+#endif
+	}
+	if(avc)
+	{
 		avformat_close_input(&avc);
 		avformat_free_context(avc);
 		avc = NULL;
@@ -235,14 +243,14 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 		return Status;
 	}
 #if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
-	AVCodecContext *c = avc->streams[best_stream]->codec;
+	c = avc->streams[best_stream]->codec;
 #else
-	AVCodecContext *c = avcodec_alloc_context3(codec);
-        if(avcodec_parameters_to_context(c,avc->streams[best_stream]->codecpar) < 0){
+	c = avcodec_alloc_context3(codec);
+	if(avcodec_parameters_to_context(c,avc->streams[best_stream]->codecpar) < 0){
 		DeInit();
 		Status=DATA_ERR;
 		return Status;
-        }
+	}
 #endif
 	mutex.lock();
 	int r = avcodec_open2(c, codec, NULL);
@@ -320,7 +328,11 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 					next_skip_pts = pts + skip/4;
 					seek_flags = 0;
 				}
-				av_seek_frame(avc, best_stream, pts, seek_flags);
+				int result = av_seek_frame(avc, best_stream, pts, seek_flags);
+				if (result < 0) {
+					fprintf(stderr,"av_seek_frame error\n");
+				}
+				avcodec_flush_buffers(c);
 				// if a custom value was set we only jump once
 				if (actSecsToSkip != 0) {
 					*state=PLAY;
@@ -443,8 +455,6 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 	av_free_packet(&rpacket);
 #endif
 	av_frame_free(&frame);
-	avcodec_close(c);
-	//av_free(avcc);
 
 	DeInit();
 	if (_meta_data->cover_temporary && !_meta_data->cover.empty()) {
@@ -473,7 +483,7 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 {
 	if (!meta_data_valid)
 	{
-		if (!Init(_in, (const CFile::FileType) m->type))
+		if (!Init(_in, (CFile::FileType) m->type))
 			return false;
 
 		mutex.lock();
@@ -549,7 +559,7 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 			if (save_cover && (avc->streams[i]->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
 				mkdir(COVERDIR_TMP, 0755);
 				std::string cover(COVERDIR_TMP);
-				cover += "/cover_" + to_string(cover_count++) + ".jpg";
+				cover += "/cover_" + std::to_string(cover_count++) + ".jpg";
 				FILE *f = fopen(cover.c_str(), "wb");
 				if (f) {
 					AVPacket *pkt = &avc->streams[i]->attached_pic;

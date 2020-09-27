@@ -316,7 +316,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 
 	t_channel_id chid = channel->getChannelID();
 	if (CRecordManager::getInstance()->RecordingStatus(chid)) {
-		printf("CStreamManager::FindFrontend: channel %" PRIx64 " recorded, aborting..\n", chid);
+		printf("CStreamManager::%s: channel %" PRIx64 " recorded, aborting..\n", __func__, chid);
 		return frontend;
 	}
 
@@ -486,6 +486,10 @@ void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids
 					printf("CStreamManager::AddPids: genpsi apid %x (%d)\n", *it, atype);
 					if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
 						psi.addPid(*it, EN_TYPE_AUDIO_EAC3, atype, channel->getAudioChannel(i)->description.c_str());
+					} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
+						psi.addPid(*it, EN_TYPE_AUDIO_AAC, atype, channel->getAudioChannel(i)->description.c_str());
+					} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AACPLUS) {
+						psi.addPid(*it, EN_TYPE_AUDIO_AACP, atype, channel->getAudioChannel(i)->description.c_str());
 					} else {
 						psi.addPid(*it, EN_TYPE_AUDIO, atype, channel->getAudioChannel(i)->description.c_str());
 					}
@@ -808,8 +812,8 @@ bool CStreamStream::Open()
 	if (url.empty())
 		return false;
 
-	std::string pretty_name, livestreamInfo1, livestreamInfo2, headers;
-	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getUrl(), channel->getScriptName(), url, pretty_name, livestreamInfo1, livestreamInfo2,headers)) {
+	std::string pretty_name, livestreamInfo1, livestreamInfo2, headers, dumb;
+	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getUrl(), channel->getScriptName(), url, pretty_name, livestreamInfo1, livestreamInfo2,headers,dumb)) {
 		printf("%s: getLiveUrl() [%s] failed!\n", __FUNCTION__, url.c_str());
 		return false;
 	}
@@ -847,7 +851,12 @@ bool CStreamStream::Open()
 		printf("%s: Cannot find stream info [%s]!\n", __FUNCTION__, channel->getUrl().c_str());
 		return false;
 	}
-	if (!strstr(ifcx->iformat->name, "applehttp") &&
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58,27,102)
+	const char *hls = "applehttp";
+#else
+	const char *hls = "hls";
+#endif
+	if (!strstr(ifcx->iformat->name, hls) &&
 			!strstr(ifcx->iformat->name, "mpegts") &&
 			!strstr(ifcx->iformat->name, "matroska") &&
 			!strstr(ifcx->iformat->name, "avi") &&
@@ -863,7 +872,6 @@ bool CStreamStream::Open()
 	snprintf(ifcx->filename, sizeof(ifcx->filename), "%s", channel->getUrl().c_str());
 	av_dump_format(ifcx, 0, ifcx->filename, 0);
 #else
-	snprintf(ifcx->url, channel->getUrl().size() + 1, "%s", channel->getUrl().c_str());
 	av_dump_format(ifcx, 0, ifcx->url, 0);
 #endif
 
@@ -994,7 +1002,6 @@ void CStreamStream::run()
 			}
 			if(ret != AVERROR_EOF){
 				av_packet_unref(&pkt);
-				newpkt.buf = av_buffer_create(newpkt.data, newpkt.size, av_buffer_default_free, NULL, 0);
 				pkt = newpkt;
 			}
 #endif

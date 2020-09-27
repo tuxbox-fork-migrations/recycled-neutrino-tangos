@@ -39,82 +39,8 @@
 #include <gui/widget/msgbox.h>
 
 #include <system/helpers.h>
-#include <gui/widget/keyboard_input.h>
-
-static std::string keys_english[2][KEY_ROWS][KEY_COLUMNS] =
-{
-	{
-		{ "`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-",  "=",  "§"  },
-		{ "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[",  "]",  "{", "}"  },
-		{ "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "\'", "\\", ":", "\"" },
-		{ "z", "x", "c", "v", "b", "n", "m", ",", ".", "/", "<",  ">",  "?", " "  }
-	},
-	{
-		{ "~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_",  "+",  "§", },
-		{ "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "{",  "}",  "{", "}"  },
-		{ "A", "S", "D", "F", "G", "H", "J", "K", "L", ";", "\'", "\\", ":", "\"" },
-		{ "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", "<",  ">",  "?", " "  }
-	}
-};
-
-static std::string keys_deutsch[2][KEY_ROWS][KEY_COLUMNS] =
-{
-	{
-		{ "°", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "ß", "´", "@" },
-		{ "q", "w", "e", "r", "t", "z", "u", "i", "o", "p", "ü", "+", "~", "/" },
-		{ "a", "s", "d", "f", "g", "h", "j", "k", "l", "ö", "ä", "#", "[", "]" },
-		{ "y", "x", "c", "v", "b", "n", "m", ",", ".", "-", "|", "<", ">", " " }
-	},
-	{
-		{ "^", "!", "\"","§", "$", "%", "&", "/", "(", ")", "=", "?", "`", "€" },
-		{ "Q", "W", "E", "R", "T", "Z", "U", "I", "O", "P", "Ü", "*", "\\","/" },
-		{ "A", "S", "D", "F", "G", "H", "J", "K", "L", "Ö", "Ä", "\'","{", "}" },
-		{ "Y", "X", "C", "V", "B", "N", "M", ";", ":", "_", "²", "³", "µ", " " }
-	}
-};
-
-static std::string keys_russian[2][KEY_ROWS][KEY_COLUMNS] =
-{
-	{
-		{ "ё", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-",  "=", "§"  },
-		{ "й", "ц", "у", "к", "е", "н", "г", "ш", "щ", "з", "х", "ъ",  "[", "]"  },
-		{ "ф", "ы", "в", "а", "п", "р", "о", "л", "д", "ж", "э", "\\", ":", "\"" },
-		{ "я", "ч", "с", "м", "и", "т", "ь", "б", "ю", "/", ".",  ",", "?", " "  }
-	},
-	{
-		{ "Ё", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "§" },
-		{ "Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Х", "{", "}" },
-		{ "Ф", "Ы", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", "Э", "|", ";", "~" },
-		{ "Я", "Ч", "С", "М", "И", "Т", "Ь", "Б", "Ю", "?", "<", ">", "?", " " }
-	}
-};
-#if 0
-static std::string keys_arabic[2][KEY_ROWS][KEY_COLUMNS] =
-{
-	{
-		{ "`", "1", "2", "3", "4",  "5", "6", "7", "8", "9", "0", "-", "=", "§"  },
-		{ "ض", "ص", "ث", "ق", "ف",  "غ", "ع", "ه", "خ", "ح", "ج", "د", "{", "}"  },
-		{ "ش", "س", "ي", "ب", "ل",  "ا", "ت", "ن", "م", "ك", "ط", "ذ", ":", "\"" },
-		{ "ئ", "ء", "ؤ", "ر", "لا", "ى", "ة", "و", "ز", "ظ", "<", ">", "?", " "  }
-	},
-	{
-		{ "`", "1", "2", "3", "4",  "5", "6", "7", "8", "9", "0", "-", "=", "§"  },
-		{ "ض", "ص", "ث", "ق", "ف",  "غ", "ع", "ه", "خ", "ح", "ج", "د", "{", "}"  },
-		{ "ش", "س", "ي", "ب", "ل",  "ا", "ت", "ن", "م", "ك", "ط", "ذ", ":", "\"" },
-		{ "ئ", "ء", "ؤ", "ر", "لا", "ى", "ة", "و", "ز", "ظ", "<", ">", "?", " "  }
-	}
-};
-#endif
-struct keyboard_layout keyboards[] =
-{
-	  { "English", "english", keys_english }
-	, { "Deutsch", "deutsch", keys_deutsch }
-	, { "Русский", "russkij", keys_russian }
-#if 0
-	, { "Arabic" , "arabic" , keys_arabic  }
-#endif
-};
-#define LAYOUT_COUNT (sizeof(keyboards)/sizeof(struct keyboard_layout))
+#include "keyboard_input.h"
+#include "keyboard_keys.h"
 
 std::string UTF8ToString(const char * &text)
 {
@@ -198,52 +124,6 @@ const char* CInputString::c_str()
 	return getValue().c_str();
 }
 
-CKeyboardInput::CKeyboardInput(const neutrino_locale_t Name, std::string* Value, int Size, CChangeObserver* Observ, const char * const Icon, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2)
-{
-	title = g_Locale->getText(Name);
-	valueString = Value;
-	inputSize = Size;
-
-	iconfile = Icon ? Icon : NEUTRINO_ICON_EDIT;
-
-	observ = Observ;
-	hint_1 = Hint_1;
-	hint_2 = Hint_2;
-	hintText_1 = "";
-	hintText_2 = "";
-	inputString = NULL;
-	layout = NULL;
-	selected = 0;
-	caps = 0;
-	srow = scol = 0;
-	focus = FOCUS_STRING;
-	force_saveScreen = false;
-	pixBuf = NULL;
-}
-
-CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int Size, CChangeObserver* Observ, const char * const Icon, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2)
-{
-	title = Name;
-	valueString = Value;
-	inputSize = Size;
-
-	iconfile = Icon ? Icon : NEUTRINO_ICON_EDIT;
-
-	observ = Observ;
-	hint_1 = Hint_1;
-	hint_2 = Hint_2;
-	hintText_1 = "";
-	hintText_2 = "";
-	inputString = NULL;
-	layout = NULL;
-	selected = 0;
-	caps = 0;
-	srow = scol = 0;
-	focus = FOCUS_STRING;
-	force_saveScreen = false;
-	pixBuf = NULL;
-}
-
 CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int Size, CChangeObserver* Observ, const char * const Icon, std::string HintText_1, std::string HintText_2)
 {
 	title = Name;
@@ -253,8 +133,6 @@ CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int 
 	iconfile = Icon ? Icon : NEUTRINO_ICON_EDIT;
 
 	observ = Observ;
-	hint_1 = NONEXISTANT_LOCALE;
-	hint_2 = NONEXISTANT_LOCALE;
 	hintText_1 = HintText_1;
 	hintText_2 = HintText_2;
 	inputString = NULL;
@@ -266,6 +144,26 @@ CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int 
 	force_saveScreen = false;
 	pixBuf = NULL;
 }
+
+CKeyboardInput::CKeyboardInput(const neutrino_locale_t Name, std::string* Value, int Size, CChangeObserver* Observ, const char * const Icon, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2)
+				:CKeyboardInput(Name == NONEXISTANT_LOCALE ? "" : g_Locale->getText(Name),
+						Value,
+						Size,
+						Observ,
+						Icon,
+						Hint_1 == NONEXISTANT_LOCALE ? "" : g_Locale->getText(Hint_1),
+						Hint_2 == NONEXISTANT_LOCALE ? "" : g_Locale->getText(Hint_2)){}
+
+CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int Size, CChangeObserver* Observ, const char * const Icon, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2)
+				:CKeyboardInput(Name,
+						Value,
+						Size,
+						Observ,
+						Icon,
+						Hint_1 == NONEXISTANT_LOCALE ? "" : g_Locale->getText(Hint_1),
+						Hint_2 == NONEXISTANT_LOCALE ? "" : g_Locale->getText(Hint_2)){}
+
+
 
 CKeyboardInput::~CKeyboardInput()
 {
@@ -314,26 +212,21 @@ void CKeyboardInput::init()
 
 	bheight = input_h + (key_h+KEY_BORDER)*KEY_ROWS + 3*offset;
 
-	bool has_hint_1 = ((hint_1 != NONEXISTANT_LOCALE) || !hintText_1.empty());
-	bool has_hint_2 = ((hint_2 != NONEXISTANT_LOCALE) || !hintText_2.empty());
-	if ((has_hint_1) || (has_hint_2))
+	if (!hintText_1.empty())
 	{
-		if (has_hint_1)
-		{
-			const char *_hint_1 = (hint_1 != NONEXISTANT_LOCALE ? g_Locale->getText(hint_1) : hintText_1.c_str());
-			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(_hint_1);
-			width = std::max(width, tmp_w + 2*offset);
-			bheight += iheight;
-		}
-		if (has_hint_2)
-		{
-			const char *_hint_2 = (hint_2 != NONEXISTANT_LOCALE ? g_Locale->getText(hint_2) : hintText_2.c_str());
-			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(_hint_2);
-			width = std::max(width, tmp_w + 2*offset);
-			bheight += iheight;
-		}
-		bheight += offset;
+		const char *_hint_1 = hintText_1.c_str();
+		tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(_hint_1);
+		width = std::max(width, tmp_w + 2*offset);
+		bheight += iheight;
 	}
+	if (!hintText_2.empty())
+	{
+		const char *_hint_2 = hintText_2.c_str();
+		tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(_hint_2);
+		width = std::max(width, tmp_w + 2*offset);
+		bheight += iheight;
+	}
+	bheight += offset;
 
 	height = hheight+ bheight + fheight;
 
@@ -529,7 +422,7 @@ void CKeyboardInput::keyDigiPressed(const neutrino_msg_t key)
 	if (focus == FOCUS_KEY)
 		paintKey(old_srow, old_col);
 
-	focus = FOCUS_KEY;
+	//focus = FOCUS_KEY;
 	paintKey(srow, scol);
 	NormalKeyPressed();
 }
@@ -570,8 +463,10 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 
 	std::string oldval = *valueString;
 
-	if (pixBuf)
+	if (pixBuf) {
 		delete[] pixBuf;
+		pixBuf = NULL;
+	}
 	if (!parent || force_saveScreen) {
 		pixBuf = new fb_pixel_t[(width + OFFSET_SHADOW) * (height + OFFSET_SHADOW)];
 		if (pixBuf)
@@ -686,8 +581,13 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 	delete inputString;
 	inputString = NULL;
 
-	if ((observ) && (msg == CRCInput::RC_red))
-		observ->changeNotify(title, (void *) valueString->c_str());
+	if (msg == CRCInput::RC_red)
+	{
+		if (observ)
+			observ->changeNotify(title, (void *) valueString->c_str());
+		if (msg == CRCInput::RC_red)
+			OnAfterSave();
+	}
 
 	return res;
 }
@@ -727,24 +627,19 @@ void CKeyboardInput::paint()
 
 	key_y = y+ hheight+ offset+ input_h+ offset;
 
-	bool has_hint_1 = ((hint_1 != NONEXISTANT_LOCALE) || !hintText_1.empty());
-	bool has_hint_2 = ((hint_2 != NONEXISTANT_LOCALE) || !hintText_2.empty());
-	if ((has_hint_1) || (has_hint_2))
+	if (!hintText_1.empty())
 	{
-		if (has_hint_1)
-		{
-			key_y += iheight;
-			const char *_hint_1 = (hint_1 != NONEXISTANT_LOCALE ? g_Locale->getText(hint_1) : hintText_1.c_str());
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, key_y, width- 2*offset, _hint_1, COL_MENUCONTENT_TEXT);
-		}
-		if (has_hint_2)
-		{
-			key_y += iheight;
-			const char *_hint_2 = (hint_2 != NONEXISTANT_LOCALE ? g_Locale->getText(hint_2) : hintText_2.c_str());
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, key_y, width- 2*offset, _hint_2, COL_MENUCONTENT_TEXT);
-		}
-		key_y += offset;
+		key_y += iheight;
+		const char *_hint_1 = hintText_1.c_str();
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, key_y, width- 2*offset, _hint_1, COL_MENUCONTENT_TEXT);
 	}
+	if (!hintText_2.empty())
+	{
+		key_y += iheight;
+		const char *_hint_2 = hintText_2.c_str();
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, key_y, width- 2*offset, _hint_2, COL_MENUCONTENT_TEXT);
+	}
+	key_y += offset;
 
 	for (int count = 0; count < inputSize; count++)
 		paintChar(count);

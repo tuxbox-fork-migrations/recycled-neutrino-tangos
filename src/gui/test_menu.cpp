@@ -51,6 +51,7 @@
 #include <xmlinterface.h>
 
 #include <gui/widget/msgbox.h>
+#include <gui/widget/keyboard_input.h>
 #include <gui/widget/progresswindow.h>
 #include <gui/widget/termwindow.h>
 #include <gui/scan.h>
@@ -356,8 +357,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFrontend *frontend = CFEManager::getInstance()->getFE(fnum);
 		if (frontend->hasSat()) {
 			scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]);
-			scansettings.sat_TP_freq = to_string((fnum & 1) ? /*12439000*/ 3951000 : 4000000);
-			scansettings.sat_TP_rate = to_string((fnum & 1) ? /*2500*1000*/ 9520*1000 : 27500*1000);
+			scansettings.sat_TP_freq = std::to_string((fnum & 1) ? /*12439000*/ 3951000 : 4000000);
+			scansettings.sat_TP_rate = std::to_string((fnum & 1) ? /*2500*1000*/ 9520*1000 : 27500*1000);
 			scansettings.sat_TP_fec = FEC_3_4; //(fnum & 1) ? FEC_3_4 : FEC_1_2;
 			scansettings.sat_TP_pol = (fnum & 1) ? 1 : 0;
 		} else if (frontend->hasCable()) {
@@ -438,25 +439,23 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (sq == NULL)
 			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_OLIVE, COL_LIGHT_GRAY, COL_RED);
 
-		if (sq->paintBlink(500000, true)){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking square is running ...", 700, 6);
-		}
-		if (sq->cancelBlink()){
+		sq->paintBlink(500);
+			sleep(10);
+
+		if (sq->cancelBlink())
 			ShowHint("Testmenu: Blink","Testmenu: Blinking square stopped ...", 700, 2);
-		}
 
 		return res;
 	}
 	else if (actionKey == "blink_image"){
 		if (pic == NULL)
-			pic = new CComponentsPicture (100, 100, 200, 100, ICONSDIR "/btn_play.png");
+			pic = new CComponentsPicture (50, 50, 50, 50, ICONSDIR "/btn_pause.png");
 
-		if (pic->paintBlink(500000, true)){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking image is running ...", 700, 10);
-		}
-		if (pic->cancelBlink()){
+		pic->paintBlink(500);
+			sleep(10);
+
+		if (pic->cancelBlink())
 			ShowHint("Testmenu: Blink","Testmenu: Blinking image stopped ...", 700, 2);
-		}
 
 		return res;
 	}
@@ -531,7 +530,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			ptmp->kill();
 		}
 
-		if (static_cast<CComponentsPicture*>(form->getCCItem(0))-> paintBlink(500000, true)){
+		if (static_cast<CComponentsPicture*>(form->getCCItem(0))-> paintBlink(500)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking embedded image ...", 700, 10);
 		}
 		if (form->getCCItem(0)->cancelBlink()){
@@ -558,11 +557,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "blinking_text"){
 		if (txt == NULL){
 			txt = new CComponentsText();
-			txt->setDimensionsAll(100, 100, 250, 100);
+			txt->setDimensionsAll(50, 50, 250, 100);
 			txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
 		}
 
-		if (txt->paintBlink(500000, true)){
+		if (txt->paintBlink(50)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking text is running ...", 700, 10);
 		}
 		if (txt->cancelBlink()){
@@ -593,7 +592,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			text_ext->setFrameThickness(2);
 		}
 
-		if (text_ext->paintBlink(500000, true)){
+		if (text_ext->paintBlink(500)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text is running ...", 700, 10);
 		}
 		if (text_ext->cancelBlink()){
@@ -740,7 +739,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CComponentsPicture* img = static_cast<CComponentsPicture*>(iconform->getCCItem(2));
 		img->kill();
 
-		if (img->paintBlink(500000, true)){
+		if (img->paintBlink(500)){
 			ShowHint("Testmenu: Blink","Testmenu: Blinking image is running ...", 700, 10);
 		}
 		if (img->cancelBlink(true)){
@@ -850,50 +849,69 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "progress_window"){
 		//classical
-		CProgressWindow pw0("Progress Single Test");
+		CProgressWindow pw0("Test 1: Local Bar Classic");
 		pw0.paint();
-		size_t max = 3;
-		for(size_t i = 0; i< max; i++){
-			pw0.showStatus(i, max, to_string(i));
+		size_t max = 4;
+		for(size_t i = 0; i<= max; i++){
+			pw0.showStatus(i, max, std::to_string(i));
 			sleep(1);
 		}
 		pw0.hide();
 
-		CProgressWindow pw1("Progress Local/Global Test");
+		CProgressWindow pw1("Test 2: Local/Global Bars Classic");
 		pw1.paint();
-		for(size_t i = 0; i< max; i++){
-			pw1.showGlobalStatus(i, max, to_string(i));
-			for(size_t j = 0; j< max; j++){
-				pw1.showLocalStatus(j, max, to_string(j));
+		for(size_t i = 1; i<= max; i++){
+			pw1.showGlobalStatus(i, max, std::to_string(i));
+			for(size_t j = 1; j<= max; j++){
+				pw1.showLocalStatus(j, max, std::to_string(j));
 				sleep(1);
 			}
 		}
+		sleep(1);
 		pw1.hide();
 
 		//with signals
-		sigc::signal<void, size_t, size_t, std::string> OnProgress0, OnProgress1;
-		CProgressWindow pw2("Progress Single Test -> single Signal", CCW_PERCENT 50, CCW_PERCENT 30, &OnProgress0);
+		sigc::signal<void, size_t, size_t, std::string> OnProgress, OnProgress1;
+		CProgressWindow pw2("Test 3: Local Bar via Signal/Slot", CCW_PERCENT 50, CCW_PERCENT 30, &OnProgress);
 		pw2.paint();
 
-		for(size_t i = 0; i< max; i++){
-			OnProgress0(i, max, to_string(i));
+		for(size_t i = 0; i<= max; i++){
+			OnProgress(i, max, std::to_string(i));
 			sleep(1);
 		}
+		sleep(1);
 		pw2.hide();
 
-		OnProgress0.clear();
+		OnProgress.clear();
 		OnProgress1.clear();
-		CProgressWindow pw3("Progress Single Test -> dub Signal", CCW_PERCENT 50, CCW_PERCENT 20, NULL, &OnProgress0, &OnProgress1);
+		CProgressWindow pw3("Test 4: Local/Global via Signal/Slot", CCW_PERCENT 50, CCW_PERCENT 20, &OnProgress, &OnProgress1);
 		pw3.paint();
 
-		for(size_t i = 0; i< max; i++){
-			OnProgress1(i, max, to_string(i));
-				for(size_t j = 0; j< max; j++){
-					OnProgress0(j, max, to_string(j));
+		for(size_t i = 1; i <= max; i++){
+			OnProgress1(i, max, std::to_string(i));
+				for(size_t j = 1; j<= 7; j++){
+					OnProgress(j, 7, std::to_string(j));
 					sleep(1);
 				}
 		}
+		sleep(1);
 		pw3.hide();
+
+		OnProgress.clear();
+		//sigc::signal<void, size_t> OnSetGlobalMax;
+
+		CProgressWindowA pw4("Test 5, Local/Adaptive Global", CCW_PERCENT 50, CCW_PERCENT 20, &OnProgress, NULL/*&OnSetGlobalMax*/);
+		pw4.paint();
+		//OnSetGlobalMax(max);
+		pw4.setGlobalMax(max);
+		for(size_t i = 1; i <= max; i++){
+			for(size_t j = 1; j<= 8; j++){
+				pw4.showStatus(j, 8, std::to_string(j));
+				sleep(1);
+			}
+		}
+		sleep(1);
+		pw4.hide();
 
 		return menu_return::RETURN_REPAINT;
 	}
@@ -907,7 +925,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -919,7 +937,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		msgBox->hide();
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgBox->getResult());
+		msg_txt += std::to_string(msgBox->getResult());
 		delete msgBox;
 
 		ShowHint("MsgBox test returns", msg_txt.c_str(), 700, 10, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
@@ -930,7 +948,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbAll, NULL, 700);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -938,7 +956,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbCancel, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -946,7 +964,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbOk | CMsgBox::mbCancel, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -954,7 +972,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbNoYes, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -962,7 +980,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press ok key! ...", CMsgBox::mbrOk, CMsgBox::mbOk, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -970,7 +988,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press ok key or wait! ...", CMsgBox::mbrCancel, CMsgBox::mbOKCancel, NULL, 500, 6, true);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgRet);
+		msg_txt += std::to_string(msgRet);
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
@@ -1005,7 +1023,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		msgBox.hide();
 
 		std::string msg_txt = "Return value of MsgBox test is ";
-		msg_txt += to_string(msgBox.getResult());
+		msg_txt += std::to_string(msgBox.getResult());
 
 		ShowHint("MsgBox test returns", msg_txt.c_str(), 700, 10, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
 
@@ -1128,7 +1146,7 @@ int CTestMenu::showTestMenu()
 	char rev[255];
 	sprintf(rev, "Test menu, System revision %d %s", system_rev, system_rev == 0 ? "WARNING - INVALID" : "");
 	CMenuWidget w_test(rev /*"Test menu"*/, NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU);
-	w_test.addIntroItems();
+	w_test.addIntroItems("Subhead");
 	
 	w_test.addItem(new CMenuForwarder("Shell Window Test", true, NULL, this, "shellwindow"));
 	//hardware
@@ -1154,8 +1172,29 @@ int CTestMenu::showTestMenu()
 	w_test.addItem(new CMenuForwarder(w_msg->getName(), true, NULL, w_msg));
 	showMsgTests(w_msg);
 
+	//separator types
+	CMenuWidget * w_types = new CMenuWidget("Menu Separators", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HINT_MSG_TESTS);
+	w_test.addItem(new CMenuForwarder(w_types->getName(), true, NULL, w_types));
+	showSeparatorTypes(w_types);
+
+	std::string input_txt;
+	CKeyboardInput input("Text input",  &input_txt, 30, NULL, NULL, "Test");
+	w_test.addItem(new CMenuForwarder("Text input", true, NULL, &input));
+
 	//restart gui
 	w_test.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, CNeutrinoApp::getInstance(), "restart", CRCInput::RC_standby));
+
+	w_test.addItem(GenericMenuSeparatorLine);
+
+	w_test.addItem(new CMenuSeparator(CMenuSeparator::STRING, "String Separator"));
+	w_test.addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "String Line Separator"));
+
+	w_test.addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD, "Sub Title"));
+
+	w_test.addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD | CMenuSeparator::ALIGN_LEFT, "Sub Title L"));
+	w_test.addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD | CMenuSeparator::ALIGN_RIGHT, "Sub Title R"));
+
+
 
 	//footer buttons
 	static const struct button_label footerButtons[2] = {
@@ -1279,4 +1318,16 @@ void CTestMenu::showMsgTests(CMenuWidget *widget)
 	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "Error/Info"));
 	widget->addItem(new CMenuForwarder("Error Message!", true, NULL, this, "msgbox_error"));
 	widget->addItem(new CMenuForwarder("Info Message!", true, NULL, this, "msgbox_info"));
+}
+
+void CTestMenu::showSeparatorTypes(CMenuWidget *widget)
+{
+	widget->addIntroItems();
+	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING, "String Separator"));
+	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "String Line Separator"));
+
+	widget->addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD, "Sub Title"));
+
+	widget->addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD | CMenuSeparator::ALIGN_LEFT, "Sub Title L"));
+	widget->addItem(new CMenuSeparator(CMenuSeparator::SUB_HEAD | CMenuSeparator::ALIGN_RIGHT, "Sub Title R"));
 }

@@ -52,8 +52,7 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 	//CComponentsPIP
 	screen_w = frameBuffer->getScreenWidth(true);
 	screen_h = frameBuffer->getScreenHeight(true);
-	pic_name = LOGODIR;
-	pic_name += "/logo.jpg";
+	pic_name = frameBuffer->getIconPath("start", "jpg");
 
 	//CComponents
 	x 		= x_pos;
@@ -77,7 +76,7 @@ CComponentsPIP::~CComponentsPIP()
 //  	videoDecoder->Pig(-1, -1, -1, -1);
 }
 
-void CComponentsPIP::paint(bool do_save_bg)
+void CComponentsPIP::paint(const bool &do_save_bg)
 {
 	//NOTE: real values are reqiured, if we paint not bound items or an own render methodes
 	int pig_x = (cc_parent ? cc_xr : x) + fr_thickness;
@@ -109,7 +108,7 @@ void CComponentsPIP::paint(bool do_save_bg)
 #endif
 	}
 	else{ //paint an alternate image if no tv mode available
-		CComponentsPicture pic = CComponentsPicture (pig_x, pig_y, pig_w, pig_h, pic_name, NULL, false, col_frame, col_frame);
+		CComponentsPicture pic = CComponentsPicture (pig_x, pig_y, pig_w, pig_h, pic_name, NULL, CC_SHADOW_OFF, col_frame, col_frame);
 		pic.doPaintBg(false);
 		int w, h;
 		pic.getSize(&w, &h);

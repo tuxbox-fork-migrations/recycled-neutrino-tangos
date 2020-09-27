@@ -43,6 +43,7 @@
 #define W_FRAME OFFSET_INNER_MID
 //frame color around hint/message box
 #define HINTBOX_DEFAULT_FRAME_COLOR COL_FRAME
+#define HINTBOX_DEFAULT_FRAME_WIDTH OFFSET_INNER_SMALL
 #define TIMEOUT_BAR_HEIGHT  OFFSET_SHADOW/2
 
 #define DEFAULT_HINTBOX_TEXT_MODE (CTextBox::CENTER)
@@ -62,6 +63,8 @@ class CHintBox : public CComponentsWindow
 		int h_hint_obj;
 		int w_indentation;
 		bool enable_txt_scroll;
+		sigc::slot0<void> sl_tbar_on_timer;
+		bool enable_timeout_bar;
 
 		Font* hb_font;
 
@@ -81,7 +84,11 @@ class CHintBox : public CComponentsWindow
 				const std::string& Picon,
 				const int& header_buttons,
 				const int& text_mode,
-				const int& indent);
+				const int& indent,
+				const fb_pixel_t& color_frame,
+				const fb_pixel_t& color_body,
+				const fb_pixel_t& color_shadow,
+				const int& frame_width);
 
 		virtual void ReSize();
 		void showTimeOutBar(){enableTimeOutBar();}
@@ -126,7 +133,11 @@ class CHintBox : public CComponentsWindow
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
-				const int& indent = W_FRAME);
+				const int& indent = W_FRAME,
+				const fb_pixel_t& color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
+				const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+				const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
+				const int& frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
 
 		/**CHintBox Constructor
 		* @param[in]	Caption
@@ -140,7 +151,11 @@ class CHintBox : public CComponentsWindow
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
-				const int& indent = W_FRAME);
+				const int& indent = W_FRAME,
+				const fb_pixel_t& color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
+				const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+				const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
+				const int& frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
 
 		/**CHintBox Constructor
 		* @param[in]	Caption
@@ -156,7 +171,11 @@ class CHintBox : public CComponentsWindow
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
-				const int& indent = W_FRAME);
+				const int& indent = W_FRAME,
+				const fb_pixel_t& color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
+				const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+				const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
+				const int& frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
 
 		/**CHintBox Constructor
 		* @param[in]	Caption
@@ -172,7 +191,11 @@ class CHintBox : public CComponentsWindow
 				const char * const Picon = NULL,
 				const int& header_buttons = 0,
 				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
-				const int& indent = W_FRAME);
+				const int& indent = W_FRAME,
+				const fb_pixel_t& color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
+				const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+				const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
+				const int& frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
 
 		virtual ~CHintBox();
 		/**
@@ -191,8 +214,9 @@ class CHintBox : public CComponentsWindow
 		* Timeout is enabled with parameter1 = DEFAULT_TIMEOUT (-1) or any other value > 0
 		* To disable timeout use NO_TIMEOUT (0)
 		* @param[in]	Timeout as int as seconds
+		* @param[in]	enable_Timeout_Bar as bool, default = true
 		*/
-		virtual void setTimeOut(const int& Timeout){timeout = Timeout;}
+		virtual void setTimeOut(const int& Timeout, const bool& enable_Timeout_Bar = true){timeout = Timeout; enable_timeout_bar = enable_Timeout_Bar;}
 
 		/**
 		* enable/disable visualized timeout as progressbar under titlebar
@@ -325,6 +349,11 @@ optional disable/enable background
 
 class CHint : public CHintBox
 {
+	private:
+		void initHint(bool enable_bg)	{	paint_bg = enable_bg;
+											ccw_show_header = false;
+											ccw_show_footer = false;
+											cc_item_type.name = "wg.hint";}
 	public:
 		/**CHint Constructor
 		* @param[in]	Text
@@ -340,6 +369,8 @@ class CHint : public CHintBox
 		* 	@li 	optional: expects type bool, enable/disable backround paint, default = true
 		*/
 		CHint(const neutrino_locale_t Text, bool show_background = true);
+
+		virtual ~CHint(){};
 };
 
 /**

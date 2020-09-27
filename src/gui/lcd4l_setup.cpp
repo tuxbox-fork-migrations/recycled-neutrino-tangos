@@ -52,7 +52,6 @@
 
 #include <driver/screen_max.h>
 
-// lcd4l-support
 #include "driver/lcd4l.h"
 extern CLCD4l *LCD4l;
 
@@ -70,8 +69,11 @@ const CMenuOptionChooser::keyval_ext LCD4L_DISPLAY_TYPE_OPTIONS[] =
 	{ CLCD4l::SAMSUNG800x480,  NONEXISTANT_LOCALE, "800x480 Samsung SPF"},
 	{ CLCD4l::SAMSUNG800x600,  NONEXISTANT_LOCALE, "800x600 Samsung SPF"},
 	{ CLCD4l::SAMSUNG1024x600, NONEXISTANT_LOCALE, "1024x600 Samsung SPF"},
-#if defined BOXMODEL_VUSOLO4K
-	{ CLCD4l::VUSOLO4K480x320,	NONEXISTANT_LOCALE, "480x320 VUSolo4K"},
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+	{ CLCD4l::VUPLUS4K480x320,	NONEXISTANT_LOCALE, "480x320 VUPlus4K"},
+#endif
+#if BOXMODEL_VUULTIMO4K
+	{ CLCD4l::VUPLUS4K800x480,	NONEXISTANT_LOCALE, "800x480 VUPlus4K"},
 #endif
 	{ CLCD4l::PNG,		NONEXISTANT_LOCALE, "800x600 PNG"}
 };
@@ -200,6 +202,13 @@ int CLCD4lSetup::show()
 
 	lcd4lSetup->addItem(GenericMenuSeparator);
 
+	const char *flag_lcd4l_weather = FLAGDIR "/.lcd-weather";
+	int fake_lcd4l_weather = file_exists(flag_lcd4l_weather);
+	CTouchFileNotifier *lcd_weather = new CTouchFileNotifier(flag_lcd4l_weather);
+	mc = new CMenuOptionChooser(LOCALE_LCD4L_WEATHER, &fake_lcd4l_weather, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.weather_enabled, lcd_weather, CRCInput::convertDigitToKey(shortcut++));
+	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_WEATHER);
+	lcd4lSetup->addItem(mc);
+
 	const char *flag_lcd4l_clock_a = FLAGDIR "/.lcd-clock_a";
 	int fake_lcd4l_clock_a = file_exists(flag_lcd4l_clock_a);
 	CTouchFileNotifier *lcd_clock_a = new CTouchFileNotifier(flag_lcd4l_clock_a);
@@ -220,6 +229,8 @@ int CLCD4lSetup::show()
 		delete lcd_clock_a;
 	if (lcd4lSetup)
 		delete lcd4lSetup;
+	if(lcd_weather)
+		delete lcd_weather;
 
 	// the things to do on exit
 

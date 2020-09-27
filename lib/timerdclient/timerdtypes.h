@@ -34,7 +34,7 @@
 
 #define REMINDER_MESSAGE_MAXLEN 31
 #define EXEC_PLUGIN_NAME_MAXLEN 256
-#define RECORD_DIR_MAXLEN 1024
+#define RECORD_DIR_MAXLEN 1025
 #define EPG_TITLE_MAXLEN 51
 
 #define TIMERD_APIDS_CONF 0x00
@@ -46,14 +46,14 @@
 class CTimerd
 {
 	public:
-		enum CTimerEventRepeat 
-		{ 
+		enum CTimerEventRepeat
+		{
 			TIMERREPEAT_ONCE = 0,
-			TIMERREPEAT_DAILY, 
-			TIMERREPEAT_WEEKLY, 
-			TIMERREPEAT_BIWEEKLY, 
-			TIMERREPEAT_FOURWEEKLY, 
-			TIMERREPEAT_MONTHLY, 
+			TIMERREPEAT_DAILY,
+			TIMERREPEAT_WEEKLY,
+			TIMERREPEAT_BIWEEKLY,
+			TIMERREPEAT_FOURWEEKLY,
+			TIMERREPEAT_MONTHLY,
 			TIMERREPEAT_BYEVENTDESCRIPTION,
 			TIMERREPEAT_WEEKDAYS = 0x100 // Bits 9-15 specify weekdays (9=mo,10=di,...)
 		};
@@ -71,19 +71,19 @@ class CTimerd
 			TIMER_IMMEDIATE_RECORD,
 			TIMER_REMOTEBOX
 		};
-		
-		enum CTimerEventStates 
-		{ 
-			TIMERSTATE_SCHEDULED, 
-			TIMERSTATE_PREANNOUNCE, 
-			TIMERSTATE_ISRUNNING, 
-			TIMERSTATE_HASFINISHED, 
-			TIMERSTATE_TERMINATED 
+
+		enum CTimerEventStates
+		{
+			TIMERSTATE_SCHEDULED,
+			TIMERSTATE_PREANNOUNCE,
+			TIMERSTATE_ISRUNNING,
+			TIMERSTATE_HASFINISHED,
+			TIMERSTATE_TERMINATED
 		};
 
 		struct EventInfo
 		{
-			event_id_t    epgID;
+			t_event_id    epg_id;
 			time_t        epg_starttime;
 			t_channel_id  channel_id;
 			unsigned char apids;
@@ -93,7 +93,7 @@ class CTimerd
 
 		struct TransferEventInfo
 		{
-			event_id_t    epgID;
+			t_event_id    epg_id;
 			time_t        epg_starttime;
 			t_channel_id  channel_id;
 			unsigned char apids;
@@ -116,7 +116,7 @@ class CTimerd
 					{
 						apids = e.apids;
 						channel_id = e.channel_id;
-						epgID = e.epgID;
+						epg_id = e.epg_id;
 						epg_starttime = e.epg_starttime;
 						recordingSafety = e.recordingSafety;
 						autoAdjustToEPG = e.autoAdjustToEPG;
@@ -125,7 +125,7 @@ class CTimerd
 					{
 						apids = e.apids;
 						channel_id = e.channel_id;
-						epgID = e.epgID;
+						epg_id = e.epg_id;
 						epg_starttime = e.epg_starttime;
 						recordingSafety = e.recordingSafety;
 						autoAdjustToEPG = e.autoAdjustToEPG;
@@ -144,7 +144,7 @@ class CTimerd
 		};
 
 		struct responseGetTimer
-		{		
+		{
 			int               eventID;
 			CTimerEventTypes  eventType;
 			CTimerEventStates eventState;
@@ -154,7 +154,7 @@ class CTimerd
 			time_t            announceTime;
 			time_t            stopTime;
 			t_channel_id      channel_id;                       //only filled if applicable
-			event_id_t        epgID;                            //only filled if applicable
+			t_event_id        epg_id;                           //only filled if applicable
 			time_t            epg_starttime;                    //only filled if applicable
 			unsigned char     apids;                            //only filled if applicable
 			bool              standby_on;                       //only filled if applicable
@@ -165,13 +165,13 @@ class CTimerd
 			char              remotebox_name[25];
 			int               rem_pre;
 			int               rem_post;
-			
+
 			bool operator< (const responseGetTimer& a) const
 			{
 				return this->alarmTime < a.alarmTime ;
 			}
 		};
-		
+
 		typedef std::vector<responseGetTimer> TimerList;
 };
 #endif

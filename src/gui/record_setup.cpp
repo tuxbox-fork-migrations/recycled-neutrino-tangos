@@ -174,10 +174,12 @@ const CMenuOptionChooser::keyval END_OF_RECORDING[END_OF_RECORDING_COUNT] =
 	{1, LOCALE_RECORDINGMENU_END_OF_RECORDING_EPG}
 };
 
+
 const CMenuOptionChooser::keyval timer_followscreenings_options[] =
 {
-	{CFollowScreenings::FOLLOWSCREENINGS_OFF	,LOCALE_OPTIONS_OFF	},
-	{CFollowScreenings::FOLLOWSCREENINGS_ON		,LOCALE_OPTIONS_ON	}
+	{CFollowScreenings::FOLLOWSCREENINGS_OFF    , LOCALE_OPTIONS_OFF   },
+	{CFollowScreenings::FOLLOWSCREENINGS_ON     , LOCALE_OPTIONS_ON    },
+	{CFollowScreenings::FOLLOWSCREENINGS_ALWAYS , LOCALE_OPTIONS_ALWAYS}
 };
 size_t timer_followscreenings_options_count = sizeof(timer_followscreenings_options)/sizeof(CMenuOptionChooser::keyval);
 
@@ -240,7 +242,7 @@ int CRecordSetup::showRecordSetup()
 	cover->setHint("", LOCALE_MENU_HINT_RECORD_AUTO_COVER);
 	recordingSettings->addItem(cover);
 
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	CMenuOptionNumberChooser *ch;
 
 	ch = new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_BUFSIZE, &g_settings.recording_bufsize, true, 1, 25, NULL);

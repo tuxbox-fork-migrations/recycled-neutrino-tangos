@@ -79,8 +79,8 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 
 CComponentsInfoBox::~CComponentsInfoBox()
 {
-	delete pic;
-	delete cctext;
+	delete pic; pic = NULL;
+	delete cctext; cctext = NULL;
 }
 
 void CComponentsInfoBox::setPicture(const std::string& picture_name, const int& dx, const int& dy)
@@ -138,7 +138,7 @@ void CComponentsInfoBox::paintPicture()
 	pic->paint(CC_SAVE_SCREEN_NO);	
 }
 
-void CComponentsInfoBox::paint(bool do_save_bg)
+void CComponentsInfoBox::paint(const bool &do_save_bg)
 {
 	paintInit(do_save_bg);
 	paintPicture();
@@ -178,4 +178,6 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 	//paint, but set visibility mode
 	cctext->allowPaint(cc_allow_paint);
 	cctext->paint(CC_SAVE_SCREEN_NO);
+
+	OnAfterPaintInfo();
 }

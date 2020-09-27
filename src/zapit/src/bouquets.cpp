@@ -471,7 +471,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
 					chan->bLocked = clock;
 					chan->bUseCI = newBouquet->bUseCI;
-					//remapinng epg_id
+					//remapping epg_id
 					t_channel_id new_epgid = reMapEpgID(chan->getChannelID());
 					if(new_epgid)
 						chan->setEPGid(new_epgid);
@@ -958,9 +958,21 @@ void CBouquetManager::loadWebchannels(int mode)
 						if (title && url)
 						{
 							t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
+							if (epg_id == 0) epg_id = chid;
 							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script, mode);
 							CServiceManager::getInstance()->AddChannel(channel);
 							channel->flags = CZapitChannel::UPDATED;
+							//remapping epg_id
+							t_channel_id new_epgid = reMapEpgID(chid);
+							if(new_epgid)
+								channel->setEPGid(new_epgid);
+							std::string new_epgxml = reMapEpgXML(chid);
+							if(!new_epgxml.empty()) {
+								char buf[100];
+								snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+								channel->setScriptName("#" + new_epgxml + "=" + buf);
+								channel->setEPGid(chid);
+							}
 							if (gbouquet)
 								gbouquet->addService(channel);
 						}
@@ -1001,7 +1013,7 @@ void CBouquetManager::loadWebchannels(int mode)
 					if (strLine.find(M3U_INFO_MARKER) != std::string::npos)
 					{
 						int iColon = (int)strLine.find_first_of(':');
-						int iComma = (int)strLine.find_last_of(',');
+						int iComma = (int)strLine.find_first_of(',');
 						title = "";
 						prefix = "";
 						group = "";
@@ -1062,7 +1074,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								}
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, epg_script.c_str(), mode);
 								CServiceManager::getInstance()->AddChannel(channel);
-								//remapinng epg_id
+								//remapping epg_id
 								t_channel_id new_epgid = reMapEpgID(chid);
 								if(new_epgid)
 									channel->setEPGid(new_epgid);
@@ -1097,6 +1109,7 @@ void CBouquetManager::loadWebchannels(int mode)
 				std::string URL;
 				std::string url;
 				std::string desc;
+				std::string group;
 				t_channel_id epg_id = 0;
 				CZapitBouquet* pbouquet = NULL;
 
@@ -1120,8 +1133,24 @@ void CBouquetManager::loadWebchannels(int mode)
 						if (line[len - 1] == '\r')
 							line[len - 1 ] = 0;
 
-						if (strncmp(line, "#SERVICE 4097:0:1:0:0:0:0:0:0:0:", 32) == 0)
-							url = line + 32;
+						if (strncmp(line, "#NAME", 5) == 0)
+						{
+							group = line + 6;
+						}
+						else if (strncmp(line, "#SERVICE", 8) == 0)
+						{
+							char *url2 = NULL;
+							u_int service;
+							u_int i1,i2,i3,i4,satpos;
+							sscanf (line,"#SERVICE %X:0:%X:%X:%X:%X:%X:0:0:0:%m[^\n]s",&service,&i1,&i2,&i3,&i4,&satpos,&url2);
+							if (url2 == NULL)
+							{
+								url.clear();
+								continue;
+							}
+							url = url2;
+							free(url2);
+						}
 						else if (strncmp(line, "#DESCRIPTION", 12) == 0)
 						{
 							int offs = line[12] == ':' ? 14 : 13;
@@ -1136,12 +1165,38 @@ void CBouquetManager::loadWebchannels(int mode)
 							else
 								pbouquet->bWebradio = true;
 
-							t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, ::decodeUrl(url).c_str());
-							CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), epg_id, NULL, mode);
-							CServiceManager::getInstance()->AddChannel(channel);
-							channel->flags = CZapitChannel::UPDATED;
-							if (pbouquet)
-								pbouquet->addService(channel);
+							CZapitBouquet* gbouquet = pbouquet;
+							if (!group.empty())
+							{
+								std::string bname;
+									bname = (mode == MODE_WEBTV) ? "WebTV" : "WebRadio";
+								bname += ": " + group;
+								gbouquet = addBouquetIfNotExist(bname);
+								if (mode == MODE_WEBTV)
+									gbouquet->bWebtv = true;
+								else
+									gbouquet->bWebradio = true;
+							}
+
+							if (!url.empty())
+							{
+								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, ::decodeUrl(url).c_str());
+								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), chid, NULL, mode);
+								CServiceManager::getInstance()->AddChannel(channel);
+								channel->flags = CZapitChannel::UPDATED;
+								//remapping epg_id
+								t_channel_id new_epgid = reMapEpgID(chid);
+								if(new_epgid)
+									channel->setEPGid(new_epgid);
+								std::string new_epgxml = reMapEpgXML(chid);
+								if(!new_epgxml.empty()) {
+									char buf[100];
+									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+									channel->setScriptName("#" + new_epgxml + "=" + buf);
+								}
+								if (gbouquet)
+									gbouquet->addService(channel);
+							}
 
 						}
 					}

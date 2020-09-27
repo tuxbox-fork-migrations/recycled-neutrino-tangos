@@ -88,7 +88,8 @@ class CComponentsInfoBox : public CComponentsText
 		///retur internal picture object
 		CComponentsPicture * getPictureObject(){return pic;}
 		///paint item
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
+		sigc::signal<void> OnAfterPaintInfo;
 };
 
 #endif
