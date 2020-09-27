@@ -38,7 +38,7 @@ using namespace std;
 CComponentsFooter::CComponentsFooter(CComponentsForm* parent):CCButtonSelect()
 {
 	//CComponentsFooter
-	initVarFooter(1, 1, 0, 0, 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUFOOT_PLUS_0, COL_SHADOW_PLUS_0);
+	initVarFooter(1, 1, 0, 0, 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUFOOT_PLUS_0, COL_SHADOW_PLUS_0, CC_HEADER_SIZE_LARGE);
 }
 
 CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -47,10 +47,11 @@ CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const 
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow ):CCButtonSelect()
+					fb_pixel_t color_shadow,
+					int sizeMode):CCButtonSelect()
 {
 	//CComponentsFooter
-	initVarFooter(x_pos, y_pos, w, h, buttons, parent, shadow_mode, color_frame, color_body, color_shadow);
+	initVarFooter(x_pos, y_pos, w, h, buttons, parent, shadow_mode, color_frame, color_body, color_shadow, sizeMode);
 }
 
 void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -59,31 +60,34 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 					int shadow_mode,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
-					fb_pixel_t color_shadow )
+					fb_pixel_t color_shadow,
+					int sizeMode)
 {
 	cc_item_type.id 	= CC_ITEMTYPE_FOOTER;
 	cc_item_type.name 	= "cc_footer";
 
-	x	= x_old = x_pos;
-	y	= y_old = y_pos;
+	x = cc_xr = cc_xr_old = x_old	= x_pos;
+	y = cc_yr = cc_yr_old = y_old	= y_pos;
 
 	//init footer width
 	width =	width_old = w == 0 ? frameBuffer->getScreenWidth(true) : w;
 
-	//init default fonts
-	initDefaultFonts();
+	cch_font		= NULL;
+	cch_size_mode		= sizeMode;
+
+	//init font and height
+	initSizeMode();
+	if (h)
+		setHeight(h);
 
 	//init default button text font
 	ccf_btn_font	= g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
-
-	//init footer height
-	initCaptionFont();
-	height = height_old		= max(h, cch_font->getHeight());
 
 	shadow		= shadow_mode;
 	ccf_enable_button_shadow 	= false ;
 	ccf_button_shadow_width  	= shadow ? OFFSET_SHADOW/2 : 0;
 	ccf_button_shadow_force_paint 	= false;
+	ccf_button_container_y		= -1; //centered as default
 	col_frame = col_frame_old	= color_frame;
 	col_body = col_body_old		= color_body;
 	col_shadow = col_shadow_old	= color_shadow;
@@ -171,12 +175,15 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	*/
 	int dist = height/2-cch_offset;
 	int h_container = ccf_btn_font->getHeight() > height+dist ? height-dist : ccf_btn_font->getHeight()+dist;
+	h_container -= cc_parent ? (cc_parent->getFrameThickness()/2 - shadow_w) : 0; // if footer is embedded then consider possible frame around parent object (e.g. window)
 	int x_container = width/2 - w_container/2; //FIXME: only centered position, other items will be overpainted
-	int y_container = height/2 - h_container/2;
+	int y_container = ccf_button_container_y < 0 ? height/2 - h_container/2 : ccf_button_container_y;
+
 	if (cch_icon_obj)
 		 x_container = cch_offset+cch_icon_obj->getWidth()+cch_offset;
 	if (btn_container == NULL){
 		btn_container = new CComponentsFrmChain(x_container, y_container, w_container, h_container, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
+		btn_container->setItemName(cc_parent ? cc_parent->getItemName() + ":" + getItemName() + ":btn_container" : "");
 		btn_container->setAppendOffset(0, 0);
 		//btn_container->setCorner(this->corner_rad, this->corner_type);
 		btn_container->doPaintBg(false);
@@ -194,7 +201,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	*/
 	int x_btn = 0;
 	int h_btn = btn_container->getHeight()- 2*fr_thickness - ccf_button_shadow_width;
-	int y_btn = btn_container->getHeight()/2 - h_btn/2;
+	int y_btn = ccf_button_container_y < 0 ? btn_container->getHeight()/2 - h_btn/2 : ccf_button_container_y;
 
 	/*
 	 * Init button label objects
@@ -272,6 +279,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 			//w_btn_tmp = w_btn;
 			for (i = 0; i < c_btns; i++){
 				w_btn_tmp -= c_btns;
+				w_btn_tmp = max(0, w_btn_tmp);
 				btn_container->getCCItem(i)->setWidth(w_btn_tmp); // value = 0 forces recalculation, refresh is required
 				static_cast<CComponentsButton*>(btn_container->getCCItem(i))->Refresh();
 				w_used_tmp -= max(0, btn_container->getCCItem(i)->getWidth());
@@ -307,6 +315,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label * const conten
 	}
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 	delete[] buttons;
+	buttons = NULL;
 }
 
 void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content, const int& chain_width, const int& label_width)
@@ -326,6 +335,7 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content
 
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 	delete[] buttons;
+	buttons = NULL;
 }
 
 void CComponentsFooter::setButtonLabel(	const char *button_icon,
@@ -378,7 +388,7 @@ void CComponentsFooter::paintButtons(const int& x_pos,
 				     const int& label_width,
 				     const int& context_buttons,
 				     Font* font,
-				     bool do_save_bg)
+				     const bool &do_save_bg)
 {
 	this->setDimensionsAll(x_pos, y_pos, w, h);
 	this->setButtonFont(font);

@@ -46,7 +46,7 @@
 class CFrameBuffer;
 class COSDFader;
 class CInfoViewerBB;
-class CInfoViewer
+class CInfoViewer : public sigc::trackable
 {
  private:
 
@@ -82,6 +82,9 @@ class CInfoViewer
 	int            ChanHeight;
 	int            numbox_offset;
 	int            numbox_maxtxtwidth;
+	int            analogclock_size;
+	int            analogclock_offset;
+	fb_pixel_t*    analogclock_buf;
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
 	CSectionsdClient::CurrentNextInfo oldinfo;
@@ -96,7 +99,7 @@ class CInfoViewer
 	int header_height;
 	bool newfreq ;
 	static const short bar_width = 72;
-	static event_id_t last_curr_id, last_next_id;
+	static t_event_id last_curr_id, last_next_id;
 	uint64_t timeoutEnd;
 	void setInfobarTimeout(int timeout_ext = 0);
 
@@ -124,6 +127,7 @@ class CInfoViewer
 			  const char *nextStart = NULL, const char *nextDuration = NULL,
 			  bool update_current = true, bool update_next = true);
 	void initClock();
+	void showAnalogClock(int posx,int posy,int dia);
 	void showRecordIcon(const bool show);
 	void showIcon_Tuner() const;
 
@@ -131,8 +135,7 @@ class CInfoViewer
 	void showMotorMoving(int duration);
    	void showLcdPercentOver();
 	int showChannelLogo(const t_channel_id logo_channel_id, const int channel_number_width);
-	void showRadiotext();
-	void killRadiotext();
+	void enableRadiotext();
 
 	//small infobox, shows a small textbox with a short message text,
 	//text must be located in a file named /tmp/infobar.txt
@@ -216,6 +219,8 @@ class CInfoViewer
 	void 	ResetModules(bool kill = false);
 	void	KillModules() {ResetModules(true); };
 	bool 	hasTimeout();
+	sigc::signal<void> OnAfterKillTitle;
+	sigc::signal<void> OnEnableRadiotext;
 };
 #endif
 

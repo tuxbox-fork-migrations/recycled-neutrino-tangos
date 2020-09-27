@@ -8,7 +8,7 @@
 	Copyright (C) 2008-2009, 2011, 2013 Stefan Seyfried
 
 	Implementation of CComponent Window class.
-	Copyright (C) 2014-2016 Thilo Graf 'dbt'
+	Copyright (C) 2014-2019 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -37,6 +37,7 @@
 #include <gui/components/cc_timer.h>
 #include <driver/fontrenderer.h>
 #include <system/debug.h>
+#include <system/settings.h>
 
 #define MSG_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MESSAGE_TEXT]
 
@@ -67,14 +68,18 @@ CHintBox::CHintBox(	const neutrino_locale_t Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent): CComponentsWindow(	0, 0, Width,
+			const int& indent,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width): CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
 									NULL,
 									CC_SHADOW_ON)
 {
-	init(Text, Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
+	init(Text, Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent, color_frame, color_body, color_shadow, frame_width);
 }
 
 CHintBox::CHintBox(	const char * const Caption,
@@ -84,14 +89,18 @@ CHintBox::CHintBox(	const char * const Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	0, 0, Width,
+			const int& indent,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width):CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
 									NULL,
 									CC_SHADOW_ON)
 {
-	init(string(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
+	init(string(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent, color_frame, color_body, color_shadow, frame_width);
 }
 
 CHintBox::CHintBox(	const neutrino_locale_t  Caption,
@@ -101,14 +110,18 @@ CHintBox::CHintBox(	const neutrino_locale_t  Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	0, 0, Width,
+			const int& indent,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width):CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
 									NULL,
 									CC_SHADOW_ON)
 {
-	init(g_Locale->getText(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
+	init(g_Locale->getText(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent, color_frame, color_body, color_shadow, frame_width);
 }
 
 CHintBox::CHintBox(	const char * const Caption,
@@ -118,22 +131,41 @@ CHintBox::CHintBox(	const char * const Caption,
 			const char * const Picon,
 			const int& header_buttons,
 			const int& text_mode,
-			const int& indent):CComponentsWindow(	0, 0, Width,
+			const int& indent,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width):CComponentsWindow(	0, 0, Width,
 									HINTBOX_MIN_HEIGHT,
 									Caption,
 									string(Icon == NULL ? "" : Icon),
 									NULL,
 									CC_SHADOW_ON)
 {
-	init(g_Locale->getText(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent);
+	init(g_Locale->getText(Text), Width, string(Picon == NULL ? "" : Picon), header_buttons, text_mode, indent, color_frame, color_body, color_shadow, frame_width);
 }
 
 
-void CHintBox::init(const std::string& Text, const int& Width, const std::string& Picon, const int& header_buttons, const int& text_mode, const int& indent)
+void CHintBox::init(	const std::string& Text,
+			const int& Width,
+			const std::string& Picon,
+			const int& header_buttons,
+			const int& text_mode,
+			const int& indent,
+			const fb_pixel_t& color_frame,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_shadow,
+			const int& frame_width)
 {
+	cc_item_type.name = "wg.hintbox";
 	int _Width	= frameBuffer->scale2Res(Width);
 	timeout		= HINTBOX_DEFAULT_TIMEOUT;
 	w_indentation	= indent;
+
+	col_frame	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+	fr_thickness	= g_settings.theme.message_frame_enable ? frame_width : 0;
 
 	hb_font		= MSG_FONT;
 
@@ -158,6 +190,7 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 	y_hint_obj 	= CC_CENTERED;
 
 	//initialize timeout bar and its timer
+	enable_timeout_bar = false;
 	timeout_pb 	= NULL;
 	timeout_pb_timer= NULL;
 
@@ -169,38 +202,50 @@ void CHintBox::init(const std::string& Text, const int& Width, const std::string
 
 CHintBox::~CHintBox()
 {
+	enable_timeout_bar = false;
 	disableTimeOutBar();
 }
 
 void CHintBox::enableTimeOutBar(bool enable)
 {
-	if(!enable){
+	if (!enable_timeout_bar || !enable)
+	{
 		if(timeout_pb_timer){
 			delete timeout_pb_timer; timeout_pb_timer = NULL;
 		}
+
 		if(timeout_pb){
+			timeout_pb->setValues(100, 100);
+			timeout_pb->paint0();
+			timeout_pb->kill();
 			delete timeout_pb; timeout_pb = NULL;
 		}
 		return;
 	}
 
-	if(timeout_pb){
-		timeout_pb->paint0();
-		if (timeout > 0)
-			timeout_pb->setValues(timeout_pb->getValue()+1, 100*timeout);
-		CFrameBuffer::getInstance()->blit();
-	}else{
-		timeout_pb = new CProgressBar();
-		timeout_pb->setType(CProgressBar::PB_TIMESCALE);
-		timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
-		timeout_pb->setValues(0, 100*timeout);
-		if (!timeout_pb_timer) {
-			timeout_pb_timer = new CComponentsTimer(1, true);
-			timeout_pb_timer->setThreadName("hb:timeoutbar");
+	if (enable_timeout_bar && enable)
+	{
+		if(timeout_pb){
+			timeout_pb->setValues(timeout_pb->getValue()+1, 10*timeout);
+			timeout_pb->paint0();
+		}else{
+			if (!timeout_pb){
+				timeout_pb = new CProgressBar();
+				timeout_pb->setItemName("timeout_bar");
+				timeout_pb->setType(CProgressBar::PB_TIMESCALE);
+			}
+			timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
+			timeout_pb->setValues(timeout/10, timeout);
+			if (!timeout_pb_timer) {
+				timeout_pb_timer = new CComponentsTimer(100);
+				const string tn = cc_item_type.name + ":" + timeout_pb->getItemName() + ":";
+				timeout_pb_timer->setThreadName(tn);
+			}
+			sl_tbar_on_timer.disconnect();
+			sl_tbar_on_timer = sigc::mem_fun0(this, &CHintBox::showTimeOutBar);
+			timeout_pb_timer->OnTimer.connect(sl_tbar_on_timer);
+			timeout_pb_timer->startTimer();
 		}
-		if (timeout_pb_timer->OnTimer.empty())
-			timeout_pb_timer->OnTimer.connect(sigc::mem_fun0(this, &CHintBox::showTimeOutBar));
-		timeout_pb_timer->startTimer();
 	}
 }
 
@@ -214,8 +259,7 @@ int CHintBox::exec()
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
-	if (timeout > 0)
-		enableTimeOutBar();
+	enableTimeOutBar(timeout > 0);
 
 	while ( ! ( res & ( messages_return::cancel_info | messages_return::cancel_all ) ) )
 	{
@@ -400,10 +444,11 @@ void CHintBox::scroll_down(const uint& hint_id)
 
 int CHintBox::getMaxWidth(const string& Text, const string& Title, Font *font, const int& minWidth)
 {
-	int res = max(HINTBOX_MIN_WIDTH, max(minWidth+2*w_indentation, min(CTextBox::getMaxLineWidth(Text, font)+2*w_indentation, (int)frameBuffer->getScreenWidth())));
+	int res = max(HINTBOX_MIN_WIDTH, max(minWidth+2*w_indentation, min(CTextBox::getMaxLineWidth(Text, font)+2*w_indentation, (int)frameBuffer->getScreenWidth() - shadow_w)));
 	if (ccw_show_header){
 		initHeader();
-		return max(res, ccw_head->getCaptionFont()->getRenderWidth(Title) + 2*w_indentation);
+		int max_title_width = max(res, ccw_head->getCaptionFont()->getRenderWidth(Title) + 2*w_indentation);
+		return min(max_title_width, (int)frameBuffer->getScreenWidth() - shadow_w);
 	}
 
 	return res;
@@ -441,16 +486,12 @@ int ShowHint(const char * const Caption, const neutrino_locale_t Text, const int
 
 CHint::CHint(const char * const Text, bool show_background) : CHintBox("" , Text)
 {
-	paint_bg = show_background;
-	ccw_show_header = false;
-	ccw_show_footer = false;
+	initHint(show_background);
 }
 
 CHint::CHint(const neutrino_locale_t Text, bool show_background) : CHintBox("" , g_Locale->getText(Text))
 {
-	paint_bg = show_background;
-	ccw_show_header = false;
-	ccw_show_footer = false;
+	initHint(show_background);
 }
 
 int ShowHintS(const char * const Text, int timeout, bool show_background)

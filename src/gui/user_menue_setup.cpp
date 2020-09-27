@@ -96,7 +96,6 @@ static keyvals usermenu_items[] =
 	{ SNeutrinoSettings::ITEM_CLOCK,		LOCALE_CLOCK_SWITCH_ON,			usermenu_show },
 	{ SNeutrinoSettings::ITEM_GAMES,		LOCALE_MAINMENU_GAMES,			usermenu_show },
 	{ SNeutrinoSettings::ITEM_SCRIPTS,		LOCALE_MAINMENU_SCRIPTS,		usermenu_show },
-	{ SNeutrinoSettings::ITEM_YOUTUBE,		LOCALE_MOVIEPLAYER_YTPLAYBACK,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_FILEPLAY,		LOCALE_MOVIEPLAYER_FILEPLAYBACK,	usermenu_show },
 	{ SNeutrinoSettings::ITEM_TOOLS,		LOCALE_MAINMENU_TOOLS,			usermenu_show },
 #if 0
@@ -109,7 +108,7 @@ static keyvals usermenu_items[] =
 	{ SNeutrinoSettings::ITEM_INETPLAY,		LOCALE_INETRADIO_NAME,			usermenu_show },
 	{ SNeutrinoSettings::ITEM_NETSETTINGS,		LOCALE_MAINSETTINGS_NETWORK,		usermenu_show },
 #ifdef ENABLE_LCD4LINUX
-	{ SNeutrinoSettings::ITEM_LCD4LINUX,		LOCALE_LCD4L_SUPPORT,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_LCD4LINUX,		LOCALE_LCD4L_SUPPORT,			usermenu_show },
 #endif
 	{ SNeutrinoSettings::ITEM_SWUPDATE,		LOCALE_SERVICEMENU_UPDATE,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_LIVESTREAM_RESOLUTION,LOCALE_LIVESTREAM_RESOLUTION,		usermenu_show },
@@ -134,7 +133,7 @@ CUserMenuSetup::CUserMenuSetup(neutrino_locale_t menue_title, int menue_button)
 		const char *loc = g_Locale->getText(usermenu_items[i].value);
 		if (usermenu_items[i].show)
 			options.push_back(loc);
-		keys[loc] = to_string(usermenu_items[i].key);
+		keys[loc] = std::to_string(usermenu_items[i].key);
 		vals[keys[loc]] = loc;
 	}
 
@@ -254,7 +253,7 @@ int CUserMenuSetup::showSetup()
 
 	const char *delim = "";
 	g_settings.usermenu[button]->items = "";
-	std::string none = to_string(SNeutrinoSettings::ITEM_NONE);
+	std::string none = std::to_string(SNeutrinoSettings::ITEM_NONE);
 	for (int count = item_offset; count < items_end; count++) {
 		std::string lk = keys[static_cast<CMenuOptionStringChooser*>(ums->getItem(count))->getOptionValue()];
 		if (lk == none)

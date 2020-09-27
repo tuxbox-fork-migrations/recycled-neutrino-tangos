@@ -102,7 +102,7 @@ void	netGetIP(std::string &dev, std::string &ip, std::string &mask, std::string 
 
 
 	memset(&req,0,sizeof(req));
-	strncpy(req.ifr_name, dev.c_str(), sizeof(req.ifr_name));
+	strncpy(req.ifr_name, dev.c_str(), sizeof(req.ifr_name)-1);
 	saddr = (struct sockaddr_in *) &req.ifr_addr;
 	addr= (unsigned char*) &saddr->sin_addr.s_addr;
 
@@ -173,8 +173,8 @@ void netGetDefaultRoute( std::string &ip )
 	fp = fopen("/proc/net/route","r");
 	if (fp == NULL)
 		return;
-	fgets(zeile,sizeof(zeile),fp); /* skip header */
-	while(fgets(zeile,sizeof(zeile),fp))
+	char *fg = fgets(zeile,sizeof(zeile),fp); /* skip header */
+	while(fg && (fg = fgets(zeile,sizeof(zeile),fp)))
 	{
 		destination = 1; /* in case sscanf fails */
 		sscanf(zeile,"%8s %x %x", interface, &destination, &gw);
@@ -219,13 +219,18 @@ void netGetHostname( std::string &host )
 
 void	netSetHostname( std::string &host )
 {
-	FILE * fp;
-
-	sethostname(host.c_str(), host.length());
-	fp = fopen("/etc/hostname", "w");
-	if(fp != NULL) {
-		fprintf(fp, "%s\n", host.c_str());
-		fclose(fp);
+	if (sethostname(host.c_str(), host.length()) < 0)
+	{
+		fprintf(stderr, "error set %s\n", host.c_str());
+	}
+	else
+	{
+		FILE * fp = fopen("/etc/hostname", "w");
+		if(fp != NULL)
+		{
+			fprintf(fp, "%s\n", host.c_str());
+			fclose(fp);
+		}
 	}
 }
 
@@ -292,7 +297,7 @@ void netGetMacAddr(std::string &ifname, unsigned char *mac)
 		return;
 
 	ifr.ifr_addr.sa_family = AF_INET;
-	strncpy(ifr.ifr_name, ifname.c_str(), sizeof(ifr.ifr_name));
+	strncpy(ifr.ifr_name, ifname.c_str(), sizeof(ifr.ifr_name)-1);
 
 	if(ioctl(fd, SIOCGIFHWADDR, &ifr) < 0)
 		return;

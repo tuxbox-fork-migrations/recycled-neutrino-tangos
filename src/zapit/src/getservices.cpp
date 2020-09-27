@@ -715,6 +715,15 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 			case 2: // 8PSK
 				feparams.modulation = PSK_8;
 				break;
+			case 3: // 8APSK
+				feparams.modulation = APSK_8;
+				break;
+			case 4: // 16APSK
+				feparams.modulation = APSK_16;
+				break;
+			case 5: // 32APSK
+				feparams.modulation = APSK_32;
+				break;
 			default:
 				feparams.modulation = QAM_AUTO;
 				fprintf(stderr, "[getservices] %s: unknown modulation %d!\n", __func__, modulation);
@@ -796,75 +805,6 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 		tps = xmlNextNode(tps);
 	}
 }
-
-int CServiceManager::LoadMotorPositions(void)
-{
-	FILE *fd = NULL;
-	char buffer[256] = "";
-	t_satellite_position satellitePosition;
-	int spos = 0, mpos = 0, diseqc = 0, uncom = 0, com = 0, usals = 0, inuse, input = 0;
-	int offH = 10600, offL = 9750, sw = 11700;
-
-	printf("[getservices] loading motor positions...\n");
-
-	/* this is only read and never written, so it only serves for
-	 * upgrading from old pre-multituner capable neutrino */
-	if ((fd = fopen(SATCONFIG, "r"))) {
-		fgets(buffer, 255, fd);
-		while(!feof(fd)) {
-			sscanf(buffer, "%d %d %d %d %d %d %d %d %d %d %d", &spos, &mpos, &diseqc, &com, &uncom, &offL, &offH, &sw, &inuse, &usals, &input);
-
-			int configured = 0;
-			if (diseqc != -1 || com != -1 || uncom != -1 || usals != 0 || mpos != 0)
-				configured = 1;
-			satellitePosition = spos;
-			sat_iterator_t sit = satellitePositions.find(satellitePosition);
-			if(sit != satellitePositions.end()) {
-				sit->second.diseqc = diseqc;
-				sit->second.commited = com;
-				sit->second.uncommited = uncom;
-				sit->second.motor_position = mpos;
-				sit->second.lnbOffsetLow = offL;
-				sit->second.lnbOffsetHigh = offH;
-				sit->second.lnbSwitch = sw;
-				sit->second.use_in_scan = inuse;
-				sit->second.use_usals = usals;
-				sit->second.input = input;
-				sit->second.position = satellitePosition;
-				sit->second.configured = configured;
-			}
-			fgets(buffer, 255, fd);
-		}
-		fclose(fd);
-	}
-	else
-		printf("[getservices] %s not found.\n", SATCONFIG);
-
-	return 0;
-}
-#if 0 
-//never used
-void CServiceManager::SaveMotorPositions()
-{
-	FILE * fd;
-	sat_iterator_t sit;
-	printf("[getservices] saving motor positions...\n");
-
-	fd = fopen(SATCONFIG, "w");
-	if(fd == NULL) {
-		printf("[zapit] cannot open %s\n", SATCONFIG);
-		return;
-	}
-	fprintf(fd, "# sat position, stored rotor, diseqc, commited, uncommited, low, high, switch, use in full scan, use usals, input\n");
-	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); ++sit) {
-		fprintf(fd, "%d %d %d %d %d %d %d %d %d %d %d\n", sit->first, sit->second.motor_position,
-				sit->second.diseqc, sit->second.commited, sit->second.uncommited, sit->second.lnbOffsetLow,
-				sit->second.lnbOffsetHigh, sit->second.lnbSwitch, sit->second.use_in_scan, sit->second.use_usals, sit->second.input);
-	}
-	fdatasync(fileno(fd));
-	fclose(fd);
-}
-#endif
 
 bool CServiceManager::InitSatPosition(t_satellite_position position, const char * name, bool force, delivery_system_t delsys, uint16_t nid)
 {
@@ -1269,12 +1209,12 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 	if(!fd1) {
 		fprintf(fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit>\n");
 	} else {
-		fgets(buffer, 255, fd1);
-		while(!feof(fd1) && !strstr(buffer, satfound ? footer : "</zapit>")) {
+		char *fg = fgets(buffer, 255, fd1);
+		while(fg && !feof(fd1) && !strstr(buffer, satfound ? footer : "</zapit>")) {
 			if(!satfound && !strcmp(buffer, satstr))
 				satfound = 1;
 			fputs(buffer, fd);
-			fgets(buffer, 255, fd1);
+			fg = fgets(buffer, 255, fd1);
 		}
 	}
 	for (channel_map_iterator_t cI = curchans.begin(); cI != curchans.end(); ++cI) {
@@ -1305,10 +1245,10 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 	} else if(satfound)
 		fprintf(fd, "\t%s\n", footer);
 	if(fd1) {
-		fgets(buffer, 255, fd1);
-		while(!feof(fd1)) {
+		char *fg = fgets(buffer, 255, fd1);
+		while(fg && !feof(fd1)) {
 			fputs(buffer, fd);
-			fgets(buffer, 255, fd1);
+			fg = fgets(buffer, 255, fd1);
 		}
 		if(!satfound) fprintf(fd, "</zapit>\n");
 		fclose(fd1);

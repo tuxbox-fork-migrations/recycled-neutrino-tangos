@@ -247,13 +247,16 @@ bool CFEManager::loadSettings()
 		frontend_config_t & fe_config = fe->getConfig();
 		INFO("load config for fe%d", fe->fenumber);
 
-		fe_config.diseqcType		= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
+		if (fe->hasSat())
+			fe_config.diseqcType	= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
+		else
+			fe_config.diseqcType	= NO_DISEQC;
 		fe_config.diseqcRepeats		= getConfigValue(fe, "diseqcRepeats", 0);
 		fe_config.motorRotationSpeed	= getConfigValue(fe, "motorRotationSpeed", 18);
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
 		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", 0);
-		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
-		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", -1);
+		fe_config.uni_freq		= getConfigValue(fe, "uni_freq", 0);
+		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", 0);
 		fe_config.diseqc_order		= getConfigValue(fe, "diseqc_order", UNCOMMITED_FIRST);
 		fe_config.use_usals		= getConfigValue(fe, "use_usals", 0);
 		fe_config.rotor_swap		= getConfigValue(fe, "rotor_swap", 0);
@@ -357,7 +360,7 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "motorRotationSpeed", fe_config.motorRotationSpeed);
 		setConfigValue(fe, "highVoltage", fe_config.highVoltage);
 		setConfigValue(fe, "uni_scr", fe_config.uni_scr);
-		setConfigValue(fe, "uni_qrg", fe_config.uni_qrg);
+		setConfigValue(fe, "uni_freq", fe_config.uni_freq);
 		setConfigValue(fe, "uni_pin", fe_config.uni_pin);
 		setConfigValue(fe, "diseqc_order", fe_config.diseqc_order);
 		setConfigValue(fe, "use_usals", fe_config.use_usals);
@@ -505,16 +508,36 @@ void CFEManager::Open()
 	}
 }
 
+void CFEManager::Open(int _fe)
+{
+	CFrontend * fe = getFE(_fe);
+	if (!fe->Locked() && fe->getMode() != CFrontend::FE_MODE_UNUSED)
+		fe->Open(true);
+}
+
 void CFEManager::Close()
 {
-	if(have_locked)
+	if (have_locked)
 		return;
 
-	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+	for (fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		if(!fe->Locked())
 			fe->Close();
+		else
+			if (unlockFrontend(fe, true))
+				fe->Close();
 	}
+}
+
+void CFEManager::Close(int _fe)
+{
+	CFrontend * fe = getFE(_fe);
+	if (!fe->Locked())
+		fe->Close();
+	else
+		if (unlockFrontend(fe, true))
+			fe->Close();
 }
 
 CFrontend * CFEManager::getFE(int index)

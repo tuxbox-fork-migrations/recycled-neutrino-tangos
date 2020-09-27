@@ -278,12 +278,35 @@ int mkdirhier(const char *pathname, mode_t mode)
 }
 # endif
 
+/* This function is a replacement which makes sure that a \0 is always added,
+   cuz standard strncpy does not terminate the string if the source is exactly
+   as long or longer as the specified size. This can raise security issues.
+   num should be the real size of char array (do not subtract -1)
+*/
+void safe_strncpy(char *dest, const char *src, size_t num)
+{
+	if(!src)
+	{
+		dest[0] = '\0';
+		return;
+	}
+
+	uint32_t l, size = strlen(src);
+	if(size > num - 1)
+		l = num - 1;
+	else
+	l = size;
+
+	memcpy(dest, src, l);
+	dest[l] = '\0';
+}
+
 int safe_mkdir(const char * path)
 {
 	struct statfs s;
 	size_t l = strlen(path);
-	char d[l + 3];
-	strncpy(d, path, l);
+	char d[l];
+	safe_strncpy(d, path, l);
 
 	// skip trailing slashes
 	while (l > 0 && d[l - 1] == '/')
@@ -309,7 +332,7 @@ int check_dir(const char * dir, bool allow_tmp)
 	int ret = -1;
 	struct statfs s;
 	if (::statfs(dir, &s) == 0) {
-		switch (s.f_type) {
+		switch ((long unsigned int)s.f_type) {
 			case 0x858458f6L: 	// ramfs
 			case 0x1021994L: 	// tmpfs
 				if(allow_tmp)
@@ -404,6 +427,20 @@ std::string find_executable(const char *name)
 	return "";
 }
 
+bool exec_controlscript(std::string script)
+{
+	std::string controlscript = (std::string)CONTROLDIR + "/" + script;
+	if (access((std::string)CONTROLDIR_VAR + "/" + script.c_str(), X_OK) == 0)
+		controlscript = (std::string)CONTROLDIR_VAR + "/" + script;
+
+	dprintf(DEBUG_NORMAL, "executing %s\n", controlscript.c_str());
+	int ret = my_system(controlscript.c_str());
+	if (ret)
+		dprintf(DEBUG_NORMAL, "control script failed\n");
+
+	return ret;
+}
+
 std::string backtick(std::string command)
 {
 	char *buf = NULL;
@@ -446,7 +483,9 @@ std::string getPathName(std::string &path)
 
 std::string getBaseName(std::string &path)
 {
-	return _getBaseName(path, "/");
+	std::string p = path;
+	p = _getPathName(p, "?");
+	return _getBaseName(p, "/");
 }
 
 std::string getFileName(std::string &file)
@@ -456,7 +495,9 @@ std::string getFileName(std::string &file)
 
 std::string getFileExt(std::string &file)
 {
-	return _getBaseName(file, ".");
+	std::string f = file;
+	f = _getPathName(f, "?");
+	return _getBaseName(f, ".");
 }
 
 
@@ -474,6 +515,18 @@ std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
 {
 	std::string result = str.erase(str.find_last_not_of(trimChars) + 1);
 	return result.erase(0, result.find_first_not_of(trimChars));
+}
+
+std::string ltrim(std::string &str, const std::string &trimChars)
+{
+	str.erase(0, str.find_first_not_of(trimChars));
+	return str;
+}
+
+std::string rtrim(std::string &str, const std::string &trimChars)
+{
+	str.erase(str.find_last_not_of(trimChars) + 1);
+	return str;
 }
 
 std::string cutString(const std::string str, int msgFont, const int width)
@@ -590,7 +643,7 @@ const char *cstr_replace(const char *search, const char *replace, const char *te
 		tmp = strncpy(tmp, replace, len_replace) + len_replace;
 		text += len_front + len_search; // move to next "end of search"
 	}
-	strncpy(tmp, text, strlen(text));
+	safe_strncpy(tmp, text, strlen(text));
 	return result;
 }
 
@@ -617,6 +670,7 @@ std::string& htmlEntityDecode(std::string& text)
 		{"„",  "&#8222;"},
 		{"•",  "&#8226;"},
 		{"…",  "&#8230;"},
+		{"'",  "&#39;"},
 		{NULL,  NULL}
 	};
 	for (int i = 0; dt[i].code != NULL; i++)
@@ -1177,50 +1231,6 @@ std::vector<std::string> split(const std::string &s, char delim)
 	return vec;
 }
 
-#if __cplusplus < 201103L
-std::string to_string(int i)
-{
-	std::stringstream s;
-	s << i;
-	return s.str();
-}
-
-std::string to_string(unsigned int i)
-{
-	std::stringstream s;
-	s << i;
-	return s.str();
-}
-
-std::string to_string(long i)
-{
-	std::stringstream s;
-	s << i;
-	return s.str();
-}
-
-std::string to_string(unsigned long i)
-{
-	std::stringstream s;
-	s << i;
-	return s.str();
-}
-
-std::string to_string(long long i)
-{
-	std::stringstream s;
-	s << i;
-	return s.str();
-}
-
-std::string to_string(unsigned long long i)
-{
-	std::stringstream s;
-	s << i;
-	return s.str();
-}
-#endif
-
 /**
  * C++ version 0.4 std::string style "itoa":
  * Contributions from Stuart Lowe, Ray-Yuan Sheu,
@@ -1772,4 +1782,163 @@ std::string encodeUrl(std::string txt)
 	return txt;
 }
 
-//
+bool isDigitWord(std::string str)
+{
+	for (size_t i=0; i < str.size(); i++)
+		if (!isdigit(str[i]))
+			return false;
+
+	return true;
+}
+
+int getActivePartition()
+{
+	int c = -1;
+
+#if BOXMODEL_VUPLUS4K
+	FILE *f;
+	f = fopen("/proc/cmdline", "r");
+	if (f)
+	{
+		char buf[256] = "";
+		while(fgets(buf, sizeof(buf), f) != NULL)
+		{
+#if BOXMODEL_VUUNO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUSOLO4K || BOXMODEL_VUULTIMO4K
+			if (strstr(buf, "mmcblk0p5") != NULL)
+			{
+				c = 1;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p7") != NULL)
+			{
+				c = 2;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p9") != NULL)
+			{
+				c = 3;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p11") != NULL)
+			{
+				c = 4;
+				break;
+			}
+#elif BOXMODEL_VUZERO4K
+			if (strstr(buf, "mmcblk0p8") != NULL)
+			{
+				c = 1;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p10") != NULL)
+			{
+				c = 2;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p12") != NULL)
+			{
+				c = 3;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p14") != NULL)
+			{
+				c = 4;
+				break;
+			}
+#elif BOXMODEL_VUDUO4K
+			if (strstr(buf, "mmcblk0p10") != NULL)
+			{
+				c = 1;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p12") != NULL)
+			{
+				c = 2;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p14") != NULL)
+			{
+				c = 3;
+				break;
+			}
+			if (strstr(buf, "mmcblk0p16") != NULL)
+			{
+				c = 4;
+				break;
+			}
+#endif
+		}
+		fclose(f);
+	}
+#elif BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
+	FILE *f;
+	// first check for subdirboot layout
+	f = fopen("/sys/firmware/devicetree/base/chosen/bootargs", "r");
+	if (f)
+	{
+		char line[1024];
+		char *p;
+		if (fgets(line, sizeof(line), f) != NULL)
+		{
+			p = strtok(line, " =");
+			while (p != NULL)
+			{
+				if (strncmp("linuxrootfs", p, 11) == 0)
+				{
+					c = atoi(p + 11);
+					break;
+				}
+				p = strtok(NULL, " =");
+			}
+		}
+		fclose(f);
+	}
+	// then check for classic layout
+	if (c < 0)
+	{
+		f = fopen("/sys/firmware/devicetree/base/chosen/kerneldev", "r");
+		if (f)
+		{
+			if (fseek(f, -2, SEEK_END) == 0)
+			{
+				c = (int)fgetc(f);
+			}
+			fclose(f);
+		}
+	}
+#endif
+
+	return c;
+}
+
+// Why different name conventions ?
+// i put them all together here, and keep the simplest
+//name = str_replace(" ", "_", name);
+//name = str_replace("ä", "a", name);
+//name = str_replace("ö", "o", name);
+//name = str_replace("ü", "u", name);
+//name = str_replace("+", "___plus___", name);
+//name = str_replace("&", "___and___", name);
+std::string GetSpecialName(std::string name)
+{
+	std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+	name = str_replace(" ", "-", name);
+	name = str_replace("ä", "ae", name);
+	name = str_replace("ö", "oe", name);
+	name = str_replace("ü", "ue", name);
+	name = str_replace("ß", "ss", name);
+	name = str_replace("+", "-", name);
+	name = str_replace("&", "-", name);
+	name = str_replace("!", "-", name);
+	name = str_replace(",", "-", name);
+	name = str_replace(";", "-", name);
+	name = str_replace(":", "-", name);
+	name = str_replace("*", "-", name);
+	name = str_replace("'", "-", name);
+	name = str_replace("?", "-", name);
+	name = str_replace("|", "-", name);
+	name = str_replace("/", "-", name);
+	name = str_replace("\\", "-", name);
+
+	return name;
+}

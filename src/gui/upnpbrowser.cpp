@@ -82,8 +82,8 @@ CUpnpBrowserGui::CUpnpBrowserGui()
 	image = NULL;
 
 	sigc::slot0<void> reinit = sigc::mem_fun(this, &CUpnpBrowserGui::Init);
-	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(reinit);
-	CFrameBuffer::getInstance()->OnAfterSetPallette.connect(reinit);
+	sigFonts = CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(reinit);
+	sigPall = CFrameBuffer::getInstance()->OnAfterSetPallette.connect(reinit);
 }
 
 void CUpnpBrowserGui::Init()
@@ -163,12 +163,18 @@ void CUpnpBrowserGui::Init()
 
 CUpnpBrowserGui::~CUpnpBrowserGui()
 {
+	sigFonts.disconnect();
+	sigPall.disconnect();
+
 	delete m_socket;
-	if (dline){
-		delete dline; dline = NULL;
+	if (dline) {
+		delete dline;
+		dline = NULL;
 	}
-	if (image)
-		delete image, image = NULL;
+	if (image) {
+		delete image;
+		image = NULL;
+	}
 }
 
 int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
@@ -256,7 +262,7 @@ bool CUpnpBrowserGui::discoverDevices()
 	try {
 		m_devices = m_socket->Discover("urn:schemas-upnp-org:service:ContentDirectory:1");
 	}
-	catch (std::runtime_error error)
+	catch (std::runtime_error& error)
 	{
 		hintbox.hide();
 		DisplayErrorMessage(error.what());
@@ -291,7 +297,7 @@ bool CUpnpBrowserGui::getResults(std::string id, unsigned int start, unsigned in
 	{
 		results=m_devices[m_selecteddevice].SendSOAP("urn:schemas-upnp-org:service:ContentDirectory:1", "Browse", attribs);
 	}
-	catch (std::runtime_error error)
+	catch (std::runtime_error& error)
 	{
 		DisplayErrorMessage(error.what());
 		return false;
@@ -1016,7 +1022,7 @@ void CUpnpBrowserGui::paintDevice(unsigned int _pos)
 	if (pos >= m_devices.size())
 		return;
 
-	std::string num = to_string(pos + 1);
+	std::string num = std::to_string(pos + 1);
 	std::string name = m_devices[pos].friendlyname;
 
 	int w = g_Font[font_item]->getRenderWidth(name);
@@ -1302,8 +1308,8 @@ void CUpnpBrowserGui::updateTimes(const bool force)
 		}
 
 		//printf("updateTimes: force %d updatePlayed %d\n", force, updatePlayed);
-		char play_time[8];
-		snprintf(play_time, 7, "%ld:%02ld", m_time_played / 60, m_time_played % 60);
+		char play_time[14];
+		snprintf(play_time, sizeof(play_time), "%ld:%02ld", m_time_played / 60, m_time_played % 60);
 
 		if (updatePlayed){
 			timebox.setText(play_time, CTextBox::CENTER);

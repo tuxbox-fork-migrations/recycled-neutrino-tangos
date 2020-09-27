@@ -55,17 +55,27 @@
 #include <vector>
 #include <gui/widget/textbox.h>
 #include <driver/fb_window.h>
+#include <gui/components/cc.h>
 
-#define LF_MAX_ROWS 9
-typedef struct
+#define LF_MAX_ROWS 10
+
+typedef struct lf_row_types_t
+{
+	std::vector<std::string> v_text;
+	std::vector<CComponentsItem*> v_ccItem;
+}lf_row_types_struct;
+
+typedef struct lf_line_types_t
 {
 	int rows;
 	std::string lineHeader[LF_MAX_ROWS];
-	std::vector<std::string> lineArray[LF_MAX_ROWS];
+	lf_row_types_t lineArray[LF_MAX_ROWS];
 	int rowWidth[LF_MAX_ROWS];
 	std::vector<std::string> Icon;
 	std::vector<bool> marked;
-}LF_LINES;
+
+
+}lf_line_types_struct;
 
 class CListFrame  
 {
@@ -81,9 +91,10 @@ class CListFrame
 		void reSizeMainFrameWidth(int maxTextWidth);
 		void reSizeMainFrameHeight(int maxTextHeight);
 		int  paintListIcon(int x, int y, int line);
+		void paintRowText(const std::string& text, Font* font, const int& x_pos, const int& y_pos, const int& dx, const int& dy, const fb_pixel_t& col);
 
 		/* Variables */
-		LF_LINES* m_pLines;
+		lf_line_types_t* m_pLines;
 
 		CBox m_cFrame;
 		CBox m_cFrameTitleRel;
@@ -105,6 +116,7 @@ class CListFrame
 		int m_nSelectedLine;
 
 		int m_nBgRadius;
+		int* m_cutRowText;
 
 		bool m_showSelection;
 		
@@ -122,8 +134,8 @@ class CListFrame
 	public:
 		/* Constructor */
 		CListFrame();
-		CListFrame(	LF_LINES* lines);
-		CListFrame(	LF_LINES* lines, 
+		CListFrame(	lf_line_types_t* lines);
+		CListFrame(	lf_line_types_t* lines,
 					Font* font_text,
 					const int mode, 
 					const CBox* position,
@@ -139,7 +151,9 @@ class CListFrame
 		void    scrollPageUp(const int pages);				
 		void 	scrollLineDown(const int lines);
 		void 	scrollLineUp(const int lines);
-		bool	setLines(LF_LINES* lines);
+		bool	setLines(lf_line_types_t* lines);
+		static void	addLine2Row(lf_line_types_t* lines, const int& row_num, const std::string& text, CComponentsItem* cc_Item = NULL);
+		static void	cleanupRow(lf_line_types_t* lines, const int& row_num);
 		bool	setTitle(char* title);
 		bool    setSelectedLine(int selection);
 		void	setSelectedMarked(bool enable);
@@ -167,6 +181,7 @@ inline  int     getPages(void)				{return(m_nNrOfPages);};
 inline  void    showSelection(bool show)	{m_showSelection = show;refreshLine(m_nSelectedLine);};
 inline	void	movePosition(int x, int y){m_cFrame.iX = x; m_cFrame.iY = y;};
 inline	int		getLineHeight()				{return m_nFontListHeight;}
+inline	void	cutRowText(int *catRowText)	{m_cutRowText = catRowText;}
 
 		/* Variables */
 	typedef enum mode_

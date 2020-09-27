@@ -1,8 +1,4 @@
-if ENABLE_UPNP
 AM_CPPFLAGS = -fno-rtti -D__STDC_FORMAT_MACROS
-else
-AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
-endif
 BUILT_SOURCES = version.h
 version.h:
 	@rm -f $@; \
@@ -84,6 +80,7 @@ libneutrino_gui_a_SOURCES = \
 	pluginlist.cpp \
 	plugins.cpp \
 	proxyserver_setup.cpp \
+	radiotext_window.cpp \
 	rc_lock.cpp \
 	record_setup.cpp \
 	scan.cpp \
@@ -105,6 +102,7 @@ libneutrino_gui_a_SOURCES = \
 	vfd_setup.cpp \
 	videosettings.cpp \
 	volumebar.cpp \
+	weather.cpp \
 	webtv_setup.cpp \
 	webradio_setup.cpp \
 	xmltv_setup.cpp \
@@ -134,6 +132,11 @@ endif
 if BOXTYPE_ARMBOX
 libneutrino_gui_a_SOURCES += \
 	psisetup.cpp \
+	3dsetup.cpp
+endif
+
+if BOXTYPE_MIPSBOX
+libneutrino_gui_a_SOURCES += \
 	3dsetup.cpp
 endif
 

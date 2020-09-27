@@ -39,10 +39,12 @@
 #define ZAPIT_DS_ISDBS		0x00000200
 #define ZAPIT_DS_ISDBC		0x00000400
 #define ZAPIT_DS_ISDBT		0x00000800
-#define ZAPIT_DS_MASK		0x00000FFF // WARNING: update this mask if delivery systems are added.
+#define ZAPIT_DS_DVB_S2X	0x00001000
+#define ZAPIT_DS_MASK		0x0000FFFF // WARNING: update this mask if delivery systems are added.
 // Delivery Method
 #define ZAPIT_DM_SAT		(ZAPIT_DS_DVB_S  | \
 				 ZAPIT_DS_DVB_S2 | \
+				 ZAPIT_DS_DVB_S2X| \
 				 ZAPIT_DS_DSS	 | \
 				 ZAPIT_DS_TURBO  | \
 				 ZAPIT_DS_ISDBS)
@@ -93,6 +95,7 @@ typedef enum {
 	ISDBS	= ZAPIT_DS_ISDBS,
 	ISDBC	= ZAPIT_DS_ISDBC,
 	ISDBT	= ZAPIT_DS_ISDBT,
+	DVB_S2X = ZAPIT_DS_DVB_S2X,
 	//
 	ALL_SAT = ZAPIT_DM_SAT,
 	ALL_CABLE = ZAPIT_DM_CABLE,
@@ -102,8 +105,7 @@ typedef enum {
 typedef enum {
 	ZPILOT_ON,
 	ZPILOT_OFF,
-	ZPILOT_AUTO,
-	ZPILOT_AUTO_SW
+	ZPILOT_AUTO
 } zapit_pilot_t;
 
 typedef enum {
@@ -143,7 +145,7 @@ typedef struct frontend_config {
 	int diseqcRepeats;
 	int diseqcType;
 	int uni_scr;
-	int uni_qrg;
+	int uni_freq;
 	int uni_lnb;
 	int uni_pin;
 	int motorRotationSpeed;

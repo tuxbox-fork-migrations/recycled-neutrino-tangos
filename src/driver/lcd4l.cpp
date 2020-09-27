@@ -7,7 +7,7 @@
 	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Copyright (C) 2016-2018  'TangoCash'
+	Copyright (C) 2016-2019 'TangoCash'
 
 	License: GPL
 
@@ -54,6 +54,7 @@
 #include <gui/pictureviewer.h>
 #include <eitd/sectionsd.h>
 #include <hardware/video.h>
+#include <gui/weather.h>
 
 #include "lcd4l.h"
 
@@ -104,6 +105,12 @@ extern CPictureViewer *g_PicViewer;
 #define FCOLOR2			LCD_DATADIR "fcolor2"
 #define PBCOLOR			LCD_DATADIR "pbcolor"
 
+#define WEATHER_CITY		LCD_DATADIR "weather_city"
+#define WEATHER_TIMESTAMP	LCD_DATADIR "weather_timestamp"
+#define WEATHER_TEMP		LCD_DATADIR "weather_temp"
+#define WEATHER_WIND		LCD_DATADIR "weather_wind"
+#define WEATHER_ICON		LCD_DATADIR "weather_icon"
+
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
 #define PIDFILE			"/tmp/lcd4linux.pid"
 #define PNGFILE			"/tmp/lcd4linux.png"
@@ -112,6 +119,7 @@ static void lcd4linux(bool run)
 {
 	const char *buf = "lcd4linux";
 	const char *conf = "/etc/lcd4linux.conf";
+	std::string lcd4l_bin = find_executable(buf);
 
 	chmod(conf,0x600);
 	chown(conf,0,0);
@@ -120,10 +128,10 @@ static void lcd4linux(bool run)
 	{
 		if (g_settings.lcd4l_display_type == CLCD4l::PNG)
 		{
-			if (my_system(3, buf, "-o", PNGFILE) != 0)
+			if (my_system(3, lcd4l_bin.c_str(), "-o", PNGFILE) != 0)
 				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, buf, PNGFILE);
 		} else {
-			if (my_system(1, buf) != 0)
+			if (my_system(1, lcd4l_bin.c_str()) != 0)
 				printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, buf);
 		}
 		sleep(2);
@@ -231,7 +239,8 @@ int CLCD4l::GetMaxBrightness()
 		case SAMSUNG800x480:
 		case SAMSUNG800x600:
 		case SAMSUNG1024x600:
-		case VUSOLO4K480x320:
+		case VUPLUS4K480x320:
+		case VUPLUS4K800x480:
 		case PNG:
 			max_brightness = 10;
 			break;
@@ -279,6 +288,12 @@ void CLCD4l::Init()
 		m_Duration[i] = ' ';
 	m_Start		= "00:00";
 	m_End		= "00:00";
+
+	m_wcity		= "";
+	m_wtimestamp	= "";
+	m_wtemp		= "";
+	m_wwind		= "";
+	m_wicon		= "";
 
 	if (!access(LCD_DATADIR, F_OK) == 0)
 		mkdir(LCD_DATADIR, 0755);
@@ -425,7 +440,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	int Brightness = g_settings.lcd4l_brightness;
 	if (m_Brightness != Brightness)
 	{
-		WriteFile(BRIGHTNESS, to_string(Brightness));
+		WriteFile(BRIGHTNESS, std::to_string(Brightness));
 		m_Brightness = Brightness;
 		lcd4linux(false);
 		lcd4linux(true);
@@ -434,7 +449,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	int Brightness_standby = g_settings.lcd4l_brightness_standby;
 	if (m_Brightness_standby != Brightness_standby)
 	{
-		WriteFile(BRIGHTNESS_STANDBY, to_string(Brightness_standby));
+		WriteFile(BRIGHTNESS_STANDBY, std::to_string(Brightness_standby));
 		m_Brightness_standby = Brightness_standby;
 		lcd4linux(false);
 		lcd4linux(true);
@@ -448,8 +463,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	if (y_res == 1088)
 		y_res = 1080;
 
-	std::string Resolution = to_string(x_res) + "x" + to_string(y_res);
-	//Resolution += "\n" + to_string(framerate); //TODO
+	std::string Resolution = std::to_string(x_res) + "x" + std::to_string(y_res);
+	//Resolution += "\n" + std::to_string(framerate); //TODO
 
 	if (m_Resolution.compare(Resolution))
 	{
@@ -531,7 +546,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_Tuner != Tuner)
 	{
-		WriteFile(TUNER, to_string(Tuner));
+		WriteFile(TUNER, std::to_string(Tuner));
 		m_Tuner = Tuner;
 	}
 
@@ -541,7 +556,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_Volume != Volume)
 	{
-		WriteFile(VOLUME, to_string(Volume));
+		WriteFile(VOLUME, std::to_string(Volume));
 		m_Volume = Volume;
 	}
 
@@ -748,7 +763,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (m_ChannelNr != ChannelNr)
 		{
-			WriteFile(CHANNELNR, to_string(ChannelNr));
+			WriteFile(CHANNELNR, std::to_string(ChannelNr));
 			m_ChannelNr = ChannelNr;
 		}
 
@@ -763,7 +778,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (m_ModeLogo != ModeLogo)
 		{
-			WriteFile(MODE_LOGO, to_string(ModeLogo));
+			WriteFile(MODE_LOGO, std::to_string(ModeLogo));
 			m_ModeLogo = ModeLogo;
 		}
 
@@ -776,9 +791,14 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			case PNG:
 				DisplayType = "PNG_";
 				break;
-#if defined BOXMODEL_VUSOLO4K
-			case VUSOLO4K480x320:
-				DisplayType = "VUSolo4K_";
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+			case VUPLUS4K480x320:
+				DisplayType = "VUPLUS4K_";
+				break;
+#endif
+#if BOXMODEL_VUULTIMO4K
+			case VUPLUS4K800x480:
+				DisplayType = "VUPLUS4K_";
 				break;
 #endif
 			case SAMSUNG800x480:
@@ -856,7 +876,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		CSectionsdClient::CurrentNextInfo CurrentNext;
 		CEitManager::getInstance()->getCurrentNextServiceKey(channel_id, CurrentNext);
 
-		if (CSectionsdClient::epgflags::has_current)
+		if (CurrentNext.flags & CSectionsdClient::epgflags::has_current)
 		{
 			if (!CurrentNext.current_name.empty())
 				Event = CurrentNext.current_name;
@@ -868,29 +888,32 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				Info2 = shortEpgData.info2;
 			}
 
-			if ((CurrentNext.current_zeit.dauer > 0) && (CurrentNext.current_zeit.dauer < 86400))
+			time_t cur_duration = CurrentNext.current_zeit.dauer;
+			time_t cur_start_time = CurrentNext.current_zeit.startzeit;
+			if ((cur_duration > 0) && (cur_duration < 86400))
 			{
-				Progress = 100 * (time(NULL) - CurrentNext.current_zeit.startzeit) / CurrentNext.current_zeit.dauer;
+				Progress = 100 * (time(NULL) - cur_start_time) / cur_duration;
 
-				int total = CurrentNext.current_zeit.dauer / 60;
-				int done = (abs(time(NULL) - CurrentNext.current_zeit.startzeit) + 30) / 60;
+				int total = cur_duration / 60;
+				int done = (abs(time(NULL) - cur_start_time) + 30) / 60;
 				int todo = total - done;
-				if ((time(NULL) < CurrentNext.current_zeit.startzeit) && todo >= 0)
+				if ((time(NULL) < cur_start_time) && todo >= 0)
 				{
 					done = 0;
-					todo = CurrentNext.current_zeit.dauer / 60;
+					todo = cur_duration / 60;
 				}
 				snprintf(Duration, sizeof(Duration), "%d/%d", done, total);
 			}
 
-			tm_struct = localtime(&CurrentNext.current_zeit.startzeit);
+			tm_struct = localtime(&cur_start_time);
 			snprintf(Start, sizeof(Start), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 		}
 
-		if (CSectionsdClient::epgflags::has_next)
+		if (CurrentNext.flags & CSectionsdClient::epgflags::has_next)
 		{
 			Event += "\n" + CurrentNext.next_name;
-			tm_struct = localtime(&CurrentNext.next_zeit.startzeit);
+			time_t next_start_time = CurrentNext.next_zeit.startzeit;
+			tm_struct = localtime(&next_start_time);
 			snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 		}
 	}
@@ -1015,7 +1038,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_Progress != Progress)
 	{
-		WriteFile(PROGRESS, to_string(Progress));
+		WriteFile(PROGRESS, std::to_string(Progress));
 		m_Progress = Progress;
 	}
 
@@ -1023,6 +1046,63 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	{
 		WriteFile(DURATION, (std::string)Duration);
 		strcpy(m_Duration, Duration);
+	}
+
+	if (g_settings.weather_enabled && CWeather::getInstance()->checkUpdate(firstRun))
+	{
+		std::string wcity = CWeather::getInstance()->getCity();
+		if (m_wcity.compare(wcity))
+		{
+			WriteFile(WEATHER_CITY, wcity);
+			m_wcity = wcity;
+		}
+
+		int forecast = CWeather::getInstance()->getForecastSize();
+
+		std::string wtimestamp = std::to_string((int)CWeather::getInstance()->getCurrentTimestamp());
+		for (int i = 1; i < forecast; i++) // 0 is current day
+		{
+			wtimestamp += "\n" + std::to_string(CWeather::getInstance()->getForecastWeekday(i));
+		}
+		if (m_wtimestamp.compare(wtimestamp))
+		{
+			WriteFile(WEATHER_TIMESTAMP, wtimestamp);
+			m_wtimestamp = wtimestamp;
+		}
+
+		std::string wtemp = CWeather::getInstance()->getCurrentTemperature();
+		for (int i = 1; i < forecast; i++) // 0 is current day
+		{
+			wtemp += "\n" + CWeather::getInstance()->getForecastTemperatureMin(i);
+			wtemp += "|" + CWeather::getInstance()->getForecastTemperatureMax(i);
+		}
+		if (m_wtemp.compare(wtemp))
+		{
+			WriteFile(WEATHER_TEMP, wtemp);
+			m_wtemp = wtemp;
+		}
+
+		std::string wwind = CWeather::getInstance()->getCurrentWindSpeed();
+		wwind += "|" + CWeather::getInstance()->getCurrentWindBearing();
+		for (int i = 1; i < forecast; i++) // 0 is current day
+		{
+			wwind += "\n" + CWeather::getInstance()->getForecastWindSpeed(i);
+			wwind += "|" + CWeather::getInstance()->getForecastWindBearing(i);
+		}
+		if (m_wwind.compare(wwind))
+		{
+			WriteFile(WEATHER_WIND, wwind);
+			m_wwind = wwind;
+		}
+
+		std::string wicon = CWeather::getInstance()->getCurrentIcon();
+		for (int i = 0; i < forecast; i++)
+			wicon += "\n" + CWeather::getInstance()->getForecastIcon(i);
+		if (m_wicon.compare(wicon))
+		{
+			WriteFile(WEATHER_ICON, wicon);
+			m_wicon = wicon;
+		}
 	}
 }
 
@@ -1128,7 +1208,7 @@ void CLCD4l::strReplace(std::string &orig, const std::string &fstr, const std::s
 
 std::string CLCD4l::hexStr(unsigned char data)
 {
-	char hexstr[3];
+	char hexstr[4];
 	snprintf(hexstr, sizeof hexstr, "%02x", (int)data * 255 / 100);
 	return std::string(hexstr);
 }

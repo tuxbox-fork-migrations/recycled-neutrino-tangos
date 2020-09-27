@@ -72,7 +72,6 @@ void CFrameBuffer::waitForIdle(const char *)
 
 /*******************************************************************************/
 
-static uint8_t * virtual_fb = NULL;
 inline unsigned int make16color(uint16_t r, uint16_t g, uint16_t b, uint16_t t,
 				  uint32_t  /*rl*/ = 0, uint32_t  /*ro*/ = 0,
 				  uint32_t  /*gl*/ = 0, uint32_t  /*go*/ = 0,
@@ -147,6 +146,9 @@ CFrameBuffer* CFrameBuffer::getInstance()
 #endif
 #if HAVE_ARM_HARDWARE
 		frameBuffer = new CFbAccelARM();
+#endif
+#if HAVE_MIPS_HARDWARE
+		frameBuffer = new CFbAccelMIPS();
 #endif
 		if (!frameBuffer)
 			frameBuffer = new CFrameBuffer();
@@ -239,10 +241,6 @@ CFrameBuffer::~CFrameBuffer()
 		munmap(lfb, available);
 	lfb = NULL;
 
-	if (virtual_fb){
-		delete[] virtual_fb;
-		virtual_fb = NULL;
-	}
 	close(fd);
 	fd = -1;
 
@@ -259,7 +257,7 @@ unsigned int CFrameBuffer::getStride() const
 	return stride;
 }
 
-unsigned int CFrameBuffer::getScreenWidth(bool real)
+unsigned int CFrameBuffer::getScreenWidth(const bool& real) const
 {
 	if(real)
 		return xRes;
@@ -267,7 +265,7 @@ unsigned int CFrameBuffer::getScreenWidth(bool real)
 		return g_settings.screen_EndX - g_settings.screen_StartX;
 }
 
-unsigned int CFrameBuffer::getScreenHeight(bool real)
+unsigned int CFrameBuffer::getScreenHeight(const bool& real) const
 {
 	if(real)
 		return yRes;
@@ -300,10 +298,7 @@ unsigned int CFrameBuffer::getScreenY()
 
 fb_pixel_t * CFrameBuffer::getFrameBufferPointer() const
 {
-	if (active || (virtual_fb == NULL))
-		return lbb;
-	else
-		return (fb_pixel_t *) virtual_fb;
+	return lbb;
 }
 
 /* dummy if not implemented in CFbAccel */
@@ -314,7 +309,7 @@ fb_pixel_t * CFrameBuffer::getBackBufferPointer() const
 
 bool CFrameBuffer::getActive() const
 {
-	return (active || (virtual_fb != NULL));
+	return active;
 }
 
 void CFrameBuffer::setActive(bool enable)
@@ -779,7 +774,12 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 		return false;
 	}
 
-	read(lfd, &header, sizeof(struct rawHeader));
+	ssize_t r = read(lfd, &header, sizeof(struct rawHeader));
+	if(r <= 0)
+	{
+		close(fd);
+		return false;
+	}
 
 	width  = (header.width_hi  << 8) | header.width_lo;
 	height = (header.height_hi << 8) | header.height_lo;
@@ -795,7 +795,11 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	fb_pixel_t *d = getFrameBufferPointer() + x + swidth * y;
 	fb_pixel_t * d2;
 	for (int count=0; count<height; count ++ ) {
-		read(lfd, &pixbuf[0], width );
+		r = read(lfd, &pixbuf[0], width );
+		if(r <= 0){
+			close(fd);
+			return false;
+		}
 		unsigned char *pixpos = &pixbuf[0];
 		d2 = d;
 		for (int count2=0; count2<width; count2 ++ ) {
@@ -820,14 +824,14 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const int y,
 			     const int h, const unsigned char offset, bool paint, bool paintBg, const fb_pixel_t colBg)
 {
+	if (!getActive())
+		return false;
+
 	struct rawHeader header;
-	int	 width, height;
+	int	 width = 0, height = 0;
 	fb_pixel_t * data;
 	struct rawIcon tmpIcon;
 	std::map<std::string, rawIcon>::iterator it;
-
-	if (!getActive())
-		return false;
 
 	int  yy = y;
 	bool freeicondata = false;
@@ -840,6 +844,9 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		//printf("CFrameBuffer::paintIcon: check for %s\n", newname.c_str());fflush(stdout);
 
 		data = g_PicViewer->getIcon(newname, &width, &height);
+		if (width < 1 || height < 1){
+			return false;
+		}
 
 		if(data) { //TODO: intercepting of possible full icon cache, that could cause strange behavior while painting of uncached icons
 			int dsize = width*height*sizeof(fb_pixel_t);
@@ -890,7 +897,11 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 
 		unsigned char pixbuf[768];
 		for (int count = 0; count < height; count ++ ) {
-			read(lfd, &pixbuf[0], width >> 1 );
+			s = read(lfd, &pixbuf[0], width >> 1 );
+			if(s <= 0)
+			{
+				break;
+			}
 			unsigned char *pixpos = &pixbuf[0];
 			for (int count2 = 0; count2 < width >> 1; count2 ++ ) {
 				unsigned char compressed = *pixpos;
@@ -1526,10 +1537,16 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 
 }
 
-void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
+void CFrameBuffer::RestoreScreen(const int& x, const int& y, const int& dx, const int& dy, fb_pixel_t * const memp)
 {
 	if (!getActive())
 		return;
+
+	if (dx > (int)xRes || dy > (int)yRes)
+	{
+		dprintf(DEBUG_NORMAL, "\033[31m[CFrameBuffer]\[%s - %d], dimension error dx [%d]  dy [%d] \033[0m\n", __func__, __LINE__, dx, dy);
+		return;
+	}
 
 	checkFbArea(x, y, dx, dy, true);
 	fb_pixel_t * fbpos = getFrameBufferPointer() + x + swidth * y;
@@ -1550,18 +1567,84 @@ void CFrameBuffer::Clear()
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 }
 
-bool CFrameBuffer::showFrame(const std::string & filename)
+bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 {
 	std::string picture = getIconPath(filename, "");
-	if (access(picture.c_str(), F_OK) == 0){
-		videoDecoder->ShowPicture(picture.c_str());
-		return true;
+	bool ret = false;
+
+	if (access(picture.c_str(), F_OK) == 0 && !(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
+	{
+		if (videoDecoder)
+		{
+#if HAVE_COOL_HARDWARE //FIXME: inside libcs no return value available
+			videoDecoder->ShowPicture(picture.c_str());
+			ret = true;
+#else
+			if (videoDecoder->ShowPicture(picture.c_str()))
+				ret = true;
+#endif
+		}
+		else
+			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], no videoplayer instance available\n", __func__, __LINE__);
 	}
 	else
-		printf("[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
+	{
+		if (!(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
+		{
+			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
+			picture = "";
+		}
+	}
 
-	return false;
+	if (!ret)
+	{
+		if (fallback_mode)
+		{
+			if (fallback_mode & (SHOW_FRAME_FALLBACK_MODE_IMAGE | SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED) && !picture.empty())
+			{
+				if (fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED)
+				{
+					SetTransparent(TM_NONE);
+					ret = g_PicViewer->ShowImage(picture.c_str(), false);
+					SetTransparentDefault();
+				}
+				else
+					ret = g_PicViewer->DisplayImage(picture, 0, 0, getScreenWidth(true), getScreenHeight(true), TM_NONE);
+			}
+			else
+				ret = false;
+
+			if (!ret && (fallback_mode & SHOW_FRAME_FALLBACK_MODE_BLACKSCREEN))
+			{
+				paintBoxRel(0, 0, getScreenWidth(true), getScreenHeight(true), COL_BLACK, 0);
+				ret = true;
+			}
+
+			if (fallback_mode & SHOW_FRAME_FALLBACK_MODE_CALLBACK)
+			{
+				if (!OnFallbackShowFrame.empty())
+				{
+					OnFallbackShowFrame();
+					OnFallbackShowFrame.clear();
+					ret = true;
+				}
+				else
+				{
+					dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], fallback mode SHOW_FRAME_FALLBACK_MODE_CALLBACK is enabled but empty, callback ignored...\n", __func__, __LINE__);
+					ret = false;
+				}
+			}
+		}
+		else
+		{
+			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], fallback mode is disabled, ignore black screen, image paint and callback actions: %s\n", __func__, __LINE__, picture.c_str());
+			ret = false;
+		}
+	}
+
+	return ret;
 }
+
 
 void CFrameBuffer::stopFrame()
 {
@@ -1719,8 +1802,8 @@ void CFrameBuffer::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, u
 void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
 	uint32_t xc, yc;
-	xc = (width > xRes) ? xRes : width;
-	yc = (height > yRes) ? yRes : height;
+	xc = (width > xRes) ? xRes + xp : width;
+	yc = (height > yRes) ? yRes + yp: height;
 
 	if (xp >= xc || yp >= yc) {
 		printf(LOGTAG "%s: invalid parameters, xc: %u <= xp: %u or yc: %u <= yp: %u\n", __func__, xc, xp, yc, yp);
@@ -1776,7 +1859,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	}
 }
 
-void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
+void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, const uint32_t& width, const uint32_t& height, const uint32_t& xoff, const uint32_t& yoff)
 {
 	if(width <1 || height <1 || !boxBuf )
 		return;
@@ -1873,7 +1956,7 @@ void CFrameBuffer::setFbArea(int element, int _x, int _y, int _dx, int _dy)
 	}
 }
 
-int CFrameBuffer::checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t *area)
+int CFrameBuffer::checkFbAreaElement(const int& _x, const int& _y, const int& _dx, const int& _dy, const fb_area_t *area)
 {
 	if (fb_no_check)
 		return FB_PAINTAREA_MATCH_NO;
@@ -1889,7 +1972,7 @@ int CFrameBuffer::checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t
 	return FB_PAINTAREA_MATCH_OK;
 }
 
-bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
+bool CFrameBuffer::_checkFbArea(const int& _x, const int& _y, const int& _dx, const int& _dy, const bool& prev)
 {
 	if (v_fbarea.empty())
 		return true;
@@ -1939,7 +2022,7 @@ CFrameBuffer::Mode3D CFrameBuffer::get3DMode()
 	return Mode3D_off;
 }
 
-void CFrameBuffer::set3DMode(Mode3D m)
+void CFrameBuffer::set3DMode(Mode3D __attribute__ ((unused)) m)
 {
 }
 

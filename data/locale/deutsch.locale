@@ -118,6 +118,10 @@ adzap.minutes Minuten
 adzap.monitor Ein (dauerhaft)
 adzap.switchback Zurückschalten nach
 adzap.writedata Schreibe Status-Daten
+adzap.zap Zap bei Timer-Aktivierung
+adzap.zap_off aus
+adzap.zap_to_last_channel auf letzten Kanal
+adzap.zap_to_start_channel auf Start-Kanal
 apidselector.head Sprachauswahl
 audio.srs_algo Art
 audio.srs_algo_heavy stark
@@ -247,8 +251,14 @@ buildinfo.compiler_flags Compiler Flags
 buildinfo.creator Ersteller
 buildinfo.kernel Kernel Version
 buildinfo.menu Build Informationen
+ca_init Aktives CA-System
+ca_init_0 Conax-Karte
+ca_init_1 CI-Modul
+ca_init_2 Conax-Karte und CI-Modul
 cablesetup.provider Kabelanbieter
 channellist.additional Zusatzinformationen
+channellist.additional_desc Beschreibung
+channellist.additional_list Event-Liste
 channellist.additional_off aus
 channellist.additional_on ein
 channellist.additional_on_minitv ein (mit MiniTV)
@@ -301,16 +311,24 @@ channellist.since seit
 channellist.start Start
 ci.check_live_slot CI-Slot auf Live-TV Nutzung prüfen
 ci.clock CI Takt (Mhz)
+ci.clock_extra_high extra hoch
 ci.clock_high hoch
 ci.clock_normal normal
+ci.delay DVB-CI-Verzögerung
 ci.empty Kein CAM im Slot
 ci.ignore_msg CA Meldungen ignorieren
 ci.init_failed CAM-Init fehlgeschlagen
 ci.init_ok CAM-Init beendet
 ci.inserted CAM im Slot
+ci.mode CI Kanäle während einer Aufnahme
+ci.mode_0 alle Kanäle
+ci.mode_1 gleicher Transponder
+ci.mode_2 keine CI Kanäle
+ci.rec_zapto Umschalten bei Aufnahmen mit CAM
 ci.removed CAM entfernt -> Slot
 ci.reset Reset
 ci.reset_standby Reset nach Standby
+ci.rpr Relevant PIDs Routing
 ci.save_pincode Jugendschutz-PIN speichern
 ci.settings CI-Module
 ci.timeout CAM antwortet nicht
@@ -342,7 +360,7 @@ colormenu.clock_textcolor Ziffernfarbe
 colormenu.fade Ein-/Ausblenden
 colormenu.font Verwendete Schriftart
 colormenu.font_sub Untertitel-Schriftart
-colormenu.font_ttx Teletext-Schriftart
+colormenu.font_ttx Videotext-Schriftart
 colormenu.menucolors Themes
 colormenu.osd_preset Monitor Auswahl
 colormenu.osd_resolution OSD-Auflösung
@@ -357,6 +375,7 @@ colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
 colormenusetup.menufoot Fußleiste
 colormenusetup.menuhead Titelleiste
+colormenusetup.menusubtitle_bar Menü Untertitel
 colorsetup.save Speichern
 colorstatusbar.text Infobar
 colorthememenu.head Theme auswählen
@@ -438,7 +457,7 @@ eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
 eventlistbar.recordevent Aufnehmen
 extra.add_to_bouquet dem Bouquet zufügen
-extra.cache_txt Teletext zwischenspeichern
+extra.cache_txt Videotext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt ...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet.\n
 extra.dboxinfo Box-Info
@@ -469,9 +488,27 @@ extra.fec_7_8 7/8
 extra.fec_8_9 8/9
 extra.fec_9_10 9/10
 extra.fec_auto Auto
-extra.key_current_transponder Aktuelle Transponder Taste
+extra.fec_13_45 13/45
+extra.fec_9_20 9/20
+extra.fec_11_20 11/20
+extra.fec_23_36 23/36
+extra.fec_25_36 25/36
+extra.fec_13_18 13/18
+extra.fec_26_45 26/45
+extra.fec_28_45 28/45
+extra.fec_7_9 7/9
+extra.fec_77_90 77/90
+extra.fec_32_45 32/45
+extra.fec_11_15 11/15
+extra.fec_1_2_L 1/2L
+extra.fec_8_15_L 8/15L
+extra.fec_3_5_L 3/5L
+extra.fec_2_3_L 2/3L
+extra.fec_5_9_L 5/9L
+extra.fec_26_45_L 26/45L
+extra.key_current_transponder Aktueller Transponder
 extra.key_format_mode Videoformat
-extra.key_help Hilfe-Taste
+extra.key_help Hilfe
 extra.key_list_end Listenende
 extra.key_list_start Listenanfang
 extra.key_next43mode Nächstes Seitenformat
@@ -480,11 +517,11 @@ extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
-extra.key_record Aufnahme-Taste
-extra.key_screenshot Screenshot Taste
+extra.key_record Aufnahme
+extra.key_screenshot Screenshot
 extra.key_switchformat Nächste Auflösung
 extra.key_timeshift Timeshift
-extra.key_unlock Entsperrtaste
+extra.key_unlock Entsperren
 extra.ladirection Breitengrad-Ausrichtung
 extra.latitude Breitengrad
 extra.loadconfig Einstellungen laden
@@ -530,6 +567,7 @@ extra.tp_delsys_dtmb DTMB
 extra.tp_delsys_dvbc DVB-C
 extra.tp_delsys_dvbs DVB-S
 extra.tp_delsys_dvbs2 DVB-S2
+extra.tp_delsys_dvbs2x DVB-S2X
 extra.tp_delsys_dvbt DVB-T
 extra.tp_delsys_dvbt2 DVB-T2
 extra.tp_delsys_isdbc ISDB-C
@@ -559,16 +597,18 @@ extra.tp_hierarchy_none None
 extra.tp_mod Modulation
 extra.tp_mod_128 QAM/128
 extra.tp_mod_16 QAM/16
+extra.tp_mod_16a 16APSK
 extra.tp_mod_256 QAM/256
 extra.tp_mod_32 QAM/32
+extra.tp_mod_32a 32APSK
 extra.tp_mod_4 QPSK
 extra.tp_mod_4_nr QAM/4-NR
 extra.tp_mod_64 QAM/64
 extra.tp_mod_8 8PSK
-extra.tp_mod_auto QAM/AUTO
+extra.tp_mod_8a 8APSK
+extra.tp_mod_auto AUTO
 extra.tp_pilot Pilot
-extra.tp_pilot_auto Auto (HW)
-extra.tp_pilot_auto_sw Auto (SW)
+extra.tp_pilot_auto Auto
 extra.tp_plc PLM Code
 extra.tp_pli Stream ID
 extra.tp_plm PLS Modus
@@ -795,6 +835,8 @@ fontsize.moviebrowser_head Überschriften
 fontsize.moviebrowser_info Info-Fenster
 fontsize.moviebrowser_list Listen-Einträge
 fontsize.subtitles Text Untertitel
+fontsize.window_radiotext_desc0 Radiotext Infos
+fontsize.window_radiotext_desc1 Radiotext Zusatzinfo
 fsk.all aus
 fsk.from_12 ab 12
 fsk.from_16 ab 16
@@ -823,9 +865,10 @@ glcd.color.dark_blue Dunkelblau
 glcd.color.purple Purple
 glcd.color.mint Mint
 glcd.color.golden Golden
+glcd.display Display-Typ
 glcd.enable GraphLCD aktiv
 glcd.font Schrift
-glcd.head GraphLCD
+glcd.head GraphLCD-Unterstützung
 glcd.mirror_osd OSD-Menü auf GraphLCD anzeigen
 glcd.mirror_video Videobild auf GraphLCD anzeigen
 glcd.restart Neu erkennen
@@ -954,6 +997,7 @@ keybindingmenu.channeldown Kanal runter
 keybindingmenu.channellist Kanalliste
 keybindingmenu.channelup Kanal hoch
 keybindingmenu.edit Tastenbelegungen bearbeiten
+keybindingmenu.favorites Favoriten
 keybindingmenu.head Tastenbelegungen
 keybindingmenu.lastchannel Letzter Kanal
 keybindingmenu.longkeypress_duration Langer Tastendruck
@@ -1022,6 +1066,7 @@ lcd4l_support LCD4Linux-Unterstützung
 lcd4l_support_auto automatisch
 lcd4l_support_off aus
 lcd4l_support_on ein
+lcd4l_weather Wetter im Standby-Modus
 lcd_info_line Zeige in Infozeile
 lcd_info_line_channel Kanalname
 lcd_info_line_clock Uhrzeit
@@ -1118,6 +1163,7 @@ menu.hint_accept_other_remotes Deaktivieren um andere Fernbedienungen zu ignorie
 menu.hint_adzap Der Werbezapper schaltet nach der eingestellten Zeit wieder auf den ursprünglichen Kanal zurück
 menu.hint_adzap_active Der Werbezapper ist aktiv. Mit einem erneuten Aufruf wird er deaktiviert.
 menu.hint_adzap_writedata Schreibe Daten über den Status des Werbezappers nach /tmp/adzap.data
+menu.hint_adzap_zap Umschalten bei Timer-Aktivierung auf zuletzt gesehenen Kanal oder auf Start-Kanal
 menu.hint_aplay Audioplayer
 menu.hint_aplay_setup Ändern Sie Audioplayer-Einstellungen wie Titel-Anzeige, Startverzeichnis oder Bildschirmschoner.
 menu.hint_audio Audio-Ausgang, Dolby Digital und SRS TruVolume Optionen usw.
@@ -1155,7 +1201,8 @@ menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
 menu.hint_buildinfo Informationen über Compiler, Compilerflags, Kernel
-menu.hint_cache_txt Startet das Zwischenspeichern des Teletextes nach einem Kanalwechsel
+menu.hint_ca_init Konfiguration der CA-Systemhardware, CA-Modul und Kartenschächte
+menu.hint_cache_txt Startet das Zwischenspeichern des Videotextes nach einem Kanalwechsel
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
@@ -1169,7 +1216,6 @@ menu.hint_channellist_foot Definiert, welche Informationen im unteren Sendungsfe
 menu.hint_channellist_hdicon Zeigt HD/UHD Symbol in der Kanalliste
 menu.hint_channellist_mode Wählen Sie die Start-Kanalliste im TV-Modus
 menu.hint_channellist_mode_radio Wählen Sie die Start-Kanalliste im Radio-Modus
-menu.hint_channellist_primetime Was läuft zur Hauptzeit
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channellist_show_channellogo Zeigt Senderlogos in Kanalliste, Eventliste, EPG-Plus, EPG-Ansicht und Moviebrowser.
 menu.hint_channellist_show_channelnumber Zeigt Kanalnummer in der Kanalliste.
@@ -1180,6 +1226,7 @@ menu.hint_channellist_show_res_icon Zeigt oder versteckt das Icon zur Signalisie
 menu.hint_channellogos_setup Wählen Sie die globalen Optionen für die Senderlogos aus
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
+menu.hint_ci_mode Zu diesen Kanälen kann bei einer laufenden CI-Aufnahme gewechselt werden.
 menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
 menu.hint_clock_mode Schalten Sie die Uhr ein oder aus
 menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
@@ -1229,7 +1276,7 @@ menu.hint_filesystem_is_utf8 Kodierung für Unicode-Zeichen im Filebrowser
 menu.hint_font_gui Wählen Sie die Schriftart für die Menüs
 menu.hint_font_scaling Legen Sie die vertikale und horizontale Skalierung der Menüschrift fest
 menu.hint_font_sub Wählen Sie die Schriftart für Untertitel im MoviePlayer
-menu.hint_font_ttx Wählen Sie die Schriftart für den Teletext
+menu.hint_font_ttx Wählen Sie die Schriftart für den Videotext
 menu.hint_fonts Konfigurieren Sie die Schriftart und die Schriftgrößen für die Menüs
 menu.hint_foot_back Ändern Sie die Fußleisten-Hintergrundfarbe
 menu.hint_foot_textcolor Ändern Sie die Fußleisten-Textfarbe
@@ -1254,6 +1301,7 @@ menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fenster
 menu.hint_inet_radio Internetradio
 menu.hint_inet_radio_autostart Spielt automatisch den ersten Eintrag der Favoriten-Liste ab
 menu.hint_info Systeminformationen anzeigen.
+menu.hint_infobar_analogclock Zeigt eine Analoguhr anstatt der digitalen Anzeige der Zeit
 menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
 menu.hint_infobar_buttons_usertitle Erzwingt die benutzerdefinierten Titel der Farbtasten
 menu.hint_infobar_casys ein: zeigt alle CA-Systeme; diskret: zeigt nur aktive CA-Systeme; mini: einzelnes Symbol in der Fußleiste
@@ -1284,6 +1332,7 @@ menu.hint_key_cancel Weisen Sie eine Taste für das Schließen der Menüs zu
 menu.hint_key_channeldown Weisen Sie eine Taste für das Herunterschalten in der Kanalliste zu
 menu.hint_key_channellist Konfigurieren Sie die Tastenbelegung für die Kanalliste
 menu.hint_key_channelup Weisen Sie eine Taste für das Hochschalten in der Kanalliste zu
+menu.hint_key_favorites Weisen Sie eine Taste für das Anzeigen der Favoriten zu
 menu.hint_key_format_mode_active Die Taste für das Videoformat deaktivieren/aktivieren
 menu.hint_key_hardware Definieren Sie, welche Fernbedienung Sie verwenden möchten. Die Bestätigung erfolgt mit der Ausgewählten
 menu.hint_key_history Definieren Sie eine Taste für das Anzeigen der letzten Programme, die Sie schauten
@@ -1336,6 +1385,8 @@ menu.hint_language Menü-Sprache, Zeitzone, bevorzugte Tonspuren, Untertitel-Spr
 menu.hint_last_radio Wählen Sie den Start-Sender im Radio-Modus
 menu.hint_last_tv Wählen Sie den Start-Sender im TV-Modus
 menu.hint_last_use Speichert den aktuellen Kanal beim Herunterfahren der Box
+menu.hint_lcd4l_brightness Regelt die Helligkeit des externen Displays im Normalbetrieb
+menu.hint_lcd4l_brightness_standby Regelt die Helligkeit des externen Displays im Standby-Modus
 menu.hint_lcd4l_clock_a Zeigt im Standby-Betrieb eine Analog-Uhr anstatt einer Digital-Uhr
 menu.hint_lcd4l_convert Konvertiert Umlaute für die eingebaute LCD4Linux-Schriftart
 menu.hint_lcd4l_display_type Wählen Sie den Typ des externen Displays
@@ -1343,7 +1394,8 @@ menu.hint_lcd4l_display_type_setup Einstellungen für den Typ des externen Displ
 menu.hint_lcd4l_logodir Verzeichnis für Senderlogos\nBei ungültigem Eintrag Fallback auf Standard-Logoverzeichnis
 menu.hint_lcd4l_skin Auswahl der verfügbaren Darstellungsarten\nStandard, Benutzerdefiniert, etc.
 menu.hint_lcd4l_skin_radio Wechselt die Darstellungsart, wenn der Radio-Modus aktiviert wird
-menu.hint_lcd4l_support LCD4Linux aktivieren/deaktivieren\nUnterstützte Displays: Pearl DPF, Samsung DPF, VU+SOLO4K, PNG
+menu.hint_lcd4l_support LCD4Linux aktivieren/deaktivieren\nUnterstützte Displays: Pearl DPF, Samsung DPF, VUPLUS4K, PNG
+menu.hint_lcd4l_weather Zeigt im Standby-Betrieb Wetterdaten auf dem Display an
 menu.hint_leds_blink Die Power-LEDs blinken, wenn sich der Receiver im Deep-Standby befindet und ein Timer aktiv ist
 menu.hint_leds_deepstandby Definiert den Status der Power-LEDs im Deep-Standby
 menu.hint_leds_record Definiert, ob die Power-LEDs blinken sollen, wenn eine Aufnahme aktiv ist
@@ -1372,9 +1424,9 @@ menu.hint_misc_cpufreq Legen Sie die Taktfrequenz der CPU fest
 menu.hint_misc_energy Energieverbrauchs- und Standby-Optionen, verzögertes Ausschalten, setzen bzw. ändern des Inaktivitätstimers
 menu.hint_misc_epg Diverse EPG-Einstellungen und Speicherverzeichnis für EPG-Daten
 menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, Startverzeichnisoptionen
-menu.hint_misc_general Standby-, Teletext- und Rotor-Einstellungen, Pluginverzeichnis auf externem Datenträger
+menu.hint_misc_general Standby-, Videotext- und Rotor-Einstellungen, Pluginverzeichnis auf externem Datenträger
 menu.hint_misc_kerneloptions Wählen Sie die Kernel-Module aus, die zusätzlich geladen werden sollen
-menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie YouTube, SHOUTCast und TMDb
+menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie Wetter und OMDb, TMDb
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
 menu.hint_moviebrowser_fonts Ändern Sie die Schriftgrößen im Moviebrowser (Meine Aufnahmen)
@@ -1464,9 +1516,9 @@ menu.hint_record_apids Konfigurieren Sie die Tonspuren für die Aufnahme
 menu.hint_record_apply Hiermit werden die Aufnahmeoptionen übernommen
 menu.hint_record_auto_cover Automatisch ein Film-Vorschaubild beim Abspielen erzeugen
 menu.hint_record_chandir Diese Option speichert Aufnahmen mit dem Namen des Kanals in ein eigenes Verzeichnis
-menu.hint_record_data Daten-Spuren (Teletext, Untertitel) für die Aufnahme
+menu.hint_record_data Daten-Spuren (Videotext, Untertitel) für die Aufnahme
 menu.hint_record_data_dvbsub Untertitel-Spur zu Aufnahme hinzufügen
-menu.hint_record_data_vtxt Teletext-Spur zu Aufnahme hinzufügen
+menu.hint_record_data_vtxt Videotext-Spur zu Aufnahme hinzufügen
 menu.hint_record_dir Wählen Sie das Aufnahmeverzeichnis
 menu.hint_record_end Wählen Sie zwischen maximaler Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
 menu.hint_record_filename_template Vorlagemuster für den Dateinamen bearbeiten
@@ -1508,7 +1560,7 @@ menu.hint_scan_cable_simple Kabel-Suchlauf mit optionaler Anbieter- und Kanal-Nu
 menu.hint_scan_commited Wählen Sie ihre Einstellungen für diesen Satelliten
 menu.hint_scan_delsys Wählen Sie das Empfangssystem für diesen Kanal/Transponder.
 menu.hint_scan_diseqc Wählen Sie das DiSEqC-Schalter-Eingangssignal für diesen Satelliten
-menu.hint_scan_diseqcorder Diseqc command order for cascaded switches
+menu.hint_scan_diseqcorder Wählen Sie die Reihenfolge für committed und uncommitted Kommandos
 menu.hint_scan_diseqcrepeat DiSEqC-Wiederholungen für kaskadierte Schaltungen
 menu.hint_scan_diseqctype Wählen Sie ihr DiSEqC-Protokoll\nMit 'Erweitert' können Sie ihre Anlage einbinden
 menu.hint_scan_fast Schnell-Suchlauf eines ausgewählten Anbieters\nWARNUNG: DiSEqC-Einstellung wird überschrieben
@@ -1574,6 +1626,7 @@ menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung, wenn 
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
 menu.hint_screensaver_delay Legen sie die Zeit (in Minuten) fest, nach der der Bildschirmschoner starten soll oder schaltet ihn aus
 menu.hint_screensaver_dir Wählen Sie das Verzeichnis, in dem die Bilder für Ihren Bildschirmschoner gespeichert sind
+menu.hint_screensaver_enable_text_info Zeige zusätzliche Textinformationen an falls verfügbar.
 menu.hint_screensaver_mode Modus des Bilschirmschoners wählen.
 menu.hint_screensaver_random Aktviere/deaktiviere zufällige Bilderauswahl.
 menu.hint_screensaver_setup Konfigurieren Sie die Optionen des Bildschirmschoners für den Audioplayer und den Radio-Modus
@@ -1620,7 +1673,7 @@ menu.hint_sw_update System aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
 menu.hint_timeouts Anpassen von Timeouts und Anzeigeverhalten für Meldungen, Fenster, Menüs, Infobar usw.
 menu.hint_timeouts_static_messages Anzeigedauer für bestimmte Meldungen mit Benutzerinteraktion
-menu.hint_timer_followscreenings Zeige weitere Termine für Timerprogrammierung.
+menu.hint_timer_followscreenings Zeige Terminauswahl mit Folge-Events zur Timerprogrammierung. "Immer" zeigt die Auswahl auch dann, wenn nur ein Event gefunden wurde.
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
 menu.hint_tmdb_api_key Geben Sie den TMDb API Schlüssel ein. Eine leere Eingabe schaltet die TMDb-Unterstützung aus
@@ -1628,6 +1681,7 @@ menu.hint_tmdb_enabled Schaltet die TMDb-Unterstützung (themoviedb.org) ein bzw
 menu.hint_tools Werkzeuge ausführen
 menu.hint_tvmode Schaltet zum TV-Modus
 menu.hint_tvradio_switch Schaltet zwischen TV- und Radio-Modus um
+menu.hint_uni_setup Konfiguration Unikabel Frequenz, Userband und Pin
 menu.hint_upnp Zugriff auf UPNP-Server in Ihrem lokalen Netz
 menu.hint_vfd Frontdisplay und Power-LEDs
 menu.hint_vfd_brightness Definiert die Helligkeit im TV-Betrieb 
@@ -1664,20 +1718,22 @@ menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SC
 menu.hint_video_sdosd Aktivieren/Deaktivieren der OSD Anzeige am Analogausgang (Scart, Cinch)
 menu.hint_video_three_d Ändert die kanalspezifischen 3D-Einstellungen
 menu.hint_video_tint Ändert den Farbton
+menu.hint_video_zappingmode Wählen Sie, ob ein schwarzes Bild oder ein Standbild beim Umschalten gezeigt werden soll
 menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
+menu.hint_weather_api_key Geben Sie den Dark Sky API Schlüssel ein. Eine leere Eingabe schaltet die Wetter-Unterstützung aus
+menu.hint_weather_enabled Schaltet die Wetter-Unterstützung (darksky.net) ein bzw. aus
+menu.hint_weather_location Wählen Sie eine Stadt in ihrer Nähe zur Anzeige der Wetterdaten aus
 menu.hint_webradio_setup Hier konfigurierte WebRadio-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_xmltv_setup Hier konfigurieren Sie XMLTV-Dateien, die EPG-Daten enthalten
-menu.hint_youtube_dev_id Geben Sie die YouTube Dev ID ein. Eine leere Eingabe schaltet die YouTube-Unterstützung aus
-menu.hint_youtube_enabled Schaltet die YouTube-Unterstützung ein oder aus
-menu.hint_ytplay Wiedergabe von ausgewählten YouTube Feeds
-menu.hint_ytplay_setup Konfigurieren Sie YouTube-spezifische Optionen wie maximale Ergebnisse bei Suchen oder Cache-Verzeichnis
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
 menu.next Weiter
+message.frame_enable Rahmen für Meldungen und Hinweisfenster
+message.frame_enable_hint Aktivieren von Rahmen für Meldungen und Hinweisfenster.
 messagebox.accept Wollen Sie die Änderungen beibehalten?
 messagebox.back Zurück
 messagebox.cancel Abbruch
@@ -1732,6 +1788,7 @@ miscsettings.epg_scan_standby Im Standby-Modus
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar
+miscsettings.infobar_analogclock Analoguhr
 miscsettings.infobar_buttons_usertitle Benutzertitel für Farbtasten
 miscsettings.infobar_casystem_display CA-Systemanzeige
 miscsettings.infobar_casystem_dotmatrix CA-Anzeige mit Punktematrix
@@ -1843,7 +1900,9 @@ moviebrowser.book_type Sprung (<0: zurück, >0: vor):
 moviebrowser.book_type_backward Wiederholung
 moviebrowser.book_type_forward Überspringen
 moviebrowser.browser_additional Zusätzliche Informationen
+moviebrowser.browser_cut_long_rowtext Text in Spalten abschneiden
 moviebrowser.browser_frame_high Anzeigehöhe oberes Fenster [%]
+moviebrowser.browser_frame_high_additional Anzeigehöhe oberes Fenster mit Zusatzinfos [%]
 moviebrowser.browser_row_head Spalten Einstellungen
 moviebrowser.browser_row_item Spalteninfo
 moviebrowser.browser_row_nr Anzahl Spalten
@@ -1906,6 +1965,7 @@ moviebrowser.hint_truncate Entfernt den Filmteil hinter der Filmende-Markierung
 moviebrowser.imdb_data Lade IMDb-Daten
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
+moviebrowser.info_elapsed Letzer Wiedergabe Stop
 moviebrowser.info_file Datei
 moviebrowser.info_filename Dateiname
 moviebrowser.info_genre_major Genre
@@ -1942,7 +2002,9 @@ moviebrowser.menu_copy_onefile Film kopieren
 moviebrowser.menu_copy_several Film kopieren und teilen
 moviebrowser.menu_cut Film schneiden
 moviebrowser.menu_cut_head Kopieren, Schneiden und Kürzen
+moviebrowser.menu_data_request Online-Datenbank abfragen
 moviebrowser.menu_directories_head Verzeichnisse de/aktivieren
+moviebrowser.menu_edit bearbeiten
 moviebrowser.menu_main_bookmarks Markierungen
 moviebrowser.menu_main_head Film-Info und Einstellungen
 moviebrowser.menu_nfs_head NFS Einstellung
@@ -1956,6 +2018,7 @@ moviebrowser.menu_save Veränderungen speichern
 moviebrowser.menu_save_all Starte Übernahme in allen sichtbaren Filminfos
 moviebrowser.menu_settings Einstellungen
 moviebrowser.menu_truncate Film kürzen
+moviebrowser.message_keep_storage_settings Sollen die Depot-Einstellungen für verwendete und aktivierte Verzeichnisse beibehalten werden?
 moviebrowser.option_browser Anzeigeoptionen
 moviebrowser.reload_at_start Filminfos neu laden bei Start
 moviebrowser.remount_at_start Filmdepot verbinden bei Start
@@ -1968,6 +2031,7 @@ moviebrowser.short_audio Audio
 moviebrowser.short_book Mark.
 moviebrowser.short_channel Kanal
 moviebrowser.short_country Land
+moviebrowser.short_elapsed Letzter Stop
 moviebrowser.short_filename Name
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
@@ -1998,30 +2062,6 @@ moviebrowser.update_if_dest_empty_only Übernehmen nur wenn Ziel leer
 moviebrowser.use_dir Verzeichnis verwenden
 moviebrowser.use_movie_dir Wiedergabeverzeichnis verwenden
 moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
-moviebrowser.yt_cache Downloads
-moviebrowser.yt_cache_add Download von\n%s\nwird eingeplant.
-moviebrowser.yt_cancel Alle abbrechen
-moviebrowser.yt_cancel_transfer Download abbrechen?
-moviebrowser.yt_clear Liste leeren
-moviebrowser.yt_completed Vollständige Downloads
-moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen
-moviebrowser.yt_error Fehler beim Laden des YouTube-Feeds
-moviebrowser.yt_failed Fehlgeschlagene Downloads
-moviebrowser.yt_history Frühere Suchen
-moviebrowser.yt_max_history Max. Anzahl früherer Suchen
-moviebrowser.yt_max_results Max. Anzahl der zu holenden Feeds
-moviebrowser.yt_most_popular Beliebteste Videos heute
-moviebrowser.yt_most_popular_all_time Beliebteste Videos
-moviebrowser.yt_orderby Sortierung nach
-moviebrowser.yt_orderby.published Veröffentlichungszeitpunkt
-moviebrowser.yt_orderby.rating Bewertung
-moviebrowser.yt_orderby.relevance Relevanz
-moviebrowser.yt_orderby.viewcount Zahl der Views
-moviebrowser.yt_pending Anstehende Downloads
-moviebrowser.yt_pref_quality Bevorzugte Qualität
-moviebrowser.yt_region Region
-moviebrowser.yt_related Passende Videos
-moviebrowser.yt_search Suche nach Stichwort
 moviecut.cancel Bearbeiten des Filmes abbrechen?
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
@@ -2051,7 +2091,6 @@ movieplayer.starting Wiedergabe starten ...
 movieplayer.titles Titel
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tsplayback Abspielen
-movieplayer.ytplayback YouTube-Feed Wiedergabe
 movieplayer.zap Umschalten während der Film- oder Timeshift-Wiedergabe nicht möglich
 mpkey.audio Tonspuren
 mpkey.bookmark Markierungen
@@ -2126,6 +2165,7 @@ nvodselector.directormode Bildregie-Modus
 nvodselector.head Bildregie
 nvodselector.starttime Anfangszeit auswählen
 nvodselector.subservice Perspektiven
+options.always immer
 options.default Voreinstellungen benutzen
 options.fb framebuffer
 options.hint_default Setzen Sie die Werte auf die Voreinstellung zurück.
@@ -2244,7 +2284,10 @@ rclock.title Fernbedienung sperren
 rclock.unlockmsg Fernbedienung reaktiviert
 recording.already_found %s\nwurde bereits gefunden. Trotzdem aufnehmen?
 recording.already_found_check Prüfe Aufnahmen
+recording.end Aufnahmeende festlegen
+recording.end_text Soll die Aufnahme zum Ende der aktuellen Sendung stoppen?
 recording.failed Aufzeichnung ist fehlgeschlagen!
+recording.fill_text Das Aufnahmemedium ist zu %d%% gefüllt. Trotzdem aufnehmen?
 recording.is_running Folgende Aufnahme läuft bereits! Neue Aufnahme starten?
 recording.start Starte Aufnahme, bitte warten ...
 recording.startstop_msg Meldung bei Aufnahme Start/Ende
@@ -2285,7 +2328,7 @@ recordingmenu.slow_warn Warnung bei langsamen Aufnahmemedien
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift Aufnahmeverzeichnis
 recordingmenu.vcr Videorekorder
-recordingmenu.vtxt_pid Teletext aufnehmen
+recordingmenu.vtxt_pid Videotext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
 remotebox_add Hinzufügen
@@ -2316,7 +2359,7 @@ satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Erweiterte Auswahl
 satsetup.diseqc_com_uncom Committed/Uncommitted
 satsetup.diseqc_input DiSEqC Einspeisung
-satsetup.diseqc_order DiSEqC command order
+satsetup.diseqc_order DiSEqC 1.1 Kommando-Folge
 satsetup.diseqc_uncom_com Uncommitted/Committed
 satsetup.diseqcrepeat DiSEqC-Wiederholungen
 satsetup.extended DiSEqC-Einstellungen
@@ -2347,6 +2390,7 @@ satsetup.fe_mode_link_twin TWIN
 satsetup.fe_mode_master Master
 satsetup.fe_mode_unused Nicht genutzt
 satsetup.fe_setup Tuner Einstellungen
+satsetup.fe_tuner Tuner
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset
@@ -2414,6 +2458,7 @@ scants.transponders Transponder:
 scrambled_channel Verschlüsselung aktiv
 screensaver.delay Verzögerung
 screensaver.dir Verzeichnis
+screensaver.enable_text_info Textinformationen
 screensaver.menu Bildschirmschoner
 screensaver.mode Modus
 screensaver.mode_clock Uhr
@@ -2494,7 +2539,7 @@ streaminfo.audiotype Audiotyp
 streaminfo.audiotype_unknown unbekannt
 streaminfo.average_bitrate Durchschnitt
 streaminfo.bitrate Bitrate
-streaminfo.casystems Cryptsysteme
+streaminfo.casystems CA ID(s)
 streaminfo.framerate Bildrate
 streaminfo.framerate_unknown unbekannt
 streaminfo.head Technische Informationen
@@ -2621,7 +2666,9 @@ tunersetup.mode Betriebsmodus
 tunersetup.power 5V-Versorgung bei DVB-T/T2 Kanälen
 tunersetup.terr Terrestrisch (DVB-T/T2)
 unicable.lnb Unicable Eingang
-unicable.qrg Unicable Frequenz
+unicable.pin Unicable PIN
+unicable.pin_hint PIN (1 - 255) für Benutzerfrequenz\n0 bedeutet inaktiv / aus
+unicable.freq Unicable Frequenz
 unicable.scr Unicable SCR
 unit.decimal ,
 unit.long.years Jahre
@@ -2643,7 +2690,7 @@ usermenu.item_bar ---- Trennung ----
 usermenu.item_epg_misc EPG Funktionen
 usermenu.item_none (frei)
 usermenu.item_plugin_types Plugin-Typen
-usermenu.item_vtxt Teletext
+usermenu.item_vtxt Videotext
 usermenu.items Menüpunkte
 usermenu.key Taste
 usermenu.key_select Taste zuweisen
@@ -2729,6 +2776,14 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
+videomenu.zappingmode Umschaltmodus
+videomenu.zappingmode_mute Schwarzes Bild
+videomenu.zappingmode_hold Standbild
+videomenu.zappingmode_mutetilllock Schwarzes Bild bis lock
+videomenu.zappingmode_holdtilllock Standbild bis lock
+weather.api_key Wetter API Schlüssel (Dark Sky)
+weather.enabled Wetter-Unterstützung
+weather.location Wetter-Standort
 webradio.head WebRadio
 webradio.xml WebRadio-XML-Dateien
 webradio.xml.add XML-Datei hinzufügen
@@ -2759,8 +2814,6 @@ xmltv.xml.add Hinzufügen
 xmltv.xml.del Entfernen
 xmltv.xml.enter Eintragen
 xmltv.xml.reload Neu laden
-youtube.dev_id YouTube Dev ID
-youtube.enabled YouTube-Unterstützung
 zapit.scantype Service-Auswahl
 zapit.scantype.all Alle Services
 zapit.scantype.radio Nur Radio

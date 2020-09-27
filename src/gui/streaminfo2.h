@@ -32,7 +32,7 @@
 #include <map>
 
 struct AVFormatContext;
- 
+
 class CFrameBuffer;
 class CStreamInfo2 : public CMenuTarget
 {
@@ -46,7 +46,7 @@ class CStreamInfo2 : public CMenuTarget
 		int y;
 		int width;
 		int height;
-		int hheight,iheight,sheight; 	// head/info/small font height
+		int hheight, iheight, sheight; 	// head/info/small font height
 
 		int max_height;	// Frambuffer 0.. max
 		int max_width;
@@ -64,6 +64,7 @@ class CStreamInfo2 : public CMenuTarget
 		int sigBox_h;
 		int sigBox_pos;
 		int sig_text_y;
+		int sig_text_w;
 		int sig_text_ber_x;
 		int sig_text_sig_x;
 		int sig_text_snr_x;
@@ -76,18 +77,20 @@ class CStreamInfo2 : public CMenuTarget
 		int spaceoffset;
 		unsigned int scaling;
 		unsigned int pmt_version;
-		int box_h,box_h2;
-		struct feSignal {
+		int box_h, box_h2;
+		struct feSignal
+		{
 			unsigned long	ber, old_ber, max_ber, min_ber;
 			unsigned long	sig, old_sig, max_sig, min_sig;
 			unsigned long	snr, old_snr, max_snr, min_snr;
 		} signal;
 
-		struct bitrate {
+		struct bitrate
+		{
 			unsigned int short_average, max_short_average, min_short_average;
 		} rate;
 
-		std::vector<std::map<std::string,std::string> > streamdata;
+		std::vector<std::map<std::string, std::string> > streamdata;
 
 		int doSignalStrengthLoop();
 
@@ -118,10 +121,11 @@ class CStreamInfo2 : public CMenuTarget
 		void paint_signal_fe_box(int x, int y, int w, int h);
 		void paint_signal_fe(struct bitrate rate, struct feSignal s);
 		int y_signal_fe(unsigned long value, unsigned long max_range, int max_y);
-		void SignalRenderStr (unsigned int value, int x, int y);
+		void SignalRenderHead(std::string head, int x, int y, fb_pixel_t color);
+		void SignalRenderStr(unsigned int value, int x, int y);
 		CSignalBox *signalbox;
 
-		void showSNR ();
+		void showSNR();
 	public:
 		bool abort_probing;
 
@@ -129,7 +133,7 @@ class CStreamInfo2 : public CMenuTarget
 		~CStreamInfo2();
 
 		void hide();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 
 		int readPacket(uint8_t *buf, int buf_size);
 };

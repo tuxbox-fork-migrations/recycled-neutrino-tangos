@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2013-2015, Thilo Graf 'dbt'
+	Copyright (C) 2013-2019, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -30,9 +30,9 @@
 #endif
 
 #include <sigc++/signal.h>
-#include <OpenThreads/ScopedLock>
-#include <OpenThreads/Thread>
-#include <OpenThreads/Condition>
+#include <sigc++/adaptors/retype_return.h>
+#include <thread>
+#include <mutex>
 
 /**CComponentsTimer
 * 	Member of CComponents. Provides a generic timer class
@@ -43,95 +43,85 @@ class CComponentsTimer : public sigc::trackable
 {
 	private:
 		///thread
-		pthread_t  tm_thread;
+		std::thread  *tm_thread;
+		std::mutex tm_mutex;
+		///flag to control thread state
+		bool tm_enable;
 
 		///refresh interval in seconds
-		int tm_interval;
-		
-		bool tm_enable_nano;
+		int64_t tm_interval;
+		uint64_t tm_ticks;
 
-		///init function to init shared timer action
-		static void* initThreadAction(void *arg);
+		///runs shared timer action provided inside OnTimer() signal
+		static void threadCallback(CComponentsTimer *tm);
+
+		sigc::slot<void> sl_cleanup_timer;
+
+		std::string tn;
+
+	protected: ///name for thread
+		std::string tm_thread_name;
 
 		///init function to start/stop timer in own thread
 		void initThread();
 		void stopThread();
 
-		///runs shared timer action provided inside OnTimer() signal
-		void runSharedTimerAction();
-
-		///flag to control thread state
-		bool tm_enable;
-
-		///name for the thread
-		std::string name;
-		std::string tn;
-		///mutex for timer
-		OpenThreads::Mutex tm_mutex;
-		///slot for restart signals
-		sigc::slot0<bool> sl_stop_timer;
-
-		///sleep generated with nanosleep
-		int getSleep(long miliseconds);
 	public:
 		/**Constructor for timer class
 		*
 		* @param[in]  interval
-		* 	@li int interval in seconds, default value=1 (1 sec)
-		* 	If init value for interval > 0, timer starts immediately
-		* 	@li bool default = false as seconds mode, true = nano seconds mode
+		* 	@li int64_t interval in miliseconds, default value=1000 ms (1 sec)
 		* @see
 		* 	setTimerInterval();
 		*/
-		CComponentsTimer(const int& interval = 1, bool is_nano = false);
+		CComponentsTimer(const int64_t& interval = 1000);
 
-		~CComponentsTimer();
+		virtual ~CComponentsTimer();
 
-		/**Starts timer thread
-		* @return
-		*	bool
-		*	returns true, if timer is running in thread
+		/**Acivate timer
 		* @see
 		* 	stopTimer()
 		*/
-		bool startTimer();
+		void startTimer();
 
-		/**Stops timer thread
-		* @return
-		*	bool
-		*	returns true, if timer thread stopped
+		/**Disable timer
 		* @see
 		* 	startTimer()
 		*/
-		bool stopTimer();
+		void stopTimer();
+
+		/**Cancel timer thread
+		* @see
+		* 	stopTimer()
+		*/
+		void cancelTimerThread(){stopThread();}
 
 		/**get current timer status
 		* @return
 		*	bool
-		*	returns true, if timer is running in thread
+		*	returns true, if timer is active
 		* @see
 		* 	startTimer()
 		* 	stopTimer()
 		*/
-		bool isRun() const {return tm_thread;};
+		bool isRun() const;
 
 		/**set timer interval
 		* @param[in]  interval
-		* 	@li int default interval in seconds, if second parameter = true interval is used as nano seconds
-		* 	@li bool default = false as seconds mode, true = nano seconds mode
+		* 	@li int64_t default interval in miliseconds
 		* @return
 		*	void
 		* @see
 		* 	tm_interval
 		*/
-		void setTimerInterval(const int& interval, bool is_nano = false);
+		void setTimerInterval(const int64_t& interval);
 
 		/**set thread name
 		* @param[in] thread name
 		* @return
 		* 	void
 		*/
-		void setThreadName(const std::string& n) { name = tn = n; }
+		void setThreadName(const std::string& n) { tm_thread_name = tn = n; }
 
 		/**Provides a signal handler to receive any function or methode.
 		* Use this in your class where ever you need time controled actions.

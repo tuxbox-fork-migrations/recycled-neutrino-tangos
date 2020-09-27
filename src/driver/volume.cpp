@@ -116,7 +116,7 @@ void CVolume::setVolume(const neutrino_msg_t key)
 
 	neutrino_msg_data_t data = 0;
 	uint64_t timeoutEnd = 0;
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if (g_settings.hdmi_cec_volume)
 		g_settings.current_volume = hdmi_cec::getInstance()->GetVolume();
 #endif
@@ -139,7 +139,7 @@ void CVolume::setVolume(const neutrino_msg_t key)
 						g_RCInput->getMsg(&tmp, &data, 0);
 					if (tmp != CRCInput::RC_timeout)
 						g_RCInput->postMsg(tmp, data);
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 				}
 				else if (g_settings.hdmi_cec_volume)
 				{
@@ -151,8 +151,7 @@ void CVolume::setVolume(const neutrino_msg_t key)
 				}
 				else if (g_settings.volume_external)
 				{
-					if (my_system((dir > 0) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT) != 0)
-							perror((dir > 0) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT " failed");
+					exec_controlscript((dir > 0) ? VOLUME_UP_SCRIPT : VOLUME_DOWN_SCRIPT);
 					do_vol = false;
 				} else
 					do_vol = true;

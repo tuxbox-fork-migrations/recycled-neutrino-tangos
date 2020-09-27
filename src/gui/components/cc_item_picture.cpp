@@ -70,7 +70,7 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 {
 	//CComponents, CComponentsItem
 	cc_item_type.id 	= CC_ITEMTYPE_PICTURE;
-	cc_item_type.name 	= "cc_image_box";
+	cc_item_type.name 	= image_name.empty() ? "cc_image_box" : image_name;
 
 	//CComponents
 	x =	x_old	= x_pos;
@@ -97,6 +97,8 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	need_init	= true;
 	initCCItem();
 	initParent(parent);
+	if (!pic_name.empty() && pic_name == NEUTRINO_ICON_BUTTON_MUTE)
+		paintInit(false);
 }
 
 void CComponentsPicture::clearCache()
@@ -322,21 +324,26 @@ void CComponentsPicture::paintPicture()
 				is_image_painted = g_PicViewer->DisplayImage(pic_name, x_pic, y_pic, width-2*fr_thickness, height-2*fr_thickness);
 			else
 				is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
-			frameBuffer->SetTransparentDefault();
-			if (enable_cache && do_scale){
-				dprintf(DEBUG_DEBUG, "\033[31m[CComponentsPicture] %s - %d: create cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
-				dxc = width-2*fr_thickness;
-				dyc = height-2*fr_thickness;
-				image_cache = getScreen(x_pic, y_pic, dxc, dyc);
+
+			if (is_image_painted){
+				frameBuffer->SetTransparentDefault();
+				if (enable_cache && do_scale){
+					dprintf(DEBUG_DEBUG, "\033[32m[CComponentsPicture] %s - %d: create cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
+					dxc = width-2*fr_thickness;
+					dyc = height-2*fr_thickness;
+					image_cache = getScreen(x_pic, y_pic, dxc, dyc);
+				}
 			}
+			else
+				dprintf(DEBUG_NORMAL, "\033[31m[CComponentsPicture] %s - %d: error: paint of image failed: %s\033[0m\n", __func__, __LINE__, pic_name.c_str());
 		}else{
-			dprintf(DEBUG_DEBUG, "\033[36m[CComponentsPicture] %s - %d: paint cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
+			dprintf(DEBUG_DEBUG, "\033[32m[CComponentsPicture] %s - %d: paint cached image from pic_name=%s\033[0m\n", __func__, __LINE__, pic_name.c_str());
 			frameBuffer->RestoreScreen(x_pic, y_pic, dxc, dyc, image_cache);
 		}
 	}
 }
 
-void CComponentsPicture::paint(bool do_save_bg)
+void CComponentsPicture::paint(const bool &do_save_bg)
 {
 	if (pic_name.empty())
 		return;
@@ -405,9 +412,10 @@ void CComponentsChannelLogo::init(const uint64_t& channelId, const std::string& 
 	channel_name = "";
 	channel_id = 0;
 	alt_pic_name = "";
+	enable_event_logo = false;
+	has_logo = false;
 	setChannel(channelId, channelName);
 	do_scale = allow_scale;
-	enable_event_logo = false;
 }
 void CComponentsChannelLogo::setAltLogo(const std::string& picture_name)
 {

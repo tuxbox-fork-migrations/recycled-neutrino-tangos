@@ -238,7 +238,7 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 				int i = atoi(ak);
 				if (i > -1) {
 					for (unsigned int j = 4; j < g_settings.usermenu.size(); j++) {
-						std::string name = to_string(j);
+						std::string name = std::to_string(j);
 						std::string usermenu_key("usermenu_key_");
 						usermenu_key += name;
 						CNeutrinoApp::getInstance()->getConfigFile()->deleteKey(usermenu_key);
@@ -268,7 +268,7 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 		SNeutrinoSettings::usermenu_t *um = new SNeutrinoSettings::usermenu_t;
 		um->key = CRCInput::RC_nokey;
 		g_settings.usermenu.push_back(um);
-		CMenuDForwarder *fw = new CMenuDForwarder(CRCInput::getKeyName(um->key), true, um->title, cms, to_string(i).c_str());
+		CMenuDForwarder *fw = new CMenuDForwarder(CRCInput::getKeyName(um->key), true, um->title, cms, std::to_string(i).c_str());
 		cms->setCaller(fw);
 
 #if 0
@@ -519,7 +519,7 @@ void CPersonalizeGui::ShowUserMenu()
 	for (unsigned int i = USERMENU_ITEMS_COUNT; i < ums; i++)
 		if (g_settings.usermenu[i]->key != CRCInput::RC_nokey) {
 			CUserMenuSetup *cms = new CUserMenuSetup(LOCALE_USERMENU_HEAD, i);
-			CMenuDForwarder *fw = new CMenuDForwarder(CRCInput::getKeyName(g_settings.usermenu[i]->key), true, g_settings.usermenu[i]->title, cms, to_string(i).c_str());
+			CMenuDForwarder *fw = new CMenuDForwarder(CRCInput::getKeyName(g_settings.usermenu[i]->key), true, g_settings.usermenu[i]->title, cms, std::to_string(i).c_str());
 			cms->setCaller(fw);
 			uMenu->addItem(fw);
 		}
@@ -575,13 +575,9 @@ int CPersonalizeGui::ShowMenuOptions(const int& widget)
 	//*************************
 
 	//subhead
-	CMenuSeparator * pm_subhead = new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING);
 	string 	s_sh = g_Locale->getText(LOCALE_PERSONALIZE_ACCESS);
 	s_sh += ": " + mn_name;
-	pm_subhead->setName(s_sh);
-
-	pm->addItem(pm_subhead);
-	pm->addIntroItems();
+	pm->addIntroItems(s_sh);
 
 	//add all needed items
 	for (uint i = 0; i<v_item.size(); i++)

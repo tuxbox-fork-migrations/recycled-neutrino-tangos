@@ -97,6 +97,7 @@ class CMoviePlayerGui : public CMenuTarget
 	typedef struct livestream_info_t
 	{
 		std::string url;
+		std::string url2;//separate audio file
 		std::string name;
 		std::string resolution;
 		std::string header;//cookie
@@ -181,7 +182,6 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isHTTP;
 	bool isUPNP;
 	bool isWebChannel;
-	bool isYT;
 	bool showStartingHint;
 	static CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO movie_info;
@@ -239,7 +239,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void fillPids();
 	bool getAudioName(int pid, std::string &apidtitle);
 	void getCurrentAudioName( bool file_player, std::string &audioname);
-	void addAudioFormat(int count, std::string &apidtitle, bool& enabled );
+	void addAudioFormat(int count, std::string &apidtitle);
 
 	void handleMovieBrowser(neutrino_msg_t msg, int position = 0);
 	bool SelectFile();
@@ -248,6 +248,8 @@ class CMoviePlayerGui : public CMenuTarget
 #if 0
 	void selectSubtitle();
 	bool convertSubtitle(std::string &text);
+#endif
+#if HAVE_ARM_HARDWARE
 	void selectChapter();
 #endif
 	void selectAutoLang();
@@ -279,10 +281,11 @@ class CMoviePlayerGui : public CMenuTarget
 
 	MI_MOVIE_INFO * p_movie_info;
 	std::string	file_name;
+	std::string	second_file_name;//separate audio file for ARM BOX
 	std::string	pretty_name;
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
-	std::string CurrentAudioName() { return currentaudioname; };
+	std::string CurrentAudioName() { getCurrentAudioName(true, currentaudioname); return currentaudioname; };
 	int GetSpeed() { return speed; }
 	int GetPosition() { return position; }
 	int GetDuration() { return duration; }
@@ -292,7 +295,7 @@ class CMoviePlayerGui : public CMenuTarget
 	tshift_mode timeshift;
 	int file_prozent;
 	cPlayback *getPlayback() { return playback; }
-	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; }
+	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="", std::string file2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; second_file_name = file2; }
 	unsigned int getAPID(void);
 	unsigned int getAPID(unsigned int i);
 	void getAPID(int &apid, unsigned int &is_ac3);
@@ -328,7 +331,7 @@ class CMoviePlayerGui : public CMenuTarget
 	bool getBlockedFromPlugin() { return blockedFromPlugin; };
 	void setLuaInfoFunc(lua_State* L, bool func) { luaState = L; haveLuaInfoFunc = func; };
 	void getLivestreamInfo(std::string *i1, std::string *i2) { *i1=livestreamInfo1; *i2=livestreamInfo2; };
-	bool getLiveUrl(const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header);
+	bool getLiveUrl(const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header, std::string &url2);
 	bool IsAudioPlaying() { return is_audio_playing; };
 	void showMovieInfo();
 };

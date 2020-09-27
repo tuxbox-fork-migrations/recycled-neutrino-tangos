@@ -559,7 +559,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 	{
 		extMovieInfo += mp_movie_info->productionCountry;
 		extMovieInfo += " ";
-		extMovieInfo += to_string(mp_movie_info->productionDate);
+		extMovieInfo += std::to_string(mp_movie_info->productionDate);
 		extMovieInfo += "\n";
 	}
 	if (!mp_movie_info->serieName.empty())
@@ -582,9 +582,9 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 	{
 		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_RATING);
 		extMovieInfo += ": ";
-		extMovieInfo += to_string(mp_movie_info->rating / 10);
+		extMovieInfo += std::to_string(mp_movie_info->rating / 10);
 		extMovieInfo += ",";
-		extMovieInfo += to_string(mp_movie_info->rating % 10);
+		extMovieInfo += std::to_string(mp_movie_info->rating % 10);
 		extMovieInfo += "/10";
 		extMovieInfo += "\n";
 	}
@@ -592,14 +592,14 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 	{
 		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_QUALITY);
 		extMovieInfo += ": ";
-		extMovieInfo += to_string(mp_movie_info->quality);
+		extMovieInfo += std::to_string(mp_movie_info->quality);
 		extMovieInfo += "\n";
 	}
 	if (mp_movie_info->parentalLockAge != 0)
 	{
 		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_PARENTAL_LOCKAGE);
 		extMovieInfo += ": ";
-		extMovieInfo += to_string(mp_movie_info->parentalLockAge);
+		extMovieInfo += std::to_string(mp_movie_info->parentalLockAge);
 		extMovieInfo += " ";
 		extMovieInfo += g_Locale->getText(LOCALE_UNIT_LONG_YEARS);
 		extMovieInfo += "\n";
@@ -657,7 +657,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 	{
 		extMovieInfo += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_SIZE);
 		extMovieInfo += ": ";
-		extMovieInfo += to_string(mp_movie_info->file.Size >> 20);
+		extMovieInfo += std::to_string(mp_movie_info->file.Size >> 20);
 		extMovieInfo += "\n";
 	}
 
@@ -880,6 +880,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		header->setColorBody(COL_MENUHEAD_PLUS_0);
 		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 		header->enableClock(true, "%H:%M", "%H.%M", true);
+		header->getClockObject()->enableForceSegmentPaint();
 	}
 
 	header->getClockObject()->setBlit(false);
@@ -895,7 +896,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	// set channel logo
 	if (g_settings.channellist_show_channellogo)
-		header->setChannelLogo(channel_id, channel_name,(CCHeaderTypes::cc_logo_alignment_t)g_settings.channellist_show_channellogo);
+		header->setChannelLogo(channel_id, channel_name, (CCHeaderTypes::cc_logo_alignment_t)g_settings.channellist_show_channellogo);
 
 	//paint head
 	header->paint(CC_SAVE_SCREEN_NO);
@@ -910,8 +911,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	if (!mp_info){
 		std::string fromto = epg_start + " - " + epg_end;
-
-		GetPrevNextEPGData(epgData.eventID, &epgData.epg_times.startzeit);
+		time_t epg_start_time = epgData.epg_times.startzeit;
+		GetPrevNextEPGData(epgData.eventID, &epg_start_time);
 
 		Bottombox->enableArrows(prev_id && !call_fromfollowlist, next_id && !call_fromfollowlist);
 		Bottombox->setText(fromto, epg_date);
@@ -1063,6 +1064,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					if (g_Timerd->isTimerdAvailable())
 					{
 						bool doRecord = true;
+						time_t epg_start_time = epgData.epg_times.startzeit;
 						recDir = g_settings.network_nfs_recordingdir;
 						if (g_settings.recording_choose_direct_rec_dir == 2) {
 							CFileBrowser b;
@@ -1077,7 +1079,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 								g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
 							}
 							bigFonts = g_settings.bigFonts;
-							show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);
+							show(channel_id,epgData.eventID,&epg_start_time,false);
 							showPos=0;
 						}
 						else if (g_settings.recording_choose_direct_rec_dir == 1)
@@ -1093,7 +1095,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 									g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
 								}
 								bigFonts = g_settings.bigFonts;
-								show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);
+								show(channel_id,epgData.eventID,&epg_start_time,false);
 								showPos=0;
 								timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 							} else
@@ -1254,10 +1256,12 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						std::string tmp_msg;
 						tmp_msg  = g_Locale->getText(LOCALE_WORD_IN);
 						tmp_msg += " ";
-						tmp_msg += to_string(g_settings.adzap_zapBackPeriod / 60);
+						tmp_msg += std::to_string(g_settings.adzap_zapBackPeriod / 60);
 						tmp_msg += " ";
 						tmp_msg += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
-						ShowMsg(LOCALE_ADZAP, tmp_msg, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
+
+						if (g_settings.adzap_zapOnActivation == SNeutrinoSettings::ADZAP_ZAP_OFF)
+							ShowMsg(LOCALE_ADZAP, tmp_msg, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 					}
 					//CTimerdClient timerdclient;
 					else if (g_Timerd->isTimerdAvailable())
@@ -1427,7 +1431,8 @@ void CEpgData::GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* st
 			reformatExtendedEvents("Presenter", g_Locale->getText(LOCALE_EPGEXTENDED_PRESENTER), false, epgData);
 		}
 
-		struct tm *pStartZeit = localtime(&(epgData.epg_times).startzeit);
+		time_t epg_start_time = epgData.epg_times.startzeit;
+		struct tm *pStartZeit = localtime(&epg_start_time);
 		tmp_curent_zeit = (epgData.epg_times).startzeit;
 		char temp[20]={0};
 		strftime( temp, sizeof(temp),"%d.%m.%Y", pStartZeit);
@@ -1602,7 +1607,7 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 	if (adzap)
 	{
 		adzap_button = g_Locale->getText(LOCALE_ADZAP);
-		adzap_button += " " + to_string(g_settings.adzap_zapBackPeriod / 60) + " ";
+		adzap_button += " " + std::to_string(g_settings.adzap_zapBackPeriod / 60) + " ";
 		adzap_button += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 	}
 

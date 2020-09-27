@@ -50,31 +50,35 @@ class CFollowScreenings : public CMenuTarget
 		time_t starttime;
 		time_t stoptime;
 		std::string title;
-		uint64_t epgID;
+		uint64_t epg_id;
 		unsigned char apids;
 		bool safety;
 		std::string recDir;
 		CTimerd::RecordingInfo eventInfo;
 		std::vector<CMenuForwarder *> forwarders;
 		void updateRightIcon(int i, time_t start, unsigned int duration);
+		bool notify;
+
 	public:
 		enum
 		{
 			FOLLOWSCREENINGS_OFF	= 0,
 			FOLLOWSCREENINGS_ON	= 1,
+			FOLLOWSCREENINGS_ALWAYS	= 2
 		};
 
                 CFollowScreenings(const t_channel_id Channel_id, time_t Starttime, time_t Stoptime, const std::string &Title, uint64_t EpgID=0,
-			unsigned char Apids=TIMERD_APIDS_STD, bool Safety=false, std::string RecDir="", CChannelEventList *Evtlist=NULL) : CMenuTarget () {
+			unsigned char Apids=TIMERD_APIDS_STD, bool Safety=false, std::string RecDir="", CChannelEventList *Evtlist=NULL, bool Notify = true) : CMenuTarget () {
 			this->channel_id = Channel_id;
 			this->starttime = Starttime;
 			this->stoptime = Stoptime;
-			this->epgID = EpgID;
+			this->epg_id = EpgID;
 			this->recDir = RecDir;
 			this->evtlist = Evtlist;
 			this->title = Title;
 			this->safety = Safety;
 			this->apids = Apids;
+			this->notify = Notify;
 		};
 		~CFollowScreenings();
 		CChannelEventList *getFollowScreenings(void);

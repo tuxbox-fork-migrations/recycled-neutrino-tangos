@@ -111,26 +111,26 @@ class CTimerdClient:private CBasicClient
 
 		// adds new record timer event
 		int addRecordTimerEvent(const t_channel_id channel_id, time_t alarmtime, time_t stoptime,
-					uint64_t epgID=0, time_t epg_starttime=0, time_t announcetime = 0,
+					uint64_t epg_id=0, time_t epg_starttime=0, time_t announcetime = 0,
 					unsigned char apids=TIMERD_APIDS_STD, bool safety=false,bool autoAdjust=false, std::string recDir="", bool forceAdd=true, CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE, uint32_t repeatcount = 0)
 		{
 			CTimerd::RecordingInfo eventInfo;
 			eventInfo.channel_id = channel_id;
-			eventInfo.epgID = epgID;
+			eventInfo.epg_id = epg_id;
 			eventInfo.epg_starttime = epg_starttime;
 			eventInfo.apids = apids;
 			eventInfo.recordingSafety = safety;
 			eventInfo.autoAdjustToEPG = autoAdjust;
-			strncpy(eventInfo.recordingDir, recDir.c_str(), RECORD_DIR_MAXLEN);
+			strncpy(eventInfo.recordingDir, recDir.c_str(), RECORD_DIR_MAXLEN-1);
 			return addTimerEvent(CTimerd::TIMER_RECORD, &eventInfo, announcetime, alarmtime, stoptime, evrepeat, repeatcount,forceAdd);
 		};
 
 		int addImmediateRecordTimerEvent(const t_channel_id channel_id, time_t alarmtime, time_t stoptime,
-						 uint64_t epgID=0, time_t epg_starttime=0,unsigned char apids=TIMERD_APIDS_STD)
+						 uint64_t epg_id=0, time_t epg_starttime=0,unsigned char apids=TIMERD_APIDS_STD)
 		{
 			CTimerd::EventInfo eventInfo;
 			eventInfo.channel_id = channel_id;
-			eventInfo.epgID = epgID;
+			eventInfo.epg_id = epg_id;
 			eventInfo.epg_starttime = epg_starttime;
 			eventInfo.apids = apids;
 			eventInfo.recordingSafety = false;
@@ -144,12 +144,12 @@ class CTimerdClient:private CBasicClient
 
 		// adds new zapto timer event
 		int addZaptoTimerEvent(const t_channel_id channel_id, time_t alarmtime, time_t announcetime = 0,
-				       time_t stoptime = 0, uint64_t epgID=0, time_t epg_starttime=0,
+				       time_t stoptime = 0, uint64_t epg_id=0, time_t epg_starttime=0,
 				       unsigned char apids=TIMERD_APIDS_STD)
 		{
 			CTimerd::EventInfo eventInfo;
 			eventInfo.channel_id = channel_id;
-			eventInfo.epgID = epgID;
+			eventInfo.epg_id = epg_id;
 			eventInfo.epg_starttime = epg_starttime;
 			eventInfo.apids = apids;
 			eventInfo.recordingSafety = false;

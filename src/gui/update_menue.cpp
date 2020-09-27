@@ -43,6 +43,7 @@
 #include "update_settings.h"
 #include <gui/widget/icons.h>
 #include <driver/screen_max.h>
+#include <driver/record.h>
 #include <system/debug.h>
 #include <system/flashtool.h>
 #include <system/helpers.h>
@@ -89,16 +90,18 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	}
 #endif
 
+	bool allow_update = !CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->TimeshiftOnly();
+
 	CFlashUpdate flash;
 	//online update
 	if (file_exists(g_settings.softupdate_url_file.c_str())) {
-		update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET, true, NULL, &flash, "inet", inetkey);
+		update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET, allow_update, NULL, &flash, "inet", inetkey);
 		update_item->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CHECK);
 		softUpdate.addItem(update_item);
 	}
 
 	//local update
-	update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_LOCAL, true, NULL, &flash, "local", CRCInput::RC_green);
+	update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_LOCAL, allow_update, NULL, &flash, "local", CRCInput::RC_green);
 	update_item->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CHECK_LOCAL);
 	softUpdate.addItem(update_item);
 
@@ -108,7 +111,7 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_SETTINGS);
 	softUpdate.addItem(mf);
 
-#if !HAVE_ARM_HARDWARE
+#if !HAVE_ARM_HARDWARE && !HAVE_MIPS_HARDWARE
 	softUpdate.addItem(GenericMenuSeparatorLine);
 
 	//expert-functions
@@ -119,13 +122,19 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	softUpdate.addItem(mf);
 #endif
 
-#ifdef BOXMODEL_CS_HD2
+	unsigned int nextShortcut = (unsigned int)softUpdate.getNextShortcut();
+
+#ifdef BOXMODEL_CST_HD2
 	softUpdate.addItem(GenericMenuSeparatorLine);
 
-	mf = new CMenuDForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(1));
+	mf = new CMenuDForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(nextShortcut));
 	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CREATEIMAGE_MENU);
 	softUpdate.addItem(mf);
 #endif
+
+	// plugins with software manage integration
+	nextShortcut = (unsigned int)softUpdate.getNextShortcut();
+	softUpdate.integratePlugins(PLUGIN_INTEGRATION_SOFTWARE_MANAGE, nextShortcut);
 
 	int res = softUpdate.exec (NULL, "");
 	return res;

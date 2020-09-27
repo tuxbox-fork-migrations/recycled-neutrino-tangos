@@ -44,6 +44,7 @@ int my_system(int argc, const char *arg, ...); /* argc is number of arguments in
 FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
 int run_pty(pid_t &pid, const char *cmdstring);
 
+void safe_strncpy(char *dest, const char *src, size_t num);
 int safe_mkdir(const char * path);
 inline int safe_mkdir(std::string path) { return safe_mkdir(path.c_str()); }
 //int mkdirhier(const char *pathname, mode_t mode = 0755);
@@ -57,6 +58,7 @@ bool get_mem_usage(unsigned long &total, unsigned long &free);
 int mySleep(int sec);
 
 std::string find_executable(const char *name);
+bool exec_controlscript(std::string script);
 /* basically what "foo=`command`" does in the shell */
 std::string backtick(std::string command);
 
@@ -69,6 +71,8 @@ std::string getFileName(std::string &file);
 std::string getFileExt(std::string &file);
 std::string getNowTimeStr(const char* format);
 std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
+std::string ltrim(std::string &str, const std::string &trimChars = " \n\r\t");
+std::string rtrim(std::string &str, const std::string &trimChars = " \n\r\t");
 std::string cutString(const std::string str, int msgFont, const int width);
 std::string strftime(const char *format, const struct tm *tm);
 std::string strftime(const char *format, time_t when, bool gm = false);
@@ -121,18 +125,6 @@ class CFileHelpers
 uint32_t GetWidth4FB_HW_ACC(const uint32_t _x, const uint32_t _w, const bool max=true);
 #endif
 
-#if __cplusplus < 201103L
-std::string to_string(int);
-std::string to_string(unsigned int);
-std::string to_string(long);
-std::string to_string(unsigned long);
-std::string to_string(long long);
-std::string to_string(unsigned long long);
-#else
-/* hack... */
-#define to_string(x) std::to_string(x)
-#endif
-
 std::string itoa(int value, int base);
 
 inline int atoi(std::string &s) { return atoi(s.c_str()); }
@@ -182,5 +174,9 @@ std::string decodeUrl(std::string url);
 bool getUrl(std::string &url, std::string &answer, const std::string userAgent = " ", unsigned int timeout = 60);
 bool downloadUrl(std::string url, std::string file, const std::string userAgent = " ", unsigned int timeout = 60);
 
-//
+bool isDigitWord(std::string str);
+
+int getActivePartition();
+
+std::string GetSpecialName(std::string NormalName);
 #endif

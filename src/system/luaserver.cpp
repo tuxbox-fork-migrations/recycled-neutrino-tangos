@@ -21,7 +21,7 @@
 #if 0
 For testing try:
 
-cat <<EOT > /lib/tuxbox/luaplugins/test.lua
+cat <<EOT > /share/tuxbox/neutrino/luaplugins/test.lua
 #!/bin/luaclient
 
 for i,v in ipairs(arg) do
@@ -30,9 +30,9 @@ end
 return "ok"
 EOT
 
-chmod +x /lib/tuxbox/luaplugins/test.lua
+chmod +x /share/tuxbox/neutrino/luaplugins/test.lua
 
-/lib/tuxbox/luaplugins/test.lua a b c d
+/share/tuxbox/neutrino/luaplugins/test.lua a b c d
 #endif
 
 #include <config.h>
@@ -176,12 +176,12 @@ void *CLuaServer::luaserver_thread(void *arg) {
 	pthread_t wdthr;
 	pthread_create (&wdthr, NULL, luaclient_watchdog, (void *) lsd);
 
-	CLuaInstance lua;
-	lsd->lua = &lua;
+	CLuaInstance *lua = new CLuaInstance();
+	lsd->lua = *&lua;
 	std::string result_code;
 	std::string result_string;
 	std::string error_string;
-	lua.runScript(lsd->script.c_str(), &lsd->argv, &result_code, &result_string, &error_string);
+	lua->runScript(lsd->script.c_str(), &lsd->argv, &result_code, &result_string, &error_string);
 	pthread_cancel(wdthr);
 	pthread_join(wdthr, NULL);
 	if (!lsd->died) {
@@ -202,7 +202,9 @@ void *CLuaServer::luaserver_thread(void *arg) {
 		rp += error_string_len;
 		CBasicServer::send_data(lsd->fd, result, size);
 	}
+	delete lua;
 	delete lsd;
+
 	Lock();
 	if (instance) {
 		instance->count--;

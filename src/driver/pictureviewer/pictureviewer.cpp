@@ -323,6 +323,8 @@ void CPictureViewer::Zoom (float factor)
 
 	if (m_CurrentPic_Buffer == oldBuf) {
 		// resize failed
+		m_CurrentPic_X = oldx;
+		m_CurrentPic_Y = oldy;
 		hideBusy ();
 		return;
 	}
@@ -560,31 +562,24 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 			CSectionsdClient::CurrentNextInfo CurrentNext;
 			CEitManager::getInstance()->getCurrentNextServiceKey(ChannelID, CurrentNext);
 
-			if (CSectionsdClient::epgflags::has_current && !CurrentNext.current_name.empty())
+			if (CurrentNext.flags & CSectionsdClient::epgflags::has_current && !CurrentNext.current_name.empty())
 				EventName = CurrentNext.current_name;
 		}
 
 		// add neccessary paths to v_path
 		v_path.clear();
-		if (lcd4l_mode)
+		if (lcd4l_mode){
+#ifdef ENABLE_LCD4LINUX
 			v_path.push_back(g_settings.lcd4l_logodir);
+#endif
+		}
 		v_path.push_back(g_settings.logo_hdd_dir);
 		if (g_settings.logo_hdd_dir != LOGODIR_VAR)
 			v_path.push_back(LOGODIR_VAR);
 		if (g_settings.logo_hdd_dir != LOGODIR)
 			v_path.push_back(LOGODIR);
 
-		std::transform(EventName.begin(), EventName.end(), EventName.begin(), ::tolower);
-		EventName = str_replace(" ", "-", EventName);
-		EventName = str_replace(",", "-", EventName);
-		EventName = str_replace(";", "-", EventName);
-		EventName = str_replace(":", "-", EventName);
-		EventName = str_replace("+", "-", EventName);
-		EventName = str_replace("&", "-", EventName);
-		EventName = str_replace("ä", "ae", EventName);
-		EventName = str_replace("ö", "oe", EventName);
-		EventName = str_replace("ü", "ue", EventName);
-		EventName = str_replace("ß", "ss", EventName);
+		EventName = GetSpecialName(EventName);
 		//printf("GetLogoName(): EventName \"%s\"\n", EventName.c_str());
 
 		for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
@@ -608,14 +603,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 	}
 
 	// create special filename from channelname
-	std::string SpecialChannelName = ChannelName;
-	std::transform(SpecialChannelName.begin(), SpecialChannelName.end(), SpecialChannelName.begin(), ::tolower);
-	SpecialChannelName = str_replace(" ", "-", SpecialChannelName);
-	SpecialChannelName = str_replace("ä", "a", SpecialChannelName);
-	SpecialChannelName = str_replace("ö", "o", SpecialChannelName);
-	SpecialChannelName = str_replace("ü", "u", SpecialChannelName);
-	SpecialChannelName = str_replace("+", "___plus___", SpecialChannelName);
-	SpecialChannelName = str_replace("&", "___and___", SpecialChannelName);
+	std::string SpecialChannelName = GetSpecialName(ChannelName);
 
 	// create channel id as string
 	char strChnId[16];
@@ -669,9 +657,11 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 
 		for (size_t f = 0; f < v_file.size(); f++)
 		{
+#ifdef ENABLE_LCD4LINUX
 			// process g_settings.lcd4l_logodir
 			if (lcd4l_mode)
 				v_path.push_back(g_settings.lcd4l_logodir + "/" + v_file[f] + fileType[i]);
+#endif
 			// process g_settings.logo_hdd_dir
 			v_path.push_back(g_settings.logo_hdd_dir + "/" + v_file[f] + fileType[i]);
 			// process LOGODIR_VAR
@@ -785,7 +775,7 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 	if (access(name.c_str(), R_OK) == -1)
 		return NULL;
 
-	int x, y, load_ret, bpp = 0;
+	int x = 0, y = 0, load_ret = 0, bpp = 0;
 	CFormathandler *fh = NULL;
 	unsigned char * buffer = NULL;
 	fb_pixel_t * ret = NULL;
@@ -797,6 +787,10 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		mode_str = "getIcon";
 
   	fh = fh_getsize(name.c_str(), &x, &y, INT_MAX, INT_MAX);
+	if (x < 1 || y < 1){
+		return NULL;
+	}
+
 	size_t bufsize = x * y * 4;
 	if (!checkfreemem(bufsize))
 		return NULL;
@@ -872,7 +866,11 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 	unsigned char * cr;
 	if(dst == NULL)
 	{
-		size_t bufsize = dx * dy * ((alpha) ? 4 : 3);
+		int ai = ((alpha) ? 4 : 3);
+		if (dy <= 1 || dx <= 1 || (dx *ai > INT_MAX / dy))
+			return orgin;
+
+		size_t bufsize = dx * dy * ai;
 		if (!checkfreemem(bufsize)){
 			return orgin;
 		}

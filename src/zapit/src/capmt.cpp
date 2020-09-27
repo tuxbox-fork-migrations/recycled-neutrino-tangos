@@ -251,7 +251,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			break;
 		case STREAM:
 		case RECORD:
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 //			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, frontend ? frontend->getNumber() : -1, channel->getRecordDemux());
 			if(frontend)
 				source = frontend->getNumber();
@@ -291,7 +291,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam->sendMessage(NULL, 0, false);
 		/* clean up channel_map with stopped record/stream/pip services NOT live-tv */
 		it = channel_map.find(channel_id);
-		if(it != channel_map.end() && newmask != 0)
+		if (it != channel_map.end() && newmask != 0 && it->second != cam)
 		{
 			delete it->second;
 			channel_map.erase(channel_id);

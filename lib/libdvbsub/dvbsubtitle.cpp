@@ -11,6 +11,10 @@
  * dvbsubtitle for HD1 ported by Coolstream LTD
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "dvbsubtitle.h"
 
 extern "C" {
@@ -71,16 +75,7 @@ fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, 
 	fb_pixel_t  *cr,*l;
 	int i,j,k,ip;
 
-#if !HAVE_SH4_HARDWARE
-	cr = (fb_pixel_t *) malloc(dx*dy*sizeof(fb_pixel_t));
-
-	if(cr == NULL) {
-		printf("Error: malloc\n");
-		return NULL;
-	}
-#else
 	cr = CFrameBuffer::getInstance()->getBackBufferPointer();
-#endif
 	l = cr;
 
 	for(j = 0; j < dy; j++, l += dx)
@@ -188,7 +183,7 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 		fb_pixel_t * newdata = simple_resize32 (sub.rects[i]->data[0], colors, sub.rects[i]->nb_colors, width, height, nw, nh);
 #endif
 
-		CFrameBuffer::getInstance()->blit2FB(newdata, nw, nh, xoff, yoff, 0, 0);
+		CFrameBuffer::getInstance()->blit2FB(newdata, nw, nh, xoff, yoff, 0, 0, true);
 
 		if(min_x > xoff)
 			min_x = xoff;
@@ -279,10 +274,6 @@ void cDvbSubtitleConverter::Pause(bool pause)
 		running = false;
 		Unlock();
 	} else {
-		// Assume that we've switched channel. Drop the existing display_definition.
-		avctx->width = 0;
-		avctx->height = 0;
-		//Reset();
 		running = true;
 	}
 }
@@ -381,20 +372,6 @@ int cDvbSubtitleConverter::Action(void)
 		dbgconverter("cDvbSubtitleConverter::Action: no context\n");
 		return -1;
 	}
-
-#if HAVE_SH4_HARDWARE
-	min_x = min_y = 0;
-	max_x = 720;
-	max_y = 576;
-
-	if (avctx->width && avctx->height) {
-		min_x = 0;
-		min_y = 0;
-		max_x = avctx->width;
-		max_y = avctx->height;
-		dbgconverter("cDvbSubtitleConverter::Action: Display Definition: min_x=%d min_y=%d max_x=%d max_y=%d\n", min_x, min_y, max_x, max_y);
-	}
-#endif
 
 	Lock();
 	if (cDvbSubtitleBitmaps *sb = bitmaps->First()) {

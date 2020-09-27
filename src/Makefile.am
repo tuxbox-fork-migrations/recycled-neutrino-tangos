@@ -24,6 +24,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/libupnpclient \
+	-I$(top_srcdir)/lib/jsoncpp \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
@@ -192,6 +193,10 @@ neutrino_LDADD += -lass
 endif
 
 if BOXTYPE_ARMBOX
+neutrino_LDADD += -lass
+endif
+
+if BOXTYPE_MIPSBOX
 neutrino_LDADD += -lass
 endif
 

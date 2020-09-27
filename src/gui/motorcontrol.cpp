@@ -118,7 +118,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	CZapitClient::commandSetScanSatelliteList sat;
 
 	sat.position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satName);
-	strncpy(sat.satName, scansettings.satName.c_str(), sizeof(sat.satName));
+	strncpy(sat.satName, scansettings.satName.c_str(), sizeof(sat.satName)-1);
 	satList.push_back(sat);
 
 	satellite_map_t & satmap = frontend->getSatellites();
@@ -138,6 +138,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	TP.feparams.polarization = scansettings.sat_TP_pol;
 	TP.feparams.delsys = (delivery_system_t) scansettings.sat_TP_delsys;
 	TP.feparams.modulation = (fe_modulation_t) scansettings.sat_TP_mod;
+	TP.feparams.pilot = (zapit_pilot_t) scansettings.sat_TP_pilot;
 	TP.TP_id = 0;
 	g_Zapit->tune_TP(TP);
 
@@ -252,7 +253,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 				paintStatus();
 			}
 		}
-		else if (msg == CRCInput::RC_7) {
+		else if (msg == CRCInput::RC_7 || msg == CRCInput::RC_yellow) {
 			if (installerMenue) {
 				printf("[motorcontrol] 7 key received... goto reference position\n");
 				g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6B, 1, 0, 0);
@@ -302,7 +303,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 			printf("[motorcontrol] blue key received... toggle stepmode on/off: %d\n", stepMode);
 			paintStatus();
 		}
-		else if (msg == CRCInput::RC_info) {
+		else if (msg == CRCInput::RC_info || msg == CRCInput::RC_help) {
 			network = "waiting for NIT...";
 			paintStatus();
 			readNetwork();
@@ -525,7 +526,7 @@ void CMotorControl::paintMenu()
 	paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_POS_DECREASE));
 	paintLine(xpos1, &ypos, width1, "(blue)");
 	paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DRIVE));
-	paintLine(xpos1, &ypos, width1, "(info)");
+	paintLine(xpos1, &ypos, width1, "(info/help)");
 	paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_NETWORK));
 #else
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_0,

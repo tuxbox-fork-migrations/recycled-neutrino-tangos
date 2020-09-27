@@ -64,16 +64,13 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 
 	CVFD::getInstance()->setMuted(newValue);
 	neutrino->setCurrentMuted(newValue);
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if (g_settings.hdmi_cec_volume)
 		hdmi_cec::getInstance()->toggle_mute();
 	else
 #endif
 	if (g_settings.volume_external)
-	{
-		if (my_system((newValue) ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT) != 0)
-				perror((newValue) ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT " failed");
-	}
+		exec_controlscript((newValue) ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT);
 	else
 		g_Zapit->muteAudio(newValue);
 
@@ -133,12 +130,12 @@ void CAudioMute::enableMuteIcon(bool enable)
 	frameBuffer->fbNoCheck(true);
 	if (enable) {
 		frameBuffer->doPaintMuteIcon(true);
-		do_paint_mute_icon = true;
-		if (neutrino->isMuted())
+		if (!do_paint_mute_icon && neutrino->isMuted())
 			this->paint();
+		do_paint_mute_icon = true;
 	}
 	else {
-		if (!neutrino->isMuted())
+		if (do_paint_mute_icon && !neutrino->isMuted())
 			this->kill();
 		frameBuffer->doPaintMuteIcon(false);
 		do_paint_mute_icon = false;

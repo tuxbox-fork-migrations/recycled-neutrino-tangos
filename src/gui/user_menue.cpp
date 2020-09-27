@@ -79,6 +79,7 @@
 #include <gui/update_menue.h>
 #include <gui/hdd_menu.h>
 #include <gui/webtv_setup.h>
+#include <gui/miscsettings_menu.h>
 
 #include <driver/radiotext.h>
 #include <driver/record.h>
@@ -95,7 +96,7 @@ extern cVideo * videoDecoder;
 #if !HAVE_SPARK_HARDWARE
 extern CCAMMenuHandler * g_CamHandler;
 #endif
-
+std::string CUserMenu::tmp;
 // 
 #include <system/debug.h>
 
@@ -193,7 +194,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 
 	bool _mode_ts    = CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts;
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
-				(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+				(CZapit::getInstance()->GetCurrentChannel() && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
 	bool timeshift = CMoviePlayerGui::getInstance().timeshift;
 	bool adzap_active = CAdZapMenu::getInstance()->isActive();
@@ -244,6 +245,11 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_EPG_MISC:
 		{
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_READ_NOW, g_settings.epg_read, NULL, new CMiscMenue(), "epg_read_now_usermenu", key, icon);
+			menu_item->setHint("", LOCALE_MENU_HINT_EPG_READ_NOW);
+			menu->addItem(menu_item, false);
+
 			dummy = g_Sectionsd->getIsScanningActive();
 			keyhelper.get(&key,&icon);
 			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_PAUSESECTIONSD, &dummy, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this , key, icon );
@@ -369,7 +375,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 					neutrino_msg_t d_key = g_Plugins->getKey(count);
 					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_Plugins->getKey(count));
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarder(g_Plugins->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), key, icon);
+					menu_item = new CMenuForwarder(g_Plugins->getName(count), true, NULL, CPluginsExec::getInstance(), std::to_string(count).c_str(), key, icon);
 					menu_item->setHint(g_Plugins->getHintIcon(count), g_Plugins->getDescription(count));
 
 					menu->addItem(menu_item, false);
@@ -413,15 +419,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_SCRIPTS);
 			break;
 		}
-#if 0 //ENABLE_YOUTUBE_PLAYER
-		case SNeutrinoSettings::ITEM_YOUTUBE:
-		{
-			keyhelper.get(&key,&icon);
-			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, !_mode_ts, NULL, neutrino, "ytplayback", key, icon);
-			menu_item->setHint(NEUTRINO_ICON_HINT_YTPLAY, LOCALE_MENU_HINT_YTPLAY);
-			break;
-		}
-#endif
 		case SNeutrinoSettings::ITEM_FILEPLAY:
 		{
 			keyhelper.get(&key,&icon);
@@ -539,7 +536,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 				if (pname && (std::string(pname) == *it) && !g_Plugins->isHidden(count)) {
 					neutrino_msg_t d_key = g_Plugins->getKey(count);
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarder(g_Plugins->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), key, icon);
+					menu_item = new CMenuForwarder(g_Plugins->getName(count), true, NULL, CPluginsExec::getInstance(), std::to_string(count).c_str(), key, icon);
 					menu_item->setHint(g_Plugins->getHintIcon(count), g_Plugins->getDescription(count));
 					break;
 				}
@@ -598,7 +595,6 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 	neutrino_locale_t loc = NONEXISTANT_LOCALE;
 	const char *text = NULL;
 	int mode = CNeutrinoApp::getInstance()->getMode();
-
 	std::vector<std::string> items = ::split(g_settings.usermenu[button]->items, ',');
 	for (std::vector<std::string>::iterator it = items.begin(); it != items.end(); ++it) {
 		int item = -1;
@@ -613,7 +609,8 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 					int nop = g_Plugins->getNumberOfPlugins();
 					for(int count = 0; count < nop; count++) {
 						if (std::string(g_Plugins->getFileName(count)) == *it) {
-							text = g_Plugins->getName(count);
+							tmp = g_Plugins->getName(count);
+							text = tmp.c_str();
 							active = true;
 							break;
 						}
@@ -626,14 +623,14 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 				if (mode == NeutrinoModes::mode_webtv && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty()) {
 					if(loc == NONEXISTANT_LOCALE && !text) {
 						CWebTVResolution webtvres;
-						std::string tmp = webtvres.getResolutionValue();
+						tmp = webtvres.getResolutionValue();
 						if (!(videoDecoder->getBlank()))
 						{
 							int xres = 0, yres = 0, framerate;
 							videoDecoder->getPictureInfo(xres, yres, framerate);
 							if (xres && yres)
 							{
-								std::string res = to_string(xres) + "x" + to_string(yres);
+								std::string res = std::to_string(xres) + "x" + std::to_string(yres);
 								if (res.compare(tmp))
 								{
 									tmp = " (" + res + ")";
@@ -673,11 +670,15 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 				continue;
 			case SNeutrinoSettings::ITEM_AUDIO_SELECT:
 				if(loc == NONEXISTANT_LOCALE && !text) {
-					if (mode == NeutrinoModes::mode_webtv)
-						text = CMoviePlayerGui::getInstance(true).CurrentAudioName().c_str(); // use instance_bg
-					else if (!g_RemoteControl->current_PIDs.APIDs.empty())
-						text = g_RemoteControl->current_PIDs.APIDs[
+					if (mode == NeutrinoModes::mode_webtv){
+						tmp = CMoviePlayerGui::getInstance(true).CurrentAudioName(); // use instance_bg.
+						text = tmp.c_str();
+					}
+					else if (!g_RemoteControl->current_PIDs.APIDs.empty()){
+						tmp = g_RemoteControl->current_PIDs.APIDs[
 							g_RemoteControl->current_PIDs.PIDs.selected_apid].desc;
+						text = tmp.c_str();
+					}
 				} else
 					return_title = true;
 				active = true;

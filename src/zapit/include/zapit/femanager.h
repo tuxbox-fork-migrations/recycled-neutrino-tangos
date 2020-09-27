@@ -31,12 +31,17 @@
 
 #include <OpenThreads/ReentrantMutex>
 
-#if BOXMODEL_VUSOLO4K
+#if BOXMODEL_VUULTIMO4K
+#define MAX_FE          24
+#define MAX_ADAPTERS    4
+#else
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
 #define MAX_FE          16
 #define MAX_ADAPTERS    4
 #else
 #define MAX_FE          4
 #define MAX_ADAPTERS    4
+#endif
 #endif
 //#define DYNAMIC_DEMUX
 //#define MAKE_FE_KEY(adapter, number) ((adapter << 8) | (number & 0xFF))
@@ -115,7 +120,9 @@ class CFEManager
 
 		bool		Init();
 		void		Close();
+		void		Close(int _fe);
 		void		Open();
+		void		Open(int _fe);
 
 		CFrontend *	getFE(int index = 0);
 		CFrontend *	getLiveFE() { return livefe; };

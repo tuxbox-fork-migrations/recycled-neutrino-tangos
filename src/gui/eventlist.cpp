@@ -145,26 +145,28 @@ void CEventList::UpdateTimerList(void)
 {
 	timerlist.clear();
 	g_Timerd->getTimerList (timerlist);
-	g_Timerd->getRecordingSafety(timerPre,timerPost);
+	CTimerList *Timerlist = new CTimerList;
+	Timerlist->RemoteBoxTimerList(timerlist);
+	sort(timerlist.begin(), timerlist.end());
+	delete Timerlist;
 }
 
 // Function: HasTimerConflicts
 // search for timer conflicts for given time 
 // return: true if found any conflict, you can watch with parameter epg_ID
-bool CEventList::HasTimerConflicts(time_t starttime, time_t duration, event_id_t * epg_ID)
+bool CEventList::HasTimerConflicts(time_t starttime, time_t duration, t_event_id *epg_ID)
 {	
 	for(uint i= 0; i < timerlist.size(); i++)
-		
 	{			
 		if(timerlist[i].stopTime > starttime-timerPre && timerlist[i].alarmTime < starttime+duration+timerPost)
 		{
-			*epg_ID = timerlist[i].epgID;
+			*epg_ID = timerlist[i].epg_id;
 			return true;
 		}
 	}
 	
 	*epg_ID = 0;
-	return  false;
+	return false;
 }
 
 void CEventList::readEvents(const t_channel_id channel_id)
@@ -230,8 +232,7 @@ void CEventList::readEvents(const t_channel_id channel_id)
 		// Houdini added for Private Premiere EPG, start sorted by start date/time
 		sort(evtlist.begin(),evtlist.end(),sortByDateTime);
 
-		timerlist.clear();
-		g_Timerd->getTimerList (timerlist);
+		UpdateTimerList();
 	}
 
 	current_event = (unsigned int)-1;
@@ -264,6 +265,9 @@ void CEventList::readEvents(const t_channel_id channel_id)
 
 void CEventList::getChannelNames(t_channel_id &channel_id, std::string &current_channel_name, std::string &prev_channel_name, std::string &next_channel_name, neutrino_msg_t msg)
 {
+	if(bouquetList->Bouquets.empty()){
+		return;
+	}
 	t_bouquet_id current_bouquet_id = bouquetList->getActiveBouquetNumber();
 	const unsigned int channel_nr = bouquetList->Bouquets[current_bouquet_id]->channelList->getSize();
 	if(channel_nr < 2){
@@ -369,7 +373,9 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 	}else{
 		readEvents(epg_id);
 	}
+
 	UpdateTimerList();
+	g_Timerd->getRecordingSafety(timerPre,timerPost);
 
 	bool dont_hide = false;
 	paintHead(channel_id, channelname, channelname_prev, channelname_next);
@@ -478,8 +484,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				if(etype == CTimerd::TIMER_RECORD) //remove timer event 
 				{
 					g_Timerd->removeTimerEvent(tID);
-					timerlist.clear();
-					g_Timerd->getTimerList (timerlist);
+					UpdateTimerList();
 					paint(evtlist[selected].channelID);
 					paintFoot(evtlist[selected].channelID);
 					continue;
@@ -529,12 +534,11 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					CFollowScreenings m(used_id,
 						evtlist[selected].startTime,
 						evtlist[selected].startTime + evtlist[selected].duration,
-						evtlist[selected].description, evtlist[selected].eventID, TIMERD_APIDS_CONF, true, "", &evtlist);
+						evtlist[selected].description, evtlist[selected].eventID, TIMERD_APIDS_CONF, true, "", &evtlist, false);
 					m.exec(NULL, "");
 					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 				}
-				timerlist.clear();
-				g_Timerd->getTimerList (timerlist);
+				UpdateTimerList();
 				paint(used_id);
 				paintFoot(used_id);
 			}
@@ -545,8 +549,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			CTimerd::CTimerEventTypes etype = isScheduled(evtlist[selected].channelID, &evtlist[selected], &tID);
 			if(etype == CTimerd::TIMER_ZAPTO) {
 				g_Timerd->removeTimerEvent(tID);
-				timerlist.clear();
-				g_Timerd->getTimerList (timerlist);
+				UpdateTimerList();
 				paint(evtlist[selected].channelID);
 				paintFoot(evtlist[selected].channelID);
 				continue;
@@ -557,8 +560,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 					evtlist[selected].startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
 					evtlist[selected].eventID, evtlist[selected].startTime, 0);
 			//ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
-			timerlist.clear();
-			g_Timerd->getTimerList (timerlist);
+			UpdateTimerList();
 			paint(evtlist[selected].channelID );
 			paintFoot(evtlist[selected].channelID );
 			timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
@@ -568,6 +570,8 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			if(in_search) {
 				in_search = false;
 				m_showChannel = false;
+				infozone_background = false;
+				oldEventID = -1;
 				paintHead(channel_id, channelname);
 				readEvents(epg_id);
 				paint(channel_id);
@@ -603,8 +607,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 			CTimerList *Timerlist = new CTimerList;
 			Timerlist->exec(NULL, "");
 			delete Timerlist;
-			timerlist.clear();
-			g_Timerd->getTimerList (timerlist);
+			UpdateTimerList();
 
 			paintHead(channel_id, channelname);
 			oldIndex = -1;
@@ -647,8 +650,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 						g_RCInput->postMsg( msg, data );
 					}
 					/* in case timer was added in g_EpgData */
-					timerlist.clear();
-					g_Timerd->getTimerList (timerlist);
+					UpdateTimerList();
 					paintHead(channel_id, in_search ? search_head_name : channelname);
 					oldIndex = -1;
 					oldEventID = -1;
@@ -712,8 +714,8 @@ CTimerd::CTimerEventTypes CEventList::isScheduled(t_channel_id channel_id, CChan
 {
 	CTimerd::TimerList::iterator timer = timerlist.begin();
 	for(; timer != timerlist.end(); ++timer) {
-		if(timer->channel_id == channel_id && (timer->eventType == CTimerd::TIMER_ZAPTO || timer->eventType == CTimerd::TIMER_RECORD)) {
-			if(timer->epgID == event->eventID) {
+		if(timer->channel_id == channel_id && (timer->eventType == CTimerd::TIMER_ZAPTO || timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_REMOTEBOX)) {
+			if(timer->epg_id == event->eventID) {
 				if(timer->epg_starttime == event->startTime) {
 					bool isTimeShiftTimer = false;
 					if( timer->eventType == CTimerd::TIMER_RECORD){
@@ -798,15 +800,21 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		t_channel_id channel_tmp = m_showChannel ? evtlist[currpos].channelID : channel_idI;
 		int timerID = -1;
 		CTimerd::CTimerEventTypes etype = isScheduled(channel_tmp, &evtlist[currpos],&timerID);
-		const char * icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_MARKER_ZAP : 0;
-		if(etype == CTimerd::TIMER_RECORD){
+		const char *icontype = NULL;
+		if (etype == CTimerd::TIMER_ZAPTO)
+			icontype = NEUTRINO_ICON_MARKER_ZAP;
+		else if (etype == CTimerd::TIMER_RECORD)
 			icontype = NEUTRINO_ICON_MARKER_RECORD;
-		}else{
+		else if (etype == CTimerd::TIMER_REMOTEBOX)
+			icontype = NEUTRINO_ICON_MARKER_RECORD_GRAY; // do we need another icon for remote timers?
+		else
+		{
 			if (timerID > 0 && CRecordManager::getInstance()->CheckRecordingId_if_Timeshift(timerID))
 				icontype = NEUTRINO_ICON_MARKER_TIMESHIFT;
 		}
 		int iw = 0, ih = 0;
-		if(icontype != 0) {
+		if (icontype != NULL)
+		{
 			frameBuffer->getIconSize(icontype, &iw, &ih);
 			frameBuffer->paintIcon(icontype, x + OFFSET_INNER_MID, ypos + OFFSET_INNER_MIN + smallfont_height, largefont_height);
 			iw += OFFSET_INNER_MID;
@@ -814,7 +822,7 @@ void CEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		
 		// detecting timer conflict and set start position of event text depending of possible painted icon
 		bool conflict = HasTimerConflicts(evtlist[currpos].startTime, evtlist[currpos].duration, &item_event_ID);
-		//printf ("etype %d , conflicts %d -> %s, conflict event_ID %d -> current event_ID %d\n", etype, conflict, evtlist[currpos].description.c_str(), item_event_ID, evtlist[currpos].eventID);
+		//printf("etype %d , conflicts %d -> %s, conflict event_ID %lld -> current event_ID %lld\n", etype, conflict, evtlist[currpos].description.c_str(), item_event_ID, evtlist[currpos].eventID);
 		
 		int i2w = 0, i2h = 0;
 		if (conflict && item_event_ID != evtlist[currpos].eventID)
@@ -1057,10 +1065,14 @@ void CEventList::paintFoot(t_channel_id channel_id)
 	}
 
 	// epg button for epg-plus
-	buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_EPG_SMALL;
-	buttons[btn_cnt].locale = LOCALE_EPGPLUS_HEAD;
-	btn_cnt++;
+	if (g_settings.eventlist_epgplus)
+	{
+		buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_EPG_SMALL;
+		buttons[btn_cnt].locale = LOCALE_EPGPLUS_HEAD;
+		btn_cnt++;
+	}
 
+	// timerlist button
 	buttons[btn_cnt].button = g_info.hw_caps->has_button_timer ? NEUTRINO_ICON_BUTTON_TIMER : NEUTRINO_ICON_BUTTON_0;
 	buttons[btn_cnt].locale = LOCALE_TIMERLIST_NAME;
 	btn_cnt++;

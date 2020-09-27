@@ -98,16 +98,19 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileFilter fileFilter;
 		fileFilter.addFilter("conf");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec(CONFIGDIR) == true) {
+		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true) {
 			CNeutrinoApp::getInstance()->loadKeys(fileBrowser.getSelectedFile()->Name.c_str());
 			printf("[neutrino keybind_setup] new keys: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
+			for (int i = 0; i < KEYBINDS_COUNT; i++){
+				keychooser[i]->reinitName();
+			}
 		}
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "savekeys") {
 		CFileBrowser fileBrowser;
 		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/media") == true) {
+		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true) {
 			std::string fname = "keys.conf";
 			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname);
 			sms->exec(NULL, "");
@@ -129,9 +132,9 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				remote_code_old = remote_code;
 				CHintBox *Hint;
 				std::string Text = g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_CODE);
-				Text += " > " + to_string(remote_code) + "\n";
+				Text += " > " + std::to_string(remote_code) + "\n";
 				Text += g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_CODE_MSG1);
-				Text += " " + to_string(remote_code) + "\n";
+				Text += " " + std::to_string(remote_code) + "\n";
 				Text += g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_CODE_MSG2);
 				Hint = new CHintBox(LOCALE_KEYBINDINGMENU_REMOTECONTROL_CODE_SAVE, Text.c_str());
 				Hint->paint();
@@ -143,7 +146,7 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				system("killall evremote2");
 				usleep(300000);
 				system("/bin/evremote2 10 120 > /dev/null &");
-				std::string vfd_msg = "RC Code: " + to_string(remote_code);
+				std::string vfd_msg = "RC Code: " + std::to_string(remote_code);
 				sleep(1);
 				CVFD::getInstance()->repaintIcons();
 				CVFD::getInstance()->ShowText(vfd_msg.c_str());
@@ -223,6 +226,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_KEYBINDINGMENU_TVRADIOMODE,   	&g_settings.key_tvradio_mode,		LOCALE_MENU_HINT_KEY_TVRADIOMODE },
 	{LOCALE_KEYBINDINGMENU_POWEROFF,      	&g_settings.key_power_off,		LOCALE_MENU_HINT_KEY_POWEROFF },
 	{LOCALE_KEYBINDINGMENU_STANDBYOFF_ADD,	&g_settings.key_standby_off_add,	LOCALE_MENU_HINT_KEY_STANDBYOFF_ADD },
+	{LOCALE_KEYBINDINGMENU_FAVORITES,	&g_settings.key_favorites, 		LOCALE_MENU_HINT_KEY_FAVORITES },
 	{LOCALE_KEYBINDINGMENU_PAGEUP, 		&g_settings.key_pageup,			LOCALE_MENU_HINT_KEY_PAGEUP },
 	{LOCALE_KEYBINDINGMENU_PAGEDOWN, 	&g_settings.key_pagedown, 		LOCALE_MENU_HINT_KEY_PAGEDOWN },
 	{LOCALE_KEYBINDINGMENU_VOLUMEUP, 	&g_settings.key_volumeup,		LOCALE_MENU_HINT_KEY_VOLUMEUP },
@@ -501,6 +505,10 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 
 	bindSettings->addItem(new CMenuSeparator());
 
+	// favorites
+	mf = new CMenuForwarder(key_settings[NKEY_FAVORITES].keydescription, true, keychooser[NKEY_FAVORITES]->getKeyName(), keychooser[NKEY_FAVORITES]);
+	mf->setHint("", key_settings[NKEY_FAVORITES].hint);
+	bindSettings->addItem(mf);
 	// timeshift
 	mf = new CMenuForwarder(key_settings[NKEY_TIMESHIFT].keydescription, true, keychooser[NKEY_TIMESHIFT]->getKeyName(), keychooser[NKEY_TIMESHIFT]);
 	mf->setHint("", key_settings[NKEY_TIMESHIFT].hint);
@@ -509,8 +517,8 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mf = new CMenuForwarder(key_settings[NKEY_UNLOCK].keydescription, true, keychooser[NKEY_UNLOCK]->getKeyName(), keychooser[NKEY_UNLOCK]);
 	mf->setHint("", key_settings[NKEY_UNLOCK].hint);
 	bindSettings->addItem(mf);
-	// screenshot
 #ifdef SCREENSHOT
+	// screenshot
 	mf = new CMenuForwarder(key_settings[NKEY_SCREENSHOT].keydescription, true, keychooser[NKEY_SCREENSHOT]->getKeyName(), keychooser[NKEY_SCREENSHOT]);
 	mf->setHint("", key_settings[NKEY_SCREENSHOT].hint);
 	bindSettings->addItem(mf);

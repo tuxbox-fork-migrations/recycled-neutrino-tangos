@@ -1,5 +1,5 @@
 define(ver_major, 3)
-define(ver_minor, 8)
+define(ver_minor, 12)
 define(ver_micro, 0)
 
 AC_INIT(Neutrino-MP, ver_major.ver_minor.ver_micro)
@@ -150,6 +150,7 @@ if test "$BOXTYPE" = "coolstream" ||
    test "$BOXTYPE" = "tripledragon" ||
    test "$BOXTYPE" = "duckbox" ||
    test "$BOXTYPE" = "armbox" ||
+   test "$BOXTYPE" = "mipsbox" ||
    test "$BOXTYPE" = "spark7162" ||
    test "$BOXTYPE" = "spark"; then
 	AC_DEFINE(SCREENSHOT, 1, [Define to 1 if the platform supports screenshots])
@@ -228,6 +229,33 @@ if test "$enable_webif" = "yes"; then
 	AC_DEFINE(ENABLE_WEBIF,1,[include webif])
 fi
 
+AC_ARG_ENABLE(dynamicdemux,
+	AS_HELP_STRING(--enable-dynamicdemux,use dynamic demux),
+	,[enable_dynamicdemux=yes])
+
+AM_CONDITIONAL(DYNAMIC_DEMUX,test "$enable_dynamicdemux" = "yes")
+if test "$enable_dynamicdemux" = "yes"; then
+	AC_DEFINE(DYNAMIC_DEMUX,1,[use dynamic demux])
+fi
+
+AC_ARG_ENABLE(arm-acc,
+	AS_HELP_STRING(--disable-arm-acc,disable arm hardware acceleration),
+	,[enable_arm_acc=yes])
+
+AM_CONDITIONAL(ENABLE_ARM_ACC,test "$enable_arm_acc" = "yes")
+if test "$enable_arm_acc" = "yes"; then
+	AC_DEFINE(ENABLE_ARM_ACC,1,[enable arm hardware acceleration])
+fi
+
+AC_ARG_ENABLE(mips-acc,
+	AS_HELP_STRING(--disable-mips-acc,disable mips hardware acceleration),
+	,[enable_mips_acc=yes])
+
+AM_CONDITIONAL(ENABLE_MIPS_ACC,test "$enable_mips_acc" = "yes")
+if test "$enable_mips_acc" = "yes"; then
+	AC_DEFINE(ENABLE_MIPS_ACC,1,[enable mips hardware acceleration])
+fi
+
 AC_ARG_ENABLE(tangos,
 	AS_HELP_STRING(--disable-tangos,disable tangos infoviewer),
 	,[enable_tangos=yes])
@@ -249,19 +277,20 @@ AC_ARG_ENABLE(lua,
 
 if test "$enable_lua" = "yes"; then
 	AC_DEFINE(ENABLE_LUA, 1, [include Lua support])
-	PKG_CHECK_MODULES([LUA], [lua >= 5.2], [
-		echo "lua >= 5.2 found"
-	], [
-		PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], [
-			echo "lua5.2 found"
-		], [
+	PKG_CHECK_MODULES(LUA, lua, LLUA="yes", LLUA="no")
+	PKG_CHECK_MODULES(luajit, luajit, LLUAJIT="yes", LLUAJIT="no")
+		if test "x$LLUAJIT" = "xyes"; then
+			LUA_LIBS="-lluajit-5.1"
+			AC_DEFINE(LUA_COMPAT_5_2, 1, [needed for build with lua 5.1])
+		elif test "x$LLUA" = "xyes"; then
+			LUA_LIBS="-llua"
+			AC_DEFINE(LUA_COMPAT_5_2, 0, [needed for build with lua 5.1])
+		else
 			echo "lualib not found, assuming static lua in linker path..."
 			LUA_LIBS="-llua -ldl"
 			AC_DEFINE(STATIC_LUAPOSIX, 1, [Define to 1 for static lua build.])
-		])
-	])
-	# hack...
-	AC_DEFINE(LUA_COMPAT_5_2, 1, [does not really belong in config.h, but is needed for build with lua 5.3+])
+			AC_DEFINE(LUA_COMPAT_5_2, 0, [needed for build with lua 5.1])
+		fi
 fi
 AM_CONDITIONAL(ENABLE_LUA, test "$enable_lua" = "yes")
 
@@ -320,7 +349,6 @@ if test "$BOXTYPE" = "coolstream"; then
 		HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd2/libcoolstream'
 	fi
 
-	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/src/zapit/include/private'
 	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/lib/hardware/coolstream'
 fi
 
@@ -350,6 +378,8 @@ AC_SUBST(BLURAY_LIBS)
 AC_OUTPUT([
 Makefile
 data/Makefile
+data/config/Makefile
+data/control/Makefile
 data/fonts/Makefile
 data/icons/Makefile
 data/icons/buttons/Makefile
@@ -369,15 +399,14 @@ data/icons/status/channel-tc/Makefile
 data/icons/status/markers/Makefile
 data/icons/status/various/Makefile
 data/icons/various/Makefile
+data/icons/weather/Makefile
 data/inetradio/Makefile
-data/initial/Makefile
 data/iso-codes/Makefile
 data/lcd/Makefile
 data/lcd/clock/Makefile
 data/lcd/icons/Makefile
 data/license/Makefile
 data/locale/Makefile
-data/neutrino-scripts/Makefile
 data/pictures/Makefile
 data/pictures/backgrounds/Makefile
 data/pictures/screensaver/Makefile
@@ -386,6 +415,9 @@ data/scripts/Makefile
 data/themes/Makefile
 data/themes/TangoCash-Skin1/Makefile
 data/themes/TangoCash-Skin2/Makefile
+data/themes/Grey-3.0/Makefile
+data/themes/Grey-3.0/icons/Makefile
+data/themes/Grey-3.0/icons/buttons/Makefile
 data/themes/Grey-Blue/Makefile
 data/themes/Grey-Blue/icons/Makefile
 data/themes/Grey-Blue/icons/buttons/Makefile
@@ -402,6 +434,7 @@ data/y-web/images/Makefile
 data/y-web/languages/Makefile
 data/y-web/scripts/Makefile
 data/y-web/styles/Makefile
+data/zapit/Makefile
 lib/Makefile
 lib/connection/Makefile
 lib/hardware/coolstream/Makefile
@@ -441,7 +474,6 @@ src/system/mtdutils/Makefile
 src/system/mtdutils/lib/Makefile
 src/timerd/Makefile
 src/zapit/Makefile
-src/zapit/data/Makefile
 src/zapit/lib/Makefile
 src/zapit/src/Makefile
 ])

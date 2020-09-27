@@ -28,6 +28,8 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/listhelpers.h>
 
+#include <sigc++/connection.h>
+
 #include <string>
 #include <sstream>
 #include <upnpclient.h>
@@ -66,6 +68,8 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 
 	private:
 	std::vector<CUPnPDevice> m_devices;
+	sigc::connection sigFonts;
+	sigc::connection sigPall;
 	UPnPEntry      m_playing_entry;
 	CUPnPSocket  * m_socket;
 	CFrameBuffer * m_frameBuffer;

@@ -42,12 +42,13 @@
 #include <string>
 #include <zapit/channel.h>
 #include <gui/components/cc.h>
+#include <gui/weather.h>
 #include <driver/fade.h>
 #include "widget/menue.h"
 
 class CFrameBuffer;
 class COSDFader;
-class CInfoViewer
+class CInfoViewer : public sigc::trackable
 {
 public:
 	enum
@@ -71,6 +72,8 @@ private:
 	CComponentsForm *recordsbox;
 	CComponentsTimer *recordsblink;
 	CComponentsFrmClock *clock;
+
+	CWeather *weather;
 
 	bool           gotTime;
 	bool           recordModeActive;
@@ -115,7 +118,7 @@ private:
 	int header_height;
 	bool newfreq ;
 	static const short bar_width = 72;
-	static event_id_t last_curr_id, last_next_id;
+	static t_event_id last_curr_id, last_next_id;
 	uint64_t timeoutEnd;
 	void setInfobarTimeout(int timeout_ext = 0);
 
@@ -145,8 +148,7 @@ private:
 	void showFailure();
 	void showMotorMoving(int duration);
 	void showLcdPercentOver();
-	void showRadiotext();
-	void killRadiotext();
+	void enableRadiotext();
 
 	void showInfoFile();
 	void killInfobarText();
@@ -320,6 +322,9 @@ public:
 		ResetModules(true);
 	};
 	bool 	hasTimeout();
+
+	sigc::signal<void> OnAfterKillTitle;
+	sigc::signal<void> OnEnableRadiotext;
 
 	int bottom_bar_offset, InfoHeightY_Info, showBBIcons_width;
 

@@ -70,6 +70,10 @@ struct SNeutrinoTheme
 
 	int menu_Head_gradient;
 	int menu_Head_gradient_direction;
+
+	int menu_SubHead_gradient;
+	int menu_SubHead_gradient_direction;
+
 	int menu_Separator_gradient_enable;
 
 	unsigned char menu_Content_alpha;
@@ -173,6 +177,7 @@ struct SNeutrinoTheme
 	unsigned char progressbar_passive_blue;
 
 	int rounded_corners;
+	int message_frame_enable;
 };
 
 struct SNeutrinoSkin
@@ -283,7 +288,10 @@ struct SNeutrinoSettings
 	int record_safety_time_before;
 	int record_safety_time_after;
 	int zapto_pre_time;
-	int infobar_anaclock;
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+	int zappingmode;
+#endif
+	int infobar_analogclock;
 	int infobar_sat_display;
 	int infobar_show_channeldesc;
 	int infobar_subchan_disp_pos;
@@ -321,13 +329,13 @@ struct SNeutrinoSettings
 	int srs_algo;
 	int srs_ref_volume;
 	int srs_nmgr_enable;
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int ac3_pass;
 	int dts_pass;
 #else
 	int hdmi_dd;
 	int spdif_dd;
-#endif // HAVE_ARM_HARDWARE
+#endif // HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int analog_out;
 	int audio_volume_percent_ac3;
 	int audio_volume_percent_pcm;
@@ -354,15 +362,25 @@ struct SNeutrinoSettings
 	int show_empty_favorites;
 	int avsync;
 	int clockrec;
+
+	// ci-settings
 	int ci_standby_reset;
-	int ci_clock;
-	int ci_ignore_messages;
-	int ci_save_pincode;
 	int ci_check_live;
 	int ci_tuner;
+	int ci_rec_zapto;
+	int ci_mode;
+#if BOXMODEL_VUPLUS_ALL
+	int ci_delay;
+#endif
+	// ci-settings for each slot
+	int ci_ignore_messages[4];
+	int ci_save_pincode[4];
+	std::string ci_pincode[4];
+	int ci_clock[4];
+#if BOXMODEL_VUPLUS_ALL
+	int ci_rpr[4];
+#endif
 
-
-	std::string ci_pincode;
 	int radiotext_enable;
 
 	//screen saver
@@ -371,6 +389,7 @@ struct SNeutrinoSettings
 	int screensaver_timeout;
 	int screensaver_random;
 	int screensaver_mode;
+	int screensaver_mode_text;
 
 	//vcr
 	int vcr_AutoSwitch;
@@ -486,7 +505,6 @@ struct SNeutrinoSettings
 		P_MPLAYER_MBROWSER,
 		P_MPLAYER_FILEPLAY,
 		P_MPLAYER_INETPLAY,
-		P_MPLAYER_YTPLAY,
 		P_MPLAYER_GUI_MOUNT,
 
 		//feature keys
@@ -583,7 +601,7 @@ struct SNeutrinoSettings
 	int recording_stream_vtxt_pid;
 	int recording_stream_subtitle_pids;
 	int recording_stream_pmt_pid;
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int recording_bufsize;
 	int recording_bufsize_dmx;
 #endif
@@ -631,6 +649,7 @@ struct SNeutrinoSettings
 	int key_channelList_addremind;
 
 	int key_playbutton;
+	int key_favorites;
 	int key_quickzap_up;
 	int key_quickzap_down;
 	int key_bouquet_up;
@@ -730,6 +749,8 @@ struct SNeutrinoSettings
 		CHANNELLIST_ADDITIONAL_MODE_MINITV	= 2
 	};
 	int channellist_additional;
+	int channellist_displaymode;
+	bool channellist_descmode;
 	int channellist_epgtext_align_right;
 	int channellist_foot;
 	int channellist_new_zap_mode;
@@ -740,7 +761,6 @@ struct SNeutrinoSettings
 	int channellist_show_infobox;
 	int channellist_show_numbers;
 	int channellist_show_res_icon;
-	int channellist_primetime;
 	int repeat_blocker;
 	int repeat_genericblocker;
 #define LONGKEYPRESS_OFF 499
@@ -855,7 +875,22 @@ struct SNeutrinoSettings
 		FONT_TYPE_MESSAGE_TEXT,
 		FONT_TYPE_BUTTON_TEXT,
 		FONT_TYPE_WINDOW_GENERAL,
+		FONT_TYPE_WINDOW_RADIOTEXT_TITLE,
+		FONT_TYPE_WINDOW_RADIOTEXT_DESC,
 		FONT_TYPE_COUNT
+	};
+
+	enum FONT_TYPES_FIXED {
+		FONT_TYPE_FIXED_30_BOLD = 0,
+		FONT_TYPE_FIXED_30_REGULAR,
+		FONT_TYPE_FIXED_30_ITALIC,
+		FONT_TYPE_FIXED_20_BOLD,
+		FONT_TYPE_FIXED_20_REGULAR,
+		FONT_TYPE_FIXED_20_ITALIC,
+		FONT_TYPE_FIXED_16_BOLD,
+		FONT_TYPE_FIXED_16_REGULAR,
+		FONT_TYPE_FIXED_16_ITALIC,
+		FONT_TYPE_FIXED_COUNT
 	};
 
 	int infoClockFontSize;
@@ -882,6 +917,7 @@ struct SNeutrinoSettings
 	int glcd_brightness;
 	int glcd_brightness_standby;
 	int glcd_scroll_speed;
+	int glcd_selected_config;
 #endif
 
 #ifdef ENABLE_LCD4LINUX
@@ -950,6 +986,10 @@ struct SNeutrinoSettings
 	int movieplayer_display_playtime;
 
 	//online services
+	std::string weather_api_key;
+	int weather_enabled;
+	std::string weather_location;
+	std::string weather_city;
 	std::string youtube_dev_id;
 	int youtube_enabled;
 	std::string tmdb_api_key;
@@ -969,6 +1009,8 @@ struct SNeutrinoSettings
 	//adzap
 	int adzap_zapBackPeriod;
 	int adzap_writeData;
+	int adzap_zapOnActivation;
+	enum { ADZAP_ZAP_OFF, ADZAP_ZAP_TO_LAST, ADZAP_ZAP_TO_START };
 
 	int	power_standby;
 	int	hdd_sleep;
@@ -1031,7 +1073,6 @@ struct SNeutrinoSettings
 		ITEM_CLOCK = 19,
 		ITEM_GAMES = 20,
 		ITEM_SCRIPTS = 21,
-		ITEM_YOUTUBE = 22,
 		ITEM_FILEPLAY = 23,
 		ITEM_TOOLS = 24,
 		ITEM_LUA = 25,

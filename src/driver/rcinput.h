@@ -54,6 +54,10 @@
 
 #include <driver/neutrino_msg_t.h>
 
+#ifndef KEY_NONEXISTING
+#define KEY_NONEXISTING  0x0
+#endif
+
 #ifndef KEY_OK
 #define KEY_OK           0x160
 #endif
@@ -74,8 +78,12 @@
 #define KEY_BLUE         0x191
 #endif
 
+#ifndef KEY_HELP_LONG
+#define KEY_HELP_LONG    0x48a
+#endif
+
 #ifndef KEY_PLAYPAUSE_LONG
-#define KEY_PLAYPAUSE_LONG 0X4A4
+#define KEY_PLAYPAUSE_LONG 0x4a4
 #endif
 
 #ifndef KEY_GAMES
@@ -163,6 +171,7 @@ class CRCInput
 		bool		*timer_wakeup;
 		__u16 rc_last_key;
 		OpenThreads::Mutex mutex;
+		OpenThreads::Mutex timer_mutex;
 
 		void open(bool recheck = false);
 		bool checkpath(in_dev id);
@@ -206,7 +215,11 @@ class CRCInput
 			RC_minus	= KEY_VOLUMEDOWN,   /* /include/linux/input.h: #define KEY_VOLUMEDOWN		114   */
 			RC_plus		= KEY_VOLUMEUP,     /* /include/linux/input.h: #define KEY_VOLUMEUP		115   */
 			RC_standby	= KEY_POWER,	    /* /include/linux/input.h: #define KEY_POWER		116   */
+#if BOXMODEL_VUPLUS_ALL
+			RC_help		= KEY_HELP_LONG,
+#else
 			RC_help		= KEY_HELP,	    /* /include/linux/input.h: #define KEY_HELP			138   */
+#endif
 			RC_home		= KEY_HOME,	    /* /include/linux/input.h: #define KEY_HOME			102   */
 			RC_setup	= KEY_MENU,	    /* /include/linux/input.h: #define KEY_SETUP		141   */
 			RC_topleft	= KEY_TOPLEFT,	
@@ -228,8 +241,8 @@ class CRCInput
 			RC_tv		= KEY_TV,
 			RC_radio	= KEY_RADIO,
 			RC_text		= KEY_TEXT,
-#if BOXMODEL_VUSOLO4K
-			RC_info		= 0xFFFE,
+#if BOXMODEL_VUPLUS_ALL
+			RC_info		= KEY_HELP,
 			RC_epg		= KEY_INFO,
 #else
 			RC_info		= KEY_INFO,
@@ -277,10 +290,9 @@ class CRCInput
 			RC_bookmarks	= KEY_BOOKMARKS,
 			RC_program	= KEY_PROGRAM,
 			RC_playpause	= KEY_PLAYPAUSE,
-#if BOXMODEL_HD51 || BOXMODEL_HD60
+#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 			RC_playpause_long = KEY_PLAYPAUSE_LONG,
 #endif
-
 			RC_power_on	= KEY_POWERON,
 			RC_power_off	= KEY_POWEROFF,
 			RC_standby_on	= KEY_STANDBYON,
@@ -346,8 +358,8 @@ class CRCInput
 
 		void getMsgAbsoluteTimeout(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t *TimeoutEnd, bool bAllowRepeatLR= false);
 		void getMsg(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);        //get message, timeout in 1/10 secs :)
-		void getMsg_ms(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);     //get message, timeout in msecs :)
-		void getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t Timeout, bool bAllowRepeatLR= false);//get message, timeout in µsecs :)
+		void getMsg_ms(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);     //get message, timeout in milisecs :)
+		void getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t Timeout, bool bAllowRepeatLR= false);//get message, timeout in microsecs :)
 		void postMsg(const neutrino_msg_t msg, const neutrino_msg_data_t data, const bool Priority = true);            // push message back into buffer
 		void clearRCMsg();
 

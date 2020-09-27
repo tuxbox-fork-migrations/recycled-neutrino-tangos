@@ -70,7 +70,7 @@
 #define BLKID_BIN    "/sbin/blkid"
 #define EJECT_BIN    "/bin/eject"
 
-#define MDEV_MOUNT	"/lib/mdev/fs/mount"
+#define MDEV_MOUNT	"/etc/mdev/mdev-mount.sh "
 #define MOUNT_BASE	"/media/"
 
 #define HDD_NOISE_OPTION_COUNT 4
@@ -211,7 +211,7 @@ void CHDDMenuHandler::getBlkIds()
 		{
 			if (strncmp(mnt->mnt_fsname, "/dev/sd", 7) && strncmp(mnt->mnt_fsname, "/dev/hd", 7))
 				continue;
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			if (strncmp(mnt->mnt_fsname, "/dev/mmcblk", 11))
 				continue;
 #endif
@@ -240,14 +240,14 @@ void CHDDMenuHandler::getBlkIds()
 	for(int i = 0; i < n; i++)
 	{
 		struct dirent **namelist_part;
-		char blockdir[256];
-		sprintf(blockdir, "/sys/block/%s", namelist[i]->d_name);
+		char blockdir[281];
+		snprintf(blockdir, sizeof(blockdir), "/sys/block/%s", namelist[i]->d_name);
 		int p = scandir(blockdir, &namelist_part, my_filter, alphasort);
 
 		for (int j = 0; j < p; j++)
 		{
-			char buf[255];
-			sprintf(buf, "/dev/%s", namelist_part[j]->d_name);
+			char buf[281];
+			snprintf(buf, sizeof(buf), "/dev/%s", namelist_part[j]->d_name);
 			if (is_mounted(buf))
 				continue;
 
@@ -283,7 +283,7 @@ void CHDDMenuHandler::getBlkIds()
 std::string CHDDMenuHandler::getDefaultPart(std::string dev)
 {
 	std::string part = "1";
-	if (dev == "mmcblk0")
+	if (strncmp(dev.c_str(), "mmcblk", 6) == 0)
 		part = "p1";
 	return part;
 }
@@ -755,7 +755,7 @@ bool CHDDMenuHandler::scanDevices()
 	printf("HDD: root_dev: 0x%04x\n", root_dev);
 
 	for(int i = 0; i < n;i++) {
-		char str[256];
+		char str[281];
 		char vendor[128] = { 0 };
 		char model[128] = { 0 };
 		int64_t bytes = 0;
@@ -836,6 +836,7 @@ bool CHDDMenuHandler::scanDevices()
 			hdd.devname = namelist[i]->d_name;
 			hdd.mounted = false;
 			hdd.desc = hdd.devname;
+			hdd.cmf = NULL;
 			hdd_list.push_back(hdd);
 		}
 
@@ -1287,7 +1288,7 @@ _remount:
 #ifndef ASSUME_MDEV
 	f = fopen("/proc/sys/kernel/hotplug", "w");
 	if(f) {
-		fprintf(f, "/sbin/hotplug\n");
+		fprintf(f, "/sbin/mdev\n");
 		fclose(f);
 	}
 #endif
@@ -1485,7 +1486,7 @@ ret1:
 
 int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 {
-	char str[256];
+	char str[281];
 	FILE * f;
 	int removable = 0;
 	struct dirent **namelist;
@@ -1517,7 +1518,7 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 					sleep_seconds *= 5;
 		}
 		if (sleep_seconds)
-			my_system(3, hdidle, "-i", to_string(sleep_seconds).c_str());
+			my_system(3, hdidle, "-i", std::to_string(sleep_seconds).c_str());
 	}
 
 	struct stat stat_buf;
@@ -1527,7 +1528,7 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 		removable = 0;
 		printf("CHDDDestExec: checking /sys/block/%s\n", namelist[i]->d_name);
 
-		sprintf(str, "/sys/block/%s/removable", namelist[i]->d_name);
+		snprintf(str, sizeof(str), "/sys/block/%s/removable", namelist[i]->d_name);
 		f = fopen(str, "r");
 		if (!f) {
 			printf("Can't open %s\n", str);
@@ -1538,20 +1539,20 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 
 		if (removable) {
 			// show USB icon, no need for hdparm/hd-idle
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			CVFD::getInstance()->ShowIcon(FP_ICON_USB, true);
 #endif
 			printf("CHDDDestExec: /dev/%s is not a hdd, no sleep needed\n", namelist[i]->d_name);
 		} else {
 			//show HDD icon and set hdparm for all hdd's
-#if HAVE_DUCKBOX_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_DUCKBOX_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			CVFD::getInstance()->ShowIcon(FP_ICON_HDD, true);
 #endif
 			if (!have_hdidle && have_hdparm) {
 				printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
 					 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
 
-				char M_opt[50],S_opt[50], opt[100];
+				char M_opt[50],S_opt[50], opt[261];
 				snprintf(S_opt, sizeof(S_opt), "-S%d", g_settings.hdd_sleep);
 				snprintf(M_opt, sizeof(M_opt), "-M%d", g_settings.hdd_noise);
 				snprintf(opt, sizeof(opt), "/dev/%s",namelist[i]->d_name);
