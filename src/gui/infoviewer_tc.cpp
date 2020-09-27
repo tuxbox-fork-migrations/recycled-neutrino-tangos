@@ -336,7 +336,7 @@ void CInfoViewer::initClock()
 	clock->setTextColor(g_settings.skin.clockColor);
 	clock->doPaintBg(false);
 
-	time_width = g_settings.infobar_anaclock && !g_settings.channellist_show_numbers ? 0 : clock->getWidth();
+	time_width = g_settings.infobar_analogclock && !g_settings.channellist_show_numbers ? 0 : clock->getWidth();
 }
 
 void CInfoViewer::showRecords()
