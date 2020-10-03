@@ -612,6 +612,7 @@ AM_CONDITIONAL(BOXMODEL_RASPI, test "$BOXMODEL" = "raspi")
 AM_CONDITIONAL(BOXMODEL_VUPLUS_ALL, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuzero4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k" -o "$BOXMODEL" = "vuduo")
 AM_CONDITIONAL(BOXMODEL_VUPLUS_ARM, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuzero4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k")
 AM_CONDITIONAL(BOXMODEL_VUPLUS_MIPS, test "$BOXMODEL" = "vuduo")
+AM_CONDITIONAL(BOXMODEL_HISILICON, test "$BOXMODEL" = "hd60" -o "$BOXMODEL" = "hd61")
 
 if test "$BOXTYPE" = "azbox"; then
 	AC_DEFINE(HAVE_AZBOX_HARDWARE, 1, [building for an azbox])
@@ -713,7 +714,7 @@ fi
 
 # Support Boxmodel with OSD-Resolution
 case "$BOXMODEL" in
-	bre2ze4k|hd51|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|vuduo|h7|osmio4k|osmio4kplus)
+	bre2ze4k|hd51|hd60|hd61|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|vuduo|h7|osmio4k|osmio4kplus)
 		AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable to change osd resolution])
 	;;
 esac
@@ -736,6 +737,13 @@ esac
 case "$BOXMODEL" in
 	vuduo)
 		AC_DEFINE(BOXMODEL_VUPLUS_MIPS, 1, [vuplus_mips])
+	;;
+esac
+
+# all hisilicon BOXMODELs
+case "$BOXMODEL" in
+	hd60|hd61)
+		AC_DEFINE(BOXMODEL_HISILICON, 1, [hisilicon])
 	;;
 esac
 ])
