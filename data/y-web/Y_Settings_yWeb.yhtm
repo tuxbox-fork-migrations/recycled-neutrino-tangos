@@ -29,9 +29,6 @@ function do_init(){
 	val = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;fb;0~open=}";
 	var sel=3;
 	switch(val){
-		case "-3":	// ufs910
-		case "-2":	// spark old
-		case "-1":	// spark new
 		case "0":	// auto
 		case "1":	// cst hd1/bse
 		case "2":	// cst neo
@@ -52,6 +49,10 @@ function do_init(){
 		case "17":	// vu+ uno 4k
 		case "18":	// zgemma h7
 		case "19":	// wwio bre2ze4k
+		case "20":	// ax hd60
+		case "21":	// ax hd61
+		case "22":	// mutant hd60
+		case "23":	// mutant hd61
 			sel=(sel*1+val*1);
 			break;
 		default:
