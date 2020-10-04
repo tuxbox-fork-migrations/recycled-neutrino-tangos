@@ -129,9 +129,6 @@ select {
 				<td>{=L:set.yweb.remote=}</td>
 				<td colspan="3">
 					<select name="fb" title="{=L:remote=}">
-						<option value="-3">KATHREIN | (910)</option>
-						<option value="-2">SPARK | (alt)</option>
-						<option value="-1">SPARK | (neu)</option>
 						<option value="0" selected="selected">{=L:automatic=}</option>
 						<option value="1">CST HD-1 | BSE</option>
 						<option value="2">CST HD-1plus | Neo</option>
@@ -152,6 +149,10 @@ select {
 						<option value="17">VU+ | Uno 4K</option>
 						<option value="18">Zgemma | H7</option>
 						<option value="19">WWIO | BRE2ZE 4k</option>
+						<option value="20">AX | HD60</option>
+						<option value="21">AX | HD61</option>
+						<option value="22">Mutant | HD60</option>
+						<option value="23">Mutant | HD61</option>
 					</select>
 				</td>
 			</tr>
