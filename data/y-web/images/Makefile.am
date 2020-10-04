@@ -114,13 +114,14 @@ if BOXMODEL_VUPLUS_ALL
 install_DATA += rc_vuplus.png
 endif
 
-if BOXTYPE_SPARK
-install_DATA += rc_spark_old.jpg \
-		rc_spark_new.jpg
+if BOXMODEL_HD60
+install_DATA += rc_ax_hd51.png \
+		rc_mutant_hd51.png
 endif
 
-if BOXTYPE_DUCKBOX
-install_DATA += rc_910.jpg
+if BOXMODEL_HD61
+install_DATA += rc_ax_hd51.png \
+		rc_mutant_hd51.png
 endif
 
 # file manager
