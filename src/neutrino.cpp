@@ -4198,7 +4198,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				}
 			}
 			wakeup_hdd(recordingDir);
-			if (my_system(2, "wakeup_hdd", recordingDir) != 0)
+			if (my_system(2, "wakeup_hdd.sh", recordingDir) != 0)
 					perror("wakeup_hdd failed");
 		}
 
