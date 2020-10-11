@@ -138,6 +138,110 @@ bool CTouchFileNotifier::changeNotify(const neutrino_locale_t, void * data)
 	return true;
 }
 
+bool CFlagFileNotifier::changeNotify(const neutrino_locale_t, void * data)
+{
+	std::string flagfile = CONFIGDIR;
+	flagfile += "/.";
+	flagfile += filename;
+
+	if ((*(int *)data) != 0)
+	{
+		FILE * fd = fopen(flagfile.c_str(), "w");
+		if (fd)
+		{
+			fclose(fd);
+			if (strstr(filename, "mgcamd")	||
+				strstr(filename, "doscam")	||
+				strstr(filename, "ncam")	||
+				strstr(filename, "osmod")	||
+				strstr(filename, "oscam")	||
+				strstr(filename, "cccam")	||
+				strstr(filename, "gbox"))
+			{
+				std::string hintmsg = std::string(filename) + std::string(g_Locale->getText(LOCALE_CAMD_MSG_START));
+				CHintBox hintbox(LOCALE_CAMD_CONTROL, hintmsg.c_str());
+				hintbox.paint();
+
+				printf("[CFlagFileNotifier] executing \"service camd start %s\"\n", filename);
+				if (my_system(2, "/etc/init.d/before_gui", "start_cam") != 0)
+					printf("[CFlagFileNotifier] executing failed\n");
+				sleep(1);
+
+				hintbox.hide();
+			}
+			else if (	strstr(filename, "fritzcall")	||
+						strstr(filename, "xupnpd")		||
+						strstr(filename, "samba"))
+			{
+				std::string hintmsg = std::string(filename) + std::string(g_Locale->getText(LOCALE_CAMD_MSG_START));
+				CHintBox hintbox(LOCALE_DAEMON_CONTROL, hintmsg.c_str());
+				hintbox.paint();
+
+				printf("[CFlagFileNotifier] executing \"service %s start\"\n", filename);
+				if (my_system(3, "/etc/init.d/before_gui", "start_service", filename) != 0)
+					printf("[CFlagFileNotifier] executing failed\n");
+				sleep(1);
+
+				hintbox.hide();
+			}
+			else
+			{
+				CHintBox hintbox(LOCALE_DAEMON_CONTROL, "");
+				hintbox.setMsgText(g_Locale->getText(LOCALE_DAEMON_RESTART));
+				hintbox.paint();
+				sleep(3);
+				hintbox.hide();
+			}
+		}
+	}
+	else
+	{
+		if (strstr(filename, "mgcamd")	||
+			strstr(filename, "doscam")	||
+			strstr(filename, "ncam")	||
+			strstr(filename, "osmod")	||
+			strstr(filename, "oscam")	||
+			strstr(filename, "cccam")	||
+			strstr(filename, "gbox"))
+		{
+			std::string hintmsg = std::string(filename) + std::string(g_Locale->getText(LOCALE_CAMD_MSG_STOP));
+			CHintBox hintbox(LOCALE_CAMD_CONTROL, hintmsg.c_str());
+			hintbox.paint();
+
+			printf("[CFlagFileNotifier] executing \"service camd stop %s\"\n", filename);
+			if (my_system(2, "/etc/init.d/before_gui", "stop_cam") != 0)
+				printf("[CFlagFileNotifier] executing failed\n");
+			sleep(1);
+
+			hintbox.hide();
+		}
+		else if (	strstr(filename, "fritzcall")	||
+					strstr(filename, "xupnpd")		||
+					strstr(filename, "samba"))
+		{
+			std::string hintmsg = std::string(filename) + std::string(g_Locale->getText(LOCALE_CAMD_MSG_STOP));
+			CHintBox hintbox(LOCALE_DAEMON_CONTROL, hintmsg.c_str());
+			hintbox.paint();
+
+			printf("[CFlagFileNotifier] executing \"service %s start\"\n", filename);
+			if (my_system(3, "/etc/init.d/before_gui", "stop_service", filename) != 0)
+				printf("[CFlagFileNotifier] executing failed\n");
+			sleep(1);
+
+			hintbox.hide();
+		}
+		else
+		{
+			CHintBox hintbox(LOCALE_DAEMON_CONTROL, "");
+			hintbox.setMsgText(g_Locale->getText(LOCALE_DAEMON_RESTART));
+			sleep(3);
+			hintbox.hide();
+		}
+		remove(flagfile.c_str());
+	}
+	return menu_return::RETURN_REPAINT;
+}
+
 void CColorSetupNotifier::setPalette()
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();

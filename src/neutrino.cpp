@@ -5168,6 +5168,20 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		hintBox->hide();
 		delete hintBox;
 	}
+	else if (actionKey == "camd_reset")
+	{
+		CHintBox hintbox(LOCALE_CAMD_CONTROL, LOCALE_CAMD_MSG_RESET);
+		hintbox.paint();
+
+		printf("[neutrino.cpp] executing \"camd restart\"\n");
+		if (my_system(1, "/etc/init.d/before_gui") != 0)
+			printf("[neutrino.cpp] executing failed\n");
+		sleep(1);
+
+		hintbox.hide();
+
+		return menu_return::RETURN_EXIT_ALL;
+	}
 	else if(actionKey=="tsmoviebrowser" || actionKey=="fileplayback") {
 		frameBuffer->Clear();
 		if (mode == NeutrinoModes::NeutrinoModes::mode_radio || mode == NeutrinoModes::NeutrinoModes::mode_webradio)

@@ -256,7 +256,28 @@ ca_init_0 Conax-Card
 ca_init_1 CI module
 ca_init_2 Conax-Card and CI module
 cablesetup.provider cable provider
-channellist.additional Additional Informations
+camd_control camd control
+camd_item_cccam_hint CCcam - Softcam
+camd_item_cccam_name cccam
+camd_item_ciphelper_hint CI+ Helper - Softcam
+camd_item_ciphelper_name ciplushelper
+camd_item_doscam_hint DOSCam - Softcam and emulator
+camd_item_doscam_name doscam
+camd_item_gbox_hint GBox - Softcam and emulator
+camd_item_gbox_name gbox
+camd_item_mgcamd_hint MGCamd - Emulator
+camd_item_mgcamd_name mgcamd
+camd_item_ncam_hint NCam - Softcam and emulator
+camd_item_ncam_name ncam
+camd_item_osmod_hint OSCam-smod - Softcam und Emulator
+camd_item_osmod_name osmod
+camd_item_oscam_hint OSCam - Softcam
+camd_item_oscam_name oscam
+camd_msg_reset All camd will be restarted
+camd_msg_start  will be started
+camd_msg_stop  will be stopped
+camd_reset Restart all camd
+channellist.additional Additional informations
 channellist.additional_desc Description
 channellist.additional_list Event list
 channellist.additional_off Off
@@ -393,6 +414,38 @@ cpu.freq CPU frequency
 cpu.freq_default Default frequency
 cpu.freq_normal Normal frequency
 cpu.freq_standby Standby frequency
+daemon_control Daemon control
+daemon_restart current setings applied...\nRestart needed !
+daemon_item.bootlogo_desc Show Bootlogo on start
+daemon_item.bootlogo_name Show Bootlogo
+daemon_item.crond_desc Cron daemon allows scheduled tasks
+daemon_item.crond_name crond
+daemon_item.djmount_desc UPnP AV client allows to mount media-servers
+daemon_item.djmount_name djmount
+daemon_item.dropbear_desc SSH2 server and client
+daemon_item.dropbear_name Dropbear
+daemon_item.emmremind_desc Show different EMM's in the Infoicons
+daemon_item.emmremind_name EMM-Change Notification
+daemon_item.etimer_desc Automatic adjust recordtimers via EPG
+daemon_item.etimer_name Timer EPG Adjust (Experimental)
+daemon_item.fcm_desc Shows FRITZ!Box call list and much more ...
+daemon_item.fcm_name FritzCallMonitor
+daemon_item.inadyn_desc Internet Automated Dynamic DNS Client
+daemon_item.inadyn_name In-a-Dyn
+daemon_item.nfsserver_desc NFS kernel server
+daemon_item.nfsserver_name NFS server
+daemon_item.mountbefore_desc Mount shares before Neutrino starts
+daemon_item.mountbefore_name Mount shares early
+daemon_item.sambaserver_desc Server-Message-Block-Protocol (SMB) implementation
+daemon_item.sambaserver_name Samba server
+daemon_item.tuxcald_desc Calender plugin daemon
+daemon_item.tuxcald_name TuxCal
+daemon_item.tuxmaild_desc Mailplugin (IMAP/SMTP) daemon
+daemon_item.tuxmaild_name TuxMail
+daemon_item.ushare_desc A/V and DLNA Mediaserver
+daemon_item.ushare_name uShare
+daemon_item.xupnpd_desc eXtensible UPnP agent - DLNA Mediaserver for IPTV
+daemon_item.xupnpd_name xupnpd
 date.Apr  Apr
 date.Aug  Aug
 date.Dec  Dec
@@ -1194,6 +1247,8 @@ menu.hint_bedit Edit favorites and bouquets
 menu.hint_buildinfo Information about compilers, compiler flags, kernel
 menu.hint_ca_init Configuration of CA-system hardware, CA-module and card slots
 menu.hint_cache_txt Start teletext caching after channel switch
+menu.hint_camd_control Softcams and emulators\nStart, stop, version info
+menu.hint_camd_reset Restart the active softcam and/or emulator
 menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
 menu.hint_cec_view_on CEC view ON
@@ -1232,6 +1287,7 @@ menu.hint_colors Configure GUI colors
 menu.hint_colors_shadow Setup for shadow color.
 menu.hint_content_back Change GUI window background color
 menu.hint_content_textcolor Change GUI window text color
+menu.hint_daemon_control Start and stop system-daemons
 menu.hint_dboxinfo Information about box cpu and storage
 menu.hint_delete_channels Remove all channels
 menu.hint_delete_removed Delete the channels in the 'Removed channels' boquet
