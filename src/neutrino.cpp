@@ -2717,6 +2717,9 @@ TIMER_START();
 	g_PicViewer = new CPictureViewer();
 	CColorSetupNotifier::setPalette();
 
+	// show start logo
+	bool startlogo = frameBuffer->showFrame("start.jpg");
+
 	char start_text [100];
 	snprintf(start_text, sizeof(start_text), g_Locale->getText(LOCALE_NEUTRINO_STARTING), PACKAGE_NAME, PACKAGE_VERSION );
 	start_text[99] = '\0';
@@ -2745,6 +2748,7 @@ TIMER_START();
 		dprintf(DEBUG_NORMAL, "Loading of scan settings failed. Using defaults.\n");
 
 	bootstatus->showStatus(30);
+	bootstatus->paint();
 
 	CFileHelpers::getInstance()->removeDir(COVERDIR_TMP);
 	CFileHelpers::getInstance()->removeDir(LOGODIR_TMP);
@@ -2775,6 +2779,7 @@ TIMER_START();
 	CZapit::getInstance()->GetConfig(zapitCfg);
 
 	bootstatus->showStatus(40);
+	bootstatus->paint();
 
 	// init audio settings
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
@@ -2793,21 +2798,21 @@ TIMER_START();
 		audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);
 
 	bootstatus->showStatus(45);
+	bootstatus->paint();
 
 	//init video settings
 	g_videoSettings = new CVideoSettings;
 	g_videoSettings->setVideoSettings();
 
-	// show start logo
-	//bool startlogo = frameBuffer->showFrame("start.jpg");
-
 	g_RCInput = new CRCInput(timer_wakeup);
 
 	bootstatus->showStatus(50);
+	bootstatus->paint();
 
 	InitZapitClient();
 
 	bootstatus->showStatus(55);
+	bootstatus->paint();
 
 	g_Zapit->setStandby(false);
 
@@ -2816,6 +2821,7 @@ TIMER_START();
 #endif
 
 	bootstatus->showStatus(60);
+	bootstatus->paint();
 
 #if HAVE_COOL_HARDWARE
 	// dirty part of hw_caps - specify some details after zapit start
@@ -2848,6 +2854,7 @@ TIMER_START();
 	}
 #endif
 	bootstatus->showStatus(65);
+	bootstatus->paint();
 
 	// The thread argument sets a pointer to Neutrinos timer_wakeup. *pointer is set to true
 	// when timerd is ready, so save the real timer_wakeup value and restore it later. --martii
@@ -2857,6 +2864,7 @@ TIMER_START();
 	timerd_thread_started = true;
 
 	bootstatus->showStatus(70);
+	bootstatus->paint();
 
 #if HAVE_SH4_HARDWARE
 	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG, &g_settings.audio_mixer_volume_analog);
@@ -2879,6 +2887,7 @@ TIMER_START();
 	dvbsub_init();
 
 	bootstatus->showStatus(75);
+	bootstatus->paint();
 
 #if ENABLE_WEBIF
 	pthread_t nhttpd_thread;
@@ -2903,6 +2912,7 @@ TIMER_START();
 	g_EventList = new CEventList;
 
 	bootstatus->showStatus(80);
+	bootstatus->paint();
 
 #if !HAVE_SPARK_HARDWARE
 	g_CamHandler = new CCAMMenuHandler();
@@ -2929,6 +2939,7 @@ TIMER_START();
 	g_Plugins->loadPlugins();
 
 	bootstatus->showStatus(85);
+	bootstatus->paint();
 
 	// setup recording device
 	setupRecordingDevice();
@@ -2938,6 +2949,7 @@ TIMER_START();
 	InitMenu();
 
 	bootstatus->showStatus(90);
+	bootstatus->paint();
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
 
@@ -2970,6 +2982,7 @@ TIMER_START();
 #endif
 
 	bootstatus->showStatus(95);
+	bootstatus->paint();
 
 	// clean up startlogo
 	//if (startlogo){
@@ -2990,6 +3003,7 @@ TIMER_START();
 	InitZapper();
 
 	bootstatus->showStatus(100);
+	bootstatus->paint();
 
 	CHDDDestExec * hdd = new CHDDDestExec();
 	hdd->exec(NULL, "");
