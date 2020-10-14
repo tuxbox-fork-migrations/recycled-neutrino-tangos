@@ -470,6 +470,10 @@ debug.level Level
 debug.level_1 normal
 debug.level_2 informative
 debug.level_3 verbose
+ecminfo ECM-Info
+ecminfo_null ECM-Info not available
+ecminfo_show show ECM-Info
+empty 
 epg.saving Saving EPG
 epgextended.actors Actors
 epgextended.director Director
@@ -525,6 +529,7 @@ extra.dboxinfo_uptime Uptime
 extra.dboxinfo_use Use
 extra.dboxinfo_used Used
 extra.east East
+extra.external_volume External Volume
 extra.fec_1_2 1/2
 extra.fec_2_3 2/3
 extra.fec_2_5 2/5
@@ -868,6 +873,7 @@ fontsize.filebrowser_item Filebrowser items
 fontsize.general_window_text General window text
 fontsize.hint Initialising font,\nplease wait ...
 fontsize.infobar_channame Channel name
+fontsize.infobar_ecminfo ECM-Info
 fontsize.infobar_info Info
 fontsize.infobar_number Number
 fontsize.infobar_small Small
@@ -1006,6 +1012,7 @@ imdb.info IMDb-Info
 imdb.info_save save Cover
 inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
+infoviewer.analogclock Analog Clock
 infoviewer.epgnotload EPG not loaded ...
 infoviewer.epgwait waiting for EPG ...
 infoviewer.motor_moving Antenna positioning
@@ -1037,7 +1044,6 @@ keybindingmenu.bouquetdown bouquet back
 keybindingmenu.bouquethandling Bouquet-control
 keybindingmenu.bouquetlist_on_ok bouquet-list
 keybindingmenu.bouquetup next bouquet
-keybindingmenu.cancel close channellist
 keybindingmenu.channeldown channel down
 keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
@@ -1156,6 +1162,7 @@ lua.parameter_deprecated2 Parameter
 lua.versionscheck1 Your Lua API version is too old
 lua.versionscheck2 This requires at least
 mainmenu.audioplayer Audioplayer
+mainmenu.changegui Change GUI
 mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG cache
 mainmenu.games Games
@@ -1311,6 +1318,7 @@ menu.hint_eventlist_epgplus Show EPG Plus (Eventlist overview) when pressing EPG
 menu.hint_eventlist_fonts Change event list font sizes
 menu.hint_eventlist_setup Configure event list GUI options
 menu.hint_extended Power saving, EPG save/load options\nHDMI-CEC, Start channel, zap options
+menu.hint_external_volume Select volume buttons start script actions
 menu.hint_factory Reset box to factory state\nBox will reboot after reset
 menu.hint_fade Fade GUI windows
 menu.hint_fan_speed Control fan speed
@@ -1355,6 +1363,7 @@ menu.hint_infobar_casys_color Change CA-System background color
 menu.hint_infobar_casys_dotmatrix on: CA-System with dot matrix in background
 menu.hint_infobar_casys_frame on: CA-System with frame
 menu.hint_infobar_dd Show DD icon
+menu.hint_infobar_ecminfo Show ECM-Info while showing Infoviewer
 menu.hint_infobar_filesys Show flash and HDD used space levels
 menu.hint_infobar_fonts Change infobar font sizes
 menu.hint_infobar_logo Logo, channelnumber and signal display; Options in [brackets] will be displayed in small infobox
@@ -2136,11 +2145,7 @@ movieplayer.starting Starting playback ...
 movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
 movieplayer.tsplayback Play
-<<<<<<< HEAD
-movieplayer.ytplayback YouTube videoplayer
 movieplayer.zap Zap not possible while movie or timeshift playback
-=======
->>>>>>> 39a864cd5ef9ffbac3bfa688b80fe2c5e598c214
 mpkey.audio Audiotracks
 mpkey.bookmark Bookmarks
 mpkey.forward Forward
@@ -2212,9 +2217,6 @@ nvod.percentage (%d%% over)
 nvod.starting (starting in %d min)
 nvodselector.directormode Direct-Mode
 nvodselector.head Select starting-time
-nvodselector.subservice Select Subservice
-nvodselector.directormode Director mode
-nvodselector.head Subservices
 nvodselector.starttime Select starting time
 nvodselector.subservice Select subservice
 options.always always
