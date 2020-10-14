@@ -28,6 +28,7 @@
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
+#include <gui/widget/keyboard_input.h>
 
 #include <gui/weather.h>
 #include <gui/weather_locations.h>
