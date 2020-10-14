@@ -23,7 +23,7 @@
 
 #include <string>
 
-class CWeatherSetup : public CMenuTarget
+class CWeatherSetup : public CMenuTarget, CChangeObserver
 {
 	private:
 		int width, selected;
