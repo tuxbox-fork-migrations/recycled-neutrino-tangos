@@ -110,7 +110,8 @@ libneutrino_gui_a_SOURCES = \
 
 if ENABLE_TANGOS
 libneutrino_gui_a_SOURCES += \
-	infoviewer_tc.cpp
+	infoviewer_tc.cpp \
+	weather_setup.cpp
 else
 libneutrino_gui_a_SOURCES += \
 	infoviewer.cpp \
