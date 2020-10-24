@@ -171,6 +171,7 @@ bool CFlagFileNotifier::changeNotify(const neutrino_locale_t, void * data)
 			}
 			else if (	strstr(filename, "fritzcall")	||
 						strstr(filename, "xupnpd")		||
+						strstr(filename, "nfsd")		||
 						strstr(filename, "crond")		||
 						strstr(filename, "tuxcald")		||
 						strstr(filename, "tuxmaild")	||
@@ -223,6 +224,7 @@ bool CFlagFileNotifier::changeNotify(const neutrino_locale_t, void * data)
 		}
 		else if (	strstr(filename, "fritzcall")	||
 					strstr(filename, "xupnpd")		||
+					strstr(filename, "nfsd")		||
 					strstr(filename, "crond")		||
 					strstr(filename, "tuxcald")		||
 					strstr(filename, "tuxmaild")	||
