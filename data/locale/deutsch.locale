@@ -419,9 +419,9 @@ daemon_restart aktuelle Einstellungen werden gesetzt ...\nNeustart erforderlich 
 daemon_item.bootlogo_desc Bootlogo beim Start anzeigen
 daemon_item.bootlogo_name Bootlogo anzeigen
 daemon_item.crond_desc cron Daemon kann zeitgesteuerte Aufgaben ausführen
-daemon_item.crond_name crond
+daemon_item.crond_name Crontab
 daemon_item.djmount_desc UPnP AV Client kann den Inhalt von Media-Servern mounten
-daemon_item.djmount_name djmount
+daemon_item.djmount_name DJmount
 daemon_item.dropbear_desc SSH2 Server und Client
 daemon_item.dropbear_name Dropbear
 daemon_item.emmremind_desc Zeigt eine Änderung der EMM's in den Infoicons an
@@ -445,7 +445,7 @@ daemon_item.tuxmaild_name TuxMail
 daemon_item.ushare_desc A/V und DLNA Medienserver
 daemon_item.ushare_name uShare
 daemon_item.xupnpd_desc eXtensible UPnP agent - DLNA Medienserver für IPTV
-daemon_item.xupnpd_name xupnpd
+daemon_item.xupnpd_name XUPnPd
 date.Apr  Apr
 date.Aug  Aug
 date.Dec  Dez
