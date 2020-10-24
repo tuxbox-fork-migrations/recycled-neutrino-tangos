@@ -171,6 +171,12 @@ bool CFlagFileNotifier::changeNotify(const neutrino_locale_t, void * data)
 			}
 			else if (	strstr(filename, "fritzcall")	||
 						strstr(filename, "xupnpd")		||
+						strstr(filename, "crond")		||
+						strstr(filename, "tuxcald")		||
+						strstr(filename, "tuxmaild")	||
+						strstr(filename, "djmount")		||
+						strstr(filename, "xupnpd")		||
+						strstr(filename, "dropbear")	||
 						strstr(filename, "samba"))
 			{
 				std::string hintmsg = std::string(filename) + std::string(g_Locale->getText(LOCALE_CAMD_MSG_START));
@@ -217,6 +223,12 @@ bool CFlagFileNotifier::changeNotify(const neutrino_locale_t, void * data)
 		}
 		else if (	strstr(filename, "fritzcall")	||
 					strstr(filename, "xupnpd")		||
+					strstr(filename, "crond")		||
+					strstr(filename, "tuxcald")		||
+					strstr(filename, "tuxmaild")	||
+					strstr(filename, "djmount")		||
+					strstr(filename, "xupnpd")		||
+					strstr(filename, "dropbear")	||
 					strstr(filename, "samba"))
 		{
 			std::string hintmsg = std::string(filename) + std::string(g_Locale->getText(LOCALE_CAMD_MSG_STOP));
