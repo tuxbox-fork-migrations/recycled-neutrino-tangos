@@ -221,11 +221,11 @@ void CStreamInstance::run()
 			Send(r);
 	}
 
+	CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
+
 	if(frontend)
 		CFEManager::getInstance()->unlockFrontend(frontend);
 	//CZapit::getInstance()->SetRecordMode(false);
-
-	CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
 
 	printf("CStreamInstance::run: exiting %" PRIx64 " (%d fds)\n", channel_id, (int)fds.size());
 
