@@ -399,6 +399,9 @@ void nGLCD::updateFonts() {
 
 	percent += div;
 
+	if (div == 0)
+		div = 1;
+
 	if (percent < 100)
 		percent = 100;
 
