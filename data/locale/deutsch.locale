@@ -1527,7 +1527,7 @@ menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gew�
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs usw.
 menu.hint_osd_behavior_infobar Infobar nach Zeitvorgabe oder manuell ein- oder ausblenden.
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
-menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
+menu.hint_osd_preset Wählen Sie zwischen Monitor 1 und 2 für unterschiedliche Bildbereiche
 menu.hint_osd_resolution Wählen Sie eine OSD-Auflösung
 menu.hint_osd_timing OSD-Element nach Zeitvorgabe oder manuell ein- oder ausblenden.
 menu.hint_other_fonts Ändern Sie andere Schriftgrößen
@@ -2231,6 +2231,10 @@ options.off aus
 options.on ein
 options.on.without_messages ohne Msg
 options.serial seriell
+options.start starten
+options.stop stoppen
+osd.preset_screen_a Monitor 1
+osd.preset_screen_b Monitor 2
 parentallock.bouquetmode Bouquets sind standardmässig
 parentallock.changepin PIN-Code festlegen
 parentallock.changepin_hint1 Geben Sie hier Ihren neuen PIN-Code ein!
