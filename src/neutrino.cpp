@@ -1558,7 +1558,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 #endif
 	}
 
-
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
 	configfile.setInt32( "make_webtv_list", g_settings.make_webtv_list);
 	configfile.setInt32( "make_webradio_list", g_settings.make_webradio_list);
@@ -6072,14 +6071,14 @@ static struct __key_rename key_rename[] = {
 	{ "casystem_display",	"infobar_casystem_display" },
 	{ "casystem_dotmatrix",	"infobar_casystem_dotmatrix"},
 	{ "casystem_frame",	"infobar_casystem_frame" },
-	{ "screen_StartX_crt",	"screen_StartX_a_0" },
-	{ "screen_StartY_crt",	"screen_StartY_a_0" },
-	{ "screen_EndX_crt",	"screen_EndX_a_0" },
-	{ "screen_EndY_crt",	"screen_EndY_a_0" },
-	{ "screen_StartX_lcd",	"screen_StartX_b_0" },
-	{ "screen_StartY_lcd",	"screen_StartY_b_0" },
-	{ "screen_EndX_lcd_lcd",	"screen_EndX_b_0" },
-	{ "screen_EndY_lcd_lcd",	"screen_EndY_b_0" },
+	{ "screen_StartX_lcd",	"screen_StartX_a_0" },
+	{ "screen_StartY_lcd",	"screen_StartY_a_0" },
+	{ "screen_EndX_lcd",	"screen_EndX_a_0" },
+	{ "screen_EndY_lcd",	"screen_EndY_a_0" },
+	{ "screen_StartX_crt",	"screen_StartX_b_0" },
+	{ "screen_StartY_crt",	"screen_StartY_b_0" },
+	{ "screen_EndX_crt",	"screen_EndX_b_0" },
+	{ "screen_EndY_crt",	"screen_EndY_b_0" },
 	{ "timing.infobar_movieplayer",	"timing.infobar_player" },
 	{ "ci_clock", "ci_clock_0" },
 	{ "ci_save_pincode", "ci_save_pincode_0" },
