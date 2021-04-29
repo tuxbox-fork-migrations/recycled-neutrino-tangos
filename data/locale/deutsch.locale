@@ -2219,19 +2219,16 @@ nvodselector.starttime Anfangszeit auswählen
 nvodselector.subservice Perspektiven
 options.always immer
 options.default Voreinstellungen benutzen
-options.fb framebuffer
 options.hint_default Setzen Sie die Werte auf die Voreinstellung zurück.
 options.ntp_off DVB
 options.ntp_on NTP
-options.null null
 options.off aus
 options.on ein
 options.on.without_messages ohne Msg
-options.serial seriell
 options.start starten
 options.stop stoppen
-osd.preset_screen_a Monitor 1
-osd.preset_screen_b Monitor 2
+osd.preset_screen_a Bildschirm 1
+osd.preset_screen_b Bildschirm 2
 parentallock.bouquetmode Bouquets sind standardmässig
 parentallock.changepin PIN-Code festlegen
 parentallock.changepin_hint1 Geben Sie hier Ihren neuen PIN-Code ein!
