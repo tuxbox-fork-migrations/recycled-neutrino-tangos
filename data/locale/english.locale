@@ -2219,15 +2219,12 @@ nvodselector.starttime Select starting time
 nvodselector.subservice Select subservice
 options.always always
 options.default Reset to defaults
-options.fb framebuffer
 options.hint_default Reset the values to their defaults
 options.ntp_off DVB
 options.ntp_on NTP
-options.null null
 options.off off
 options.on on
 options.on.without_messages Without msg
-options.serial serial
 options.start start
 options.stop stop
 osd.preset_screen_a Screen 1
