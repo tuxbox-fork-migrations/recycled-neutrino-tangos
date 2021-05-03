@@ -566,6 +566,7 @@ extra.key_next43mode Next aspect ratio
 extra.key_pic_mode Screen format
 extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close Stop/Start PiP
+extra.key_pip_close_avinput Stop/Start PiP (HDMI)
 extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
 extra.key_record Record
@@ -1157,6 +1158,8 @@ lua.parameter_deprecated2 Parameter
 lua.versionscheck1 Your Lua API version is too old
 lua.versionscheck2 This requires at least
 mainmenu.audioplayer Audioplayer
+mainmenu.avinputmode HDMI Input (Mode)
+mainmenu.avinputmode_pip HDMI Input (PiP)
 mainmenu.changegui Change GUI
 mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG cache
