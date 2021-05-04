@@ -3335,10 +3335,10 @@ void CNeutrinoApp::RealRun()
 					StartPip(CZapit::getInstance()->GetCurrentChannelID());
 			}
 			else if ((msg == (neutrino_msg_t) g_settings.key_pip_close_avinput) && ((g_info.hw_caps->has_SCART_input) || (g_info.hw_caps->has_HDMI_input))) {
-				int boxmode = getBoxMode();
-				if (boxmode > -1 && boxmode != 12)
-					ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_BOXMODE12_NOT_ACTIVATED, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR);
-				else
+				//int boxmode = getBoxMode();
+				//if (boxmode > -1 && boxmode != 12)
+					//ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_BOXMODE12_NOT_ACTIVATED, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR);
+				//else
 				{
 					if (!avinput_pip) {
 						if (CZapit::getInstance()->GetPipChannelID())
