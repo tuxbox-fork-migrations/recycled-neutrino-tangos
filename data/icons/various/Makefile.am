@@ -11,4 +11,5 @@ install_DATA = \
 	star-off.png \
 	star-on.png \
 	tmdb.png \
+	tmdb_head.png \
 	volume.png
