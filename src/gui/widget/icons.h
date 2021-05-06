@@ -127,6 +127,7 @@
 /* volumebar */
 #define NEUTRINO_ICON_VOLUME		"volume"
 #define NEUTRINO_ICON_IMDB		"imdb"
+#define NEUTRINO_ICON_TMDB_HEAD	"tmdb_head"
 
 /* sliders */
 #define NEUTRINO_ICON_SLIDER_BODY	"slider_body"
