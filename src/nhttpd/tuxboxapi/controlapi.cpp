@@ -2180,9 +2180,9 @@ void CControlAPI::GlcdScreenshotCGI(CyhookHandler *hh)
 	if(!hh->ParamList["name"].empty())
 		filename = hh->ParamList["name"];
 
-	nGLCD *nglcd = nGLCD::getInstance();
-	if (nglcd) {
-		if (nglcd->dumpBuffer((uint32_t*)nglcd->bitmap->Data(), nGLCD::PNG, filename.c_str()))
+	cGLCD *cglcd = cGLCD::getInstance();
+	if (cglcd) {
+		if (cglcd->dumpBuffer((uint32_t*)cglcd->bitmap->Data(), cGLCD::PNG, filename.c_str()))
 			hh->SendOk();
 		else
 			hh->SendError();

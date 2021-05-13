@@ -51,9 +51,6 @@
 
 #include <driver/display.h>
 #include <driver/record.h>
-#ifdef ENABLE_GRAPHLCD
-#include <driver/nglcd.h>
-#endif
 #include <driver/display.h>
 #include <driver/radiotext.h>
 #include <driver/streamts.h>
@@ -1105,7 +1102,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 					recordingstatus = 1;
 #endif
 #ifdef ENABLE_GRAPHLCD
-				nGLCD::Update();
+				cGLCD::Update();
 #endif
 			} else {
 				delete inst;
@@ -1314,7 +1311,7 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 		StopInstance(inst, false);
 		ret = true;
 #ifdef ENABLE_GRAPHLCD
-		nGLCD::Update();
+		cGLCD::Update();
 #endif
 	} else {
 		for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {

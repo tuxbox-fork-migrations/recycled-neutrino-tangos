@@ -48,8 +48,7 @@ libneutrino_driver_a_SOURCES += \
 endif
 
 if ENABLE_GRAPHLCD
-libneutrino_driver_a_SOURCES += \
-	nglcd.cpp
+SUBDIRS += glcd
 endif
 
 if BOXTYPE_DUCKBOX
