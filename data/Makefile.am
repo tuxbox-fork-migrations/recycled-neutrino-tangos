@@ -19,3 +19,8 @@ SUBDIRS = \
 if BOXTYPE_TRIPLE
 SUBDIRS += lcd
 endif
+
+if ENABLE_GRAPHLCD
+SUBDIRS += \
+	oled
+endif

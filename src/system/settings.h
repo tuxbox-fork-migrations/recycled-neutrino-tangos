@@ -189,6 +189,107 @@ struct timer_remotebox_item
 		bool online;
 };
 
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
+#define GLCD_DEFAULT_BRIGHTNESS 7
+#define GLCD_DEFAULT_BRIGHTNESS_STANDBY 1
+#define GLCD_DEFAULT_BRIGHTNESS_DIM 3
+#define GLCD_DEFAULT_BRIGHTNESS_DIM_TIME "10"
+#else
+#define GLCD_DEFAULT_BRIGHTNESS 70
+#define GLCD_DEFAULT_BRIGHTNESS_STANDBY 10
+#define GLCD_DEFAULT_BRIGHTNESS_DIM 30
+#define GLCD_DEFAULT_BRIGHTNESS_DIM_TIME "30"
+#endif
+
+struct SNeutrinoGlcdTheme
+{
+	unsigned char glcd_foreground_color_red;
+	unsigned char glcd_foreground_color_green;
+	unsigned char glcd_foreground_color_blue;
+
+	unsigned char glcd_background_color_red;
+	unsigned char glcd_background_color_green;
+	unsigned char glcd_background_color_blue;
+	std::string glcd_background_image;
+
+	std::string glcd_font;
+
+	int glcd_channel_percent;
+	int glcd_channel_align;
+	int glcd_channel_x_position;
+	int glcd_channel_y_position;
+
+	int glcd_logo;
+	int glcd_logo_percent;
+	int glcd_logo_x_position;
+	int glcd_logo_y_position;
+
+	int glcd_epg_percent;
+	int glcd_epg_align;
+	int glcd_epg_x_position;
+	int glcd_epg_y_position;
+
+	int glcd_start;
+	int glcd_start_percent;
+	int glcd_start_align;
+	int glcd_start_x_position;
+	int glcd_start_y_position;
+
+	int glcd_end;
+	int glcd_end_percent;
+	int glcd_end_align;
+	int glcd_end_x_position;
+	int glcd_end_y_position;
+
+	int glcd_duration;
+	int glcd_duration_percent;
+	int glcd_duration_align;
+	int glcd_duration_x_position;
+	int glcd_duration_y_position;
+
+	int glcd_progressbar;
+	unsigned char glcd_progressbar_color_red;
+	unsigned char glcd_progressbar_color_green;
+	unsigned char glcd_progressbar_color_blue;
+	int glcd_progressbar_percent;
+	int glcd_progressbar_width;
+	int glcd_progressbar_x_position;
+	int glcd_progressbar_y_position;
+
+	int glcd_time;
+	int glcd_time_percent;
+	int glcd_time_align;
+	int glcd_time_x_position;
+	int glcd_time_y_position;
+
+	int glcd_icons_percent;
+	int glcd_icons_y_position;
+
+	int glcd_icon_ecm_x_position;
+	int glcd_icon_cam_x_position;
+	int glcd_icon_txt_x_position;
+	int glcd_icon_dd_x_position;
+	int glcd_icon_mute_x_position;
+	int glcd_icon_timer_x_position;
+	int glcd_icon_rec_x_position;
+	int glcd_icon_ts_x_position;
+
+	int glcd_weather;
+	int glcd_weather_curr_x_position;
+	int glcd_weather_next_x_position;
+	int glcd_weather_y_position;
+
+	int glcd_standby_clock_digital_y_position;
+	int glcd_standby_clock_simple_size;
+	int glcd_standby_clock_simple_y_position;
+
+	int glcd_standby_weather_curr_x_position;
+	int glcd_standby_weather_next_x_position;
+	int glcd_standby_weather_y_position;
+
+	int glcd_position_settings;
+};
+
 struct SNeutrinoSettings
 {
 	std::string version_pseudo;
@@ -513,6 +614,8 @@ struct SNeutrinoSettings
 	//theme/color options
 	SNeutrinoTheme theme;
 	std::string theme_name;
+	SNeutrinoGlcdTheme glcd_theme;
+	std::string glcd_theme_name;
 	bool osd_colorsettings_advanced_mode;
 
 	//network
@@ -847,22 +950,17 @@ struct SNeutrinoSettings
 #ifdef ENABLE_GRAPHLCD
 	// graphlcd
 	int glcd_enable;
-	uint32_t glcd_color_fg;
-	uint32_t glcd_color_bg;
-	uint32_t glcd_color_bar;
-	std::string glcd_font;
-	int glcd_percent_channel;
-	int glcd_percent_epg;
-	int glcd_percent_bar;
-	int glcd_percent_time;
-	int glcd_percent_time_standby;
-	int glcd_percent_logo;
+
+	int glcd_time_in_standby;
+	int glcd_standby_weather;
+
 	int glcd_mirror_osd;
 	int glcd_mirror_video;
-	int glcd_time_in_standby;
-	int glcd_show_logo;
+
 	int glcd_brightness;
 	int glcd_brightness_standby;
+	int glcd_brightness_dim;
+	std::string glcd_brightness_dim_time;
 	int glcd_scroll_speed;
 	int glcd_selected_config;
 #endif
@@ -935,6 +1033,7 @@ struct SNeutrinoSettings
 	//online services
 	std::string weather_api_key;
 	int weather_enabled;
+	int weather_country;
 	std::string weather_location;
 	std::string weather_city;
 	std::string youtube_dev_id;

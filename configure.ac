@@ -375,7 +375,8 @@ AC_SUBST(LUA_CFLAGS)
 AC_SUBST(LUA_LIBS)
 AC_SUBST(BLURAY_LIBS)
 
-AC_OUTPUT([
+# Makefiles
+AC_CONFIG_FILES([
 Makefile
 data/Makefile
 data/config/Makefile
@@ -407,6 +408,14 @@ data/lcd/clock/Makefile
 data/lcd/icons/Makefile
 data/license/Makefile
 data/locale/Makefile
+data/oled/Makefile
+data/oled/fonts/Makefile
+data/oled/icons/Makefile
+data/oled/icons/clock/Makefile
+data/oled/themes/Makefile
+data/oled/themes/400x240/Makefile
+data/oled/themes/480x320/Makefile
+data/oled/themes/800x480/Makefile
 data/pictures/Makefile
 data/pictures/backgrounds/Makefile
 data/pictures/screensaver/Makefile
@@ -456,6 +465,7 @@ src/Makefile
 src/daemonc/Makefile
 src/driver/Makefile
 src/driver/pictureviewer/Makefile
+src/driver/glcd/Makefile
 src/eitd/Makefile
 src/gui/Makefile
 src/gui/bedit/Makefile
@@ -478,3 +488,17 @@ src/zapit/Makefile
 src/zapit/lib/Makefile
 src/zapit/src/Makefile
 ])
+
+# Oled themes
+AC_CONFIG_FILES([
+data/oled/themes/400x240/Default.otheme
+data/oled/themes/480x320/Default.otheme
+data/oled/themes/480x320/Advanced.otheme
+data/oled/themes/480x320/Easy.otheme
+data/oled/themes/480x320/Medium.otheme
+data/oled/themes/480x320/Simple.otheme
+data/oled/themes/480x320/Weather.otheme
+data/oled/themes/800x480/Default.otheme
+])
+
+AC_OUTPUT
