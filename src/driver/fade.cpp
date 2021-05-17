@@ -85,10 +85,9 @@ void COSDFader::StopFade()
 {
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
+		usleep(FADE_TIME*10);
+
 		frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
-#if HAVE_SH4_HARDWARE || (HAVE_COOL_HARDWARE && defined(BOXMODEL_CS_HD2))
-		usleep(60000);
-#endif
 		fadeIn = fadeOut = false;
 	}
 }
