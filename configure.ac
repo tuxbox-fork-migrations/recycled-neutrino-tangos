@@ -299,8 +299,13 @@ AC_ARG_ENABLE(cleanup,
 	AC_DEFINE(EXIT_CLEANUP, 1, [enable cleanup on exit]))
 
 AC_ARG_ENABLE(pip,
-	AS_HELP_STRING([--enable-pip], [enable picture in picture support @<:@default=no@:>@]),
-	AC_DEFINE(ENABLE_PIP, 1, [enable picture in picture support]))
+	AS_HELP_STRING(--disable-pip,disable pip),
+	,[enable_pip=yes])
+
+AM_CONDITIONAL(ENABLE_PIP,test "$enable_pip" = "yes")
+if test "$enable_pip" = "yes"; then
+	AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])
+fi
 
 AC_ARG_ENABLE(testing,
 	AS_HELP_STRING([--enable-testing], [enable development code @<:@default=no@:>@]),
