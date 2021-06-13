@@ -4150,12 +4150,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			if((eventinfo->channel_id != live_channel_id) && !(SAME_TRANSPONDER(live_channel_id, eventinfo->channel_id)))
 				zapTo(eventinfo->channel_id);
 		}
-		// zap to CI Channel
-		if(g_settings.ci_rec_zapto){
-			CZapitChannel * ch = CServiceManager::getInstance()->FindChannel(eventinfo->channel_id);
-			if (ch && ch->bUseCI && (eventinfo->channel_id != live_channel_id))
-				zapTo(eventinfo->channel_id);
-		}
 
 		CRecordManager::getInstance()->Record(eventinfo);
 		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
