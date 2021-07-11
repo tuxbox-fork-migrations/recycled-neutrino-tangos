@@ -116,6 +116,11 @@ if BOXMODEL_VUPLUS_ALL
 install_DATA += rc_vuplus.png
 endif
 
+if BOXMODEL_MULTIBOX
+install_DATA += rc_ax_hd51.png \
+		rc_mutant_hd51.png
+endif
+
 if BOXMODEL_HD60
 install_DATA += rc_ax_hd51.png \
 		rc_mutant_hd51.png
