@@ -1816,10 +1816,18 @@ int CRCInput::translate(int code)
 		case KEY_CHANNELDOWN:
 			return RC_page_down;
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		case KEY_BACK:
+			return RC_home;
 		case KEY_SWITCHVIDEOMODE:
 			return RC_mode;
+if BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
+		case KEY_VIDEO:
+			return RC_mode;
+#else
+
 		case KEY_VIDEO:
 			return RC_favorites;
+#endif
 		case KEY_FASTFORWARD:
 			return RC_forward;
 		case 0xb0: // vuplus timer key
