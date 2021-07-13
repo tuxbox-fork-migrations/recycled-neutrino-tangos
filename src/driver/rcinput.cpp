@@ -1594,6 +1594,8 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "standby";
 			case RC_home:
 				return "home";
+			case RC_back:
+				return "back";
 			case RC_setup:
 				return "setup";
 			case RC_red:
