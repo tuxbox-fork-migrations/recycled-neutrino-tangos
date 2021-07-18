@@ -5500,6 +5500,7 @@ void stop_daemons(bool stopall, bool for_flash)
 
 void stop_video()
 {
+	CFrameBuffer::getInstance()->paintBackground(); // clear osd
 	delete videoDecoder;
 	delete videoDemux;
 	delete CFrameBuffer::getInstance();
@@ -5512,6 +5513,7 @@ void sighandler (int signum)
 	switch (signum) {
 	case SIGTERM:
 	case SIGINT:
+		CVFD::getInstance()->ShowText("Exiting ...");
 #ifdef ENABLE_LCD4LINUX
 		stop_lcd4l_support();
 #endif
