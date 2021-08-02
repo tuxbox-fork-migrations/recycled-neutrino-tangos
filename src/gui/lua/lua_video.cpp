@@ -377,7 +377,7 @@ int CLuaInstVideo::Screenshot(lua_State *L)
 	if(screenshot){
 		screenshot->EnableOSD(enableOSD);
 		screenshot->EnableVideo(enableVideo);
-		if (!screenshot->StartSync()){
+		if (!screenshot->Start()){
 			printf("CLuaInstVideo::%s: Error\n", __func__);
 		}
 		delete screenshot;

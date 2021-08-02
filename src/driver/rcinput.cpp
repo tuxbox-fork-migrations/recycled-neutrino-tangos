@@ -1820,7 +1820,7 @@ int CRCInput::translate(int code)
 			return RC_home;
 		case KEY_SWITCHVIDEOMODE:
 			return RC_mode;
-if BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
+#if BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 		case KEY_VIDEO:
 			return RC_mode;
 #else
