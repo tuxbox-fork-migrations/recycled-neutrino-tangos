@@ -52,6 +52,7 @@
 #define TVG_INFO_ID_MARKER      "tvg-id="
 #define TVG_INFO_NAME_MARKER    "tvg-name="
 #define TVG_INFO_LOGO_MARKER    "tvg-logo="
+#define TVG_INFO_SCRIPT_MARKER  "tvg-script="
 #define TVG_INFO_SHIFT_MARKER   "tvg-shift="
 #define GROUP_PREFIX_MARKER     "group-prefix="
 #define GROUP_NAME_MARKER       "group-title="
@@ -959,7 +960,6 @@ void CBouquetManager::loadWebchannels(int mode)
 							if (epg_id == 0) epg_id = chid;
 							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script, mode);
 							CServiceManager::getInstance()->AddChannel(channel);
-							channel->flags = CZapitChannel::UPDATED;
 							//remapping epg_id
 							t_channel_id new_epgid = reMapEpgID(chid);
 							if(new_epgid)
@@ -968,9 +968,10 @@ void CBouquetManager::loadWebchannels(int mode)
 							if(!new_epgxml.empty()) {
 								char buf[100];
 								snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
-								channel->setScriptName("#" + new_epgxml + "=" + buf);
+								channel->setEPGmap("#" + new_epgxml + "=" + buf);
 								channel->setEPGid(chid);
 							}
+							channel->flags = CZapitChannel::UPDATED;
 							if (gbouquet)
 								gbouquet->addService(channel);
 						}
@@ -990,6 +991,7 @@ void CBouquetManager::loadWebchannels(int mode)
 				std::string group = "";
 				std::string epgid = "";
 				std::string alogo = "";
+				std::string script = "";
 				CZapitBouquet* pbouquet = NULL;
 
 				infile.open(tmp_name.c_str(), std::ifstream::in);
@@ -1017,6 +1019,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						group = "";
 						desc = "";
 						alogo = "";
+						script = "";
 
 						if (iColon >= 0 && iComma >= 0 && iComma > iColon)
 						{
@@ -1029,6 +1032,7 @@ void CBouquetManager::loadWebchannels(int mode)
 							group = ReadMarkerValue(strInfoLine, GROUP_NAME_MARKER);
 							epgid = ReadMarkerValue(strInfoLine, TVG_INFO_ID_MARKER);
 							alogo = ReadMarkerValue(strInfoLine, TVG_INFO_LOGO_MARKER);
+							script = ReadMarkerValue(strInfoLine, TVG_INFO_SCRIPT_MARKER);
 						}
 
 						pbouquet = addBouquetIfNotExist((mode == MODE_WEBTV) ? "WebTV" : "WebRadio");
@@ -1063,15 +1067,14 @@ void CBouquetManager::loadWebchannels(int mode)
 								}
 
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
-								std::string epg_script = "";
+								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, script.c_str(), mode);
+								CServiceManager::getInstance()->AddChannel(channel);
 								if (!epgid.empty()) {
 									char buf[100];
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
 									// keep the tvg-id for later epg injection
-									epg_script = "#" + epgid + "=" + buf;
+									channel->setEPGmap("#" + epgid + "=" + buf);
 								}
-								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, epg_script.c_str(), mode);
-								CServiceManager::getInstance()->AddChannel(channel);
 								//remapping epg_id
 								t_channel_id new_epgid = reMapEpgID(chid);
 								if(new_epgid)
@@ -1080,7 +1083,8 @@ void CBouquetManager::loadWebchannels(int mode)
 								if(!new_epgxml.empty()) {
 									char buf[100];
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
-									channel->setScriptName("#" + new_epgxml + "=" + buf);
+									channel->setEPGmap("#" + new_epgxml + "=" + buf);
+									channel->setEPGid(chid);
 								}
 								desc = "m3u_loading_logos";
 								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid,title,desc))
@@ -1181,7 +1185,6 @@ void CBouquetManager::loadWebchannels(int mode)
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, ::decodeUrl(url).c_str());
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), chid, NULL, mode);
 								CServiceManager::getInstance()->AddChannel(channel);
-								channel->flags = CZapitChannel::UPDATED;
 								//remapping epg_id
 								t_channel_id new_epgid = reMapEpgID(chid);
 								if(new_epgid)
@@ -1190,8 +1193,10 @@ void CBouquetManager::loadWebchannels(int mode)
 								if(!new_epgxml.empty()) {
 									char buf[100];
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
-									channel->setScriptName("#" + new_epgxml + "=" + buf);
+									channel->setEPGmap("#" + new_epgxml + "=" + buf);
+									channel->setEPGid(chid);
 								}
+								channel->flags = CZapitChannel::UPDATED;
 								if (gbouquet)
 									gbouquet->addService(channel);
 							}
@@ -1432,7 +1437,7 @@ void CBouquetManager::dump_EPGMapping(std::string mapfile_out)
 		if ((*cit)->getChannelID() != (*cit)->getEpgID())
 			fprintf(outfile,"\t<filter channel_id=\"%012" PRIx64 "\" new_epg_id=\"%012" PRIx64 "\" /> --%s\n",(*cit)->getChannelID(), (*cit)->getEpgID(), (*cit)->getName().c_str());
 
-		std::string tvg_id = (*cit)->getScriptName();
+		std::string tvg_id = (*cit)->getEPGmap();
 		if (tvg_id.empty())
 			continue;
 
