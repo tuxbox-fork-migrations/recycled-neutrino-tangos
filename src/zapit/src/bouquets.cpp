@@ -407,6 +407,8 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 	xmlNodePtr search = xmlChildrenNode(root);
 	xmlNodePtr channel_node;
 
+	std::string best_bitrate = "best_bitrate_m3u8.lua";
+
 	if (search) {
 		t_original_network_id original_network_id;
 		t_service_id service_id;
@@ -472,6 +474,12 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					if(!bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
 					chan->bLocked = clock;
+					if (url)
+					{
+						std::string url_s = url;
+						if (getFileExt(url_s) == "m3u8" && chan->getScriptName().empty())
+							chan->setScriptName(best_bitrate);
+					}
 					//remapping epg_id
 					t_channel_id new_epgid = reMapEpgID(chan->getChannelID());
 					if(new_epgid)
@@ -487,6 +495,9 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					if (url) {
 						chid = create_channel_id64(0, 0, 0, 0, 0, url);
 						chan = new CZapitChannel(name2.c_str(), chid, url, NULL);
+						std::string url_s = url;
+						if (getFileExt(url_s) == "m3u8" && chan->getScriptName().empty())
+							chan->setScriptName(best_bitrate);
 					}
 					else
 						chan = new CZapitChannel(name2, CREATE_CHANNEL_ID64, 1 /*service_type*/,
@@ -877,6 +888,7 @@ void CBouquetManager::loadWebchannels(int mode)
 		std::string filename = (*it);
 		std::string extension = getFileExt(filename);
 		std::string tmp_name = randomFile(extension, LOGODIR_TMP);
+		std::string best_bitrate = "best_bitrate_m3u8.lua";
 		bool remove_tmp = false;
 
 		if (filename.compare(0, 1, "/") == 0)
@@ -963,6 +975,9 @@ void CBouquetManager::loadWebchannels(int mode)
 							if (epg_id == 0) epg_id = chid;
 							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script, mode);
 							CServiceManager::getInstance()->AddChannel(channel);
+							std::string url_s = url;
+							if (getFileExt(url_s) == "m3u8" && channel->getScriptName().empty())
+								channel->setScriptName(best_bitrate);
 							//remapping epg_id
 							t_channel_id new_epgid = reMapEpgID(chid);
 							if(new_epgid)
@@ -1086,6 +1101,9 @@ void CBouquetManager::loadWebchannels(int mode)
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, script.c_str(), mode);
 								CServiceManager::getInstance()->AddChannel(channel);
+								std::string url_s = url;
+								if (getFileExt(url_s) == "m3u8" && channel->getScriptName().empty())
+									channel->setScriptName(best_bitrate);
 								if (!epgid.empty()) {
 									char buf[100];
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
@@ -1201,6 +1219,9 @@ void CBouquetManager::loadWebchannels(int mode)
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, ::decodeUrl(url).c_str());
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), chid, NULL, mode);
 								CServiceManager::getInstance()->AddChannel(channel);
+								std::string url_s = ::decodeUrl(url);
+								if (getFileExt(url_s) == "m3u8" && channel->getScriptName().empty())
+									channel->setScriptName(best_bitrate);
 								//remapping epg_id
 								t_channel_id new_epgid = reMapEpgID(chid);
 								if(new_epgid)
