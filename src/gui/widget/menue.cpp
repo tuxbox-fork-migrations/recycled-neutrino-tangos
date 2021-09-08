@@ -49,7 +49,6 @@
 
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
-extern CLCD4l *LCD4l;
 #endif
 
 /* the following generic menu items are integrated into multiple menus at the same time */
@@ -274,7 +273,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 #endif
 #ifdef ENABLE_LCD4LINUX
 		if (g_settings.lcd4l_support)
-			LCD4l->CreateFile("/tmp/lcd/menu", lcd4l_text, g_settings.lcd4l_convert);
+			CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", lcd4l_text, g_settings.lcd4l_convert);
 #endif
 	}
 	
@@ -1062,7 +1061,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					cGLCD::unlockChannel();
 #endif
 #ifdef ENABLE_LCD4LINUX
-					LCD4l->RemoveFile("/tmp/lcd/menu");
+					CLCD4l::getInstance()->RemoveFile("/tmp/lcd/menu");
 #endif
 
 					//exec this item...
@@ -1084,7 +1083,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 #endif
 #ifdef ENABLE_LCD4LINUX
 					if (g_settings.lcd4l_support)
-						LCD4l->CreateFile("/tmp/lcd/menu", item->lcd4l_text, g_settings.lcd4l_convert);
+						CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", item->lcd4l_text, g_settings.lcd4l_convert);
 #endif
 
 					switch ( rv ) {
@@ -1175,7 +1174,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	cGLCD::unlockChannel();
 #endif
 #ifdef ENABLE_LCD4LINUX
-	LCD4l->RemoveFile("/tmp/lcd/menu");
+	CLCD4l::getInstance()->RemoveFile("/tmp/lcd/menu");
 #endif
 
 	for (unsigned int count = 0; count < items.size(); count++) 
