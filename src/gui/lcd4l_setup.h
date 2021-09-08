@@ -7,7 +7,7 @@
 	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Modded    (C) 2016 'TangoCash'
+	Modded    (C) 2016,2021 'TangoCash'
 
 	License: GPL
 
@@ -36,7 +36,6 @@
 class CLCD4lSetup : public CMenuTarget, CChangeObserver
 {
 	private:
-		bool lcd4l_display_type_changed;
 		int temp_lcd4l_display_type;
 		int temp_lcd4l_skin;
 		int temp_lcd4l_brightness;
