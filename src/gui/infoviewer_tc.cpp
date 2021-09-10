@@ -139,7 +139,6 @@ CInfoViewer::CInfoViewer ()
 	scrambledErrSave	= false;
 	scrambledNoSig		= false;
 	scrambledNoSigSave	= false;
-	scrambledT		= 0;
 	hddscale 		= NULL;
 	bbIconInfo[0].x = 0;
 	bbIconInfo[0].h = 0;
@@ -156,11 +155,6 @@ CInfoViewer::CInfoViewer ()
 
 CInfoViewer::~CInfoViewer()
 {
-	if(scrambledT)
-	{
-		pthread_cancel(scrambledT);
-		scrambledT = 0;
-	}
 	ResetModules();
 }
 
@@ -555,7 +549,6 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 		fader.StartFadeIn();
 
 	is_visible = true;
-	is_visible = true;
 
 	ChannelName = Channel;
 	t_channel_id old_channel_id = current_channel_id;
@@ -754,7 +747,6 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	if(!is_visible && !calledFromNumZap)
 		fader.StartFadeIn();
 
-	is_visible = true;
 	is_visible = true;
 
 	ChannelName = Channel;
@@ -2994,55 +2986,14 @@ void CInfoViewer::initBBOffset()
 	}
 }
 
-void* CInfoViewer::scrambledThread(void *arg)
-{
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
-	CInfoViewer *infoViewer = static_cast<CInfoViewer*>(arg);
-	while(1)
-	{
-		if (infoViewer->is_visible)
-			infoViewer->scrambledCheck();
-		usleep(500*1000);
-	}
-	return 0;
-}
-
-void CInfoViewer::scrambledCheck(bool force)
-{
-	scrambledErr = false;
-	scrambledNoSig = false;
-	if (videoDecoder->getBlank())
-	{
-		if (videoDecoder->getPlayState())
-			scrambledErr = true;
-		else
-			scrambledNoSig = true;
-	}
-
-	if ((scrambledErr != scrambledErrSave) || (scrambledNoSig != scrambledNoSigSave) || force)
-	{
-		showIcon_CA_Status(0);
-		showIcon_Resolution();
-		scrambledErrSave = scrambledErr;
-		scrambledNoSigSave = scrambledNoSig;
-	}
-}
-
-typedef  void* (CInfoViewer::*MemFuncPtr)(void);
-typedef  void* (*PthreadPtr)(void*);
-
 void CInfoViewer::paint_cam_icons()
 {
-	MemFuncPtr   t = &CInfoViewer::Thread_paint_cam_icons;
-	PthreadPtr   p = *(PthreadPtr*)&t;
-	pthread_t thread_pci;
-	if (pthread_create(&thread_pci, NULL, p, this) == 0)
-		pthread_detach(thread_pci);
+	std::thread t1(&CInfoViewer::Thread_paint_cam_icons, this);
+	t1.detach();
 }
 
 void* CInfoViewer::Thread_paint_cam_icons(void)
 {
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	std::ostringstream buf;
 	std::stringstream fpath;
 	int emu_pic_startx = ChanInfoX + (g_settings.infobar_casystem_frame ? 2*OFFSET_INNER_MID : OFFSET_INNER_MID);
@@ -3057,7 +3008,8 @@ void* CInfoViewer::Thread_paint_cam_icons(void)
 		{
 			buf.str("");
 			buf << icon_name[i] << "_green";
-			frameBuffer->paintIcon(buf.str().c_str(), emu_pic_startx, py );
+			if (is_visible)
+				frameBuffer->paintIcon(buf.str().c_str(), emu_pic_startx, py );
 			frameBuffer->getIconSize(buf.str().c_str(), &icon_sizeW, &icon_sizeH);
 			emu_pic_startx += icon_sizeW + OFFSET_INNER_MIN;
 		}
@@ -3069,7 +3021,8 @@ void* CInfoViewer::Thread_paint_cam_icons(void)
 			{
 				buf.str("");
 				buf << icon_name[i] << "_yellow";
-				frameBuffer->paintIcon(buf.str().c_str(), emu_pic_startx, py );
+				if (is_visible)
+					frameBuffer->paintIcon(buf.str().c_str(), emu_pic_startx, py );
 				frameBuffer->getIconSize(buf.str().c_str(), &icon_sizeW, &icon_sizeH);
 				emu_pic_startx += icon_sizeW + OFFSET_INNER_MIN;
 			}
@@ -3077,21 +3030,21 @@ void* CInfoViewer::Thread_paint_cam_icons(void)
 			{
 				buf.str("");
 				buf << icon_name[i] << "_white";
-				frameBuffer->paintIcon(buf.str().c_str(), emu_pic_startx, py );
+				if (is_visible)
+					frameBuffer->paintIcon(buf.str().c_str(), emu_pic_startx, py );
 				frameBuffer->getIconSize(buf.str().c_str(), &icon_sizeW, &icon_sizeH);
 				emu_pic_startx += icon_sizeW + OFFSET_INNER_MIN;
 			}
 		}
 	}
 
-	if (camCI)
+	if (camCI && is_visible)
 	{
 		if (useCI)
 			frameBuffer->paintIcon("ci+_green", emu_pic_startx, py);
 		else
 			frameBuffer->paintIcon("ci+_white", emu_pic_startx, py);
 	}
-	pthread_exit(0);
 }
 
 int CInfoViewer::check_ecmInfo()
