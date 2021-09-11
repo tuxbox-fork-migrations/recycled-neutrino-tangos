@@ -214,6 +214,7 @@ private:
 
 	bool scrambledErr, scrambledErrSave;
 	bool scrambledNoSig, scrambledNoSigSave;
+	pthread_t scrambledT;
 
 	void paintFoot(int w = 0);
 	void showIcons(const int modus, const std::string & icon);
@@ -223,6 +224,9 @@ private:
 	void paint_ca_icons(int, const char*, int&);
 	void paint_ca_bar();
 	void showOne_CAIcon();
+
+	static void* scrambledThread(void *arg);
+	void scrambledCheck(bool force=false);
 
 public:
 	bool     chanready;
