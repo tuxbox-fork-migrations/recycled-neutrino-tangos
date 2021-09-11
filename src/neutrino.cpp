@@ -694,7 +694,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.epg_cache            = configfile.getInt32("epg_cache_time", 14);
 	g_settings.epg_extendedcache    = configfile.getInt32("epg_extendedcache_time", 360);
 	g_settings.epg_old_events       = configfile.getInt32("epg_old_events", 1);
-	g_settings.epg_max_events       = configfile.getInt32("epg_max_events", 30000);
+	g_settings.epg_max_events       = configfile.getInt32("epg_max_events", 90000);
 	g_settings.epg_dir              = configfile.getString("epg_dir", "/media/hdd/epg");
 	// NTP-Server for sectionsd
 	g_settings.network_ntpserver    = configfile.getString("network_ntpserver", "time.fu-berlin.de");
@@ -706,8 +706,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.epg_save = configfile.getBool("epg_save", false);
 	g_settings.epg_save_standby = configfile.getBool("epg_save_standby", true);
 	g_settings.epg_save_frequently = configfile.getInt32("epg_save_frequently", 0);
-	g_settings.epg_read = configfile.getBool("epg_read", g_settings.epg_save);
-	g_settings.epg_read_frequently = configfile.getInt32("epg_read_frequently", 0);
+	g_settings.epg_read = configfile.getBool("epg_read", true);
+	g_settings.epg_read_frequently = configfile.getInt32("epg_read_frequently", 1);
 	g_settings.epg_scan = configfile.getInt32("epg_scan", CEpgScan::SCAN_FAV);
 	g_settings.epg_scan_mode = configfile.getInt32("epg_scan_mode", CEpgScan::MODE_STANDBY);
 	// backward-compatible check
@@ -1149,7 +1149,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 	g_settings.epg_search_history_size = g_settings.epg_search_history.size();
 
-	g_settings.adzap_zapBackPeriod = configfile.getInt32("adzap_zapBackPeriod", 180);
+	g_settings.adzap_zapBackPeriod = configfile.getInt32("adzap_zapBackPeriod", 420);
 	g_settings.adzap_writeData = configfile.getInt32("adzap_writeData", 0);
 	g_settings.adzap_zapOnActivation = configfile.getInt32("adzap_zapOnActivation", 0);
 
@@ -1208,10 +1208,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.enable_sd_osd = configfile.getInt32("enable_sd_osd", 1);
 #endif
 #ifdef ENABLE_PIP
-	g_settings.pip_x = configfile.getInt32("pip_x", 50);
+	g_settings.pip_x = configfile.getInt32("pip_x", 1110);
 	g_settings.pip_y = configfile.getInt32("pip_y", 50);
-	g_settings.pip_width = configfile.getInt32("pip_width", 365);
-	g_settings.pip_height = configfile.getInt32("pip_height", 200);
+	g_settings.pip_width = configfile.getInt32("pip_width", 720);
+	g_settings.pip_height = configfile.getInt32("pip_height", 405);
 
 	g_settings.pip_radio_x = configfile.getInt32("pip_radio_x", g_settings.pip_x);
 	g_settings.pip_radio_y = configfile.getInt32("pip_radio_y", g_settings.pip_y);
