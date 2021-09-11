@@ -119,8 +119,6 @@ int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
 		if (fileBrowser.exec(g_settings.last_webtv_dir.c_str()) == true)
 		{
 			std::string s = fileBrowser.getSelectedFile()->Name;
-			if (s.find("epgmap.xml") != std::string::npos)
-				return res;
 			m->addItem(new CMenuForwarder(s, true, NULL, this, "c"));
 			g_settings.last_webtv_dir = s.substr(0, s.rfind('/')).c_str();
 			changed = true;
