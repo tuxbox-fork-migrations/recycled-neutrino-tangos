@@ -4341,9 +4341,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		}
 		return messages_return::handled;
 	}
+	else if( msg == NeutrinoMessages::RESTART ) {
+		ExitRun(CNeutrinoApp::EXIT_RESTART);
+	}
 	else if( msg == NeutrinoMessages::REBOOT ) {
-		FILE *f = fopen("/tmp/.reboot", "w");
-		fclose(f);
 		ExitRun(CNeutrinoApp::EXIT_REBOOT);
 	}
 	else if (msg == NeutrinoMessages::EVT_POPUP || msg == NeutrinoMessages::EVT_EXTMSG) {
@@ -5165,26 +5166,13 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if (actionKey=="reboot")
 	{
-		FILE *f = fopen("/tmp/.reboot", "w");
-		if (f)
-			fclose(f);
 		ExitRun(CNeutrinoApp::EXIT_REBOOT);
-		unlink("/tmp/.reboot");
-		returnval = menu_return::RETURN_NONE;
-	}
-	else if(actionKey=="changegui")
-	{
-		FILE *f = fopen("/var/etc/.e2", "w");
-		if (f)
-			fclose(f);
-		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
-		ExitRun(CNeutrinoApp::EXIT_CHANGEGUI);
 		returnval = menu_return::RETURN_NONE;
 	}
 	else if(actionKey=="n_restart")
 	{
 		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
-		ExitRun(CNeutrinoApp::EXIT_CHANGEGUI);
+		ExitRun(CNeutrinoApp::EXIT_RESTART);
 		returnval = menu_return::RETURN_NONE;
 	}
 	else if (actionKey=="clock_switch")

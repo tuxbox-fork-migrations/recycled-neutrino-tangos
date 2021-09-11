@@ -237,14 +237,6 @@ void CNeutrinoApp::InitMenuMain()
 	mf->setHint(NEUTRINO_ICON_HINT_SLEEPTIMER, LOCALE_MENU_HINT_SLEEPTIMER);
 	personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SLEEPTIMER]);
 
-	//changegui
-	if ((access("/usr/local/bin/enigma2", F_OK) == 0)) {
-		//separator
-		personalize.addSeparator(MENU_MAIN);
-		mf = new CMenuForwarder(LOCALE_MAINMENU_CHANGEGUI, true, NULL, this, "changegui");
-		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_REBOOT]);
-	}
-
 	//reboot
 	mf = new CMenuForwarder(LOCALE_MAINMENU_REBOOT, true, NULL, this, "reboot");
 	mf->setHint(NEUTRINO_ICON_HINT_REBOOT, LOCALE_MENU_HINT_REBOOT);

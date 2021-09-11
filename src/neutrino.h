@@ -64,7 +64,7 @@ public:
 		EXIT_SHUTDOWN = 0,	// g_info.hw_caps->can_shutdown == 1
 		EXIT_REBOOT = 1,
 		EXIT_NOTUSED = 2,
-		EXIT_CHANGEGUI = 3
+		EXIT_RESTART = 3
 	};
 	void ExitRun(int can_shutdown = 0);
 
