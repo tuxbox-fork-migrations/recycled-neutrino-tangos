@@ -898,6 +898,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 #endif
 
+	g_settings.xmltv_xml_auto.clear();
 	g_settings.xmltv_xml_m3u.clear();
 	g_settings.xmltv_xml.clear();
 	int xmltv_count = configfile.getInt32("xmltv_xml_count", 0);
