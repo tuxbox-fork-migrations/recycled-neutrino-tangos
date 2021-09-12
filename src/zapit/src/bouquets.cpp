@@ -532,6 +532,7 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 		sortBouquets();
 	}
 
+	CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_clear();
 	CNeutrinoApp::getInstance()->g_settings_xmltv_xml_m3u_clear();
 	loadWebtv();
 	loadWebradio();
@@ -931,6 +932,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						const char *desc = xmlGetAttribute(l1, "description");
 						const char *genre = xmlGetAttribute(l1, "genre");
 						const char *epgid = xmlGetAttribute(l1, "epgid");
+						const char *xmltv = xmlGetAttribute(l1, "xmltv");
 						const char *epgmap = xmlGetAttribute(l1, "epgmap");
 						const char *script = xmlGetAttribute(l1, "script");
 						t_channel_id epg_id = 0;
@@ -971,6 +973,10 @@ void CBouquetManager::loadWebchannels(int mode)
 								channel->setEPGid(new_epgid);
 							char buf[100];
 							snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+							if (xmltv)
+							{
+								CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_pushback(xmltv);
+							}
 							if (epgmap)
 							{
 								std::string new_epgxml(epgmap);
