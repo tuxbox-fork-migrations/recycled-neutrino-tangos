@@ -1,4 +1,13 @@
 #!/bin/sh
 
-service tuxcald start
-service tuxmaild start
+echo "Movieplayer wird beendet"
+
+if [ -e /usr/bin/tuxcald ]; then
+	service tuxcald start
+fi
+
+if [ -e /usr/bin/tuxmaild ]; then
+	service tuxmaild start
+fi
+
+exit 0
