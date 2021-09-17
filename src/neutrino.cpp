@@ -4626,7 +4626,7 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	if (cs_get_revision() != 10)
 		bright = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
 #endif
-	if (exit_code != CNeutrinoApp::EXIT_REBOOT)
+	if (exit_code != EXIT_NORMAL && exit_code != EXIT_RESTART)
 	{
 		if (timer_minutes)
 		{
@@ -5169,7 +5169,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		ExitRun(CNeutrinoApp::EXIT_REBOOT);
 		returnval = menu_return::RETURN_NONE;
 	}
-	else if(actionKey=="n_restart")
+	else if (actionKey=="restart")
 	{
 		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 		ExitRun(CNeutrinoApp::EXIT_RESTART);
