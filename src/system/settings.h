@@ -476,6 +476,9 @@ struct SNeutrinoSettings
 	int network_ntpenable;
 	std::string ifname;
 
+	int webtv_xml_auto;
+	int webtv_xml_quality;
+	int webradio_xml_auto;
 	std::list<std::string> webtv_xml;
 	std::list<std::string> webradio_xml;
 	std::list<std::string> xmltv_xml; // see http://wiki.xmltv.org/
