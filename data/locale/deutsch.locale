@@ -1839,7 +1839,9 @@ menu.hint_weather_api_key Geben Sie den OpenWeather API Schlüssel ein. (https:/
 menu.hint_weather_enabled Schaltet die Wetter-Unterstützung (OpenWeather) ein bzw. aus
 menu.hint_weather_location Wählen Sie eine Stadt in ihrer Nähe zur Anzeige der Wetterdaten aus
 menu.hint_webradio_setup Hier konfigurierte WebRadio-Kanäle finden Sie in der Kanalverwaltung.
+menu.hint_webradio_xml_auto Lädt automatisch alle WebRadio-Dateien aus %s/ und %s/
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
+menu.hint_webtv_xml_auto Lädt automatisch alle WebTV-Dateien aus %s/ und %s/
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_xmltv_setup Hier konfigurieren Sie XMLTV-Dateien, die EPG-Daten enthalten
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
@@ -2894,17 +2896,17 @@ videomenu.zappingmode_holdtilllock Standbild bis lock
 weather.api_key Wetter API Schlüssel (OpenWeather)
 weather.enabled Wetter-Unterstützung
 weather.location Wetter-Standort
+webchannels.xml.add Hinzufügen
+webchannels.xml.del Entfernen
+webchannels.xml.enter Eintragen
+webchannels.xml.reload Neu laden
 webradio.head WebRadio
-webradio.xml WebRadio-XML-Dateien
-webradio.xml.add XML-Datei hinzufügen
-webradio.xml.del XML-Datei entfernen
-webradio.xml.reload XML-Dateien neu laden
+webradio.xml WebRadio-Dateien
+webradio.xml.auto WebRadio-Dateien automatisch laden
 webtv.head WebTV
 webtv.xml WebTV-Dateien
-webtv.xml.add Hinzufügen
-webtv.xml.del Entfernen
-webtv.xml.enter Eintragen
-webtv.xml.reload Neu laden
+webtv.xml.auto WebTV-Dateien automatisch laden
+webtv.xml.pref_quality Bevorzugte Qualität
 window_size Fenstergröße in %
 wizard.initial_settings Grundeinstellungen gefunden
 wizard.install_settings Kanalliste für Astra 19.2°E installieren?
