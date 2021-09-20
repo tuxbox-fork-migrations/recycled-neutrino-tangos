@@ -856,7 +856,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/media/hdd/plugins" );
 	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/logos" );
 
-	g_settings.webtv_xml_quality = configfile.getInt32("webtv_xml_quality", 1920);
+	// webtv
 	g_settings.webtv_xml_auto = configfile.getInt32("webtv_xml_auto", 1);
 	g_settings.webtv_xml.clear();
 	int webtv_count = configfile.getInt32("webtv_xml_count", 0);
@@ -1782,7 +1782,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	// webtv
 	CWebChannelsSetup webchannelssetup;
-	configfile.setInt32("webtv_xml_quality", g_settings.webtv_xml_quality);
 	configfile.setInt32("webtv_xml_auto", g_settings.webtv_xml_auto);
 	int webtv_count = 0;
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it) {

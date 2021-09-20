@@ -477,7 +477,6 @@ struct SNeutrinoSettings
 	std::string ifname;
 
 	int webtv_xml_auto;
-	int webtv_xml_quality;
 	int webradio_xml_auto;
 	std::list<std::string> webtv_xml;
 	std::list<std::string> webradio_xml;
