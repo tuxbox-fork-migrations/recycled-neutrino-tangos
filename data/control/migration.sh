@@ -59,5 +59,7 @@ for internalplugin in $internalplugins; do
 done
 
 # these control scripts hasn't counterparts in /var
-rm -f migration.sh
 rm -f flash.start
+
+#cleanup
+rm /usr/share/tuxbox/neutrino/control/migration.sh
