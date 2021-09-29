@@ -25,7 +25,6 @@ libzapit_a_SOURCES = \
 	frontend.cpp \
 	getservices.cpp \
 	pat.cpp \
-	scanait.cpp \
 	scanbat.cpp \
 	scan.cpp \
 	scannit.cpp \
@@ -33,6 +32,11 @@ libzapit_a_SOURCES = \
 	scansdt.cpp \
 	transponder.cpp \
 	zapit.cpp
+
+if ENABLE_AIT
+libzapit_a_SOURCES += \
+	scanait.cpp
+endif
 
 if ENABLE_FASTSCAN
 libzapit_a_SOURCES += \
