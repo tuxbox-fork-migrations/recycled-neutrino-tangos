@@ -19,7 +19,9 @@
 #include <zapit/bouquets.h>
 #include <zapit/femanager.h>
 #include <zapit/fastscan.h>
+#ifdef ENABLE_AIT
 #include <zapit/scanait.h>
+#endif
 
 #define PAL	0
 #define NTSC	1
@@ -168,7 +170,9 @@ class CZapit : public OpenThreads::Thread
 		t_channel_id  lastChannelTV;
 		int abort_zapit;
 		int pmt_update_fd;
+#ifdef ENABLE_AIT
 		CAit *ait;
+#endif
 		//void LoadAudioMap();
 		void SaveAudioMap();
 		void SaveVolumeMap();
