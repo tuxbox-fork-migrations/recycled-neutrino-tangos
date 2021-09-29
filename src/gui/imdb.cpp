@@ -68,7 +68,7 @@ CIMDB* CIMDB::getInstance()
 inline std::string CIMDB::getApiKey()
 {
 	std::string 	ret = "&apikey=";
-			ret += g_settings.omdb_api_key;
+	ret += g_settings.omdb_api_key;
 	return ret;
 }
 
@@ -77,13 +77,16 @@ std::string CIMDB::utf82url(std::string s)
 	std::stringstream ss;
 	for (size_t i = 0; i < s.length(); ++i)
 	{
-		if (unsigned(s[i]) <= ' ') {
+		if (unsigned(s[i]) <= ' ')
+		{
 			ss << '+';
 		}
-		else if (unsigned(s[i]) <= '\x27') {
+		else if (unsigned(s[i]) <= '\x27')
+		{
 			ss << "%" << std::hex << unsigned(s[i]);
 		}
-		else {
+		else
+		{
 			ss << s[i];
 		}
 	}
@@ -154,7 +157,7 @@ std::string CIMDB::parseString(std::string search1, std::string search2, std::st
 			ret = str.substr(pos_search1, pos_search2 - pos_search1);
 		}
 		//else
-			//std::cout << "search2 not found in line " << acc << " - exit" << std::endl;
+		//std::cout << "search2 not found in line " << acc << " - exit" << std::endl;
 
 	}
 
@@ -336,7 +339,8 @@ int CIMDB::getIMDb(const std::string& epgTitle)
 			std::string origURL ("300");
 			std::string replURL ("600");
 
-			if (m["Poster"].compare(m["Poster"].size()-7,3,origURL) == 0){
+			if (m["Poster"].compare(m["Poster"].size()-7,3,origURL) == 0)
+			{
 				//std::cout << "########## " << m["Poster"] << " contains " << origURL << '\n';
 				m["Poster"].replace(m["Poster"].size()-7,3,replURL);
 				//std::cout << "########## New string: " << m["Poster"] << '\n';
@@ -344,7 +348,8 @@ int CIMDB::getIMDb(const std::string& epgTitle)
 
 			if (httpTool.downloadFile(m["Poster"], posterfile.c_str()))
 				return 2;
-			else {
+			else
+			{
 				if (access(posterfile.c_str(), F_OK) == 0)
 					unlink(posterfile.c_str());
 				return 1;
@@ -428,7 +433,8 @@ std::string CIMDB::getFilename(CZapitChannel * channel, uint64_t id)
 	StringReplace(FilenameTemplate,"__","_");
 
 	std::string channel_name = channel->getName();
-	if (!(channel_name.empty())) {
+	if (!(channel_name.empty()))
+	{
 		strcpy(buf, UTF8_TO_FILESYSTEM_ENCODING(channel_name.c_str()));
 		ZapitTools::replace_char(buf);
 		StringReplace(FilenameTemplate,"%C",buf);
@@ -437,8 +443,10 @@ std::string CIMDB::getFilename(CZapitChannel * channel, uint64_t id)
 		StringReplace(FilenameTemplate,"%C","no_channel");
 
 	CShortEPGData epgdata;
-	if(CEitManager::getInstance()->getEPGidShort(id, &epgdata)) {
-		if (!(epgdata.title.empty())) {
+	if(CEitManager::getInstance()->getEPGidShort(id, &epgdata))
+	{
+		if (!(epgdata.title.empty()))
+		{
 			strcpy(buf, epgdata.title.c_str());
 			ZapitTools::replace_char(buf);
 			StringReplace(FilenameTemplate,"%T",buf);
@@ -446,7 +454,8 @@ std::string CIMDB::getFilename(CZapitChannel * channel, uint64_t id)
 		else
 			StringReplace(FilenameTemplate,"%T","no_title");
 
-		if (!(epgdata.info1.empty())) {
+		if (!(epgdata.info1.empty()))
+		{
 			strcpy(buf, epgdata.info1.c_str());
 			ZapitTools::replace_char(buf);
 			StringReplace(FilenameTemplate,"%I",buf);
@@ -468,7 +477,8 @@ void CIMDB::StringReplace(std::string &str, const std::string search, const std:
 {
 	std::string::size_type ptr = 0;
 	std::string::size_type pos = 0;
-	while((ptr = str.find(search,pos)) != std::string::npos){
+	while((ptr = str.find(search,pos)) != std::string::npos)
+	{
 		str.replace(ptr,search.length(),rstr);
 		pos = ptr + rstr.length();
 	}
@@ -484,5 +494,5 @@ void CIMDB::cleanup()
 
 bool CIMDB::gotPoster()
 {
-    return (access(posterfile.c_str(), F_OK) == 0);
+	return (access(posterfile.c_str(), F_OK) == 0);
 }
