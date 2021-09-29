@@ -64,7 +64,7 @@ cTmdb::cTmdb()
 
 cTmdb::~cTmdb()
 {
-    cleanup();
+	cleanup();
 }
 
 void cTmdb::setTitle(std::string epgtitle)
@@ -79,7 +79,8 @@ void cTmdb::setTitle(std::string epgtitle)
 	if ((minfo.result < 1 || minfo.overview.empty()) && lang != "en")
 		GetMovieDetails("en", true);
 
-	if(hintbox){
+	if(hintbox)
+	{
 		hintbox->hide();
 		delete hintbox;
 		hintbox = NULL;
@@ -94,7 +95,8 @@ bool cTmdb::GetData(std::string url, Json::Value *root)
 
 	std::string errMsg = "";
 	bool ok = parseJsonFromString(answer, root, &errMsg);
-	if (!ok) {
+	if (!ok)
+	{
 		printf("Failed to parse JSON\n");
 		printf("%s\n", errMsg.c_str());
 		return false;
@@ -112,11 +114,13 @@ bool cTmdb::GetMovieDetails(std::string lang, bool second)
 		return false;
 
 	minfo.result = root.get("total_results",0).asInt();
-	if(minfo.result == 0){
+	if(minfo.result == 0)
+	{
 		std::string title = minfo.epgtitle;
 		size_t pos1 = title.find_last_of("(");
 		size_t pos2 = title.find_last_of(")");
-		if(pos1 != std::string::npos && pos2 != std::string::npos && pos2 > pos1){
+		if(pos1 != std::string::npos && pos2 != std::string::npos && pos2 > pos1)
+		{
 			printf("[TMDB]: second try\n");
 			title.replace(pos1, pos2-pos1+1, "");
 			url	= urlapi + "search/multi?api_key="+key+"&language="+lang+"&query=" + encodeUrl(title);
@@ -128,18 +132,21 @@ bool cTmdb::GetMovieDetails(std::string lang, bool second)
 	}
 	printf("[TMDB]: results: %d\n",minfo.result);
 
-	if (minfo.result > 0) {
+	if (minfo.result > 0)
+	{
 		Json::Value elements = root["results"];
 		int use_result = 0;
 
 		if ((minfo.result > 1) && (!second))
 			selectResult(elements, minfo.result, use_result);
 
-		if (!second) {
+		if (!second)
+		{
 			minfo.id = elements[use_result].get("id",-1).asInt();
 			minfo.media_type = elements[use_result].get("media_type","").asString();
 		}
-		if (minfo.id > -1) {
+		if (minfo.id > -1)
+		{
 			url = urlapi+minfo.media_type+"/"+std::to_string(minfo.id)+"?api_key="+key+"&language="+lang+"&append_to_response=credits";
 			if(!(GetData(url, &root)))
 				return false;
@@ -151,27 +158,31 @@ bool cTmdb::GetMovieDetails(std::string lang, bool second)
 			minfo.vote_average = root.get("vote_average","").asString();;
 			minfo.vote_count = root.get("vote_count",0).asInt();;
 			minfo.runtime = root.get("runtime",0).asInt();;
-			if (minfo.media_type == "tv") {
+			if (minfo.media_type == "tv")
+			{
 				minfo.original_title = root.get("original_name","").asString();;
 				minfo.episodes = root.get("number_of_episodes",0).asInt();;
 				minfo.seasons = root.get("number_of_seasons",0).asInt();;
 				minfo.release_date = root.get("first_air_date","").asString();;
 				elements = root["episode_run_time"];
 				minfo.runtimes = elements[0].asString();
-				for (unsigned int i= 1; i<elements.size();i++) {
+				for (unsigned int i= 1; i<elements.size(); i++)
+				{
 					minfo.runtimes +=  + ", "+elements[i].asString();
 				}
 			}
 
 			elements = root["genres"];
 			minfo.genres = elements[0].get("name","").asString();
-			for (unsigned int i= 1; i<elements.size();i++) {
+			for (unsigned int i= 1; i<elements.size(); i++)
+			{
 				minfo.genres += ", " + elements[i].get("name","").asString();
 			}
 
 			elements = root["credits"]["cast"];
 			minfo.cast.clear();
-			for (unsigned int i= 0; i<elements.size() && i<10;i++) {
+			for (unsigned int i= 0; i<elements.size() && i<10; i++)
+			{
 				minfo.cast +=  "  "+elements[i].get("name","").asString()+" ("+elements[i].get("character","").asString() + ")\n";
 				//printf("test: %s (%s)\n",elements[i].get("character","").asString().c_str(),elements[i].get("name","").asString().c_str());
 			}
@@ -183,7 +194,8 @@ bool cTmdb::GetMovieDetails(std::string lang, bool second)
 
 			return true;
 		}
-	} else
+	}
+	else
 		return false;
 
 	return false;
@@ -218,7 +230,8 @@ void cTmdb::cleanup()
 
 void cTmdb::selectResult(Json::Value elements, int results, int &use_result)
 {
-	if(hintbox){
+	if(hintbox)
+	{
 		hintbox->hide();
 		delete hintbox;
 		hintbox = NULL;
