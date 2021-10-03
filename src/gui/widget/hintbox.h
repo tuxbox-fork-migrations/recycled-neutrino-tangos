@@ -363,10 +363,16 @@ optional disable/enable background
 class CHint : public CHintBox
 {
 	private:
-		void initHint(bool enable_bg)	{	paint_bg = enable_bg;
+		int delay;
+
+		void initHint(bool enable_bg)
+		{
+			paint_bg = enable_bg;
 											ccw_show_header = false;
 											ccw_show_footer = false;
-											cc_item_type.name = "wg.hint";}
+			cc_item_type.name = "wg.hint";
+			delay = 0;
+		}
 	public:
 		/**CHint Constructor
 		* @param[in]	Text
