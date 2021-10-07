@@ -101,7 +101,8 @@ int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		{
 			std::string entry = dirname;
 
-			CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBCHANNELS_XML_ENTER, &entry, 50);
+			//TODO: CKeyboardInput cuts entry to max displayable width, maybe implement multiline input ?
+			CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBCHANNELS_XML_ENTER, &entry, 255);
 			e->exec(this, "");
 			delete e;
 
@@ -162,7 +163,8 @@ int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 			tpl += "?mode=tv";
 		std::string entry = tpl;
 
-		CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBCHANNELS_XML_ENTER, &entry, 52);
+		//TODO: CKeyboardInput cuts entry to max displayable width, maybe implement multiline input ?
+		CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBCHANNELS_XML_ENTER, &entry, 255);
 		e->exec(this, "");
 		delete e;
 
@@ -177,12 +179,6 @@ int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 	{
 		changed = true;
 		return menu_return::RETURN_EXIT_ALL;
-	}
-	if (actionKey == "script_path")
-	{
-		const char *action_str = "ScriptPath";
-		chooserDir(g_settings.livestreamScriptPath, false, action_str);
-		return res;
 	}
 	if (actionKey == "webtv_menu")
 	{
@@ -216,29 +212,16 @@ int CWebChannelsSetup::Show()
 
 	int shortcut = 1;
 
-	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
-			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
-
-#if 0
-	bool _mode_webradio = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio) &&
-			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
-
-	CMenuForwarder *mf;
-
-	mf = new CMenuForwarder(LOCALE_LIVESTREAM_SCRIPTPATH, !_mode_webtv || !_mode_webradio, g_settings.livestreamScriptPath, this, "script_path", CRCInput::convertDigitToKey(shortcut++));
-	m->addItem(mf);
-#endif
-
 	CMenuOptionChooser *oc;
 
 	if (!webradio)
 	{
 		livestreamResolution = g_settings.livestreamResolution;
-		oc = new CMenuOptionChooser(LOCALE_LIVESTREAM_RESOLUTION, &livestreamResolution, LIVESTREAM_RESOLUTION_OPTIONS, LIVESTREAM_RESOLUTION_OPTION_COUNT, _mode_webtv, this, CRCInput::convertDigitToKey(shortcut++), "", true);
+		oc = new CMenuOptionChooser(LOCALE_LIVESTREAM_RESOLUTION, &livestreamResolution, LIVESTREAM_RESOLUTION_OPTIONS, LIVESTREAM_RESOLUTION_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++), "", true);
 		// FIXME oc->setHint(NEUTRINO_ICON_HINT_DEFAULT, NONEXISTANT_LOCALE);
 		m->addItem(oc);
 
-		m->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, webradio ? LOCALE_WEBRADIO_XML : LOCALE_WEBTV_XML));
+		m->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_WEBTV_XML));
 	}
 
 	// TODO: show/hide autoloaded content when switching g_settings.webradio/webtv_xml_auto
