@@ -5242,17 +5242,23 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 #endif
 
 	else if (actionKey=="savesettings") {
+		ShowHintS(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT, sigc::bind(sigc::mem_fun(*this, &CNeutrinoApp::saveSetup), NEUTRINO_SETTINGS_FILE), 1);
+
+#if 0
 		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT)); // UTF-8
 		hintBox.paint();
 
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 
+#endif
 		if(g_settings.cacheTXT) {
 			tuxtxt_init();
 		} else
 			tuxtxt_close();
 
+#if 0
 		hintBox.hide();
+#endif
 	}
 	else if (actionKey=="recording") {
 		setupRecordingDevice();
