@@ -5264,12 +5264,15 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		setupRecordingDevice();
 	}
 	else if (actionKey=="reloadplugins") {
+		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, sigc::mem_fun(g_Plugins, &CPlugins::loadPlugins),1);
+#if 0
 		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_GETPLUGINS_HINT));
 		hintBox.paint();
 
 		g_Plugins->loadPlugins();
 
 		hintBox.hide();
+#endif
 	}
 	else if (actionKey=="restarttuner") {
 		CHintBox * hintBox = new CHintBox(LOCALE_SERVICEMENU_RESTART_TUNER,
