@@ -883,7 +883,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		header->getClockObject()->enableForceSegmentPaint();
 	}
 
-	header->getClockObject()->setBlit(false);
 	header->setDimensionsAll(sx, sy, ox, toph);
 	header->setCaptionFont(font_title);
 	header->setCaption(epgData.title);
@@ -923,9 +922,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	showTimerEventBar(true, isCurrentEPG(channel_id), mp_info);
 
 	frameBuffer->blit();
-
-	if(header)
-		header->getClockObject()->setBlit();
 
 	if ( doLoop )
 	{

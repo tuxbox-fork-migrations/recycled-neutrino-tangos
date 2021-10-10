@@ -75,7 +75,7 @@ void CHourGlass::initImageFiles()
 	for(int i = 0; i <= MAX_IMAGES; i++)
 	{
 		filename = hg_image_basename;
-		filename += to_string(i);
+		filename += std::to_string(i);
 		path = frameBuffer->getIconPath(filename, "png");
 		if (file_exists(path))
 			hg_img_files.push_back(filename);

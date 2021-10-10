@@ -152,7 +152,7 @@ void CComponentsWindow::init(	const int& x_pos, const int& y_pos, const int& w, 
 	paint_bg	= true;
 	shadow		= shadow_mode;
 	col_frame	= color_frame;
-	col_body	= color_body;
+	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 
 	ccw_head 	= NULL;
@@ -221,11 +221,11 @@ void CComponentsWindow::initHeader()
 	//set header properties //TODO: assigned properties with internal header objekt have no effect!
 	if (ccw_head){
 		ccw_head->setWidth(width-2*fr_thickness);
-		ccw_head->setPos(0, 0);
+		ccw_head->setPos(0+fr_thickness, 0+fr_thickness);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption, ccw_align_mode, ccw_col_head_text);
 		ccw_head->setContextButton(ccw_buttons);
-		ccw_head->setCorner(corner_rad, CORNER_TOP);
+		ccw_head->setCorner(max(0, corner_rad-fr_thickness), CORNER_TOP);
 		ccw_head->setColorBody(ccw_col_head);
 		ccw_h_footer = ccw_head->getHeight();
 	}
@@ -240,9 +240,9 @@ void CComponentsWindow::initFooter()
 	if (ccw_footer){
 		if (ccw_h_footer)
 			ccw_footer->setHeight(ccw_h_footer);
-		ccw_footer->setPos(0, cc_yr + height - ccw_footer->getHeight()- 2*fr_thickness);
+		ccw_footer->setPos(0+fr_thickness, cc_yr+fr_thickness + height - ccw_footer->getHeight()- 2*fr_thickness);
 		ccw_footer->setWidth(width-2*fr_thickness);
-		ccw_footer->setCorner(corner_rad, CORNER_BOTTOM);
+		ccw_footer->setCorner(max(0, corner_rad-fr_thickness), CORNER_BOTTOM);
 		ccw_footer->setButtonFont(ccw_button_font);
 		ccw_footer->setColorBody(ccw_col_footer);
 		ccw_footer->doPaintBg(true);
@@ -264,7 +264,7 @@ void CComponentsWindow::initLeftSideBar()
 			h_header = ccw_head->getHeight();
 		int h_sbar = height - h_header - h_footer - 2*fr_thickness;
 		int w_sbar = ccw_w_sidebar;
-		ccw_left_sidebar->setDimensionsAll(0, CC_APPEND, w_sbar, h_sbar);
+		ccw_left_sidebar->setDimensionsAll(0+fr_thickness, CC_APPEND, w_sbar, h_sbar);
 		ccw_left_sidebar->doPaintBg(true);
 	}
 }
@@ -312,12 +312,12 @@ void CComponentsWindow::initBody()
 		if (ccw_right_sidebar)
 			w_r_sidebar = ccw_right_sidebar->getWidth();
 		int h_body = height - h_header - h_footer - 2*fr_thickness;
-		int x_body = w_l_sidebar;
+		int x_body = fr_thickness+w_l_sidebar;
 		int w_body = width-2*fr_thickness - w_l_sidebar - w_r_sidebar;
 
-		ccw_body->setDimensionsAll(x_body, h_header, w_body, h_body);
+		ccw_body->setDimensionsAll(x_body, h_header+fr_thickness, w_body, h_body);
 		ccw_body->doPaintBg(paint_bg);
-		ccw_body->setColorBody(col_body);
+		ccw_body->setColorBody(col_body_std);
 
 		//handle corner behavior
 		if (!ccw_show_header)
@@ -459,8 +459,6 @@ void CComponentsWindow::paint(const bool &do_save_bg)
 
 	//paint form contents
 	paintForm(do_save_bg);
-
-	frameBuffer->blit();
 }
 
 bool CComponentsWindow::setBodyBGImage(const std::string& image_path)
