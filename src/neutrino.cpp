@@ -3038,20 +3038,11 @@ TIMER_START();
 	bootstatus->showStatus(95);
 	bootstatus->paint();
 
-	// clean up startlogo
-	//if (startlogo){
-	//	sleep(3);
-	//	frameBuffer->stopFrame();
-	//}
-
 	if(loadSettingsErg) {
-		bootstatus->hide();
-		//hintBox->hide();
+		bootstatus->kill();
 		dprintf(DEBUG_INFO, "config file or options missing\n");
-		ShowHint(LOCALE_MESSAGEBOX_INFO, loadSettingsErg ==  1 ? g_Locale->getText(LOCALE_SETTINGS_NOCONFFILE)
-				: g_Locale->getText(LOCALE_SETTINGS_MISSINGOPTIONSCONFFILE));
 		configfile.setModifiedFlag(true);
-		saveSetup(NEUTRINO_SETTINGS_FILE);
+		ShowHintS(loadSettingsErg ==  1 ? LOCALE_SETTINGS_NOCONFFILE : LOCALE_SETTINGS_MISSINGOPTIONSCONFFILE, sigc::bind(sigc::mem_fun(*this, &CNeutrinoApp::saveSetup), NEUTRINO_SETTINGS_FILE), 1);
 	}
 
 	InitZapper();
@@ -3063,7 +3054,7 @@ TIMER_START();
 	hdd->exec(NULL, "");
 	delete hdd;
 
-	bootstatus->hide();
+	bootstatus->kill();
 	delete bootstatus;
 
 	cCA::GetInstance()->Ready(true);
@@ -5190,7 +5181,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	else if (actionKey=="restart")
 	{
 		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
-		ExitRun(CNeutrinoApp::EXIT_RESTART);
+		ShowHintS(LOCALE_MENU_HINT_SOFT_RESTART, sigc::bind(sigc::mem_fun(*this, &CNeutrinoApp::ExitRun), CNeutrinoApp::EXIT_RESTART), 1);
 		returnval = menu_return::RETURN_NONE;
 	}
 	else if (actionKey=="clock_switch")
