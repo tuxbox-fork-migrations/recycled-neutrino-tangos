@@ -51,7 +51,7 @@ void CComponentsDetailsLine::initVarDline(	const int& x_pos, const int& y_pos_to
 	x 		= x_pos;
 	y 		= y_pos_top;
 	col_shadow	= color_shadow;
-	col_body	= color_line;
+	col_body_std	= color_line;
 
 	shadow_w	= 1;
 
@@ -63,7 +63,7 @@ void CComponentsDetailsLine::initVarDline(	const int& x_pos, const int& y_pos_to
 	h_mark_down 	= h_mark_down_ - 2*shadow_w;
 
 	//CComponentsDetailsLine
-	dl_w 	= CFrameBuffer::getInstance()->scale2Res(2);
+	dl_w 	= CFrameBuffer::getInstance()->scale2Res(3);
 
 	cc_body_gradient_enable = false;
 }
@@ -90,9 +90,10 @@ CComponentsDetailsLine::~CComponentsDetailsLine()
 //paint details line with current parameters
 void CComponentsDetailsLine::paint(const bool &do_save_bg)
 {
-	if (!g_settings.show_menu_hints_line) return;
-
 	hide();
+
+	col_body = col_body_std;
+
 	if (hasChanges())
 		clearFbData();
 
@@ -139,6 +140,12 @@ void CComponentsDetailsLine::paint(const bool &do_save_bg)
 //so you can ensure correct applied system colors in relevant objects with unchanged instances.
 void CComponentsDetailsLine::syncSysColors()
 {
-	col_body 	= COL_FRAME_PLUS_0;
+	col_body_std 	= COL_FRAME_PLUS_0;
 	col_shadow 	= COL_SHADOW_PLUS_0;
+}
+
+void CComponentsDetailsLine::setColors(const fb_pixel_t &color_line, const fb_pixel_t &color_shadow)
+{
+	col_body_std = color_line;
+	col_shadow = color_shadow;
 }

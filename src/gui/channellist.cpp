@@ -581,12 +581,8 @@ bool CChannelList::updateSelection(int newpos)
 
 		liststart = (selected/listmaxshow)*listmaxshow;
 		if (oldliststart != liststart) {
-			if(!edit_state && header)
-				header->getClockObject()->setBlit(false);
 			paintBody();
 			showChannelLogo();
-			if(!edit_state && header)
-				header->getClockObject()->setBlit();
 			updateVfd();
 		} else {
 			paintItem(prev_selected - liststart);
@@ -2306,8 +2302,6 @@ void CChannelList::paint()
 	TIMER_STOP("CChannelList::paint() after paint head");
 	paintBody();
 	showChannelLogo();
-	if(!edit_state && header)
-			header->getClockObject()->setBlit();
 	TIMER_STOP("CChannelList::paint() after paint body");
 	updateVfd();
 	TIMER_STOP("CChannelList::paint() paint total");
@@ -2356,7 +2350,6 @@ void CChannelList::paintHead()
 
 			if (header->getClockObject()) {
 				header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
-				header->getClockObject()->setBlit(false);
 			}
 		}else{
 			if (header->getClockObject()){

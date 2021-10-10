@@ -78,9 +78,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		int 	cc_btn_alias;
 
 		///property: text color
-		fb_pixel_t cc_btn_text_col;
-		///property: text color for disabled button
-		fb_pixel_t cc_btn_text_disable_col;
+		fb_pixel_t cc_btn_text_col, cc_btn_text_disable_col, cc_btn_text_std_col, cc_btn_text_sel_col;
 		///object: text font
 		Font* cc_btn_font;
 		///object: dynamic font object handler
@@ -135,7 +133,12 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		virtual ~CComponentsButton(){};
 
 		///set text color
-		void setButtonTextColor(fb_pixel_t caption_color){cc_btn_text_col = caption_color;};
+		void setButtonTextColor(const fb_pixel_t &caption_color, const fb_pixel_t &sel_caption_color = COL_BUTTON_TEXT_ENABLED, const fb_pixel_t &dis_caption_color = COL_BUTTON_TEXT_DISABLED)
+					{
+						cc_btn_text_std_col 	= caption_color;
+						cc_btn_text_sel_col 	= sel_caption_color;
+						cc_btn_text_disable_col = dis_caption_color;
+					};
 
 		/**Member to modify background behavior of embeded caption object.
 		* @param[in]  mode
@@ -166,7 +169,9 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		///get caption, type as std::string
 		std::string getCaptionString(){return cc_btn_text;};
 		///get loacalized caption id, type = neutrino_locale_t
-		neutrino_locale_t getCaptionLocale(){return cc_btn_text_locale;};
+		neutrino_locale_t getCaptionLocale(){return cc_btn_text_locale;}
+		///get font type of caption, type as Font*
+		Font* getButtonFont(){return cc_btn_font;}
 
 		///property: set font for label caption, parameter as font object, value NULL causes usaage of dynamic font
 		void setButtonFont(Font* font){cc_btn_font = font; initCCBtnItems();};
@@ -186,8 +191,8 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		* 		use setButtonDirectKeys().
 		* @see		setButtonDirectKeys(), driver/rcinput.h for possible values
 		*/
-
 		void setButtonDirectKey(const neutrino_msg_t& msg){cc_directKeys.clear(); cc_directKeys.push_back(msg);}
+
 		/**
 		* Assigns a container with any event msg values to button object
 		* @param[in]	v_directKeys
@@ -224,6 +229,12 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		}
 
 		/**
+		 * Remove all defined direct keys.
+		 * @return	void
+		 */
+		void clearButtonDirectKeys(){cc_directKeys.clear();}
+
+		/**
 		 * Returns count of existant direct keys of cc_directKeys container.
 		 * @return	size_t
 		 * @see		getButtonDirectKey(), driver/rcinput.h for possible values
@@ -254,6 +265,12 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		void setButtonAlias(const int& alias_value){cc_btn_alias = alias_value;}
 		///returns an alias value from button object, see also cc_btn_alias
 		int getButtonAlias(){return cc_btn_alias;}
+
+		///assigns icon to button object, parameter1 as std::string
+		void setButtonIcon(const std::string& icon);
+
+		///signal on pressed key/button
+		sigc::signal<void> OnPressedButton;
 };
 
 //! Sub class of CComponentsButton.
