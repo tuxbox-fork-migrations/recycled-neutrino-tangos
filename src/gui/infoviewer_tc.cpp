@@ -296,11 +296,15 @@ void CInfoViewer::showRecords()
 	if (!(access(INFOFILE, F_OK) == 0))
 		box_posY += g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2 + OFFSET_SHADOW;
 
-	if (!recordsblink)
-		recordsblink = new CComponentsTimer();
-
 	if (crm->RecordingStatus())
 	{
+		if (!recordsblink)
+		{
+			recordsblink = new CComponentsTimer();
+			recordsblink->setThreadName(__func__);
+			recordsblink->startTimer();
+		}
+
 		if (recordsbox)
 		{
 			recordsbox->kill();
@@ -337,11 +341,10 @@ void CInfoViewer::showRecords()
 			iconf->doPaintBg(true);
 			iconf->SetTransparent(CFrameBuffer::TM_BLACK);
 			images.push_back(iconf);
-			recline->setHeight(iconf->getHeight());
 
 			std::string records_msg = inst->GetEpgTitle();
 
-			rec_name = new CComponentsText(iconf->getWidth()+2*OFFSET_INNER_MID, 0, 0, 0, records_msg, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
+			rec_name = new CComponentsText(recline, iconf->getWidth()+2*OFFSET_INNER_MID, 0, 0, 0, records_msg, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
 			rec_name->doPaintBg(false);
 			rec_name->setTextColor(COL_INFOBAR_TEXT);
 
@@ -349,7 +352,8 @@ void CInfoViewer::showRecords()
 			recline->setWidth(OFFSET_INNER_MIN+iconf->getWidth()+OFFSET_INNER_MID+rec_name->getWidth()+OFFSET_INNER_MID);
 			w_recbox = (std::max(recline->getWidth(), recordsbox->getWidth()));
 			recordsbox->setWidth(w_recbox);
-			recline->addCCItem(rec_name);
+			iconf->setYPos((recline->getHeight()-iconf->getHeight())/2);
+			rec_name->setYPos((recline->getHeight()-rec_name->getHeight())/2);
 
 			y_recline += recline->getHeight() + OFFSET_SHADOW;
 		}
