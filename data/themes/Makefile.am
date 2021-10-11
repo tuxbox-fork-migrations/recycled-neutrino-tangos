@@ -3,7 +3,8 @@ SUBDIRS = \
 	Grey-Blue/icons/buttons \
 	Neutrino-3.0/icons/buttons \
 	Olive-3.0/icons/buttons \
-	TangoCash/icons/buttons
+	TangoCash/icons/buttons \
+	TangoCash/icons/hourglass
 
 installdir = $(THEMESDIR)
 

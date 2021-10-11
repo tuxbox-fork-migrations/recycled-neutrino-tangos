@@ -448,6 +448,7 @@ data/themes/Olive-3.0/icons/buttons/Makefile
 data/themes/TangoCash/Makefile
 data/themes/TangoCash/icons/Makefile
 data/themes/TangoCash/icons/buttons/Makefile
+data/themes/TangoCash/icons/hourglass/Makefile
 data/webradio/Makefile
 data/webtv/Makefile
 data/y-web/Makefile
