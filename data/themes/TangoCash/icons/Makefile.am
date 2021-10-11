@@ -1,1 +1,1 @@
-subdir = buttons
+subdir = buttons hourglass
