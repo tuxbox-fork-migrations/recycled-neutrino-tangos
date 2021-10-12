@@ -57,7 +57,8 @@
 #include <driver/file.h>
 #include <driver/fb_window.h>
 #include <gui/widget/progresswindow.h>
-#include <gui/imdb.h>
+#include <gui/mdb-imdb.h>
+#include <gui/mdb-tmdb.h>
 
 #define MAX_NUMBER_OF_BOOKMARK_ITEMS MI_MOVIE_BOOK_USER_MAX // we just use the same size as used in Movie info (MAX_NUMBER_OF_BOOKMARK_ITEMS is used for the number of menu items)
 #define MOVIEBROWSER_SETTINGS_FILE          CONFIGDIR "/moviebrowser.conf"
