@@ -42,7 +42,7 @@
 
 #include <global.h>
 
-#include "tmdb.h"
+#include "mdb-tmdb.h"
 
 cTmdb* cTmdb::getInstance()
 {

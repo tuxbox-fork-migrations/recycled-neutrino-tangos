@@ -37,7 +37,7 @@
 #include <unistd.h>
 #include <json/json.h>
 
-#include "imdb.h"
+#include "mdb-imdb.h"
 
 
 CIMDB::CIMDB()
