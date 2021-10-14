@@ -2386,7 +2386,11 @@ bool CZapit::StopPlayBack(bool send_pmt, bool __attribute__ ((unused)) blank)
 
 	/* hack. if standby, dont blank video -> for paused timeshift */
 	//videoDecoder->Stop(standby ? false : blank);
+
+#if ENABLE_AIT
+	ait->Stop();
 #endif
+
 #ifdef USE_VBI
 	videoDecoder->StopVBI();
 #endif
