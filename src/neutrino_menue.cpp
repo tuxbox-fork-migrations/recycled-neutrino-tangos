@@ -282,6 +282,15 @@ void CNeutrinoApp::InitMenuMain()
 	}
 #endif
 
+#if ENABLE_PIP && ENABLE_QUADPIP
+	// temp, only for testing, changed later
+	if (g_info.hw_caps->pip_devs >= 1) {
+		CMenuForwarder *quadpip = new CMenuForwarder(LOCALE_QUADPIP, true, NULL, new CQuadPiPSetup(), NULL, CRCInput::RC_nokey);
+		quadpip->setHint(NEUTRINO_ICON_HINT_QUADPIP, LOCALE_MENU_HINT_QUADPIP);
+		personalize.addItem(MENU_MAIN, quadpip/*, &g_settings.personalize[SNeutrinoSettings::P_MAIN_QUADPIP]*/);
+	}
+#endif
+
 #ifdef ENABLE_TESTING
 	personalize.addItem(MENU_MAIN, new CMenuForwarder("Test menu", true, NULL, new CTestMenu()), NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 #endif
