@@ -793,19 +793,19 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	else
 	{
 		if(g_settings.timeshiftdir != g_settings.network_nfs_recordingdir)
-			timeshiftDir = g_settings.timeshiftdir;
+			timeshiftdir = g_settings.timeshiftdir;
 		else
-			timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
+			timeshiftdir = g_settings.network_nfs_recordingdir + "/.timeshift";
 	}
 	dprintf(DEBUG_NORMAL, "recording dir: %s\n", g_settings.network_nfs_recordingdir.c_str());
-	dprintf(DEBUG_NORMAL, "timeshift dir: %s\n", timeshiftDir.c_str());
+	dprintf(DEBUG_NORMAL, "timeshift dir: %s\n", timeshiftdir.c_str());
 
-	CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir.c_str());
+	CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftdir.c_str());
 
 	// remove old timeshift recordings
 	if(g_settings.timeshift_delete) {
 		if(g_settings.timeshiftdir == g_settings.network_nfs_recordingdir) {
-			DIR *d = opendir(timeshiftDir.c_str());
+			DIR *d = opendir(timeshiftdir.c_str());
 			if (d)
 			{
 				while (struct dirent *e = readdir(d))
@@ -813,9 +813,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 					std::string filename = e->d_name;
 					if ((filename.find("_temp.ts") == filename.size() - 8) || (filename.find("_temp.xml") == filename.size() - 9))
 					{
-						std::string timeshiftDir_filename= timeshiftDir;
-						timeshiftDir_filename+= "/" + filename;
-						remove(timeshiftDir_filename.c_str());
+						std::string timeshiftdir_filename= timeshiftdir;
+						timeshiftdir_filename+= "/" + filename;
+						remove(timeshiftdir_filename.c_str());
 					}
 				}
 				closedir(d);
