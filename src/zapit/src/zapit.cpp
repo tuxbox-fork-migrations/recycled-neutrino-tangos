@@ -155,6 +155,9 @@ CZapit::CZapit()
 
 CZapit::~CZapit()
 {
+#if ENABLE_AIT
+	delete ait;
+#endif
 	Stop();
 }
 
@@ -673,7 +676,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	if (update_pmt)
 		pmt_set_update_filter(current_channel, &pmt_update_fd);
 
-#ifdef ENABLE_AIT
+#if ENABLE_AIT
 	ait->setDemux(current_channel->getRecordDemux());
 	ait->Parse(current_channel);
 #endif
@@ -687,9 +690,11 @@ bool CZapit::StopPip(int pip)
 	if (!g_info.hw_caps->can_pip)
 		return false;
 
+#if !HAVE_GENERIC_HARDWARE
 	if (CNeutrinoApp::getInstance()->avinput_pip) {
 		CNeutrinoApp::getInstance()->StopAVInputPiP();
 	}
+#endif
 
 	if (pip_channel_id[pip]) {
 		INFO("[pip %d] stop %llx", pip, pip_channel_id[pip]);
