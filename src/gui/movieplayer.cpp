@@ -2863,6 +2863,10 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 					cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 			}
 		}
+	} else if (msg == NeutrinoMessages::SHOW_EPG && p_movie_info) {
+		disableOsdElements(NO_MUTE);
+		g_EpgData->show_mp(p_movie_info, position, duration);
+		enableOsdElements(NO_MUTE);
 	}
 	return;
 }
@@ -3346,6 +3350,15 @@ bool CMoviePlayerGui::setAPID(unsigned int i) {
 		currentac3 = ac3flags[i];
 		playback->SetAPid(currentapid, currentac3);
 		CZapit::getInstance()->SetVolumePercent((ac3flags[i] == 0) ? g_settings.audio_volume_percent_pcm : g_settings.audio_volume_percent_ac3 );
+
+		if (p_movie_info)
+			for (unsigned int a = 0; a < p_movie_info->audioPids.size(); a++)
+			{
+				if (p_movie_info->audioPids[a].AudioPid == currentapid)
+					p_movie_info->audioPids[a].selected = 1;
+				else
+					p_movie_info->audioPids[a].selected = 0;
+			}
 	}
 	return (i < numpida);
 }
