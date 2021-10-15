@@ -283,7 +283,9 @@ CNeutrinoApp::CNeutrinoApp()
 	channelList_allowed	= true;
 	channelList_painted	= false;
 #ifdef ENABLE_PIP
+#if !HAVE_GENERIC_HARDWARE
 	avinput_pip		= false;
+#endif
 #endif
 }
 
@@ -782,11 +784,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.timeshift_auto = configfile.getInt32( "timeshift_auto", 0 );
 	g_settings.timeshift_delete = configfile.getInt32( "timeshift_delete", 1 );
 
-	std::string timeshiftDir;
-	if(g_settings.timeshiftdir.empty()) {
-		timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
-		safe_mkdir(timeshiftDir.c_str());
-	} else {
+	std::string timeshiftdir;
+	if (g_settings.timeshiftdir.empty())
+	{
+		timeshiftdir = g_settings.network_nfs_recordingdir + "/.timeshift";
+		safe_mkdir(timeshiftdir.c_str());
+	}
+	else
+	{
 		if(g_settings.timeshiftdir != g_settings.network_nfs_recordingdir)
 			timeshiftDir = g_settings.timeshiftdir;
 		else
@@ -3700,7 +3705,8 @@ bool CNeutrinoApp::wakeupFromStandby(void)
 		CStreamManager::getInstance()->StreamStatus();
 
 	if ((mode == NeutrinoModes::mode_standby) && !alive) {
-		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
+		if (cpuFreq)
+			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 #if !HAVE_SPARK_HARDWARE
 		if(g_settings.ci_standby_reset) {
 			g_CamHandler->exec(NULL, "ca_ci_reset0");
@@ -3729,7 +3735,8 @@ void CNeutrinoApp::standbyToStandby(void)
 		}
 		g_Zapit->setStandby(true);
 		g_Sectionsd->setPauseScanning(true);
-		cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
+		if (cpuFreq)
+			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 #if defined (BOXMODEL_IPBOX9900) || defined (BOXMODEL_IPBOX99)
 		system("echo 0 > /proc/stb/misc/fan");
 #endif
@@ -4567,11 +4574,10 @@ void CNeutrinoApp::ExitRun(int exit_code)
 		SDT_ReloadChannels();
 
 	dprintf(DEBUG_INFO, "exit\n");
+	OnShutDown();
 
 	//cleanup progress bar cache
 	CProgressBarCache::pbcClear();
-
-	OnShutDown();
 
 	StopSubtitles();
 	stopPlayBack();
@@ -4816,6 +4822,7 @@ void CNeutrinoApp::AVInputMode(bool bOnOff)
 {
 	//printf( (bOnOff) ? "mode: avinput on\n" : "mode: avinput off\n" );
 
+#if !HAVE_GENERIC_HARDWARE
 	if (bOnOff) {
 		// AVInput AN
 		frameBuffer->useBackground(false);
@@ -4851,6 +4858,9 @@ void CNeutrinoApp::AVInputMode(bool bOnOff)
 		cGLCD::AVInputMode(false);
 #endif
 	}
+#else
+	(void)bOnOff; // avoid compiler warning
+#endif // !HAVE_GENERIC_HARDWARE
 }
 
 void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
@@ -5124,6 +5134,7 @@ void CNeutrinoApp::switchTvRadioMode(const int prev_mode)
 }
 
 #ifdef ENABLE_PIP
+#if !HAVE_GENERIC_HARDWARE
 void CNeutrinoApp::StartAVInputPiP() {
 	if (!g_info.hw_caps->can_pip)
 		return;
@@ -5155,6 +5166,7 @@ void CNeutrinoApp::StopAVInputPiP() {
 	pipVideoDecoder[0]->close_AVInput_Device();
 	avinput_pip = false;
 }
+#endif
 #endif
 
 /**************************************************************************************
@@ -5189,15 +5201,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		InfoClock->switchClockOnOff();
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
-	else if (actionKey=="tonbug")
-	{
-		CZapitChannel * chan = CZapit::getInstance()->GetCurrentChannel();
-		if (chan)
-		{
-			CZapit::getInstance()->ChangeAudioPid(chan->getAudioChannelIndex());
-			returnval = menu_return::RETURN_EXIT_ALL;
-		}
-	}
 	else if (actionKey=="tv_radio_switch")//used in mainmenu
 	{
 		switchTvRadioMode();
@@ -5219,6 +5222,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 
 #ifdef ENABLE_PIP
+#if !HAVE_GENERIC_HARDWARE
 	else if (actionKey=="avinput_pip") {
 		if (CZapit::getInstance()->GetPipChannelID())
 			CZapit::getInstance()->StopPip();
@@ -5230,6 +5234,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
+#endif
 #endif
 
 	else if (actionKey=="savesettings") {
