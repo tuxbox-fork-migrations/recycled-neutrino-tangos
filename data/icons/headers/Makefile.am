@@ -10,7 +10,6 @@ install_DATA = \
 	games.png \
 	icon_blue.png \
 	icon_green.png \
-	icon_movieplayer.png \
 	icon_red.png \
 	icon_yellow.png \
 	information.png \
@@ -19,6 +18,7 @@ install_DATA = \
 	lcd.png \
 	lock.png \
 	mainmenue.png \
+	movieplayer.png \
 	mp3.png \
 	multimedia.png \
 	network.png \

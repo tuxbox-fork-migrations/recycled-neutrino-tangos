@@ -105,7 +105,7 @@
 #define NEUTRINO_ICON_LCD		"lcd"
 #define NEUTRINO_ICON_LOCK		"lock"
 #define NEUTRINO_ICON_MAINMENU		"mainmenue"
-#define NEUTRINO_ICON_MOVIEPLAYER	"icon_movieplayer"
+#define NEUTRINO_ICON_MOVIEPLAYER	"movieplayer"
 #define NEUTRINO_ICON_MULTIMEDIA	"multimedia"
 #define NEUTRINO_ICON_NETWORK		"network"
 #define NEUTRINO_ICON_PERSONALIZE	"personalize"
@@ -122,7 +122,7 @@
 #define NEUTRINO_ICON_UPDATE_AVAIL_GREY		"update_avail_gray"
 #define NEUTRINO_ICON_UPNP		"upnp"
 #define NEUTRINO_ICON_VIDEO		"video"
-#define NEUTRINO_ICON_YTPLAY		"icon_ytplay"
+#define NEUTRINO_ICON_YTPLAY		"ytplay"
 
 /* volumebar */
 #define NEUTRINO_ICON_VOLUME		"volume"
