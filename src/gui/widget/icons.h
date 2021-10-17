@@ -161,6 +161,7 @@
 
 /* media */
 #define NEUTRINO_ICON_HINT_APLAY	"hint_aplay"
+#define NEUTRINO_ICON_HINT_QUADPIP	"hint_quadpip"
 #define NEUTRINO_ICON_HINT_INET_RADIO	"hint_inetradio"
 #define NEUTRINO_ICON_HINT_MOVIE	"hint_movie"
 #define NEUTRINO_ICON_HINT_PICVIEW	"hint_picview"
