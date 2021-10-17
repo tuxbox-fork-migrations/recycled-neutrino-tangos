@@ -117,6 +117,11 @@ libneutrino_gui_a_SOURCES += \
 	infoviewer_bb.cpp
 endif
 
+if ENABLE_QUADPIP
+libneutrino_gui_a_SOURCES += \
+	quadpip_setup.cpp
+endif
+
 if BOXTYPE_SPARK
 libneutrino_gui_a_SOURCES += \
 	3dsetup.cpp \
