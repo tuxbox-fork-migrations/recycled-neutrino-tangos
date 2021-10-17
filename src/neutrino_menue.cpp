@@ -77,6 +77,9 @@
 #ifdef ENABLE_TANGOS
 #include "gui/weather_setup.h"
 #endif
+#if ENABLE_QUADPIP
+#include <gui/quadpip_setup.h>
+#endif
 #ifdef ENABLE_TESTING
 #include "gui/test_menu.h"
 #endif
