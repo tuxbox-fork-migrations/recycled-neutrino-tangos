@@ -2043,9 +2043,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 #if ENABLE_QUADPIP
 	for (unsigned int i = 0; i < 4; i++) {
-		std::string qp = "quadpip_channel_window_" + to_string(i);
+		std::string qp = "quadpip_channel_window_" + std::to_string(i);
 		configfile.setString(qp, g_settings.quadpip_channel_window[i]);
-		qp = "quadpip_channel_id_window_" + to_string(i);
+		qp = "quadpip_channel_id_window_" + std::to_string(i);
 		configfile.setInt64(qp, g_settings.quadpip_channel_id_window[i]);
 	}
 #endif
