@@ -1400,7 +1400,7 @@ void CBouquetManager::readEPGMapping()
 		EpgXMLMapping.clear();
 
 	std::list<std::string> epgmap_dirs;
-	epgmap_dirs.push_back(CONFIGDIR "/zapit");
+	epgmap_dirs.push_back(ZAPITDIR);
 	epgmap_dirs.push_back(WEBTVDIR);
 	epgmap_dirs.push_back(WEBTVDIR_VAR);
 

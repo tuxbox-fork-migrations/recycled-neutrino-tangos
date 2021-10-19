@@ -1,4 +1,4 @@
-installdir = $(CONFIGDIR)/zapit
+installdir = $(ZAPITDIR)
 
 install_DATA = \
 	myservices.xml \
@@ -8,4 +8,4 @@ install_DATA = \
 	ubouquets.xml
 
 #install-data-hook:
-#	$(INSTALL) -d $(DESTDIR)/$(CONFIGDIR)/zapit
+#	$(INSTALL) -d $(DESTDIR)/$(ZAPITDIR)
