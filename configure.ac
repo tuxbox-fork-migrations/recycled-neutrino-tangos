@@ -312,10 +312,14 @@ if test "$enable_pip" = "yes"; then
 	AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])
 fi
 
+if test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuduo4kse" -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k"; then
+
 AC_ARG_ENABLE(quadpip,
 	AS_HELP_STRING([--enable-quadpip], [enable quad picture in picture support @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_QUADPIP, 1, [enable quad picture in picture support]))
 AM_CONDITIONAL(ENABLE_QUADPIP, test "$enable_quadpip" = "yes")
+
+fi
 
 AC_ARG_ENABLE(testing,
 	AS_HELP_STRING([--enable-testing], [enable development code @<:@default=no@:>@]),
