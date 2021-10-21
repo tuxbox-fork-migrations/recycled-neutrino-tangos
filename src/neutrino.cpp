@@ -2880,6 +2880,9 @@ TIMER_START();
 
 	g_RCInput = new CRCInput(timer_wakeup);
 
+	// reset videodecoder to fullscreen
+	videoDecoder->Pig(-1, -1, -1, -1);
+
 	bootstatus->showStatus(50);
 	bootstatus->paint();
 
