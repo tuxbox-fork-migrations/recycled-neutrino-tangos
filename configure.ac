@@ -312,15 +312,6 @@ if test "$enable_pip" = "yes"; then
 	AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])
 fi
 
-case "$BOXMODEL" in
-	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse)
-		AC_ARG_ENABLE(quadpip,
-		AS_HELP_STRING([--enable-quadpip], [enable quad picture in picture support @<:@default=no@:>@]),
-		AC_DEFINE(ENABLE_QUADPIP, 1, [enable quad picture in picture support]))
-	;;
-esac
-AM_CONDITIONAL(ENABLE_QUADPIP, test "$enable_quadpip" = "yes")
-
 AC_ARG_ENABLE(testing,
 	AS_HELP_STRING([--enable-testing], [enable development code @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_TESTING, 1, [enable development code]))
