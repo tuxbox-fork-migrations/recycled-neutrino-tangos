@@ -755,6 +755,14 @@ case "$BOXMODEL" in
 	;;
 esac
 
+# vuplus enable quadpip
+AM_CONDITIONAL(ENABLE_QUADPIP, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuuno4kse"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuuno4k" -o "$BOXMODEL" = "vuuno4kse")
+case "$BOXMODEL" in
+	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse)
+		AC_DEFINE(ENABLE_QUADPIP, 1, [enable quad picture in picture support])
+	;;
+esac
+
 # all vuplus BOXMODELs
 case "$BOXMODEL" in
 	vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|vuduo|vuduo2)
