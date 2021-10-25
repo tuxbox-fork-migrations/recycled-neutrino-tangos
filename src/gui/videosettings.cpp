@@ -624,7 +624,7 @@ int CVideoSettings::showVideoSetup()
 	return res;
 }
 
-void CVideoSettings::setVideoSettings()
+void CVideoSettings::initVideoSettings()
 {
 	printf("[neutrino VideoSettings] %s init video settings...\n", __FUNCTION__);
 #if 0
