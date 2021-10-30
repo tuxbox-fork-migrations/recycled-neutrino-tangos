@@ -29,10 +29,6 @@
 #include <OpenThreads/Condition>
 #include "fb_generic.h"
 
-#if HAVE_SPARK_HARDWARE
-#define PARTIAL_BLIT 1
-#endif
-
 class CFbAccel
 	: public CFrameBuffer
 {

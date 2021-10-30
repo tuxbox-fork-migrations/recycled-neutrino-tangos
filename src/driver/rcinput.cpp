@@ -1675,11 +1675,7 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 			case RC_timeshift:
 				return "timeshift";
 			case RC_mode:
-#if HAVE_SPARK_HARDWARE
-				return "v.format";
-#else
 				return "mode";
-#endif
 			case RC_record:
 				return "record";
 			case RC_pause:
@@ -1741,11 +1737,7 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 			case RC_prog3:
 				return "prog3";
 			case RC_aux:
-#if HAVE_SPARK_HARDWARE
-				return "tv/sat";
-#else
 				return "aux";
-#endif
 			case RC_prog4:
 				return "prog4";
 			case RC_sub:

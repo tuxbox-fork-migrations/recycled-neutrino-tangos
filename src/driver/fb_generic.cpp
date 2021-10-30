@@ -126,9 +126,6 @@ CFrameBuffer* CFrameBuffer::getInstance()
 	static CFrameBuffer* frameBuffer = NULL;
 
 	if (!frameBuffer) {
-#if HAVE_SPARK_HARDWARE
-		frameBuffer = new CFbAccelSTi();
-#endif
 #if HAVE_COOL_HARDWARE
 #ifdef BOXMODEL_CS_HD1
 		frameBuffer = new CFbAccelCSHD1();
