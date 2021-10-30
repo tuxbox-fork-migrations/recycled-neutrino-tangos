@@ -785,62 +785,6 @@ bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
 	setSpeed(speed);
 	return false;
 }
-#elif HAVE_DUCKBOX_HARDWARE
-void CFanControlNotifier::setSpeed(unsigned int speed)
-{
-	int cfd;
-
-	printf("FAN Speed %d\n", speed);
-#if defined (BOXMODEL_IPBOX9900) || defined (BOXMODEL_IPBOX99)
-	cfd = open("/proc/stb/misc/fan", O_WRONLY);
-	if(cfd < 0) {
-		perror("Cannot open /proc/stb/misc/fan");
-#else
-	cfd = open("/proc/stb/fan/fan_ctrl", O_WRONLY);
-	if(cfd < 0) {
-		perror("Cannot open /proc/stb/fan/fan_ctrl");
-#endif
-		return;
-	}
-
-	switch (speed)
-
-#if defined (BOXMODEL_IPBOX9900) || defined (BOXMODEL_IPBOX99)
-	{
-	case 0:
-		write(cfd,"0",1);
-		break;
-	case 1:
-		write(cfd,"1",1);
-		break;
-	}
-#else
-	{
-	case 1:
-		write(cfd,"115",3);
-		break;
-	case 2:
-		write(cfd,"130",3);
-		break;
-	case 3:
-		write(cfd,"145",3);
-		break;
-	case 4:
-		write(cfd,"160",3);
-		break;
-	case 5:
-		write(cfd,"170",3);
-	}
-#endif
-	close(cfd);
-}
-
-bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
-{
-	unsigned int speed = * (int *) data;
-	setSpeed(speed);
-	return false;
-}
 #else
 void CFanControlNotifier::setSpeed(unsigned int)
 {

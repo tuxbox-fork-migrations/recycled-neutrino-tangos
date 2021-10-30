@@ -3763,9 +3763,6 @@ void CNeutrinoApp::standbyToStandby(void)
 		g_Sectionsd->setPauseScanning(true);
 		if (cpuFreq)
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
-#if defined (BOXMODEL_IPBOX9900) || defined (BOXMODEL_IPBOX99)
-		system("echo 0 > /proc/stb/misc/fan");
-#endif
 	}
 }
 
