@@ -1260,11 +1260,6 @@ void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 
 	if(inst->Timeshift())
 		autoshift = false;
-#ifdef HAVE_SPARK_HARDWARE
-		CVFD::getInstance()->SetIcons(SPARK_TIMESHIFT, false);
-#elif defined(BOXMODEL_FORTIS_HDBOX)
-		CVFD::getInstance()->ShowIcon(FP_ICON_TIMESHIFT, false);
-#endif
 
 	delete inst;
 }
@@ -1410,11 +1405,6 @@ void CRecordManager::StartTimeshift()
 		std::string tmode = "timeshift_pause"; // already recording, pause
 		bool res = true;
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-#ifdef HAVE_SPARK_HARDWARE
-		CVFD::getInstance()->SetIcons(SPARK_TIMESHIFT, true);
-#elif defined(BOXMODEL_FORTIS_HDBOX)
-		CVFD::getInstance()->ShowIcon(FP_ICON_TIMESHIFT, true);
-#endif
 // 		bool tstarted = false;
 		/* start temporary timeshift if enabled and not running, but dont start second record */
 		if (g_settings.timeshift_temp) {

@@ -2582,11 +2582,7 @@ void CInfoViewer::showIcon_Resolution()
 	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		return;
 	const char *icon_name = NULL;
-#if BOXMODEL_UFS910
-	if (!chanready)
-#else
 	if (!chanready || videoDecoder->getBlank())
-#endif
 	{
 		icon_name = NEUTRINO_ICON_RESOLUTION_000;
 	}
