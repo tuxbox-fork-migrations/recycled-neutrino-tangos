@@ -301,9 +301,6 @@ struct SNeutrinoSettings
 	int analog_mode2;
 	int video_43mode;
 
-#if HAVE_SH4_HARDWARE
-	uint32_t video_mixer_color;
-#endif
 #if HAVE_ARM_HARDWARE
 	int hdmi_mode;
 	int psi_contrast;
@@ -365,11 +362,6 @@ struct SNeutrinoSettings
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
-#if HAVE_SH4_HARDWARE
-	int audio_mixer_volume_analog;
-	int audio_mixer_volume_spdif;
-	int audio_mixer_volume_hdmi;
-#endif
 	int auto_lang;
 	int auto_subs;
 	int srs_enable;
@@ -393,9 +385,6 @@ struct SNeutrinoSettings
 	int hdmi_cec_view_on;
 	int hdmi_cec_standby;
 	int hdmi_cec_volume;
-#if HAVE_SH4_HARDWARE
-	int hdmi_cec_broadcast;
-#endif
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int enabled_auto_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int cpufreq;
@@ -825,9 +814,6 @@ struct SNeutrinoSettings
 	int repeat_genericblocker;
 #define LONGKEYPRESS_OFF 499
 	int longkeypress_duration;
-#if HAVE_SH4_HARDWARE
-	int accept_other_remotes;
-#endif
 	int remote_control_hardware;
 	int audiochannel_up_down_enable;
 
@@ -853,12 +839,6 @@ struct SNeutrinoSettings
 	int screen_EndX_b_1;
 	int screen_EndY_b_1;
 	int osd_resolution;
-#if HAVE_SH4_HARDWARE
-	int screen_StartX_int;
-	int screen_StartY_int;
-	int screen_EndX_int;
-	int screen_EndY_int;
-#endif
 	int screen_preset;
 	int screen_width;
 	int screen_height;
@@ -1005,9 +985,6 @@ struct SNeutrinoSettings
 	int lcd_info_line;
 	std::string lcd_setting_dim_time;
 	int lcd_setting_dim_brightness;
-#if HAVE_SH4_HARDWARE
-	int lcd_vfd_scroll;
-#endif
 	int led_tv_mode;
 	int led_standby_mode;
 	int led_deep_mode;

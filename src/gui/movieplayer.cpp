@@ -88,9 +88,6 @@ bool glcd_play = false;
 #include <gui/widget/stringinput_ext.h>
 #include <gui/screensetup.h>
 #include <gui/widget/msgbox.h>
-#if HAVE_SH4_HARDWARE
-#include <libavcodec/avcodec.h>
-#endif
 
 #include <system/stacktrace.h>
 
@@ -1371,21 +1368,9 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		duration = p_movie_info->length * 60 * 1000;
 		int percent = CZapit::getInstance()->GetPidVolume(p_movie_info->channelId, currentapid, currentac3 == 1);
 		CZapit::getInstance()->SetVolumePercent(percent);
-#if HAVE_SH4_HARDWARE
-		CScreenSetup cSS;
-		cSS.showBorder(p_movie_info->epgId);
-#endif
-	} else {
-#if HAVE_SH4_HARDWARE
-		CScreenSetup cSS;
-		cSS.showBorder(0);
-#endif
 	}
 
 	file_prozent = 0;
-#if HAVE_SH4_HARDWARE
-	old3dmode = frameBuffer->get3DMode();
-#endif
 #ifdef ENABLE_GRAPHLCD
 	cGLCD::MirrorOSD(false);
 	if (p_movie_info)
@@ -1403,9 +1388,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 
 	if (filefilter_audio.matchFilter(file_name))
 	{
-#if !HAVE_SH4_HARDWARE
 		frameBuffer->showFrame("mp3.jpg");
-#endif
 		is_audio_playing = true;
 	}
 	else
@@ -1454,11 +1437,6 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		repeat_mode = (repeat_mode_enum) g_settings.movieplayer_repeat_on;
 		playstate = CMoviePlayerGui::PLAY;
 		CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
-#if HAVE_SH4_HARDWARE
-		CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-		CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-		CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-#endif
 		if (timeshift != TSHIFT_MODE_OFF) {
 			startposition = -1;
 			int i;
@@ -1487,12 +1465,6 @@ bool CMoviePlayerGui::PlayFileStart(void)
 				{
 					speed = 0;
 					playstate = CMoviePlayerGui::PAUSE;
-#if HAVE_SH4_HARDWARE
-					CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
-					CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-					CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-					CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, true);
-#endif
 				}
 				if (timeshift == TSHIFT_MODE_ON)
 					startposition = 0;
@@ -1764,9 +1736,6 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			if (timeshift == TSHIFT_MODE_OFF || timeshift_stopped)
 			{
 				playstate = CMoviePlayerGui::STOPPED;
-#if HAVE_SH4_HARDWARE
-				playback->RequestAbort();
-#endif
 				keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
 				ClearQueue();
 			}
@@ -1836,19 +1805,12 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				repeat_mode = REPEAT_OFF;
 			g_settings.movieplayer_repeat_on = repeat_mode;
 			callInfoViewer();
-#if HAVE_SH4_HARDWARE
-		} else if (msg == (neutrino_msg_t) g_settings.mpkey_next3dmode) {
-			frameBuffer->set3DMode((CFrameBuffer::Mode3D)(((frameBuffer->get3DMode()) + 1) % CFrameBuffer::Mode3D_SIZE));
-#endif
 		} else if (msg == (neutrino_msg_t) g_settings.key_next43mode) {
 			g_videoSettings->next43Mode();
 		} else if (msg == (neutrino_msg_t) g_settings.key_switchformat) {
 			g_videoSettings->SwitchFormat();
 		} else if (msg == (neutrino_msg_t) CRCInput::RC_home) {
 			playstate = CMoviePlayerGui::STOPPED;
-#if HAVE_SH4_HARDWARE
-			playback->RequestAbort();
-#endif
 			keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP;
 			ClearQueue();
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play && handle_key_play) {
@@ -1859,12 +1821,6 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			FileTimeOSD->setMpTimeForced(false);
 			if (playstate > CMoviePlayerGui::PLAY) {
 				playstate = CMoviePlayerGui::PLAY;
-#if HAVE_SH4_HARDWARE
-				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-#endif
 				speed = 1;
 				playback->SetSpeed(speed);
 				updateLcd();
@@ -1904,23 +1860,11 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			if (playstate == CMoviePlayerGui::PAUSE) {
 				playstate = CMoviePlayerGui::PLAY;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
-#if HAVE_SH4_HARDWARE
-				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-#endif
 				speed = 1;
 				playback->SetSpeed(speed);
 			} else {
 				playstate = CMoviePlayerGui::PAUSE;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, true);
-#if HAVE_SH4_HARDWARE
-				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-#endif
 				speed = 0;
 				playback->SetSpeed(speed);
 			}
@@ -1961,20 +1905,8 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			bool setSpeed = false;
 			if (msg == (neutrino_msg_t) g_settings.mpkey_rewind) {
 				newspeed = (speed >= 0) ? -1 : (speed - 1);
-#if HAVE_SH4_HARDWARE
-				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FR, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-#endif
 			} else {
 				newspeed = (speed <= 0) ? 2 : (speed + 1);
-#if HAVE_SH4_HARDWARE
-				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FF, true);
-#endif
 			}
 			/* if paused, playback->SetSpeed() start slow motion */
 			if (playback->SetSpeed(newspeed)) {
@@ -2202,11 +2134,6 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 
 	playback->SetSpeed(1);
 	playback->Close();
-#if HAVE_SH4_HARDWARE
-	frameBuffer->set3DMode(old3dmode);
-	CScreenSetup cSS;
-	cSS.showBorder(CZapit::getInstance()->GetCurrentChannelID());
-#endif
 #ifdef ENABLE_GRAPHLCD
 	if (p_movie_info || glcd_play == true) {
 		glcd_play = false;
@@ -2221,10 +2148,6 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 
 	CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
 	CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-#if HAVE_SH4_HARDWARE
-	CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-	CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-#endif
 
 	if (restore)
 		restoreNeutrino();

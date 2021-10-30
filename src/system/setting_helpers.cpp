@@ -427,11 +427,7 @@ bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	return false;
 }
 
-#if HAVE_SH4_HARDWARE
-bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void *data)
-#else
 bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void *)
-#endif
 {
 	//printf("notify: %d\n", OptionName);
 #if 0 //FIXME to do ? manual audio delay
@@ -463,14 +459,6 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_CLOCKREC)) {
 		//.Clock recovery enable/disable
 		// FIXME add code here.
-#if HAVE_SH4_HARDWARE
-	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG)) {
-			audioDecoder->setMixerVolume("Analog", (long)(*((int *)(data))));
-	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_HDMI)) {
-			audioDecoder->setMixerVolume("HDMI", (long)(*((int *)(data))));
-	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_SPDIF)) {
-			audioDecoder->setMixerVolume("SPDIF", (long)(*((int *)(data))));
-#endif
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_ALGO) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_NMGR) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_VOLUME)) {

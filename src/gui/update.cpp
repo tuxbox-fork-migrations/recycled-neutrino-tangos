@@ -601,12 +601,8 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	showGlobalStatus(40);
 
 	CFlashTool ft;
-#if HAVE_SH4_HARDWARE
-	ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
-#else
 	//ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
 	ft.setMTDDevice(sysfs);
-#endif
 	ft.setStatusViewer(this);
 
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MD5CHECK));
@@ -1014,7 +1010,7 @@ void CFlashExpert::readmtd(int preadmtd)
 	}
 
 	bool skipCheck = false;
-#if !HAVE_SH4_HARDWARE && !BOXMODEL_CS_HD2
+#if !BOXMODEL_CS_HD2
 	if ((std::string)g_settings.update_dir == "/tmp")
 		skipCheck = true;
 #else
