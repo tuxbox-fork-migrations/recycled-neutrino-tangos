@@ -52,12 +52,12 @@ if ENABLE_GRAPHLCD
 SUBDIRS += glcd
 endif
 
-if BOXTYPE_COOL
+if BOXTYPE_CST
 libneutrino_driver_a_SOURCES += \
 	fb_generic.cpp \
 	fb_accel.cpp \
 	fb_accel_cs_hdx.cpp
-if BOXMODEL_CS_HD2
+if BOXMODEL_CST_HD2
 libneutrino_driver_a_SOURCES += \
 	fb_accel_cs_hd2.cpp \
 	vfd.cpp

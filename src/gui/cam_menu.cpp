@@ -178,7 +178,7 @@ int CCAMMenuHandler::doMainMenu()
 	cammenu->addItem(ci_mode);
 #endif
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	int fecount = CFEManager::getInstance()->getFrontendCount();
 	char fename[fecount+1][255];
 
