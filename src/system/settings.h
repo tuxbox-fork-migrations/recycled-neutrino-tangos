@@ -46,7 +46,7 @@
 #include <string>
 #include <list>
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 16
 #elif HAVE_ARM_HARDWARE
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 17
@@ -310,7 +310,7 @@ struct SNeutrinoSettings
 	int psi_step;
 #endif
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	int brightness;
 	int contrast;
 	int saturation;

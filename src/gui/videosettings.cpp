@@ -65,7 +65,7 @@
 #include "screensetup.h"
 #endif
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 #include <cnxtfb.h>
 #endif
 
@@ -121,7 +121,7 @@ int CVideoSettings::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 const CMenuOptionChooser::keyval VIDEOMENU_43MODE_OPTIONS[] =
 {
 	{ DISPLAY_AR_MODE_PANSCAN, LOCALE_VIDEOMENU_PANSCAN },
-#ifndef BOXMODEL_CS_HD2
+#ifndef BOXMODEL_CST_HD2
 	{ DISPLAY_AR_MODE_PANSCAN2, LOCALE_VIDEOMENU_PANSCAN2 },
 #endif
 	{ DISPLAY_AR_MODE_LETTERBOX, LOCALE_VIDEOMENU_LETTERBOX },
@@ -225,7 +225,7 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ VIDEO_STD_576P,    NONEXISTANT_LOCALE, "576p"		},
 	{ VIDEO_STD_720P50,  NONEXISTANT_LOCALE, "720p 50Hz"	},
 	{ VIDEO_STD_1080I50, NONEXISTANT_LOCALE, "1080i 50Hz"	},
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	{ VIDEO_STD_1080P50, NONEXISTANT_LOCALE, "1080p 50Hz"	},
 #else
 	{ -1,                NONEXISTANT_LOCALE, "1080p 50Hz"	},
@@ -236,7 +236,7 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ VIDEO_STD_480P,    NONEXISTANT_LOCALE, "480p"		},
 	{ VIDEO_STD_720P60,  NONEXISTANT_LOCALE, "720p 60Hz"	},
 	{ VIDEO_STD_1080I60, NONEXISTANT_LOCALE, "1080i 60Hz"	},
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	/* TODO: fix this crap */
 	{ VIDEO_STD_1080P60,   NONEXISTANT_LOCALE, "1080p 60Hz"	},
 	{ VIDEO_STD_1080P2397, NONEXISTANT_LOCALE, "1080p 23.97Hz"},
@@ -347,7 +347,7 @@ int CVideoSettings::showVideoSetup()
 	}
 	else if (system_rev > 0x06)
 	{
-#if defined(BOXMODEL_CS_HD2) && defined(ANALOG_MODE)
+#if defined(BOXMODEL_CST_HD2) && defined(ANALOG_MODE)
 		vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD2_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD2_OPTION_COUNT, true, this);
 		vs_analg_ch->setHint("", LOCALE_MENU_HINT_VIDEO_ANALOG_MODE);
 #else
@@ -378,7 +378,7 @@ int CVideoSettings::showVideoSetup()
 
 	CMenuOptionChooser *vs_dbdropt_ch = NULL;
 	CMenuWidget videomodes(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	CMenuForwarder * vs_automodes_fw = NULL;
 	CMenuWidget automodes(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
 #endif
@@ -406,7 +406,7 @@ int CVideoSettings::showVideoSetup()
 		vs_videomodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES);
 	}
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 		automodes.addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES_AUTO);
 
 		for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT - 1; i++)
@@ -450,7 +450,7 @@ int CVideoSettings::showVideoSetup()
 		videosetup->addItem(vs_dbdropt_ch);	  //dbdr options
 	if (vs_videomodes_fw != NULL)
 		videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	videosetup->addItem(vs_automodes_fw);	  //video auto modes submenue
 #endif
 
@@ -500,7 +500,7 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(mf);
 
 #endif
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	/* values are from -128 to 127, but brightness really no sense after +/- 40. changeNotify multiply contrast and saturation to 3 */
 	CMenuOptionNumberChooser * bcont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_BRIGHTNESS, &g_settings.brightness, true, -42, 42, this);
 	bcont->setHint("", LOCALE_MENU_HINT_VIDEO_BRIGHTNESS);
@@ -543,7 +543,7 @@ void CVideoSettings::initVideoSettings()
 	videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode1);
 	videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode2);
 #endif
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	changeNotify(LOCALE_VIDEOMENU_ANALOG_MODE, NULL);
 #else
 	unsigned int system_rev = cs_get_revision();
@@ -569,7 +569,7 @@ void CVideoSettings::initVideoSettings()
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
 	CAutoModeNotifier anotify;
 	anotify.changeNotify(NONEXISTANT_LOCALE, 0);
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	changeNotify(LOCALE_VIDEOMENU_BRIGHTNESS, NULL);
 	changeNotify(LOCALE_VIDEOMENU_CONTRAST, NULL);
 	changeNotify(LOCALE_VIDEOMENU_SATURATION, NULL);
@@ -649,7 +649,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 		setupVideoSystem(true/*ask*/);
 		return true;
 	}
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_BRIGHTNESS))
 	{
 		videoDecoder->SetControl(VIDEO_CONTROL_BRIGHTNESS, g_settings.brightness);

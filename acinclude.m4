@@ -446,7 +446,7 @@ AC_DEFUN([TUXBOX_BOXTYPE], [
 AC_ARG_WITH(boxtype,
 	AS_HELP_STRING([--with-boxtype], [valid values: coolstream, generic, armbox, mipsbox]),
 	[case "${withval}" in
-		coolstream|generic|armbox)
+		generic|coolstream|armbox|mipsbox)
 			BOXTYPE="$withval"
 		;;
 		hd51|multibox|multiboxse|hd60|hd61|bre2ze4k|osmini4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k)
@@ -517,13 +517,13 @@ AC_ARG_WITH(boxmodel,
 AC_SUBST(BOXTYPE)
 AC_SUBST(BOXMODEL)
 
-AM_CONDITIONAL(BOXTYPE_COOL, test "$BOXTYPE" = "coolstream")
 AM_CONDITIONAL(BOXTYPE_GENERIC, test "$BOXTYPE" = "generic")
+AM_CONDITIONAL(BOXTYPE_CST, test "$BOXTYPE" = "coolstream")
 AM_CONDITIONAL(BOXTYPE_ARMBOX, test "$BOXTYPE" = "armbox")
 AM_CONDITIONAL(BOXTYPE_MIPSBOX, test "$BOXTYPE" = "mipsbox")
 
-AM_CONDITIONAL(BOXMODEL_CS_HD1, test "$BOXMODEL" = "hd1")
-AM_CONDITIONAL(BOXMODEL_CS_HD2, test "$BOXMODEL" = "hd2")
+AM_CONDITIONAL(BOXMODEL_CST_HD1, test "$BOXMODEL" = "hd1")
+AM_CONDITIONAL(BOXMODEL_CST_HD2, test "$BOXMODEL" = "hd2")
 
 AM_CONDITIONAL(BOXMODEL_MULTIBOX, test "$BOXMODEL" = "multibox")
 AM_CONDITIONAL(BOXMODEL_MULTIBOXSE, test "$BOXMODEL" = "multiboxse")
@@ -533,6 +533,7 @@ AM_CONDITIONAL(BOXMODEL_HD61, test "$BOXMODEL" = "hd61")
 AM_CONDITIONAL(BOXMODEL_HD51, test "$BOXMODEL" = "hd51")
 AM_CONDITIONAL(BOXMODEL_BRE2ZE4K, test "$BOXMODEL" = "bre2ze4k")
 AM_CONDITIONAL(BOXMODEL_H7, test "$BOXMODEL" = "h7")
+
 AM_CONDITIONAL(BOXMODEL_OSMINI4K, test "$BOXMODEL" = "osmini4k")
 AM_CONDITIONAL(BOXMODEL_OSMIO4K, test "$BOXMODEL" = "osmio4k")
 AM_CONDITIONAL(BOXMODEL_OSMIO4KPLUS, test "$BOXMODEL" = "osmio4kplus")
@@ -571,9 +572,9 @@ fi
 
 # TODO: do we need more defines?
 if test "$BOXMODEL" = "hd1"; then
-	AC_DEFINE(BOXMODEL_CS_HD1, 1, [coolstream hd1/neo/neo2/zee])
+	AC_DEFINE(BOXMODEL_CST_HD1, 1, [coolstream hd1/neo/neo2/zee])
 elif test "$BOXMODEL" = "hd2"; then
-	AC_DEFINE(BOXMODEL_CS_HD2, 1, [coolstream tank/trinity/trinity v2/trinity duo/zee2/link])
+	AC_DEFINE(BOXMODEL_CST_HD2, 1, [coolstream tank/trinity/trinity v2/trinity duo/zee2/link])
 	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
 elif test "$BOXMODEL" = "multibox"; then
 	AC_DEFINE(BOXMODEL_MULTIBOX, 1, [multibox])
