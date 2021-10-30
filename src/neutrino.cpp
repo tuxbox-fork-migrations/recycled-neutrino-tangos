@@ -234,9 +234,7 @@ CBouquetList   * AllFavBouquetList;
 CPlugins       * g_Plugins;
 CRemoteControl * g_RemoteControl;
 CPictureViewer * g_PicViewer;
-#if !HAVE_SPARK_HARDWARE
 CCAMMenuHandler * g_CamHandler;
-#endif
 CVolume        * g_volume;
 CAudioMute     * g_audioMute;
 CNeutrinoFonts * neutrinoFonts = NULL;
@@ -334,10 +332,6 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 #if USE_STB_HAL
 	,{ "lcd_epgmode"        , 0 /*DEFAULT_LCD_EPGMODE*/ }
 #endif
-#if HAVE_SPARK_HARDWARE
-	,{"lcd_displaymode"      , DEFAULT_LCD_DISPLAYMODE    }
-	,{"lcd_standbydisplaymode", DEFAULT_LCD_DISPLAYMODE   }
-#endif
 };
 
 static SNeutrinoSettings::usermenu_t usermenu_default[] = {
@@ -351,11 +345,6 @@ static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 	{ CRCInput::RC_play,            "9",                                    "",     "5"             },
 #endif
 	{ CRCInput::RC_audio,           "6",                                   "",     "6"             },
-#if HAVE_SPARK_HARDWARE
-	{ CRCInput::RC_timer,           "19",                                   "",     "7"             },
-	{ CRCInput::RC_usb,             "31",                                   "",     "6"             },
-	{ CRCInput::RC_archive,         "30",                                   "",     "4"             },
-#endif
 	{ CRCInput::RC_nokey,           "",                                     "",     ""              },
 };
 
@@ -2991,10 +2980,8 @@ TIMER_START();
 	bootstatus->showStatus(80);
 	bootstatus->paint();
 
-#if !HAVE_SPARK_HARDWARE
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
-#endif
 
 	/* later on, we'll crash anyway, so tell about it. */
 	if (! zapit_init)
@@ -3733,12 +3720,10 @@ bool CNeutrinoApp::wakeupFromStandby(void)
 	if ((mode == NeutrinoModes::mode_standby) && !alive) {
 		if (cpuFreq)
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
-#if !HAVE_SPARK_HARDWARE
 		if(g_settings.ci_standby_reset) {
 			g_CamHandler->exec(NULL, "ca_ci_reset0");
 			g_CamHandler->exec(NULL, "ca_ci_reset1");
 		}
-#endif
 		g_Zapit->setStandby(false);
 		g_Zapit->getMode();
 		return true;
@@ -3907,13 +3892,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return( res & ( 0xFFFFFFFF - messages_return::unhandled ) );
 	}
 
-#if !HAVE_SPARK_HARDWARE
 	/* we assume g_CamHandler free/delete data if needed */
 	res = g_CamHandler->handleMsg(msg, data);
 	if( res != messages_return::unhandled ) {
 		return(res & (0xFFFFFFFF - messages_return::unhandled));
 	}
-#endif
 
 	/* ================================== KEYS ================================================ */
 	if (msg == (neutrino_msg_t) g_settings.key_standby_off_add && mode == NeutrinoModes::mode_standby)
@@ -5012,12 +4995,10 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		}
 #endif
 
-#if !HAVE_SPARK_HARDWARE
 		if(!recordingstatus && g_settings.ci_standby_reset) {
 			g_CamHandler->exec(NULL, "ca_ci_reset0");
 			g_CamHandler->exec(NULL, "ca_ci_reset1");
 		}
-#endif
 
 		frameBuffer->setActive(true);
 
@@ -5992,10 +5973,8 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup g_Plugins\n"); fflush(stdout);
 	delete g_Plugins; g_Plugins = NULL;
 
-#if !HAVE_SPARK_HARDWARE
 	printf("cleanup g_CamHandler\n"); fflush(stdout);
 	delete g_CamHandler; g_CamHandler = NULL;
-#endif
 
 	printf("cleanup g_volume\n"); fflush(stdout);
 	delete g_volume; g_volume = NULL;

@@ -58,9 +58,7 @@
 #include "plugins.h"
 #include "imageinfo.h"
 #include "dboxinfo.h"
-#if !HAVE_SPARK_HARDWARE
 #include "cam_menu.h"
-#endif
 #include "pluginlist.h"
 #include "infoclock.h"
 #include "mediaplayer.h"
@@ -93,9 +91,7 @@
 extern CRemoteControl * g_RemoteControl;	/* neutrino.cpp */
 extern CPlugins * g_Plugins;			/* neutrino.cpp */
 extern cVideo * videoDecoder;
-#if !HAVE_SPARK_HARDWARE
 extern CCAMMenuHandler * g_CamHandler;
-#endif
 std::string CUserMenu::tmp;
 // 
 #include <system/debug.h>
@@ -510,7 +506,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			break;
 		}
 #endif
-#if !HAVE_SPARK_HARDWARE
 		case SNeutrinoSettings::ITEM_CAM:
 		{
 			keyhelper.get(&key,&icon);
@@ -518,7 +513,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
-#endif
 		case -1: // plugin
 		{
 			int number_of_plugins = g_Plugins->getNumberOfPlugins();
