@@ -31,10 +31,6 @@ AM_CPPFLAGS = \
 	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
-if BOXTYPE_TRIPLE
-SUBDIRS += lcddisplay
-endif
-
 if USE_PUGIXML
 PUGIXML_LIBS = -lpugixml
 endif
@@ -186,14 +182,6 @@ if BOXMODEL_CS_HD2
 neutrino_LDADD += -liconv
 endif
 
-if BOXTYPE_SPARK
-neutrino_LDADD += -lass
-endif
-
-if BOXTYPE_DUCKBOX
-neutrino_LDADD += -lass
-endif
-
 if BOXTYPE_ARMBOX
 neutrino_LDADD += -lass
 endif
@@ -208,11 +196,6 @@ bin_PROGRAMS += dt
 dt_SOURCES = dt.c
 bin_PROGRAMS += mdev_helper
 mdev_helper_SOURCES = mdev_helper.cpp
-endif
-
-if BOXTYPE_TRIPLE
-neutrino_LDADD += \
-	$(top_builddir)/src/lcddisplay/liblcddisplay.a
 endif
 
 if BOXMODEL_RASPI
