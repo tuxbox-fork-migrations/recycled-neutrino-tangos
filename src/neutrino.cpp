@@ -2797,13 +2797,8 @@ TIMER_START();
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText(start_text);
 	CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
-#if !HAVE_DUCKBOX_HARDWARE
 	CVFD::getInstance()->setScrollMode(g_settings.lcd_scroll);
-#endif
 
-#if HAVE_DUCKBOX_HARDWARE
-	CVFD::getInstance()->ClearIcons();
-#endif
 #ifdef ENABLE_GRAPHLCD
 	cGLCD::getInstance();
 #endif
@@ -4015,11 +4010,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus))
 	{
 		g_volume->setVolume(msg);
-#if HAVE_DUCKBOX_HARDWARE
-		if((mode == NeutrinoModes::mode_tv) || (mode == NeutrinoModes::mode_radio)) {
-			CVFD::getInstance()->showServicename(channelList->getActiveChannelName());
-		}
-#endif
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_spkr ) {
@@ -4139,9 +4129,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if (msg == NeutrinoMessages::RECORD_START) {
 		//FIXME better at announce ?
 		wakeupFromStandby();
-#if HAVE_DUCKBOX_HARDWARE
-		CVFD::getInstance()->ShowIcon(FP_ICON_REC, true);
-#endif
 #if 0
 		//zap to rec channel if box start from deepstandby
 		if(timer_wakeup){
@@ -4176,9 +4163,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::RECORD_STOP) {
-#if HAVE_DUCKBOX_HARDWARE
-		CVFD::getInstance()->ShowIcon(FP_ICON_REC, false);
-#endif
 		CTimerd::RecordingStopInfo* recinfo = (CTimerd::RecordingStopInfo*)data;
 		printf("NeutrinoMessages::RECORD_STOP: eventID %d channel_id %" PRIx64 "\n", recinfo->eventID, recinfo->channel_id);
 		CRecordManager::getInstance()->Stop(recinfo);

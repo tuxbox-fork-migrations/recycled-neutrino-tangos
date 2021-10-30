@@ -59,9 +59,7 @@ extern cVideo * videoDecoder;
 
 extern CPlugins *g_Plugins;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
-#if HAVE_DUCKBOX_HARDWARE
-#define RC_DEVICE "/dev/input/event0"
-#elif HAVE_COOL_HARDWARE
+#if HAVE_COOL_HARDWARE
 #define RC_DEVICE "/dev/input/nevis_ir"
 #elif BOXMODEL_H7
 #define RC_DEVICE "/dev/input/event2"

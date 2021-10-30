@@ -137,7 +137,6 @@ int CVfdSetup::showSetup()
 
 	CMenuForwarder * mf;
 
-#ifndef HAVE_DUCKBOX_HARDWARE
 	//led menu
 	if (cs_get_revision() > 7) // not HD1 and BSE
 	{
@@ -147,7 +146,6 @@ int CVfdSetup::showSetup()
 		mf->setHint("", LOCALE_MENU_HINT_POWER_LEDS);
 		vfds->addItem(mf);
 	}
-#endif
 
 	if (g_info.hw_caps->display_can_set_brightness)
 	{
@@ -309,7 +307,6 @@ int CVfdSetup::showBrightnessSetup()
 	return res;
 }
 
-#ifndef HAVE_DUCKBOX_HARDWARE
 void CVfdSetup::showLedSetup(CMenuWidget *mn_led_widget)
 {
 	CMenuOptionChooser * mc;
@@ -335,7 +332,6 @@ void CVfdSetup::showLedSetup(CMenuWidget *mn_led_widget)
 	mc->setHint("", LOCALE_MENU_HINT_LEDS_BLINK);
 	mn_led_widget->addItem(mc);
 }
-#endif
 
 void CVfdSetup::showBacklightSetup(CMenuWidget *mn_led_widget)
 {
