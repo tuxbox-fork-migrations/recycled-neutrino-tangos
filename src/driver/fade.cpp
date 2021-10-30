@@ -58,7 +58,7 @@ void COSDFader::StartFadeIn()
 	frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 
 	frameBuffer->setBlendLevel(fadeValue);
-#if HAVE_SH4_HARDWARE || (HAVE_COOL_HARDWARE && defined(BOXMODEL_CS_HD2))
+#if (HAVE_COOL_HARDWARE && defined(BOXMODEL_CS_HD2))
 	usleep(60000);
 #endif
 	fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
@@ -112,7 +112,7 @@ bool COSDFader::FadeDone()
 			g_RCInput->killTimer (fadeTimer);
 			fadeIn = false;
 			frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
-#if HAVE_SH4_HARDWARE || (HAVE_COOL_HARDWARE && defined(BOXMODEL_CS_HD2))
+#if (HAVE_COOL_HARDWARE && defined(BOXMODEL_CS_HD2))
 			usleep(60000);
 #endif
 		} else

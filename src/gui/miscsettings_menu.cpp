@@ -206,33 +206,6 @@ const CMenuOptionChooser::keyval CHANNELLIST_NEW_ZAP_MODE_OPTIONS[CHANNELLIST_NE
 };
 
 #ifdef CPU_FREQ
-#if HAVE_SH4_HARDWARE
-#define CPU_FREQ_OPTION_COUNT 6
-const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
-{
-	{ 0, LOCALE_CPU_FREQ_DEFAULT, NULL  },
-	{ 450, NONEXISTANT_LOCALE, "450 Mhz"},
-	{ 500, NONEXISTANT_LOCALE, "500 Mhz"},
-	{ 550, NONEXISTANT_LOCALE, "550 Mhz"},
-	{ 600, NONEXISTANT_LOCALE, "600 Mhz"},
-	{ 650, NONEXISTANT_LOCALE, "650 Mhz"}
-};
-#define CPU_FREQ_OPTION_STANDBY_COUNT 11
-const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS_STANDBY[CPU_FREQ_OPTION_STANDBY_COUNT] =
-{
-	{ 0, LOCALE_CPU_FREQ_DEFAULT, NULL  },
-	{ 200, NONEXISTANT_LOCALE, "200 Mhz"},
-	{ 250, NONEXISTANT_LOCALE, "250 Mhz"},
-	{ 300, NONEXISTANT_LOCALE, "300 Mhz"},
-	{ 350, NONEXISTANT_LOCALE, "350 Mhz"},
-	{ 400, NONEXISTANT_LOCALE, "400 Mhz"},
-	{ 450, NONEXISTANT_LOCALE, "450 Mhz"},
-	{ 500, NONEXISTANT_LOCALE, "500 Mhz"},
-	{ 550, NONEXISTANT_LOCALE, "550 Mhz"},
-	{ 600, NONEXISTANT_LOCALE, "600 Mhz"},
-	{ 650, NONEXISTANT_LOCALE, "650 Mhz"}
-};
-#else
 #define CPU_FREQ_OPTION_COUNT 13
 const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 {
@@ -250,7 +223,6 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 	{ 550, NONEXISTANT_LOCALE, "550 Mhz"},
 	{ 600, NONEXISTANT_LOCALE, "600 Mhz"}
 };
-#endif
 #endif /*CPU_FREQ*/
 
 const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[] =
@@ -763,11 +735,7 @@ void CMiscMenue::showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu)
 	ms_cpu->addIntroItems(LOCALE_MISCSETTINGS_CPU);
 
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_NORMAL, &g_settings.cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true, cpuNotifier));
-#if HAVE_SH4_HARDWARE
-	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_STANDBY, &g_settings.standby_cpufreq, CPU_FREQ_OPTIONS_STANDBY, CPU_FREQ_OPTION_STANDBY_COUNT, true));
-#else
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_STANDBY, &g_settings.standby_cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true));
-#endif
 }
 #endif /*CPU_FREQ*/
 

@@ -382,79 +382,6 @@ extern int sub_font_size;
 static std::string ass_font;
 static int ass_size;
 
-#if HAVE_SH4_HARDWARE
-// Thes functions below are based on ffmpeg-2.1.4/libavcodec/ass.c,
-// Copyright (c) 2010 Aurelien Jacobs <aurel@gnuage.org>
-
-// These are the FFMPEG defaults:
-#define ASS_DEFAULT_FONT		"Arial"
-#define ASS_DEFAULT_FONT_SIZE		16
-#define ASS_DEFAULT_COLOR		0xffffff
-#define ASS_DEFAULT_OUTLINE_COLOR	0
-#define ASS_DEFAULT_BACK_COLOR		0
-#define ASS_DEFAULT_BOLD		0
-#define ASS_DEFAULT_ITALIC		0
-#define ASS_DEFAULT_UNDERLINE		0
-#define ASS_DEFAULT_ALIGNMENT		2
-
-// And this is what we're going to use:
-#define ASS_CUSTOM_FONT			"Arial"
-#define ASS_CUSTOM_FONT_SIZE		36
-#define ASS_CUSTOM_COLOR		0xffffff
-#define ASS_CUSTOM_OUTLINE_COLOR	0
-#define ASS_CUSTOM_BACK_COLOR		0
-#define ASS_CUSTOM_BOLD			0
-#define ASS_CUSTOM_ITALIC		0
-#define ASS_CUSTOM_UNDERLINE		0
-#define ASS_CUSTOM_ALIGNMENT		2
-
-static std::string ass_subtitle_header(const char *font, int font_size,
-		int color, int outline_color, int back_color, int bold, int italic, int underline, int alignment)
-{
-	char buf[8192];
-	snprintf(buf, sizeof(buf), 
-		"[Script Info]\r\n"
-		"ScriptType: v4.00+\r\n"
-		"\r\n"
-		"[V4+ Styles]\r\n"
-		"Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, AlphaLevel, Encoding\r\n"
-		"Style: Default,%s,%d,&H%x,&H%x,&H%x,&H%x,%d,%d,%d,1,1,0,%d,10,10,10,0,0\r\n"
-		"\r\n"
-		"[Events]\r\n"
-		"Format: Layer, Start, End, Style, Text\r\n",
-		font, font_size, color, color, outline_color, back_color, -bold, -italic, -underline, alignment);
-	return std::string(buf);
-}
-
-static std::string ass_subtitle_header_default(void) {
-	return ass_subtitle_header(
-		ASS_DEFAULT_FONT,
-		ASS_DEFAULT_FONT_SIZE,
-		ASS_DEFAULT_COLOR,
-		ASS_DEFAULT_OUTLINE_COLOR,
-		ASS_DEFAULT_BACK_COLOR,
-		ASS_DEFAULT_BOLD,
-		ASS_DEFAULT_ITALIC,
-		ASS_DEFAULT_UNDERLINE,
-		ASS_DEFAULT_ALIGNMENT);
-}
-
-static std::string ass_subtitle_header_custom(void) {
-	return ass_subtitle_header(
-		ASS_CUSTOM_FONT,
-		ASS_CUSTOM_FONT_SIZE,
-		ASS_CUSTOM_COLOR,
-		ASS_CUSTOM_OUTLINE_COLOR,
-		ASS_CUSTOM_BACK_COLOR,
-		ASS_CUSTOM_BOLD,
-		ASS_CUSTOM_ITALIC,
-		ASS_CUSTOM_UNDERLINE,
-		ASS_CUSTOM_ALIGNMENT);
-}
-// The functions above are based on ffmpeg-2.1.4/libavcodec/ass.c,
-// Copyright (c) 2010 Aurelien Jacobs <aurel@gnuage.org>
-#endif
-
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 // Thes functions below are based on ffmpeg-3.0.7/libavcodec/ass.c,
 // Copyright (c) 2010 Aurelien Jacobs <aurel@gnuage.org>
@@ -794,16 +721,10 @@ static void* dvbsub_thread(void* /*arg*/)
 	int timeout = 1000000;
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	CFrameBuffer *fb = CFrameBuffer::getInstance();
-#if HAVE_SH4_HARDWARE
-	int xres = fb->getScreenWidth(true);
-	int yres = fb->getScreenHeight(true);
-	int clr_x0 = xres, clr_y0 = yres, clr_x1 = 0, clr_y1 = 0;
-#else
 	int stride = fb->getStride()/4;
 	int xres = stride;
 	int yres = fb->getScreenHeight(true);
 	int clr_x0 = stride - yres / 4, clr_y0 = yres, clr_x1 = 0, clr_y1 = 0;
-#endif
 	uint32_t colortable[256];
 	memset(colortable, 0, sizeof(colortable));
 	uint32_t last_color = 0;

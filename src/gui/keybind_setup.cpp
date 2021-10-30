@@ -301,14 +301,12 @@ bool checkLongPress(uint32_t key)
 
 int CKeybindSetup::showKeySetup()
 {
-#if !HAVE_SH4_HARDWARE
 	//save original rc hardware selection and initialize text strings
 	int org_remote_control_hardware = g_settings.remote_control_hardware;
 	char RC_HW_str[4][32];
 	snprintf(RC_HW_str[CRCInput::RC_HW_COOLSTREAM],   sizeof(RC_HW_str[CRCInput::RC_HW_COOLSTREAM])-1,   "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_COOLSTREAM));
 	char RC_HW_msg[256];
 	snprintf(RC_HW_msg, sizeof(RC_HW_msg)-1, "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART1));
-#endif
 
 	//keysetup menu
 	CMenuWidget* keySettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP);
@@ -353,15 +351,6 @@ int CKeybindSetup::showKeySetup()
 	cc->setHint("", LOCALE_MENU_HINT_LONGKEYPRESS_DURATION);
 	keySettings->addItem(cc);
 
-#if HAVE_SH4_HARDWARE
-	g_settings.accept_other_remotes = access("/etc/lircd_predata_lock", R_OK) ? 1 : 0;
-	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_ACCEPT_OTHER_REMOTES,
-		&g_settings.accept_other_remotes, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this,
-		CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_ACCEPT_OTHER_REMOTES);
-	keySettings->addItem(mc);
-#endif
-#if !HAVE_SH4_HARDWARE
 	if (RC_HW_SELECT) {
 		CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE,
 			&g_settings.remote_control_hardware, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT, true, NULL,
@@ -369,7 +358,6 @@ int CKeybindSetup::showKeySetup()
 		mc->setHint("", LOCALE_MENU_HINT_KEY_HARDWARE);
 		keySettings->addItem(mc);
 	}
-#endif
 
 	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_REPEATBLOCK,
 		&g_settings.repeat_blocker, true, 0, 999, this,
@@ -389,7 +377,6 @@ int CKeybindSetup::showKeySetup()
 
 	int res = keySettings->exec(NULL, "");
 
-#if !HAVE_SH4_HARDWARE
 	//check if rc hardware selection has changed before leaving the menu
 	if (org_remote_control_hardware != g_settings.remote_control_hardware) {
 		g_RCInput->CRCInput::set_rc_hw();
@@ -402,7 +389,6 @@ int CKeybindSetup::showKeySetup()
 			g_RCInput->CRCInput::set_rc_hw();
 		}
 	}
-#endif
 
 	delete keySettings;
 	for (int i = 0; i < KEYBINDS_COUNT; i++)
@@ -632,28 +618,6 @@ void CKeybindSetup::showKeyBindSpecialSetup(CMenuWidget *bindSettings_special)
 
 bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* data */)
 {
-#if HAVE_SH4_HARDWARE
-	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_ACCEPT_OTHER_REMOTES)) {
-		struct sockaddr_un sun;
-		memset(&sun, 0, sizeof(sun));
-		sun.sun_family = AF_UNIX;
-		strcpy(sun.sun_path, "/var/run/lirc/lircd");
-		int lircd_sock = socket(AF_UNIX, SOCK_STREAM, 0);
-		if (lircd_sock > -1) {
-			if (!connect(lircd_sock, (struct sockaddr *) &sun, sizeof(sun))) {
-				if (g_settings.accept_other_remotes)
-					write(lircd_sock, "PREDATA_UNLOCK\n", 16);
-				else
-					write(lircd_sock, "PREDATA_LOCK\n", 14);
-			}
-			close(lircd_sock);
-		}
-		// work around junk data sent by vfd controller
-		sleep(2);
-		g_RCInput->clearRCMsg();
-		return false;
-	}
-#endif
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCK)) {
 		unsigned int fdelay = g_settings.repeat_blocker;

@@ -316,9 +316,7 @@ void CImageInfo::InitInfoData()
 
 	string version_string = config.getString("version", "");
 #ifdef PACKAGE_VERSION
-#if HAVE_SH4_HARDWARE
-	version_string = "SH4-Release : ";
-#elif HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE
 	version_string = "ARM-Release : ";
 #elif HAVE_MIPS_HARDWARE
 	version_string = "MIPS-Release : ";

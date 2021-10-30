@@ -1502,11 +1502,7 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 		size_t cactive = sl;
 
 		printf("CChannelList::getPrevNextChannel: selected %d total %d active bouquet %d total %d\n", (int)cactive, (int)(*chanlist).size(), bactive, bsize);
-#if HAVE_SH4_HARDWARE
-		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left) || (key == CRCInput::RC_page_down)) {
-#else
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
-#endif
 			if(cactive == 0) {
 				bactive = getPrevNextBouquet(false);
 				if (bactive >= 0) {
@@ -1516,11 +1512,7 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 			} else
 				--cactive;
 		}
-#if HAVE_SH4_HARDWARE
-		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_right) || (key == CRCInput::RC_page_up)) {
-#else
 		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
-#endif
 			cactive++;
 			if(cactive >= (*chanlist).size()) {
 				bactive = getPrevNextBouquet(true);
@@ -1535,21 +1527,13 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 		printf("CChannelList::getPrevNextChannel: selected %d total %d active bouquet %d total %d channel %p (%s)\n",
 				(int)cactive, (int)(*chanlist).size(), bactive, bsize, channel, channel ? channel->getName().c_str(): "");
 	} else {
-#if HAVE_SH4_HARDWARE
-		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left) || (key == CRCInput::RC_page_down)) {
-#else
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
-#endif
 			if(sl == 0)
 				sl = (*chanlist).size()-1;
 			else
 				sl--;
 		}
-#if HAVE_SH4_HARDWARE
-		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_right) || (key == CRCInput::RC_page_up)) {
-#else
 		else if ((key==g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
-#endif
 			sl = (sl+1)%(*chanlist).size();
 		}
 		channel = (*chanlist)[sl];

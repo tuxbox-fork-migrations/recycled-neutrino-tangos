@@ -117,17 +117,11 @@ const CMenuOptionChooser::keyval AUDIOMENU_AVSYNC_OPTIONS[AUDIOMENU_AVSYNC_OPTIO
 	{ 2, LOCALE_AUDIOMENU_AVSYNC_AM }
 };
 
-#if HAVE_SH4_HARDWARE
-#define AUDIOMENU_HDMI_DD_OPTION_COUNT 2
-#else
 #define AUDIOMENU_HDMI_DD_OPTION_COUNT 3
-#endif
 const CMenuOptionChooser::keyval AUDIOMENU_HDMI_DD_OPTIONS[AUDIOMENU_HDMI_DD_OPTION_COUNT] =
 {
 	{ HDMI_ENCODED_OFF,		LOCALE_OPTIONS_OFF		},
-#if !HAVE_SH4_HARDWARE
 	{ HDMI_ENCODED_AUTO,		LOCALE_AUDIOMENU_HDMI_DD_AUTO	},
-#endif
 	{ HDMI_ENCODED_FORCED,		LOCALE_AUDIOMENU_HDMI_DD_FORCE	}
 };
 
@@ -265,22 +259,6 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(mf);
 #endif
 
-#if HAVE_SH4_HARDWARE
-	CMenuOptionNumberChooser *ch;
-	audioSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_MIXER_VOLUME));
-	ch = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG,
-		(int *)&g_settings.audio_mixer_volume_analog, true, 0, 100, audioSetupNotifier);
-	ch->setNumberFormat("%d%%");
-	audioSettings->addItem(ch);
-	ch = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_MIXER_VOLUME_HDMI,
-		(int *)&g_settings.audio_mixer_volume_hdmi, true, 0, 100, audioSetupNotifier);
-	ch->setNumberFormat("%d%%");
-	audioSettings->addItem(ch);
-	ch = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_MIXER_VOLUME_SPDIF,
-		(int *)&g_settings.audio_mixer_volume_spdif, true, 0, 100, audioSetupNotifier);
-	ch->setNumberFormat("%d%%");
-	audioSettings->addItem(ch);
-#endif
 	audioSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUSTMENT));
 	audioSettings->addItem(adj_ac3);
 	audioSettings->addItem(adj_pcm);
