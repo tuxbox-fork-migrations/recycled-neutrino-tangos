@@ -52,13 +52,6 @@ if ENABLE_GRAPHLCD
 SUBDIRS += glcd
 endif
 
-if BOXTYPE_DUCKBOX
-libneutrino_driver_a_SOURCES += \
-	fb_generic.cpp \
-	fb_accel_sti.cpp \
-	vfd.cpp
-endif
-
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \
 	fb_generic.cpp \
@@ -73,27 +66,6 @@ libneutrino_driver_a_SOURCES += \
 	fb_accel_cs_hd1.cpp \
 	vfd.cpp
 endif
-endif
-
-if BOXTYPE_TRIPLE
-libneutrino_driver_a_SOURCES += \
-	fb_generic.cpp \
-	fb_accel.cpp \
-	fb_accel_td.cpp \
-	newclock.cpp \
-	lcdd.cpp
-endif
-
-if BOXTYPE_SPARK
-libneutrino_driver_a_SOURCES += \
-	fb_generic.cpp \
-	fb_accel_sti.cpp \
-	simple_display.cpp
-endif
-
-if BOXTYPE_AZBOX
-libneutrino_driver_a_SOURCES += \
-	simple_display.cpp
 endif
 
 if USE_STB_HAL
