@@ -40,9 +40,7 @@
 /* if you want use HAVE_XX_HARDWARE, better include config.h :-) */
 #include "config.h"
 
-#if defined(HAVE_DBOX_HARDWARE)
-#define EVENTDEV "/dev/input/event0"
-#elif defined (HAVE_COOL_HARDWARE)
+#if defined (HAVE_COOL_HARDWARE)
 #define EVENTDEV "/dev/input/input0"
 #else
 #endif
