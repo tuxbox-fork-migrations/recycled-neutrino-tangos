@@ -62,7 +62,7 @@
 
 #include <cs_api.h>
 #include <hardware/video.h>
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #include "3dsetup.h"
 #include <zapit/zapit.h>
 #include "screensetup.h"
@@ -512,7 +512,7 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(md);
 #endif
 
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	CMenuForwarder *mf;
 	CMenuOptionNumberChooser *mc;
 
