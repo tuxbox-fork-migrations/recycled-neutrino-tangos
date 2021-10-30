@@ -142,7 +142,7 @@ bool CCam::setCaPmt(bool update)
 	return sendMessage((char *)cabuf, calen, update);
 }
 
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type, unsigned char scrambled, casys_map_t camap, int mode, bool enable)
 {
 	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
@@ -239,7 +239,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	CFrontend *frontend = CFEManager::getInstance()->getFrontend(channel);
 	switch(mode) {
 		case PLAY:
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 			source = DEMUX_SOURCE_0;
 			demux = LIVE_DEMUX;
 #else
@@ -304,7 +304,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 	/* stop decoding if record stops unless it's the live channel. TODO:PIP? */
 	/* all the modes: RECORD, STREAM, PIP except PLAY now stopping here !! */
 	if (mode && start == false && source != cDemux::GetSource(0)) {

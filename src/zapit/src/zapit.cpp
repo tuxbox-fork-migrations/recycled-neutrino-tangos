@@ -57,7 +57,7 @@
 #include <zapit/satconfig.h>
 #include <zapit/femanager.h>
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 #include <record_cs.h>
 #include <playback_cs.h>
 #include <pwrmngr.h>

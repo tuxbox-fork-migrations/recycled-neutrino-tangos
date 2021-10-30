@@ -560,7 +560,7 @@ AM_CONDITIONAL(BOXMODEL_VUPLUS_MIPS, test "$BOXMODEL" = "vuduo" -o "$BOXMODEL" =
 AM_CONDITIONAL(BOXMODEL_HISILICON, test "$BOXMODEL" = "hd60" -o "$BOXMODEL" = "hd61" -o "$BOXMODEL" = "multibox" -o "$BOXMODEL" = "multiboxse")
 
 if test "$BOXTYPE" = "coolstream"; then
-	AC_DEFINE(HAVE_COOL_HARDWARE, 1, [building for a coolstream])
+	AC_DEFINE(HAVE_CST_HARDWARE, 1, [building for a coolstream])
 elif test "$BOXTYPE" = "generic"; then
 	AC_DEFINE(HAVE_GENERIC_HARDWARE, 1, [building for a generic device like a standard PC])
 elif test "$BOXTYPE" = "armbox"; then

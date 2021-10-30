@@ -216,7 +216,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS[VID
  * key value of -1 means the mode is not available
  * TODO: instead of #ifdef select at run time
  */
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 /* numbers corresponding to video.cpp from zapit */
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {

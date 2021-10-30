@@ -40,7 +40,7 @@
 /* if you want use HAVE_XX_HARDWARE, better include config.h :-) */
 #include "config.h"
 
-#if defined (HAVE_COOL_HARDWARE)
+#if defined (HAVE_CST_HARDWARE)
 #define EVENTDEV "/dev/input/input0"
 #else
 #endif
