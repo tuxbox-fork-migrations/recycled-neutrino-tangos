@@ -304,7 +304,7 @@ struct SNeutrinoSettings
 #if HAVE_SH4_HARDWARE
 	uint32_t video_mixer_color;
 #endif
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE
 	int hdmi_mode;
 	int psi_contrast;
 	int psi_saturation;
@@ -654,7 +654,7 @@ struct SNeutrinoSettings
 	int recording_stream_vtxt_pid;
 	int recording_stream_subtitle_pids;
 	int recording_stream_pmt_pid;
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int recording_bufsize;
 	int recording_bufsize_dmx;
 #endif

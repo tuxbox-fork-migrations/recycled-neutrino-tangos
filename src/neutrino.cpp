@@ -64,7 +64,7 @@
 #include <driver/display.h>
 #include <driver/radiotext.h>
 #include <driver/scanepg.h>
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #include "gui/3dsetup.h"
 #endif
 
@@ -423,7 +423,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.hdmi_cec_broadcast = configfile.getInt32("hdmi_cec_broadcast", 0); // default off
 	g_settings.video_mixer_color = configfile.getInt32("video_mixer_color", 0xff000000);
 #endif
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE
 	g_settings.psi_contrast = configfile.getInt32("video_psi_contrast", 128);
 	g_settings.psi_saturation = configfile.getInt32("video_psi_saturation", 128);
 	g_settings.psi_brightness = configfile.getInt32("video_psi_brightness", 128);
@@ -829,7 +829,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.recording_stream_subtitle_pids  = configfile.getBool("recordingmenu.stream_subtitle_pids", true);
 	g_settings.recording_stream_pmt_pid        = configfile.getBool("recordingmenu.stream_pmt_pid"      , false);
 	g_settings.recording_filename_template     = configfile.getString("recordingmenu.filename_template" , "%C_%T_%d_%t");
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	g_settings.recording_bufsize               = configfile.getInt32("recording_bufsize", 4);
 	g_settings.recording_bufsize_dmx           = configfile.getInt32("recording_bufsize_dmx", 2);
 #endif
@@ -1485,7 +1485,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "hdmi_cec_broadcast", g_settings.hdmi_cec_broadcast );
 	configfile.setInt32( "video_mixer_color", g_settings.video_mixer_color );
 #endif
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE
 	configfile.setInt32( "video_psi_contrast", g_settings.psi_contrast );
 	configfile.setInt32( "video_psi_saturation", g_settings.psi_saturation );
 	configfile.setInt32( "video_psi_brightness", g_settings.psi_brightness );
@@ -1762,7 +1762,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool  ("recordingmenu.stream_subtitle_pids" , g_settings.recording_stream_subtitle_pids );
 	configfile.setBool  ("recordingmenu.stream_pmt_pid"       , g_settings.recording_stream_pmt_pid       );
 	configfile.setString("recordingmenu.filename_template"    , g_settings.recording_filename_template    );
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	configfile.setInt32 ("recording_bufsize"                  , g_settings.recording_bufsize);
 	configfile.setInt32 ("recording_bufsize_dmx"              , g_settings.recording_bufsize_dmx);
 #endif
@@ -3073,7 +3073,7 @@ TIMER_START();
 	cCA::GetInstance()->setCheckLiveSlot(g_settings.ci_check_live);
 	//InitZapper();
 
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	C3DSetup::getInstance()->exec(NULL, "zapped");
 #endif
 #if HAVE_SH4_HARDWARE
@@ -3827,7 +3827,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			g_settings.audio_AnalogMode = 0;
 
 		CVFD::getInstance()->UpdateIcons();
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 		C3DSetup::getInstance()->exec(NULL, "zapped");
 #endif
 #ifdef ENABLE_GRAPHLCD
@@ -5353,7 +5353,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			exit(CNeutrinoApp::EXIT_REBOOT); // should never be reached
 		}
 	}
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	else if (actionKey == "3dmode") {
 		C3DSetup::getInstance()->exec(parent, "");
 		return menu_return::RETURN_EXIT_ALL;
