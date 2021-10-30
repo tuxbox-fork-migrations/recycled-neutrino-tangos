@@ -68,11 +68,6 @@ libneutrino_driver_a_SOURCES += \
 endif
 endif
 
-if USE_STB_HAL
-AM_CPPFLAGS += \
-	@DIRECTFB_CFLAGS@
-endif
-
 if BOXTYPE_GENERIC
 libneutrino_driver_a_SOURCES += \
 	fb_generic.cpp \
