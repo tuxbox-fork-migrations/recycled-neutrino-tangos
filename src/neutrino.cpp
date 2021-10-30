@@ -2616,13 +2616,13 @@ void CNeutrinoApp::InitSectiondClient()
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_RELOAD_XMLTV, 222, NEUTRINO_UDS_NAME);
 }
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 #include <cs_frontpanel.h>
 #endif
 
 void wake_up(bool &wakeup)
 {
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 #ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
 #define FP_IOCTL_CLEAR_WAKEUP_TIMER 10
 #endif
@@ -2681,7 +2681,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 TIMER_START();
 	cs_api_init();
 	cs_register_messenger(CSSendMessage);
-#if defined(HAVE_COOL_HARDWARE) && defined(ENABLE_CHANGE_OSD_RESOLUTION)
+#if defined(HAVE_CST_HARDWARE) && defined(ENABLE_CHANGE_OSD_RESOLUTION)
 	cs_new_auto_videosystem();
 #endif
 
@@ -2821,7 +2821,7 @@ TIMER_START();
 	bootstatus->showStatus(60);
 	bootstatus->paint();
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	// dirty part of hw_caps - specify some details after zapit start
 	if (strcmp(g_info.hw_caps->boxname, "HD1") == 0)
 	{
@@ -4492,7 +4492,7 @@ void CNeutrinoApp::ExitRun(int exit_code)
 
 	int leds = 0;
 	int bright = 0;
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	if (exit_code == CNeutrinoApp::EXIT_SHUTDOWN)
 	{
 		leds = 0x40;
@@ -5917,7 +5917,7 @@ void CNeutrinoApp::Cleanup()
 
 	printf("cleanup CEitManager::getInstance()\n"); fflush(stdout);
 	delete CEitManager::getInstance();
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	/*
 	printf("cleanup CVFD::getInstance()\n"); fflush(stdout);
 	delete CVFD::getInstance();

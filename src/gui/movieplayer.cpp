@@ -160,7 +160,7 @@ CMoviePlayerGui::~CMoviePlayerGui()
 	filelist.clear();
 }
 
-#if !HAVE_COOL_HARDWARE
+#if !HAVE_CST_HARDWARE
 // used by libdvbsub/dvbsub.cpp
 void getPlayerPts(int64_t *pts)
 {
@@ -342,7 +342,7 @@ void CMoviePlayerGui::restoreNeutrino()
 
 	if (isUPNP)
 		return;
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 	g_Zapit->unlockPlayBack();
 #else
 	CZapit::getInstance()->EnablePlayback(true);
@@ -445,7 +445,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 			break;
 		}
 		do {
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 			is_file_player = true;
 #endif
 			PlayFile();
@@ -1581,7 +1581,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 	bool update_lcd = true;
 	neutrino_msg_t lastmsg = 0;
 	int quickjump = 300;
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	int eof = 0;
 	int eof2 = 0;
 	int position_tmp = 0;
@@ -1642,7 +1642,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #ifdef DEBUG
 				printf("CMoviePlayerGui::%s: spd %d pos %d/%d (%d, %d%%)\n", __func__, speed, position, duration, duration-position, file_prozent);
 #endif
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 				/* in case ffmpeg report incorrect values */
 				if(file_prozent > 89 && (playstate == CMoviePlayerGui::PLAY) && (speed == 1)){
 					if(position_tmp != position){
@@ -1672,7 +1672,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #endif
 
 			}
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 			else
 			{
 				at_eof = true;
