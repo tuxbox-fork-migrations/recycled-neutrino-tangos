@@ -565,13 +565,11 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	menu_ret = menu_return::RETURN_REPAINT;
 	paint();
 
-#if !HAVE_DUCKBOX_HARDWARE
 	if(sysfs.size() < 8) {
 		ShowHint(LOCALE_MESSAGEBOX_ERROR, LOCALE_FLASHUPDATE_CANTOPENMTD);
 		hide();
 		return menu_return::RETURN_REPAINT;
 	}
-#endif
 	if(!checkVersion4Update()) {
 		hide();
 		return menu_ret;
