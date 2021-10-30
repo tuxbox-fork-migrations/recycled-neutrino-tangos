@@ -238,24 +238,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS[VID
  * key value of -1 means the mode is not available
  * TODO: instead of #ifdef select at run time
  */
-#if HAVE_TRIPLEDRAGON
-CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
-{
-	{ VIDEO_STD_SECAM,   NONEXISTANT_LOCALE, "SECAM"	},
-	{ VIDEO_STD_PAL,     NONEXISTANT_LOCALE, "PAL"		},
-	{ -1,                NONEXISTANT_LOCALE, "576p"		},
-	{ -1,                NONEXISTANT_LOCALE, "720p 50Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "1080i 50Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "1080p 24Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "1080p 25Hz"	},
-	{ VIDEO_STD_NTSC,    NONEXISTANT_LOCALE, "NTSC"		},
-	{ -1,                NONEXISTANT_LOCALE, "480p"		},
-	{ -1,                NONEXISTANT_LOCALE, "720p 60Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "1080i 60Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "1080p 50Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "Auto"		}
-};
-#elif HAVE_COOL_HARDWARE
+#if HAVE_COOL_HARDWARE
 /* numbers corresponding to video.cpp from zapit */
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {
@@ -342,18 +325,12 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 };
 #endif
 
-#if HAVE_TRIPLEDRAGON
-#define VIDEOMENU_VIDEOFORMAT_OPTION_COUNT 2
-#else
-#define VIDEOMENU_VIDEOFORMAT_OPTION_COUNT 3//2
-#endif
+#define VIDEOMENU_VIDEOFORMAT_OPTION_COUNT 3
 const CMenuOptionChooser::keyval VIDEOMENU_VIDEOFORMAT_OPTIONS[VIDEOMENU_VIDEOFORMAT_OPTION_COUNT] =
 {
 	{ DISPLAY_AR_4_3, LOCALE_VIDEOMENU_VIDEOFORMAT_43         },
 	{ DISPLAY_AR_16_9, LOCALE_VIDEOMENU_VIDEOFORMAT_169        },
-#if !HAVE_TRIPLEDRAGON
 	{ DISPLAY_AR_14_9, LOCALE_VIDEOMENU_VIDEOFORMAT_149        }
-#endif
 };
 
 #define VIDEOMENU_DBDR_OPTION_COUNT 3
