@@ -550,7 +550,7 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 
 bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width, int *height, bool lcd4l_mode, bool enable_event_logo)
 {
-	std::string fileType[] = { ".png", ".jpg", ".gif" };
+	std::string fileType[] = { ".svg", ".png", ".jpg", ".gif" };
 	std::vector<std::string> v_path;
 	std::vector<std::string> v_file;
 
