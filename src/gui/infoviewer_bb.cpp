@@ -195,7 +195,7 @@ void CInfoViewerBB::getBBIconInfo()
 #if 0
 				iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 #endif
-				iconView = checkBBIcon("tuner_1", &w, &h);
+				iconView = checkBBIcon("tuner_01", &w, &h);
 			break;
 		default:
 			break;
