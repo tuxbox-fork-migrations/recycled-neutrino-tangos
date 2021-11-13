@@ -1,6 +1,7 @@
 installdir = $(THEMESDIR)/TangoCash/icons
 
 install_DATA = \
+	hourglass0.png \
 	hourglass1.png \
 	hourglass2.png \
 	hourglass3.png \
@@ -29,5 +30,4 @@ install_DATA = \
 	hourglass26.png \
 	hourglass27.png \
 	hourglass28.png \
-	hourglass29.png \
-	hourglass30.png
+	hourglass29.png
