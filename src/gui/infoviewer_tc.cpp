@@ -2690,7 +2690,7 @@ void CInfoViewer::showIcon_Tuner()
 	}
 #else
 	char icon_name[12];
-	sprintf(icon_name, "tuner_%d", CFEManager::getInstance()->getLiveFE()->getNumber() + 1);
+	sprintf(icon_name, "tuner_%02d", CFEManager::getInstance()->getLiveFE()->getNumber() + 1);
 #endif
 	showIcons(CInfoViewer::ICON_TUNER, icon_name);
 }

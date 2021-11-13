@@ -31,9 +31,9 @@ install_DATA = \
 	res_sd.png \
 	subt.png \
 	subt_gray.png \
-	tuner_1.png \
-	tuner_2.png \
-	tuner_3.png \
-	tuner_4.png \
+	tuner_01.png \
+	tuner_02.png \
+	tuner_03.png \
+	tuner_04.png \
 	vtxt.png \
 	vtxt_gray.png
