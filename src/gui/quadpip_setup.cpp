@@ -302,7 +302,7 @@ int CQuadPiPSetupSelectChannelWidget::InitZapitChannelHelper()
 			{
 				char cChannelId[60] = {0};
 				snprintf(cChannelId, sizeof(cChannelId), "ZCT:%d|%" PRIx64 "#", channel->number, channel->getChannelID());
-				chan_item = new CMenuForwarder(channel->getName(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL, channel->scrambled ? NEUTRINO_ICON_SCRAMBLED2 : (channel->getUrl().empty() ? NULL : NEUTRINO_ICON_STREAMING));
+				chan_item = new CMenuForwarder(channel->getName(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL, channel->scrambled ? NEUTRINO_ICON_SCRAMBLED : (channel->getUrl().empty() ? NULL : NEUTRINO_ICON_STREAMING));
 				chan_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 				mwtv->addItem(chan_item);
 			}

@@ -2228,7 +2228,7 @@ void CInfoViewer::getIconInfo()
 			break;
 		case CInfoViewer::ICON_CA:
 			if (g_settings.infobar_casystem_display == 2 && CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts)
-				iconView = checkIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
+				iconView = checkIcon(NEUTRINO_ICON_SCRAMBLED, &w, &h);
 			break;
 		case CInfoViewer::ICON_TUNER:
 			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBCHAN(get_current_channel_id()) && CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts)
@@ -2661,7 +2661,7 @@ void CInfoViewer::showIcon_Resolution()
 void CInfoViewer::showOne_CAIcon()
 {
 	std::string sIcon = "";
-	sIcon = (fta) ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2;
+	sIcon = (fta) ? NEUTRINO_ICON_SCRAMBLED_GREY : NEUTRINO_ICON_SCRAMBLED;
 	showIcons(CInfoViewer::ICON_CA, sIcon);
 }
 
