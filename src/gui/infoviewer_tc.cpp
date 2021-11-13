@@ -2212,7 +2212,7 @@ void CInfoViewer::getIconInfo()
 			break;
 		case CInfoViewer::ICON_RT:
 			if (isRadioMode && g_settings.radiotext_enable)
-				iconView = checkIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
+				iconView = checkIcon(NEUTRINO_ICON_RADIOTEXT_GET, &w, &h);
 			break;
 		case CInfoViewer::ICON_DD:
 			if( g_settings.infobar_show_dd_available )
@@ -2551,9 +2551,9 @@ void CInfoViewer::showIcon_RadioText(bool rt_available)
 
 	std::string rt_icon;
 	if (rt_available)
-		rt_icon = (g_Radiotext->S_RtOsd) ? NEUTRINO_ICON_RADIOTEXTGET : NEUTRINO_ICON_RADIOTEXTWAIT;
+		rt_icon = (g_Radiotext->S_RtOsd) ? NEUTRINO_ICON_RADIOTEXT_GET : NEUTRINO_ICON_RADIOTEXT_WAIT;
 	else
-		rt_icon = NEUTRINO_ICON_RADIOTEXTOFF;
+		rt_icon = NEUTRINO_ICON_RADIOTEXT_OFF;
 
 	showIcons(CInfoViewer::ICON_RT, rt_icon);
 }
