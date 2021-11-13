@@ -2235,7 +2235,7 @@ void CInfoViewer::getIconInfo()
 #if 0
 				iconView = checkIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 #endif
-				iconView = checkIcon("tuner_1", &w, &h);
+				iconView = checkIcon("tuner_01", &w, &h);
 			break;
 		case CInfoViewer::ICON_UPDATE:
 			if ((access("/tmp/.update_avail", F_OK) == 0))
