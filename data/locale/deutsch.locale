@@ -556,6 +556,7 @@ extra.fec_3_5_L 3/5L
 extra.fec_2_3_L 2/3L
 extra.fec_5_9_L 5/9L
 extra.fec_26_45_L 26/45L
+extra.hourglass_pos Fortschrittsicon Position
 extra.key_current_transponder Aktueller Transponder
 extra.key_format_mode Videoformat
 extra.key_help Hilfe
@@ -1034,6 +1035,8 @@ hdd_umount Aushängen
 hdd_umount_warn Datenträger aushängen
 hdd_umounted Gerät entfernt
 help_box_title Hilfe
+hourglass_left Links
+hourglass_right Rechts
 imageinfo.api API:
 imageinfo.creator Ersteller:
 imageinfo.date Datum:
@@ -1407,6 +1410,7 @@ menu.hint_hdd_statfs Legen Sie fest, wann die Aufnahmeverzeichnis-Füllstandsanz
 menu.hint_hdd_tools Formatieren Sie die gefundenen Datenträger bzw. überprüfen Sie deren Dateisystem
 menu.hint_head_back Ändern Sie die Titel-Hintergrundfarbe
 menu.hint_head_textcolor Ändern Sie die Titel-Textfarbe
+menu.hint_hourglass_pos Wählen Sie die Position des Fortschrittsicons aus
 menu.hint_imageinfo Informationen über die installierte Software
 menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten.\nDie Box geht automatisch in den Standby-Modus
 menu.hint_inactive_back Ändern Sie die Hintergrundfarbe für deaktivierte Fensterinhalte

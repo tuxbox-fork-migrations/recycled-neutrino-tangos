@@ -176,6 +176,7 @@ struct SNeutrinoTheme
 
 	int rounded_corners;
 	int message_frame_enable;
+	int hourglass_pos;
 };
 
 struct timer_remotebox_item

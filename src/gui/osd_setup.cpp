@@ -581,6 +581,13 @@ const CMenuOptionChooser::keyval OPTIONS_CHANNELLOGO_POSITION[OPTIONS_CHANNELLOG
 	{ CCHeaderTypes::CC_LOGO_CENTER, LOCALE_SETTINGS_POS_DEFAULT_CENTER } 		// centered
 };
 
+#define OPTION_HOURGLASS_POSITION_COUNT 2
+const CMenuOptionChooser::keyval  OPTION_HOURGLASS_POSITION[OPTION_HOURGLASS_POSITION_COUNT]=
+{
+	{ 0 , LOCALE_HOURGLASS_POSITION_LEFT },
+	{ 1 , LOCALE_HOURGLASS_POSITION_RIGHT }
+};
+
 //show osd setup
 int COsdSetup::showOsdSetup()
 {
@@ -1054,6 +1061,11 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	oj = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.theme.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
 	oj->OnAfterChangeOption.connect(sigc::mem_fun(menu_colors, &CMenuWidget::hide));
 	oj->setHint("", LOCALE_MENU_HINT_ROUNDED_CORNERS);
+	menu_colors->addItem(oj);
+
+	// hourglass position
+	oj = new CMenuOptionChooser(LOCALE_EXTRA_HOURGLASS_POSITION, &g_settings.theme.hourglass_pos, OPTION_HOURGLASS_POSITION, OPTION_HOURGLASS_POSITION_COUNT, true, this);
+	oj->setHint("", LOCALE_MENU_HINT_HOURGLASS_POSITION);
 	menu_colors->addItem(oj);
 }
 
