@@ -394,6 +394,9 @@ void CThemes::setTheme(CConfigFile &configfile)
 
 	// message frames
 	configfile.setInt32( "message_frame_enable", t.message_frame_enable);
+
+	// hourglass position
+	configfile.setInt32( "hourglass_pos", t.hourglass_pos);
 }
 
 void CThemes::getTheme(CConfigFile &configfile)
@@ -516,6 +519,9 @@ void CThemes::getTheme(CConfigFile &configfile)
 
 	// message frames
 	t.message_frame_enable = configfile.getInt32( "message_frame_enable", 0);
+
+	// hourglass position
+	t.hourglass_pos = configfile.getInt32( "hourglass_pos", 0);
 
 	if (g_settings.theme_name.empty())
 		applyDefaultTheme();
