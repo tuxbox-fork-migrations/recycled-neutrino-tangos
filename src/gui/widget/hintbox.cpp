@@ -38,6 +38,7 @@
 #include <driver/fontrenderer.h>
 #include <system/debug.h>
 #include <system/settings.h>
+#include <gui/widget/hourglass.h>
 
 #define MSG_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MESSAGE_TEXT]
 
@@ -202,13 +203,12 @@ void CHintBox::init(	const std::string& Text,
 
 CHintBox::~CHintBox()
 {
-	enable_timeout_bar = false;
-	disableTimeOutBar();
+	clearTimeOutBar();
 }
 
-void CHintBox::enableTimeOutBar(bool enable)
+void CHintBox::initTimeOutBar(bool do_init)
 {
-	if (!enable_timeout_bar || !enable)
+	if (!do_init)
 	{
 		if(timeout_pb_timer){
 			delete timeout_pb_timer; timeout_pb_timer = NULL;
@@ -220,10 +220,8 @@ void CHintBox::enableTimeOutBar(bool enable)
 			timeout_pb->kill();
 			delete timeout_pb; timeout_pb = NULL;
 		}
-		return;
 	}
-
-	if (enable_timeout_bar && enable)
+	else
 	{
 		if(timeout_pb){
 			timeout_pb->setValues(timeout_pb->getValue()+1, 10*timeout);
@@ -259,7 +257,7 @@ int CHintBox::exec()
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
-	enableTimeOutBar(timeout > 0);
+	initTimeOutBar(enable_timeout_bar && timeout > 0);
 
 	while ( ! ( res & ( messages_return::cancel_info | messages_return::cancel_all ) ) )
 	{
@@ -304,7 +302,7 @@ int CHintBox::exec()
 		}
 	}
 
-	disableTimeOutBar();
+	clearTimeOutBar();
 	return res;
 }
 
@@ -459,7 +457,7 @@ int ShowHint(const char * const Caption, const char * const Text, const int Widt
 	int res = messages_return::none;
 
 	CHintBox hintBox(Caption, Text, Width, Icon, Picon, header_buttons);
-	hintBox.setTimeOut(timeout);
+	hintBox.setTimeOut(timeout, true);
 	hintBox.paint();
 	res = hintBox.exec();
 	hintBox.hide();
@@ -497,11 +495,35 @@ CHint::CHint(const neutrino_locale_t Text, bool show_background) : CHintBox("" ,
 int ShowHintS(const char * const Text, int timeout, bool show_background)
 {
 	int res = messages_return::none;
+	CHint hint(Text, show_background);
+	CHourGlass hg(CFrameBuffer::getInstance()->getScreenX() + OFFSET_INNER_MID, CFrameBuffer::getInstance()->getScreenY());
+	hint.setTimeOut(timeout, false);
+
+	hint.paint();
+	hg.paint();
+	res = hint.exec();
+	hg.hide();
+	hint.hide();
+
+	return res;
+}
+
+int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout, bool show_background)
+{
+	int res = messages_return::none;
+
+	sigc::signal<void> OnCall;
+	OnCall.connect(Slot);
 
 	CHint hint(Text, show_background);
-	hint.setTimeOut(timeout);
+	CHourGlass hg(CFrameBuffer::getInstance()->getScreenX() + OFFSET_INNER_MID, CFrameBuffer::getInstance()->getScreenY());
+	hint.setTimeOut(timeout, false);
+
 	hint.paint();
+	hg.paint();
+	OnCall();
 	res = hint.exec();
+	hg.hide();
 	hint.hide();
 
 	return res;
@@ -510,4 +532,40 @@ int ShowHintS(const char * const Text, int timeout, bool show_background)
 int ShowHintS(const neutrino_locale_t Text, int timeout, bool show_background)
 {
 	return ShowHintS(g_Locale->getText(Text), timeout, show_background);
+}
+
+int ShowHintS(const std::string& Text, int timeout, bool show_background)
+{
+	return ShowHintS(Text.c_str(), timeout, show_background);
+}
+
+int ShowHintS(const neutrino_locale_t Text, const sigc::slot<void> &Slot, int timeout, bool show_background)
+{
+	return ShowHintS(g_Locale->getText(Text), Slot, timeout, show_background);
+}
+
+int ShowHintS(const std::string& Text, const sigc::slot<void> &Slot, int timeout, bool show_background)
+{
+	return ShowHintS(Text.c_str(), Slot, timeout, show_background);
+}
+
+int ShowHintS(const hint_message_data_t &hint_data)
+{
+	std::string text = !hint_data.text.empty() ? hint_data.text : g_Locale->getText(hint_data.text_locale);
+	return ShowHintS(text, hint_data.slot, hint_data.timeout, hint_data.show_background);
+}
+
+int ShowHintS(const std::vector<hint_message_data_t>& v_hint_data)
+{
+	int ret = messages_return::none;
+	for(size_t i=0; i<v_hint_data.size(); i++)
+	{
+		std::string txt = !v_hint_data.at(i).text.empty() ? v_hint_data.at(i).text : g_Locale->getText(v_hint_data.at(i).text_locale);
+		ret = ShowHintS(txt,
+			  v_hint_data.at(i).slot,
+			  v_hint_data.at(i).timeout,
+			  v_hint_data.at(i).show_background);
+	}
+
+	return ret;
 }

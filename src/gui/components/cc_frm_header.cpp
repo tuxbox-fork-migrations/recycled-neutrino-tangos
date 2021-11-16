@@ -132,9 +132,9 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 
 	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CComponentsHeader::resetFont));
 
-	shadow		= shadow_mode;
-	col_frame = col_frame_old 	= color_frame;
-	col_body = col_body_old		= color_body;
+	shadow				= shadow_mode;
+	col_frame 			= color_frame;
+	col_body_std			= color_body;
 	col_shadow = col_shadow_old	= color_shadow;
 
 	cc_body_gradient_enable	 	= cc_body_gradient_enable_old	= (cch_size_mode == CC_HEADER_SIZE_SMALL ? g_settings.theme.menu_SubHead_gradient : g_settings.theme.menu_Head_gradient);
@@ -182,7 +182,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 }
 
 void CComponentsHeader::initRepaintSlot(){
-	sl_form_repaint = sigc::bind(sigc::mem_fun(*this, &CComponentsHeader::kill), cc_parent ? col_body : 0, -1, CC_FBDATA_TYPES, false);
+	sl_form_repaint = sigc::bind(sigc::mem_fun(*this, &CComponentsHeader::kill), cc_parent ? col_body_std : 0, -1, CC_FBDATA_TYPES, false);
 	OnBeforeRePaint.connect(sl_form_repaint);
 }
 
@@ -271,62 +271,45 @@ void CComponentsHeader::initIcon()
 	//create instance for cch_icon_obj and add to container at once
 	if (cch_icon_obj == NULL){
 		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name.c_str());
-		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name, this);
+		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, "blank", this);
 	}
 
 	//set properties for icon object
 	if (cch_icon_obj){
-		//get dimensions of header icon
-		int iw = 0;
-		int ih = 0;
-		cch_icon_obj->getSize(&iw, &ih);
-		dprintf(DEBUG_INFO, "[CComponentsHeader]\n    [%s - %d] init icon size: iw = %d, ih = %d\n", __func__, __LINE__, iw, ih);
-		cch_icon_obj->setWidth(iw);
-		cch_icon_obj->setHeight(ih);
-		cch_icon_obj->doPaintBg(false);
-
 		//set corner mode of icon item
 		int cc_icon_corner_type = CORNER_LEFT;
 		if (corner_type & CORNER_TOP_LEFT || corner_type & CORNER_TOP)
 			cc_icon_corner_type = CORNER_TOP_LEFT;
-
 		cch_icon_obj->setCorner(corner_rad-fr_thickness, cc_icon_corner_type);
 
-		//global set width of icon object
+		cch_icon_obj->setPicture(cch_icon_name);
+		int dx_tmp = 0, dy_tmp = 0;
+		cch_icon_obj->getRealSize(&dx_tmp, &dy_tmp);
+		cch_icon_obj->setHeight(min(height, dy_tmp));
+
 		cch_icon_w = cch_icon_obj->getWidth();
-
-		//global adapt height
-		height = max(height, cch_icon_obj->getHeight());
-
-//		//re-assign height of icon object, for the case of changed height
-// 		cch_icon_obj->setHeight(height);
 	}
 }
 
 void CComponentsHeader::initLogo()
 {
 	// init logo with required height and logo
-	int h_logo = cch_logo.dy_max == -1 ? height - 2*OFFSET_INNER_MIN : cch_logo.dy_max;
+	int h_logo = cch_logo.dy_max == -1 ? height - OFFSET_INNER_SMALL : cch_logo.dy_max;
 
 	if(!cch_logo_obj)
-		cch_logo_obj = new CComponentsChannelLogoScalable(1, height/2 - h_logo/2, cch_logo.Name, cch_logo.Id, this);
-	else
-		cch_logo_obj->setChannel(cch_logo.Id, cch_logo.Name);
-
-	// use value 1 as initial value for logo width, ensures downscale with stupid available logo space
-	cch_logo_obj->setHeight(1, true);
-
-	//ensure logo is not larger than original size if in auto mode
-	if (cch_logo.dy_max == -1){
-		int dx_orig = 0, dy_orig = 0 ;
-		cch_logo_obj->getRealSize(&dx_orig, &dy_orig);
-		if (h_logo > dy_orig)
-			h_logo = dy_orig;
+	{
+		cch_logo_obj = new CComponentsChannelLogo(1, height/2 - h_logo/2, cch_logo.Name, cch_logo.Id, this);
+		cch_logo_obj->setAltLogo("blank");
 	}
+	else
+		cch_logo_obj->setChannel(cch_logo.Id, cch_logo.Name, 0, h_logo);
 
 	// manage logo position
-	if (cch_logo_obj->hasLogo()){
-		cch_logo_obj->setHeight(h_logo, true);
+	if (cch_logo_obj->hasLogo())
+	{
+		int dx_tmp = 0, dy_tmp = 0;
+		cch_logo_obj->getRealSize(&dx_tmp, &dy_tmp);
+		cch_logo_obj->setHeight(min(h_logo, dy_tmp));
 
 		/* Detect next and previous items,
 		 * current item is logo item.
@@ -338,8 +321,10 @@ void CComponentsHeader::initLogo()
 		/*
 		 * FIXME: Workaround to fix next item in case of wrong order of items.
 		*/
-		if (next_item){
-			if (next_item->getItemType() == CC_ITEMTYPE_FRM_ICONFORM){
+		if (next_item)
+		{
+			if (next_item->getItemType() == CC_ITEMTYPE_FRM_ICONFORM)
+			{
 				/*
 				 * Either clock is present or buttons are enabled,
 				 * different order of objects are required, not optimal
@@ -364,7 +349,7 @@ void CComponentsHeader::initLogo()
 		 * and adjust logo new width if required.
 		*/
 		int w_logo = min(cch_logo_obj->getWidth(), logo_space);
-		cch_logo_obj->setWidth(w_logo, true);
+		cch_logo_obj->setWidth(w_logo);
 
 		/*
 		 * Adjust logo x position depends of align parameters.
@@ -383,19 +368,21 @@ void CComponentsHeader::initLogo()
 			* but we must notice possible overlapp
 			* with previous or next item.
 			*/
-			if (cch_caption_align & CC_TITLE_LEFT){
-				if (prev_item){
+			if (cch_caption_align & CC_TITLE_LEFT)
+			{
+				if (prev_item)
+				{
 					int left_tag = prev_item->getXPos() + prev_item->getWidth();
 					if (x_logo <= left_tag)
 						x_logo = left_tag + logo_space/2 - w_logo/2;
 				}
 			}
 
-			if (cch_caption_align & CC_TITLE_RIGHT){
-				if (next_item){
+			if (cch_caption_align & CC_TITLE_RIGHT)
+			{
+				if (next_item)
 					if (x_logo + w_logo >= next_item->getXPos())
 						x_logo = next_item->getXPos() - logo_space/2 - w_logo/2;
-				}
 			}
 		}
 
@@ -505,10 +492,6 @@ void CComponentsHeader::initButtons()
 
 		//re-align height of button object
 		cch_btn_obj->setHeight(height);
-
-		//re-align height of icon object
-		if (cch_icon_obj)
-			cch_icon_obj->setHeight(height);
 	}
 }
 
@@ -670,7 +653,7 @@ void CComponentsHeader::initCaption()
 
 		//assign general properties
 		cch_text_obj->setDimensionsAll(cch_text_x, cch_items_y, cc_text_w, height);
-		cch_text_obj->setColorBody(col_body);
+		cch_text_obj->setColorBody(col_body_std);
 		if (cc_body_gradient_enable != cc_body_gradient_enable_old)
 			cch_text_obj->getCTextBoxObject()->clearScreenBuffer();
 		cch_text_obj->setText(cch_text, cch_caption_align, cch_font, cch_col_text);
@@ -697,7 +680,7 @@ void CComponentsHeader::initCCItems()
 	initCaptionFont();
 
 	//set basic properties
-	Init(x, y, width, height, col_frame, col_body, col_shadow);
+	Init(x, y, width, height, col_frame, col_body_std, col_shadow);
 
 	//init icon
 	initIcon();

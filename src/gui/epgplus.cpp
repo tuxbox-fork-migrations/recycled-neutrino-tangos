@@ -115,7 +115,6 @@ void EpgPlus::Header::paint(const char * Name)
 		this->head->setContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT);
 		this->head->enableClock(true, "%H:%M", "%H %M", true);
 		this->head->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
-		this->head->getClockObject()->setBlit(false);
 	}
 
 	if (this->head)
@@ -451,7 +450,7 @@ void EpgPlus::ChannelEntry::paint(bool isSelected, time_t _selectedTime)
 	int xPos = this->x + OFFSET_INNER_MID;
 	int numberWidth = 0;
 
-	this->logo = new CComponentsChannelLogoScalable(xPos, this->y, "", this->channel->channel_id);
+	this->logo = new CComponentsChannelLogo(xPos, this->y, this->channel->getName(), this->channel->channel_id);
 	if ((g_settings.channellist_show_channellogo) && this->logo->hasLogo())
 	{
 		this->logo->setWidth(std::min(this->logo->getWidth(), this->width - 2*OFFSET_INNER_MID), true);
@@ -931,8 +930,6 @@ int EpgPlus::exec(CChannelList * pchannelList, int selectedChannelIndex, CBouque
 
 		this->paint();
 		frameBuffer->blit();
-
-		this->header->head->getClockObject()->setBlit();
 
 		int timeout = g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST];
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);

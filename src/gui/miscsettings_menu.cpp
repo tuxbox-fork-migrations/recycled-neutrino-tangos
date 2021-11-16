@@ -42,7 +42,7 @@
 #include <gui/plugins.h>
 #include <gui/sleeptimer.h>
 #include <gui/zapit_setup.h>
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #include <gui/kerneloptions.h>
 #endif
 
@@ -68,6 +68,10 @@ CMiscMenue::CMiscMenue()
 {
 	width = 50;
 
+	fanNotifier = NULL;
+	cpuNotifier = NULL;
+	sectionsdConfigNotifier = NULL;
+
 	epg_save = NULL;
 	epg_save_standby = NULL;
 	epg_save_frequently = NULL;
@@ -75,6 +79,7 @@ CMiscMenue::CMiscMenue()
 	epg_read_now = NULL;
 	epg_read_frequently = NULL;
 	epg_dir = NULL;
+	epg_scan = NULL;
 }
 
 CMiscMenue::~CMiscMenue()
@@ -157,6 +162,9 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey == "epg_read_now" || actionKey == "epg_read_now_usermenu")
 	{
+		CHint *hint = new CHint(LOCALE_MISCSETTINGS_EPG_READ);
+		hint->paint();
+
 		struct stat my_stat;
 		if (stat(g_settings.epg_dir.c_str(), &my_stat) == 0)
 		{
@@ -170,6 +178,9 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 			g_Sectionsd->readSIfromXMLTV((*it).c_str());
 		}
 
+		sleep(1); // small delay for very fast hardware
+		delete hint;
+
 		if (actionKey == "epg_read_now_usermenu")
 			return menu_return::RETURN_EXIT_ALL;
 		else
@@ -178,16 +189,6 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	return showMiscSettingsMenu();
 }
-
-#if 0 //not used
-#define MISCSETTINGS_FB_DESTINATION_OPTION_COUNT 3
-const CMenuOptionChooser::keyval MISCSETTINGS_FB_DESTINATION_OPTIONS[MISCSETTINGS_FB_DESTINATION_OPTION_COUNT] =
-{
-	{ 0, LOCALE_OPTIONS_NULL   },
-	{ 1, LOCALE_OPTIONS_SERIAL },
-	{ 2, LOCALE_OPTIONS_FB     }
-};
-#endif
 
 #define MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTION_COUNT 2
 const CMenuOptionChooser::keyval MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTIONS[MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTION_COUNT] =
@@ -205,33 +206,6 @@ const CMenuOptionChooser::keyval CHANNELLIST_NEW_ZAP_MODE_OPTIONS[CHANNELLIST_NE
 };
 
 #ifdef CPU_FREQ
-#if HAVE_SH4_HARDWARE
-#define CPU_FREQ_OPTION_COUNT 6
-const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
-{
-	{ 0, LOCALE_CPU_FREQ_DEFAULT, NULL  },
-	{ 450, NONEXISTANT_LOCALE, "450 Mhz"},
-	{ 500, NONEXISTANT_LOCALE, "500 Mhz"},
-	{ 550, NONEXISTANT_LOCALE, "550 Mhz"},
-	{ 600, NONEXISTANT_LOCALE, "600 Mhz"},
-	{ 650, NONEXISTANT_LOCALE, "650 Mhz"}
-};
-#define CPU_FREQ_OPTION_STANDBY_COUNT 11
-const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS_STANDBY[CPU_FREQ_OPTION_STANDBY_COUNT] =
-{
-	{ 0, LOCALE_CPU_FREQ_DEFAULT, NULL  },
-	{ 200, NONEXISTANT_LOCALE, "200 Mhz"},
-	{ 250, NONEXISTANT_LOCALE, "250 Mhz"},
-	{ 300, NONEXISTANT_LOCALE, "300 Mhz"},
-	{ 350, NONEXISTANT_LOCALE, "350 Mhz"},
-	{ 400, NONEXISTANT_LOCALE, "400 Mhz"},
-	{ 450, NONEXISTANT_LOCALE, "450 Mhz"},
-	{ 500, NONEXISTANT_LOCALE, "500 Mhz"},
-	{ 550, NONEXISTANT_LOCALE, "550 Mhz"},
-	{ 600, NONEXISTANT_LOCALE, "600 Mhz"},
-	{ 650, NONEXISTANT_LOCALE, "650 Mhz"}
-};
-#else
 #define CPU_FREQ_OPTION_COUNT 13
 const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 {
@@ -249,7 +223,6 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 	{ 550, NONEXISTANT_LOCALE, "550 Mhz"},
 	{ 600, NONEXISTANT_LOCALE, "600 Mhz"}
 };
-#endif
 #endif /*CPU_FREQ*/
 
 const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[] =
@@ -286,8 +259,8 @@ int CMiscMenue::showMiscSettingsMenu()
 	int shortcut = 1;
 
 	//misc settings
-	fanNotifier = new CFanControlNotifier();
-	sectionsdConfigNotifier = new CSectionsdConfigNotifier();
+	if (sectionsdConfigNotifier == NULL)
+		sectionsdConfigNotifier = new CSectionsdConfigNotifier();
 	CMenuWidget misc_menue(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP);
 
 	misc_menue.addIntroItems(LOCALE_MISCSETTINGS_HEAD);
@@ -359,12 +332,14 @@ int CMiscMenue::showMiscSettingsMenu()
 #ifdef CPU_FREQ
 	//CPU
 	CMenuWidget misc_menue_cpu(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
+		if (cpuNotifier == NULL)
+			cpuNotifier = new CCpuFreqNotifier();
 	showMiscSettingsMenuCPUFreq(&misc_menue_cpu);
 	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CPU, true, NULL, &misc_menue_cpu, NULL, CRCInput::convertDigitToKey(shortcut++));
 	mf->setHint("", LOCALE_MENU_HINT_MISC_CPUFREQ);
 	misc_menue.addItem(mf);
 #endif /*CPU_FREQ*/
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	// kerneloptions
 	CKernelOptions kernelOptions;
 	mf = new CMenuForwarder(LOCALE_KERNELOPTIONS_HEAD, true, NULL, &kernelOptions, NULL, CRCInput::convertDigitToKey(shortcut++));
@@ -375,7 +350,12 @@ int CMiscMenue::showMiscSettingsMenu()
 	int res = misc_menue.exec(NULL, "");
 
 	delete fanNotifier;
+	fanNotifier = NULL;
 	delete sectionsdConfigNotifier;
+	sectionsdConfigNotifier = NULL;
+	delete cpuNotifier;
+	cpuNotifier = NULL;
+
 	return res;
 }
 
@@ -403,11 +383,9 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	//fan speed
 	if (g_info.hw_caps->has_fan)
 	{
-#if defined (BOXMODEL_IPBOX9900) || defined (BOXMODEL_IPBOX99)
-		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 0, 1, fanNotifier, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
-#else
+		if (fanNotifier == NULL)
+			fanNotifier = new CFanControlNotifier();
 		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
-#endif
 		mn->setHint("", LOCALE_MENU_HINT_FAN_SPEED);
 		ms_general->addItem(mn);
 	}
@@ -495,11 +473,11 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	epg_read_frequently = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_READ_FREQUENTLY, &g_settings.epg_read_frequently,  OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.epg_read, this);
 	epg_read_frequently->setHint("", LOCALE_MENU_HINT_EPG_READ_FREQUENTLY);
 
-	epg_dir = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, (g_settings.epg_save || g_settings.epg_read), g_settings.epg_dir, this, "epgdir");
-	epg_dir->setHint("", LOCALE_MENU_HINT_EPG_DIR);
-
 	epg_read_now = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_READ_NOW, g_settings.epg_read, NULL, this, "epg_read_now");
 	epg_read_now->setHint("", LOCALE_MENU_HINT_EPG_READ_NOW);
+
+	epg_dir = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, (g_settings.epg_save || g_settings.epg_read), g_settings.epg_dir, this, "epgdir");
+	epg_dir->setHint("", LOCALE_MENU_HINT_EPG_DIR);
 
 	epg_cache = std::to_string(g_settings.epg_cache);
 	if (epg_cache.length() < 2)
@@ -647,6 +625,7 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	CMenuWidget *ms_oservices = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ONLINESERVICES);
 	ms_oservices->addIntroItems(LOCALE_MISCSETTINGS_ONLINESERVICES);
 
+#ifndef ENABLE_TANGOS
 	// weather
 	weather_onoff = new CMenuOptionChooser(LOCALE_WEATHER_ENABLED, &g_settings.weather_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_weather_api_key());
 	weather_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_ENABLED);
@@ -665,6 +644,7 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	ms_oservices->addItem(mf_wl);
 
 	ms_oservices->addItem(GenericMenuSeparator);
+#endif
 
 	// tmdb
 	tmdb_onoff = new CMenuOptionChooser(LOCALE_TMDB_ENABLED, &g_settings.tmdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_tmdb_api_key());
@@ -754,13 +734,8 @@ void CMiscMenue::showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu)
 {
 	ms_cpu->addIntroItems(LOCALE_MISCSETTINGS_CPU);
 
-	CCpuFreqNotifier * cpuNotifier = new CCpuFreqNotifier();
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_NORMAL, &g_settings.cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true, cpuNotifier));
-#if HAVE_SH4_HARDWARE
-	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_STANDBY, &g_settings.standby_cpufreq, CPU_FREQ_OPTIONS_STANDBY, CPU_FREQ_OPTION_STANDBY_COUNT, true));
-#else
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_STANDBY, &g_settings.standby_cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true));
-#endif
 }
 #endif /*CPU_FREQ*/
 
@@ -780,6 +755,9 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		}
 		videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		videoDecoder->SetAudioDestination(g_settings.hdmi_cec_volume);
+#endif
 		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_CHANNELLIST_ENABLESDT))

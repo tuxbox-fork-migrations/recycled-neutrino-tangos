@@ -93,8 +93,8 @@ const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT
 	{ 1, LOCALE_AUDIOMENU_MONOLEFT  },
 	{ 2, LOCALE_AUDIOMENU_MONORIGHT }
 };
-#if HAVE_COOL_HARDWARE
-#ifdef BOXMODEL_CS_HD2
+#if HAVE_CST_HARDWARE
+#ifdef BOXMODEL_CST_HD2
 #define AUDIOMENU_SRS_OPTION_COUNT 3
 #else
 #define AUDIOMENU_SRS_OPTION_COUNT 2
@@ -103,7 +103,7 @@ const CMenuOptionChooser::keyval AUDIOMENU_SRS_OPTIONS[AUDIOMENU_SRS_OPTION_COUN
 {
 	{ 0 , LOCALE_AUDIO_SRS_ALGO_LIGHT },
 	{ 1 , LOCALE_AUDIO_SRS_ALGO_NORMAL },
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	{ 2 , LOCALE_AUDIO_SRS_ALGO_HEAVY }
 #endif
 };
@@ -117,17 +117,11 @@ const CMenuOptionChooser::keyval AUDIOMENU_AVSYNC_OPTIONS[AUDIOMENU_AVSYNC_OPTIO
 	{ 2, LOCALE_AUDIOMENU_AVSYNC_AM }
 };
 
-#if HAVE_SH4_HARDWARE
-#define AUDIOMENU_HDMI_DD_OPTION_COUNT 2
-#else
 #define AUDIOMENU_HDMI_DD_OPTION_COUNT 3
-#endif
 const CMenuOptionChooser::keyval AUDIOMENU_HDMI_DD_OPTIONS[AUDIOMENU_HDMI_DD_OPTION_COUNT] =
 {
 	{ HDMI_ENCODED_OFF,		LOCALE_OPTIONS_OFF		},
-#if !HAVE_SH4_HARDWARE
 	{ HDMI_ENCODED_AUTO,		LOCALE_AUDIOMENU_HDMI_DD_AUTO	},
-#endif
 	{ HDMI_ENCODED_FORCED,		LOCALE_AUDIOMENU_HDMI_DD_FORCE	}
 };
 
@@ -191,7 +185,7 @@ int CAudioSetup::showAudioSetup()
 	//clock rec
 	//CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	/* only coolstream has SRS stuff, so only compile it there */
 	//SRS
 	//SRS algo
@@ -251,12 +245,12 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(st);
 	//audioSettings->addItem(as_clockrec);
 	//---------------------------------------------------------
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	/* only coolstream has SRS stuff, so only compile it there */
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	audioSettings->addItem(as_oj_srsonoff);
 	audioSettings->addItem(as_oj_algo);
-#ifndef BOXMODEL_CS_HD2
+#ifndef BOXMODEL_CST_HD2
 	audioSettings->addItem(as_oj_noise);
 #endif
 	audioSettings->addItem(as_oj_volrev);
@@ -265,22 +259,6 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(mf);
 #endif
 
-#if HAVE_SH4_HARDWARE
-	CMenuOptionNumberChooser *ch;
-	audioSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_MIXER_VOLUME));
-	ch = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG,
-		(int *)&g_settings.audio_mixer_volume_analog, true, 0, 100, audioSetupNotifier);
-	ch->setNumberFormat("%d%%");
-	audioSettings->addItem(ch);
-	ch = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_MIXER_VOLUME_HDMI,
-		(int *)&g_settings.audio_mixer_volume_hdmi, true, 0, 100, audioSetupNotifier);
-	ch->setNumberFormat("%d%%");
-	audioSettings->addItem(ch);
-	ch = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_MIXER_VOLUME_SPDIF,
-		(int *)&g_settings.audio_mixer_volume_spdif, true, 0, 100, audioSetupNotifier);
-	ch->setNumberFormat("%d%%");
-	audioSettings->addItem(ch);
-#endif
 	audioSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUSTMENT));
 	audioSettings->addItem(adj_ac3);
 	audioSettings->addItem(adj_pcm);
@@ -289,7 +267,7 @@ int CAudioSetup::showAudioSetup()
 	int res = audioSettings->exec(NULL, "");
 	selected = audioSettings->getSelected();
 	delete audioSettings;
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	delete as_oj_noise;
 #endif
 	CZapit::getInstance()->SetVolumePercent(g_settings.audio_volume_percent_ac3, g_settings.audio_volume_percent_pcm);

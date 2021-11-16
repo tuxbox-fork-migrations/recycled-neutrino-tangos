@@ -38,6 +38,12 @@
 #include <dvbsi++/teletext_descriptor.h>
 #include <dvbsi++/subtitling_descriptor.h>
 #include <dvbsi++/vbi_teletext_descriptor.h>
+#if ENABLE_AIT
+#include <dvbsi++/application_information_section.h>
+#include <dvbsi++/application_name_descriptor.h>
+#include <dvbsi++/application_profile.h>
+#include <dvbsi++/application_descriptor.h>
+#endif
 
 #define DEBUG_PMT
 //#define DEBUG_PMT_UNUSED
@@ -144,13 +150,16 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 			{
 				RegistrationDescriptor *sd = (RegistrationDescriptor*) d;
 				switch (sd->getFormatIdentifier()) {
-				case 0x44545331:
-				case 0x44545332:
-				case 0x44545333:
+				case DRF_ID_DTS1:
+				case DRF_ID_DTS2:
+				case DRF_ID_DTS3:
 					audio_type = CZapitAudioChannel::DTS;
 					break;
-				case 0x41432d33:
+				case DRF_ID_AC3:
 					audio_type = CZapitAudioChannel::AC3;
+					break;
+				case DRF_ID_EAC3:
+					audio_type = CZapitAudioChannel::EAC3;
 					break;
 				default:
 #ifdef DEBUG_PMT
@@ -263,50 +272,85 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 		}
 	}
 	switch (stream_type) {
-	case 0x01: // MPEG1 Video
-	case 0x02: // MPEG2 Video (H262)
+	case STREAM_TYPE_VIDEO_MPEG1:
+	case STREAM_TYPE_VIDEO_MPEG2:
 		channel->setVideoPid(esinfo->getPid());
 		channel->type = CHANNEL_MPEG2;
 		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
 		break;
-	case 0x10: // AVC Video Stream (MPEG4 H263)
-	case 0x1b: // AVC Video Stream (MPEG4 H264)
+	case STREAM_TYPE_VIDEO_MPEG4:
+	case STREAM_TYPE_VIDEO_H264:
 		channel->setVideoPid(esinfo->getPid());
 		channel->type = CHANNEL_MPEG4;
 		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
 		break;
-	case 0x24: // HEVC Video Stream (MPEG4 H265)
-	case 0x27: // SHVC Video Stream (MPEG4 H265 TS)
+	case STREAM_TYPE_VIDEO_HEVC:
+	case STREAM_TYPE_VIDEO_SHVC:
 		channel->setVideoPid(esinfo->getPid());
 		channel->type = CHANNEL_HEVC;
 		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
 		break;
-	case 0x42: // CAVS Video Stream (China)
+	case STREAM_TYPE_VIDEO_CAVS:
 		channel->setVideoPid(esinfo->getPid());
 		channel->type = CHANNEL_CAVS;
 		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
 		break;
-	case 0x03: // MPEG1 Audio
-	case 0x04: // MPEG2 Audio
+	case STREAM_TYPE_AUDIO_MPEG1:
+	case STREAM_TYPE_AUDIO_MPEG2:
 		audio_type = CZapitAudioChannel::MPEG;
 		audio = true;
 		break;
-	case 0x06: // MPEG2 Subtitiles
+	case STREAM_TYPE_PRIVATE_DATA: // MPEG2 Subtitles
 		if(audio_type != CZapitAudioChannel::UNKNOWN)
 			audio = true;
 		break;
-	case 0x0F: // AAC ADTS (MPEG2)
+	case STREAM_TYPE_AUDIO_AAC:
 		audio_type = CZapitAudioChannel::AAC;
 		audio = true;
 		break;
-	case 0x11: // AAC LATM (MPEG4)
+	case STREAM_TYPE_AUDIO_AAC_LATM:
 		audio_type = CZapitAudioChannel::AACPLUS;
 		audio = true;
 		break;
-	case 0x81: // Dolby Digital
+	case STREAM_TYPE_AUDIO_AC3:
 		audio_type = CZapitAudioChannel::AC3;
 		audio = true;
 		break;
+	case STREAM_TYPE_AUDIO_DTS:
+		audio_type = CZapitAudioChannel::DTS;
+		audio = true;
+		break;
+// STREAM_TYPE_AUDIO_DTSHD: SCTE-35[5] digital program insertion cue message
+// or DTS 8 channel lossless audio in a packetized stream
+// disabled until furhther detection
+#if 0
+	case STREAM_TYPE_AUDIO_DTSHD:
+		audio_type = CZapitAudioChannel::DTSHD;
+		audio = true;
+		break;
+#endif
+	case STREAM_TYPE_AUDIO_LPCM:
+		audio_type = CZapitAudioChannel::LPCM;
+		audio = true;
+		break;
+	case STREAM_TYPE_AUDIO_EAC3:
+		audio_type = CZapitAudioChannel::EAC3;
+		audio = true;
+		break;
+#if ENABLE_AIT
+	case STREAM_TYPE_PRIVATE_SECTION:
+		for (DescriptorConstIterator desc = esinfo->getDescriptors()->begin(); desc != esinfo->getDescriptors()->end(); ++desc)
+		{
+			switch ((*desc)->getTag())
+			{
+				case APPLICATION_SIGNALLING_DESCRIPTOR:
+					channel->setAitPid(esinfo->getPid());
+					printf("[pmt] found aitpid: 0x%x\n", esinfo->getPid());
+					break;
+			}
+		}
+		break;
+#endif
 	default:
 #ifdef DEBUG_PMT_UNUSED
 		printf("PMT: pid %04x stream_type: %02x\n", esinfo->getPid(), stream_type);
@@ -397,7 +441,7 @@ int pmt_set_update_filter(CZapitChannel * const channel, int * fd)
 	mask[2] = 0xFF;
 	mask[4] = 0xFF;
 
-#if 0 //HAVE_COOL_HARDWARE
+#if 0 //HAVE_CST_HARDWARE
 	printf("[pmt] set update filter, sid 0x%x pid 0x%x version %x\n", channel->getServiceId(), channel->getPmtPid(), channel->getCaPmt()->version_number);
 	filter[3] = (((channel->getCaPmt()->version_number + 1) & 0x01) << 1) | 0x01;
 	mask[3] = (0x01 << 1) | 0x01;
@@ -417,15 +461,9 @@ int pmt_set_update_filter(CZapitChannel * const channel, int * fd)
 int pmt_stop_update_filter(int * fd)
 {
 	DBG("[pmt] stop update filter\n");
-#if HAVE_TRIPLEDRAGON
-	if (pmtDemux)
-		delete pmtDemux;
-	/* apparently a close/reopen is needed on TD... */
-	pmtDemux = NULL;
-#else
+
 	if(pmtDemux)
 		pmtDemux->Stop();
-#endif
 
 	*fd = -1;
         return 0;

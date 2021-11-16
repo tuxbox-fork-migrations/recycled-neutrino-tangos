@@ -65,7 +65,7 @@
 #include <system/helpers.h>
 #include <gui/components/cc_timer.h>
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 extern int cs_test_card(int unit, char * str);
 #endif
 
@@ -84,7 +84,9 @@ CTestMenu::CTestMenu()
 	width = 50;
 	circle = NULL;
 	sq = NULL;
-	pic = chnl_pic = NULL;
+	pic = NULL;
+	picsvg = NULL;
+	chnl_pic = NULL;
 	form = NULL;
 	txt = NULL;
 	header = NULL;
@@ -103,6 +105,7 @@ CTestMenu::~CTestMenu()
 	delete sq;
 	delete circle;
 	delete pic;
+	delete picsvg;
 	delete form;
 	delete txt;
 	delete header;
@@ -204,7 +207,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	else if (actionKey == "card0")
 	{
 		char str[255];
@@ -429,12 +432,23 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (pic == NULL)
 			pic = new CComponentsPicture (100, 100, 200, 100, ICONSDIR "/mp3-5.jpg");
 
-		if (!pic->isPainted() && !pic->isPicPainted())
+		if (!pic->isPainted())
 			pic->paint();
 		else
 			pic->hide();
 		return res;
 	}
+	else if (actionKey == "picture_svg"){
+		if (picsvg == NULL)
+		picsvg = new CComponentsPicture (100, 100, 100, 0, "tux");
+
+		if (!picsvg->isPainted())
+			picsvg->paint();
+		else
+			picsvg->hide();
+
+	 return res;
+     }
 	else if (actionKey == "blink"){
 		if (sq == NULL)
 			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_OLIVE, COL_LIGHT_GRAY, COL_RED);
@@ -460,13 +474,25 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if (actionKey == "channellogo"){
-		if (chnl_pic == NULL)
-			chnl_pic = new CComponentsChannelLogo(100, 100, "ProSieben", 0);
+		uint64_t chid = CZapit::getInstance()->GetCurrentChannelID();
+		std::string chname = "";
+		if (CServiceManager::getInstance()->FindChannel(chid))
+			chname = CServiceManager::getInstance()->FindChannel(chid)->getName();
 
-		if (!chnl_pic->isPainted() && !chnl_pic->isPicPainted())
+		if (chnl_pic == NULL)
+			chnl_pic = new CComponentsChannelLogo(100, 100, 0, 50, chname, chid);
+
+		if (!chnl_pic->isPainted())
+		{
 			chnl_pic->paint();
+			ShowHint("Logotest", chnl_pic->getPictureName().c_str(), 700, 2);
+		}
 		else
+		{
 			chnl_pic->hide();
+			delete chnl_pic;
+			chnl_pic = NULL;
+		}
 		return res;
 	}
 	else if (actionKey == "form"){
@@ -601,14 +627,14 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if (actionKey == "header"){
-		int hh = 30;//g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+		int hh = 0;//g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (header == NULL){
 			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header"/*, NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU*/);
 			header->addContextButton(NEUTRINO_ICON_BUTTON_RED);
 			header->addContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		}
 		else{	//For existing instances it's recommended to remove old button icons before add new buttons,
-			//otherwise icons will be appended to already existant icons, alternatively use the setContextButton() methode
+			//otherwise icons will be appended to already existent icons, alternatively use the setContextButton() methode
  			header->removeContextButtons();
 			//enable clock in header with default format
 			header->enableClock(true, "%H:%M", "%H %M", true);
@@ -1013,6 +1039,58 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		term.exec();
 		return menu_return::RETURN_REPAINT;
 	}
+	else if (actionKey == "short_hint"){
+		CHint *hint = new CHint("Short hint with sleep and CHint instance");
+		// Set the message window outside of screen mid to demonstrate the hide behavior,
+		// so that the hide behavior will not be influenced by any other window or menu.
+		hint->setPos(10, 10);
+		hint->paint();
+		sleep(3);
+		// We must call hide() or kill() explicitly, because there is no instruction of hide() inside any destructors.
+		// This behavior is by design.
+		hint->hide();
+		delete hint;
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "short_hint_timed"){
+		ShowHintS("Info Test...", 3, true);
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "short_hint_timed_slot"){
+		ShowHintS("Info test with function...", sigc::mem_fun(*this, &CTestMenu::showRecords), 3);
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "short_hint_struct"){
+		hint_message_data_t hint;
+		hint.text = "Info Test...";
+		hint.slot = sigc::mem_fun(*this, &CTestMenu::showRecords);
+		hint.timeout = 3;
+		ShowHintS(hint);
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey=="restarttuner")
+	{
+#if 0
+// 		use with CHint instance
+		CHint *hint = new CHint("Restart Tuner");
+		hint->paint();
+		g_Zapit->setStandby(true);
+		sleep(2);
+		g_Zapit->setStandby(false);
+		sleep(2);
+		g_Zapit->Rezap();
+		delete hint;
+#endif
+// 		Use of ShowHintS with slot does the same like previous block,
+// 		but with multiple messages and despite that with lesser effort.
+		std::vector <hint_message_data_t> hints;
+		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), true),"Stopping tuner...", NONEXISTANT_LOCALE, 2, true});
+		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), false), "Start tuner...", NONEXISTANT_LOCALE, 2, true});
+		hints.push_back({sigc::hide_return(sigc::mem_fun(g_Zapit, &CZapitClient::Rezap)), "Rezap...", NONEXISTANT_LOCALE, 2, true});
+		ShowHintS(hints);
+
+		return menu_return::RETURN_REPAINT;
+	}
 	else if (actionKey == "msgbox_alt_btn"){
 		CMsgBox msgBox("Variable buttontext...", "Msgbox Test");
 		msgBox.setShowedButtons(CMsgBox::mbNo | CMsgBox::mbYes);
@@ -1031,7 +1109,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "footer_key"){
 		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Footer-Key pressed. Press EXIT to return", 350, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
-		hintBox.setTimeOut(15);
+		hintBox.setTimeOut(15, true);
 
 		//optional: it is also possible to add more items into the hint box
 		//here some examples:
@@ -1225,6 +1303,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Blinking-Square", true, NULL, this, "blink"));
 	widget->addItem(new CMenuForwarder("Blinking-Image", true, NULL, this, "blink_image"));
 	widget->addItem(new CMenuForwarder("Picture", true, NULL, this, "picture"));
+	widget->addItem(new CMenuForwarder("Picture SVG", true, NULL, this, "picture_svg"));
 	widget->addItem(new CMenuForwarder("Channel-Logo", true, NULL, this, "channellogo"));
 	widget->addItem(new CMenuForwarder("Form", true, NULL, this, "form"));
 	widget->addItem(new CMenuForwarder("Form with blinking item", true, NULL, this, "form_blink_item"));
@@ -1245,12 +1324,14 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 	widget->addIntroItems();
 	widget->addItem(new CMenuForwarder("VFD", true, NULL, this, "vfd"));
 	widget->addItem(new CMenuForwarder("Network", true, NULL, this, "network"));
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	widget->addItem(new CMenuForwarder("Smartcard 1", true, NULL, this, "card0"));
 	widget->addItem(new CMenuForwarder("Smartcard 2", true, NULL, this, "card1"));
 #endif
 	widget->addItem(new CMenuForwarder("HDD", true, NULL, this, "hdd"));
 	widget->addItem(new CMenuForwarder("SD/MMC", true, NULL, this, "mmc"));
+	widget->addItem(new CMenuForwarder("Tuner Reset", true, NULL, this, "restarttuner"));
+
 #if 0 //some parts DEPRECATED
 	for (unsigned i = 0; i < sizeof(test_pos)/sizeof(int); i++) {
 		CServiceManager::getInstance()->InitSatPosition(test_pos[i], NULL, true);
@@ -1318,6 +1399,11 @@ void CTestMenu::showMsgTests(CMenuWidget *widget)
 	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "Error/Info"));
 	widget->addItem(new CMenuForwarder("Error Message!", true, NULL, this, "msgbox_error"));
 	widget->addItem(new CMenuForwarder("Info Message!", true, NULL, this, "msgbox_info"));
+	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "Short Hint"));
+	widget->addItem(new CMenuForwarder("Short hint!", true, NULL, this, "short_hint"));
+	widget->addItem(new CMenuForwarder("Short hint with timeout!", true, NULL, this, "short_hint_timed"));
+	widget->addItem(new CMenuForwarder("Short hint with timeout and function!", true, NULL, this, "short_hint_timed_slot"));
+	widget->addItem(new CMenuForwarder("Short hint with struct arg!", true, NULL, this, "short_hint_struct"));
 }
 
 void CTestMenu::showSeparatorTypes(CMenuWidget *widget)

@@ -53,8 +53,8 @@ struct NeutrinoMessages {
 	{
 		SHOW_EPG		=	CRCInput::RC_Messages + 1,
 		SHOW_INFOBAR		=	CRCInput::RC_Messages + 2,
-		VCR_ON			=	CRCInput::RC_Messages + 3,
-		VCR_OFF			=	CRCInput::RC_Messages + 4,
+		AVINPUT_ON		=	CRCInput::RC_Messages + 3,
+		AVINPUT_OFF		=	CRCInput::RC_Messages + 4,
 		STANDBY_ON		=	CRCInput::RC_Messages + 5,
 		STANDBY_OFF		=	CRCInput::RC_Messages + 6,
 		STANDBY_TOGGLE		=	CRCInput::RC_Messages + 7,
@@ -77,6 +77,7 @@ struct NeutrinoMessages {
 		RELOAD_SETUP            =       CRCInput::RC_Messages + 24,
 		SHOW_MAINMENU           =       CRCInput::RC_Messages + 25,
 		LEAVE_ALL               =       CRCInput::RC_Messages + 26,
+		RESTART                 =       CRCInput::RC_Messages + 27,
 
 
 		EVT_VOLCHANGED                           = CRCInput::RC_Events + 1,
@@ -124,6 +125,9 @@ struct NeutrinoMessages {
 		EVT_CA_MESSAGE                           = CRCInput::RC_Events + 60, /* data = CA_MESSAGE pointer */
 		EVT_SUBT_MESSAGE                         = CRCInput::RC_Events + 61, /* data = subtitles pointer */
 		EVT_AUTO_SET_VIDEOSYSTEM                 = CRCInput::RC_Events + 62, /* data = new video system */
+
+		/* sectionsd */
+		EVT_RELOAD_XMLTV                         = CRCInput::RC_Events + 63,
 		/* END */
 
 		EVT_CURRENTEPG                           = CRCInput::RC_WithData +  1,
@@ -179,7 +183,7 @@ struct NeutrinoModes
 		mode_unknown = -1,
 		mode_tv = 1,
 		mode_radio = 2,
-		mode_scart = 3,
+		mode_avinput = 3,
 		mode_standby = 4,
 		mode_audio = 5,
 		mode_pic = 6,

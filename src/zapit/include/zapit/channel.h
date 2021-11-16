@@ -100,12 +100,14 @@ class CZapitAudioChannel
 		unsigned char		componentTag;
 
 	enum ZapitAudioChannelType {
-		MPEG,
-		AC3,
-		AAC,
-		AACPLUS, //?
-		DTS,
-		EAC3,
+		MPEG = 1,
+		AC3 = 0,
+		AAC = 8,
+		AACPLUS = 9,
+		DTS = 2,
+		LPCM = 6,
+		DTSHD = 0x10,
+		EAC3 = 0x22,
 		UNKNOWN
 	};
 	ZapitAudioChannelType audioChannelType;
@@ -125,6 +127,8 @@ class CZapitChannel
 		std::string script;
 		/* TODO : Enable different unames in different bouquets ( generated bouquetID ? ) */
 		std::string uname;
+		/* EPG Name/ID mapping */
+		std::string epgmapper;
 		t_channel_id epg_id;
 
 		/* WebTV/WebRadio */
@@ -138,6 +142,7 @@ class CZapitChannel
 
 		unsigned short			pcrPid;
 		unsigned short			pmtPid;
+		unsigned short			aitPid;
 		unsigned short			teletextPid;
 		unsigned short			videoPid;
 		unsigned short			audioPid;
@@ -194,7 +199,6 @@ class CZapitChannel
 
 		unsigned int			bLockCount;
 		bool				bLocked;
-		bool				bUseCI;
 
 		int				number;
 		CChannelEvent			currentEvent,nextEvent;
@@ -220,6 +224,8 @@ class CZapitChannel
 		t_original_network_id	getOriginalNetworkId(void) 	const { return original_network_id; }
 		std::string		getScriptName(void)		const { return script; }
 		inline void		setScriptName(const std::string &pscript) { script = pscript; }
+		std::string		getEPGmap(void)		const { return epgmapper; }
+		inline void		setEPGmap(const std::string &pepgmapper) { epgmapper = pepgmapper; }
 		unsigned char        	getServiceType(bool real=false);
 		bool			isUHD();
 		bool			isHD();
@@ -237,6 +243,7 @@ class CZapitChannel
 		unsigned char 		getAudioChannelCount(void)	{ return (unsigned char) audioChannels.size(); }
 		unsigned short		getPcrPid(void)			{ return pcrPid; }
 		unsigned short		getPmtPid(void)			{ return pmtPid; }
+		unsigned short		getAitPid(void)			{ return aitPid; }
 		unsigned short		getTeletextPid(void)		{ return teletextPid; }
 		const char *		getTeletextLang(void)		{ return ttx_language_code.c_str(); }
 		unsigned short		getVideoPid(void)		{ return videoPid; }
@@ -260,6 +267,7 @@ class CZapitChannel
 		void setAudioChannel(unsigned char pAudioChannel)	{ if (pAudioChannel < audioChannels.size()) currentAudioChannel = pAudioChannel; }
 		void setPcrPid(unsigned short pPcrPid)			{ pcrPid = pPcrPid; }
 		void setPmtPid(unsigned short pPmtPid)			{ pmtPid = pPmtPid; }
+		void setAitPid(unsigned short pAitPid)			{ aitPid = pAitPid; }
 		void setTeletextPid(unsigned short pTeletextPid)	{ teletextPid = pTeletextPid; }
 		void setTeletextLang(std::string lang)			{ ttx_language_code = lang; };
 		void setVideoPid(unsigned short pVideoPid)		{ videoPid = pVideoPid; }
@@ -276,7 +284,7 @@ class CZapitChannel
 
 		void addDVBSubtitle(const unsigned int pid, const std::string langCode, const unsigned char subtitling_type, const unsigned short composition_page_id, const unsigned short ancillary_page_id);
 
-		unsigned getSubtitleCount() const { return channelSubs.size(); };
+		size_t getSubtitleCount() const { return channelSubs.size(); };
 		CZapitAbsSub* getChannelSub(int index = -1);
 		int getChannelSubIndex(void);
 		void setChannelSub(int subIdx);

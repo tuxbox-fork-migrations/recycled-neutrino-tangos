@@ -64,17 +64,9 @@ public:
 		EXIT_SHUTDOWN = 0,	// g_info.hw_caps->can_shutdown == 1
 		EXIT_REBOOT = 1,
 		EXIT_NOTUSED = 2,
-		EXIT_CHANGEGUI = 3
+		EXIT_RESTART = 3
 	};
 	void ExitRun(int can_shutdown = 0);
-
-	enum
-	{
-		RECORDING_OFF    = 0,
-		RECORDING_SERVER = 1,
-		RECORDING_VCR    = 2,
-		RECORDING_FILE   = 3
-	};
 
 private:
 	CFrameBuffer * frameBuffer;
@@ -121,7 +113,7 @@ private:
 
 	void tvMode( bool rezap = true );
 	void radioMode( bool rezap = true );
-	void scartMode( bool bOnOff );
+	void AVInputMode( bool bOnOff );
 	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
@@ -173,6 +165,12 @@ public:
 	void channelsInit(bool bOnly = false);
 	int run(int argc, char **argv);
 
+#ifdef ENABLE_PIP
+	bool avinput_pip;
+	void StartAVInputPiP();
+	void StopAVInputPiP();
+#endif
+
 	//callback stuff only....
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 
@@ -210,7 +208,7 @@ public:
 	void numericZap(int msg);
 	void StopSubtitles(bool enable_glcd_mirroring = true);
 	void StartSubtitles(bool show = true);
-	bool StartPip(const t_channel_id channel_id);
+	bool StartPip(const t_channel_id channel_id, int pip = 0);
 	void SelectSubtitles();
 	void showInfo(void);
 	void showMainMenu(void);
@@ -237,7 +235,25 @@ public:
 	void channelRezap();
 
 	void g_settings_video_Mode(int value) { g_settings.video_Mode = value; }
+
+	void g_settings_xmltv_xml_auto_clear()
+	{
+		g_settings.xmltv_xml_auto.clear();
+	}
+	void g_settings_xmltv_xml_auto_pushback(std::string _xmltv_url)
+	{
+		if (find(g_settings.xmltv_xml_auto.begin(), g_settings.xmltv_xml_auto.end(), _xmltv_url) == g_settings.xmltv_xml_auto.end())
+			g_settings.xmltv_xml_auto.push_back(_xmltv_url);
+	}
+	void xmltv_xml_readepg()
+	{
+		for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); it++)
+			g_Sectionsd->readSIfromXMLTV((*it).c_str());
+	}
+	void xmltv_xml_auto_readepg()
+	{
+		for (std::list<std::string>::iterator it = g_settings.xmltv_xml_auto.begin(); it != g_settings.xmltv_xml_auto.end(); it++)
+			g_Sectionsd->readSIfromXMLTV((*it).c_str());
+	}
 };
 #endif
-
-

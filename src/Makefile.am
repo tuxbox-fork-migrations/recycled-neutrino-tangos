@@ -31,10 +31,6 @@ AM_CPPFLAGS = \
 	@LUA_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
-if BOXTYPE_TRIPLE
-SUBDIRS += lcddisplay
-endif
-
 if USE_PUGIXML
 PUGIXML_LIBS = -lpugixml
 endif
@@ -69,7 +65,7 @@ rcsim_SOURCES = rcsim.c rcsim.h
 
 AM_CPPFLAGS += -D_FILE_OFFSET_BITS=64
 
-if BOXMODEL_CS_HD2
+if BOXMODEL_CST_HD2
 MTDUTILSLIBS = \
 	system/mtdutils/libneutrino_system_mtdutils.a \
 	system/mtdutils/lib/libneutrino_system_mtdutils_lib.a
@@ -142,7 +138,9 @@ neutrino_LDADD += \
 endif
 
 if ENABLE_GRAPHLCD
-neutrino_LDADD += -lglcddrivers -lglcdgraphics -lusb-1.0
+neutrino_LDADD += \
+	driver/glcd/libneutrino_driver_glcd.a \
+	-lglcddrivers -lglcdgraphics -lusb-1.0
 endif
 
 if ENABLE_GIFLIB
@@ -164,7 +162,7 @@ neutrino_LDADD += \
 	$(top_builddir)/lib/libupnpclient/libtuxbox-upnpclient.a
 endif
 
-if BOXTYPE_COOL
+if BOXTYPE_CST
 neutrino_LDADD += \
 	$(top_builddir)/lib/hardware/coolstream/libhwcaps.a
 if ENABLE_LIBCOOLSTREAM_STATIC
@@ -174,22 +172,14 @@ else
 neutrino_LDADD += -lcoolstream-mt -lca-sc
 endif
 
-if BOXMODEL_CS_HD2
+if BOXMODEL_CST_HD2
 neutrino_LDADD += -lca-ci -llnxtmvssUsr -llnxUKAL -llnxplatUsr -llnxtmasUsr -llnxdvbciUsr -llnxpvrUsr -llnxcssUsr -llnxnotifyqUsr -ltmpvrDataManager-cst -ltmpvrIndexStorage -llnxscsUsr
 else
 neutrino_LDADD += -lnxp
 endif
 
-if BOXMODEL_CS_HD2
+if BOXMODEL_CST_HD2
 neutrino_LDADD += -liconv
-endif
-
-if BOXTYPE_SPARK
-neutrino_LDADD += -lass
-endif
-
-if BOXTYPE_DUCKBOX
-neutrino_LDADD += -lass
 endif
 
 if BOXTYPE_ARMBOX
@@ -208,17 +198,12 @@ bin_PROGRAMS += mdev_helper
 mdev_helper_SOURCES = mdev_helper.cpp
 endif
 
-if BOXTYPE_TRIPLE
-neutrino_LDADD += \
-	$(top_builddir)/src/lcddisplay/liblcddisplay.a
-endif
-
 if BOXMODEL_RASPI
 neutrino_LDADD += \
 	-L/opt/vc/lib/ -lbcm_host -lvcos -lvchiq_arm -lpthread -lrt
 endif
 
-if BOXTYPE_COOL
+if BOXTYPE_CST
 bin_PROGRAMS += shutdown_helper
 shutdown_helper_SOURCES = shutdown_helper.c
 endif

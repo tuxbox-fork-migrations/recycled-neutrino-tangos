@@ -34,6 +34,7 @@
 #include <config.h>
 #endif
 #include <sstream>
+#include <limits>
 
 #include <gui/channellist.h>
 
@@ -90,7 +91,6 @@
 
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
-extern CLCD4l *LCD4l;
 #endif
 
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
@@ -581,12 +581,8 @@ bool CChannelList::updateSelection(int newpos)
 
 		liststart = (selected/listmaxshow)*listmaxshow;
 		if (oldliststart != liststart) {
-			if(!edit_state && header)
-				header->getClockObject()->setBlit(false);
 			paintBody();
 			showChannelLogo();
-			if(!edit_state && header)
-				header->getClockObject()->setBlit();
 			updateVfd();
 		} else {
 			paintItem(prev_selected - liststart);
@@ -690,7 +686,7 @@ int CChannelList::show()
 			}
 		}
 		else if(!edit_state && !empty && msg == (neutrino_msg_t) g_settings.key_record) { //start direct recording from channellist
-			if((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) && SameTP() /* && !IS_WEBCHAN((*chanlist)[selected]->getChannelID()) */) {
+			if(SameTP() /* && !IS_WEBCHAN((*chanlist)[selected]->getChannelID()) */) {
 				printf("[neutrino channellist] start direct recording...\n");
 				hide();
 				if (!CRecordManager::getInstance()->Record((*chanlist)[selected]->getChannelID())) {
@@ -985,10 +981,10 @@ int CChannelList::show()
 		editMode(false);
 
 #ifdef ENABLE_GRAPHLCD
-	nGLCD::unlockChannel();
+	cGLCD::unlockChannel();
 #endif
 #ifdef ENABLE_LCD4LINUX
-	LCD4l->RemoveFile("/tmp/lcd/menu");
+	CLCD4l::getInstance()->RemoveFile("/tmp/lcd/menu");
 #endif
 
 	if(!dont_hide){
@@ -1506,11 +1502,7 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 		size_t cactive = sl;
 
 		printf("CChannelList::getPrevNextChannel: selected %d total %d active bouquet %d total %d\n", (int)cactive, (int)(*chanlist).size(), bactive, bsize);
-#if HAVE_SH4_HARDWARE
-		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left) || (key == CRCInput::RC_page_down)) {
-#else
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
-#endif
 			if(cactive == 0) {
 				bactive = getPrevNextBouquet(false);
 				if (bactive >= 0) {
@@ -1520,11 +1512,7 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 			} else
 				--cactive;
 		}
-#if HAVE_SH4_HARDWARE
-		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_right) || (key == CRCInput::RC_page_up)) {
-#else
 		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
-#endif
 			cactive++;
 			if(cactive >= (*chanlist).size()) {
 				bactive = getPrevNextBouquet(true);
@@ -1539,21 +1527,13 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 		printf("CChannelList::getPrevNextChannel: selected %d total %d active bouquet %d total %d channel %p (%s)\n",
 				(int)cactive, (int)(*chanlist).size(), bactive, bsize, channel, channel ? channel->getName().c_str(): "");
 	} else {
-#if HAVE_SH4_HARDWARE
-		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left) || (key == CRCInput::RC_page_down)) {
-#else
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
-#endif
 			if(sl == 0)
 				sl = (*chanlist).size()-1;
 			else
 				sl--;
 		}
-#if HAVE_SH4_HARDWARE
-		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_right) || (key == CRCInput::RC_page_up)) {
-#else
 		else if ((key==g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
-#endif
 			sl = (sl+1)%(*chanlist).size();
 		}
 		channel = (*chanlist)[sl];
@@ -1921,8 +1901,6 @@ void CChannelList::paintButtonBar(bool is_current)
 		}
 		if (i == 4) {
 			//manage record button
-			if (g_settings.recording_type == RECORDING_OFF)
-				continue;
 			if (IS_WEBCHAN(channel_id))
 				continue;
 			if (displayMode == DISPLAY_MODE_NOW)
@@ -2087,7 +2065,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		const char *scramble_icon = NULL;
 		if (chan->scrambled)
 #ifdef ENABLE_TANGOS
-			scramble_icon = NEUTRINO_ICON_SCRAMBLED2;
+			scramble_icon = NEUTRINO_ICON_SCRAMBLED;
 #else
 			scramble_icon = NEUTRINO_ICON_MARKER_SCRAMBLED;
 #endif
@@ -2238,15 +2216,16 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			}
 
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, ch_name_len, nameAndDescription, color);
+			int descr_offset = fheight/2 - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight()/2;
 			if (g_settings.channellist_epgtext_align_right)
 			{
 				// align right
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - SCROLLBAR_WIDTH - offset_right - ch_desc_len, ypos + fheight, ch_desc_len, p_event->description, ecolor);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - SCROLLBAR_WIDTH - offset_right - ch_desc_len, ypos + fheight - descr_offset, ch_desc_len, p_event->description, ecolor);
 			}
 			else
 			{
 				// align left
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + ch_name_len, ypos + fheight, ch_desc_len, p_event->description, ecolor);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + ch_name_len, ypos + fheight - descr_offset, ch_desc_len, p_event->description, ecolor);
 			}
 		}
 		else
@@ -2293,11 +2272,11 @@ void CChannelList::updateVfd()
 
 #ifdef ENABLE_GRAPHLCD
 	if(g_settings.glcd_enable)
-		nGLCD::lockChannel(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), chan->getName().c_str(), 0);
+		cGLCD::lockChannel(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), chan->getName().c_str(), 0);
 #endif
 #ifdef ENABLE_LCD4LINUX
 	if (g_settings.lcd4l_support)
-		LCD4l->CreateFile("/tmp/lcd/menu", chan->getName().c_str(), g_settings.lcd4l_convert);
+		CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", chan->getName().c_str(), g_settings.lcd4l_convert);
 #endif
 }
 
@@ -2308,8 +2287,6 @@ void CChannelList::paint()
 	TIMER_STOP("CChannelList::paint() after paint head");
 	paintBody();
 	showChannelLogo();
-	if(!edit_state && header)
-			header->getClockObject()->setBlit();
 	TIMER_STOP("CChannelList::paint() after paint body");
 	updateVfd();
 	TIMER_STOP("CChannelList::paint() paint total");
@@ -2361,7 +2338,6 @@ void CChannelList::paintHead()
 
 			if (header->getClockObject()) {
 				header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
-				header->getClockObject()->setBlit(false);
 			}
 		}else{
 			if (header->getClockObject()){
@@ -2479,14 +2455,6 @@ bool CChannelList::SameTP(CZapitChannel * channel)
 
 		if (IS_WEBCHAN(channel->getChannelID()))
 			return true;
-
-		// Usable CI channel while recording
-		if(g_settings.ci_mode != 0 && channel->bUseCI && CRecordManager::getInstance()->getUseCI()) {
-			if(g_settings.ci_mode == 1)
-				return (CRecordManager::getInstance()->SameTransponder(channel->getChannelID())); // SameTransponder
-			else
-				return false; // No other CI channel
-		}
 
 		iscurrent = CFEManager::getInstance()->canTune(channel);
 	}

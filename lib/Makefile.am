@@ -17,7 +17,7 @@ SUBDIRS += \
 	libupnpclient
 endif
 
-if BOXTYPE_COOL
+if BOXTYPE_CST
 SUBDIRS += \
 	hardware/coolstream
 endif

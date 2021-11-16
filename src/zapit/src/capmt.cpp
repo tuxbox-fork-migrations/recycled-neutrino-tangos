@@ -142,7 +142,7 @@ bool CCam::setCaPmt(bool update)
 	return sendMessage((char *)cabuf, calen, update);
 }
 
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type, unsigned char scrambled, casys_map_t camap, int mode, bool enable)
 {
 	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
@@ -239,7 +239,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	CFrontend *frontend = CFEManager::getInstance()->getFrontend(channel);
 	switch(mode) {
 		case PLAY:
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 			source = DEMUX_SOURCE_0;
 			demux = LIVE_DEMUX;
 #else
@@ -251,11 +251,16 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			break;
 		case STREAM:
 		case RECORD:
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 //			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, frontend ? frontend->getNumber() : -1, channel->getRecordDemux());
+#ifdef DYNAMIC_DEMUX
+			source = channel->getRecordDemux();
+			demux = channel->getRecordDemux();
+#else
 			if(frontend)
 				source = frontend->getNumber();
 			demux = source;
+#endif // DYNAMIC_DEMUX
 #else
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
@@ -263,8 +268,24 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, source, demux);
 			break;
 		case PIP:
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#ifdef DYNAMIC_DEMUX
+			source = channel->getPipDemux();
+			demux = channel->getPipDemux();
+#else
+			if(frontend)
+			{
+				if (frontend->sameTsidOnid(channel->getTransponderId()))
+					source = frontend->getNumber();
+				else
+					source = frontend->getNumber() + 1;
+			}
+			demux = source;
+#endif // DYNAMIC_DEMUX
+#else
 			source = channel->getRecordDemux();
 			demux = channel->getPipDemux();
+#endif
 			INFO("PIP: fe_num %d dmx_src %d", source, demux);
 			break;
 	}
@@ -283,12 +304,16 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 	/* stop decoding if record stops unless it's the live channel. TODO:PIP? */
 	/* all the modes: RECORD, STREAM, PIP except PLAY now stopping here !! */
 	if (mode && start == false && source != cDemux::GetSource(0)) {
 		INFO("MODE not PLAY:(%d) start=false, src %d getsrc %d", mode, source, cDemux::GetSource(0));
-		cam->sendMessage(NULL, 0, false);
+		/* Possibly beware stopping cam in case of overlapping timers on same channel */
+		if (newmask != oldmask)
+		{
+			cam->sendMessage(NULL, 0, false);
+		}
 		/* clean up channel_map with stopped record/stream/pip services NOT live-tv */
 		it = channel_map.find(channel_id);
 		if (it != channel_map.end() && newmask != 0 && it->second != cam)
@@ -302,7 +327,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	if((oldmask != newmask) || force_update) {
 		cam->setCaMask(newmask);
 		cam->setSource(source);
-		if(newmask != 0 && (!filter_channels || !channel->bUseCI)) {
+		if(newmask != 0 && !filter_channels) {
 			cam->makeCaPmt(channel, true);
 			cam->setCaPmt(true);
 			// CI
@@ -358,7 +383,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		if (channel_map.size() > 1)
 			list = CCam::CAPMT_ADD;
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 		int ci_use_count = 0;
 		for (it = channel_map.begin(); it != channel_map.end(); ++it)
 		{
@@ -421,7 +446,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 void CCamManager::SetCITuner(int tuner)
 {
 	tunerno = tuner;
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	if (tunerno >= 0)
 		cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)tunerno);
 #endif

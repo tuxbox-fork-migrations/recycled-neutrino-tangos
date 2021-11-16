@@ -50,13 +50,12 @@
 #include <gui/osd_helpers.h>
 #include <gui/pictureviewer.h>
 #include <system/debug.h>
+#include <system/helpers.h>
 #include <global.h>
 #include <hardware/video.h>
 #include <cs_api.h>
 
-#ifdef ENABLE_GRAPHLCD
-#include <driver/nglcd.h>
-#endif
+#include <driver/display.h>
 
 extern cVideo * videoDecoder;
 
@@ -127,22 +126,16 @@ CFrameBuffer* CFrameBuffer::getInstance()
 	static CFrameBuffer* frameBuffer = NULL;
 
 	if (!frameBuffer) {
-#if HAVE_SPARK_HARDWARE
-		frameBuffer = new CFbAccelSTi();
-#endif
-#if HAVE_COOL_HARDWARE
-#ifdef BOXMODEL_CS_HD1
+#if HAVE_CST_HARDWARE
+#ifdef BOXMODEL_CST_HD1
 		frameBuffer = new CFbAccelCSHD1();
 #endif
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 		frameBuffer = new CFbAccelCSHD2();
 #endif
 #endif
 #if HAVE_GENERIC_HARDWARE
 		frameBuffer = new CFbAccelGLFB();
-#endif
-#if HAVE_TRIPLEDRAGON
-		frameBuffer = new CFbAccelTD();
 #endif
 #if HAVE_ARM_HARDWARE
 		frameBuffer = new CFbAccelARM();
@@ -536,7 +529,7 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 	int w_align;
 	int offs_align;
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	if (_dx%4 != 0) {
 		w_align = getWidth4FB_HW_ACC(x, _dx, true);
 		if (w_align < _dx)
@@ -703,27 +696,48 @@ void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 
 std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_type)
 {
-	std::string path, filetype = "";
-	if (!file_type.empty())
-		filetype = "." + file_type;
+	if ((icon_name.find("/", 0) != std::string::npos) && file_exists(icon_name))
+		return icon_name;
 
-	std::string dir[] = {	THEMESDIR_VAR "/" + g_settings.theme_name + "/icons",
-				THEMESDIR "/" + g_settings.theme_name + "/icons",
-				ICONSDIR_VAR,
-				iconBasePath
-	};
+	std::vector<std::string> filetypes = { ".svg", ".png", ".jpg" };
+	std::string icon = icon_name;
 
-	for(int i=0; i<4 ; i++){
-		path = std::string(dir[i]) + "/" + icon_name + filetype;
-		if (access(path.c_str(), F_OK) == 0){
-			return path;
+	std::string::size_type pos = icon.find_last_of(".");
+	if (pos != std::string::npos && file_type.empty())
+	{
+		if (std::find(filetypes.begin(), filetypes.end(), icon_name.substr(pos)) != filetypes.end())
+		{
+			icon_name = icon.substr(0, pos);
+			file_type = icon.substr(pos + 1);
 		}
 	}
 
-	if (icon_name.find("/", 0) != std::string::npos)
-		path = icon_name;
+	if (!file_type.empty())
+	{
+		filetypes.clear();
+		filetypes.push_back("." + file_type);
+	}
 
-	return path;
+	std::vector<std::string> dir =
+	{
+		THEMESDIR_VAR "/" + g_settings.theme_name + "/icons",
+		THEMESDIR "/" + g_settings.theme_name + "/icons",
+		ICONSDIR_VAR,
+		iconBasePath
+	};
+
+	for (unsigned int t = 0; t < filetypes.size(); t++)
+	{
+		for (unsigned int i = 0; i < dir.size(); i++)
+		{
+			icon = std::string(dir[i]) + "/" + icon_name + filetypes[t];
+			if (file_exists(icon))
+				return icon;
+		}
+	}
+
+	// nothing found, return empty string
+	return "";
 }
 
 void CFrameBuffer::getIconSize(const char * const filename, int* width, int *height)
@@ -1569,14 +1583,20 @@ void CFrameBuffer::Clear()
 
 bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 {
-	std::string picture = getIconPath(filename, "");
+	std::string picture = getIconPath(filename);
 	bool ret = false;
 
-	if (access(picture.c_str(), F_OK) == 0 && !(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
+	if (picture.empty())
+	{
+		dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, filename.c_str());
+		return ret;
+	}
+
+	if (!(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
 	{
 		if (videoDecoder)
 		{
-#if HAVE_COOL_HARDWARE //FIXME: inside libcs no return value available
+#if HAVE_CST_HARDWARE //FIXME: inside libcs no return value available
 			videoDecoder->ShowPicture(picture.c_str());
 			ret = true;
 #else
@@ -1586,14 +1606,6 @@ bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 		}
 		else
 			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], no videoplayer instance available\n", __func__, __LINE__);
-	}
-	else
-	{
-		if (!(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
-		{
-			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
-			picture = "";
-		}
 	}
 
 	if (!ret)
@@ -2029,6 +2041,6 @@ void CFrameBuffer::set3DMode(Mode3D __attribute__ ((unused)) m)
 void CFrameBuffer::blit()
 {
 #ifdef ENABLE_GRAPHLCD
-	nGLCD::Blit();
+	cGLCD::Blit();
 #endif
 }

@@ -193,6 +193,7 @@ public:
 
 	void SetChannelList(ZapitChannelList* zlist);
 	void addChannel(CZapitChannel* chan);
+	void ClearChannelList(){if (!(*chanlist).empty()) (*chanlist).clear();};
 
 	CZapitChannel* getChannel(int number);
 	CZapitChannel* getChannel(t_channel_id channel_id);
@@ -257,7 +258,7 @@ public:
 		SORT_CH_NUMBER,
 		SORT_MAX
 	};
-	unsigned Size() { return (*chanlist).size(); }
+	size_t Size() { return (*chanlist).size(); }
 	ZapitChannelList &getChannels() { return channels; };
 	bool checkLockStatus(neutrino_msg_data_t data, bool pip = false);
 	CComponentsHeader* getHeaderObject();

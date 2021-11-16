@@ -477,8 +477,6 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 
 		else if ((msg == (neutrino_msg_t)g_settings.key_channelList_addrecord) && !g_settings.minimode)
 		{
-			if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-			{
 				int tID = -1;
 				CTimerd::CTimerEventTypes etype = isScheduled(evtlist[selected].channelID, &evtlist[selected], &tID);
 				if(etype == CTimerd::TIMER_RECORD) //remove timer event 
@@ -541,7 +539,6 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 				UpdateTimerList();
 				paint(used_id);
 				paintFoot(used_id);
-			}
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_channelList_addremind )//add/remove zapto timer event
 		{
@@ -892,7 +889,6 @@ void CEventList::paintHead(t_channel_id _channel_id, std::string _channelname, s
 		header = new CComponentsHeader();
 		header->getTextObject()->enableTboxSaveScreen(g_settings.theme.menu_Head_gradient);//enable screen save for title text if color gradient is in use
 		header->enableClock(true, "%H:%M", "%H.%M", true);
-		header->getClockObject()->setBlit(false);
 		header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 		header->set2ndColor(COL_MENUCONTENT_PLUS_0);
 		header->setDimensionsAll(x, y, full_width, header_height);
@@ -1013,7 +1009,7 @@ void CEventList::paintFoot(t_channel_id channel_id)
 	CTimerd::CTimerEventTypes is_timer = isScheduled(channel_id, &evtlist[selected], &tID);
 
 	// -- Button: Timer Record & Channelswitch
-	if ((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) && ((uint) g_settings.key_channelList_addrecord != CRCInput::RC_nokey)) {	
+	if ((uint) g_settings.key_channelList_addrecord != CRCInput::RC_nokey) {
 		if (!g_settings.minimode) {
 			// FIXME : display other icons depending on g_settings.key_channelList_addrecord
 			keyhelper.get(&dummy, &icon, g_settings.key_channelList_addrecord);
@@ -1080,8 +1076,6 @@ void CEventList::paintFoot(t_channel_id channel_id)
 	CComponentsFooter footer;
 	footer.enableShadow(CC_SHADOW_ON, -1, true);
 	footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, full_width, footer_height, btn_cnt, buttons);
-	if(header)
-		header->getClockObject()->setBlit();
 }
 
 // -- Eventlist Menu Handler Class

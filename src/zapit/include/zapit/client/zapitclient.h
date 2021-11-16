@@ -189,7 +189,11 @@ class CZapitClient:public CBasicClient
 		char desc[DESC_MAX_LEN];
 		int  is_ac3;
 		int  is_aac;
+		int  is_aache;
 		int  is_eac3;
+		int  is_dts;
+		int  is_dtshd;
+		int  is_lpcm;
 		int  component_tag;
 	};
 
@@ -280,7 +284,7 @@ class CZapitClient:public CBasicClient
 	/* zaps to channel, returns the "zap-status" */
 	unsigned int zapTo_serviceID(const t_channel_id channel_id);
 	unsigned int zapTo_record(const t_channel_id channel_id);
-	unsigned int zapTo_pip(const t_channel_id channel_id);
+	unsigned int zapTo_pip(const t_channel_id channel_id, int pip = 0);
 	unsigned int zapTo_epg(const t_channel_id channel_id, bool standby = false);
 
 	/* zaps to subservice, returns the "zap-status" */
@@ -501,7 +505,7 @@ class CZapitClient:public CBasicClient
 	void setStandby(const bool enable);
 	void startPlayBack(const bool sendpmt = false);
 	void stopPlayBack(const bool sendpmt = false);
-	void stopPip();
+	void stopPip(int pip = 0);
 	void lockPlayBack(const bool sendpmt = true);
 	void unlockPlayBack(const bool sendpmt = true);
 	bool tune_TP(TP_params TP);

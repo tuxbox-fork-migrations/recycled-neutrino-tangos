@@ -58,7 +58,7 @@
 #include "debug.h"
 
 #include <compatibility.h>
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 #include <poll.h>
 #endif
 //#define ENABLE_SDT //FIXME
@@ -1510,7 +1510,7 @@ void CTimeThread::run()
 			debug(DEBUG_ERROR, "%s: get DVB time ch 0x%012" PRIx64 " (isOpen %d)",
 				name.c_str(), current_service, isOpen());
 			int rc = 0;
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 			/* libcoolstream does not like the repeated read if the dmx is not yet running
 			 * (e.g. during neutrino start) and causes strange openthreads errors which in
 			 * turn cause complete malfunction of the dmx, so we cannot use the "speed up
@@ -1555,8 +1555,8 @@ void CTimeThread::run()
 				if(first_time)
 					sleep_time = 5;
 			}
-			/* in case of wrong TDT date, dont send time is set, 1506808800 - 01.10.2017 */
-			if(time_ntp || (dvb_time > (time_t) 1506808800)) {
+			/* in case of wrong TDT date, dont send time is set, 1609455600 - 01.01.2021 00:00:00 */
+			if(time_ntp || (dvb_time > (time_t) 1609455600)) {
 				sendTimeEvent(time_ntp, dvb_time);
 				debug(DEBUG_ERROR, "%s: Time set via %s, going to sleep for %d seconds.", name.c_str(),
 						time_ntp ? "NTP" : first_time ? "DVB (TDT)" : "DVB (TOT)", sleep_time);
@@ -2188,6 +2188,8 @@ static void *houseKeepingThread(void *)
 					perror("sectionsd: pthread_create()");
 					}
 				pthread_attr_destroy(&attr);
+
+				eventServer->sendEvent(CSectionsdClient::EVT_RELOAD_XMLTV, CEventServer::INITID_SECTIONSD);
 			}
 			ecount = 0;
 		}

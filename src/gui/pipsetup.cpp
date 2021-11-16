@@ -15,12 +15,12 @@
 #include <hardware/video.h>
 
 #define PERCENT 5
-#define XMOVE 10
-#define YMOVE 10
+#define XMOVE 5
+#define YMOVE 5
 
 #ifdef ENABLE_PIP
 
-extern cVideo *pipDecoder;
+extern cVideo *pipVideoDecoder[3];
 
 CPipSetup::CPipSetup()
 {
@@ -69,7 +69,8 @@ void CPipSetup::move(int x, int y, bool abs)
 	*gy = y_coord;
 
 	printf("CPipSetup::move: x %d y %d\n", x_coord, y_coord);
-	pipDecoder->Pig(x_coord, y_coord, width, height, maxw, maxh);
+	if (pipVideoDecoder[0] != NULL)
+		pipVideoDecoder[0]->Pig(x_coord, y_coord, width, height, maxw, maxh);
 }
 
 // w and h is percent, if not absolute
@@ -101,7 +102,8 @@ void CPipSetup::resize(int w, int h, bool abs)
 	*gh = height;
 
 	printf("CPipSetup::resize: w %d h %d \n", width, height);
-	pipDecoder->Pig(x_coord, y_coord, width, height, maxw, maxh);
+	if (pipVideoDecoder[0] != NULL)
+		pipVideoDecoder[0]->Pig(x_coord, y_coord, width, height, maxw, maxh);
 }
 
 int CPipSetup::exec(CMenuTarget* parent, const std::string &)
@@ -122,6 +124,9 @@ int CPipSetup::exec(CMenuTarget* parent, const std::string &)
 	paint();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+
+	if (pipVideoDecoder[0] != NULL)
+		pipVideoDecoder[0]->ShowPig(1);
 
 	bool loop=true;
 	while (loop) {
@@ -170,6 +175,9 @@ int CPipSetup::exec(CMenuTarget* parent, const std::string &)
 void CPipSetup::hide()
 {
 	frameBuffer->Clear();
+
+	if (pipVideoDecoder[0] != NULL)
+		pipVideoDecoder[0]->ShowPig(0);
 }
 
 void CPipSetup::clear()
@@ -197,8 +205,9 @@ void CPipSetup::paint()
 	int x = (frameBuffer->getScreenWidth() - mwidth)/2;
 	int y = (frameBuffer->getScreenHeight() - mheight*4)/2;
 
-	if (pipDecoder->getBlank())
-		frameBuffer->paintBoxRel(x_coord, y_coord, width, height, COL_MENUCONTENT_PLUS_0);
+	if (pipVideoDecoder[0] != NULL)
+		if (pipVideoDecoder[0]->getBlank())
+			frameBuffer->paintBoxRel(x_coord, y_coord, width, height, COL_MENUCONTENT_PLUS_0);
 
 	frameBuffer->paintBoxRel(x, y, mwidth, mheight*4, COL_MENUCONTENT_PLUS_0);
 

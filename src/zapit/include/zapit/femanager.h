@@ -35,7 +35,7 @@
 #define MAX_FE          24
 #define MAX_ADAPTERS    4
 #else
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
 #define MAX_FE          16
 #define MAX_ADAPTERS    4
 #else
@@ -46,7 +46,7 @@
 //#define DYNAMIC_DEMUX
 //#define MAKE_FE_KEY(adapter, number) ((adapter << 8) | (number & 0xFF))
 
-#define FECONFIGFILE      CONFIGDIR "/zapit/frontend.conf"
+#define FECONFIGFILE      ZAPITDIR "/frontend.conf"
 
 typedef std::map<unsigned short, CFrontend*> fe_map_t;
 typedef fe_map_t::iterator fe_map_iterator_t;

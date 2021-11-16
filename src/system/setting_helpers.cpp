@@ -138,6 +138,124 @@ bool CTouchFileNotifier::changeNotify(const neutrino_locale_t, void * data)
 	return true;
 }
 
+bool CFlagFileNotifier::changeNotify(const neutrino_locale_t, void * data)
+{
+	std::string flagfile = CONFIGDIR;
+	flagfile += "/.";
+	flagfile += filename;
+
+	if ((*(int *)data) != 0)
+	{
+		FILE * fd = fopen(flagfile.c_str(), "w");
+		if (fd)
+		{
+			fclose(fd);
+			if (strstr(filename, "mgcamd")	||
+				strstr(filename, "doscam")	||
+				strstr(filename, "ncam")	||
+				strstr(filename, "osmod")	||
+				strstr(filename, "oscam")	||
+				strstr(filename, "cccam")	||
+				strstr(filename, "gbox"))
+			{
+				std::string hintmsg = std::string(filename) + std::string(g_Locale->getText(LOCALE_CAMD_MSG_START));
+				CHintBox hintbox(LOCALE_CAMD_CONTROL, hintmsg.c_str());
+				hintbox.paint();
+
+				printf("[CFlagFileNotifier] executing \"service camd start %s\"\n", filename);
+				if (my_system(2, "/etc/init.d/before_gui", "start_cam") != 0)
+					printf("[CFlagFileNotifier] executing failed\n");
+				sleep(1);
+
+				hintbox.hide();
+			}
+			else if (	strstr(filename, "fritzcall")	||
+						strstr(filename, "xupnpd")		||
+						strstr(filename, "nfsd")		||
+						strstr(filename, "crond")		||
+						strstr(filename, "tuxcald")		||
+						strstr(filename, "tuxmaild")	||
+						strstr(filename, "djmount")		||
+						strstr(filename, "xupnpd")		||
+						strstr(filename, "dropbear")	||
+						strstr(filename, "samba"))
+			{
+				std::string hintmsg = std::string(filename) + std::string(g_Locale->getText(LOCALE_CAMD_MSG_START));
+				CHintBox hintbox(LOCALE_DAEMON_CONTROL, hintmsg.c_str());
+				hintbox.paint();
+
+				printf("[CFlagFileNotifier] executing \"service %s start\"\n", filename);
+				if (my_system(3, "/etc/init.d/before_gui", "start_service", filename) != 0)
+					printf("[CFlagFileNotifier] executing failed\n");
+				sleep(1);
+
+				hintbox.hide();
+			}
+			else
+			{
+				CHintBox hintbox(LOCALE_DAEMON_CONTROL, "");
+				hintbox.setMsgText(g_Locale->getText(LOCALE_DAEMON_RESTART));
+				hintbox.paint();
+				sleep(3);
+				hintbox.hide();
+			}
+		}
+	}
+	else
+	{
+		if (strstr(filename, "mgcamd")	||
+			strstr(filename, "doscam")	||
+			strstr(filename, "ncam")	||
+			strstr(filename, "osmod")	||
+			strstr(filename, "oscam")	||
+			strstr(filename, "cccam")	||
+			strstr(filename, "gbox"))
+		{
+			std::string hintmsg = std::string(filename) + std::string(g_Locale->getText(LOCALE_CAMD_MSG_STOP));
+			CHintBox hintbox(LOCALE_CAMD_CONTROL, hintmsg.c_str());
+			hintbox.paint();
+
+			printf("[CFlagFileNotifier] executing \"service camd stop %s\"\n", filename);
+			if (my_system(2, "/etc/init.d/before_gui", "stop_cam") != 0)
+				printf("[CFlagFileNotifier] executing failed\n");
+			sleep(1);
+
+			hintbox.hide();
+		}
+		else if (	strstr(filename, "fritzcall")	||
+					strstr(filename, "xupnpd")		||
+					strstr(filename, "nfsd")		||
+					strstr(filename, "crond")		||
+					strstr(filename, "tuxcald")		||
+					strstr(filename, "tuxmaild")	||
+					strstr(filename, "djmount")		||
+					strstr(filename, "xupnpd")		||
+					strstr(filename, "dropbear")	||
+					strstr(filename, "samba"))
+		{
+			std::string hintmsg = std::string(filename) + std::string(g_Locale->getText(LOCALE_CAMD_MSG_STOP));
+			CHintBox hintbox(LOCALE_DAEMON_CONTROL, hintmsg.c_str());
+			hintbox.paint();
+
+			printf("[CFlagFileNotifier] executing \"service %s start\"\n", filename);
+			if (my_system(3, "/etc/init.d/before_gui", "stop_service", filename) != 0)
+				printf("[CFlagFileNotifier] executing failed\n");
+			sleep(1);
+
+			hintbox.hide();
+		}
+		else
+		{
+			CHintBox hintbox(LOCALE_DAEMON_CONTROL, "");
+			hintbox.setMsgText(g_Locale->getText(LOCALE_DAEMON_RESTART));
+			sleep(3);
+			hintbox.hide();
+		}
+		remove(flagfile.c_str());
+	}
+	return menu_return::RETURN_REPAINT;
+}
+
 void CColorSetupNotifier::setPalette()
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
@@ -309,11 +427,7 @@ bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	return false;
 }
 
-#if HAVE_SH4_HARDWARE
-bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void *data)
-#else
 bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void *)
-#endif
 {
 	//printf("notify: %d\n", OptionName);
 #if 0 //FIXME to do ? manual audio delay
@@ -345,14 +459,6 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_CLOCKREC)) {
 		//.Clock recovery enable/disable
 		// FIXME add code here.
-#if HAVE_SH4_HARDWARE
-	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_ANALOG)) {
-			audioDecoder->setMixerVolume("Analog", (long)(*((int *)(data))));
-	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_HDMI)) {
-			audioDecoder->setMixerVolume("HDMI", (long)(*((int *)(data))));
-	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_MIXER_VOLUME_SPDIF)) {
-			audioDecoder->setMixerVolume("SPDIF", (long)(*((int *)(data))));
-#endif
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_ALGO) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_NMGR) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_VOLUME)) {
@@ -605,11 +711,11 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 	}
 
 	if(delete_all) {
-		my_system(3, "/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.conf");
+		my_system(3, "/bin/sh", "-c", "rm -f " ZAPITDIR "/*.conf");
 		CServiceManager::getInstance()->SatelliteList().clear();
 		CZapit::getInstance()->LoadSettings();
 		CZapit::getInstance()->GetConfig(zapitCfg);
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 		/* flag file to erase /var partition on factory reset,
 		   will be done by init scripts */
 		FILE * fp = fopen("/var_init/etc/.reset", "w");
@@ -631,7 +737,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		CFrameBuffer::getInstance()->Clear();
 	}
 	if(delete_chan) {
-		my_system(3, "/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.xml");
+		my_system(3, "/bin/sh", "-c", "rm -f " ZAPITDIR "/*.xml");
 		g_Zapit->reinitChannels();
 	}
 	if (delete_removed) {
@@ -644,11 +750,11 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 	return ret;
 }
 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 void CFanControlNotifier::setSpeed(unsigned int speed)
 {
 	printf("FAN Speed %d\n", speed);
-#ifndef BOXMODEL_CS_HD2
+#ifndef BOXMODEL_CST_HD2
 	int cfd = open("/dev/cs_control", O_RDONLY);
 	if(cfd < 0) {
 		perror("Cannot open /dev/cs_control");
@@ -659,62 +765,6 @@ void CFanControlNotifier::setSpeed(unsigned int speed)
 
 	close(cfd);
 #endif
-}
-
-bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
-{
-	unsigned int speed = * (int *) data;
-	setSpeed(speed);
-	return false;
-}
-#elif HAVE_DUCKBOX_HARDWARE
-void CFanControlNotifier::setSpeed(unsigned int speed)
-{
-	int cfd;
-
-	printf("FAN Speed %d\n", speed);
-#if defined (BOXMODEL_IPBOX9900) || defined (BOXMODEL_IPBOX99)
-	cfd = open("/proc/stb/misc/fan", O_WRONLY);
-	if(cfd < 0) {
-		perror("Cannot open /proc/stb/misc/fan");
-#else
-	cfd = open("/proc/stb/fan/fan_ctrl", O_WRONLY);
-	if(cfd < 0) {
-		perror("Cannot open /proc/stb/fan/fan_ctrl");
-#endif
-		return;
-	}
-
-	switch (speed)
-
-#if defined (BOXMODEL_IPBOX9900) || defined (BOXMODEL_IPBOX99)
-	{
-	case 0:
-		write(cfd,"0",1);
-		break;
-	case 1:
-		write(cfd,"1",1);
-		break;
-	}
-#else
-	{
-	case 1:
-		write(cfd,"115",3);
-		break;
-	case 2:
-		write(cfd,"130",3);
-		break;
-	case 3:
-		write(cfd,"145",3);
-		break;
-	case 4:
-		write(cfd,"160",3);
-		break;
-	case 5:
-		write(cfd,"170",3);
-	}
-#endif
-	close(cfd);
 }
 
 bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
@@ -763,7 +813,7 @@ bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, voi
 					i, VIDEOMENU_VIDEOMODE_OPTIONS[i].key, VIDEO_STD_MAX);
 			continue;
 		}
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_auto_modes[i];
 #else
 		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_video_modes[i];

@@ -193,6 +193,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	plugin_data->description = "";
 	plugin_data->shellwindow = false;
 	plugin_data->hide = false;
+	plugin_data->menu_return = menu_return::RETURN_REPAINT;
 	plugin_data->type = CPlugins::P_TYPE_DISABLED;
 	plugin_data->integration = PLUGIN_INTEGRATION_DISABLED;
 	plugin_data->hinticon = NEUTRINO_ICON_HINT_PLUGIN;
@@ -260,6 +261,17 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		{
 			plugin_data->hide = atoi(parm);
 		}
+		else if (cmd == "menu_return")
+		{
+			if (parm == "none")
+				plugin_data->menu_return = menu_return::RETURN_NONE;
+			else if (parm == "exit")
+				plugin_data->menu_return = menu_return::RETURN_EXIT;
+			else if (parm == "exit_all")
+				plugin_data->menu_return = menu_return::RETURN_EXIT_ALL;
+			else // (parm == "repaint")
+				plugin_data->menu_return = menu_return::RETURN_REPAINT;
+		}
 		else if (cmd == "needenigma")
 		{
 			reject = atoi(parm);
@@ -284,28 +296,29 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	return !reject;
 }
 
-void CPlugins::startPlugin_by_name(const std::string & name)
+int CPlugins::startPlugin_by_name(const std::string & name)
 {
 	for (int i = 0; i <  (int) plugin_list.size(); i++)
 	{
 		if (name.compare(g_Plugins->getName(i)) == 0)
 		{
-			startPlugin(i);
-			return;
+			return startPlugin(i);
 		}
 	}
+	return menu_return::RETURN_REPAINT;
 }
 
-void CPlugins::startPlugin(const char * const filename)
+int CPlugins::startPlugin(const char * const filename)
 {
 	int pluginnr = find_plugin(filename);
 	if (pluginnr > -1)
-		startPlugin(pluginnr);
+		return startPlugin(pluginnr);
 	else
 		printf("[CPlugins] could not find %s\n", filename);
+	return menu_return::RETURN_REPAINT;
 }
 
-void CPlugins::popenScriptPlugin(const char * script)
+int CPlugins::popenScriptPlugin(int number, const char * script)
 {
 	pid_t pid = 0;
 	FILE *f = my_popen(pid, script, "r");
@@ -328,9 +341,11 @@ void CPlugins::popenScriptPlugin(const char * script)
 	}
 	else
 		printf("[CPlugins] can't execute %s\n",script);
+
+	return plugin_list[number].menu_return;
 }
 
-void CPlugins::startScriptPlugin(int number)
+int CPlugins::startScriptPlugin(int number)
 {
 	const char *script = plugin_list[number].pluginfile.c_str();
 	printf("[CPlugins] executing script %s\n",script);
@@ -338,7 +353,7 @@ void CPlugins::startScriptPlugin(int number)
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
 		       script, plugin_list[number].cfgfile.c_str());
-		return;
+		return menu_return::RETURN_REPAINT;
 	}
 
 	// workaround for manually messed up permissions
@@ -351,10 +366,12 @@ void CPlugins::startScriptPlugin(int number)
 		scriptOutput = "";
 	}
 	else
-		popenScriptPlugin(script);
+		return popenScriptPlugin(number, script);
+
+	return plugin_list[number].menu_return;
 }
 
-void CPlugins::startLuaPlugin(int number)
+int CPlugins::startLuaPlugin(int number)
 {
 	const char *script = plugin_list[number].pluginfile.c_str();
 	printf("[CPlugins] executing lua script %s\n",script);
@@ -362,70 +379,53 @@ void CPlugins::startLuaPlugin(int number)
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
 		       script, plugin_list[number].cfgfile.c_str());
-		return;
+		return menu_return::RETURN_REPAINT;
 	}
 #ifdef ENABLE_LUA
 	CLuaInstance *lua = new CLuaInstance();
+	// FIXME: runScript() should return the exit-code from script
 	lua->runScript(script);
 	delete lua;
 #endif
-#if HAVE_SH4_HARDWARE
-	frameBuffer->ClearFB();
-#endif
 	videoDecoder->Pig(-1, -1, -1, -1);
 	frameBuffer->paintBackground();
+
+	return plugin_list[number].menu_return;
 }
 
-void CPlugins::startPlugin(int number)
+int CPlugins::startPlugin(int number)
 {
 	// always delete old output
 	delScriptOutput();
 	/* export neutrino settings to the environment */
 	char tmp[32];
-#if HAVE_SH4_HARDWARE
-	sprintf(tmp, "%d", g_settings.screen_StartX_int);
-#else
 	sprintf(tmp, "%d", g_settings.screen_StartX);
-#endif
 	setenv("SCREEN_OFF_X", tmp, 1);
-#if HAVE_SH4_HARDWARE
-	sprintf(tmp, "%d", g_settings.screen_StartY_int);
-#else
 	sprintf(tmp, "%d", g_settings.screen_StartY);
-#endif
 	setenv("SCREEN_OFF_Y", tmp, 1);
-#if HAVE_SH4_HARDWARE
-	sprintf(tmp, "%d", g_settings.screen_EndX_int);
-#else
 	sprintf(tmp, "%d", g_settings.screen_EndX);
-#endif
 	setenv("SCREEN_END_X", tmp, 1);
-#if HAVE_SH4_HARDWARE
-	sprintf(tmp, "%d", g_settings.screen_EndY_int);
-#else
 	sprintf(tmp, "%d", g_settings.screen_EndY);
-#endif
 	setenv("SCREEN_END_Y", tmp, 1);
 
 	bool ispip  = strstr(plugin_list[number].pluginfile.c_str(), "pip") != 0;
 	//printf("exec: %s pip: %d\n", plugin_list[number].pluginfile.c_str(), ispip);
 	if (ispip && !g_RemoteControl->is_video_started)
-		return;
+		return menu_return::RETURN_REPAINT;
+
 	if (plugin_list[number].type == CPlugins::P_TYPE_SCRIPT)
 	{
-		startScriptPlugin(number);
-		return;
+		return startScriptPlugin(number);
 	}
 	if (plugin_list[number].type == CPlugins::P_TYPE_LUA)
 	{
-		startLuaPlugin(number);
-		return;
+		return startLuaPlugin(number);
 	}
 	if (!file_exists(plugin_list[number].pluginfile.c_str()))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
 		       plugin_list[number].pluginfile.c_str(), plugin_list[number].cfgfile.c_str());
-		return;
+		return menu_return::RETURN_REPAINT;
 	}
 
 	g_RCInput->clearRCMsg();
@@ -442,13 +442,12 @@ void CPlugins::startPlugin(int number)
 	my_system(2, plugin_list[number].pluginfile.c_str(), NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	frameBuffer->Unlock();
-#if HAVE_SH4_HARDWARE
-	frameBuffer->ClearFB();
-#endif
 	videoDecoder->Pig(-1, -1, -1, -1);
 	frameBuffer->paintBackground();
 	g_RCInput->restartInput();
 	g_RCInput->clearRCMsg();
+
+	return plugin_list[number].menu_return;
 }
 
 bool CPlugins::hasPlugin(CPlugins::p_type_t type)

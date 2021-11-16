@@ -43,6 +43,8 @@
 #include <driver/abstime.h>
 #endif
 
+#include <system/helpers.h>
+#include <system/proc_tools.h>
 #include <system/set_threadname.h>
 #include <gui/color.h>
 
@@ -309,6 +311,23 @@ void CFbAccelMIPS::setOsdResolutions()
 		res.mode = OSDMODE_1080;
 		osd_resolutions.push_back(res);
 	}
+}
+
+/* original interface: 1 == pixel alpha, 2 == global alpha premultiplied */
+void CFbAccelMIPS::setBlendMode(uint8_t mode)
+{
+	/* mode = 1 => reset to no extra transparency */
+	if (mode == 1)
+		setBlendLevel(0);
+}
+
+/* level = 100 -> transparent, level = 0 -> nontransparent */
+void CFbAccelMIPS::setBlendLevel(int level)
+{
+	char buf[16];
+	int value = 255 - (level * 255 / 100);
+	int len = snprintf(buf, sizeof(buf), "%d", value);
+	proc_put("/proc/stb/video/alpha", buf, len);
 }
 
 int CFbAccelMIPS::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int nbpp)

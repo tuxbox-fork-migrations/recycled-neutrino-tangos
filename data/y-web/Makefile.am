@@ -66,6 +66,7 @@ install_DATA =	channels.js \
 		Y_Settings_video_audio.yhtm \
 		Y_Settings_VNC.yhtm \
 		Y_Settings_wol.yhtm \
+		Y_Settings_xmltv.yhtm \
 		Y_Settings_yWeb.yhtm \
 		Y_Settings_zapit.yhtm \
 		Y_StreamInfo.yhtm \
@@ -77,6 +78,7 @@ install_DATA =	channels.js \
 		Y_Tools_Cmd.yhtm \
 		Y_Tools_Flash_Menue.yhtm \
 		Y_Tools_Flash_Upload.yhtm \
+		Y_Tools_Glcd_Screenshot.yhtm \
 		Y_Tools_Info_Menue.yhtm \
 		Y_Tools_Installer.yhtm \
 		Y_Tools_lcshot.yhtm \
@@ -107,6 +109,7 @@ install-data-hook:
 	find $(DESTDIR)$(PRIVATE_HTTPDDIR)/ -type f -print0 | xargs --no-run-if-empty -0 \
 		sed -i \
 			-e 's|%(CONFIGDIR)|$(CONFIGDIR)|g' \
+			-e 's|%(ZAPITDIR)|$(ZAPITDIR)|g' \
 			-e 's|%(DATADIR)|$(DATADIR)|g' \
 			-e 's|%(CONTROLDIR)|$(CONTROLDIR)|g' \
 			-e 's|%(CONTROLDIR_VAR)|$(CONTROLDIR_VAR)|g' \

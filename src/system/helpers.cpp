@@ -54,6 +54,7 @@
 //#include <driver/framebuffer.h>
 #include <system/helpers.h>
 #include <system/helpers-json.h>
+#include <lib/libnet/libnet.h>
 #include <gui/update_ext.h>
 #include <driver/framebuffer.h>
 #include <libmd5sum.h>
@@ -500,6 +501,13 @@ std::string getFileExt(std::string &file)
 	return _getBaseName(f, ".");
 }
 
+std::string getBackupSuffix()
+{
+	std::string hostName = "";
+	netGetHostname(hostName);
+
+	return hostName + getNowTimeStr("_%Y%m%d_%H%M");
+}
 
 std::string getNowTimeStr(const char* format)
 {
@@ -1600,18 +1608,18 @@ std::string randomFile(std::string suffix, std::string directory, unsigned int l
 	return directory + "/" + randomString(length) + "." + suffix;
 }
 
-std::string downloadUrlToRandomFile(std::string url, std::string directory, unsigned int length)
+std::string downloadUrlToRandomFile(std::string url, std::string directory, unsigned int length, unsigned int timeout)
 {
 	if (strstr(url.c_str(), "://"))
 	{
 		std::string file = randomFile(url.substr(url.find_last_of(".") + 1), directory, length);
-		if (downloadUrl(url, file))
+		if (downloadUrl(url, file, " ", timeout))
 			return file;
 	}
 	return url;
 }
 
-std::string downloadUrlToLogo(std::string url, std::string directory, t_channel_id channel_id)
+std::string downloadUrlToLogo(std::string url, std::string directory, t_channel_id channel_id, unsigned int timeout)
 {
 
 	if (channel_id == 0)
@@ -1627,7 +1635,7 @@ std::string downloadUrlToLogo(std::string url, std::string directory, t_channel_
 		std::string file = directory + "/" + strChnId + url.substr(url.find_last_of("."));
 		if (file_exists(file))
 			return file;
-		if (downloadUrl(url, file))
+		if (downloadUrl(url, file, " ", timeout))
 			return file;
 	}
 	return url;
@@ -1667,7 +1675,7 @@ size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
 
 bool getUrl(std::string& url, std::string& answer, std::string userAgent, unsigned int timeout)
 {
-	dprintf(DEBUG_NORMAL, "getUrl: url:%s\n", url.c_str());
+	dprintf(DEBUG_NORMAL, "getUrl: url: %s\n", url.c_str());
 
 	CURL * curl_handle = curl_easy_init();
 
@@ -1697,7 +1705,7 @@ bool getUrl(std::string& url, std::string& answer, std::string userAgent, unsign
 
 	if (httpres != 0 || answer.empty())
 	{
-		dprintf(DEBUG_NORMAL, "getUrl: error: %s\n", cerror);
+		dprintf(DEBUG_NORMAL, "getUrl: error: %s (%s)\n", cerror, url.c_str());
 		return false;
 	}
 
@@ -1745,7 +1753,7 @@ bool downloadUrl(std::string url, std::string file, std::string userAgent, unsig
 
 	if (httpres != 0)
 	{
-		dprintf(DEBUG_NORMAL, "curl error: %s\n", cerror);
+		dprintf(DEBUG_NORMAL, "curl error: %s (%s)\n", cerror, url.c_str());
 		unlink(file.c_str());
 		return false;
 	}
@@ -1870,7 +1878,7 @@ int getActivePartition()
 		}
 		fclose(f);
 	}
-#elif BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
+#elif BOXMODEL_HD51 || BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 	FILE *f;
 	// first check for subdirboot layout
 	f = fopen("/sys/firmware/devicetree/base/chosen/bootargs", "r");

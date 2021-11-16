@@ -53,8 +53,8 @@ extern pthread_rwlock_t eventsLock;
 extern bool dvb_time_update;
 extern CBouquetManager *g_bouquetManager;
 
-std::string epg_filter_dir = CONFIGDIR "/zapit/epgfilter.xml";
-std::string dvbtime_filter_dir = CONFIGDIR "/zapit/dvbtimefilter.xml";
+std::string epg_filter_dir = ZAPITDIR "/epgfilter.xml";
+std::string dvbtime_filter_dir = ZAPITDIR "/dvbtimefilter.xml";
 bool epg_filter_is_whitelist = false;
 bool epg_filter_except_current_next = false;
 
@@ -457,6 +457,7 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
+	std::map<std::string,t_channel_id> cache_epgid;
 
 	if (!(event_parser = parseXmlFile(epgname.c_str())))
 	{
@@ -486,9 +487,22 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 
 		// just loads events if they end is in the future
 		if (time_diff < 0)
-			epgid = getepgid(chan);
+		{
+			std::string tchan = chan;
+			if (cache_epgid[tchan] != 0)
+			{
+				epgid = cache_epgid[chan];
+			}
+			if (epgid == 0)
+			{
+				epgid = getepgid(chan);
+				if (epgid == 0)
+					epgid = 1;//skip check channels not found in channellist
+				cache_epgid[tchan] = epgid;
+			}
 
-		if (epgid != 0)
+		}
+		if (epgid != 0 && epgid != 1)
 		{
 			//debug(DEBUG_NORMAL, "\e[1;34m%s - %d - %s 0x%012" PRIx64 "(%ld) (%ld)\e[0m",__func__, __LINE__,chan, epgid, start_time, duration);
 			onid = GET_ORIGINAL_NETWORK_ID_FROM_CHANNEL_ID(epgid);
@@ -548,10 +562,12 @@ t_channel_id getepgid(std::string epg_name)
 		if (m == CZapitClient::MODE_RADIO)
 			cit = g_bouquetManager->radioChannelsBegin();
 
-		for (; !(cit.EndOfChannels()); cit++)
+		for (; g_bouquetManager->empty || !(cit.EndOfChannels()); cit++)
 		{
-			std::string tvg_id = (*cit)->getScriptName();
+			if(g_bouquetManager->empty)
+				break;
 
+			std::string tvg_id = (*cit)->getEPGmap();
 			if (tvg_id.empty())
 				continue;
 
@@ -560,6 +576,8 @@ t_channel_id getepgid(std::string epg_name)
 			{
 				if (match_found)
 				{
+					if(g_bouquetManager->empty)
+						break;
 					if ((*cit)->getEpgID() == epgid) continue;
 					(*cit)->setEPGid(epgid);
 				}
@@ -665,8 +683,7 @@ void *insertEventsfromXMLTV(void * data)
 		reader_ready = true;
 		pthread_exit(NULL);
 	}
-	std::string url = "";
-	url = (std::string)(char *) data;
+	std::string url = (std::string)(char *) data;
 	std::string tmp_name = randomFile(getFileExt(url), "/tmp", 8);
 
 	int64_t now = time_monotonic_ms();
@@ -677,8 +694,11 @@ void *insertEventsfromXMLTV(void * data)
 	}
 	else if (::downloadUrl(url, tmp_name))
 	{
-		readEventsFromXMLTV(tmp_name, ev_count);
-		remove(tmp_name.c_str());
+		if (!access(tmp_name.c_str(), R_OK))
+		{
+			readEventsFromXMLTV(tmp_name, ev_count);
+			remove(tmp_name.c_str());
+		}
 	}
 	else
 	{
@@ -732,12 +752,8 @@ static void write_indexxml_footer(FILE *fd)
 
 void writeEventsToFile(const char *epgdir)
 {
-#if defined (BOXMODEL_UFS910) || defined (BOXMODEL_UFS922)
-	if (check_dir(epgdir)) {
-#else
 	struct stat my_stat;
 	if (stat(epgdir, &my_stat) != 0) {
-#endif
 		return;
 	}
 

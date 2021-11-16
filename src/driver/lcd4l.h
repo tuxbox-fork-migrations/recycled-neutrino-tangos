@@ -7,7 +7,7 @@
 	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Copyright (C) 2016-2019 'TangoCash'
+	Copyright (C) 2016-2021 'TangoCash'
 
 	License: GPL
 
@@ -32,8 +32,10 @@
 
 #include <string>
 
-class CLCD4l
+class CLCD4l : public OpenThreads::Thread
 {
+	protected:
+		bool running;
 	public:
 		CLCD4l();
 		~CLCD4l();
@@ -51,10 +53,8 @@ class CLCD4l
 		};
 
 		// Functions
-		void	InitLCD4l();
 		void	StartLCD4l();
 		void	StopLCD4l();
-		void	SwitchLCD4l();
 
 		int	CreateFile(const char *file, std::string content = "", bool convert = false);
 		int	RemoveFile(const char *file);
@@ -62,12 +62,11 @@ class CLCD4l
 		int	GetMaxBrightness();
 
 		void	ResetParseID() { m_ParseID = 0; }
-
+		static CLCD4l* getInstance();
 	private:
-		pthread_t	thrLCD4l;
-		static void*	LCD4lProc(void *arg);
-
+		void 		run();
 		struct tm	*tm_struct;
+		static CLCD4l *l4l_instance;
 
 		// Functions
 		void		Init();

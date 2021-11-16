@@ -7,7 +7,7 @@
 	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Modded    (C) 2016 'TangoCash'
+	Modded    (C) 2016,2021 'TangoCash'
 
 	License: GPL
 
@@ -53,7 +53,6 @@
 #include <driver/screen_max.h>
 
 #include "driver/lcd4l.h"
-extern CLCD4l *LCD4l;
 
 const CMenuOptionChooser::keyval LCD4L_SUPPORT_OPTIONS[] =
 {
@@ -99,8 +98,6 @@ const CMenuOptionChooser::keyval LCD4L_SAMSUNG_SKIN_OPTIONS[] =
 CLCD4lSetup::CLCD4lSetup()
 {
 	width = 40;
-
-	lcd4l_display_type_changed = false;
 }
 
 CLCD4lSetup::~CLCD4lSetup()
@@ -152,14 +149,17 @@ bool CLCD4lSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data
 
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LCD4L_SUPPORT))
 	{
-		LCD4l->StopLCD4l();
 		if (g_settings.lcd4l_support)
-			LCD4l->StartLCD4l();
+			CLCD4l::getInstance()->StartLCD4l();
+		else
+			CLCD4l::getInstance()->StopLCD4l();
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LCD4L_DISPLAY_TYPE))
 	{
 		g_settings.lcd4l_display_type = temp_lcd4l_display_type;
-		lcd4l_display_type_changed = true;
+		CLCD4l::getInstance()->StopLCD4l();
+		if (g_settings.lcd4l_support)
+			CLCD4l::getInstance()->StartLCD4l();
 	}
 
 	return false;
@@ -234,29 +234,20 @@ int CLCD4lSetup::show()
 
 	// the things to do on exit
 
-	bool initlcd4l = false;
-
-	if ((g_settings.lcd4l_display_type != temp_lcd4l_display_type) || lcd4l_display_type_changed)
+	if (g_settings.lcd4l_display_type != temp_lcd4l_display_type)
 	{
 		g_settings.lcd4l_display_type = temp_lcd4l_display_type;
-		lcd4l_display_type_changed = false;
-		initlcd4l = true;
 	}
 
 	if (g_settings.lcd4l_skin != temp_lcd4l_skin)
 	{
 		g_settings.lcd4l_skin = temp_lcd4l_skin;
-		initlcd4l = true;
 	}
 
 	if (g_settings.lcd4l_brightness != temp_lcd4l_brightness)
 	{
 		g_settings.lcd4l_brightness = temp_lcd4l_brightness;
-		initlcd4l = true;
 	}
-
-	if (initlcd4l)
-		LCD4l->InitLCD4l();
 
 	return res;
 }
@@ -297,11 +288,11 @@ int CLCD4lSetup::showTypeSetup()
 	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SKIN_RADIO);
 	typeSetup->addItem(mc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS, (int *)&temp_lcd4l_brightness, true, 1, LCD4l->GetMaxBrightness(), this);
+	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS, (int *)&temp_lcd4l_brightness, true, 1, CLCD4l::getInstance()->GetMaxBrightness(), this);
 	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS);
 	typeSetup->addItem(nc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, true, 1, LCD4l->GetMaxBrightness(), this);
+	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, true, 1, CLCD4l::getInstance()->GetMaxBrightness(), this);
 	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS_STANDBY);
 	typeSetup->addItem(nc);
 

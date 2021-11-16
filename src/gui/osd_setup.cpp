@@ -73,7 +73,6 @@
 
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
-extern CLCD4l *LCD4l;
 #endif
 
 extern CRemoteControl * g_RemoteControl;
@@ -445,10 +444,10 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 }
 
 #define OSD_PRESET_OPTIONS_COUNT 2
-const CMenuOptionChooser::keyval_ext OSD_PRESET_OPTIONS[] =
+const CMenuOptionChooser::keyval OSD_PRESET_OPTIONS[OSD_PRESET_OPTIONS_COUNT] =
 {
-	{ COsdSetup::PRESET_CRT, NONEXISTANT_LOCALE, "CRT" },
-	{ COsdSetup::PRESET_LCD, NONEXISTANT_LOCALE, "LCD" }
+	{ COsdSetup::PRESET_SCREEN_A, LOCALE_OSD_PRESET_SCREEN_A },
+	{ COsdSetup::PRESET_SCREEN_B, LOCALE_OSD_PRESET_SCREEN_B }
 };
 
 #define INFOBAR_CASYSTEM_MODE_OPTION_COUNT 4
@@ -459,14 +458,7 @@ const CMenuOptionChooser::keyval INFOBAR_CASYSTEM_MODE_OPTIONS[INFOBAR_CASYSTEM_
 	{ 2, LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_MINI },
 	{ 3, LOCALE_OPTIONS_OFF  }
 };
-#if 0 //not used
-#define SHOW_INFOMENU_MODE_OPTION_COUNT 2
-const CMenuOptionChooser::keyval SHOW_INFOMENU_MODE_OPTIONS[SHOW_INFOMENU_MODE_OPTION_COUNT] =
-{
-	{ 0, LOCALE_MAINMENU_HEAD },
-	{ 1, LOCALE_MAINMENU_SERVICE }
-};
-#endif
+
 #define MENU_CORNERSETTINGS_TYPE_OPTION_COUNT 2
 const CMenuOptionChooser::keyval MENU_CORNERSETTINGS_TYPE_OPTIONS[MENU_CORNERSETTINGS_TYPE_OPTION_COUNT] =
 {
@@ -536,15 +528,7 @@ const CMenuOptionChooser::keyval  CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS[CHANNE
 	{ 0 , LOCALE_CHANNELLIST_EPGTEXT_ALIGN_LEFT },
 	{ 1 , LOCALE_CHANNELLIST_EPGTEXT_ALIGN_RIGHT }
 };
-#if 0 //not used
-#define CHANNELLIST_EXTENDED_OPTIONS_COUNT 3
-const CMenuOptionChooser::keyval CHANNELLIST_EXTENDED_OPTIONS[CHANNELLIST_EXTENDED_OPTIONS_COUNT]=
-{
-	{ 0, LOCALE_OPTIONS_OFF },			//none
-	{ 1, LOCALE_CHANNELLIST_EXTENDED_SIMPLE },	//unicolor
-	{ 2, LOCALE_CHANNELLIST_EXTENDED_COLORED }	//colored
-};
-#endif
+
 #define OPTIONS_COLORED_EVENTS_OPTION_COUNT 3
 const CMenuOptionChooser::keyval OPTIONS_COLORED_EVENTS_OPTIONS[OPTIONS_COLORED_EVENTS_OPTION_COUNT] =
 {
@@ -720,11 +704,6 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(mc);
 #endif
 
-	// scrambled
-	mc = new CMenuOptionChooser(LOCALE_EXTRA_SCRAMBLED_MESSAGE, &g_settings.scrambled_message, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_SCRAMBLED_MESSAGE);
-	osd_menu->addItem(mc);
-
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
 	// osd resolution
 	size_t resCount = frameBuffer->osd_resolutions.size();
@@ -755,11 +734,9 @@ int COsdSetup::showOsdSetup()
 #endif
 
 	//monitor
-	if (cs_get_revision() != 1) { /* 1 == Tripledragon */
-		mc = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this);
-		mc->setHint("", LOCALE_MENU_HINT_OSD_PRESET);
-		osd_menu->addItem(mc);
-	}
+	mc = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_OSD_PRESET);
+	osd_menu->addItem(mc);
 
 #if 0
 	// round corners
@@ -768,12 +745,11 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(mc);
 #endif
 
-#if !HAVE_ARM_HARDWARE //FIXME: not work on AX/HD51, H7, BRE2ZE4K
 	// fade windows
 	mc = new CMenuOptionChooser(LOCALE_COLORMENU_FADE, &g_settings.widget_fade, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
 	mc->setHint("", LOCALE_MENU_HINT_FADE);
 	osd_menu->addItem(mc);
-#endif
+
 	// window size
 	memset(window_size_value, 0, sizeof(window_size_value));
 	snprintf(window_size_value, sizeof(window_size_value), "%d / %d", g_settings.window_width, g_settings.window_height);
@@ -1689,7 +1665,7 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 #ifdef ENABLE_LCD4LINUX
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CHANNELLIST_SHOW_EVENTLOGO))
 	{
-		LCD4l->ResetParseID();
+		CLCD4l::getInstance()->ResetParseID();
 	}
 #endif
 	else if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_INFOCLOCK)) ||

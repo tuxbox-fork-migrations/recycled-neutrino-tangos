@@ -43,6 +43,8 @@
 #include <driver/abstime.h>
 #endif
 
+#include <system/helpers.h>
+#include <system/proc_tools.h>
 #include <system/set_threadname.h>
 #include <gui/color.h>
 
@@ -311,6 +313,23 @@ void CFbAccelARM::setOsdResolutions()
 	}
 }
 
+/* original interface: 1 == pixel alpha, 2 == global alpha premultiplied */
+void CFbAccelARM::setBlendMode(uint8_t mode)
+{
+	/* mode = 1 => reset to no extra transparency */
+	if (mode == 1)
+		setBlendLevel(0);
+}
+
+/* level = 100 -> transparent, level = 0 -> nontransparent */
+void CFbAccelARM::setBlendLevel(int level)
+{
+	char buf[16];
+	int value = 255 - (level * 255 / 100);
+	int len = snprintf(buf, sizeof(buf), "%d", value);
+	proc_put("/proc/stb/video/alpha", buf, len);
+}
+
 int CFbAccelARM::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int nbpp)
 {
 	if (!available&&!active)
@@ -465,7 +484,7 @@ void CFbAccelARM::blit()
 void CFbAccelARM::_blit()
 {
 	if (ioctl(fd, FBIO_BLIT) < 0)
-		printf("FBIO_BLIT");
+		printf("FBIO_BLIT failed\n");
 }
 
 void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col)

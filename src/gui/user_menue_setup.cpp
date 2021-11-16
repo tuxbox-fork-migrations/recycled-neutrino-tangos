@@ -55,16 +55,12 @@
 
 static bool usermenu_show = true;
 static bool usermenu_show_not = false;
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE
 static bool usermenu_show_three_d_mode = true;
 #else
 static bool usermenu_show_three_d_mode = false;
 #endif
-#if HAVE_SPARK_HARDWARE
-static bool usermenu_show_cam = false; // FIXME -- use hwcaps?
-#else
 static bool usermenu_show_cam = true; // FIXME -- use hwcaps?
-#endif
 struct keyvals
 {
 	const int key;

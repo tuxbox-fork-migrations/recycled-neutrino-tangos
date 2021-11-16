@@ -197,6 +197,7 @@ int CLuaInstMisc::enableMuteIcon(lua_State *L)
 
 int CLuaInstMisc::setVolume(lua_State *L)
 {
+	if (g_settings.hdmi_cec_volume) return 0;
 	CLuaMisc *D = MiscCheckData(L, 1);
 	if (!D) return 0;
 	lua_Integer vol = luaL_checkint(L, 2);
@@ -281,8 +282,12 @@ int CLuaInstMisc::GetRevision(lua_State *L)
 	if (!D) return 0; */
 	unsigned int rev = 0;
 	std::string hw   = "";
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	hw = "Coolstream";
+#else
+	hw = g_info.hw_caps->boxvendor;
+	hw += "_";
+	hw += g_info.hw_caps->boxname;
 #endif
 	rev = cs_get_revision();
 	lua_pushinteger(L, rev);

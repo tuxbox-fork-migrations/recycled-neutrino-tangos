@@ -118,9 +118,10 @@ bool CFEManager::Init()
 		dmap.push_back(CFeDmx(i));
 
 	INFO("found %d frontends, %d demuxes\n", (int)femap.size(), (int)dmap.size());
-	/* for testing without a frontend, export SIMULATE_FE=1 */
-	if (femap.empty() && getenv("SIMULATE_FE")) {
-		INFO("SIMULATE_FE is set, adding dummy frontend for testing");
+#if HAVE_GENERIC_HARDWARE
+	/* for testing without a frontend */
+	if (femap.empty()) {
+		INFO("no frontend found, adding dummy frontend for testing");
 		fe = new CFrontend(0, -1);
 		fekey = MAKE_FE_KEY(0, 0);
 		femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
@@ -128,6 +129,7 @@ bool CFEManager::Init()
 		livefe = fe;
 		have_sat = true;
 	}
+#endif
 	if (femap.empty())
 		return false;
 
@@ -599,6 +601,13 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 		if (mfe->getMode() == CFrontend::FE_MODE_UNUSED || CFrontend::linked(mfe->getMode()))
 			continue;
 
+#ifdef BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE
+		if ((mfe->hasCable() && SAT_POSITION_CABLE(satellitePosition)) || (mfe->hasTerr() && SAT_POSITION_TERR(satellitePosition)))
+		{
+			retfe = mfe;
+		}
+		else
+#endif
 		if (mfe->hasSat()) {
 			satellite_map_t & satmap = mfe->getSatellites();
 			sat_iterator_t sit = satmap.find(satellitePosition);
@@ -728,8 +737,10 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 	if (frontend) {
 #ifdef DYNAMIC_DEMUX
 		int dnum = getDemux(channel->getTransponderId(), frontend->getNumber());
-		INFO("record demux: %d", dnum);
+		INFO("record dyn demux: %d", dnum);
 		channel->setRecordDemux(dnum);
+		INFO("pip dyn demux: %d", dnum);
+		channel->setPipDemux(dnum);
 		if (forrecord && !dnum) {
 			frontend = NULL;
 		} else {
@@ -738,7 +749,7 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 #else
 		channel->setRecordDemux(frontend->fenumber+1);
 		channel->setPipDemux(frontend->fenumber+1);
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 		/* I don't know if this check is necessary on cs, but it hurts on other hardware */
 		if(femap.size() > 1)
 #endif
@@ -759,7 +770,7 @@ void CFEManager::setLiveFE(CFrontend * fe)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	livefe = fe; 
-#if HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 	if(femap.size() > 1)
 #endif
 		cDemux::SetSource(0, livefe->fenumber);

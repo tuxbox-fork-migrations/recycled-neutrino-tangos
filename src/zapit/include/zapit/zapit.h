@@ -19,11 +19,14 @@
 #include <zapit/bouquets.h>
 #include <zapit/femanager.h>
 #include <zapit/fastscan.h>
+#ifdef ENABLE_AIT
+#include <zapit/scanait.h>
+#endif
 
 #define PAL	0
 #define NTSC	1
-#define AUDIO_CONFIG_FILE	CONFIGDIR "/zapit/audio.conf"
-#define VOLUME_CONFIG_FILE	CONFIGDIR "/zapit/volume.conf"
+#define AUDIO_CONFIG_FILE	ZAPITDIR "/audio.conf"
+#define VOLUME_CONFIG_FILE	ZAPITDIR "/volume.conf"
 
 typedef std::map<t_channel_id, audio_map_set_t> audio_map_t;
 typedef audio_map_t::iterator audio_map_iterator_t;
@@ -146,7 +149,7 @@ class CZapit : public OpenThreads::Thread
 
 		CZapitChannel * current_channel;
 		t_channel_id live_channel_id;
-		t_channel_id pip_channel_id;
+		t_channel_id pip_channel_id[3];
 		t_channel_id lock_channel_id;
 		t_channel_id last_channel_id;
 		/* scan params */
@@ -154,7 +157,7 @@ class CZapit : public OpenThreads::Thread
 		fast_scan_type_t scant;
 
 		CFrontend * live_fe;
-		CFrontend * pip_fe;
+		CFrontend * pip_fe[3];
 
 		audio_map_t audio_map;
 		volume_map_t vol_map;
@@ -167,7 +170,9 @@ class CZapit : public OpenThreads::Thread
 		t_channel_id  lastChannelTV;
 		int abort_zapit;
 		int pmt_update_fd;
-
+#ifdef ENABLE_AIT
+		CAit *ait;
+#endif
 		//void LoadAudioMap();
 		void SaveAudioMap();
 		void SaveVolumeMap();
@@ -266,13 +271,13 @@ class CZapit : public OpenThreads::Thread
 
 		CZapitChannel * GetCurrentChannel() { return current_channel; };
 		t_channel_id GetCurrentChannelID() { return live_channel_id; };
-		t_channel_id GetPipChannelID() { return pip_channel_id; };
+		t_channel_id GetPipChannelID(int pip = 0) { return pip_channel_id[pip]; };
 		t_channel_id GetLastTVChannel() { return lastChannelTV; }
 		t_channel_id GetLastRADIOChannel() { return lastChannelRadio; }
 		void SetCurrentChannelID(const t_channel_id channel_id) { live_channel_id = channel_id; };
 		void SetLiveFrontend(CFrontend * fe) { if(fe) live_fe = fe; }
 		CFrontend * GetLiveFrontend() { return live_fe; };
-		CFrontend * GetPipFrontend() { return pip_fe; };
+		CFrontend * GetPipFrontend(int pip = 0) { return pip_fe[pip]; };
 
 		int GetPidVolume(t_channel_id channel_id, int pid, bool ac3 = false);
 		void SetPidVolume(t_channel_id channel_id, int pid, int percent);
@@ -280,8 +285,8 @@ class CZapit : public OpenThreads::Thread
 		int GetVolume() { return current_volume; };
 		int SetVolumePercent(int percent);
 		void SetVolumePercent(int default_ac3, int default_pcm);
-		bool StartPip(const t_channel_id channel_id);
-		bool StopPip();
+		bool StartPip(const t_channel_id channel_id, int pip = 0);
+		bool StopPip(int pip = 0);
 		void Lock() { mutex.lock(); }
 		void Unlock() { mutex.unlock(); }
 		void EnablePlayback(bool enable) { playbackStopForced = !enable; }

@@ -46,7 +46,7 @@
 #include <string>
 #include <list>
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 16
 #elif HAVE_ARM_HARDWARE
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 17
@@ -242,6 +242,107 @@ struct timer_remotebox_item
 		bool online;
 };
 
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
+#define GLCD_DEFAULT_BRIGHTNESS 7
+#define GLCD_DEFAULT_BRIGHTNESS_STANDBY 1
+#define GLCD_DEFAULT_BRIGHTNESS_DIM 3
+#define GLCD_DEFAULT_BRIGHTNESS_DIM_TIME "10"
+#else
+#define GLCD_DEFAULT_BRIGHTNESS 70
+#define GLCD_DEFAULT_BRIGHTNESS_STANDBY 10
+#define GLCD_DEFAULT_BRIGHTNESS_DIM 30
+#define GLCD_DEFAULT_BRIGHTNESS_DIM_TIME "30"
+#endif
+
+struct SNeutrinoGlcdTheme
+{
+	unsigned char glcd_foreground_color_red;
+	unsigned char glcd_foreground_color_green;
+	unsigned char glcd_foreground_color_blue;
+
+	unsigned char glcd_background_color_red;
+	unsigned char glcd_background_color_green;
+	unsigned char glcd_background_color_blue;
+	std::string glcd_background_image;
+
+	std::string glcd_font;
+
+	int glcd_channel_percent;
+	int glcd_channel_align;
+	int glcd_channel_x_position;
+	int glcd_channel_y_position;
+
+	int glcd_logo;
+	int glcd_logo_percent;
+	int glcd_logo_x_position;
+	int glcd_logo_y_position;
+
+	int glcd_epg_percent;
+	int glcd_epg_align;
+	int glcd_epg_x_position;
+	int glcd_epg_y_position;
+
+	int glcd_start;
+	int glcd_start_percent;
+	int glcd_start_align;
+	int glcd_start_x_position;
+	int glcd_start_y_position;
+
+	int glcd_end;
+	int glcd_end_percent;
+	int glcd_end_align;
+	int glcd_end_x_position;
+	int glcd_end_y_position;
+
+	int glcd_duration;
+	int glcd_duration_percent;
+	int glcd_duration_align;
+	int glcd_duration_x_position;
+	int glcd_duration_y_position;
+
+	int glcd_progressbar;
+	unsigned char glcd_progressbar_color_red;
+	unsigned char glcd_progressbar_color_green;
+	unsigned char glcd_progressbar_color_blue;
+	int glcd_progressbar_percent;
+	int glcd_progressbar_width;
+	int glcd_progressbar_x_position;
+	int glcd_progressbar_y_position;
+
+	int glcd_time;
+	int glcd_time_percent;
+	int glcd_time_align;
+	int glcd_time_x_position;
+	int glcd_time_y_position;
+
+	int glcd_icons_percent;
+	int glcd_icons_y_position;
+
+	int glcd_icon_ecm_x_position;
+	int glcd_icon_cam_x_position;
+	int glcd_icon_txt_x_position;
+	int glcd_icon_dd_x_position;
+	int glcd_icon_mute_x_position;
+	int glcd_icon_timer_x_position;
+	int glcd_icon_rec_x_position;
+	int glcd_icon_ts_x_position;
+
+	int glcd_weather;
+	int glcd_weather_curr_x_position;
+	int glcd_weather_next_x_position;
+	int glcd_weather_y_position;
+
+	int glcd_standby_clock_digital_y_position;
+	int glcd_standby_clock_simple_size;
+	int glcd_standby_clock_simple_y_position;
+
+	int glcd_standby_weather_curr_x_position;
+	int glcd_standby_weather_next_x_position;
+	int glcd_standby_weather_y_position;
+
+	int glcd_position_settings;
+};
+
 struct SNeutrinoSettings
 {
 	std::string version_pseudo;
@@ -253,10 +354,7 @@ struct SNeutrinoSettings
 	int analog_mode2;
 	int video_43mode;
 
-#if HAVE_SH4_HARDWARE
-	uint32_t video_mixer_color;
-#endif
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE
 	int hdmi_mode;
 	int psi_contrast;
 	int psi_saturation;
@@ -265,7 +363,7 @@ struct SNeutrinoSettings
 	int psi_step;
 #endif
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	int brightness;
 	int contrast;
 	int saturation;
@@ -303,7 +401,6 @@ struct SNeutrinoSettings
 	int infobar_casystem_display;
 	int infobar_casystem_dotmatrix;
 	int infobar_casystem_frame;
-	int scrambled_message;
 	int volume_pos;
 	int volume_digits;
 	int volume_size;
@@ -318,11 +415,6 @@ struct SNeutrinoSettings
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
-#if HAVE_SH4_HARDWARE
-	int audio_mixer_volume_analog;
-	int audio_mixer_volume_spdif;
-	int audio_mixer_volume_hdmi;
-#endif
 	int auto_lang;
 	int auto_subs;
 	int srs_enable;
@@ -346,9 +438,6 @@ struct SNeutrinoSettings
 	int hdmi_cec_view_on;
 	int hdmi_cec_standby;
 	int hdmi_cec_volume;
-#if HAVE_SH4_HARDWARE
-	int hdmi_cec_broadcast;
-#endif
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int enabled_auto_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int cpufreq;
@@ -429,9 +518,12 @@ struct SNeutrinoSettings
 	int network_ntpenable;
 	std::string ifname;
 
+	int webtv_xml_auto;
+	int webradio_xml_auto;
 	std::list<std::string> webtv_xml;
 	std::list<std::string> webradio_xml;
 	std::list<std::string> xmltv_xml; // see http://wiki.xmltv.org/
+	std::list<std::string> xmltv_xml_auto;
 
 
 	//personalize
@@ -454,6 +546,8 @@ struct SNeutrinoSettings
 
 		P_MAIN_GAMES,
 		P_MAIN_TOOLS,
+		P_MAIN_AVINPUT,
+		P_MAIN_AVINPUT_PIP,
 		P_MAIN_SCRIPTS,
 		P_MAIN_LUA,
 		P_MAIN_SETTINGS,
@@ -487,6 +581,8 @@ struct SNeutrinoSettings
 		P_MSER_RELOAD_CHANNELS,
 		P_MSER_BOUQUET_EDIT,
 		P_MSER_RESET_CHANNELS,
+		P_MSER_DAEMON_CONTROL,
+		P_MSER_CAMD_CONTROL,
 		P_MSER_RESTART,
 		P_MSER_RESTART_TUNER,
 		P_MSER_RELOAD_PLUGINS,
@@ -565,6 +661,8 @@ struct SNeutrinoSettings
 	SNeutrinoSkin skin;
 	std::string skinfiles;
 	std::string theme_name;
+	SNeutrinoGlcdTheme glcd_theme;
+	std::string glcd_theme_name;
 	bool osd_colorsettings_advanced_mode;
 
 	//network
@@ -592,7 +690,6 @@ struct SNeutrinoSettings
 	std::string last_webradio_dir;
 
 	//recording
-	int  recording_type;
 	int  recording_stopsectionsd;
 	unsigned char recording_audio_pids_default;
 	int recording_audio_pids_std;
@@ -601,7 +698,7 @@ struct SNeutrinoSettings
 	int recording_stream_vtxt_pid;
 	int recording_stream_subtitle_pids;
 	int recording_stream_pmt_pid;
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int recording_bufsize;
 	int recording_bufsize_dmx;
 #endif
@@ -707,6 +804,7 @@ struct SNeutrinoSettings
 
 	int key_current_transponder;
 	int key_pip_close;
+	int key_pip_close_avinput;
 	int key_pip_setup;
 	int key_pip_swap;
 	int key_format_mode_active;
@@ -735,6 +833,12 @@ struct SNeutrinoSettings
 	int pip_radio_height;
 	int pip_radio_x;
 	int pip_radio_y;
+
+#if ENABLE_QUADPIP
+	std::string quadpip_channel_window[4];
+	t_channel_id quadpip_channel_id_window[4];
+#endif
+
 	int bigFonts;
 	int window_size;
 	int window_width;
@@ -765,9 +869,6 @@ struct SNeutrinoSettings
 	int repeat_genericblocker;
 #define LONGKEYPRESS_OFF 499
 	int longkeypress_duration;
-#if HAVE_SH4_HARDWARE
-	int accept_other_remotes;
-#endif
 	int remote_control_hardware;
 	int audiochannel_up_down_enable;
 
@@ -776,29 +877,23 @@ struct SNeutrinoSettings
 	int screen_StartY;
 	int screen_EndX;
 	int screen_EndY;
-	int screen_StartX_crt_0;
-	int screen_StartY_crt_0;
-	int screen_EndX_crt_0;
-	int screen_EndY_crt_0;
-	int screen_StartX_lcd_0;
-	int screen_StartY_lcd_0;
-	int screen_EndX_lcd_0;
-	int screen_EndY_lcd_0;
-	int screen_StartX_crt_1;
-	int screen_StartY_crt_1;
-	int screen_EndX_crt_1;
-	int screen_EndY_crt_1;
-	int screen_StartX_lcd_1;
-	int screen_StartY_lcd_1;
-	int screen_EndX_lcd_1;
-	int screen_EndY_lcd_1;
+	int screen_StartX_a_0;
+	int screen_StartY_a_0;
+	int screen_EndX_a_0;
+	int screen_EndY_a_0;
+	int screen_StartX_a_1;
+	int screen_StartY_a_1;
+	int screen_EndX_a_1;
+	int screen_EndY_a_1;
+	int screen_StartX_b_0;
+	int screen_StartY_b_0;
+	int screen_EndX_b_0;
+	int screen_EndY_b_0;
+	int screen_StartX_b_1;
+	int screen_StartY_b_1;
+	int screen_EndX_b_1;
+	int screen_EndY_b_1;
 	int osd_resolution;
-#if HAVE_SH4_HARDWARE
-	int screen_StartX_int;
-	int screen_StartY_int;
-	int screen_EndX_int;
-	int screen_EndY_int;
-#endif
 	int screen_preset;
 	int screen_width;
 	int screen_height;
@@ -900,22 +995,17 @@ struct SNeutrinoSettings
 #ifdef ENABLE_GRAPHLCD
 	// graphlcd
 	int glcd_enable;
-	uint32_t glcd_color_fg;
-	uint32_t glcd_color_bg;
-	uint32_t glcd_color_bar;
-	std::string glcd_font;
-	int glcd_percent_channel;
-	int glcd_percent_epg;
-	int glcd_percent_bar;
-	int glcd_percent_time;
-	int glcd_percent_time_standby;
-	int glcd_percent_logo;
+
+	int glcd_time_in_standby;
+	int glcd_standby_weather;
+
 	int glcd_mirror_osd;
 	int glcd_mirror_video;
-	int glcd_time_in_standby;
-	int glcd_show_logo;
+
 	int glcd_brightness;
 	int glcd_brightness_standby;
+	int glcd_brightness_dim;
+	std::string glcd_brightness_dim_time;
 	int glcd_scroll_speed;
 	int glcd_selected_config;
 #endif
@@ -945,19 +1035,12 @@ struct SNeutrinoSettings
 #if USE_STB_HAL
 		LCD_EPGMODE            ,
 #endif
-#if HAVE_SPARK_HARDWARE
-		LCD_DISPLAYMODE        ,
-		LCD_STANDBY_DISPLAYMODE,
-#endif
 		LCD_SETTING_COUNT
 	};
 	int lcd_setting[LCD_SETTING_COUNT];
 	int lcd_info_line;
 	std::string lcd_setting_dim_time;
 	int lcd_setting_dim_brightness;
-#if HAVE_SH4_HARDWARE
-	int lcd_vfd_scroll;
-#endif
 	int led_tv_mode;
 	int led_standby_mode;
 	int led_deep_mode;
@@ -988,6 +1071,7 @@ struct SNeutrinoSettings
 	//online services
 	std::string weather_api_key;
 	int weather_enabled;
+	int weather_country;
 	std::string weather_location;
 	std::string weather_city;
 	std::string youtube_dev_id;
@@ -1086,8 +1170,9 @@ struct SNeutrinoSettings
 		ITEM_TUNER_RESTART = 33,
 		ITEM_THREE_D_MODE = 34,
 		ITEM_TIMESHIFT = 35,
+		ITEM_CAMD_RESET = 36,
 #ifdef ENABLE_LCD4LINUX
-		ITEM_LCD4LINUX = 36,
+		ITEM_LCD4LINUX = 37,
 #endif
 		ITEM_MAX // MUST be always the last in the list
 	} USER_ITEM;
@@ -1160,13 +1245,6 @@ const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLIN
 #define DEFAULT_LCD_INVERSE			0x00
 #define DEFAULT_LCD_AUTODIMM			0x00
 #define DEFAULT_LCD_SHOW_VOLUME			0x01
-#if HAVE_SPARK_HARDWARE
-#define LCD_DISPLAYMODE_OFF			0
-#define LCD_DISPLAYMODE_ON			1
-#define LCD_DISPLAYMODE_TIMEONLY		2
-#define LCD_DISPLAYMODE_TIMEOFF			3
-#define DEFAULT_LCD_DISPLAYMODE			LCD_DISPLAYMODE_ON
-#endif
 
 #define CORNER_RADIUS_LARGE	CFrameBuffer::getInstance()->scale2Res(11)
 #define CORNER_RADIUS_MID	CFrameBuffer::getInstance()->scale2Res(7)
@@ -1198,17 +1276,15 @@ const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLIN
 
 #define SIDEBAR_WIDTH		CFrameBuffer::getInstance()->scale2Res(40)
 
+#define SLIDER_HEIGHT		CFrameBuffer::getInstance()->scale2Res(22)
+#define SLIDER_WIDHT		CFrameBuffer::getInstance()->scale2Res(120)
+
 #define BIGFONT_FACTOR		1.5
 
 struct SglobalInfo
 {
 	hw_caps_t *hw_caps;
 };
-
-const int RECORDING_OFF    = 0;
-const int RECORDING_SERVER = 1;
-const int RECORDING_VCR    = 2;
-const int RECORDING_FILE   = 3;
 
 const int PARENTALLOCK_PROMPT_NEVER          = 0;
 const int PARENTALLOCK_PROMPT_ONSTART        = 1;

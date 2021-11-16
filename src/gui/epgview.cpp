@@ -883,7 +883,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		header->getClockObject()->enableForceSegmentPaint();
 	}
 
-	header->getClockObject()->setBlit(false);
 	header->setDimensionsAll(sx, sy, ox, toph);
 	header->setCaptionFont(font_title);
 	header->setCaption(epgData.title);
@@ -926,9 +925,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	showTimerEventBar(true, isCurrentEPG(channel_id), mp_info);
 
 	frameBuffer->blit();
-
-	if(header)
-		header->getClockObject()->setBlit();
 
 	if ( doLoop )
 	{
@@ -1057,7 +1053,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					loop = false;
 					break;
 				}
-				else if (!g_settings.minimode && (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF))
+				else if (!g_settings.minimode)
 				{
 					std::string recDir;
 					//CTimerdClient timerdclient;
@@ -1647,10 +1643,7 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 		else
 			EpgButtons[TV_BUTTONS][4].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
 
-		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-			::paintButtons(x, y, w, MaxButtons, EpgButtons[TV_BUTTONS], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 2);
-		else // don't show recording button
-			::paintButtons(x, y, w, MaxButtons, &EpgButtons[TV_BUTTONS][1], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 1);
+		::paintButtons(x, y, w, MaxButtons, EpgButtons[TV_BUTTONS], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 2);
 	}
 }
 
@@ -1666,7 +1659,7 @@ int CEpgData::showIMDb(bool splash)
 		return 0;
 	}
 
-	//titel
+	//title
 	std::string title = imdb->getIMDbElement("Title");
 
 	if(((title.find(imdb->search_error)) != std::string::npos))
@@ -1680,7 +1673,35 @@ int CEpgData::showIMDb(bool splash)
 	std::string txt;
 	txt.clear();
 	imdb->getIMDbData(txt);
-	processTextToArray(" ", 0, imdb->gotPoster()); // empty line to get space for the rating stars
+
+	// create mp_movie_info->epgInfo2
+	if (imdb->checkIMDbElement("Plot"))
+	{
+		epgTextSwitch = imdb->getIMDbElement("Plot") + "\n";
+		if (imdb->checkIMDbElement("Title"))
+		{
+			epgTextSwitch += "\n";
+			epgTextSwitch += g_Locale->getString(LOCALE_IMDB_DATA_TITLE) + ": ";
+			epgTextSwitch += imdb->getIMDbElement("Title");
+		}
+		if (imdb->checkIMDbElement("Country"))
+		{
+			epgTextSwitch += "\n";
+			epgTextSwitch += g_Locale->getString(LOCALE_IMDB_DATA_RELEASED) + ": ";
+			epgTextSwitch += imdb->getIMDbElement("Country");
+			if (imdb->checkIMDbElement("Released"))
+			{
+				epgTextSwitch += ", " + imdb->getIMDbElement("Released");
+			}
+		}
+		if (imdb->checkIMDbElement("Actors"))
+		{
+			epgTextSwitch += "\n";
+			epgTextSwitch += g_Locale->getString(LOCALE_IMDB_DATA_ACTORS) + ": ";
+			epgTextSwitch += imdb->getIMDbElement("Actors");
+		}
+	}
+
 	processTextToArray(txt, 0, imdb->gotPoster());
 
 	textCount = epgText.size();

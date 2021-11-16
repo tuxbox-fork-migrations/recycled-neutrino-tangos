@@ -43,7 +43,12 @@ extern int fh_crw_getsize (const char *, int *, int *, int, int);
 extern int fh_crw_load (const char *, unsigned char **, int *, int *);
 extern int fh_crw_id (const char *);
 #endif
-
+#ifdef FBV_SUPPORT_SVG
+extern int fh_svg_getsize (const char *, int *, int *, int, int);
+extern int fh_svg_load (const char *, unsigned char **, int *, int *);
+extern int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, int dx, int dy);
+extern int fh_svg_id (const char *);
+#endif
 double CPictureViewer::m_aspect_ratio_correction;
 
 void CPictureViewer::add_format (int (*picsize) (const char *, int *, int *, int, int), int (*picread) (const char *, unsigned char **, int *, int *), int (*id) (const char *))
@@ -77,6 +82,9 @@ void CPictureViewer::getSupportedImageFormats(std::vector<std::string>& exts)
 #ifdef FBV_SUPPORT_CRW
 	exts.push_back(".crw");
 #endif
+#ifdef FBV_SUPPORT_SVG
+	exts.push_back(".svg");
+#endif
 }
 
 void CPictureViewer::init_handlers (void)
@@ -95,6 +103,9 @@ void CPictureViewer::init_handlers (void)
 #endif
 #ifdef FBV_SUPPORT_CRW
   add_format (fh_crw_getsize, fh_crw_load, fh_crw_id);
+#endif
+#ifdef FBV_SUPPORT_SVG
+  add_format (fh_svg_getsize, fh_svg_load, fh_svg_id);
 #endif
 }
 
@@ -539,7 +550,7 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 
 bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width, int *height, bool lcd4l_mode, bool enable_event_logo)
 {
-	std::string fileType[] = { ".png", ".jpg", ".gif" };
+	std::string fileType[] = { ".svg", ".png", ".jpg", ".gif" };
 	std::vector<std::string> v_path;
 	std::vector<std::string> v_file;
 
@@ -685,7 +696,8 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 			}
 		}
 
-		if (cc && (name.compare("m3u_loading_logos") != 0))
+		// "alternate_logos" is a helper string from zapit/src/bouquets.cpp
+		if (cc && (name.compare("alternate_logos") != 0))
 		{
 			if (!cc->getAlternateLogo().empty())
 			{
@@ -809,6 +821,10 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		else
 #endif
 			load_ret = fh->get_pic(name.c_str (), &buffer, &x, &y);
+#ifdef FBV_SUPPORT_SVG
+		if (name.find(".svg") == (name.length() - 4))
+			bpp = 4;
+#endif
 		dprintf(DEBUG_INFO,  "[CPictureViewer] [%s - %d] load_result: %d \n", __func__, __LINE__, load_ret);
 
 		if (load_ret == FH_ERROR_OK)
@@ -826,6 +842,15 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 			{
 				dprintf(DEBUG_INFO,  "[CPictureViewer] [%s - %d] resize  %s to %d x %d \n", __func__, __LINE__, name.c_str(), *width, *height);
 				if (bpp == 4)
+#ifdef FBV_SUPPORT_SVG
+					if (name.find(".svg") == (name.length() - 4))
+					{
+						svg_load_resize(name.c_str(), &buffer, &x, &y, *width, *height);
+						if (x != *width || y != *height)
+							buffer = ResizeA(buffer, x, y, *width, *height);
+					}
+					else
+#endif
 					buffer = ResizeA(buffer, x, y, *width, *height);
 				else
 					buffer = Resize(buffer, x, y, *width, *height, COLOR);

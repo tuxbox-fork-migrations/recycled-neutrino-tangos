@@ -349,11 +349,15 @@ void CInfoViewer::showRecords()
 	if (!(access(INFOFILE, F_OK) == 0))
 		box_posY += g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2 + OFFSET_SHADOW;
 
-	if (!recordsblink)
-		recordsblink = new CComponentsTimer();
-
 	if (crm->RecordingStatus())
 	{
+		if (!recordsblink)
+		{
+			recordsblink = new CComponentsTimer();
+			recordsblink->setThreadName(__func__);
+			recordsblink->startTimer();
+		}
+
 		if (recordsbox)
 		{
 			recordsbox->kill();
@@ -390,11 +394,10 @@ void CInfoViewer::showRecords()
 			iconf->doPaintBg(true);
 			iconf->SetTransparent(CFrameBuffer::TM_BLACK);
 			images.push_back(iconf);
-			recline->setHeight(iconf->getHeight());
 
 			std::string records_msg = inst->GetEpgTitle();
 
-			rec_name = new CComponentsText(iconf->getWidth()+2*OFFSET_INNER_MID, 0, 0, 0, records_msg, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
+			rec_name = new CComponentsText(recline, iconf->getWidth()+2*OFFSET_INNER_MID, 0, 0, 0, records_msg, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
 			rec_name->doPaintBg(false);
 			rec_name->setTextColor(COL_INFOBAR_TEXT);
 
@@ -402,7 +405,8 @@ void CInfoViewer::showRecords()
 			recline->setWidth(OFFSET_INNER_MIN+iconf->getWidth()+OFFSET_INNER_MID+rec_name->getWidth()+OFFSET_INNER_MID);
 			w_recbox = (std::max(recline->getWidth(), recordsbox->getWidth()));
 			recordsbox->setWidth(w_recbox);
-			recline->addCCItem(rec_name);
+			iconf->setYPos((recline->getHeight()-iconf->getHeight())/2);
+			rec_name->setYPos((recline->getHeight()-rec_name->getHeight())/2);
 
 			y_recline += recline->getHeight() + OFFSET_SHADOW;
 		}
@@ -2278,7 +2282,7 @@ void CInfoViewer::getIconInfo()
 			break;
 		case CInfoViewer::ICON_RT:
 			if (isRadioMode && g_settings.radiotext_enable)
-				iconView = checkIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
+				iconView = checkIcon(NEUTRINO_ICON_RADIOTEXT_GET, &w, &h);
 			break;
 		case CInfoViewer::ICON_DD:
 			if( g_settings.infobar_show_dd_available )
@@ -2294,14 +2298,14 @@ void CInfoViewer::getIconInfo()
 			break;
 		case CInfoViewer::ICON_CA:
 			if (g_settings.infobar_casystem_display == 2 && CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts)
-				iconView = checkIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
+				iconView = checkIcon(NEUTRINO_ICON_SCRAMBLED, &w, &h);
 			break;
 		case CInfoViewer::ICON_TUNER:
 			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !IS_WEBCHAN(get_current_channel_id()) && CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_ts)
 #if 0
 				iconView = checkIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 #endif
-				iconView = checkIcon("tuner_1", &w, &h);
+				iconView = checkIcon("tuner_01", &w, &h);
 			break;
 		case CInfoViewer::ICON_UPDATE:
 			if ((access("/tmp/.update_avail", F_OK) == 0))
@@ -2623,9 +2627,9 @@ void CInfoViewer::showIcon_RadioText(bool rt_available)
 
 	std::string rt_icon;
 	if (rt_available)
-		rt_icon = (g_Radiotext->S_RtOsd) ? NEUTRINO_ICON_RADIOTEXTGET : NEUTRINO_ICON_RADIOTEXTWAIT;
+		rt_icon = (g_Radiotext->S_RtOsd) ? NEUTRINO_ICON_RADIOTEXT_GET : NEUTRINO_ICON_RADIOTEXT_WAIT;
 	else
-		rt_icon = NEUTRINO_ICON_RADIOTEXTOFF;
+		rt_icon = NEUTRINO_ICON_RADIOTEXT_OFF;
 
 	showIcons(CInfoViewer::ICON_RT, rt_icon);
 }
@@ -2654,11 +2658,7 @@ void CInfoViewer::showIcon_Resolution()
 	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		return;
 	const char *icon_name = NULL;
-#if BOXMODEL_UFS910
-	if (!chanready)
-#else
 	if (!chanready || videoDecoder->getBlank())
-#endif
 	{
 		icon_name = NEUTRINO_ICON_RESOLUTION_000;
 	}
@@ -2737,7 +2737,7 @@ void CInfoViewer::showIcon_Resolution()
 void CInfoViewer::showOne_CAIcon()
 {
 	std::string sIcon = "";
-	sIcon = (fta) ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2;
+	sIcon = (fta) ? NEUTRINO_ICON_SCRAMBLED_GREY : NEUTRINO_ICON_SCRAMBLED;
 	showIcons(CInfoViewer::ICON_CA, sIcon);
 }
 
@@ -2766,7 +2766,7 @@ void CInfoViewer::showIcon_Tuner()
 	}
 #else
 	char icon_name[12];
-	sprintf(icon_name, "tuner_%d", CFEManager::getInstance()->getLiveFE()->getNumber() + 1);
+	sprintf(icon_name, "tuner_%02d", CFEManager::getInstance()->getLiveFE()->getNumber() + 1);
 #endif
 	showIcons(CInfoViewer::ICON_TUNER, icon_name);
 }
@@ -3124,7 +3124,7 @@ void* CInfoViewer::Thread_paint_cam_icons(void)
 	std::stringstream fpath;
 	int emu_pic_startx = ChanInfoX + (g_settings.infobar_casystem_frame ? 2*OFFSET_INNER_MID : OFFSET_INNER_MID);
 	int py = BoxEndY + OFFSET_INNER_SMALL;
-	const char *icon_name[] = {"cccam","oscam","gbox"};
+	const char *icon_name[] = {"mgcamd","cccam","oscam","doscam","osmod","ncam","gbox"};
 	int icon_sizeH = 0;
 	int icon_sizeW = 0;
 

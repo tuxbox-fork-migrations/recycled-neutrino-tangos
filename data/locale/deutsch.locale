@@ -256,6 +256,27 @@ ca_init_0 Conax-Karte
 ca_init_1 CI-Modul
 ca_init_2 Conax-Karte und CI-Modul
 cablesetup.provider Kabelanbieter
+camd_control camd-Steuerung
+camd_item_cccam_hint CCcam - Softcam
+camd_item_cccam_name cccam
+camd_item_ciphelper_hint CI+ Helper - Softcam
+camd_item_ciphelper_name ciplushelper
+camd_item_doscam_hint DOSCam - Softcam und Emulator
+camd_item_doscam_name doscam
+camd_item_gbox_hint GBox - Softcam und Emulator
+camd_item_gbox_name gbox
+camd_item_mgcamd_hint MGCamd - Emulator
+camd_item_mgcamd_name mgcamd
+camd_item_ncam_hint NCam - Softcam und Emulator
+camd_item_ncam_name ncam
+camd_item_osmod_hint OSCam-smod - Softcam und Emulator
+camd_item_osmod_name osmod
+camd_item_oscam_hint OSCam - Softcam
+camd_item_oscam_name oscam
+camd_msg_reset Alle camd werden neu gestartet
+camd_msg_start  wird gestartet
+camd_msg_stop  wird gestoppt
+camd_reset Alle camd neu starten
 channellist.additional Zusatzinformationen
 channellist.additional_desc Beschreibung
 channellist.additional_list Event-Liste
@@ -267,8 +288,6 @@ channellist.edit Bearbeiten
 channellist.epgtext_align_left links
 channellist.epgtext_align_right rechts
 channellist.extended Sendungsfortschritt anzeigen
-channellist.extended_colored mit farbigem Fortschrittsbalken
-channellist.extended_simple mit einfachem Fortschrittsbalken
 channellist.favs Favoriten
 channellist.foot Kanalinformationen
 channellist.foot_freq Tuning-Parameter
@@ -333,7 +352,6 @@ ci.save_pincode Jugendschutz-PIN speichern
 ci.settings CI-Module
 ci.timeout CAM antwortet nicht
 ci.tuner Nutze CI nur mit Tuner:
-ci.use Erlaube CI
 ci.waiting Warte auf CAM-Antwort
 clock_background Hintergrund anzeigen
 clock_seconds Sekunden anzeigen
@@ -393,6 +411,38 @@ cpu.freq CPU Frequenz
 cpu.freq_default Standard Frequenz
 cpu.freq_normal Normale Frequenz
 cpu.freq_standby Standby Frequenz
+daemon_control Daemon-Steuerung
+daemon_restart aktuelle Einstellungen werden gesetzt ...\nNeustart erforderlich !
+daemon_item.bootlogo_desc Bootlogo beim Start anzeigen
+daemon_item.bootlogo_name Bootlogo anzeigen
+daemon_item.crond_desc cron Daemon kann zeitgesteuerte Aufgaben ausführen
+daemon_item.crond_name Crontab
+daemon_item.djmount_desc UPnP AV Client kann den Inhalt von Media-Servern mounten
+daemon_item.djmount_name DJmount
+daemon_item.dropbear_desc SSH2 Server und Client
+daemon_item.dropbear_name Dropbear
+daemon_item.emmremind_desc Zeigt eine Änderung der EMM's in den Infoicons an
+daemon_item.emmremind_name EMM-Änderungsbenachrichtigung
+daemon_item.etimer_desc Automatische Anpassung des Aufnahmetimers per EPG
+daemon_item.etimer_name Timer EPG Adjust (Experimental)
+daemon_item.fcm_desc Zeigt die Anrufliste der FRITZ!Box und noch vieles mehr ...
+daemon_item.fcm_name FritzCallMonitor
+daemon_item.inadyn_desc Internet Automated Dynamic DNS Client
+daemon_item.inadyn_name In-a-Dyn
+daemon_item.nfsserver_desc NFS Kernel Server
+daemon_item.nfsserver_name NFS-Server
+daemon_item.mountbefore_desc Netzwerkfreigaben vor Neutrinostart mounten
+daemon_item.mountbefore_name Netzwerkfreigaben früh mounten
+daemon_item.sambaserver_desc Server-Message-Block-Protokoll (SMB) Implementierung
+daemon_item.sambaserver_name Samba-Server
+daemon_item.tuxcald_desc Kalenderplugin Dienstprogramm
+daemon_item.tuxcald_name TuxCal
+daemon_item.tuxmaild_desc Mailplugin (IMAP/SMTP) Dienstprogramm
+daemon_item.tuxmaild_name TuxMail
+daemon_item.ushare_desc A/V und DLNA Medienserver
+daemon_item.ushare_name uShare
+daemon_item.xupnpd_desc eXtensible UPnP agent - DLNA Medienserver für IPTV
+daemon_item.xupnpd_name XUPnPd
 date.Apr  Apr
 date.Aug  Aug
 date.Dec  Dez
@@ -515,6 +565,7 @@ extra.key_next43mode Nächstes Seitenformat
 extra.key_pic_mode Bildschirmformat
 extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
+extra.key_pip_close_avinput Stop/Start PiP (HDMI)
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
 extra.key_record Aufnahme
@@ -540,7 +591,6 @@ extra.rounded_corners_off eckig
 extra.rounded_corners_on abgerundet
 extra.saveconfig Einstellungen sichern
 extra.savekeys Tastenbelegungen sichern
-extra.scrambled_message Verschlüsselung melden
 extra.show_mute_icon Mute-Icon bei Lautstärke 0
 extra.sms_channel SMS-Modus bei Kanalsuche
 extra.sms_movie SMS-Modus bei Filmsuche
@@ -845,46 +895,108 @@ fsk.from_7 ab 7
 fsk.to_12 bis 12
 fsk.to_16 bis 16
 fsk.to_7 bis 7
+glcd.align_center zentriert
+glcd.align_channel Sender ausrichten
+glcd.align_duration Sendungsdauer ausrichten
+glcd.align_end Sendungsende ausrichten
+glcd.align_epg EPG ausrichten
+glcd.align_left links
+glcd.align_none keine
+glcd.align_right rechts
+glcd.align_start Sendungsstart ausrichten
+glcd.align_time Uhrzeit ausrichten
+glcd.bar_width Fortschrittsbalken Weite
+glcd.bar_x_position Fortschrittsbalken x-Position
+glcd.bar_y_position Fortschrittsbalken y-Position
 glcd.brightness Helligkeit
-glcd.brightness_standby Helligkeit in Standby
+glcd.brightness_standby Helligkeit im Standby-Modus
+glcd.brightness_dim Dimmen
+glcd.brightness_dim_time Dimmen nach
+glcd.brightness_settings Helligkeit
+glcd.color.amber Amber
 glcd.color.black Schwarz
 glcd.color.blue Blau
-glcd.color.cyan Blaugrün
-glcd.color.green Grün
-glcd.color.magenta Magenta
-glcd.color.red Rot
-glcd.color.white Weiss
-glcd.color.yellow Gelb
-glcd.color.orange Orange
-glcd.color.light_gray Hellgrau
+glcd.color.bluegray Blaugrau
+glcd.color.brown Braun
+glcd.color.cyan Cyan
+glcd.color.deeporange Dunkles Orange
+glcd.color.deeppurple Dunkles Lila
 glcd.color.gray Grau
-glcd.color.dark_gray Dunkelgrau
-glcd.color.dark_red Dunkelrot
-glcd.color.dark_green Dunkelgrün
-glcd.color.dark_blue Dunkelblau
-glcd.color.purple Purple
-glcd.color.mint Mint
-glcd.color.golden Golden
+glcd.color.green Grün
+glcd.color.indigo Indigo
+glcd.color.lightblue Helles Blau
+glcd.color.lightgreen Helles Grün
+glcd.color.lime Lime
+glcd.color.orange Orange
+glcd.color.pink Pink
+glcd.color.purple Lila
+glcd.color.red Rot
+glcd.color.teal Teal
+glcd.color.white Weiß
+glcd.color.yellow Gelb
+glcd.channel_x_position Sender x-Position
+glcd.channel_y_position Sender y-Position
+glcd.digital_clock_y_position Digitaluhr y-Position
 glcd.display Display-Typ
+glcd.duration_x_position Sendungsdauer x-Position
+glcd.duration_y_position Sendungsdauer y-Position
 glcd.enable GraphLCD aktiv
+glcd.end_x_position Sendungsende x-Position
+glcd.end_y_position Sendungsende y-Position
+glcd.epg_x_position EPG x-Position
+glcd.epg_y_position EPG y-Position
 glcd.font Schrift
+glcd.font_autoresize Automatische Schriftgröße
 glcd.head GraphLCD-Unterstützung
+glcd.logo_x_position Senderlogo x-Position
+glcd.logo_y_position Senderlogo y-Position
 glcd.mirror_osd OSD-Menü auf GraphLCD anzeigen
 glcd.mirror_video Videobild auf GraphLCD anzeigen
+glcd.position_settings Positionen und Größen
 glcd.restart Neu erkennen
 glcd.scroll_speed Scroll-Geschwindigkeit
-glcd.select.bar Fortschrittsbalken-Farbe
-glcd.select.bg Hintergrund-Farbe
-glcd.select.fg Vordergrund-Farbe
-glcd.show_logo Sender-Logo anzeigen
-glcd.size_bar Fortschrittsbalken-Größe
-glcd.size_channel Sender-Größe
-glcd.size_epg EPG-Größe
-glcd.size_logo Logo-Größe
-glcd.size_time Uhrzeit-Größe
-glcd.size_time_standby Uhrzeit-Größe in Standby
-glcd.time_in_standby Zeitanzeige in Standby
+glcd.select.bar Fortschrittsbalkenfarbe
+glcd.select.bg Hintergrundfarbe
+glcd.select.fg Textfarbe
+glcd.show_duration Sendungsdauer anzeigen
+glcd.show_end Sendungsende anzeigen
+glcd.show_logo Senderlogo anzeigen
+glcd.show_progressbar Fortschrittsbalken anzeigen
+glcd.show_start Sendungsstart anzeigen
+glcd.show_time Uhrzeit anzeigen
+glcd.show_weather Wetter anzeigen
+glcd.simple_clock_y_position Einfache Uhr y-Position
+glcd.size_bar Fortschrittsbalken Höhe
+glcd.size_channel Sender Höhe
+glcd.size_duration Sendungsdauer Höhe
+glcd.size_end Sendungsende Höhe
+glcd.size_epg EPG Höhe
+glcd.size_logo Senderlogo Höhe
+glcd.size_simple_clock Einfache Uhr Höhe
+glcd.size_start Sendungsstart Höhe
+glcd.size_time Uhrzeit Höhe
+glcd.size_time_standby Uhrzeit Höhe im Standby
+glcd.theme Theme auswählen
+glcd.theme_settings Themes
+glcd.standby_analog_clock Analoge Uhr
+glcd.standby_digital_clock Digitale Uhr
+glcd.standby_lcd_clock LCD-Uhr
+glcd.standby_led_clock LED-Uhr
+glcd.standby_settings Standby-Einstellungen
+glcd.standby_simple_clock Einfache Uhr
+glcd.standby_weather Wetter im Standby
+glcd.standby_weather_curr_x_position Wetter im Standby heute x-Position
+glcd.standby_weather_next_x_position Wetter im Standby morgen x-Position
+glcd.standby_weather_y_position Wetter im Standby y-Position
+glcd.start_x_position Sendungsstart x-Position
+glcd.start_y_position Sendungsstart y-Position
+glcd.time_in_standby Zeitanzeige im Standby
+glcd.time_x_position Uhrzeit x-Position
+glcd.time_y_position Uhrzeit y-Position
 glcd.volume Lautstärke
+glcd.weather_curr_x_position Wetter heute x-Position
+glcd.weather_next_x_position Wetter morgen x-Position
+glcd.weather_y_position Wetter y-Position
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
@@ -986,13 +1098,9 @@ keybindingmenu.RC Fernbedienung abstimmen
 keybindingmenu.accept_other_remotes Andere Fernbedienungen akzeptieren
 keybindingmenu.addrecord Aufnahme-Timer hinzufügen
 keybindingmenu.addremind Umschalt-Timer hinzufügen
-keybindingmenu.allchannels_on_ok Kanalliste
-keybindingmenu.bouquetchannels_on_ok Bouquet-Kanäle
 keybindingmenu.bouquetdown Bouquet zurück
 keybindingmenu.bouquethandling OK-Taste für
-keybindingmenu.bouquetlist_on_ok Bouquetliste
 keybindingmenu.bouquetup Bouquet weiter
-keybindingmenu.cancel Kanalliste schließen
 keybindingmenu.channeldown Kanal runter
 keybindingmenu.channellist Kanalliste
 keybindingmenu.channelup Kanal hoch
@@ -1068,7 +1176,8 @@ lcd4l_support_off aus
 lcd4l_support_on ein
 lcd4l_weather Wetter im Standby-Modus
 lcd_info_line Zeige in Infozeile
-lcd_info_line_channel Kanalname
+lcd_info_line_channelname Kanalname
+lcd_info_line_channelnumber Kanalnummer
 lcd_info_line_clock Uhrzeit
 lcdcontroler.brightness Normalbetrieb
 lcdcontroler.brightnessdeepstandby Deep-Standby
@@ -1111,6 +1220,8 @@ lua.parameter_deprecated2 Der Parameter
 lua.versionscheck1 Ihre Lua API Version ist zu alt
 lua.versionscheck2 Erforderlich ist mindestens
 mainmenu.audioplayer Audioplayer
+mainmenu.avinputmode HDMI-Eingang (Modus)
+mainmenu.avinputmode_pip HDMI-Eingang (PiP)
 mainmenu.changegui GUI wechseln
 mainmenu.channels Kanalliste
 mainmenu.clearsectionsd Lösche EPG Cache
@@ -1203,6 +1314,8 @@ menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
 menu.hint_buildinfo Informationen über Compiler, Compilerflags, Kernel
 menu.hint_ca_init Konfiguration der CA-Systemhardware, CA-Modul und Kartenschächte
 menu.hint_cache_txt Startet das Zwischenspeichern des Videotextes nach einem Kanalwechsel
+menu.hint_camd_control Softcams und Emulatoren\nStart, Stop, Versionsinfo
+menu.hint_camd_reset Aktive Softcam und/oder Emulator neu starten
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
@@ -1241,6 +1354,7 @@ menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_colors_shadow Einstellen der Schattenfarbe
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
+menu.hint_daemon_control An- und Abschalten von System-Diensten
 menu.hint_dboxinfo Informationen über CPU und Arbeitsspeicher der Box
 menu.hint_delete_channels Löschen aller Kanäle
 menu.hint_delete_removed Lösche das Bouquet 'Gelöschte Kanäle'
@@ -1472,7 +1586,7 @@ menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gew�
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs usw.
 menu.hint_osd_behavior_infobar Infobar nach Zeitvorgabe oder manuell ein- oder ausblenden.
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
-menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
+menu.hint_osd_preset Wählen Sie zwischen Monitor 1 und 2 für unterschiedliche Bildbereiche
 menu.hint_osd_resolution Wählen Sie eine OSD-Auflösung
 menu.hint_osd_timing OSD-Element nach Zeitvorgabe oder manuell ein- oder ausblenden.
 menu.hint_other_fonts Ändern Sie andere Schriftgrößen
@@ -1506,6 +1620,7 @@ menu.hint_progressbar_timescale_invert Wählen Sie den Farbverlauf
 menu.hint_progressbar_timescale_red Hier können Sie den roten Farbanteil bunter Fortschrittsbalken anpassen
 menu.hint_progressbar_timescale_yellow Hier können Sie den gelben Farbanteil bunter Fortschrittsbalken anpassen
 menu.hint_protection Schützen Sie Inhalte per PIN-Code\nStandard-PIN ist 0000
+menu.hint_quadpip QuadPiP aktivieren
 menu.hint_radiomode Schaltet zum Radio-Modus
 menu.hint_reboot Startet die Box neu\nDer Neustart erfolgt ohne Bestätigung!
 menu.hint_record_already_found_check Prüft vor dem Setzen eines neues Aufnahmetimers, ob ein gleichnamiger Titel bereits vorhanden ist
@@ -1622,7 +1737,6 @@ menu.hint_scan_usals USALS Optionen
 menu.hint_scan_usals_repeat Geben Sie die USALS-Wiederholungen für den Rotor ein
 menu.hint_scan_usalsall Verwenden Sie USALS für alle Satelliten an diesem Tuner
 menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelliten,\nwenn aktiv, wird Rotorposition ignoriert
-menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung, wenn ein verschlüsselter Sender nicht entschlüsselt werden kann
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
 menu.hint_screensaver_delay Legen sie die Zeit (in Minuten) fest, nach der der Bildschirmschoner starten soll oder schaltet ihn aus
 menu.hint_screensaver_dir Wählen Sie das Verzeichnis, in dem die Bilder für Ihren Bildschirmschoner gespeichert sind
@@ -1723,11 +1837,13 @@ menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
-menu.hint_weather_api_key Geben Sie den Dark Sky API Schlüssel ein. Eine leere Eingabe schaltet die Wetter-Unterstützung aus
-menu.hint_weather_enabled Schaltet die Wetter-Unterstützung (darksky.net) ein bzw. aus
+menu.hint_weather_api_key Geben Sie den OpenWeather API Schlüssel ein. (https://openweathermap.org/appid) Eine leere Eingabe schaltet die Wetter-Unterstützung aus
+menu.hint_weather_enabled Schaltet die Wetter-Unterstützung (OpenWeather) ein bzw. aus
 menu.hint_weather_location Wählen Sie eine Stadt in ihrer Nähe zur Anzeige der Wetterdaten aus
 menu.hint_webradio_setup Hier konfigurierte WebRadio-Kanäle finden Sie in der Kanalverwaltung.
+menu.hint_webradio_xml_auto Lädt automatisch alle WebRadio-Dateien aus %s/ und %s/
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
+menu.hint_webtv_xml_auto Lädt automatisch alle WebTV-Dateien aus %s/ und %s/
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_xmltv_setup Hier konfigurieren Sie XMLTV-Dateien, die EPG-Daten enthalten
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
@@ -2141,6 +2257,8 @@ nfs.automount Beim Start mounten
 nfs.dir Verzeichnis/Freigabe
 nfs.ip Server IP
 nfs.localdir lokales Verzeichnis
+nfs.mac MAC-Adresse
+nfs.mac_refresh MAC-Adresse feststellen
 nfs.mount Netzwerk Verzeichnis mounten
 nfs.mount_options Mount-Optionen
 nfs.mounterror Mount-Fehler
@@ -2149,7 +2267,6 @@ nfs.mountnow Jetzt mounten
 nfs.mountok Mount erfolgreich
 nfs.mounttimeout Mount-Fehler: Timeout
 nfs.password Passwort
-nfs.refresh_mac MAC-Adresse feststellen
 nfs.remount Verzeichnisse erneut mounten
 nfs.type Typ
 nfs.type_cifs CIFS
@@ -2167,15 +2284,15 @@ nvodselector.starttime Anfangszeit auswählen
 nvodselector.subservice Perspektiven
 options.always immer
 options.default Voreinstellungen benutzen
-options.fb framebuffer
 options.hint_default Setzen Sie die Werte auf die Voreinstellung zurück.
 options.ntp_off DVB
 options.ntp_on NTP
-options.null null
 options.off aus
 options.on ein
-options.on.without_messages ohne Msg
-options.serial seriell
+options.start starten
+options.stop stoppen
+osd.preset_screen_a Bildschirm 1
+osd.preset_screen_b Bildschirm 2
 parentallock.bouquetmode Bouquets sind standardmässig
 parentallock.changepin PIN-Code festlegen
 parentallock.changepin_hint1 Geben Sie hier Ihren neuen PIN-Code ein!
@@ -2278,6 +2395,11 @@ plugintype.game Spiel
 plugintype.lua Lua-Plugin
 plugintype.script Skript
 plugintype.tool Werkzeug
+quadpip QuadPiP
+quadpip_1 Programm 1
+quadpip_2 Programm 2
+quadpip_3 Programm 3
+quadpip_4 Programm 4
 rclock.locked Gesperrt
 rclock.lockmsg Die Fernbedienung wird gesperrt.\nUm die Sperre aufzuheben, bitte\n[rot] gefolgt von [%s]\nauf der Fernbedienung drücken.
 rclock.title Fernbedienung sperren
@@ -2307,7 +2429,6 @@ recordingmenu.dvbsub_pids Untertitel aufnehmen
 recordingmenu.end_of_recording_epg EPG aktuelles Event
 recordingmenu.end_of_recording_max max. Aufnahmezeit
 recordingmenu.end_of_recording_name Ende der Sofortaufnahme
-recordingmenu.file Direkt (Datei)
 recordingmenu.filename_template Vorlage für Dateiname
 recordingmenu.filename_template_hint Platzhalter werden durch folgende Werte ersetzt:
 recordingmenu.filename_template_hint2 %C = Kanal, %T = Titel, %I = Info, %d = Datum, %t = Zeit
@@ -2317,17 +2438,13 @@ recordingmenu.multimenu.info_stop_all %d von %d Aufnahmen werden beendet.
 recordingmenu.multimenu.rec_akt Aufnahme aktueller Kanal
 recordingmenu.multimenu.stop_all Alle Aufnahmen beenden
 recordingmenu.multimenu.timeshift Timeshift
-recordingmenu.off aus
 recordingmenu.record_is_not_running Keine laufende Aufnahme verfügbar!
 recordingmenu.record_is_running Aufnahme läuft!
 recordingmenu.save_in_channeldir Speichere im Kanalverzeichnis
-recordingmenu.server Server
-recordingmenu.server_mac MAC-Adresse
 recordingmenu.setupnow Einstellungen jetzt übernehmen
 recordingmenu.slow_warn Warnung bei langsamen Aufnahmemedien
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift Aufnahmeverzeichnis
-recordingmenu.vcr Videorekorder
 recordingmenu.vtxt_pid Videotext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
@@ -2455,7 +2572,6 @@ scants.select_tp Wählen Sie einen Transponder
 scants.startnow Kanalsuche starten
 scants.test Empfangstest
 scants.transponders Transponder:
-scrambled_channel Verschlüsselung aktiv
 screensaver.delay Verzögerung
 screensaver.dir Verzeichnis
 screensaver.enable_text_info Textinformationen
@@ -2748,7 +2864,10 @@ videomenu.hdmi_cec_mode_tuner als Sat/Kabel STB
 videomenu.hdmi_cec_standby Aktiviere CEC Standby
 videomenu.hdmi_cec_standby_not_timer nicht bei Timer
 videomenu.hdmi_cec_view_on Aktiviere CEC View on
-videomenu.hdmi_cec_volume Aktiviere CEC Lautstärke Regelung
+videomenu.hdmi_cec_volume CEC Lautstärke Regelung
+videomenu.hdmi_cec_vol_audiosystem Audiosystem
+videomenu.hdmi_cec_vol_off Aus
+videomenu.hdmi_cec_vol_tv TV
 videomenu.hue Farbton
 videomenu.letterbox Letterbox
 videomenu.masksetup Bildmaske
@@ -2781,20 +2900,19 @@ videomenu.zappingmode_mute Schwarzes Bild
 videomenu.zappingmode_hold Standbild
 videomenu.zappingmode_mutetilllock Schwarzes Bild bis lock
 videomenu.zappingmode_holdtilllock Standbild bis lock
-weather.api_key Wetter API Schlüssel (Dark Sky)
+weather.api_key Wetter API Schlüssel (OpenWeather)
 weather.enabled Wetter-Unterstützung
 weather.location Wetter-Standort
+webchannels.xml.add Hinzufügen
+webchannels.xml.del Entfernen
+webchannels.xml.enter Eintragen
+webchannels.xml.reload Neu laden
 webradio.head WebRadio
-webradio.xml WebRadio-XML-Dateien
-webradio.xml.add XML-Datei hinzufügen
-webradio.xml.del XML-Datei entfernen
-webradio.xml.reload XML-Dateien neu laden
+webradio.xml WebRadio-Dateien
+webradio.xml.auto WebRadio-Dateien automatisch laden
 webtv.head WebTV
 webtv.xml WebTV-Dateien
-webtv.xml.add Hinzufügen
-webtv.xml.del Entfernen
-webtv.xml.enter Eintragen
-webtv.xml.reload Neu laden
+webtv.xml.auto WebTV-Dateien automatisch laden
 window_size Fenstergröße in %
 wizard.initial_settings Grundeinstellungen gefunden
 wizard.install_settings Kanalliste für Astra 19.2°E installieren?

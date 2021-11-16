@@ -2,7 +2,7 @@ define(ver_major, 3)
 define(ver_minor, 12)
 define(ver_micro, 0)
 
-AC_INIT(Neutrino-MP, ver_major.ver_minor.ver_micro)
+AC_INIT(Neutrino-Tangos, ver_major.ver_minor.ver_micro)
 AM_INIT_AUTOMAKE([nostdinc foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
@@ -93,10 +93,6 @@ TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
 
 AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 
-if test "$BOXTYPE" = "tripledragon"; then
-	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
-fi
-
 # TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_PKGCONFIG(CURL,libcurl)
 
@@ -146,13 +142,8 @@ fi
 
 if test "$BOXTYPE" = "coolstream" ||
    test "$BOXTYPE" = "armbox" ||
-   test "$BOXTYPE" = "generic" ||
-   test "$BOXTYPE" = "tripledragon" ||
-   test "$BOXTYPE" = "duckbox" ||
-   test "$BOXTYPE" = "armbox" ||
    test "$BOXTYPE" = "mipsbox" ||
-   test "$BOXTYPE" = "spark7162" ||
-   test "$BOXTYPE" = "spark"; then
+   test "$BOXTYPE" = "generic"; then
 	AC_DEFINE(SCREENSHOT, 1, [Define to 1 if the platform supports screenshots])
 fi
 
@@ -173,6 +164,11 @@ AM_CONDITIONAL(ENABLE_LCD4LINUX, test "$enable_lcd4linux" = "yes")
 if test "$enable_lcd4linux" = "yes"; then
 	AC_DEFINE(ENABLE_LCD4LINUX, 1, [include Lcd4Linux support])
 fi
+
+AC_ARG_ENABLE(aitscan,
+	AS_HELP_STRING([--enable-aitscan], [enable Application Information Table support @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_AIT, 1, [enable Application Information Table support]))
+AM_CONDITIONAL(ENABLE_AIT, test "$enable_aitscan" = "yes")
 
 AC_ARG_ENABLE(keyboard-no-rc,
 	AS_HELP_STRING([--enable-keyboard-no-rc], [enable keyboard control, disable rc control @<:@default=no@:>@]),
@@ -231,7 +227,7 @@ fi
 
 AC_ARG_ENABLE(dynamicdemux,
 	AS_HELP_STRING(--enable-dynamicdemux,use dynamic demux),
-	,[enable_dynamicdemux=yes])
+	,[enable_dynamicdemux=no])
 
 AM_CONDITIONAL(DYNAMIC_DEMUX,test "$enable_dynamicdemux" = "yes")
 if test "$enable_dynamicdemux" = "yes"; then
@@ -299,8 +295,13 @@ AC_ARG_ENABLE(cleanup,
 	AC_DEFINE(EXIT_CLEANUP, 1, [enable cleanup on exit]))
 
 AC_ARG_ENABLE(pip,
-	AS_HELP_STRING([--enable-pip], [enable picture in picture support @<:@default=no@:>@]),
-	AC_DEFINE(ENABLE_PIP, 1, [enable picture in picture support]))
+	AS_HELP_STRING(--disable-pip,disable pip),
+	,[enable_pip=yes])
+
+AM_CONDITIONAL(ENABLE_PIP,test "$enable_pip" = "yes")
+if test "$enable_pip" = "yes"; then
+	AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])
+fi
 
 AC_ARG_ENABLE(testing,
 	AS_HELP_STRING([--enable-testing], [enable development code @<:@default=no@:>@]),
@@ -375,7 +376,8 @@ AC_SUBST(LUA_CFLAGS)
 AC_SUBST(LUA_LIBS)
 AC_SUBST(BLURAY_LIBS)
 
-AC_OUTPUT([
+# Makefiles
+AC_CONFIG_FILES([
 Makefile
 data/Makefile
 data/config/Makefile
@@ -386,6 +388,7 @@ data/icons/buttons/Makefile
 data/icons/filetypes/Makefile
 data/icons/headers/Makefile
 data/icons/hints/Makefile
+data/icons/hourglass/Makefile
 data/icons/locale/Makefile
 data/icons/movieplayer/Makefile
 data/icons/radar/Makefile
@@ -407,6 +410,14 @@ data/lcd/clock/Makefile
 data/lcd/icons/Makefile
 data/license/Makefile
 data/locale/Makefile
+data/oled/Makefile
+data/oled/fonts/Makefile
+data/oled/icons/Makefile
+data/oled/icons/clock/Makefile
+data/oled/themes/Makefile
+data/oled/themes/400x240/Makefile
+data/oled/themes/480x320/Makefile
+data/oled/themes/800x480/Makefile
 data/pictures/Makefile
 data/pictures/backgrounds/Makefile
 data/pictures/screensaver/Makefile
@@ -427,6 +438,10 @@ data/themes/Neutrino-3.0/icons/buttons/Makefile
 data/themes/Olive-3.0/Makefile
 data/themes/Olive-3.0/icons/Makefile
 data/themes/Olive-3.0/icons/buttons/Makefile
+data/themes/TangoCash/Makefile
+data/themes/TangoCash/icons/Makefile
+data/themes/TangoCash/icons/buttons/Makefile
+data/themes/TangoCash/icons/hourglass/Makefile
 data/webradio/Makefile
 data/webtv/Makefile
 data/y-web/Makefile
@@ -455,6 +470,7 @@ src/Makefile
 src/daemonc/Makefile
 src/driver/Makefile
 src/driver/pictureviewer/Makefile
+src/driver/glcd/Makefile
 src/eitd/Makefile
 src/gui/Makefile
 src/gui/bedit/Makefile
@@ -463,7 +479,6 @@ src/gui/lua/Makefile
 src/gui/moviebrowser/Makefile
 src/gui/widget/Makefile
 src/gui/widget/yaft/Makefile
-src/lcddisplay/Makefile
 src/nhttpd/Makefile
 src/nhttpd/nhttpd.conf
 src/nhttpd/tuxboxapi/Makefile
@@ -477,3 +492,17 @@ src/zapit/Makefile
 src/zapit/lib/Makefile
 src/zapit/src/Makefile
 ])
+
+# Oled themes
+AC_CONFIG_FILES([
+data/oled/themes/400x240/Default.otheme
+data/oled/themes/480x320/Default.otheme
+data/oled/themes/480x320/Advanced.otheme
+data/oled/themes/480x320/Easy.otheme
+data/oled/themes/480x320/Medium.otheme
+data/oled/themes/480x320/Simple.otheme
+data/oled/themes/480x320/Weather.otheme
+data/oled/themes/800x480/Default.otheme
+])
+
+AC_OUTPUT

@@ -51,6 +51,15 @@ for controlscript in $controlscripts; do
 	fi
 done
 
+internalplugins="`ls -1 /usr/share/tuxbox/neutrino/plugins`"
+for internalplugin in $internalplugins; do
+	if [ -e /usr/share/tuxbox/neutrino/plugins/$internalplugin ] && [ -e /var/tuxbox/plugins/$internalplugin ]; then
+		rm /var/tuxbox/plugins/$internalplugin
+	fi
+done
+
 # these control scripts hasn't counterparts in /var
-rm -f migration.sh
 rm -f flash.start
+
+#cleanup
+rm /usr/share/tuxbox/neutrino/control/migration.sh

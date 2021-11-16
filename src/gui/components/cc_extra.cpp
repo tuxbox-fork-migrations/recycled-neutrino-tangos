@@ -114,11 +114,57 @@ bool paintImage(	const std::string& Image,
 			int shadow_mode,
 			const fb_pixel_t& color_shadow)
 {
-	std::string image = (dx > 0 || dy > 0) ? CFrameBuffer::getInstance()->getIconPath(Image) : Image;
-	CComponentsPicture box( x, y, dx, dy, image, NULL, shadow_mode, color_frame, color_body, color_shadow, transparent);
-	box.doPaintBg(color_body !=0);
+	CComponentsPicture box( x, y, dx, dy, Image, NULL, shadow_mode, color_frame, color_body, color_shadow, transparent);
 	box.setCorner(radius, corner_type);
 	box.paint(CC_SAVE_SCREEN_NO);
 
-	return box.isPicPainted();
+	return box.isPainted();
+}
+
+bool paintIcon (	const std::string& filename,
+			const int& x,
+			const int& y,
+			const int& dx,
+			const int& dy,
+			const std::string& text,
+			const int& font_style,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_text)
+{
+	int h = 0;
+	int w = 0;
+	CFrameBuffer::getInstance()->getIconSize(filename.c_str(), &w, &h);
+
+	CComponentsText box(	x,
+				y,
+				dx < 1 ? w : dx,
+				dy < 1 ? h : dy,
+				text,
+				CTextBox::CENTER,
+				*CNeutrinoFonts::getInstance()->getDynFont(w, h, text),
+				font_style,
+				NULL,
+				CC_SHADOW_OFF,
+				color_text,
+				COL_FRAME_PLUS_0,
+				color_body);
+
+	box.setBodyBGImageName(filename);
+	box.doPaintBg(true);
+	box.enableTboxSaveScreen(false);
+	box.setCorner(0, 0);
+	box.paint(CC_SAVE_SCREEN_NO);
+
+	return box.isPainted();
+}
+
+bool paintIcon (	const std::string& filename,
+			const int& x,
+			const int& y,
+			const std::string& text,
+			const int& font_style,
+			const fb_pixel_t& color_body,
+			const fb_pixel_t& color_text)
+{
+	return paintIcon (filename, x, y, 0, 0, text, font_style, color_body, color_text);
 }
