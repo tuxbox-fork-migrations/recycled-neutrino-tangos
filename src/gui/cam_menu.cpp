@@ -178,7 +178,7 @@ int CCAMMenuHandler::doMainMenu()
 	cammenu->addItem(ci_mode);
 #endif
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	int fecount = CFEManager::getInstance()->getFrontendCount();
 	char fename[fecount+1][255];
 
@@ -222,9 +222,7 @@ int CCAMMenuHandler::doMainMenu()
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_CLOCK, &g_settings.ci_clock[i], CI_CLOCK_OPTIONS, CI_CLOCK_OPTION_COUNT, true, this));
 #else
-#if !HAVE_SH4_HARDWARE
 			cammenu->addItem(new CMenuOptionNumberChooser(LOCALE_CI_CLOCK, &g_settings.ci_clock[i], true, 6, 12, this));
-#endif
 #endif
 #if BOXMODEL_VUPLUS_ALL
 			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_RPR, &g_settings.ci_rpr[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
@@ -232,7 +230,7 @@ int CCAMMenuHandler::doMainMenu()
 			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_IGNORE_MSG, &g_settings.ci_ignore_messages[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_SAVE_PINCODE, &g_settings.ci_save_pincode[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 		} else {
-			snprintf(str1, sizeof(str1), "%s %d", g_Locale->getText(LOCALE_CI_EMPTY), i);
+			snprintf(str1, sizeof(str1), "%s %d", g_Locale->getText(LOCALE_CI_EMPTY), i+1);
 			tempMenu = new CMenuWidget(str1, NEUTRINO_ICON_SETTINGS);
 			cammenu->addItem(new CMenuDForwarder(str1, false, NULL, tempMenu));
 			memset(str1,0,sizeof(str1));

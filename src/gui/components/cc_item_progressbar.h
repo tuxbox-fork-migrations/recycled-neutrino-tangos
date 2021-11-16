@@ -59,7 +59,7 @@ static std::vector<CProgressBarCache *> pbCache;
 class CProgressBarCache
 {
 	public:
-		void pbcPaint(int x, int y, int pbc_active_width, int pbc_passive_width, CFrameBuffer *frameBuffer) const;
+		void pbcPaint(int x, int y, int pbc_active_width, int pbc_passive_width) const;
 		static void pbcClear();
 		static CProgressBarCache *pbcLookup(	int dy,
 							int dx,

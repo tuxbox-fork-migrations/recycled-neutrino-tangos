@@ -62,7 +62,7 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 	shadow		= shadow_mode;
 	shadow_w	= OFFSET_SHADOW;
 	col_frame 	= color_frame;
-	col_body	= color_body;
+	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 	fr_thickness	= 2;
 	corner_rad	= RADIUS_SMALL;
@@ -97,15 +97,7 @@ void CComponentsPIP::paint(const bool &do_save_bg)
 	
 	int mode = CNeutrinoApp::getInstance()->getMode();
 	if(mode == NeutrinoModes::mode_tv || mode == NeutrinoModes::mode_webtv || mode == NeutrinoModes::mode_ts) {
-#if HAVE_SH4_HARDWARE
-		videoDecoder->Pig(pig_x, pig_y, pig_w, pig_h, screen_w, screen_h,
-			g_settings.screen_StartX_int,
-			g_settings.screen_StartY_int,
-			g_settings.screen_EndX_int,
-			g_settings.screen_EndY_int);
-#else
 		videoDecoder->Pig(pig_x, pig_y, pig_w, pig_h, screen_w, screen_h);
-#endif
 	}
 	else{ //paint an alternate image if no tv mode available
 		CComponentsPicture pic = CComponentsPicture (pig_x, pig_y, pig_w, pig_h, pic_name, NULL, CC_SHADOW_OFF, col_frame, col_frame);

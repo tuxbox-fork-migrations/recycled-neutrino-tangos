@@ -27,10 +27,12 @@
 #include <stdint.h>
 #include <system/localize.h>
 #include <driver/neutrino_msg_t.h>
-#include <driver/framebuffer.h>
+#include <driver/fb_generic.h>
 #include <gui/color_custom.h>
+#include <gui/color.h>
 #include <vector>
 #include <sys/types.h>
+#include <sigc++/slot.h>
 
 struct gradientData_t;
 class Font;
@@ -199,17 +201,24 @@ typedef struct button_label_cc
 	int 				btn_result;
 	int 				btn_alias;
 	std::string 			bg_image;
+	std::string 			bg_sel_image;
+	std::string 			bg_pre_sel_image;
 	std::string 			hint;
-	uint32_t			order_id;
+	fb_pixel_t			text_color;
+	fb_pixel_t			text_sel_color;
+	uint32_t			sort_id;
+	sigc::slot<void>		btn_slot;
 	//defaults
 	button_label_cc(): 	button(NULL),
 				text(std::string()),
 				locale(NONEXISTANT_LOCALE),
 				directKeys(0, RC_NOKEY /*CRCInput::RC_nokey*/),
-				order_id(0){}
+				text_color(COL_MENUCONTENTSELECTED_PLUS_0),
+				text_sel_color(COL_MENUCONTENTSELECTED_PLUS_0),
+				sort_id(0){}
 	bool operator< (const button_label_cc& i) const
 	{
-		return this->order_id < i.order_id ;
+		return this->sort_id < i.sort_id ;
 	}
 } button_label_cc_struct;
 

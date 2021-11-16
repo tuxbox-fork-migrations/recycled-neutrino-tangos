@@ -16,6 +16,7 @@ SUBDIRS = \
 	y-web \
 	zapit
 
-if BOXTYPE_TRIPLE
-SUBDIRS += lcd
+if ENABLE_GRAPHLCD
+SUBDIRS += \
+	oled
 endif

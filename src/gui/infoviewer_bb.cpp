@@ -172,7 +172,7 @@ void CInfoViewerBB::getBBIconInfo()
 			break;
 		case CInfoViewerBB::ICON_RT:
 			if (isRadioMode && g_settings.radiotext_enable)
-				iconView = checkBBIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
+				iconView = checkBBIcon(NEUTRINO_ICON_RADIOTEXT_GET, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_DD:
 			if( g_settings.infobar_show_dd_available )
@@ -188,14 +188,14 @@ void CInfoViewerBB::getBBIconInfo()
 			break;
 		case CInfoViewerBB::ICON_CA:
 			if (g_settings.infobar_casystem_display == 2)
-				iconView = checkBBIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
+				iconView = checkBBIcon(NEUTRINO_ICON_SCRAMBLED, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_TUNER:
 			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !isTSMode && !IS_WEBCHAN(g_InfoViewer->get_current_channel_id()))
 #if 0
 				iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 #endif
-				iconView = checkBBIcon("tuner_1", &w, &h);
+				iconView = checkBBIcon("tuner_01", &w, &h);
 			break;
 		default:
 			break;
@@ -524,9 +524,9 @@ void CInfoViewerBB::showIcon_RadioText(bool rt_available)
 
 	std::string rt_icon;
 	if (rt_available)
-		rt_icon = (g_Radiotext->S_RtOsd) ? NEUTRINO_ICON_RADIOTEXTGET : NEUTRINO_ICON_RADIOTEXTWAIT;
+		rt_icon = (g_Radiotext->S_RtOsd) ? NEUTRINO_ICON_RADIOTEXT_GET : NEUTRINO_ICON_RADIOTEXT_WAIT;
 	else
-		rt_icon = NEUTRINO_ICON_RADIOTEXTOFF;
+		rt_icon = NEUTRINO_ICON_RADIOTEXT_OFF;
 
 	showBBIcons(CInfoViewerBB::ICON_RT, rt_icon);
 }
@@ -557,11 +557,7 @@ void CInfoViewerBB::showIcon_Resolution()
 #if 0
 	if ((scrambledNoSig) || ((!fta) && (scrambledErr)))
 #endif
-#if BOXMODEL_UFS910
-	if (!g_InfoViewer->chanready)
-#else
 	if (!g_InfoViewer->chanready || videoDecoder->getBlank())
-#endif
 	{
 		icon_name = NEUTRINO_ICON_RESOLUTION_000;
 	} else {
@@ -638,17 +634,17 @@ void CInfoViewerBB::showIcon_CA()
 #if 0
 	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_radio) {
 		if (scrambledNoSig)
-			sIcon = NEUTRINO_ICON_SCRAMBLED2_BLANK;
+			sIcon = NEUTRINO_ICON_SCRAMBLED_BLANK;
 		else {	
 			if (fta)
-				sIcon = NEUTRINO_ICON_SCRAMBLED2_GREY;
+				sIcon = NEUTRINO_ICON_SCRAMBLED_GREY;
 			else
-				sIcon = (scrambledErr) ? NEUTRINO_ICON_SCRAMBLED2_RED : NEUTRINO_ICON_SCRAMBLED2;
+				sIcon = (scrambledErr) ? NEUTRINO_ICON_SCRAMBLED_RED : NEUTRINO_ICON_SCRAMBLED;
 		}
 	}
 	else
 #endif
-		sIcon = (fta) ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2;
+		sIcon = (fta) ? NEUTRINO_ICON_SCRAMBLED_GREY : NEUTRINO_ICON_SCRAMBLED;
 	showBBIcons(CInfoViewerBB::ICON_CA, sIcon);
 }
 
@@ -679,7 +675,7 @@ void CInfoViewerBB::showIcon_Tuner()
 	}
 #endif
 	char icon_name[12];
-	sprintf(icon_name, "tuner_%d", CFEManager::getInstance()->getLiveFE()->getNumber() + 1);
+	sprintf(icon_name, "tuner_%02d", CFEManager::getInstance()->getLiveFE()->getNumber() + 1);
 	showBBIcons(CInfoViewerBB::ICON_TUNER, icon_name);
 }
 
@@ -690,11 +686,7 @@ void CInfoViewerBB::showSysfsHdd()
 		// sysfs info
 		int percent = 0;
 		uint64_t t, u;
-#if HAVE_SH4_HARDWARE
-		if (get_fs_usage("/var", t, u))
-#else
 		if (get_fs_usage("/", t, u))
-#endif
 			percent = (int)((u * 100ULL) / t);
 		showBarSys(percent);
 

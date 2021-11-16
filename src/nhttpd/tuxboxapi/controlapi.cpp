@@ -37,6 +37,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/plugins.h>//for relodplugins
+#include <driver/display.h>
 #include <driver/screenshot.h>
 #include <gui/rc_lock.h>
 #include <rcsim.h>
@@ -58,9 +59,7 @@ extern cVideo * videoDecoder;
 
 extern CPlugins *g_Plugins;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
-#if HAVE_DUCKBOX_HARDWARE
-#define RC_DEVICE "/dev/input/event0"
-#elif HAVE_SPARK_HARDWARE || HAVE_COOL_HARDWARE
+#if HAVE_CST_HARDWARE
 #define RC_DEVICE "/dev/input/nevis_ir"
 #elif BOXMODEL_H7
 #define RC_DEVICE "/dev/input/event2"
@@ -189,6 +188,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"standby",		&CControlAPI::StandbyCGI,		"text/plain"},
 	{"shutdown",		&CControlAPI::ShutdownCGI,		"text/plain"},
 	{"reboot",		&CControlAPI::RebootCGI,		"text/plain"},
+	{"restart",		&CControlAPI::RestartCGI,		"text/plain"},
 	{"getdate",		&CControlAPI::GetDateCGI,		"text/plain"},
 	{"gettime",		&CControlAPI::GetTimeCGI,		"text/plain"},
 	{"info",		&CControlAPI::InfoCGI,			"text/plain"},
@@ -198,6 +198,9 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"reloadchannels",	&CControlAPI::ReloadChannelsCGI,	""},
 #ifdef SCREENSHOT
 	{"screenshot",		&CControlAPI::ScreenshotCGI,		""},
+#endif
+#ifdef ENABLE_GRAPHLCD
+	{"glcdscreenshot",	&CControlAPI::GlcdScreenshotCGI,	""},
 #endif
 	// boxcontrol - devices
 	{"volume",		&CControlAPI::VolumeCGI,		"text/plain"},
@@ -215,7 +218,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"videoformat",		&CControlAPI::VideoFormatCGI,		"text/plain"},
 	{"videooutput",		&CControlAPI::VideoOutputCGI,		"text/plain"},
 	{"vcroutput",		&CControlAPI::VCROutputCGI,		"text/plain"},
-	{"scartmode",		&CControlAPI::ScartModeCGI,		"text/plain"},
+	{"avinputmode",		&CControlAPI::AVInputModeCGI,		"text/plain"},
 	{"audio",		&CControlAPI::AudioCGI,			"text/plain"},
 	{"crypt",		&CControlAPI::CryptCGI,			"text/plain"},
 	// timer
@@ -234,6 +237,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"xmltv.data",		&CControlAPI::xmltvepgCGI,		"+xml"},
 	{"xmltv.xml",		&CControlAPI::xmltvepgCGI,		"+xml"},
 	{"xmltv.m3u",		&CControlAPI::xmltvm3uCGI,		""},
+	{"xmltvlist",		&CControlAPI::xmltvlistCGI,		"text/plain"},
 	// utils
 	{"build_live_url",	&CControlAPI::build_live_url,		""},
 	{"build_playlist",	&CControlAPI::build_playlist,		""},
@@ -469,8 +473,8 @@ void CControlAPI::GetModeCGI(CyhookHandler *hh)
 			result = "tv";
 		else if (mode == NeutrinoModes::mode_radio)
 			result = "radio";
-		else if (mode == NeutrinoModes::mode_scart)
-			result = "scart";
+		else if (mode == NeutrinoModes::mode_avinput)
+			result = "avinput";
 		else if (mode == NeutrinoModes::mode_standby)
 			result = "standby";
 		else if (mode == NeutrinoModes::mode_audio)
@@ -675,21 +679,21 @@ void CControlAPI::GetTimeCGI(CyhookHandler *hh)
 // send services.xml
 void CControlAPI::GetServicesxmlCGI(CyhookHandler *hh)
 {
-	hh->SendFile(CONFIGDIR "/zapit/services.xml");
+	hh->SendFile(ZAPITDIR "/services.xml");
 }
 
 //-----------------------------------------------------------------------------
 // send bouquets.xml
 void CControlAPI::GetBouquetsxmlCGI(CyhookHandler *hh)
 {
-	hh->SendFile(CONFIGDIR "/zapit/bouquets.xml");
+	hh->SendFile(ZAPITDIR "/bouquets.xml");
 }
 //-----------------------------------------------------------------------------
 
 // send ubouquets.xml
 void CControlAPI::GetUBouquetsxmlCGI(CyhookHandler *hh)
 {
-	hh->SendFile(CONFIGDIR "/zapit/ubouquets.xml");
+	hh->SendFile(ZAPITDIR "/ubouquets.xml");
 }
 
 //-------------------------------------------------------------------------
@@ -888,6 +892,18 @@ void CControlAPI::RebootCGI(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
+void CControlAPI::RestartCGI(CyhookHandler *hh)
+{
+	if (hh->ParamList.empty())
+	{
+		NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RESTART, CEventServer::INITID_HTTPD);
+		hh->SendOk();
+	}
+	else
+		hh->SendError();
+}
+
+//-----------------------------------------------------------------------------
 unsigned int revert_translate(unsigned int code)
 {
 	switch(code)
@@ -908,16 +924,6 @@ unsigned int revert_translate(unsigned int code)
 			return KEY_VIDEO;
 		case RC_forward:
 			return KEY_FASTFORWARD;
-#endif
-#ifdef HAVE_AZBOX_HARDWARE
-		case RC_favorites:
-			return KEY_HOME;
-		case RC_stop:
-			return KEY_TV;
-		case RC_record:
-			return KEY_RADIO;
-		case RC_pause:
-			return KEY_PLAY;
 #endif
 		default:
 			break;
@@ -1041,7 +1047,7 @@ void CControlAPI::VCROutputCGI(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
-void CControlAPI::ScartModeCGI(CyhookHandler *hh)
+void CControlAPI::AVInputModeCGI(CyhookHandler *hh)
 {
 // FIXME: not implemented
 	hh->SendOk();
@@ -2168,6 +2174,23 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	}
 }
 #endif
+#ifdef ENABLE_GRAPHLCD
+void CControlAPI::GlcdScreenshotCGI(CyhookHandler *hh)
+{
+	std::string filename = "/tmp/glcdscreenshot.png";
+
+	if(!hh->ParamList["name"].empty())
+		filename = hh->ParamList["name"];
+
+	cGLCD *cglcd = cGLCD::getInstance();
+	if (cglcd) {
+		if (cglcd->dumpBuffer((uint32_t*)cglcd->bitmap->Data(), cGLCD::PNG, filename.c_str()))
+			hh->SendOk();
+		else
+			hh->SendError();
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 void CControlAPI::ZaptoCGI(CyhookHandler *hh)
@@ -3013,11 +3036,12 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 
 	std::string _rec_dir = hh->ParamList["rec_dir"];
 	void *data=NULL;
+	bool standby_on = false;
 	if(type == CTimerd::TIMER_RECORD)
 		announceTimeT-=120;
 	if(type == CTimerd::TIMER_STANDBY)
 	{
-		bool standby_on = (hh->ParamList["sbon"]=="1");
+		standby_on = (hh->ParamList["sbon"]=="1");
 		data=&standby_on;
 	}
 	/* else if(type==CTimerd::TIMER_NEXTPROGRAM || type==CTimerd::TIMER_ZAPTO) */
@@ -3236,6 +3260,14 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 	hh->ParamList["format"] = "xml";
 	hh->outStart();
 
+	int mode;
+	if (hh->ParamList["mode"] == "tv")
+		mode = CZapitClient::MODE_TV;
+	else if (hh->ParamList["mode"] == "radio")
+		mode = CZapitClient::MODE_RADIO;
+	else
+		mode = CZapitClient::MODE_ALL;
+
 	bool xml_cdata = false;
 	t_channel_id channel_id;
 	std::string result = "";
@@ -3252,8 +3284,10 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 
 		for (int m = CZapitClient::MODE_TV; m < CZapitClient::MODE_ALL; m++)
 		{
-			if (m == CZapitClient::MODE_RADIO)
+			if (mode == CZapitClient::MODE_RADIO || m == CZapitClient::MODE_RADIO)
 				g_bouquetManager->Bouquets[i]->getRadioChannels(chanlist);
+			else
+				g_bouquetManager->Bouquets[i]->getTvChannels(chanlist);
 
 			if(!chanlist.empty() && !g_bouquetManager->Bouquets[i]->bHidden && g_bouquetManager->Bouquets[i]->bUser)
 			{
@@ -3310,8 +3344,7 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 
 void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 {
-	hh->outStart();
-	std::string result("#EXTM3U\n");
+	//hh->outStart();
 
 	int mode;
 	if (hh->ParamList["mode"] == "tv")
@@ -3330,6 +3363,16 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 	// get hostname
 	char hostname[HOST_NAME_MAX];
 	gethostname(hostname, HOST_NAME_MAX);
+
+	std::string result("#EXTM3U");
+	result += " tvg-url=\"" + host + "/control/xmltv.xml";
+
+	if (mode == CZapitClient::MODE_TV)
+		result += "?mode=tv";
+	else if (mode == CZapitClient::MODE_RADIO)
+		result += "?mode=radio";
+
+	result += "\"\n";
 
 	// build url
 	std::string url = host;
@@ -3380,6 +3423,70 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 	}
 
 	hh->SendResult(result);
+}
+
+void CControlAPI::xmltvlistCGI(CyhookHandler *hh)
+{
+	std::vector<std::string>::iterator it;
+	std::vector<std::string> url_list;
+	std::string tmp;
+	std::string::size_type i = 0;
+
+	if (!hh->ParamList["webtv"].empty())
+	{
+		std::string webtv_url = hh->ParamList["webtv"];
+		g_settings.webtv_xml.clear();
+		url_list = ::split(webtv_url, '\n');
+		for (it = url_list.begin(); it != url_list.end(); it++)
+		{
+			tmp = (*it);
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\t'), tmp.end());
+			if (!tmp.empty())
+				g_settings.webtv_xml.push_back(tmp);
+		}
+	}
+	else
+		g_settings.webtv_xml.clear();
+
+	if (!hh->ParamList["webradio"].empty())
+	{
+		std::string webradio_url = hh->ParamList["webradio"];
+		g_settings.webradio_xml.clear();
+		url_list = ::split(webradio_url, '\n');
+		for (it = url_list.begin(); it != url_list.end(); it++)
+		{
+			tmp = (*it);
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\t'), tmp.end());
+			if (!tmp.empty())
+				g_settings.webradio_xml.push_back(tmp);
+		}
+	}
+	else
+		g_settings.webradio_xml.clear();
+
+	if (!hh->ParamList["xmltv"].empty())
+	{
+		std::string xmltv_url = hh->ParamList["xmltv"];
+		g_settings.xmltv_xml.clear();
+		url_list = ::split(xmltv_url, '\n');
+		for (it = url_list.begin(); it != url_list.end(); it++)
+		{
+			tmp = (*it);
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\t'), tmp.end());
+			if (!tmp.empty())
+				g_settings.xmltv_xml.push_back(tmp);
+		}
+	}
+	else
+		g_settings.xmltv_xml.clear();
+
+	hh->SendOk();
 }
 //-------------------------------------------------------------------------
 #if 0

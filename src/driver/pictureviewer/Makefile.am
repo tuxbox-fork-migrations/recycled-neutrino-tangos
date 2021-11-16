@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/libeventserver \
+	-I$(top_srcdir)/lib/jsoncpp \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@LUA_CFLAGS@ \
@@ -20,4 +21,4 @@ libneutrino_pictureviewer_a_SOURCES = \
 	gif.cpp \
 	jpeg.cpp \
 	pictureviewer.cpp \
-	png.cpp bmp.cpp
+	png.cpp bmp.cpp svg.cpp

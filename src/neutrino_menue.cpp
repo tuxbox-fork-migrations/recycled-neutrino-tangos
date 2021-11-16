@@ -42,9 +42,8 @@
 #include "gui/audio_select.h"
 #include "gui/bedit/bouqueteditor_bouquets.h"
 #include "gui/bouquetlist.h"
-#if !HAVE_SPARK_HARDWARE
 #include "gui/cam_menu.h"
-#endif
+#include <gui/daemon_control.h>
 #include "gui/dboxinfo.h"
 #include "gui/epgplus.h"
 #include "gui/favorites.h"
@@ -73,6 +72,9 @@
 #include "gui/timerlist.h"
 #include "gui/update_menue.h"
 #include "gui/streaminfo2.h"
+#ifdef ENABLE_TANGOS
+#include "gui/weather_setup.h"
+#endif
 #ifdef ENABLE_TESTING
 #include "gui/test_menu.h"
 #endif
@@ -85,9 +87,7 @@
 
 extern CPlugins       * g_Plugins;
 extern CRemoteControl * g_RemoteControl;
-#if !HAVE_SPARK_HARDWARE
 extern CCAMMenuHandler * g_CamHandler;
-#endif
 // extern bool has_hdd;
 // extern char current_timezone[50];
 // extern bool autoshift;
@@ -233,14 +233,6 @@ void CNeutrinoApp::InitMenuMain()
 	mf->setHint(NEUTRINO_ICON_HINT_SLEEPTIMER, LOCALE_MENU_HINT_SLEEPTIMER);
 	personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SLEEPTIMER]);
 
-	//changegui
-	if ((access("/usr/local/bin/enigma2", F_OK) == 0)) {
-		//separator
-		personalize.addSeparator(MENU_MAIN);
-		mf = new CMenuForwarder(LOCALE_MAINMENU_CHANGEGUI, true, NULL, this, "changegui");
-		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_REBOOT]);
-	}
-
 	//reboot
 	mf = new CMenuForwarder(LOCALE_MAINMENU_REBOOT, true, NULL, this, "reboot");
 	mf->setHint(NEUTRINO_ICON_HINT_REBOOT, LOCALE_MENU_HINT_REBOOT);
@@ -253,6 +245,20 @@ void CNeutrinoApp::InitMenuMain()
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SHUTDOWN]);
 	}
 
+	//avinput mode
+	if ((g_info.hw_caps->has_SCART_input) || (g_info.hw_caps->has_HDMI_input)) {
+		personalize.addSeparator(MENU_MAIN);
+		CMenuForwarder *avinputmode = new CMenuForwarder(LOCALE_MAINMENU_AVINPUTMODE, true, NULL, this, "avinput");
+		//avinputmode->setHint(NEUTRINO_ICON_HINT_AVINPUTMODE, LOCALE_MAINMENU_HINT_AVINPUTMODE);
+		personalize.addItem(MENU_MAIN, avinputmode, &g_settings.personalize[SNeutrinoSettings::P_MAIN_AVINPUT]);
+
+#ifdef ENABLE_PIP
+		CMenuForwarder *avinputmode_pip = new CMenuForwarder(LOCALE_MAINMENU_AVINPUTMODE_PIP, g_info.hw_caps->can_pip, NULL, this, "avinput_pip");
+		//avinputmode_pip->setHint(NEUTRINO_ICON_HINT_AVINPUTMODE_PIP, LOCALE_MAINMENU_HINT_AVINPUTMODE_PIP);
+		personalize.addItem(MENU_MAIN, avinputmode_pip, &g_settings.personalize[SNeutrinoSettings::P_MAIN_AVINPUT_PIP]);
+#endif
+	}
+
 	//separator
 	personalize.addSeparator(MENU_MAIN);
 
@@ -263,14 +269,12 @@ void CNeutrinoApp::InitMenuMain()
 	mf->setHint(NEUTRINO_ICON_HINT_INFO, LOCALE_MENU_HINT_INFO);
 	personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_INFOMENU]);
 
-#if !HAVE_SPARK_HARDWARE
 	//cisettings
 	if (cCA::GetInstance()->GetNumberCISlots() > 0 || cCA::GetInstance()->GetNumberSmartCardSlots() > 0) {
 		mf = new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler);
 		mf->setHint(NEUTRINO_ICON_HINT_CI, LOCALE_MENU_HINT_CI);
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_CISETTINGS]);
 	}
-#endif
 
 #ifdef ENABLE_TESTING
 	personalize.addItem(MENU_MAIN, new CMenuForwarder("Test menu", true, NULL, new CTestMenu()), NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
@@ -342,11 +346,9 @@ void CNeutrinoApp::InitMenuSettings()
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_NETWORK]);
 
 	// record settings
-	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
-		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_RECORDING, true, NULL, new CRecordSetup());
-		mf->setHint(NEUTRINO_ICON_HINT_RECORDING, LOCALE_MENU_HINT_RECORDING);
-		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_RECORDING]);
-	}
+	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_RECORDING, true, NULL, new CRecordSetup());
+	mf->setHint(NEUTRINO_ICON_HINT_RECORDING, LOCALE_MENU_HINT_RECORDING);
+	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_RECORDING]);
 
 	// osdlang
 	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_LANGUAGE, true, NULL, new COsdLangSetup());
@@ -370,21 +372,21 @@ void CNeutrinoApp::InitMenuSettings()
 	mf->setHint("", LOCALE_MENU_HINT_LCD4L_SUPPORT);
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
 #endif
+	// weather
+	mf = new CMenuForwarder(LOCALE_WEATHER_ENABLED, true, NULL, new CWeatherSetup());
+	mf->setHint("", LOCALE_MENU_HINT_WEATHER_ENABLED);
+	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_OSD]);
 #endif
 
 	// drive settings
-	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
-		mf = new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, CHDDMenuHandler::getInstance());
-		mf->setHint(NEUTRINO_ICON_HINT_HDD, LOCALE_MENU_HINT_HDD);
-		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_DRIVES]);
-	}
+	mf = new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, CHDDMenuHandler::getInstance());
+	mf->setHint(NEUTRINO_ICON_HINT_HDD, LOCALE_MENU_HINT_HDD);
+	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_DRIVES]);
 
-#if !HAVE_SPARK_HARDWARE
 	// cisettings
 	mf = new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler);
 	mf->setHint(NEUTRINO_ICON_HINT_CI, LOCALE_MENU_HINT_CI);
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_CISETTINGS]);
-#endif
 
 	// keybindings
 	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_KEYBINDING, true, NULL, new CKeybindSetup());
@@ -456,9 +458,17 @@ void CNeutrinoApp::InitMenuService()
 	//separator
 	personalize.addSeparator(MENU_SERVICE);
 
+	mf = new CMenuForwarder(LOCALE_DAEMON_CONTROL, true, NULL, new CDaemonControlMenu(), NULL);
+	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_DAEMON_CONTROL);
+	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_DAEMON_CONTROL]);
+
+	mf = new CMenuForwarder(LOCALE_CAMD_CONTROL, true, NULL, new CCamdControlMenu(), NULL);
+	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_CAMD_CONTROL);
+	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_CAMD_CONTROL], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, NULL, DCOND_MODE_REC | DCOND_MODE_TSHIFT);
+	personalize.addSeparator(MENU_SERVICE);
 
 	//restart neutrino
-	mf = new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, this, "n_restart", CRCInput::RC_standby);
+	mf = new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, this, "restart", CRCInput::RC_standby);
 	mf->setHint(NEUTRINO_ICON_HINT_SOFT_RESTART, LOCALE_MENU_HINT_SOFT_RESTART);
 	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RESTART]);
 

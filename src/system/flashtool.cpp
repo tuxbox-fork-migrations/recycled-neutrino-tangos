@@ -44,11 +44,6 @@
 #include <neutrino.h>
 #include <driver/display.h>
 
-#if HAVE_TRIPLEDRAGON
-/* TD kernel 2.6.12 is too old and does not have writesize yet, use oobsize instead */
-#define writesize oobsize
-#endif
-
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
 extern CLCD4l *LCD4l;
@@ -187,7 +182,7 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	std::string flashfile;
 
 	bool skipCopy = false;
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	if (strcmp(dn, "/tmp") != 0) {
 		uint64_t btotal = 0, bused = 0;
 		long bsize = 0;
@@ -448,11 +443,7 @@ bool CFlashTool::check_md5( const std::string & filename, const std::string & sm
 void CFlashTool::reboot()
 {
 	::reboot(RB_AUTOBOOT);
-#if HAVE_SH4_HARDWARE
-	::exit(CNeutrinoApp::EXIT_REBOOT);
-#else
 	::exit(0);
-#endif
 }
 
 //-----------------------------------------------------------------------------------------------------------------
@@ -697,7 +688,7 @@ int CMTDInfo::getMTDEraseSize( const std::string & filename )
 
 std::string CMTDInfo::findMTDsystem()
 {
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	std::string sysfs = "root0";
 #else
 	std::string sysfs = "systemFS";

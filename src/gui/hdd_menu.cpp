@@ -98,10 +98,11 @@ devtool_s CHDDMenuHandler::devtools[] = {
 	{ "ext4",  "/sbin/fsck.ext4",  "-C 1 -f -y", "/sbin/mkfs.ext4",  "-T largefile -m0", false, false },
 	{ "ext3",  "/sbin/fsck.ext3",  "-C 1 -f -y", "/sbin/mkfs.ext3",  "-T largefile -m0", false, false },
 	{ "ext2",  "/sbin/fsck.ext2",  "-C 1 -f -y", "/sbin/mkfs.ext2",  "-T largefile -m0", false, false },
+	{ "f2fs",  "/sbin/fsck.f2fs" , ""          , "/sbin/mkfs.f2fs" , "-f",               false, false },
 	{ "jfs",   "/sbin/fsck.jfs",   "-a -f -p",   "/sbin/mkfs.jfs",   "-q",               false, false },
 	{ "vfat",  "/sbin/fsck.vfat",  "-a",         "/sbin/mkfs.vfat",  "",                 false, false },
 	{ "exfat", "/sbin/fsck.exfat", "",           "/sbin/mkfs.exfat", "",                 false, false },
-	{ "xfs",   "/sbin/xfs_repair", "",           "/sbin/mkfs.xfs",   "-f",               false, false },
+	{ "xfs",   "/sbin/xfs_repair", "",           "/sbin/mkfs.xfs",   "-f",               false, false }
 };
 #define FS_MAX (sizeof(CHDDMenuHandler::devtools)/sizeof(devtool_s))
 
@@ -1110,7 +1111,10 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	if (fmt_label.empty())
 		mkfscmd = devtool->mkfs + " " + devtool->mkfs_options + " " + partname;
 	else
-		mkfscmd = devtool->mkfs + " " + "-L " + fmt_label + " " + devtool->mkfs_options + " " + partname;
+		if (devtool->mkfs == "/sbin/mkfs.f2fs")
+			mkfscmd = devtool->mkfs + " " + "-l " + fmt_label + " " + devtool->mkfs_options + " " + partname;
+		else
+			mkfscmd = devtool->mkfs + " " + "-L " + fmt_label + " " + devtool->mkfs_options + " " + partname;
 	printf("mkfs cmd: [%s]\n", mkfscmd.c_str());
 
 	res = ShowMsg(LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo );
@@ -1326,39 +1330,6 @@ _remount:
 			snprintf(cmd, sizeof(cmd), "%s/plugins", dst.c_str());
 			safe_mkdir(cmd);
 			// sync();
-#if HAVE_TRIPLEDRAGON
-		/* on the tripledragon, we mount via fstab, so we need to add an
-		   fstab entry for dst */
-		FILE *g;
-		char *line = NULL;
-		unlink("/etc/fstab.new");
-		g = fopen("/etc/fstab.new", "w");
-		f = fopen("/etc/fstab", "r");
-		if (!g)
-			perror("open /etc/fstab.new");
-		else {
-			if (f) {
-				int ret;
-				while (true) {
-					size_t dummy;
-					ret = getline(&line, &dummy, f);
-					if (ret < 0)
-						break;
-					/* remove lines that start with the same disk we formatted
-					   devname is /dev/xda" */
-					if (strncmp(line, devname.c_str(), devname.length()) != 0)
-						fprintf(g, "%s", line);
-				}
-				free(line);
-				fclose(f);
-			}
-			/* now add our new entry */
-			fprintf(g, "%s %s auto defaults 0 0\n", partname.c_str(), dst.c_str());
-			fclose(g);
-			rename("/etc/fstab", "/etc/fstab.old");
-			rename("/etc/fstab.new", "/etc/fstab");
-		}
-#endif
 		}
 	}
 _return:
@@ -1539,13 +1510,13 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 
 		if (removable) {
 			// show USB icon, no need for hdparm/hd-idle
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			CVFD::getInstance()->ShowIcon(FP_ICON_USB, true);
 #endif
 			printf("CHDDDestExec: /dev/%s is not a hdd, no sleep needed\n", namelist[i]->d_name);
 		} else {
 			//show HDD icon and set hdparm for all hdd's
-#if HAVE_DUCKBOX_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			CVFD::getInstance()->ShowIcon(FP_ICON_HDD, true);
 #endif
 			if (!have_hdidle && have_hdparm) {

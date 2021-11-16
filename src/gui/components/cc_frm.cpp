@@ -161,17 +161,9 @@ void CComponentsForm::execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& /
 		return;
 
 	if (page_scroll_mode & PG_SCROLL_M_UP_DOWN_KEY){
-#if HAVE_SH4_HARDWARE
-		if (msg == CRCInput::RC_page_up || msg == CRCInput::RC_up)
-#else
 		if (msg == CRCInput::RC_page_up)
-#endif
 			ScrollPage(SCROLL_P_DOWN);
-#if HAVE_SH4_HARDWARE
-		if (msg == CRCInput::RC_page_down || msg == CRCInput::RC_down)
-#else
 		if (msg == CRCInput::RC_page_down)
-#endif
 			ScrollPage(SCROLL_P_UP);
 	}
 
@@ -429,11 +421,10 @@ void CComponentsForm::paintCCItems()
 {
 	//using of real x/y values to paint items if this text object is bound in a parent form
 	int this_x = x, auto_x = x, this_y = y, auto_y = y, this_w = 0;
-	int w_parent_frame = 0;
+
 	if (cc_parent){
 		this_x = auto_x = cc_xr;
 		this_y = auto_y = cc_yr;
-		w_parent_frame = cc_parent->getFrameThickness();
 	}
 
 	//init and handle scrollbar
@@ -452,15 +443,16 @@ void CComponentsForm::paintCCItems()
 		sb->setDimensionsAll(x_sb, y_sb, w_sb, h_sb);
 	}
 
+	this_w = width;
+
 	if(page_count > 1){
 		sb->setSegmentCount(page_count);
 		sb->setMarkID(cur_page);
-		this_w = width - w_sb;
+		this_w -= w_sb;
 		sb->paint(false);
 	}else{
 		if (sb->isPainted())
 			sb->kill(col_body);
-		this_w = width;
 	}
 
 	//detect if current page has changed, if true then kill items from screen
@@ -500,51 +492,40 @@ void CComponentsForm::paintCCItems()
 					continue;
 			}
 
-			//move item x-position, if we have a frame on parent, TODO: other constellations not considered at the moment
-			w_parent_frame = xpos <= fr_thickness ? fr_thickness : w_parent_frame;
-
 			//set required x-position to item:
 			//append vertical
 			if (xpos == CC_APPEND){
 				auto_x += append_x_offset;
-				v_cc_items.at(i)->setRealXPos(auto_x + xpos + w_parent_frame);
+				v_cc_items.at(i)->setRealXPos(auto_x + xpos);
 				auto_x += w_item;
 			}
 			//positionize vertical centered
 			else if (xpos == CC_CENTERED){
-				auto_x =  this_w/2 - w_item/2 - w_parent_frame/2;
+				auto_x =  (this_w - 2* fr_thickness)/2 - w_item/2;
 				v_cc_items.at(i)->setRealXPos(this_x + auto_x);
 			}
 			else{
-				v_cc_items.at(i)->setRealXPos(this_x + xpos + w_parent_frame);
+				v_cc_items.at(i)->setRealXPos(this_x + xpos);
 				auto_x = (v_cc_items.at(i)->getRealXPos() + w_item);
 			}
-
-			//move item y-position, if we have a frame on parent, TODO: other constellations not considered at the moment
-			w_parent_frame = ypos <= fr_thickness ? fr_thickness : w_parent_frame;
 
 			//set required y-position to item
 			//append hor
 			if (ypos == CC_APPEND){
 				auto_y += append_y_offset;
 				// FIXME: ypos is probably wrong here, because it is -1
-				v_cc_items.at(i)->setRealYPos(auto_y + ypos + w_parent_frame);
+				v_cc_items.at(i)->setRealYPos(auto_y + ypos);
 				auto_y += h_item;
 			}
 			//positionize hor centered
 			else if (ypos == CC_CENTERED){
-				auto_y =  height/2 - h_item/2 - w_parent_frame/2;
+				auto_y =  (height - 2* fr_thickness)/2 - h_item/2;
 				v_cc_items.at(i)->setRealYPos(this_y + auto_y);
 			}
 			else{
-				v_cc_items.at(i)->setRealYPos(this_y + ypos + w_parent_frame);
+				v_cc_items.at(i)->setRealYPos(this_y + ypos);
 				auto_y = (v_cc_items.at(i)->getRealYPos() + h_item);
 			}
-
-			//reduce corner radius, if we have a frame around parent item, ensure matching corners inside of embedded item, this avoids ugly unpainted spaces between frame and item border
-			//TODO: other constellations not considered at the moment
-			if (w_parent_frame)
-				v_cc_items.at(i)->setCorner(max(0, v_cc_items.at(i)->getCornerRadius()- w_parent_frame), v_cc_items.at(i)->getCornerType());
 
 			//These steps check whether the element can be painted into the container.
 			//Is it too wide or too high, it will be shortened and displayed in the log.
@@ -719,6 +700,8 @@ CComponentsItem* CComponentsForm::getSelectedItemObject() const
 	CComponentsItem* ret = NULL;
 	if (sel != -1)
 		ret = static_cast<CComponentsItem*>(this->getCCItem(sel));
+	else
+		dprintf(DEBUG_NORMAL, "\033[31m[CComponentsForm]\t[%s - %d], ERROR: no item object found...\033[0m\n", __func__, __LINE__);
 
 	return ret;
 }
@@ -746,9 +729,6 @@ void CComponentsForm::ScrollPage(int direction, bool do_paint)
 	else
 		cur_page = (uint8_t)target_page;
 
-#if HAVE_SH4_HARDWARE
-	frameBuffer->blit();
-#endif
 	OnAfterScrollPage();
 }
 

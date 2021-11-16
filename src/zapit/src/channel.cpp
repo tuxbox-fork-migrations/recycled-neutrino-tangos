@@ -111,8 +111,9 @@ void CZapitChannel::Init()
 	delsys = DVB_S;
 	bLockCount = 0;
 	bLocked = DEFAULT_CH_LOCKED;
-	bUseCI = false;
 	altlogo = "";
+	epgmapper = "";
+	aitPid = 0;
 }
 
 CZapitChannel::~CZapitChannel(void)

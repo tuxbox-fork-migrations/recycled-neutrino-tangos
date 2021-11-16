@@ -106,7 +106,9 @@ bc.menue.messages_desc=send Messages to box
 bc.menue.messages=Messages
 bc.menue.remote_desc=Web-based Remote Control
 bc.menue.remote=Remote
-bc.menue.lcd_screenshot_desc=make lcd screenshot
+bc.menue.glcd_screenshot_desc=take a GLCD screenshot
+bc.menue.glcd_screenshot=GLCD Screenshot
+bc.menue.lcd_screenshot_desc=take a lcd screenshot
 bc.menue.lcd_screenshot=LCD Screenshot
 bc.menue.lcd_screenshot_desc_ni=lcshot not installed at /bin or /var/bin
 bc.menue.screenshot=Screenshot
@@ -139,6 +141,7 @@ bc.control.shutdown.ask=Really shutdown the Box?
 bc.control.shutdown=shutdown
 bc.control.status=status
 bc.control.restart=restart
+bc.control.neutrino=Neutrino
 
 ========= Boxcontrol - Message
 bc.msg.message_to_screen_desc=enter message to send to TV screen
@@ -248,12 +251,14 @@ set.menue.recording=Recording
 set.menue.audio_player=Audioplayer
 set.menue.movieplayer=Movieplayer
 set.menue.pictureviewer=Picture Viewer
+set.menue.glcd_display=GLC-Display
 set.menue.lcd_display=LC-Display
 set.menue.key_settings=Key Layout
 set.menue.boot_options=Boot options
 set.menue.peronalization=Personalization
 set.menue.plugins=Plugins
 set.menue.others=Others
+set.menue.xmltv=XMLTV
 ========Neutrino Settings - Recording
 set.rec.rec_dest=Recoring destination
 set.rec.device=Recording device
@@ -402,6 +407,9 @@ set.settings.backup_desc=Backup your settings
 set.settings.restore=Restore
 set.settings.restore_desc=Upload and restore your settings. Your STB will reboot.
 set.settings.warning=Backup & Restore is only useful for the same image with the same level of development. 
+
+============Settings XMLTV
+set.xmltv.header=XMLTV Settings
 
 ============ Tools Info
 tools.info.show_messages=Kernel Messages

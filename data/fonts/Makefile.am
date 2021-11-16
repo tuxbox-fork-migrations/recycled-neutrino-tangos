@@ -15,7 +15,8 @@ install_DATA = \
 	micron_italic.ttf \
 	micron.ttf \
 	tuxtxt.otb \
-	UnDotum.ttf
+	UnDotum.ttf \
+	Square_721_Condensed_BT.ttf
 
 install-data-hook:
 	cd $(DESTDIR)$(FONTDIR); \

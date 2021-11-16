@@ -52,7 +52,7 @@ class CVFD
 		enum MODES
 		{
 			MODE_TVRADIO,
-			MODE_SCART,
+			MODE_AVINPUT,
 			MODE_SHUTDOWN,
 			MODE_STANDBY,
 			MODE_MENU_UTF8,
@@ -76,7 +76,7 @@ class CVFD
 
 
 	private:
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 		fp_display_caps_t		caps;
 #endif
 		MODES				mode;

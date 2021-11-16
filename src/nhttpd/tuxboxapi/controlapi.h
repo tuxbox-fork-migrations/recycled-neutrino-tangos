@@ -105,17 +105,19 @@ private:
 	void ReloadPluginsCGI(CyhookHandler *hh);
 	void ReloadChannelsCGI(CyhookHandler *hh);
 	void ScreenshotCGI(CyhookHandler *hh);
+	void GlcdScreenshotCGI(CyhookHandler *hh);
 	void ZaptoCGI(CyhookHandler *hh);
 	void StartPluginCGI(CyhookHandler *hh);
 	void LCDAction(CyhookHandler *hh);
 	void YWebCGI(CyhookHandler *hh);
 	void RebootCGI(CyhookHandler *hh);
+	void RestartCGI(CyhookHandler *hh);
 	void RCEmCGI(CyhookHandler *hh);
 	void AspectRatioCGI(CyhookHandler *hh);
 	void VideoFormatCGI(CyhookHandler *hh);
 	void VideoOutputCGI(CyhookHandler *hh);
 	void VCROutputCGI(CyhookHandler *hh);
-	void ScartModeCGI(CyhookHandler *hh);
+	void AVInputModeCGI(CyhookHandler *hh);
 	void AudioCGI(CyhookHandler *hh);
 	void CryptCGI(CyhookHandler *hh);
 	void setBouquetCGI(CyhookHandler *hh);
@@ -128,6 +130,7 @@ private:
 	void updateBouquetCGI(CyhookHandler *hh);
 	void xmltvepgCGI(CyhookHandler *hh);
 	void xmltvm3uCGI(CyhookHandler *hh);
+	void xmltvlistCGI(CyhookHandler *hh);
 	void build_live_url(CyhookHandler *hh);
 	void build_playlist(CyhookHandler *hh);
 	void logoCGI(CyhookHandler *hh);

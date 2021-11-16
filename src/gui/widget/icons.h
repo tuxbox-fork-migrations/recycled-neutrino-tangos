@@ -26,10 +26,10 @@
 #define NEUTRINO_ICON_BUTTON_DUMMY		"dummy"
 #define NEUTRINO_ICON_BUTTON_DUMMY_SMALL	"dummy_small"
 
-#define NEUTRINO_ICON_BUTTON_BLUE	"blau"
-#define NEUTRINO_ICON_BUTTON_GREEN	"gruen"
-#define NEUTRINO_ICON_BUTTON_RED	"rot"
-#define NEUTRINO_ICON_BUTTON_YELLOW	"gelb"
+#define NEUTRINO_ICON_BUTTON_BLUE	"btn_blue"
+#define NEUTRINO_ICON_BUTTON_GREEN	"btn_green"
+#define NEUTRINO_ICON_BUTTON_RED	"btn_red"
+#define NEUTRINO_ICON_BUTTON_YELLOW	"btn_yellow"
 
 #define NEUTRINO_ICON_INFO_BLUE		"info_blue"
 #define NEUTRINO_ICON_INFO_GREEN	"info_green"
@@ -105,7 +105,7 @@
 #define NEUTRINO_ICON_LCD		"lcd"
 #define NEUTRINO_ICON_LOCK		"lock"
 #define NEUTRINO_ICON_MAINMENU		"mainmenue"
-#define NEUTRINO_ICON_MOVIEPLAYER	"icon_movieplayer"
+#define NEUTRINO_ICON_MOVIEPLAYER	"movieplayer"
 #define NEUTRINO_ICON_MULTIMEDIA	"multimedia"
 #define NEUTRINO_ICON_NETWORK		"network"
 #define NEUTRINO_ICON_PERSONALIZE	"personalize"
@@ -122,11 +122,12 @@
 #define NEUTRINO_ICON_UPDATE_AVAIL_GREY		"update_avail_gray"
 #define NEUTRINO_ICON_UPNP		"upnp"
 #define NEUTRINO_ICON_VIDEO		"video"
-#define NEUTRINO_ICON_YTPLAY		"icon_ytplay"
+#define NEUTRINO_ICON_YTPLAY		"ytplay"
 
 /* volumebar */
 #define NEUTRINO_ICON_VOLUME		"volume"
 #define NEUTRINO_ICON_IMDB		"imdb"
+#define NEUTRINO_ICON_TMDB_HEAD	"tmdb_head"
 
 /* sliders */
 #define NEUTRINO_ICON_SLIDER_BODY	"slider_body"
@@ -160,6 +161,7 @@
 
 /* media */
 #define NEUTRINO_ICON_HINT_APLAY	"hint_aplay"
+#define NEUTRINO_ICON_HINT_QUADPIP	"hint_quadpip"
 #define NEUTRINO_ICON_HINT_INET_RADIO	"hint_inetradio"
 #define NEUTRINO_ICON_HINT_MOVIE	"hint_movie"
 #define NEUTRINO_ICON_HINT_PICVIEW	"hint_picview"
@@ -254,9 +256,9 @@
 #define NEUTRINO_ICON_DD		"dd"
 #define NEUTRINO_ICON_DD_AVAIL		"dd_avail"
 #define NEUTRINO_ICON_DD_GREY		"dd_gray"
-#define NEUTRINO_ICON_RADIOTEXTGET	"radiotextget"
-#define NEUTRINO_ICON_RADIOTEXTOFF	"radiotextoff"
-#define NEUTRINO_ICON_RADIOTEXTWAIT	"radiotextwait"
+#define NEUTRINO_ICON_RADIOTEXT_GET	"radiotext_get"
+#define NEUTRINO_ICON_RADIOTEXT_OFF	"radiotext_off"
+#define NEUTRINO_ICON_RADIOTEXT_WAIT	"radiotext_wait"
 #define NEUTRINO_ICON_RESOLUTION_000	"res_000"
 #define NEUTRINO_ICON_RESOLUTION_288	"res_288"
 #define NEUTRINO_ICON_RESOLUTION_352	"res_352"
@@ -275,8 +277,8 @@
 #define NEUTRINO_ICON_RESOLUTION_HD	"res_hd"
 #define NEUTRINO_ICON_RESOLUTION_SD	"res_sd"
 #define NEUTRINO_ICON_RESOLUTION_UHD	"res_uhd"
-#define NEUTRINO_ICON_SCRAMBLED2	"ca2"
-#define NEUTRINO_ICON_SCRAMBLED2_GREY	"ca2_gray"
+#define NEUTRINO_ICON_SCRAMBLED		"ca"
+#define NEUTRINO_ICON_SCRAMBLED_GREY	"ca_gray"
 #define NEUTRINO_ICON_SUBT		"subt"
 #define NEUTRINO_ICON_SUBT_GREY		"subt_gray"
 #if 0

@@ -43,8 +43,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
 
-#include <gui/webtv_setup.h>
-#include <gui/webradio_setup.h>
+#include <gui/webchannels_setup.h>
 #include <gui/xmltv_setup.h>
 #include <gui/moviebrowser/mb.h>
 
@@ -87,13 +86,12 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 
 	CMenuForwarder *mf;
 
-	CWebTVSetup wsetup;
-	mf = new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, &wsetup, "show_menu", CRCInput::RC_yellow);
+	CWebChannelsSetup wsetup;
+	mf = new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, &wsetup, "webtv_menu", CRCInput::RC_yellow);
 	mf->setHint(NEUTRINO_ICON_HINT_WEBTV, LOCALE_MENU_HINT_WEBTV_SETUP);
 	mediaSetup->addItem(mf);
 
-	CWebRadioSetup rsetup;
-	mf = new CMenuForwarder(LOCALE_WEBRADIO_HEAD, true, NULL, &rsetup, "show_menu", CRCInput::RC_blue);
+	mf = new CMenuForwarder(LOCALE_WEBRADIO_HEAD, true, NULL, &wsetup, "webradio_menu", CRCInput::RC_blue);
 	mf->setHint(NEUTRINO_ICON_HINT_RADIOMODE /* FIXME */, LOCALE_MENU_HINT_WEBRADIO_SETUP);
 	mediaSetup->addItem(mf);
 

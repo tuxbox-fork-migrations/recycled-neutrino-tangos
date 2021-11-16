@@ -74,7 +74,8 @@ int CXMLTVSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		{
 			std::string entry = dirname;
 
-			CKeyboardInput *e = new CKeyboardInput(LOCALE_XMLTV_XML_ENTER, &entry, 50);
+			//TODO: CKeyboardInput cuts entry to max displayable width, maybe implement multiline input ?
+			CKeyboardInput *e = new CKeyboardInput(LOCALE_XMLTV_XML_ENTER, &entry, 255);
 			e->exec(this, "");
 			delete e;
 
@@ -119,7 +120,8 @@ int CXMLTVSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		std::string tpl = "http://xxx.xxx.xxx.xxx/control/xmltv.xml";
 		std::string entry = tpl;
 
-		CKeyboardInput *e = new CKeyboardInput(LOCALE_XMLTV_XML_ENTER, &entry, 50);
+		//TODO: CKeyboardInput cuts entry to max displayable width, maybe implement multiline input ?
+		CKeyboardInput *e = new CKeyboardInput(LOCALE_XMLTV_XML_ENTER, &entry, 255);
 		e->exec(this, "");
 		delete e;
 
@@ -178,11 +180,7 @@ int CXMLTVSetup::Show()
 			g_settings.xmltv_xml.push_back(f->getName());
 		}
 
-		for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); ++it)
-		{
-			printf("Reading xmltv epg from %s ...\n", (*it).c_str());
-			g_Sectionsd->readSIfromXMLTV((*it).c_str());
-		}
+		CNeutrinoApp::getInstance()->xmltv_xml_readepg();
 	}
 
 	delete m;

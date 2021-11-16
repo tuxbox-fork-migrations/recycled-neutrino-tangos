@@ -57,6 +57,7 @@ void CLuaInstCCWindow::CCWindowRegister(lua_State *L)
 		{ "footer_height",  CLuaInstCCWindow::CCWindowGetFooterHeight_dep }, /* function 'footer_height' is deprecated */
 		{ "setCenterPos",   CLuaInstCCWindow::CCWindowSetCenterPos },
 		{ "setDimensionsAll", CLuaInstCCWindow::CCWindowSetDimensionsAll },
+		{ "setBodyImage",   CCWindowSetBodyImage },
 		{ "__gc",           CLuaInstCCWindow::CCWindowDelete },
 		{ NULL, NULL }
 	};
@@ -91,6 +92,10 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	std::string btn7          = "";
 	std::string btn8          = "";
 	std::string btn9          = "";
+	std::string btnPlay       = "";
+	std::string btnPlayPause  = "";
+	std::string btnOk         = "";
+	std::string btnSetup      = "";
 	lua_Integer x = 100, y = 100, dx = 450, dy = 250;
 	tableLookup(L, "x", x);
 	tableLookup(L, "y", y);
@@ -125,6 +130,10 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	tableLookup(L, "btn7", btn7);
 	tableLookup(L, "btn8", btn8);
 	tableLookup(L, "btn9", btn9);
+	tableLookup(L, "btnPlay", btnPlay);
+	tableLookup(L, "btnPlayPause", btnPlayPause);
+	tableLookup(L, "btnOk", btnOk);
+	tableLookup(L, "btnSetup", btnSetup);
 	color_frame  = checkMagicMask(color_frame);
 	color_body   = checkMagicMask(color_body);
 	color_shadow = checkMagicMask(color_shadow);
@@ -243,6 +252,30 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 				btnS9.button		= NEUTRINO_ICON_BUTTON_9;
 				btnS9.text		= btn9;
 				buttons.push_back(btnS9);
+			}
+			if (!btnPlay.empty()) {
+				button_label_cc btnSPlay;
+				btnSPlay.button		= NEUTRINO_ICON_BUTTON_PLAY;
+				btnSPlay.text		= btnPlay;
+				buttons.push_back(btnSPlay);
+			}
+			if (!btnPlayPause.empty()) {
+				button_label_cc btnSPlayPause;
+				btnSPlayPause.button	= NEUTRINO_ICON_BUTTON_PLAY;
+				btnSPlayPause.text	= btnPlayPause;
+				buttons.push_back(btnSPlayPause);
+			}
+			if (!btnOk.empty()) {
+				button_label_cc btnSOk;
+				btnSOk.button	= NEUTRINO_ICON_BUTTON_OKAY;
+				btnSOk.text	= btnOk;
+				buttons.push_back(btnSOk);
+			}
+			if (!btnSetup.empty()) {
+				button_label_cc btnSSetup;
+				btnSSetup.button	= NEUTRINO_ICON_BUTTON_MENU;
+				btnSSetup.text		= btnSetup;
+				buttons.push_back(btnSSetup);
 			}
 			if (!buttons.empty())
 				footer->setButtonLabels(buttons, footer->getWidth(), footer->getWidth() / buttons.size());
@@ -417,6 +450,20 @@ int CLuaInstCCWindow::CCWindowSetCenterPos(lua_State *L)
 		along_mode=tmp_along_mode;
 
 	D->w->setCenterPos(along_mode);
+	return 0;
+}
+
+int CLuaInstCCWindow::CCWindowSetBodyImage(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
+
+	std::string image = "";
+	if (lua_istable(L, -1))
+		tableLookup(L, "image_path", image);
+
+	D->w->setBodyBGImage(image);
 	return 0;
 }
 

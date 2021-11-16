@@ -16,4 +16,17 @@ install_DATA = \
 	oscam_yellow.png \
 	cccam_green.png \
 	cccam_white.png \
-	cccam_yellow.png
+	cccam_yellow.png \
+	osmod_green.png \
+	osmod_white.png \
+	osmod_yellow.png \
+	doscam_green.png \
+	doscam_white.png \
+	doscam_yellow.png \
+	ncam_green.png \
+	ncam_white.png \
+	ncam_yellow.png \
+	mgcamd_green.png \
+	mgcamd_white.png \
+	mgcamd_yellow.png
+

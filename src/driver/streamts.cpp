@@ -221,11 +221,11 @@ void CStreamInstance::run()
 			Send(r);
 	}
 
+	CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
+
 	if(frontend)
 		CFEManager::getInstance()->unlockFrontend(frontend);
 	//CZapit::getInstance()->SetRecordMode(false);
-
-	CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
 
 	printf("CStreamInstance::run: exiting %" PRIx64 " (%d fds)\n", channel_id, (int)fds.size());
 
@@ -485,13 +485,13 @@ void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids
 					CZapitAudioChannel::ZapitAudioChannelType atype = channel->getAudioChannel(i)->audioChannelType;
 					printf("CStreamManager::AddPids: genpsi apid %x (%d)\n", *it, atype);
 					if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
-						psi.addPid(*it, EN_TYPE_AUDIO_EAC3, atype, channel->getAudioChannel(i)->description.c_str());
+						psi.addPid(*it, EN_TYPE_AUDIO_EAC3, 0, channel->getAudioChannel(i)->description.c_str());
 					} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
-						psi.addPid(*it, EN_TYPE_AUDIO_AAC, atype, channel->getAudioChannel(i)->description.c_str());
+						psi.addPid(*it, EN_TYPE_AUDIO_AAC, 0, channel->getAudioChannel(i)->description.c_str());
 					} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AACPLUS) {
-						psi.addPid(*it, EN_TYPE_AUDIO_AACP, atype, channel->getAudioChannel(i)->description.c_str());
+						psi.addPid(*it, EN_TYPE_AUDIO_AACP, 0, channel->getAudioChannel(i)->description.c_str());
 					} else {
-						psi.addPid(*it, EN_TYPE_AUDIO, atype, channel->getAudioChannel(i)->description.c_str());
+						psi.addPid(*it, EN_TYPE_AUDIO, (atype == CZapitAudioChannel::AC3), channel->getAudioChannel(i)->description.c_str());
 					}
 				}
 			}
@@ -788,7 +788,7 @@ void CStreamStream::Close()
 		av_free(avio_ctx);
 
 	if (bsfc){
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 48, 100)
 		av_bitstream_filter_close(bsfc);
 #else
 		av_bsf_free(&bsfc);
@@ -851,7 +851,7 @@ bool CStreamStream::Open()
 		printf("%s: Cannot find stream info [%s]!\n", __FUNCTION__, channel->getUrl().c_str());
 		return false;
 	}
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58,27,102)
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 27, 102)
 	const char *hls = "applehttp";
 #else
 	const char *hls = "hls";
@@ -895,7 +895,7 @@ bool CStreamStream::Open()
 	av_dict_copy(&ofcx->metadata, ifcx->metadata, 0);
 	int stid = 0x200;
 	for (unsigned i = 0; i < ifcx->nb_streams; i++) {
-#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
 		AVCodecContext * iccx = ifcx->streams[i]->codec;
 		AVStream *ost = avformat_new_stream(ofcx, iccx->codec);
 		avcodec_copy_context(ost->codec, iccx);
@@ -915,7 +915,7 @@ bool CStreamStream::Open()
 	av_dump_format(ofcx, 0, ofcx->url, 1);
 #endif
 	av_log_set_level(AV_LOG_WARNING);
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 48, 100)
 	bsfc = av_bitstream_filter_init("h264_mp4toannexb");
 	if (!bsfc)
 		printf("%s: av_bitstream_filter_init h264_mp4toannexb failed!\n", __FUNCTION__);
@@ -974,14 +974,14 @@ void CStreamStream::run()
 		if (pkt.stream_index < 0)
 			continue;
 
-#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
 		AVCodecContext *codec = ifcx->streams[pkt.stream_index]->codec;
 #else
 		AVCodecParameters *codec = ifcx->streams[pkt.stream_index]->codecpar;
 #endif
 		if (bsfc && codec->codec_id == AV_CODEC_ID_H264 ) {
 			AVPacket newpkt = pkt;
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 48, 100)
 			if (av_bitstream_filter_filter(bsfc, codec, NULL, &newpkt.data, &newpkt.size, pkt.data, pkt.size, pkt.flags & AV_PKT_FLAG_KEY) >= 0) {
 #if (LIBAVFORMAT_VERSION_MAJOR == 57 && LIBAVFORMAT_VERSION_MINOR == 25)
  				av_packet_unref(&pkt);

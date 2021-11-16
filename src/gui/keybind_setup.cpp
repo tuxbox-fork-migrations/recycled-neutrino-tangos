@@ -65,7 +65,7 @@
 #define RC_HW_SELECT true
 #else
 #define RC_HW_SELECT false
-#ifdef HAVE_COOL_HARDWARE
+#ifdef HAVE_CST_HARDWARE
 #warning header coolstream/cs_ir_generic.h not found
 #warning you probably have an old driver installation
 #warning you´ll be missing the remotecontrol selection feature!
@@ -109,16 +109,32 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey == "savekeys") {
 		CFileBrowser fileBrowser;
-		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true) {
-			std::string fname = "keys.conf";
-			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname);
-			sms->exec(NULL, "");
-			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;
-			printf("[neutrino keybind_setup] save keys: %s\n", sname.c_str());
-			CNeutrinoApp::getInstance()->saveKeys(sname.c_str());
-			delete sms;
+
+		char msgtxt[1024];
+		snprintf(msgtxt, sizeof(msgtxt), g_Locale->getText(LOCALE_SETTINGS_BACKUP_DIR), g_settings.backup_dir.c_str());
+
+		int result = ShowMsg(LOCALE_EXTRA_SAVECONFIG, msgtxt, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbCancel);
+		if (result == CMsgBox::mbrCancel)
+			return res;
+		if (result == CMsgBox::mbrNo)
+		{
+			fileBrowser.Dir_Mode = true;
+			if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
+				g_settings.backup_dir = fileBrowser.getSelectedFile()->Name;
+			else
+				return res;
 		}
+
+		std::string fname = "keys_" + getBackupSuffix() + ".conf";
+		CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname, 45);
+		sms->exec(NULL, "");
+		delete sms;
+
+		std::string sname = g_settings.backup_dir + "/" + fname;
+		printf("[neutrino keybind_setup] save keys: %s\n", sname.c_str());
+
+		CNeutrinoApp::getInstance()->saveKeys(sname.c_str());
+
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "savecode") {
@@ -176,13 +192,10 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	return res;
 }
 
-#define KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT 4
+#define KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT 1
 const CMenuOptionChooser::keyval KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS[KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT] =
 {
-	{ CRCInput::RC_HW_COOLSTREAM,   LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_COOLSTREAM   },
-	{ CRCInput::RC_HW_DBOX,         LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_DBOX         },
-	{ CRCInput::RC_HW_PHILIPS,      LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_PHILIPS      },
-	{ CRCInput::RC_HW_TRIPLEDRAGON, LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_TRIPLEDRAGON }
+	{ CRCInput::RC_HW_COOLSTREAM,   LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_COOLSTREAM   }
 };
 
 #define KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_COUNT 4
@@ -193,16 +206,6 @@ const CMenuOptionChooser::keyval KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_OPTIONS[K
 	{ SNeutrinoSettings::VOLUME,  LOCALE_KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_VOLUME  },
 	{ SNeutrinoSettings::INFOBAR, LOCALE_KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_INFOBAR }
 };
-
-#if 0 //not used
-#define KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT 3
-const CMenuOptionChooser::keyval KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS[KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT] =
-{
-	{ 0, LOCALE_KEYBINDINGMENU_BOUQUETCHANNELS_ON_OK },
-	{ 1, LOCALE_KEYBINDINGMENU_BOUQUETLIST_ON_OK     },
-	{ 2, LOCALE_KEYBINDINGMENU_ALLCHANNELS_ON_OK     }
-};
-#endif
 
 #define KEYBINDINGMENU_PLAYBUTTON_OPTIONS_COUNT 4
 const CMenuOptionChooser::keyval KEYBINDINGMENU_PLAYBUTTON_OPTIONS[KEYBINDINGMENU_PLAYBUTTON_OPTIONS_COUNT] =
@@ -265,6 +268,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_EXTRA_KEY_SWITCHFORMAT,		&g_settings.key_switchformat,		NONEXISTANT_LOCALE},
 	{LOCALE_EXTRA_KEY_SCREENSHOT,		&g_settings.key_screenshot,		LOCALE_MENU_HINT_KEY_SCREENSHOT },
 	{LOCALE_EXTRA_KEY_PIP_CLOSE,		&g_settings.key_pip_close,		LOCALE_MENU_HINT_KEY_PIP_CLOSE },
+	{LOCALE_EXTRA_KEY_PIP_CLOSE_AVINPUT,	&g_settings.key_pip_close_avinput,	NONEXISTANT_LOCALE /*LOCALE_MENU_HINT_KEY_PIP_CLOSE_AVINPUT*/ },
 	{LOCALE_EXTRA_KEY_PIP_SETUP,		&g_settings.key_pip_setup,		LOCALE_MENU_HINT_KEY_PIP_SETUP },
 	{LOCALE_EXTRA_KEY_PIP_SWAP,		&g_settings.key_pip_swap,		LOCALE_MENU_HINT_KEY_PIP_CLOSE },
 	{LOCALE_EXTRA_KEY_FORMAT_MODE,		&g_settings.key_format_mode_active,	LOCALE_MENU_HINT_KEY_FORMAT_MODE_ACTIVE },
@@ -297,17 +301,12 @@ bool checkLongPress(uint32_t key)
 
 int CKeybindSetup::showKeySetup()
 {
-#if !HAVE_SH4_HARDWARE
 	//save original rc hardware selection and initialize text strings
 	int org_remote_control_hardware = g_settings.remote_control_hardware;
 	char RC_HW_str[4][32];
 	snprintf(RC_HW_str[CRCInput::RC_HW_COOLSTREAM],   sizeof(RC_HW_str[CRCInput::RC_HW_COOLSTREAM])-1,   "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_COOLSTREAM));
-	snprintf(RC_HW_str[CRCInput::RC_HW_DBOX],         sizeof(RC_HW_str[CRCInput::RC_HW_DBOX])-1,         "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_DBOX));
-	snprintf(RC_HW_str[CRCInput::RC_HW_PHILIPS],      sizeof(RC_HW_str[CRCInput::RC_HW_PHILIPS])-1,      "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_PHILIPS));
-	snprintf(RC_HW_str[CRCInput::RC_HW_TRIPLEDRAGON], sizeof(RC_HW_str[CRCInput::RC_HW_TRIPLEDRAGON])-1, "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_TRIPLEDRAGON));
 	char RC_HW_msg[256];
 	snprintf(RC_HW_msg, sizeof(RC_HW_msg)-1, "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART1));
-#endif
 
 	//keysetup menu
 	CMenuWidget* keySettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP);
@@ -335,21 +334,6 @@ int CKeybindSetup::showKeySetup()
 	mf->setHint("", LOCALE_MENU_HINT_KEY_LOAD);
 	keySettings->addItem(mf);
 
-	char * model = g_info.hw_caps->boxname;
-	if(strstr(model, "ufs912") || strstr(model, "ufs913"))
-	{
-		remote_code = getRemoteCode();
-		remote_code_old = remote_code;
-		keySettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_REMOTECONTROL_CODE_CHANGE));
-		CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL_CODE, &remote_code, true, 1, 4);
-		nc->setHint("", LOCALE_MENU_HINT_REMOTE_CODE);
-		keySettings->addItem(nc);
-
-		mf = new CMenuForwarder(LOCALE_KEYBINDINGMENU_REMOTECONTROL_CODE_SAVE, true, NULL, this, "savecode", CRCInput::RC_blue);
-		mf->setHint("", LOCALE_MENU_HINT_REMOTE_CODE_SAVE);
-		keySettings->addItem(mf);
-	}
-
 	keySettings->addItem(GenericMenuSeparatorLine);
 
 	//rc tuning
@@ -367,15 +351,6 @@ int CKeybindSetup::showKeySetup()
 	cc->setHint("", LOCALE_MENU_HINT_LONGKEYPRESS_DURATION);
 	keySettings->addItem(cc);
 
-#if HAVE_SH4_HARDWARE
-	g_settings.accept_other_remotes = access("/etc/lircd_predata_lock", R_OK) ? 1 : 0;
-	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_ACCEPT_OTHER_REMOTES,
-		&g_settings.accept_other_remotes, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this,
-		CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_ACCEPT_OTHER_REMOTES);
-	keySettings->addItem(mc);
-#endif
-#if !HAVE_SH4_HARDWARE
 	if (RC_HW_SELECT) {
 		CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE,
 			&g_settings.remote_control_hardware, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT, true, NULL,
@@ -383,7 +358,6 @@ int CKeybindSetup::showKeySetup()
 		mc->setHint("", LOCALE_MENU_HINT_KEY_HARDWARE);
 		keySettings->addItem(mc);
 	}
-#endif
 
 	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_REPEATBLOCK,
 		&g_settings.repeat_blocker, true, 0, 999, this,
@@ -403,7 +377,6 @@ int CKeybindSetup::showKeySetup()
 
 	int res = keySettings->exec(NULL, "");
 
-#if !HAVE_SH4_HARDWARE
 	//check if rc hardware selection has changed before leaving the menu
 	if (org_remote_control_hardware != g_settings.remote_control_hardware) {
 		g_RCInput->CRCInput::set_rc_hw();
@@ -416,7 +389,6 @@ int CKeybindSetup::showKeySetup()
 			g_RCInput->CRCInput::set_rc_hw();
 		}
 	}
-#endif
 
 	delete keySettings;
 	for (int i = 0; i < KEYBINDS_COUNT; i++)
@@ -527,6 +499,9 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	// pip
 	mf = new CMenuForwarder(key_settings[NKEY_PIP_CLOSE].keydescription, true, keychooser[NKEY_PIP_CLOSE]->getKeyName(), keychooser[NKEY_PIP_CLOSE]);
 	mf->setHint("", key_settings[NKEY_PIP_CLOSE].hint);
+	bindSettings->addItem(mf);
+	mf = new CMenuForwarder(key_settings[NKEY_PIP_CLOSE_AVINPUT].keydescription, true, keychooser[NKEY_PIP_CLOSE_AVINPUT]->getKeyName(), keychooser[NKEY_PIP_CLOSE_AVINPUT]);
+//	mf->setHint("", key_settings[NKEY_PIP_CLOSE_AVINPUT].hint);
 	bindSettings->addItem(mf);
 	mf = new CMenuForwarder(key_settings[NKEY_PIP_SETUP].keydescription, true, keychooser[NKEY_PIP_SETUP]->getKeyName(), keychooser[NKEY_PIP_SETUP]);
 	mf->setHint("", key_settings[NKEY_PIP_SETUP].hint);
@@ -643,28 +618,6 @@ void CKeybindSetup::showKeyBindSpecialSetup(CMenuWidget *bindSettings_special)
 
 bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* data */)
 {
-#if HAVE_SH4_HARDWARE
-	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_ACCEPT_OTHER_REMOTES)) {
-		struct sockaddr_un sun;
-		memset(&sun, 0, sizeof(sun));
-		sun.sun_family = AF_UNIX;
-		strcpy(sun.sun_path, "/var/run/lirc/lircd");
-		int lircd_sock = socket(AF_UNIX, SOCK_STREAM, 0);
-		if (lircd_sock > -1) {
-			if (!connect(lircd_sock, (struct sockaddr *) &sun, sizeof(sun))) {
-				if (g_settings.accept_other_remotes)
-					write(lircd_sock, "PREDATA_UNLOCK\n", 16);
-				else
-					write(lircd_sock, "PREDATA_LOCK\n", 14);
-			}
-			close(lircd_sock);
-		}
-		// work around junk data sent by vfd controller
-		sleep(2);
-		g_RCInput->clearRCMsg();
-		return false;
-	}
-#endif
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCK)) {
 		unsigned int fdelay = g_settings.repeat_blocker;

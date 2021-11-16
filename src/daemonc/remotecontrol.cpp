@@ -257,7 +257,6 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			else
 				g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, info_CN.current_fsk, false);
 		}
-
 		return messages_return::handled;
 	}
 	else if ( msg == NeutrinoMessages::EVT_NEXTEPG )
@@ -528,10 +527,24 @@ void CRemoteControl::processAPIDnames()
 			if(g_settings.audio_DolbyDigital && (ac3_found < 0))
 				ac3_found = count;
 		}
+		else if ( current_PIDs.APIDs[count].is_eac3 )
+		{
+			if(!strstr(current_PIDs.APIDs[count].desc, " (EAC3)"))
+				tmp_desc += " (EAC3)";
+			has_ac3 = true;
+			if(g_settings.audio_DolbyDigital && (ac3_found < 0))
+				ac3_found = count;
+		}
 		else if (current_PIDs.APIDs[count].is_aac &&  !strstr(current_PIDs.APIDs[count].desc, " (AAC)"))
 			tmp_desc += " (AAC)";
-		else if (current_PIDs.APIDs[count].is_eac3 &&  !strstr(current_PIDs.APIDs[count].desc, " (EAC3)"))
-			tmp_desc += " (EAC3)";
+		else if (current_PIDs.APIDs[count].is_aache &&  !strstr(current_PIDs.APIDs[count].desc, " (AACP)"))
+			tmp_desc += " (AACP)";
+		else if (current_PIDs.APIDs[count].is_dts &&  !strstr(current_PIDs.APIDs[count].desc, " (DTS)"))
+			tmp_desc += " (DTS)";
+		else if (current_PIDs.APIDs[count].is_dtshd &&  !strstr(current_PIDs.APIDs[count].desc, " (DTSHD)"))
+			tmp_desc += " (DTSHD)";
+		else if (current_PIDs.APIDs[count].is_lpcm &&  !strstr(current_PIDs.APIDs[count].desc, " (LPCM)"))
+			tmp_desc += " (LPCM)";
 
 		if(!tmp_desc.empty()){
 			strncpy(current_PIDs.APIDs[count].desc, tmp_desc.c_str(), DESC_MAX_LEN -1);

@@ -93,6 +93,7 @@ static void set_lua_variables(lua_State *L)
 		{ "standby",		CRCInput::RC_standby },
 		{ "help",		CRCInput::RC_help },
 		{ "home",		CRCInput::RC_home },
+		{ "back",		CRCInput::RC_back },
 		{ "setup",		CRCInput::RC_setup },
 		{ "topleft",		CRCInput::RC_topleft },
 		{ "topright",		CRCInput::RC_topright },
@@ -120,6 +121,7 @@ static void set_lua_variables(lua_State *L)
 		{ "sat2",		CRCInput::RC_sat2 },
 		{ "record",		CRCInput::RC_record },
 		{ "play",		CRCInput::RC_play },
+		{ "playpause",		CRCInput::RC_playpause },
 		{ "pause",		CRCInput::RC_pause },
 		{ "forward",		CRCInput::RC_forward },
 		{ "rewind",		CRCInput::RC_rewind },
@@ -130,6 +132,14 @@ static void set_lua_variables(lua_State *L)
 		{ "next",		CRCInput::RC_next },
 		{ "prev",		CRCInput::RC_prev },
 		{ "www",		CRCInput::RC_www },
+		{ "sub",		CRCInput::RC_sub },
+		{ "pos",		CRCInput::RC_pos },
+		{ "sleep",		CRCInput::RC_sleep },
+		{ "nextsong",		CRCInput::RC_nextsong },
+		{ "previoussong",	CRCInput::RC_previoussong },
+		{ "bookmarks",		CRCInput::RC_bookmarks },
+		{ "program",		CRCInput::RC_program },
+		{ "playpause",		CRCInput::RC_playpause },
 		{ "power_on",		CRCInput::RC_power_on },
 		{ "power_off",		CRCInput::RC_power_off },
 		{ "standby_on",		CRCInput::RC_standby_on },
@@ -242,14 +252,17 @@ static void set_lua_variables(lua_State *L)
 		{ "MENU",		SNeutrinoSettings::FONT_TYPE_MENU },
 		{ "MENU_TITLE",		SNeutrinoSettings::FONT_TYPE_MENU_TITLE },
 		{ "MENU_INFO",		SNeutrinoSettings::FONT_TYPE_MENU_INFO },
+		{ "MENU_FOOT",			SNeutrinoSettings::FONT_TYPE_MENU_FOOT },
 		{ "EPG_TITLE",		SNeutrinoSettings::FONT_TYPE_EPG_TITLE },
 		{ "EPG_INFO1",		SNeutrinoSettings::FONT_TYPE_EPG_INFO1 },
 		{ "EPG_INFO2",		SNeutrinoSettings::FONT_TYPE_EPG_INFO2 },
 		{ "EPG_DATE",		SNeutrinoSettings::FONT_TYPE_EPG_DATE },
+		{ "EPGPLUS_ITEM",		SNeutrinoSettings::FONT_TYPE_EPGPLUS_ITEM },
 		{ "EVENTLIST_TITLE",	SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE },
 		{ "EVENTLIST_ITEMLARGE",SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE },
 		{ "EVENTLIST_ITEMSMALL",SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL },
 		{ "EVENTLIST_DATETIME",	SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME },
+		{ "EVENTLIST_EVENT",		SNeutrinoSettings::FONT_TYPE_EVENTLIST_EVENT },
 		{ "CHANNELLIST",	SNeutrinoSettings::FONT_TYPE_CHANNELLIST },
 		{ "CHANNELLIST_DESCR",	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR },
 		{ "CHANNELLIST_NUMBER",	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER },
@@ -261,6 +274,15 @@ static void set_lua_variables(lua_State *L)
 		{ "INFOBAR_SMALL",	SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL },
 		{ "FILEBROWSER_ITEM",	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM },
 		{ "MENU_HINT",		SNeutrinoSettings::FONT_TYPE_MENU_HINT },
+		{ "MOVIEBROWSER_HEAD",		SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_HEAD },
+		{ "MOVIEBROWSER_LIST",		SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST },
+		{ "MOVIEBROWSER_INFO",		SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_INFO },
+		{ "SUBTITLES",			SNeutrinoSettings::FONT_TYPE_SUBTITLES },
+		{ "MESSAGE_TEXT",		SNeutrinoSettings::FONT_TYPE_MESSAGE_TEXT },
+		{ "BUTTON_TEXT",		SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT },
+		{ "WINDOW_GENERAL",		SNeutrinoSettings::FONT_TYPE_WINDOW_GENERAL },
+		{ "RADIOTEXT_TITLE",		SNeutrinoSettings::FONT_TYPE_WINDOW_RADIOTEXT_TITLE },
+		{ "WINDOW_RADIOTEXT_DESC", 	SNeutrinoSettings::FONT_TYPE_WINDOW_RADIOTEXT_DESC },
 		{ NULL, 0 }
 	};
 
@@ -296,37 +318,37 @@ static void set_lua_variables(lua_State *L)
 	lua_Integer yRes = (lua_Integer)CFrameBuffer::getInstance()->getScreenHeight(true);
 	table_key screenopts[] =
 	{
-		{ "OFF_X", g_settings.screen_StartX },
-		{ "OFF_Y", g_settings.screen_StartY },
-		{ "END_X", g_settings.screen_EndX },
-		{ "END_Y", g_settings.screen_EndY },
-		{ "X_RES", xRes },
-		{ "Y_RES", yRes },
+		{ "OFF_X",		g_settings.screen_StartX },
+		{ "OFF_Y",		g_settings.screen_StartY },
+		{ "END_X",		g_settings.screen_EndX },
+		{ "END_Y",		g_settings.screen_EndY },
+		{ "X_RES",		xRes },
+		{ "Y_RES",		yRes },
 		{ NULL, 0 }
 	};
 	table_key menureturn[] =
 	{
-		{ "NONE", menu_return::RETURN_NONE },
-		{ "REPAINT", menu_return::RETURN_REPAINT },
-		{ "EXIT", menu_return::RETURN_EXIT },
-		{ "EXIT_ALL", menu_return::RETURN_EXIT_ALL },
-		{ "EXIT_REPAINT", menu_return::RETURN_EXIT_REPAINT },
+		{ "NONE",		menu_return::RETURN_NONE },
+		{ "REPAINT",		menu_return::RETURN_REPAINT },
+		{ "EXIT",		menu_return::RETURN_EXIT },
+		{ "EXIT_ALL",		menu_return::RETURN_EXIT_ALL },
+		{ "EXIT_REPAINT",	menu_return::RETURN_EXIT_REPAINT },
 		{ NULL, 0 }
 	};
 	table_key apiversion[] =
 	{
-		{ "MAJOR", LUA_API_VERSION_MAJOR },
-		{ "MINOR", LUA_API_VERSION_MINOR },
+		{ "MAJOR",		LUA_API_VERSION_MAJOR },
+		{ "MINOR",		LUA_API_VERSION_MINOR },
 		{ NULL, 0 }
 	};
 
 	table_key playstate[] =
 	{
-		{ "NORMAL",    CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL },
-		{ "STOP",      CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP },
-		{ "NEXT",      CMoviePlayerGui::PLUGIN_PLAYSTATE_NEXT },
-		{ "PREV",      CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV },
-		{ "LEAVE_ALL", CMoviePlayerGui::PLUGIN_PLAYSTATE_LEAVE_ALL },
+		{ "NORMAL",		CMoviePlayerGui::PLUGIN_PLAYSTATE_NORMAL },
+		{ "STOP",		CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP },
+		{ "NEXT",		CMoviePlayerGui::PLUGIN_PLAYSTATE_NEXT },
+		{ "PREV",		CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV },
+		{ "LEAVE_ALL",		CMoviePlayerGui::PLUGIN_PLAYSTATE_LEAVE_ALL },
 		{ NULL, 0 }
 	};
 
@@ -369,7 +391,7 @@ static void set_lua_variables(lua_State *L)
 		{ "UNKNOWN",		(lua_Integer)NeutrinoModes::mode_unknown },
 		{ "TV",			(lua_Integer)NeutrinoModes::mode_tv },
 		{ "RADIO",		(lua_Integer)NeutrinoModes::mode_radio },
-		{ "SCART",		(lua_Integer)NeutrinoModes::mode_scart },
+		{ "AVINPUT",		(lua_Integer)NeutrinoModes::mode_avinput },
 		{ "STANDBY",		(lua_Integer)NeutrinoModes::mode_standby },
 		{ "AUDIO",		(lua_Integer)NeutrinoModes::mode_audio },
 		{ "PIC",		(lua_Integer)NeutrinoModes::mode_pic },
@@ -400,6 +422,43 @@ static void set_lua_variables(lua_State *L)
 		{ NULL, 0 }
 	};
 
+	/* directories, exported as e.g. DIR['CONFIGDIR'] */
+	table_key_s directories[] =
+	{
+		{ "CONFIGDIR",		CONFIGDIR },
+		{ "ZAPITDIR",		ZAPITDIR },
+		{ "DATADIR",		DATADIR },
+//		{ "DATADIR_VAR",	DATADIR_VAR },
+		{ "CONTROLDIR",		CONTROLDIR },
+		{ "CONTROLDIR_VAR",	CONTROLDIR_VAR },
+		{ "FONTDIR",		FONTDIR },
+		{ "FONTDIR_VAR",	FONTDIR_VAR },
+		{ "LIBDIR",		LIBDIR },
+		{ "GAMESDIR",		GAMESDIR },
+		{ "ICONSDIR",		ICONSDIR },
+		{ "ICONSDIR_VAR",	ICONSDIR_VAR },
+		{ "LOCALEDIR",		LOCALEDIR },
+		{ "LOCALEDIR_VAR",	LOCALEDIR_VAR },
+		{ "PLUGINDIR",		PLUGINDIR },
+		{ "PLUGINDIR_MNT",	PLUGINDIR_MNT },
+		{ "PLUGINDIR_VAR",	PLUGINDIR_VAR },
+		{ "LUAPLUGINDIR",	LUAPLUGINDIR },
+//		{ "LUAPLUGINDIR_VAR",	LUAPLUGINDIR_VAR },
+		{ "THEMESDIR",		THEMESDIR },
+		{ "THEMESDIR_VAR",	THEMESDIR_VAR },
+		{ "WEBRADIODIR",	WEBRADIODIR },
+		{ "WEBRADIODIR_VAR",	WEBRADIODIR_VAR },
+		{ "WEBTVDIR",		WEBTVDIR },
+		{ "WEBTVDIR_VAR",	WEBTVDIR_VAR },
+		{ "LOGODIR",		LOGODIR },
+		{ "LOGODIR_VAR",	LOGODIR_VAR },
+		{ "PRIVATE_HTTPDDIR",	PRIVATE_HTTPDDIR },
+		{ "PUBLIC_HTTPDDIR",	PUBLIC_HTTPDDIR },
+		{ "HOSTED_HTTPDDIR",	HOSTED_HTTPDDIR },
+		{ "FLAGDIR",		FLAGDIR },
+		{ NULL, 0 }
+	};
+
 	/* list of environment variable arrays to be exported */
 	lua_envexport e[] =
 	{
@@ -408,14 +467,14 @@ static void set_lua_variables(lua_State *L)
 		{ "FONT",		fontlist },
 		{ "CORNER",		corners },
 		{ "OFFSET",		offsets },
-		{ "MENU_RETURN", 	menureturn },
-		{ "APIVERSION",  	apiversion },
-		{ "PLAYSTATE",   	playstate },
-		{ "CC",          	ccomponents },
-		{ "DYNFONT",     	dynfont },
-		{ "CURL",        	curl_status },
-		{ "NMODE",       	neutrino_mode },
-		{ "POSTMSG",     	post_msg },
+		{ "MENU_RETURN",	menureturn },
+		{ "APIVERSION",		apiversion },
+		{ "PLAYSTATE",		playstate },
+		{ "CC",			ccomponents },
+		{ "DYNFONT",		dynfont },
+		{ "CURL",		curl_status },
+		{ "NMODE",		neutrino_mode },
+		{ "POSTMSG",		post_msg },
 		{ "TEXT_ALIGNMENT",	text_alignment },
 		{ NULL, NULL }
 	};
@@ -451,6 +510,26 @@ static void set_lua_variables(lua_State *L)
 			j++;
 		}
 		lua_setglobal(L, e_u[i].name);
+		i++;
+	}
+
+	lua_envexport_s e_s[] =
+	{
+		{ "DIR",	directories },
+		{ NULL, NULL }
+	};
+
+	i = 0;
+	while (e_s[i].name) {
+		int j = 0;
+		lua_newtable(L);
+		while (e_s[i].t[j].name) {
+			lua_pushstring(L, e_s[i].t[j].name);
+			lua_pushstring(L, e_s[i].t[j].code);
+			lua_settable(L, -3);
+			j++;
+		}
+		lua_setglobal(L, e_s[i].name);
 		i++;
 	}
 }
@@ -515,13 +594,7 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 		}
 	}
 	lua_setglobal(lua, "arg");
-#if HAVE_SH4_HARDWARE
-	CFrameBuffer::getInstance()->autoBlit();
-#endif
 	status = lua_pcall(lua, 0, LUA_MULTRET, 0);
-#if HAVE_SH4_HARDWARE
-	CFrameBuffer::getInstance()->autoBlit(false);
-#endif
 	if (result_code)
 		*result_code = std::to_string(status);
 	if (result_string && lua_isstring(lua, -1))
@@ -599,46 +672,49 @@ void LuaInstRegisterFunctions(lua_State *L, bool fromThreads/*=false*/)
 // ------------------------------------------
 	const luaL_Reg methods[] =
 	{
-		{ "GetInput",               CLuaInstance::GetInput },
-		{ "Blit",                   CLuaInstance::Blit },
-		{ "GetLanguage",            CLuaInstance::GetLanguage },
-		{ "PaintBox",               CLuaInstance::PaintBox },
-		{ "paintHLine",             CLuaInstance::paintHLineRel },
-		{ "paintVLine",             CLuaInstance::paintVLineRel },
-		{ "RenderString",           CLuaInstance::RenderString },
-		{ "getRenderWidth",         CLuaInstance::getRenderWidth },
-		{ "FontHeight",             CLuaInstance::FontHeight },
-		{ "getDynFont",             CLuaInstance::getDynFont },
-		{ "PaintIcon",              CLuaInstance::PaintIcon },
-		{ "DisplayImage",           CLuaInstance::DisplayImage },
-		{ "GetSize",                CLuaInstance::GetSize },
-		{ "saveScreen",             CLuaInstance::saveScreen },
-		{ "restoreScreen",          CLuaInstance::restoreScreen },
-		{ "deleteSavedScreen",      CLuaInstance::deleteSavedScreen },
-		{ "scale2Res",              CLuaInstance::scale2Res },
+		{ "GetInput",			CLuaInstance::GetInput },
+		{ "Blit",			CLuaInstance::Blit },
+		{ "GetLanguage",		CLuaInstance::GetLanguage },
+		{ "PaintBox",			CLuaInstance::PaintBox },
+		{ "paintHLine",			CLuaInstance::paintHLineRel },
+		{ "paintVLine",			CLuaInstance::paintVLineRel },
+		{ "RenderString",		CLuaInstance::RenderString },
+		{ "getRenderWidth",		CLuaInstance::getRenderWidth },
+		{ "FontHeight",			CLuaInstance::FontHeight },
+		{ "getDynFont",			CLuaInstance::getDynFont },
+		{ "PaintIcon",			CLuaInstance::PaintIcon },
+		{ "DisplayImage",		CLuaInstance::DisplayImage },
+		{ "GetSize",			CLuaInstance::GetSize },
+		{ "saveScreen",			CLuaInstance::saveScreen },
+		{ "restoreScreen",		CLuaInstance::restoreScreen },
+		{ "deleteSavedScreen",		CLuaInstance::deleteSavedScreen },
+		{ "scale2Res",			CLuaInstance::scale2Res },
 
 		/*
 		   lua_misc.cpp
 		   Deprecated, for the future using separate class for misc functions
 		*/
-		{ "strFind",                CLuaInstMisc::getInstance()->strFind_old },
-		{ "strSub",                 CLuaInstMisc::getInstance()->strSub_old },
-		{ "enableInfoClock",        CLuaInstMisc::getInstance()->enableInfoClock_old },
-		{ "runScript",              CLuaInstMisc::getInstance()->runScriptExt_old },
-		{ "GetRevision",            CLuaInstMisc::getInstance()->GetRevision_old },
-		{ "checkVersion",           CLuaInstMisc::getInstance()->checkVersion_old },
+		{ "strFind",			CLuaInstMisc::getInstance()->strFind_old },
+		{ "strSub",			CLuaInstMisc::getInstance()->strSub_old },
+		{ "enableInfoClock",		CLuaInstMisc::getInstance()->enableInfoClock_old },
+		{ "runScript",			CLuaInstMisc::getInstance()->runScriptExt_old },
+		{ "GetRevision",		CLuaInstMisc::getInstance()->GetRevision_old },
+		{ "checkVersion",		CLuaInstMisc::getInstance()->checkVersion_old },
 
 		/*
 		   lua_video.cpp
 		   Deprecated, for the future using separate class for video
 		*/
-		{ "setBlank",               CLuaInstVideo::getInstance()->setBlank_old },
-		{ "ShowPicture",            CLuaInstVideo::getInstance()->ShowPicture_old },
-		{ "StopPicture",            CLuaInstVideo::getInstance()->StopPicture_old },
-		{ "PlayFile",               CLuaInstVideo::getInstance()->PlayFile_old },
-		{ "zapitStopPlayBack",      CLuaInstVideo::getInstance()->zapitStopPlayBack_old },
-		{ "channelRezap",           CLuaInstVideo::getInstance()->channelRezap_old },
-		{ "createChannelIDfromUrl", CLuaInstVideo::getInstance()->createChannelIDfromUrl_old },
+		{ "setBlank",			CLuaInstVideo::getInstance()->setBlank_old },
+		{ "ShowPicture",		CLuaInstVideo::getInstance()->ShowPicture_old },
+		{ "StopPicture",		CLuaInstVideo::getInstance()->StopPicture_old },
+		{ "PlayFile",			CLuaInstVideo::getInstance()->PlayFile_old },
+		{ "zapitStopPlayBack",		CLuaInstVideo::getInstance()->zapitStopPlayBack_old },
+		{ "channelRezap",		CLuaInstVideo::getInstance()->channelRezap_old },
+		{ "createChannelIDfromUrl",	CLuaInstVideo::getInstance()->createChannelIDfromUrl_old },
+
+		// clean/normal neutrino exit
+		{ "ExitRun",			CLuaInstance::ExitRun },
 		{ NULL, NULL }
 	};
 // ------------------------------------------
@@ -796,17 +872,11 @@ int CLuaInstance::GetInput(lua_State *L)
 #if 1
 int CLuaInstance::Blit(lua_State *)
 {
-#if HAVE_SH4_HARDWARE
-	CFrameBuffer::getInstance()->autoBlit(false);
-#endif
 	return 0;
 }
 #else
 int CLuaInstance::Blit(lua_State *L)
 {
-#if HAVE_SH4_HARDWARE
-	CFrameBuffer::getInstance()->autoBlit(false);
-#endif
 	CLuaData *W = CheckData(L, 1);
 	if (W && W->fbwin) {
 		if (lua_isnumber(L, 2))
@@ -1257,40 +1327,46 @@ int CLuaInstance::scale2Res(lua_State *L)
 	return 1;
 }
 
+int CLuaInstance::ExitRun(lua_State *L) {
+	int value = luaL_checkint(L, 2);
+	CNeutrinoApp::getInstance()->ExitRun(value);
+	return 0;
+}
+
 #if LUA_COMPAT_5_2
 
 void lua_pushunsigned (lua_State *L, lua_Unsigned n) {
-  lua_pushnumber(L, lua_unsigned2number(n));
+	lua_pushnumber(L, lua_unsigned2number(n));
 }
 
 
 lua_Unsigned luaL_checkunsigned (lua_State *L, int i) {
-  lua_Unsigned result;
-  lua_Number n = lua_tonumber(L, i);
-  if (n == 0 && !lua_isnumber(L, i))
-    luaL_checktype(L, i, LUA_TNUMBER);
-  lua_number2unsigned(result, n);
-  return result;
+	lua_Unsigned result;
+	lua_Number n = lua_tonumber(L, i);
+	if (n == 0 && !lua_isnumber(L, i))
+		luaL_checktype(L, i, LUA_TNUMBER);
+	lua_number2unsigned(result, n);
+	return result;
 }
 
 int lua_absindex (lua_State *L, int i) {
-  if (i < 0 && i > LUA_REGISTRYINDEX)
-    i += lua_gettop(L) + 1;
-  return i;
+	if (i < 0 && i > LUA_REGISTRYINDEX)
+		i += lua_gettop(L) + 1;
+	return i;
 }
 
 void lua_rawgetp (lua_State *L, int i, const void *p) {
-  int abs_i = lua_absindex(L, i);
-  lua_pushlightuserdata(L, (void*)p);
-  lua_rawget(L, abs_i);
+	int abs_i = lua_absindex(L, i);
+	lua_pushlightuserdata(L, (void*)p);
+	lua_rawget(L, abs_i);
 }
 
 void lua_rawsetp (lua_State *L, int i, const void *p) {
-  int abs_i = lua_absindex(L, i);
-  luaL_checkstack(L, 1, "not enough stack slots");
-  lua_pushlightuserdata(L, (void*)p);
-  lua_insert(L, -2);
-  lua_rawset(L, abs_i);
+	int abs_i = lua_absindex(L, i);
+	luaL_checkstack(L, 1, "not enough stack slots");
+	lua_pushlightuserdata(L, (void*)p);
+	lua_insert(L, -2);
+	lua_rawset(L, abs_i);
 }
 
 #endif

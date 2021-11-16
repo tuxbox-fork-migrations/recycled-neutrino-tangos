@@ -64,7 +64,7 @@ CProgressBar::CProgressBar(	const int x_pos,
 	height		= height_old 	= h;
 
 	col_frame 	= color_frame;
-	col_body	= color_body;
+	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 
 	pb_red 		= R;
@@ -163,10 +163,11 @@ CProgressBarCache *CProgressBarCache::pbcLookup(int dy, int dx, int active_col, 
 	return pbc;
 }
 
-void CProgressBarCache::pbcPaint(int x, int y, int pbc_active_width, int pbc_passive_width, CFrameBuffer *frameBuffer) const
+void CProgressBarCache::pbcPaint(int x, int y, int pbc_active_width, int pbc_passive_width) const
 {
 	y += yoff;
-	unsigned int stride = frameBuffer->getStride() / sizeof(fb_pixel_t);
+	static CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
+	unsigned int stride = frameBuffer->getStride() / (unsigned int)sizeof(fb_pixel_t);
 	fb_pixel_t *p = frameBuffer->getFrameBufferPointer() + y * stride + x;
 	int off = stride - pbc_width;
 	if (pbc_active_width > pbc_width)
@@ -395,7 +396,7 @@ void CProgressBar::paintProgress(const bool &do_save_bg)
 	initDimensions();
 
 	//body
-	if (pb_last_width == -1 && col_body != 0) /* first paint */
+	if (pb_last_width == -1 && col_body_std != 0) /* first paint */
 		paintInit(do_save_bg); 
 
 	//progress
@@ -405,7 +406,7 @@ void CProgressBar::paintProgress(const bool &do_save_bg)
 		if (!is_painted || (pb_active_width != pb_last_width)) {
 			CProgressBarCache *pbc = CProgressBarCache::pbcLookup(pb_height, pb_max_width, pb_active_col, pb_passive_col, *pb_design, pb_invert, *pb_gradient, pb_red, pb_yellow, pb_green);
 			if (pbc)
-				pbc->pbcPaint(pb_x, pb_y, pb_active_width, pb_passive_width, frameBuffer);
+				pbc->pbcPaint(pb_x, pb_y, pb_active_width, pb_passive_width);
 			is_painted = true;
 		}
 	}

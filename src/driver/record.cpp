@@ -51,9 +51,6 @@
 
 #include <driver/display.h>
 #include <driver/record.h>
-#ifdef ENABLE_GRAPHLCD
-#include <driver/nglcd.h>
-#endif
 #include <driver/display.h>
 #include <driver/radiotext.h>
 #include <driver/streamts.h>
@@ -69,6 +66,9 @@
 
 extern "C" {
 #include <libavformat/avformat.h>
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(59, 0, 100)
+#include <libavcodec/bsf.h>
+#endif
 }
 
 #if (LIBAVCODEC_VERSION_MAJOR > 55)
@@ -82,7 +82,7 @@ class CStreamRec : public CRecordInstance, OpenThreads::Thread
 	private:
 		AVFormatContext *ifcx;
 		AVFormatContext *ofcx;
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 48, 100)
 		AVBitStreamFilterContext *bsfc;
 #else
 		AVBSFContext *bsfc;
@@ -180,7 +180,7 @@ void CRecordInstance::WaitRecMsg(time_t StartTime, time_t WaitTime)
 		usleep(100000);
 }
 
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 void recordingFailureHelper(void *data)
 {
 	CRecordInstance *inst = (CRecordInstance *) data;
@@ -233,16 +233,16 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		apids[numpids++] = recMovieInfo->audioPids[i].AudioPid;
 		switch (channel->getAudioChannel(i)->audioChannelType) {
 			case CZapitAudioChannel::EAC3:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_EAC3, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_EAC3, 0, channel->getAudioChannel(i)->description.c_str());
 				break;
 			case CZapitAudioChannel::AAC:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AAC, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AAC, 0, channel->getAudioChannel(i)->description.c_str());
 				break;
 			case CZapitAudioChannel::AACPLUS:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AACP, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AACP, 0, channel->getAudioChannel(i)->description.c_str());
 				break;
 			default:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO, (recMovieInfo->audioPids[i].atype == CZapitAudioChannel::AC3), channel->getAudioChannel(i)->description.c_str());
 				break;
 		}
 
@@ -278,7 +278,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 
 	if (record == NULL)
 	{
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 		record = new cRecord(channel->getRecordDemux(), g_settings.recording_bufsize_dmx * 1024 * 1024, g_settings.recording_bufsize * 1024 * 1024);
 		record->setFailureCallback(&recordingFailureHelper, this);
 #else
@@ -340,10 +340,10 @@ bool CRecordInstance::Stop(bool remove_event)
 	/* Stop do close fd - if started */
 	record->Stop();
 
+	CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
+
 	if(!autoshift)
 		CFEManager::getInstance()->unlockFrontend(frontend, true);//FIXME testing
-
-	CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
 	if (autoshift && g_settings.timeshift_delete)
 		CMoviePlayerGui::getInstance().deleteTimeshift();
@@ -408,7 +408,7 @@ bool CRecordInstance::Update()
 
 					audio_pids.AudioPid = allpids.APIDs[i].pid;
 					audio_pids.AudioPidName = allpids.APIDs[i].desc;
-					audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : allpids.APIDs[i].is_eac3 ? 7 : 0;
+					audio_pids.atype = allpids.APIDs[i].is_ac3 ? CZapitAudioChannel::AC3 : allpids.APIDs[i].is_aac ? CZapitAudioChannel::AAC : allpids.APIDs[i].is_eac3 ? CZapitAudioChannel::EAC3 : CZapitAudioChannel::MPEG;
 					audio_pids.selected = 0;
 					recMovieInfo->audioPids.push_back(audio_pids);
 				}
@@ -441,13 +441,21 @@ void CRecordInstance::GetPids(CZapitChannel * channel)
 		CZapitClient::responseGetAPIDs response;
 		response.pid = channel->getAudioPid(i);
 		strncpy(response.desc, channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN - 1);
-		response.is_ac3 = response.is_aac = response.is_eac3 = 0;
+		response.is_ac3 = response.is_aac = response.is_aache = response.is_eac3 = response.is_dts = response.is_dtshd = response.is_lpcm = 0;
 		if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
 			response.is_ac3 = 1;
 		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
 			response.is_aac = 1;
+		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AACPLUS) {
+			response.is_aache = 1;
 		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
 			response.is_eac3 = 1;
+		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::DTS) {
+			response.is_dts = 1;
+		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::DTSHD) {
+			response.is_dtshd = 1;
+		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::LPCM) {
+			response.is_lpcm = 1;
 		}
 		response.component_tag = channel->getAudioChannel(i)->componentTag;
 		allpids.APIDs.push_back(response);
@@ -493,8 +501,16 @@ void CRecordInstance::ProcessAPIDnames()
 								tmp_desc2 += " (AC3)";
 							else if (allpids.APIDs[j].is_aac && tmp_desc2.find(" (AAC)"))
 								tmp_desc2 += " (AAC)";
+							else if (allpids.APIDs[j].is_aache && tmp_desc2.find(" (AACP)"))
+								tmp_desc2 += " (AACP)";
 							else if (allpids.APIDs[j].is_eac3 && tmp_desc2.find(" (EAC3)"))
 								tmp_desc2 += " (EAC3)";
+							else if (allpids.APIDs[j].is_dts && tmp_desc2.find(" (DTS)"))
+								tmp_desc2 += " (DTS)";
+							else if (allpids.APIDs[j].is_dtshd && tmp_desc2.find(" (DTSHD)"))
+								tmp_desc2 += " (DTSHD)";
+							else if (allpids.APIDs[j].is_lpcm && tmp_desc2.find(" (LPCM)"))
+								tmp_desc2 += " (LPCM)";
 
 							if(!tmp_desc2.empty()){
 								strncpy(allpids.APIDs[j].desc, tmp_desc2.c_str(), DESC_MAX_LEN -1);
@@ -695,7 +711,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 			if(allpids.APIDs[i].pid == it->apid) {
 				audio_pids.AudioPid = allpids.APIDs[i].pid;
 				audio_pids.AudioPidName = allpids.APIDs[i].desc;
-				audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : allpids.APIDs[i].is_eac3 ? 7 : 0;
+				audio_pids.atype = allpids.APIDs[i].is_ac3 ? CZapitAudioChannel::AC3 : allpids.APIDs[i].is_aac ? CZapitAudioChannel::AAC : allpids.APIDs[i].is_eac3 ? CZapitAudioChannel::EAC3 : CZapitAudioChannel::MPEG;
 				audio_pids.selected = (audio_pids.AudioPid == channel->getAudioPid()) ? 1 : 0;
 				recMovieInfo->audioPids.push_back(audio_pids);
 			}
@@ -706,7 +722,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 		int i = 0;
 		audio_pids.AudioPid = allpids.APIDs[i].pid;
 		audio_pids.AudioPidName = allpids.APIDs[i].desc;
-		audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : allpids.APIDs[i].is_eac3 ? 7 : 0;
+		audio_pids.atype = allpids.APIDs[i].is_ac3 ? CZapitAudioChannel::AC3 : allpids.APIDs[i].is_aac ? CZapitAudioChannel::AAC : allpids.APIDs[i].is_eac3 ? CZapitAudioChannel::EAC3 : CZapitAudioChannel::MPEG;
 		audio_pids.selected = 1;
 		recMovieInfo->audioPids.push_back(audio_pids);
 	}
@@ -1043,9 +1059,6 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	printf("%s channel_id %" PRIx64 " epg: %" PRIx64 ", apidmode 0x%X\n", __func__,
 	       eventinfo->channel_id, eventinfo->epg_id, eventinfo->apids);
 
-	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF /* || IS_WEBCHAN(eventinfo->channel_id) */)
-		return false;
-
 #if 1 // FIXME test
 	StopSectionsd = false;
 	if( !recmap.empty() )
@@ -1092,7 +1105,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 					recordingstatus = 1;
 #endif
 #ifdef ENABLE_GRAPHLCD
-				nGLCD::Update();
+				cGLCD::Update();
 #endif
 			} else {
 				delete inst;
@@ -1247,11 +1260,6 @@ void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 
 	if(inst->Timeshift())
 		autoshift = false;
-#ifdef HAVE_SPARK_HARDWARE
-		CVFD::getInstance()->SetIcons(SPARK_TIMESHIFT, false);
-#elif defined(BOXMODEL_FORTIS_HDBOX)
-		CVFD::getInstance()->ShowIcon(FP_ICON_TIMESHIFT, false);
-#endif
 
 	delete inst;
 }
@@ -1301,7 +1309,7 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 		StopInstance(inst, false);
 		ret = true;
 #ifdef ENABLE_GRAPHLCD
-		nGLCD::Update();
+		cGLCD::Update();
 #endif
 	} else {
 		for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {
@@ -1397,11 +1405,6 @@ void CRecordManager::StartTimeshift()
 		std::string tmode = "timeshift_pause"; // already recording, pause
 		bool res = true;
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-#ifdef HAVE_SPARK_HARDWARE
-		CVFD::getInstance()->SetIcons(SPARK_TIMESHIFT, true);
-#elif defined(BOXMODEL_FORTIS_HDBOX)
-		CVFD::getInstance()->ShowIcon(FP_ICON_TIMESHIFT, true);
-#endif
 // 		bool tstarted = false;
 		/* start temporary timeshift if enabled and not running, but dont start second record */
 		if (g_settings.timeshift_temp) {
@@ -1433,9 +1436,6 @@ void CRecordManager::StartTimeshift()
 
 int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 {
-	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
-		return menu_return::RETURN_REPAINT;
-
 	if(parent)
 		parent->hide();
 
@@ -1810,21 +1810,6 @@ CRecordInstance* CRecordManager::getRecordInstance(std::string file)
 	return NULL;
 }
 
-CRecordInstance* CRecordManager::getUseCI()
-{
-	mutex.lock();
-	for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
-		CRecordInstance * inst = it->second;
-		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(inst->GetChannelId());
-		if (channel->bUseCI) {
-			mutex.unlock();
-			return inst;
-		}
-	}
-	mutex.unlock();
-	return NULL;
-}
-
 #if 0
 /* should return true, if recordingstatus changed in this function ? */
 bool CRecordManager::doGuiRecord()
@@ -1986,7 +1971,7 @@ void CStreamRec::Close()
 		avformat_free_context(ofcx);
 	}
 	if (bsfc){
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 48, 100)
 		av_bitstream_filter_close(bsfc);
 #else
 		av_bsf_free(&bsfc);
@@ -2008,7 +1993,7 @@ void CStreamRec::FillMovieInfo(CZapitChannel * /*channel*/, APIDList & /*apid_li
 
 	for (unsigned i = 0; i < ofcx->nb_streams; i++) {
 		AVStream *st = ofcx->streams[i];
-#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
 		AVCodecContext * codec = st->codec;
 #else
 		AVCodecParameters * codec = st->codecpar;
@@ -2029,17 +2014,17 @@ void CStreamRec::FillMovieInfo(CZapitChannel * /*channel*/, APIDList & /*apid_li
 			}
 			switch(codec->codec_id) {
 				case AV_CODEC_ID_AC3:
-					audio_pids.atype = 1;
+					audio_pids.atype = CZapitAudioChannel::AC3;
 					break;
 				case AV_CODEC_ID_AAC:
-					audio_pids.atype = 5;
+					audio_pids.atype = CZapitAudioChannel::AAC;
 					break;
 				case AV_CODEC_ID_EAC3:
-					audio_pids.atype = 7;
+					audio_pids.atype = CZapitAudioChannel::EAC3;
 					break;
 				case AV_CODEC_ID_MP2:
 				default:
-					audio_pids.atype = 0;
+					audio_pids.atype = CZapitAudioChannel::MPEG;
 					break;
 			}
 
@@ -2216,7 +2201,7 @@ bool CStreamRec::Open(CZapitChannel * channel)
 		printf("%s: Cannot find stream info [%s]!\n", __FUNCTION__, channel->getUrl().c_str());
 		return false;
 	}
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58,27,102)
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 27, 102)
 	const char *hls = "applehttp";
 #else
 	const char *hls = "hls";
@@ -2241,7 +2226,11 @@ bool CStreamRec::Open(CZapitChannel * channel)
 #endif
 
 	std::string tsfile = std::string(filename) + ".ts";
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(59, 0, 100)
 	AVOutputFormat *ofmt = av_guess_format(NULL, tsfile.c_str(), NULL);
+#else
+	const AVOutputFormat *ofmt = av_guess_format(NULL, tsfile.c_str(), NULL);
+#endif
 	if (ofmt == NULL) {
 		printf("%s: av_guess_format for [%s] failed!\n", __FUNCTION__, tsfile.c_str());
 		return false;
@@ -2265,7 +2254,7 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	stream_index = -1;
 	int stid = 0x200;
 	for (unsigned i = 0; i < ifcx->nb_streams; i++) {
-#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
 		AVCodecContext * iccx = ifcx->streams[i]->codec;
 		AVStream *ost = avformat_new_stream(ofcx, iccx->codec);
 		avcodec_copy_context(ost->codec, iccx);
@@ -2289,7 +2278,7 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	av_dump_format(ofcx, 0, ofcx->url, 1);
 #endif
 	av_log_set_level(AV_LOG_WARNING);
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 48, 100)
 	bsfc = av_bitstream_filter_init("h264_mp4toannexb");
 	if (!bsfc)
 		printf("%s: av_bitstream_filter_init h264_mp4toannexb failed!\n", __FUNCTION__);
@@ -2325,14 +2314,14 @@ void CStreamRec::run()
 			break;
 		if (pkt.stream_index < 0)
 			continue;
-#if (LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 ))
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
 		AVCodecContext *codec = ifcx->streams[pkt.stream_index]->codec;
 #else
 		AVCodecParameters *codec = ifcx->streams[pkt.stream_index]->codecpar;
 #endif
 		if (bsfc && codec->codec_id == AV_CODEC_ID_H264) {
 			AVPacket newpkt = pkt;
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 48, 100)
 			if (av_bitstream_filter_filter(bsfc, codec, NULL, &newpkt.data, &newpkt.size, pkt.data, pkt.size, pkt.flags & AV_PKT_FLAG_KEY) >= 0) {
 #if (LIBAVFORMAT_VERSION_MAJOR == 57 && LIBAVFORMAT_VERSION_MINOR == 25)
 				av_packet_unref(&pkt);

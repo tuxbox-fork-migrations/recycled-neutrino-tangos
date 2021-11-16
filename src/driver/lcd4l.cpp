@@ -7,7 +7,7 @@
 	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Copyright (C) 2016-2019 'TangoCash'
+	Copyright (C) 2016-2021 'TangoCash'
 
 	License: GPL
 
@@ -112,8 +112,12 @@ extern CPictureViewer *g_PicViewer;
 #define WEATHER_ICON		LCD_DATADIR "weather_icon"
 
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
-#define PIDFILE			"/tmp/lcd4linux.pid"
 #define PNGFILE			"/tmp/lcd4linux.png"
+
+CLCD4l * CLCD4l::l4l_instance = NULL;
+
+//hack to get an instance before first call
+CLCD4l * L4L = CLCD4l::getInstance();
 
 static void lcd4linux(bool run)
 {
@@ -124,7 +128,7 @@ static void lcd4linux(bool run)
 	chmod(conf,0x600);
 	chown(conf,0,0);
 
-	if (run == true)
+	if ((run == true) && !lcd4l_bin.empty())
 	{
 		if (g_settings.lcd4l_display_type == CLCD4l::PNG)
 		{
@@ -147,55 +151,46 @@ static void lcd4linux(bool run)
 
 CLCD4l::CLCD4l()
 {
-	thrLCD4l = 0;
+	Init();
 }
 
 CLCD4l::~CLCD4l()
 {
-	if (thrLCD4l)
-		pthread_cancel(thrLCD4l);
-	thrLCD4l = 0;
+	lcd4linux(false);
 }
 
-/* ----------------------------------------------------------------- */
-
-void CLCD4l::InitLCD4l()
+CLCD4l* CLCD4l::getInstance()
 {
-	if (thrLCD4l)
+	if (l4l_instance == NULL)
 	{
-		printf("[CLCD4l] %s: initializing\n", __FUNCTION__);
-		Init();
+		l4l_instance = new CLCD4l();
 	}
+	return l4l_instance;
 }
-
+/* ----------------------------------------------------------------- */
 void CLCD4l::StartLCD4l()
 {
-	if (!thrLCD4l && (g_settings.lcd4l_support == 1 || g_settings.lcd4l_support == 2))
-	{
-		printf("[CLCD4l] %s: starting thread\n", __FUNCTION__);
-		pthread_create(&thrLCD4l, NULL, LCD4lProc, (void*) this);
-		pthread_detach(thrLCD4l);
+	if (running)
+		return;
+
+	running = true;
+	OpenThreads::Thread::setSchedulePriority(THREAD_PRIORITY_MIN);
+	OpenThreads::Thread::start();
+
+	if (g_settings.lcd4l_support)
 		lcd4linux(true);
-	}
 }
 
 void CLCD4l::StopLCD4l()
 {
-	if (thrLCD4l)
-	{
-		printf("[CLCD4l] %s: stopping thread\n", __FUNCTION__);
-		pthread_cancel(thrLCD4l);
-		thrLCD4l = 0;
-		lcd4linux(false);
-	}
-}
+	if (!running)
+		return;
 
-void CLCD4l::SwitchLCD4l()
-{
-	if (thrLCD4l)
-		StopLCD4l();
-	else
-		StartLCD4l();
+	running = false;
+
+	OpenThreads::Thread::join();
+
+	lcd4linux(false);
 }
 
 int CLCD4l::CreateFile(const char *file, std::string content, bool convert)
@@ -204,7 +199,7 @@ int CLCD4l::CreateFile(const char *file, std::string content, bool convert)
 
 	int ret = 0;
 
-	if (thrLCD4l)
+	if (running)
 	{
 		if (WriteFile(file, content, convert) == false)
 			ret = 1;
@@ -299,60 +294,34 @@ void CLCD4l::Init()
 		mkdir(LCD_DATADIR, 0755);
 }
 
-void* CLCD4l::LCD4lProc(void* arg)
+void CLCD4l::run()
 {
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
-
-	CLCD4l *PLCD4l = static_cast<CLCD4l*>(arg);
-
-	PLCD4l->Init();
-
-	sleep(5); //please wait !
+	OpenThreads::Thread::setCancelModeAsynchronous();
 
 	static bool FirstRun = true;
 	uint64_t p_ParseID = 0;
 	bool NewParseID = false;
 
 	//printf("[CLCD4l] %s: starting loop\n", __FUNCTION__);
-	while(1)
+	while(running)
 	{
-		if ( (!access(PIDFILE, F_OK) == 0) && (!FirstRun) )
-		{
-			if (g_settings.lcd4l_support == 1) // automatic
-			{
-				//printf("[CLCD4l] %s: waiting for lcd4linux\n", __FUNCTION__);
-				sleep(10);
-				continue;
-			}
-		}
-
 		for (int i = 0; i < 10; i++)
 		{
 			usleep(5 * 100 * 1000); // 0.5 sec
-			NewParseID = PLCD4l->CompareParseID(p_ParseID);
+			NewParseID = CompareParseID(p_ParseID);
 			if (NewParseID || p_ParseID == NeutrinoModes::mode_audio)
 				break;
 		}
 
 		//printf("[CLCD4l] %s: m_ParseID: %llx (NewParseID: %d)\n", __FUNCTION__, p_ParseID, NewParseID ? 1 : 0);
-		PLCD4l->ParseInfo(p_ParseID, NewParseID, FirstRun);
+		ParseInfo(p_ParseID, NewParseID, FirstRun);
 
 		if (FirstRun)
 		{
-			PLCD4l->WriteFile(FLAG_LCD4LINUX);
+			WriteFile(FLAG_LCD4LINUX);
 			FirstRun = false;
 		}
-		if (g_settings.lcd4l_support == 0)
-		{
-			lcd4linux(false);
-		}
-		if (g_settings.lcd4l_support == 1 || g_settings.lcd4l_support == 2)
-		{
-			lcd4linux(true);
-		}
 	}
-	return 0;
 }
 
 void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
@@ -458,7 +427,15 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	/* ----------------------------------------------------------------- */
 
 	int x_res, y_res, framerate;
-	videoDecoder->getPictureInfo(x_res, y_res, framerate);
+	if (videoDecoder)
+	{	// Hack: That should not happen, but while shutting down there
+		// could be a null pointer and this can lead to a crash.
+		// This behavior was observed with LeakSanitizer on pc hardware.
+		videoDecoder->getPictureInfo(x_res, y_res, framerate);
+	}
+	else
+		return;
+
 
 	if (y_res == 1088)
 		y_res = 1080;
@@ -704,6 +681,12 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		{
 			Service = g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD);
 		}
+		else if (parseID == NeutrinoModes::mode_avinput)
+		{
+			//Logo = LCD_ICONSDIR "/avinput" ICONSEXT;
+			Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
+			Service = g_Locale->getText(LOCALE_MAINMENU_AVINPUTMODE);
+		}
 		else if (parseID == NeutrinoModes::mode_ts)
 		{
 			if (ModeTshift)
@@ -847,11 +830,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		{
 			WriteFile(LAYOUT, Layout);
 			m_Layout = Layout;
-			if (!firstRun)
-			{
-				lcd4linux(false);
-				lcd4linux(true);
-			}
+			lcd4linux(false);
+			lcd4linux(true);
 		}
 	}
 

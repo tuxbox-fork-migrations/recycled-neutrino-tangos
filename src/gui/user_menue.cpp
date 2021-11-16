@@ -58,9 +58,7 @@
 #include "plugins.h"
 #include "imageinfo.h"
 #include "dboxinfo.h"
-#if !HAVE_SPARK_HARDWARE
 #include "cam_menu.h"
-#endif
 #include "pluginlist.h"
 #include "infoclock.h"
 #include "mediaplayer.h"
@@ -78,7 +76,7 @@
 #endif
 #include <gui/update_menue.h>
 #include <gui/hdd_menu.h>
-#include <gui/webtv_setup.h>
+#include <gui/webchannels_setup.h>
 #include <gui/miscsettings_menu.h>
 
 #include <driver/radiotext.h>
@@ -93,9 +91,7 @@
 extern CRemoteControl * g_RemoteControl;	/* neutrino.cpp */
 extern CPlugins * g_Plugins;			/* neutrino.cpp */
 extern cVideo * videoDecoder;
-#if !HAVE_SPARK_HARDWARE
 extern CCAMMenuHandler * g_CamHandler;
-#endif
 std::string CUserMenu::tmp;
 // 
 #include <system/debug.h>
@@ -288,8 +284,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_RECORD:
 		{
-			if (g_settings.recording_type == RECORDING_OFF)
-				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
 			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_REC_AKT, true, NULL, CRecordManager::getInstance(), "-1", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
@@ -297,8 +291,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_TIMESHIFT:
 		{
-			if (g_settings.recording_type == RECORDING_OFF)
-				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
 			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, !timeshift, NULL, CRecordManager::getInstance(), "Timeshift", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
@@ -306,8 +298,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_MOVIEPLAYER_MB:
 		{
-			if (g_settings.recording_type == RECORDING_OFF)
-				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_green);
 			menu_item = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, !_mode_ts, NULL, neutrino, "tsmoviebrowser", key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_MB, LOCALE_MENU_HINT_MB);
@@ -507,7 +497,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_RELOAD_CHANNELS, LOCALE_MENU_HINT_RESTART_TUNER);
 			break;
 		}
-#if HAVE_SH4_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE
 		case SNeutrinoSettings::ITEM_THREE_D_MODE:
 		{
 			keyhelper.get(&key,&icon);
@@ -516,7 +506,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			break;
 		}
 #endif
-#if !HAVE_SPARK_HARDWARE
 		case SNeutrinoSettings::ITEM_CAM:
 		{
 			keyhelper.get(&key,&icon);
@@ -524,7 +513,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		}
-#endif
 		case -1: // plugin
 		{
 			int number_of_plugins = g_Plugins->getNumberOfPlugins();

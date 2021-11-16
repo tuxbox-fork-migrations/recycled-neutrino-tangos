@@ -286,7 +286,7 @@ CVFD::CVFD()
 	fd = 1;
 #endif
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	if (fd >= 0) {
 		int ret = ioctl(fd, IOC_FP_GET_DISPLAY_CAPS, &caps);
 		if (ret < 0) {
@@ -946,7 +946,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 	if(fd < 0) return;
 
 	// Clear colon in display if it is still there
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	if (support_numbers && has_led_segment)
 		ioctl(fd, IOC_FP_SET_COLON, 0x00);
 #endif
@@ -996,7 +996,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 		//showTime();      /* "showclock = true;" implies that "showTime();" does a "displayUpdate();" */
 		break;
 	}
-	case MODE_SCART:
+	case MODE_AVINPUT:
 		showVolume(volume, false);
 		showclock = true;
 		//showTime();      /* "showclock = true;" implies that "showTime();" does a "displayUpdate();" */
@@ -1014,7 +1014,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 		ShowIcon(FP_ICON_COL1, true);
 		ShowIcon(FP_ICON_COL2, true);
 #endif
-#if ! HAVE_COOL_HARDWARE
+#if ! HAVE_CST_HARDWARE
 		ClearIcons();
 #endif
 		ShowIcon(FP_ICON_USB, false);
@@ -1307,7 +1307,7 @@ void CVFD::ShowNumber(int number)
 	if (number < 0)
 		return;
 	
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 	int ret = ioctl(fd, IOC_FP_SET_NUMBER, number);
 	if(ret < 0) {
 		support_numbers = false;

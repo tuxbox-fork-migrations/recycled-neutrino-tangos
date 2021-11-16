@@ -52,6 +52,7 @@ libneutrino_gui_a_SOURCES = \
 	buildinfo.cpp \
 	channellist.cpp \
 	cec_setup.cpp \
+	daemon_control.cpp \
 	dboxinfo.cpp \
 	epgplus.cpp \
 	epgview.cpp \
@@ -60,9 +61,10 @@ libneutrino_gui_a_SOURCES = \
 	filebrowser.cpp \
 	followscreenings.cpp \
 	imageinfo.cpp \
-	imdb.cpp \
 	info_menue.cpp \
 	keybind_setup.cpp \
+	mdb-imdb.cpp \
+	mdb-tmdb.cpp \
 	mediaplayer.cpp \
 	mediaplayer_setup.cpp \
 	miscsettings_menu.cpp \
@@ -93,7 +95,6 @@ libneutrino_gui_a_SOURCES = \
 	themes.cpp \
 	skins.cpp \
 	timeosd.cpp \
-	tmdb.cpp \
 	update.cpp \
 	update_menue.cpp \
 	update_settings.cpp \
@@ -103,30 +104,23 @@ libneutrino_gui_a_SOURCES = \
 	videosettings.cpp \
 	volumebar.cpp \
 	weather.cpp \
-	webtv_setup.cpp \
-	webradio_setup.cpp \
+	webchannels_setup.cpp \
 	xmltv_setup.cpp \
 	zapit_setup.cpp
 
 if ENABLE_TANGOS
 libneutrino_gui_a_SOURCES += \
-	infoviewer_tc.cpp
+	infoviewer_tc.cpp \
+	weather_setup.cpp
 else
 libneutrino_gui_a_SOURCES += \
 	infoviewer.cpp \
 	infoviewer_bb.cpp
 endif
 
-if BOXTYPE_SPARK
+if ENABLE_QUADPIP
 libneutrino_gui_a_SOURCES += \
-	3dsetup.cpp \
-	psisetup.cpp
-endif
-
-if BOXTYPE_DUCKBOX
-libneutrino_gui_a_SOURCES += \
-	3dsetup.cpp \
-	psisetup.cpp
+	quadpip_setup.cpp
 endif
 
 if BOXTYPE_ARMBOX
@@ -147,10 +141,11 @@ endif
 
 if ENABLE_GRAPHLCD
 libneutrino_gui_a_SOURCES += \
-	glcdsetup.cpp
+	glcdsetup.cpp \
+	glcdthemes.cpp
 endif
 
-if BOXTYPE_COOL
+if BOXTYPE_CST
 libneutrino_gui_a_SOURCES += \
 	streaminfo1.cpp
 else
@@ -169,16 +164,12 @@ libneutrino_gui_a_SOURCES += \
 endif
 
 libneutrino_gui2_a_SOURCES = \
+	cam_menu.cpp \
 	color.cpp \
 	hdd_menu.cpp \
 	infoclock.cpp \
 	kerneloptions.cpp \
 	motorcontrol.cpp
-
-if !BOXTYPE_SPARK
-libneutrino_gui2_a_SOURCES += \
-	cam_menu.cpp
-endif
 
 if ENABLE_UPNP
 libneutrino_gui2_a_SOURCES += \

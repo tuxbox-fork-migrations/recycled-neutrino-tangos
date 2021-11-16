@@ -644,8 +644,9 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		void resetWidget(bool delete_items = false);
 		void insertItem(const uint& item_id, CMenuItem* menuItem);
 		void removeItem(const uint& item_id);
-		int getItemId(CMenuItem* menuItem);
-		int getItemsCount()const{return items.size();};
+		int getItemId(CMenuItem *menuItem);
+		int getItemId(const char *name);
+		int getItemsCount()const{return (int)items.size();};
 		CMenuItem* getItem(const uint& item_id);
 		virtual void paint();
 		virtual void hide();

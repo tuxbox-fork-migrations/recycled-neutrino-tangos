@@ -33,6 +33,9 @@
 
 extern "C" {
 #include <libavformat/avformat.h>
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(59, 0, 100)
+#include <libavcodec/bsf.h>
+#endif
 }
 
 typedef std::set<int> stream_pids_t;
@@ -73,7 +76,7 @@ class CStreamStream : public CStreamInstance
 	private:
 		AVFormatContext *ifcx;
 		AVFormatContext *ofcx;
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 48, 100)
 		AVBitStreamFilterContext *bsfc;
 #else
 		AVBSFContext *bsfc;

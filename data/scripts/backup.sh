@@ -1,12 +1,12 @@
 #!/bin/sh
 
 HOST=$(hostname)
-DATE=$(date +%Y-%m-%d_%H-%M-%S)
+DATE=$(date +%Y%m%d_%H%M)
 USRF="/var/tuxbox/config/tobackup.conf"
 if [ "$2" == "" ]; then
 BAKF="$1/settings_${HOST}_${DATE}.tar"
 else
-BAKF="$1/$2"
+BAKF="$1/$2.tar.gz"
 Z=z
 fi
 

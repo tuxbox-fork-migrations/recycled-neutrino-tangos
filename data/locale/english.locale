@@ -256,7 +256,28 @@ ca_init_0 Conax-Card
 ca_init_1 CI module
 ca_init_2 Conax-Card and CI module
 cablesetup.provider cable provider
-channellist.additional Additional Informations
+camd_control camd control
+camd_item_cccam_hint CCcam - Softcam
+camd_item_cccam_name cccam
+camd_item_ciphelper_hint CI+ Helper - Softcam
+camd_item_ciphelper_name ciplushelper
+camd_item_doscam_hint DOSCam - Softcam and emulator
+camd_item_doscam_name doscam
+camd_item_gbox_hint GBox - Softcam and emulator
+camd_item_gbox_name gbox
+camd_item_mgcamd_hint MGCamd - Emulator
+camd_item_mgcamd_name mgcamd
+camd_item_ncam_hint NCam - Softcam and emulator
+camd_item_ncam_name ncam
+camd_item_osmod_hint OSCam-smod - Softcam und Emulator
+camd_item_osmod_name osmod
+camd_item_oscam_hint OSCam - Softcam
+camd_item_oscam_name oscam
+camd_msg_reset All camd will be restarted
+camd_msg_start  will be started
+camd_msg_stop  will be stopped
+camd_reset Restart all camd
+channellist.additional Additional informations
 channellist.additional_desc Description
 channellist.additional_list Event list
 channellist.additional_off Off
@@ -267,8 +288,6 @@ channellist.edit Edit
 channellist.epgtext_align_left Left
 channellist.epgtext_align_right Right
 channellist.extended Show Event Progress
-channellist.extended_colored with colored progressbar
-channellist.extended_simple with simple progressbar
 channellist.favs Favorites
 channellist.foot Channel Information
 channellist.foot_freq Sat/Freq Info
@@ -333,7 +352,6 @@ ci.save_pincode Save pincode
 ci.settings Conditional access
 ci.timeout Timeout waiting CI menu ready
 ci.tuner Use CI only with tuner:
-ci.use Enable CI
 ci.waiting Waiting for CI answer
 clock_background Show background
 clock_seconds Show seconds
@@ -362,7 +380,7 @@ colormenu.font Select GUI font
 colormenu.font_sub Select Subtitle font
 colormenu.font_ttx Select Teletext font
 colormenu.menucolors Themes
-colormenu.osd_preset TV preset
+colormenu.osd_preset Screen preset
 colormenu.osd_resolution OSD resolution
 colormenu.progressbar_active Active part color
 colormenu.progressbar_passive Background
@@ -393,6 +411,38 @@ cpu.freq CPU frequency
 cpu.freq_default Default frequency
 cpu.freq_normal Normal frequency
 cpu.freq_standby Standby frequency
+daemon_control Daemon control
+daemon_restart current setings applied...\nRestart needed !
+daemon_item.bootlogo_desc Show Bootlogo on start
+daemon_item.bootlogo_name Show Bootlogo
+daemon_item.crond_desc Cron daemon allows scheduled tasks
+daemon_item.crond_name crond
+daemon_item.djmount_desc UPnP AV client allows to mount media-servers
+daemon_item.djmount_name djmount
+daemon_item.dropbear_desc SSH2 server and client
+daemon_item.dropbear_name Dropbear
+daemon_item.emmremind_desc Show different EMM's in the Infoicons
+daemon_item.emmremind_name EMM-Change Notification
+daemon_item.etimer_desc Automatic adjust recordtimers via EPG
+daemon_item.etimer_name Timer EPG Adjust (Experimental)
+daemon_item.fcm_desc Shows FRITZ!Box call list and much more ...
+daemon_item.fcm_name FritzCallMonitor
+daemon_item.inadyn_desc Internet Automated Dynamic DNS Client
+daemon_item.inadyn_name In-a-Dyn
+daemon_item.nfsserver_desc NFS kernel server
+daemon_item.nfsserver_name NFS server
+daemon_item.mountbefore_desc Mount shares before Neutrino starts
+daemon_item.mountbefore_name Mount shares early
+daemon_item.sambaserver_desc Server-Message-Block-Protocol (SMB) implementation
+daemon_item.sambaserver_name Samba server
+daemon_item.tuxcald_desc Calender plugin daemon
+daemon_item.tuxcald_name TuxCal
+daemon_item.tuxmaild_desc Mailplugin (IMAP/SMTP) daemon
+daemon_item.tuxmaild_name TuxMail
+daemon_item.ushare_desc A/V and DLNA Mediaserver
+daemon_item.ushare_name uShare
+daemon_item.xupnpd_desc eXtensible UPnP agent - DLNA Mediaserver for IPTV
+daemon_item.xupnpd_name xupnpd
 date.Apr  Apr
 date.Aug  Aug
 date.Dec  Dec
@@ -417,6 +467,10 @@ debug.level Level
 debug.level_1 normal
 debug.level_2 informative
 debug.level_3 verbose
+ecminfo ECM-Info
+ecminfo_null ECM-Info not available
+ecminfo_show show ECM-Info
+empty 
 epg.saving Saving EPG
 epgextended.actors Actors
 epgextended.director Director
@@ -472,6 +526,7 @@ extra.dboxinfo_uptime Uptime
 extra.dboxinfo_use Use
 extra.dboxinfo_used Used
 extra.east East
+extra.external_volume External Volume
 extra.fec_1_2 1/2
 extra.fec_2_3 2/3
 extra.fec_2_5 2/5
@@ -510,6 +565,7 @@ extra.key_next43mode Next aspect ratio
 extra.key_pic_mode Screen format
 extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close Stop/Start PiP
+extra.key_pip_close_avinput Stop/Start PiP (HDMI)
 extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
 extra.key_record Record
@@ -535,7 +591,6 @@ extra.rounded_corners_off angular
 extra.rounded_corners_on rounded
 extra.saveconfig Save settings
 extra.savekeys Save keybindings
-extra.scrambled_message Scrambled Message
 extra.show_mute_icon mute-icon at volume 0
 extra.sms_channel SMS-mode channel
 extra.sms_movie SMS-mode movie
@@ -815,6 +870,7 @@ fontsize.filebrowser_item Filebrowser items
 fontsize.general_window_text General window text
 fontsize.hint Initialising font,\nplease wait ...
 fontsize.infobar_channame Channel name
+fontsize.infobar_ecminfo ECM-Info
 fontsize.infobar_info Info
 fontsize.infobar_number Number
 fontsize.infobar_small Small
@@ -838,46 +894,108 @@ fsk.from_7 from 7
 fsk.to_12 to 12
 fsk.to_16 to 16
 fsk.to_7 to 7
+glcd.align_center centered
+glcd.align_channel Channel arrangement
+glcd.align_duration Event duration arrangement
+glcd.align_end Event end arrangement
+glcd.align_epg EPG arrangement
+glcd.align_left left
+glcd.align_none none
+glcd.align_right right
+glcd.align_start Event start arrangement
+glcd.align_time Time arrangement
+glcd.bar_width Progressbar width
+glcd.bar_x_position Progressbar x-position
+glcd.bar_y_position Progressbar y-position
 glcd.brightness Brightness
-glcd.brightness_standby Brightness in standby
+glcd.brightness_standby Brightness standby
+glcd.brightness_dim Dim
+glcd.brightness_dim_time Dim timeout
+glcd.brightness_settings Brightness
+glcd.color.amber Amber
 glcd.color.black Black
 glcd.color.blue Blue
-glcd.color.cyan Blue-Green
+glcd.color.bluegray Blue grey
+glcd.color.brown Brown
+glcd.color.cyan Cyan
+glcd.color.deeporange Dark orange
+glcd.color.deeppurple Dark purple
+glcd.color.gray Grey
 glcd.color.green Green
-glcd.color.magenta Magenta
+glcd.color.indigo Indigo
+glcd.color.lightblue Light blue
+glcd.color.lightgreen Light green
+glcd.color.lime Lime
+glcd.color.orange Orange
+glcd.color.pink Pink
+glcd.color.purple Purple
 glcd.color.red Red
+glcd.color.teal Teal
 glcd.color.white White
 glcd.color.yellow Yellow
-glcd.color.orange Orange
-glcd.color.light_gray Light Gray
-glcd.color.gray Gray
-glcd.color.dark_gray Dark Gray
-glcd.color.dark_red Dark Red
-glcd.color.dark_green Dark Green
-glcd.color.dark_blue Dark Blue
-glcd.color.purple Purple
-glcd.color.mint Mint
-glcd.color.golden Golden
-glcd.display Display type
-glcd.enable GraphLCD enabled
+glcd.channel_x_position Channel x-position
+glcd.channel_y_position Channel y-position
+glcd.digital_clock_y_position Digital clock y-position
+glcd.display Display-type
+glcd.duration_x_position Event duration x-position
+glcd.duration_y_position Event duration y-position
+glcd.enable GraphLCD active
+glcd.end_x_position Event end x-position
+glcd.end_y_position Event end y-position
+glcd.epg_x_position EPG x-position
+glcd.epg_y_position EPG y-position
 glcd.font Font
-glcd.head GraphLCD-Support
-glcd.mirror_osd Show OSD menu on GraphLCD
-glcd.mirror_video Show running video on GraphLCD
-glcd.restart Rescan
-glcd.scroll_speed Scrolling Speed
+glcd.font_autoresize Auto size
+glcd.head GraphLCD-support
+glcd.logo_x_position Channel logo x-position
+glcd.logo_y_position Channel logo y-position
+glcd.mirror_osd Show OSD-menu on GraphLCD
+glcd.mirror_video Show video on GraphLCD
+glcd.position_settings Positions and dimensions
+glcd.restart Restart
+glcd.scroll_speed Scroll speed
 glcd.select.bar Progress bar color
 glcd.select.bg Background color
-glcd.select.fg Foreground color
-glcd.show_logo Show channel logo
+glcd.select.fg Text color
+glcd.show_duration Event duration display
+glcd.show_end Event end display
+glcd.show_logo Channel logo display
+glcd.show_progressbar Progressbar display
+glcd.show_start Event start display
+glcd.show_time Time display
+glcd.show_weather Weather display
+glcd.simple_clock_y_position Simple clock y-position
 glcd.size_bar Progress bar height
 glcd.size_channel Channel height
+glcd.size_duration Event duration height
+glcd.size_end Event end height
 glcd.size_epg EPG height
-glcd.size_logo Logo height
+glcd.size_logo Channel logo height
+glcd.size_simple_clock Simple clock height
+glcd.size_start Event start height
 glcd.size_time Time height
-glcd.size_time_standby Time height in standby
-glcd.time_in_standby Display time in standby
+glcd.size_time_standby Standby time height
+glcd.theme Select theme
+glcd.theme_settings Themes
+glcd.standby_analog_clock Analog clock
+glcd.standby_digital_clock Digital clock
+glcd.standby_lcd_clock LCD-clock
+glcd.standby_led_clock LED-clock
+glcd.standby_settings Standby-settings
+glcd.standby_simple_clock Simple clock
+glcd.standby_weather Weather in standby mode
+glcd.standby_weather_curr_x_position Weather in standby mode current x-position
+glcd.standby_weather_next_x_position Weather in standby mode next x-position
+glcd.standby_weather_y_position Weather in standby mode y-position
+glcd.start_x_position Event start x-position
+glcd.start_y_position Event start y-position
+glcd.time_in_standby Time display in standby mode
+glcd.time_x_position Time x-position
+glcd.time_y_position Time y-position
 glcd.volume Volume
+glcd.weather_curr_x_position Weather current x-position
+glcd.weather_next_x_position Weather next x-position
+glcd.weather_y_position Weather y-position
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
@@ -953,6 +1071,7 @@ imdb.info IMDb-Info
 imdb.info_save save Cover
 inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
+infoviewer.analogclock Analog Clock
 infoviewer.epgnotload EPG not loaded ...
 infoviewer.epgwait waiting for EPG ...
 infoviewer.motor_moving Antenna positioning
@@ -978,13 +1097,9 @@ keybindingmenu.RC Tune Remote-Control
 keybindingmenu.accept_other_remotes Accept other remote controls
 keybindingmenu.addrecord add record timer
 keybindingmenu.addremind add zapto timer
-keybindingmenu.allchannels_on_ok all-services
-keybindingmenu.bouquetchannels_on_ok current bouquet
 keybindingmenu.bouquetdown bouquet back
 keybindingmenu.bouquethandling Bouquet-control
-keybindingmenu.bouquetlist_on_ok bouquet-list
 keybindingmenu.bouquetup next bouquet
-keybindingmenu.cancel close channellist
 keybindingmenu.channeldown channel down
 keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
@@ -1060,7 +1175,8 @@ lcd4l_support_off off
 lcd4l_support_on on
 lcd4l_weather Weather in standby mode
 lcd_info_line show in infoline
-lcd_info_line_channel Channelname
+lcd_info_line_channelname Channelname
+lcd_info_line_channelnumber Channelnumber
 lcd_info_line_clock Clock
 lcdcontroler.brightness Normal mode
 lcdcontroler.brightnessdeepstandby Deep-standby
@@ -1103,6 +1219,9 @@ lua.parameter_deprecated2 Parameter
 lua.versionscheck1 Your Lua API version is too old
 lua.versionscheck2 This requires at least
 mainmenu.audioplayer Audioplayer
+mainmenu.avinputmode HDMI Input (Mode)
+mainmenu.avinputmode_pip HDMI Input (PiP)
+mainmenu.changegui Change GUI
 mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG cache
 mainmenu.games Games
@@ -1194,6 +1313,8 @@ menu.hint_bedit Edit favorites and bouquets
 menu.hint_buildinfo Information about compilers, compiler flags, kernel
 menu.hint_ca_init Configuration of CA-system hardware, CA-module and card slots
 menu.hint_cache_txt Start teletext caching after channel switch
+menu.hint_camd_control Softcams and emulators\nStart, stop, version info
+menu.hint_camd_reset Restart the active softcam and/or emulator
 menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
 menu.hint_cec_view_on CEC view ON
@@ -1232,6 +1353,7 @@ menu.hint_colors Configure GUI colors
 menu.hint_colors_shadow Setup for shadow color.
 menu.hint_content_back Change GUI window background color
 menu.hint_content_textcolor Change GUI window text color
+menu.hint_daemon_control Start and stop system-daemons
 menu.hint_dboxinfo Information about box cpu and storage
 menu.hint_delete_channels Remove all channels
 menu.hint_delete_removed Delete the channels in the 'Removed channels' boquet
@@ -1255,6 +1377,7 @@ menu.hint_eventlist_epgplus Show EPG Plus (Eventlist overview) when pressing EPG
 menu.hint_eventlist_fonts Change event list font sizes
 menu.hint_eventlist_setup Configure event list GUI options
 menu.hint_extended Power saving, EPG save/load options\nHDMI-CEC, Start channel, zap options
+menu.hint_external_volume Select volume buttons start script actions
 menu.hint_factory Reset box to factory state\nBox will reboot after reset
 menu.hint_fade Fade GUI windows
 menu.hint_fan_speed Control fan speed
@@ -1299,6 +1422,7 @@ menu.hint_infobar_casys_color Change CA-System background color
 menu.hint_infobar_casys_dotmatrix on: CA-System with dot matrix in background
 menu.hint_infobar_casys_frame on: CA-System with frame
 menu.hint_infobar_dd Show DD icon
+menu.hint_infobar_ecminfo Show ECM-Info while showing Infoviewer
 menu.hint_infobar_filesys Show flash and HDD used space levels
 menu.hint_infobar_fonts Change infobar font sizes
 menu.hint_infobar_logo Logo, channelnumber and signal display; Options in [brackets] will be displayed in small infobox
@@ -1461,7 +1585,7 @@ menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_behavior_infobar Show infobar depending on time set or manually on or off.
 menu.hint_osd_language Select OSD language
-menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
+menu.hint_osd_preset Choose between Screen A and B for different Screen Setup
 menu.hint_osd_resolution Change OSD resolution
 menu.hint_osd_timing Show OSD element depending on time set or manually on or off.
 menu.hint_other_fonts Change other font sizes
@@ -1495,6 +1619,7 @@ menu.hint_progressbar_timescale_invert Select your preferred color gradient
 menu.hint_progressbar_timescale_red Choose the red portion of colored progressbars
 menu.hint_progressbar_timescale_yellow Choose the yellow portion of colored progressbars
 menu.hint_protection Protect content by PIN code\nDefault PIN 0000
+menu.hint_quadpip Activate QuadPiP
 menu.hint_radiomode Switch box to radio mode
 menu.hint_reboot Reboot box\nNo confirmation
 menu.hint_record_already_found_check Checks before setting a new record timer if an eponymous title already exists
@@ -1611,7 +1736,6 @@ menu.hint_scan_usals USALS options
 menu.hint_scan_usals_repeat Repeat usals move rotor commands\nif you expirience unstable rotor move
 menu.hint_scan_usalsall Use USALS for all satellites on this frontend
 menu.hint_scan_useusals Use USALS for this satellite,\nif ON, rotor position ignored
-menu.hint_scrambled_message Show scrambled message, when channel cannot be decoded
 menu.hint_screen_setup Configure screen margins
 menu.hint_screensaver_delay Set the time (in minutes) after which the screensaver has to start or turn it off
 menu.hint_screensaver_dir Select directory in which the screensaver has to start
@@ -1712,11 +1836,13 @@ menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
 menu.hint_volume_size Select volume indicator height
-menu.hint_weather_api_key Type your Dark Sky API key. An empty input disables Weather support
-menu.hint_weather_enabled Enable or disable Weather support (darksky.net)
+menu.hint_weather_api_key Type your OpenWeather API key. (https://openweathermap.org/appid) An empty input disables Weather support
+menu.hint_weather_enabled Enable or disable Weather support (OpenWeather)
 menu.hint_weather_location Select your weather location
 menu.hint_webradio_setup WebRadio channels configured here will be available in the standard channel lists.
+menu.hint_webradio_xml_auto Auto-load all existing WebRadio files from %s/ and %s/
 menu.hint_webtv_setup WebTV channels configured here will be available in the standard channel lists.
+menu.hint_webtv_xml_auto Auto-load all existing WebTV files from %s/ and %s/
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
 menu.hint_xmltv_setup Configure XMLTV files with EPG data to describe TV listings
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
@@ -2080,11 +2206,7 @@ movieplayer.starting Starting playback ...
 movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
 movieplayer.tsplayback Play
-<<<<<<< HEAD
-movieplayer.ytplayback YouTube videoplayer
 movieplayer.zap Zap not possible while movie or timeshift playback
-=======
->>>>>>> 39a864cd5ef9ffbac3bfa688b80fe2c5e598c214
 mpkey.audio Audiotracks
 mpkey.bookmark Bookmarks
 mpkey.forward Forward
@@ -2134,6 +2256,8 @@ nfs.automount Mount on startup
 nfs.dir directory/share
 nfs.ip Server IP
 nfs.localdir local dir
+nfs.mac MAC address
+nfs.mac_refresh look up MAC address
 nfs.mount Mount Network volume
 nfs.mount_options mount options
 nfs.mounterror mount error
@@ -2142,7 +2266,6 @@ nfs.mountnow mount now
 nfs.mountok mount successful
 nfs.mounttimeout mount error: timeout
 nfs.password password
-nfs.refresh_mac look up MAC address
 nfs.remount remount directories
 nfs.type type
 nfs.type_cifs CIFS
@@ -2156,22 +2279,19 @@ nvod.percentage (%d%% over)
 nvod.starting (starting in %d min)
 nvodselector.directormode Direct-Mode
 nvodselector.head Select starting-time
-nvodselector.subservice Select Subservice
-nvodselector.directormode Director mode
-nvodselector.head Subservices
 nvodselector.starttime Select starting time
 nvodselector.subservice Select subservice
 options.always always
 options.default Reset to defaults
-options.fb framebuffer
 options.hint_default Reset the values to their defaults
 options.ntp_off DVB
 options.ntp_on NTP
-options.null null
 options.off off
 options.on on
-options.on.without_messages Without msg
-options.serial serial
+options.start start
+options.stop stop
+osd.preset_screen_a Screen 1
+osd.preset_screen_a Screen 2
 parentallock.bouquetmode Bouquets are default
 parentallock.changepin change PIN code
 parentallock.changepin_hint1 Enter your new parental lock pin code here!
@@ -2274,6 +2394,11 @@ plugintype.game Game
 plugintype.lua Lua plugin
 plugintype.script Script
 plugintype.tool Tool
+quadpip QuadPiP
+quadpip_1 Channel 1
+quadpip_2 Channel 2
+quadpip_3 Channel 3
+quadpip_4 Channel 4
 rclock.locked Locked
 rclock.lockmsg Remote control will be locked.\nTo unlock, press\n[red] followed by [%s]\non your remote control.
 rclock.title Lock remote control
@@ -2303,7 +2428,6 @@ recordingmenu.dvbsub_pids record dvbsub stream
 recordingmenu.end_of_recording_epg EPG act. Event
 recordingmenu.end_of_recording_max max. Recordingtime
 recordingmenu.end_of_recording_name Endtime of Recording
-recordingmenu.file direct (file)
 recordingmenu.filename_template filename template
 recordingmenu.filename_template_hint wildcards will be replaced
 recordingmenu.filename_template_hint2 %C = channel, %T = title, %I = info, %d = date, %t = time
@@ -2313,17 +2437,13 @@ recordingmenu.multimenu.info_stop_all %d of %d recordings will be stopped.
 recordingmenu.multimenu.rec_akt record current channel
 recordingmenu.multimenu.stop_all stop all recordings
 recordingmenu.multimenu.timeshift Timeshift
-recordingmenu.off off
 recordingmenu.record_is_not_running No record is running!
 recordingmenu.record_is_running Record is running!
 recordingmenu.save_in_channeldir Save in channel dir
-recordingmenu.server server
-recordingmenu.server_mac MAC address
 recordingmenu.setupnow Activate changes
 recordingmenu.slow_warn Enable slow record warning
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift directory
-recordingmenu.vcr vcr
 recordingmenu.vtxt_pid record teletext
 recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Recording starts in a few minutes
@@ -2451,7 +2571,6 @@ scants.select_tp Select transponder
 scants.startnow start scan
 scants.test Test signal
 scants.transponders Transponders:
-scrambled_channel Scrambled channel
 screensaver.delay Delay
 screensaver.dir Directory
 screensaver.enable_text_info Text information
@@ -2744,7 +2863,10 @@ videomenu.hdmi_cec_mode_tuner as Sat/Cable STB
 videomenu.hdmi_cec_standby Enable CEC standby
 videomenu.hdmi_cec_standby_not_timer unless timer-wakeup
 videomenu.hdmi_cec_view_on Enable CEC View on
-videomenu.hdmi_cec_volume Activate CEC volume control
+videomenu.hdmi_cec_volume CEC volume control
+videomenu.hdmi_cec_vol_audiosystem Audiosystem
+videomenu.hdmi_cec_vol_off Off
+videomenu.hdmi_cec_vol_tv TV
 videomenu.hue Hue
 videomenu.letterbox Letterbox
 videomenu.masksetup Mask Setup
@@ -2777,20 +2899,19 @@ videomenu.zappingmode_mute Black screen
 videomenu.zappingmode_hold Hold screen
 videomenu.zappingmode_mutetilllock Black screen till locked
 videomenu.zappingmode_holdtilllock Hold screen till locked
-weather.api_key Weather API key (Dark Sky)
+weather.api_key Weather API key (OpenWeather)
 weather.enabled Weather support
 weather.location Weather location
+webchannels.xml.add Add
+webchannels.xml.del Remove
+webchannels.xml.enter Enter
+webchannels.xml.reload Reload
 webradio.head WebRadio
-webradio.xml WebRadio XML files
-webradio.xml.add Add XML file
-webradio.xml.del Remove XML file
-webradio.xml.reload Reload XML files
+webradio.xml WebRadio files
+webradio.xml.auto Auto-load WebRadio files
 webtv.head WebTV
 webtv.xml WebTV files
-webtv.xml.add Add
-webtv.xml.del Remove
-webtv.xml.enter Enter
-webtv.xml.reload Reload
+webtv.xml.auto Auto-load WebTV files
 window_size Window size in %
 wizard.initial_settings Initial settings found
 wizard.install_settings Do you want to install channels for Astra 19.2°E?

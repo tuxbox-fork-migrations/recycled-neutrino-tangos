@@ -12,6 +12,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/libeventserver \
+	-I$(top_srcdir)/lib/jsoncpp \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
@@ -48,23 +49,15 @@ libneutrino_driver_a_SOURCES += \
 endif
 
 if ENABLE_GRAPHLCD
-libneutrino_driver_a_SOURCES += \
-	nglcd.cpp
+SUBDIRS += glcd
 endif
 
-if BOXTYPE_DUCKBOX
-libneutrino_driver_a_SOURCES += \
-	fb_generic.cpp \
-	fb_accel_sti.cpp \
-	vfd.cpp
-endif
-
-if BOXTYPE_COOL
+if BOXTYPE_CST
 libneutrino_driver_a_SOURCES += \
 	fb_generic.cpp \
 	fb_accel.cpp \
 	fb_accel_cs_hdx.cpp
-if BOXMODEL_CS_HD2
+if BOXMODEL_CST_HD2
 libneutrino_driver_a_SOURCES += \
 	fb_accel_cs_hd2.cpp \
 	vfd.cpp
@@ -73,32 +66,6 @@ libneutrino_driver_a_SOURCES += \
 	fb_accel_cs_hd1.cpp \
 	vfd.cpp
 endif
-endif
-
-if BOXTYPE_TRIPLE
-libneutrino_driver_a_SOURCES += \
-	fb_generic.cpp \
-	fb_accel.cpp \
-	fb_accel_td.cpp \
-	newclock.cpp \
-	lcdd.cpp
-endif
-
-if BOXTYPE_SPARK
-libneutrino_driver_a_SOURCES += \
-	fb_generic.cpp \
-	fb_accel_sti.cpp \
-	simple_display.cpp
-endif
-
-if BOXTYPE_AZBOX
-libneutrino_driver_a_SOURCES += \
-	simple_display.cpp
-endif
-
-if USE_STB_HAL
-AM_CPPFLAGS += \
-	@DIRECTFB_CFLAGS@
 endif
 
 if BOXTYPE_GENERIC

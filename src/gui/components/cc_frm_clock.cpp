@@ -34,7 +34,6 @@
 
 #include <unistd.h>
 #include <errno.h>
-#include <driver/framebuffer.h>
 #include <ctype.h>
 #include <system/helpers.h>
 #include <system/debug.h>
@@ -67,7 +66,7 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	shadow		= shadow_mode;
 	shadow_w	= OFFSET_SHADOW;
 	col_frame 	= color_frame;
-	col_body	= color_body;
+	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 
 	corner_rad	= RADIUS_SMALL;
@@ -98,6 +97,7 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 #if 0
 	may_blit		= true;
 #endif
+
 	//general init
 	initCCLockItems();
 	initParent(parent);
@@ -262,7 +262,7 @@ void CComponentsFrmClock::initCCLockItems()
 		//set size, text, color of current item
 		lbl->setDimensionsAll(x_tmp, y_tmp, w_tmp, h_tmp);
 		lbl->setFrameThickness(0);
-		lbl->setColorAll(col_frame, col_body, col_shadow);
+		lbl->setColorAll(col_frame, col_body_std, col_shadow);
 		lbl->forceTextPaint(force_repaint);
 		lbl->setText(stmp, CTextBox::CENTER, cl_font, cl_col_text, cl_font_style);
 
@@ -394,11 +394,6 @@ void CComponentsFrmClock::paint(const bool &do_save_bg)
 
 	//paint form contents
 	CComponentsForm::paint(do_save_bg);
-
-#if 0
-	if (may_blit)
-		frameBuffer->blit();
-#endif
 }
 
 void CComponentsFrmClock::setClockFont(Font *font, const int& style)

@@ -58,7 +58,6 @@
 
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
-extern CLCD4l *LCD4l;
 #endif
 
 extern CBouquetManager *g_bouquetManager;
@@ -235,7 +234,6 @@ int CBouquetList::doMenu()
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	int old_epg = zapitBouquet ? zapitBouquet->bScanEpg : 0;
-	int old_ci = zapitBouquet ? zapitBouquet->bUseCI : 0;
 	sprintf(cnt, "%d", i);
 	/* FIXME menu centered different than bouquet list ??? */
 	/* provider bouquet */
@@ -243,8 +241,7 @@ int CBouquetList::doMenu()
 		menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_COPY, true, NULL, selector, cnt, CRCInput::RC_blue), old_selected == i ++);
 		if ((!zapitBouquet->bWebtv && !zapitBouquet->bWebradio) && g_settings.epg_scan == CEpgScan::SCAN_SEL)
 			menu->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &zapitBouquet->bScanEpg, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-		if (!zapitBouquet->bWebtv && !zapitBouquet->bWebradio)
-			menu->addItem(new CMenuOptionChooser(LOCALE_CI_USE, &zapitBouquet->bUseCI, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+
 		menu->exec(NULL, "");
 		delete menu;
 		delete selector;
@@ -254,20 +251,12 @@ int CBouquetList::doMenu()
 			CNeutrinoApp::getInstance()->MarkBouquetsChanged();
 			ret = -1;
 		}
-		if (old_ci != zapitBouquet->bUseCI) {
-			channels = &zapitBouquet->tvChannels;
-			for(int li = 0; li < (int) channels->size(); li++)
-				(*channels)[li]->bUseCI = zapitBouquet->bUseCI;
-
-			channels = &zapitBouquet->radioChannels;
-			for(int li = 0; li < (int) channels->size(); li++)
-				(*channels)[li]->bUseCI = zapitBouquet->bUseCI;
-
-			CServiceManager::getInstance()->SetCIFilter();
-			save_bouquets = true;
-			CNeutrinoApp::getInstance()->MarkBouquetsChanged();
-			ret = -1;
-		}
+		channels = &zapitBouquet->tvChannels;
+		channels = &zapitBouquet->radioChannels;
+		CServiceManager::getInstance()->SetCIFilter();
+		save_bouquets = true;
+		CNeutrinoApp::getInstance()->MarkBouquetsChanged();
+		ret = -1;
 
 		if(select >= 0) {
 			bool added = false;
@@ -314,8 +303,6 @@ int CBouquetList::doMenu()
 		menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, true, NULL, selector, cnt, CRCInput::RC_red), old_selected == i ++);
 		if (zapitBouquet && (!zapitBouquet->bWebtv && !zapitBouquet->bWebradio) && (g_settings.epg_scan == CEpgScan::SCAN_SEL))
 			menu->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &zapitBouquet->bScanEpg, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-		if (zapitBouquet && (!zapitBouquet->bWebtv && !zapitBouquet->bWebradio))
-			menu->addItem(new CMenuOptionChooser(LOCALE_CI_USE, &zapitBouquet->bUseCI, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
 		menu->exec(NULL, "");
 		delete menu;
@@ -325,15 +312,9 @@ int CBouquetList::doMenu()
 			CNeutrinoApp::getInstance()->MarkFavoritesChanged();
 			ret = -1;
 		}
-		if (zapitBouquet && (old_ci != zapitBouquet->bUseCI)) {
+		if (zapitBouquet) {
 			channels = &zapitBouquet->tvChannels;
-			for(int li = 0; li < (int) channels->size(); li++)
-				(*channels)[li]->bUseCI = zapitBouquet->bUseCI;
-
 			channels = &zapitBouquet->radioChannels;
-			for(int li = 0; li < (int) channels->size(); li++)
-				(*channels)[li]->bUseCI = zapitBouquet->bUseCI;
-
 			CServiceManager::getInstance()->SetCIFilter();
 			save_bouquets = true;
 			CNeutrinoApp::getInstance()->MarkFavoritesChanged();
@@ -426,7 +407,8 @@ int CBouquetList::show(bool bShowChannelList)
 	   It would be better to get the needed width from
 	   CComponententsFooter class.
 	*/
-	width  = (sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]))*(w_max_icon + w_max_text + 2*OFFSET_INNER_MID);
+	int numButtons = (sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]));
+	width  = numButtons*(w_max_icon + w_max_text + numButtons*OFFSET_INNER_MID);
 	height = 16*item_height;
 
 	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
@@ -597,11 +579,11 @@ int CBouquetList::show(bool bShowChannelList)
 	hide();
 
 #ifdef ENABLE_GRAPHLCD
-	nGLCD::unlockChannel();
+	cGLCD::unlockChannel();
 #endif
 
 #ifdef ENABLE_LCD4LINUX
-	LCD4l->RemoveFile("/tmp/lcd/menu");
+	CLCD4l::getInstance()->RemoveFile("/tmp/lcd/menu");
 #endif
 
 	fader.StopFade();
@@ -664,11 +646,11 @@ void CBouquetList::paintItem(int pos)
 			CVFD::getInstance()->showMenuText(0, lname, -1, true);
 #ifdef ENABLE_GRAPHLCD
 		if(g_settings.glcd_enable)
-			nGLCD::lockChannel(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), lname, 0);
+			cGLCD::lockChannel(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), lname, 0);
 #endif
 #ifdef ENABLE_LCD4LINUX
 		if(g_settings.lcd4l_support)
-			LCD4l->CreateFile("/tmp/lcd/menu", lname, g_settings.lcd4l_convert);
+			CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", lname, g_settings.lcd4l_convert);
 #endif
 	}
 	else
@@ -695,15 +677,6 @@ void CBouquetList::paintItem(int pos)
 				int icon_x = x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - iw;
 				frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_EPG, icon_x, ypos, item_height);
 				iw = iw + OFFSET_INNER_MID;
-			}
-		}
-		if (Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bUseCI) {
-			int iw2 = 0;
-			frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_SCRAMBLED, &iw2, &ih);
-			if (iw2 && ih) {
-				int icon_x = x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - iw - iw2;
-				frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_SCRAMBLED, icon_x, ypos, item_height);
-				iw = iw + iw2 + OFFSET_INNER_MID;
 			}
 		}
 

@@ -91,7 +91,7 @@ class CHintBox : public CComponentsWindow
 				const int& frame_width);
 
 		virtual void ReSize();
-		void showTimeOutBar(){enableTimeOutBar();}
+		void showTimeOutBar(){initTimeOutBar();}
 		int getMaxWidth(const std::string& Text, const std::string& Title, Font *font, const int& minWidth);
 
 	public:
@@ -214,22 +214,35 @@ class CHintBox : public CComponentsWindow
 		* Timeout is enabled with parameter1 = DEFAULT_TIMEOUT (-1) or any other value > 0
 		* To disable timeout use NO_TIMEOUT (0)
 		* @param[in]	Timeout as int as seconds
-		* @param[in]	enable_Timeout_Bar as bool, default = true
+		* @param[in]	enable_Timeout_Bar as bool
 		*/
-		virtual void setTimeOut(const int& Timeout, const bool& enable_Timeout_Bar = true){timeout = Timeout; enable_timeout_bar = enable_Timeout_Bar;}
+		virtual void setTimeOut(const int& Timeout, const bool& enable_Timeout_Bar){timeout = Timeout; enable_timeout_bar = enable_Timeout_Bar;}
 
 		/**
-		* enable/disable visualized timeout as progressbar under titlebar
-		* @param[in]	enable 
-		* 	@li	optional: expects type bool, default = true
-		*/
-		void enableTimeOutBar(bool enable = true);
+		 * enable/disable visualized timeout as progressbar under titlebar
+		 * @param[in]	enable
+		 * 	@li	expects type bool, default = true
+		 */
+		void enableTimeOutBar(bool enable = true){enable_timeout_bar = enable;}
 
 		/**
-		* disable visualized timeout as progressbar
-		* 	@see enableTimeOutBar
-		*/
+		 * disable visualized timeout as progressbar under titlebar
+		 * 	@see	enableTimeOutBar()
+		 */
 		void disableTimeOutBar(){enableTimeOutBar(false);}
+
+		/**
+		* init or unload visualized timeout as progressbar under titlebar
+		* @param[in]	do_init
+		* 	@li	type bool, default = true
+		*/
+		void initTimeOutBar(bool do_init = true);
+
+		/**
+		* unload visualized timeout as progressbar
+		* 	@see initTimeOutBar
+		*/
+		void clearTimeOutBar(){initTimeOutBar(false);}
 
 		/**
 		* scroll handler for text objects: NOTE: exec() must be called !
@@ -350,10 +363,16 @@ optional disable/enable background
 class CHint : public CHintBox
 {
 	private:
-		void initHint(bool enable_bg)	{	paint_bg = enable_bg;
+		int delay;
+
+		void initHint(bool enable_bg)
+		{
+			paint_bg = enable_bg;
 											ccw_show_header = false;
 											ccw_show_footer = false;
-											cc_item_type.name = "wg.hint";}
+			cc_item_type.name = "wg.hint";
+			delay = 0;
+		}
 	public:
 		/**CHint Constructor
 		* @param[in]	Text
@@ -370,20 +389,70 @@ class CHint : public CHintBox
 		*/
 		CHint(const neutrino_locale_t Text, bool show_background = true);
 
-		virtual ~CHint(){};
+		virtual void setDelay(int d) {delay = d;}
+
+		virtual ~CHint()
+		{
+			if (delay)
+			{
+				setTimeOut(delay, false);
+				exec();
+			}
+		};
 };
+
+
+typedef struct hint_message_data_t
+{
+	sigc::slot<void> slot;
+	std::string text;
+	neutrino_locale_t text_locale;
+	int timeout;
+	bool show_background;
+// 	hint_message_data_t(): 	text(std::string()),
+// 				text_locale(NONEXISTANT_LOCALE),
+// 				timeout(HINTBOX_DEFAULT_TIMEOUT),
+// 				show_background(true){}
+} hint_message_data_struct_t;
 
 /**
 * Simplified methodes to show hintboxes without titlebar and footer
 * Text is UTF-8 encoded
+* @param[in]	Text
+* 	@li 	expects type neutrino_locale_t or const char*
 * @param[in]	timeout
-* 	@li	optional: expects type int as seconds, default = HINTBOX_DEFAULT_TIMEOUT (get from settings)
+* 	@li 	optional: expects type int as seconds, default = HINTBOX_DEFAULT_TIMEOUT (get from settings)
 * @param[in]	show_background
 * 	@li 	optional: expects type bool, enable/disable backround paint, default = true
 * 	@see	for possible text parameters take a look to CHintBox()
 */
 int ShowHintS(const neutrino_locale_t Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
 int ShowHintS(const char * const Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+int ShowHintS(const std::string &Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
 
+/**
+ * Simplified methodes to show hintboxes without titlebar and footer with mounted function as slot for custom action
+ * Text is UTF-8 encoded
+ * @param[in]	Text
+ * 	@li 	expects type neutrino_locale_t or const char*
+ * @param[in]	Slot
+ * 	@li 	expects sigc::slot<void>
+ * 	@li 	example:
+ * 	@li 	sigc::slot<void> sl = sigc::mem_fun(g_Plugins, &CPlugins::loadPlugins);\n
+ * 		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, sl, 1);
+ * 	@li 	or use a function with parameter(s):
+ * 		sigc::slot<void> sl = sigc::bind(sigc::mem_fun(*this, &CMyClass::foo), arg1, arg2, arg3, arg4);\n
+ * 		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, sl, 1);
+ * @param[in]	timeout
+ * 	@li 	optional: expects type int as seconds, default = HINTBOX_DEFAULT_TIMEOUT (get from settings)
+ * @param[in]	show_background
+ * 	@li 	optional: expects type bool, enable/disable backround paint, default = true
+ */
+int ShowHintS(const neutrino_locale_t Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+int ShowHintS(const std::string &Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+
+int ShowHintS(const hint_message_data_t &hint_data);
+int ShowHintS(const std::vector<hint_message_data_t> &v_hint_data);
 
 #endif

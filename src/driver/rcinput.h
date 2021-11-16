@@ -42,7 +42,7 @@
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
 
-#ifdef BOXMODEL_CS_HD2
+#ifdef BOXMODEL_CST_HD2
 #ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
 #include <cs_ir_generic.h>
 #endif
@@ -220,6 +220,7 @@ class CRCInput
 #else
 			RC_help		= KEY_HELP,	    /* /include/linux/input.h: #define KEY_HELP			138   */
 #endif
+			RC_back		= KEY_BACK,	    /* /include/linux/input.h: #define KEY_BACK			158   */
 			RC_home		= KEY_HOME,	    /* /include/linux/input.h: #define KEY_HOME			102   */
 			RC_setup	= KEY_MENU,	    /* /include/linux/input.h: #define KEY_SETUP		141   */
 			RC_topleft	= KEY_TOPLEFT,	
@@ -290,7 +291,7 @@ class CRCInput
 			RC_bookmarks	= KEY_BOOKMARKS,
 			RC_program	= KEY_PROGRAM,
 			RC_playpause	= KEY_PLAYPAUSE,
-#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
+#if BOXMODEL_HD51 || BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 			RC_playpause_long = KEY_PLAYPAUSE_LONG,
 #endif
 			RC_power_on	= KEY_POWERON,
@@ -302,7 +303,6 @@ class CRCInput
 			RC_analog_on	= KEY_ANALOGON,
 			RC_analog_off	= KEY_ANALOGOFF,
 
-			/* tripledragon keys */
 			RC_eject	= KEY_EJECTCD,
 			RC_aux		= KEY_AUX,          /* 0x186 */
 			RC_timer	= KEY_TIME,
@@ -320,9 +320,6 @@ class CRCInput
 		enum
 		{
 			RC_HW_COOLSTREAM	= 0,
-			RC_HW_DBOX		= 1,
-			RC_HW_PHILIPS		= 2,
-			RC_HW_TRIPLEDRAGON	= 3
 		};
 		void set_rc_hw(void);
 

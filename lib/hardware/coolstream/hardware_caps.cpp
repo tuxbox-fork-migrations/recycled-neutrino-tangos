@@ -14,16 +14,23 @@
 static int initialized = 0;
 static hw_caps_t caps;
 
-hw_caps_t *get_hwcaps(void) {
+hw_caps_t *get_hwcaps(void)
+{
 	if (initialized)
 		return &caps;
+
 	int rev = cs_get_revision();
 	int chip = cs_get_chip_type();
+
 	caps.has_fan = (rev < 8); // see dirty part of hw_caps in neutrino.cpp
 	caps.has_HDMI = 1;
+	caps.has_HDMI_input = 0;
 	caps.has_SCART = (rev != 10);
 	caps.has_SCART_input = 0;
 	caps.has_YUV_cinch = 1;
+	caps.can_pip = 1;
+	caps.pip_devs = 1;
+	caps.can_cpufreq = (rev < 9);
 	caps.can_shutdown = (rev > 7);
 	caps.can_cec = 1;
 	caps.display_type = HW_DISPLAY_LINE_TEXT;
@@ -31,12 +38,15 @@ hw_caps_t *get_hwcaps(void) {
 	caps.display_yres = 0;
 	caps.display_can_deepstandby = (rev > 7);
 	caps.display_can_set_brightness = 1;
+	caps.display_can_umlauts = 1;
 	caps.display_has_statusline = 1;
+	caps.display_has_colon = 0;
 	caps.has_button_timer = 0;
 	caps.has_button_vformat = 1;
 	caps.can_ar_14_9 = 1;
 	caps.can_ps_14_9 = 1;
 	caps.force_tuner_2G = 0;
+	strcpy(caps.startup_file, "");
 	strcpy(caps.boxvendor, "Coolstream");
 	strcpy(caps.boxarch, "Nevis");
 	switch (rev) {
@@ -93,6 +103,7 @@ hw_caps_t *get_hwcaps(void) {
 		strcpy(caps.boxarch, "Unknown");
 		fprintf(stderr, "[%s] unhandled box revision %d\n", __func__, rev);
 	}
+
 	initialized = 1;
 	return &caps;
 }

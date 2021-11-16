@@ -63,10 +63,6 @@
 #include <sectionsdclient/sectionsdclient.h>
 #include <cs_api.h>
 
-#if HAVE_SH4_HARDWARE
-#include <gui/cec_setup.h>
-#endif
-
 //#define RCDEBUG
 
 #define ENABLE_REPEAT_CHECK
@@ -922,6 +918,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*msg = NeutrinoMessages::REBOOT;
 								*data = 0;
 								break;
+							case NeutrinoMessages::RESTART :
+								*msg = NeutrinoMessages::RESTART;
+								*data = 0;
+								break;
 							case NeutrinoMessages::EVT_POPUP :
 								*msg = NeutrinoMessages::EVT_POPUP;
 								*data = (unsigned long) p;
@@ -1039,6 +1039,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 							case CSectionsdClient::EVT_BOUQUETS_UPDATE:
 								break;
 #endif
+							case CSectionsdClient::EVT_RELOAD_XMLTV:
+								*msg          = NeutrinoMessages::EVT_RELOAD_XMLTV;
+								*data         = 0;
+								break;
 							default:
 								printf("[neutrino] event INITID_SECTIONSD - unknown eventID 0x%x\n",  emsg.eventID );
 						}
@@ -1403,10 +1407,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					if (*timer_wakeup) {
 						unlink("/tmp/.timer_wakeup");
 						*timer_wakeup = false;
-#if HAVE_SH4_HARDWARE
-						CCECSetup cecsetup;
-						cecsetup.setCECSettings(true);
-#endif
 						CTimerManager::getInstance()->cancelShutdownOnWakeup();
 					}
 					bool keyok = true;
@@ -1594,6 +1594,8 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "standby";
 			case RC_home:
 				return "home";
+			case RC_back:
+				return "back";
 			case RC_setup:
 				return "setup";
 			case RC_red:
@@ -1665,11 +1667,7 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 			case RC_timeshift:
 				return "timeshift";
 			case RC_mode:
-#if HAVE_SPARK_HARDWARE
-				return "v.format";
-#else
 				return "mode";
-#endif
 			case RC_record:
 				return "record";
 			case RC_pause:
@@ -1731,11 +1729,7 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 			case RC_prog3:
 				return "prog3";
 			case RC_aux:
-#if HAVE_SPARK_HARDWARE
-				return "tv/sat";
-#else
 				return "aux";
-#endif
 			case RC_prog4:
 				return "prog4";
 			case RC_sub:
@@ -1758,7 +1752,7 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "program";
 			case RC_playpause:
 				return "play / pause";
-#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
+#if BOXMODEL_HD51 || BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 			case RC_playpause_long:
 				return "play / pause long";
 			case RC_switchvideomode:
@@ -1814,24 +1808,22 @@ int CRCInput::translate(int code)
 		case KEY_CHANNELDOWN:
 			return RC_page_down;
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		case KEY_BACK:
+			return RC_home;
 		case KEY_SWITCHVIDEOMODE:
 			return RC_mode;
+#if BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
+		case KEY_VIDEO:
+			return RC_mode;
+#else
+
 		case KEY_VIDEO:
 			return RC_favorites;
+#endif
 		case KEY_FASTFORWARD:
 			return RC_forward;
 		case 0xb0: // vuplus timer key
 			return RC_timer;
-#endif
-#ifdef HAVE_AZBOX_HARDWARE
-		case KEY_HOME:
-			return RC_favorites;
-		case KEY_TV:
-			return RC_stop;
-		case KEY_RADIO:
-			return RC_record;
-		case KEY_PLAY:
-			return RC_pause;
 #endif
 		default:
 			break;
@@ -1852,7 +1844,7 @@ void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
 		std::string path = (*it).path;
 		if (path == "/tmp/neutrino.input")
 			continue; /* setting repeat rate does not work here */
-#ifdef BOXMODEL_CS_HD1
+#ifdef BOXMODEL_CST_HD1
 		/* this is ugly, but the driver does not support anything advanced... */
 		if (path == "/dev/input/nevis_ir") {
 			d_printf("[rcinput:%s] %s(fd %d) using proprietary ioctl\n", __func__, path.c_str(), fd);
@@ -1939,25 +1931,6 @@ void CRCInput::set_rc_hw(void)
 		case RC_HW_COOLSTREAM:
 			ir_protocol = IR_PROTOCOL_NECE;
 			ir_address  = 0xFF80;
-			break;
-		case RC_HW_DBOX:
-			ir_protocol = IR_PROTOCOL_NRC17;
-			ir_address  = 0x00C5;
-			break;
-		case RC_HW_PHILIPS:
-			ir_protocol = IR_PROTOCOL_RC5;
-			ir_address  = 0x000A;
-			break;
-		case RC_HW_TRIPLEDRAGON:
-			ir_protocol = IR_PROTOCOL_RMAP_E;
-			ir_address  = 0x000A; // with device id 0
-//			ir_address  = 0x100A; // with device id 1
-//			ir_address  = 0x200A; // with device id 2
-//			ir_address  = 0x300A; // with device id 3
-//			ir_address  = 0x400A; // with device id 4
-//			ir_address  = 0x500A; // with device id 5
-//			ir_address  = 0x600A; // with device id 6
-//			ir_address  = 0x700A; // with device id 7
 			break;
 		default:
 			ir_protocol = IR_PROTOCOL_NECE;

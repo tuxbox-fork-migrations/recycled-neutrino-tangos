@@ -36,6 +36,8 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 
+#define AGENT "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0"
+
 typedef uint64_t t_channel_id;
 
 int my_system(const char * cmd);
@@ -69,6 +71,7 @@ std::string getPathName(std::string &path);
 std::string getBaseName(std::string &path);
 std::string getFileName(std::string &file);
 std::string getFileExt(std::string &file);
+std::string getBackupSuffix();
 std::string getNowTimeStr(const char* format);
 std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
 std::string ltrim(std::string &str, const std::string &trimChars = " \n\r\t");
@@ -156,8 +159,8 @@ bool utf8_check_is_valid(const std::string &str);
 
 std::string randomString(unsigned int length = 10);
 std::string randomFile(std::string suffix = "tmp", std::string directory = "/tmp", unsigned int length = 10);
-std::string downloadUrlToRandomFile(std::string url, std::string directory = "/tmp", unsigned int length = 10);
-std::string downloadUrlToLogo(std::string url, std::string directory = "/tmp", t_channel_id channel_id = 0);
+std::string downloadUrlToRandomFile(std::string url, std::string directory = "/tmp", unsigned int length = 10, unsigned int timeout = 1);
+std::string downloadUrlToLogo(std::string url, std::string directory = "/tmp", t_channel_id channel_id = 0, unsigned int timeout = 1);
 
 // curl
 struct MemoryStruct {
@@ -171,8 +174,8 @@ size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 std::string encodeUrl(std::string txt);
 std::string decodeUrl(std::string url);
 
-bool getUrl(std::string &url, std::string &answer, const std::string userAgent = " ", unsigned int timeout = 60);
-bool downloadUrl(std::string url, std::string file, const std::string userAgent = " ", unsigned int timeout = 60);
+bool getUrl(std::string &url, std::string &answer, const std::string userAgent = AGENT, unsigned int timeout = 60);
+bool downloadUrl(std::string url, std::string file, const std::string userAgent = AGENT, unsigned int timeout = 60);
 
 bool isDigitWord(std::string str);
 

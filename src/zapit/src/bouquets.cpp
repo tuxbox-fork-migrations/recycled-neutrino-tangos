@@ -31,11 +31,13 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #include <fstream>
 #include <iostream>
 
 #include <global.h>
+#include <neutrino.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <system/helpers.h>
 #include <system/set_threadname.h>
@@ -48,17 +50,18 @@
 #include <xmlinterface.h>
 
 #define M3U_START_MARKER        "#EXTM3U"
+#define M3U_START_EPG_MARKER    "tvg-url="
 #define M3U_INFO_MARKER         "#EXTINF"
 #define TVG_INFO_ID_MARKER      "tvg-id="
 #define TVG_INFO_NAME_MARKER    "tvg-name="
 #define TVG_INFO_LOGO_MARKER    "tvg-logo="
+#define TVG_INFO_SCRIPT_MARKER  "tvg-script="
 #define TVG_INFO_SHIFT_MARKER   "tvg-shift="
 #define GROUP_PREFIX_MARKER     "group-prefix="
 #define GROUP_NAME_MARKER       "group-title="
 
 extern CBouquetManager *g_bouquetManager;
 extern CPictureViewer *g_PicViewer;
-pthread_mutex_t  mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #define GET_ATTR(node, name, fmt, arg)                                  \
         do {                                                            \
@@ -249,7 +252,6 @@ void CBouquetManager::writeBouquetHeader(FILE * bouq_fd, uint32_t i, const char 
 	if (Bouquets[i]->bHidden!=DEFAULT_BQ_HIDDEN) fprintf(bouq_fd, " hidden=\"%d\"", Bouquets[i]->bHidden ? 1 : 0);
 	if (Bouquets[i]->bLocked!=DEFAULT_BQ_LOCKED) fprintf(bouq_fd, " locked=\"%d\"", Bouquets[i]->bLocked ? 1 : 0);
 	if (Bouquets[i]->bScanEpg!=DEFAULT_BQ_SCANEPG) fprintf(bouq_fd, " epg=\"%d\"", Bouquets[i]->bScanEpg ? 1 : 0);
-	if (Bouquets[i]->bUseCI) fprintf(bouq_fd, " ci=\"1\"");
 	fprintf(bouq_fd, ">\n");
 }
 
@@ -434,7 +436,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			else
 				newBouquet->bName = name;
 			newBouquet->bScanEpg = scanepg ? (strcmp(scanepg, "1") == 0) : false;
-			newBouquet->bUseCI = useci ? (strcmp(useci, "1") == 0) : false;
+
 			channel_node = xmlChildrenNode(search);
 			while ((channel_node = xmlGetNextOccurence(channel_node, "S")) != NULL) {
 				std::string name2;
@@ -470,7 +472,6 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					if(!bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
 					chan->bLocked = clock;
-					chan->bUseCI = newBouquet->bUseCI;
 					//remapping epg_id
 					t_channel_id new_epgid = reMapEpgID(chan->getChannelID());
 					if(new_epgid)
@@ -479,7 +480,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					if(!new_epgxml.empty()) {
 						char buf[100];
 						snprintf(buf, sizeof(buf), "%llx", chan->getChannelID() & 0xFFFFFFFFFFFFULL);
-						chan->setScriptName("#" + new_epgxml + "=" + buf);
+						chan->setEPGmap("#" + new_epgxml + "=" + buf);
 					}
 					newBouquet->addService(chan);
 				} else if (bUser) {
@@ -530,18 +531,19 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 		sortBouquets();
 	}
 
+	CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_clear();
 	loadWebtv();
 	loadWebradio();
-	loadLogos();
 	parseBouquetsXml(UBOUQUETS_XML, true);
 	renumServices();
 	CServiceManager::getInstance()->SetCIFilter();
 	if(!EpgIDMapping.empty()){
-			EpgIDMapping.clear();
+		EpgIDMapping.clear();
 	}
 	if(!EpgXMLMapping.empty()){
-			EpgXMLMapping.clear();
+		EpgXMLMapping.clear();
 	}
+	LogoStart();
 	TIMER_STOP("[zapit] bouquet loading took");
 }
 
@@ -805,6 +807,9 @@ void CBouquetManager::moveBouquet(const unsigned int oldId, const unsigned int n
 
 void CBouquetManager::clearAll(bool user)
 {
+	LogoStop();
+	LogoList.clear();
+
 	BouquetList tmplist;
 	for (unsigned int i =0; i < Bouquets.size(); i++) {
 		if (user || !Bouquets[i]->bUser)
@@ -817,15 +822,6 @@ void CBouquetManager::clearAll(bool user)
 	if (!user)
 		Bouquets = tmplist;
 	remainChannels = NULL;
-	if(thrLogo != 0)
-	{
-		pthread_cancel(thrLogo);
-		pthread_join(thrLogo, NULL);
-		thrLogo = 0;
-	}
-	pthread_mutex_lock (&mutex);
-	LogoList.clear();
-	pthread_mutex_unlock (&mutex);
 }
 
 void CBouquetManager::deletePosition(t_satellite_position satellitePosition)
@@ -928,7 +924,14 @@ void CBouquetManager::loadWebchannels(int mode)
 						const char *desc = xmlGetAttribute(l1, "description");
 						const char *genre = xmlGetAttribute(l1, "genre");
 						const char *epgid = xmlGetAttribute(l1, "epgid");
+						const char *xmltv = xmlGetAttribute(l1, "xmltv");
+						const char *epgmap = xmlGetAttribute(l1, "epgmap");
+						const char *alogo = xmlGetAttribute(l1, "logo");
 						const char *script = xmlGetAttribute(l1, "script");
+						if(alogo && !strlen(alogo))
+						{
+							alogo = NULL;//skip 0 len logo
+						}
 						t_channel_id epg_id = 0;
 						if (epgid)
 						{
@@ -942,7 +945,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								}
 							}
 							else
-							epg_id = strtoull(epgid, NULL, 16);
+								epg_id = strtoull(epgid, NULL, 16);
 						}
 
 						CZapitBouquet* gbouquet = pbouquet;
@@ -961,18 +964,35 @@ void CBouquetManager::loadWebchannels(int mode)
 							if (epg_id == 0) epg_id = chid;
 							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script, mode);
 							CServiceManager::getInstance()->AddChannel(channel);
-							channel->flags = CZapitChannel::UPDATED;
 							//remapping epg_id
 							t_channel_id new_epgid = reMapEpgID(chid);
 							if(new_epgid)
 								channel->setEPGid(new_epgid);
+							if (xmltv)
+							{
+								CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_pushback(std::string(xmltv));
+							}
+							char buf[100];
+							snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
 							std::string new_epgxml = reMapEpgXML(chid);
 							if(!new_epgxml.empty()) {
-								char buf[100];
-								snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
-								channel->setScriptName("#" + new_epgxml + "=" + buf);
-								channel->setEPGid(chid);
+								channel->setEPGmap("#" + new_epgxml + "=" + buf);
 							}
+							// local epgmap overrides global epgmap
+							if (epgmap)
+							{
+								std::string new_epgmap(epgmap);
+								if(!new_epgmap.empty())
+									channel->setEPGmap("#" + new_epgmap + "=" + buf);
+							}
+							std::string helper = "alternate_logos";
+							if (alogo && !g_PicViewer->GetLogoName(chid, std::string(title), helper))
+							{
+								channel->setAlternateLogo(std::string(alogo));
+								LogoList.push_back(chid);
+							}
+
+							channel->flags = CZapitChannel::UPDATED;
 							if (gbouquet)
 								gbouquet->addService(channel);
 						}
@@ -986,12 +1006,14 @@ void CBouquetManager::loadWebchannels(int mode)
 			{
 				std::ifstream infile;
 				char cLine[1024];
+				std::string epg_url = "";
 				std::string desc = "";
 				std::string title = "";
 				std::string prefix = "";
 				std::string group = "";
 				std::string epgid = "";
 				std::string alogo = "";
+				std::string script = "";
 				CZapitBouquet* pbouquet = NULL;
 
 				infile.open(tmp_name.c_str(), std::ifstream::in);
@@ -1008,8 +1030,22 @@ void CBouquetManager::loadWebchannels(int mode)
 						continue;
 
 					if (strLine.find(M3U_START_MARKER) != std::string::npos)
-						continue;
-
+					{
+						epg_url = "";
+						epg_url = ReadMarkerValue(strLine, M3U_START_EPG_MARKER);
+						//printf("tvg-url: %s\n", epg_url.c_str());
+						if (!epg_url.empty())
+						{
+							if (epg_url.find_first_of(',') != std::string::npos)
+							{
+								std::vector<std::string> epg_list = ::split(epg_url, ',');
+								for (std::vector<std::string>::iterator it_epg = epg_list.begin(); it_epg != epg_list.end(); it_epg++)
+									CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_pushback((*it_epg));
+							}
+							else
+								CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_pushback(epg_url);
+						}
+					}
 					if (strLine.find(M3U_INFO_MARKER) != std::string::npos)
 					{
 						int iColon = (int)strLine.find_first_of(':');
@@ -1019,6 +1055,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						group = "";
 						desc = "";
 						alogo = "";
+						script = "";
 
 						if (iColon >= 0 && iComma >= 0 && iComma > iColon)
 						{
@@ -1031,6 +1068,7 @@ void CBouquetManager::loadWebchannels(int mode)
 							group = ReadMarkerValue(strInfoLine, GROUP_NAME_MARKER);
 							epgid = ReadMarkerValue(strInfoLine, TVG_INFO_ID_MARKER);
 							alogo = ReadMarkerValue(strInfoLine, TVG_INFO_LOGO_MARKER);
+							script = ReadMarkerValue(strInfoLine, TVG_INFO_SCRIPT_MARKER);
 						}
 
 						pbouquet = addBouquetIfNotExist((mode == MODE_WEBTV) ? "WebTV" : "WebRadio");
@@ -1065,15 +1103,14 @@ void CBouquetManager::loadWebchannels(int mode)
 								}
 
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
-								std::string epg_script = "";
+								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, script.c_str(), mode);
+								CServiceManager::getInstance()->AddChannel(channel);
 								if (!epgid.empty()) {
 									char buf[100];
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
 									// keep the tvg-id for later epg injection
-									epg_script = "#" + epgid + "=" + buf;
+									channel->setEPGmap("#" + epgid + "=" + buf);
 								}
-								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, epg_script.c_str(), mode);
-								CServiceManager::getInstance()->AddChannel(channel);
 								//remapping epg_id
 								t_channel_id new_epgid = reMapEpgID(chid);
 								if(new_epgid)
@@ -1082,15 +1119,13 @@ void CBouquetManager::loadWebchannels(int mode)
 								if(!new_epgxml.empty()) {
 									char buf[100];
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
-									channel->setScriptName("#" + new_epgxml + "=" + buf);
+									channel->setEPGmap("#" + new_epgxml + "=" + buf);
 								}
-								desc = "m3u_loading_logos";
-								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid,title,desc))
+								std::string helper = "alternate_logos";
+								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid, title, helper))
 								{
 									channel->setAlternateLogo(alogo);
-									pthread_mutex_lock (&mutex);
-									LogoList.push_back(channel);
-									pthread_mutex_unlock (&mutex);
+									LogoList.push_back(chid);
 								}
 								channel->flags = CZapitChannel::UPDATED;
 								if (gbouquet)
@@ -1183,7 +1218,6 @@ void CBouquetManager::loadWebchannels(int mode)
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, ::decodeUrl(url).c_str());
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), chid, NULL, mode);
 								CServiceManager::getInstance()->AddChannel(channel);
-								channel->flags = CZapitChannel::UPDATED;
 								//remapping epg_id
 								t_channel_id new_epgid = reMapEpgID(chid);
 								if(new_epgid)
@@ -1192,8 +1226,9 @@ void CBouquetManager::loadWebchannels(int mode)
 								if(!new_epgxml.empty()) {
 									char buf[100];
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
-									channel->setScriptName("#" + new_epgxml + "=" + buf);
+									channel->setEPGmap("#" + new_epgxml + "=" + buf);
 								}
+								channel->flags = CZapitChannel::UPDATED;
 								if (gbouquet)
 									gbouquet->addService(channel);
 							}
@@ -1209,36 +1244,57 @@ void CBouquetManager::loadWebchannels(int mode)
 	}
 }
 
-void CBouquetManager::loadLogos()
+bool CBouquetManager::LogoStart()
 {
+	if (logo_running)
+		return false;
+	if (LogoList.size() == 0)
+		return false;
 
-	if(thrLogo != 0)
-	{
-		pthread_cancel(thrLogo);
-		pthread_join(thrLogo, NULL);
-		thrLogo = 0;
-	}
-
-	if (LogoList.size() > 0)
-		pthread_create(&thrLogo, NULL, LogoThread, (void*)&LogoList);
+	logo_running = true;
+	return (OpenThreads::Thread::start() == 0);
 }
 
-void* CBouquetManager::LogoThread(void* _logolist)
+bool CBouquetManager::LogoStop()
+{
+	if (!logo_running)
+		return false;
+	logo_running = false;
+	return (OpenThreads::Thread::join() == 0);
+}
+
+void CBouquetManager::run()
 {
 	set_threadname(__func__);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-	pthread_mutex_lock (&mutex);
-	ZapitChannelList *LogoList = (ZapitChannelList *)_logolist;
-	for (ZapitChannelList::iterator it = LogoList->begin(); it != LogoList->end(); ++it)
+	//printf(">>>>>> LogoThread [%s] started...\n",__func__);
+	CZapitChannel *cc = NULL;
+	std::string ologo;
+	std::string nlogo;
+	t_channel_id chid = 0;
+	std::list<t_channel_id>::iterator it = LogoList.begin();
+	while (logo_running && it != LogoList.end())
 	{
-		CZapitChannel *cc = (*it);
-		if (cc)
-			cc->setAlternateLogo(downloadUrlToLogo(cc->getAlternateLogo(), LOGODIR_TMP, cc->getChannelID()));
+		chid = (*it);
+		cc = CServiceManager::getInstance()->FindChannel(chid);
+		if (logo_running && cc)
+			ologo = cc->getAlternateLogo();
+		else
+			break;
+		cc = CServiceManager::getInstance()->FindChannel(chid);
+		if (logo_running && cc)
+			nlogo = downloadUrlToLogo(ologo, LOGODIR_TMP, chid);
+		else
+			break;
+		cc = CServiceManager::getInstance()->FindChannel(chid);
+		if (logo_running && cc)
+			cc->setAlternateLogo(nlogo);
+		else
+			break;
+		it++;
 	}
-	LogoList->clear();
-	pthread_mutex_unlock(&mutex);
-	pthread_exit(0);
-	return NULL;
+	LogoList.clear();
+	logo_running = false;
+	//printf(">>>>>>> LogoThread [%s] stopped...\n",__func__);
 }
 
 CBouquetManager::ChannelIterator::ChannelIterator(CBouquetManager* owner, const bool TV)
@@ -1347,37 +1403,60 @@ void CBouquetManager::readEPGMapping()
 	if(!EpgXMLMapping.empty())
 		EpgXMLMapping.clear();
 
-	const std::string epg_map_dir = CONFIGDIR "/zapit/epgmap.xml";
-	xmlDocPtr epgmap_parser = parseXmlFile(epg_map_dir.c_str());
+	std::list<std::string> epgmap_dirs;
+	epgmap_dirs.push_back(ZAPITDIR);
+	epgmap_dirs.push_back(WEBTVDIR);
+	epgmap_dirs.push_back(WEBTVDIR_VAR);
 
-	if (epgmap_parser != NULL)
+	std::list<std::string> epgmaps;
+	for (std::list<std::string>::iterator it = epgmap_dirs.begin(); it != epgmap_dirs.end(); ++it)
 	{
+		DIR *dp;
+		struct dirent *d;
 
-		xmlNodePtr epgmap = xmlDocGetRootElement(epgmap_parser);
-		if(epgmap)
-			epgmap = xmlChildrenNode(epgmap);
+		if ((dp = opendir((*it).c_str())) == NULL)
+			continue;
 
-		while (epgmap)
+		while ((d = readdir(dp)) != NULL)
 		{
-			const char *channelid = xmlGetAttribute(epgmap, "channel_id");
-			const char *epgid = xmlGetAttribute(epgmap, "new_epg_id");
-			const char *xmlepg = xmlGetData(epgmap); // returns empty string, not NULL if nothing found
-			t_channel_id epg_id = 0;
-			t_channel_id channel_id = 0;
-			if (epgid)
-				epg_id = strtoull(epgid, NULL, 16);
-			if (channelid)
-				channel_id = strtoull(channelid, NULL, 16);
-			if(channel_id && epg_id){
-				EpgIDMapping[channel_id]=epg_id;
-			}
-			if(channel_id && ((xmlepg != NULL) && (xmlepg[0] != '\0'))){
-				EpgXMLMapping[channel_id]=xmlepg;
-			}
-			epgmap = xmlNextNode(epgmap);
+			std::string f = d->d_name;
+			if ((f.compare("epgmap.xml") == 0) || (f.find(".epgmap") != std::string::npos))
+				epgmaps.push_back((*it) + "/" + f);
 		}
 	}
-	xmlFreeDoc(epgmap_parser);
+
+	for (std::list<std::string>::iterator it = epgmaps.begin(); it != epgmaps.end(); ++it)
+	{
+		INFO("read %s", (*it).c_str());
+
+		xmlDocPtr epgmap_parser = parseXmlFile((*it).c_str());
+
+		if (epgmap_parser != NULL)
+		{
+			xmlNodePtr epgmap = xmlDocGetRootElement(epgmap_parser);
+			if (epgmap)
+				epgmap = xmlChildrenNode(epgmap);
+
+			while (epgmap)
+			{
+				const char *channelid = xmlGetAttribute(epgmap, "channel_id");
+				const char *epgid = xmlGetAttribute(epgmap, "new_epg_id");
+				const char *xmlepg = xmlGetData(epgmap); // returns empty string, not NULL if nothing found
+				t_channel_id channel_id = 0;
+				t_channel_id epg_id = 0;
+				if (channelid)
+					channel_id = strtoull(channelid, NULL, 16);
+				if (epgid)
+					epg_id = strtoull(epgid, NULL, 16);
+				if (channel_id && epg_id)
+					EpgIDMapping[channel_id]=epg_id;
+				if (channel_id && ((xmlepg != NULL) && (xmlepg[0] != '\0')))
+					EpgXMLMapping[channel_id]=xmlepg;
+				epgmap = xmlNextNode(epgmap);
+			}
+		}
+		xmlFreeDoc(epgmap_parser);
+	}
 }
 
 void CBouquetManager::convert_E2_EPGMapping(std::string mapfile_in, std::string mapfile_out)
@@ -1434,7 +1513,7 @@ void CBouquetManager::dump_EPGMapping(std::string mapfile_out)
 		if ((*cit)->getChannelID() != (*cit)->getEpgID())
 			fprintf(outfile,"\t<filter channel_id=\"%012" PRIx64 "\" new_epg_id=\"%012" PRIx64 "\" /> --%s\n",(*cit)->getChannelID(), (*cit)->getEpgID(), (*cit)->getName().c_str());
 
-		std::string tvg_id = (*cit)->getScriptName();
+		std::string tvg_id = (*cit)->getEPGmap();
 		if (tvg_id.empty())
 			continue;
 
