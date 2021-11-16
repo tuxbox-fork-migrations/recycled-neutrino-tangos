@@ -1370,7 +1370,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->OnAfterChangeOption.connect(slot_ibar);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS);
 	menu_infobar->addItem(mc);
-#if 0
+#ifndef ENABLE_TANGOS
 	// CA system dotmatrix
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DOTMATRIX, &g_settings.infobar_casystem_dotmatrix, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.infobar_casystem_display < 2);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS_DOTMATRIX);
@@ -1384,13 +1384,13 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS_FRAME);
 	menu_infobar->addItem(mc);
 	casystemActivate.Add(mc);
-
+#if ENABLE_TANGOS
 	// ecm-Info
 	mc = new CMenuOptionChooser(LOCALE_ECMINFO_SHOW, &g_settings.show_ecm_pos, INFOVIEWER_ECMINFO_OPTIONS, INFOVIEWER_ECMINFO_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_ECMINFO);
 	menu_infobar->addItem(mc);
 	menu_infobar->addItem(GenericMenuSeparator);
-
+#endif
 	// flash/hdd statfs
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_SYSFS_HDD, &g_settings.infobar_show_sysfs_hdd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !(g_settings.infobar_casystem_display == 3));
 	mc->OnAfterChangeOption.connect(slot_ibar);
