@@ -2777,15 +2777,15 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 	static std::map<int, std::pair<int,const char*> > icon_map;
 	const int icon_number = 14;
 
-	static int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	static int icon_sizeW [icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	static bool init_flag = false;
+	int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	int icon_sizeW [icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	int icon_sizeH = 0, index = 0;
+	std::map<int, std::pair<int,const char*> >::const_iterator it;
 
+	static bool init_flag = false;
 	if (!init_flag)
 	{
 		init_flag = true;
-		int icon_sizeH = 0, index = 0;
-		std::map<int, std::pair<int,const char*> >::const_iterator it;
 
 		icon_map[0x0000] = std::make_pair(index++,"dec");
 		icon_map[0x0E00] = std::make_pair(index++,"powervu");
@@ -2801,21 +2801,22 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 		icon_map[0x0D00] = std::make_pair(index++,"cw");
 		icon_map[0x0900] = std::make_pair(index++,"nds");
 		icon_map[0x5600] = std::make_pair(index  ,"vmx");
+	}
 
-		for (it=icon_map.begin(); it!=icon_map.end(); ++it)
-		{
-			snprintf(buf, sizeof(buf), "%s_%s", (*it).second.second, (*it).second.first==0 ? "card" : "white");
-			frameBuffer->getIconSize(buf, &icon_sizeW[(*it).second.first], &icon_sizeH);
-		}
+	for (it=icon_map.begin(); it!=icon_map.end(); ++it)
+	{
+		snprintf(buf, sizeof(buf), "%s_%s", (*it).second.second, (*it).second.first==0 ? "card" : "white");
+		frameBuffer->getIconSize(buf, &icon_sizeW[(*it).second.first], &icon_sizeH);
+	}
 
-		for (int j = 0; j < icon_number; j++)
+	for (int j = 0; j < icon_number; j++)
+	{
+		for (int i = j; i < icon_number; i++)
 		{
-			for (int i = j; i < icon_number; i++)
-			{
-				icon_offset[j] += icon_sizeW[i] + OFFSET_INNER_MIN;
-			}
+			icon_offset[j] += icon_sizeW[i] + OFFSET_INNER_MIN;
 		}
 	}
+
 	caid &= 0xFF00;
 
 	if (icon_offset[icon_map[caid].first] == 0)
