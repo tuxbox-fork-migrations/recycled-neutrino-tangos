@@ -265,16 +265,20 @@ void CInfoViewer::Init()
 */
 void CInfoViewer::start ()
 {
+	// width of clock
 	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + OFFSET_INNER_MID;
 
+	// height of info box (header + body / channelname + 2 lines epg)
 	InfoHeightY = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight() * 9/8 +
 	              2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + OFFSET_INNER_LARGE + OFFSET_INNER_SMALL;
-
+	// width of channelnumber
 	ChanWidth = std::max(125, 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + OFFSET_INNER_MID);
 
-	ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/* * 9/8*/;
-	ChanHeight += g_SignalFont->getHeight()/2;
-	ChanHeight = std::max(75, ChanHeight);
+	ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
+	ChanHeight+= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2 + OFFSET_SHADOW;
+
+	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 5;
+	initBBOffset();
 
 	BoxStartX = g_settings.screen_StartX + OFFSET_INNER_MID;
 	BoxEndX = g_settings.screen_EndX - OFFSET_INNER_MID;
@@ -283,7 +287,7 @@ void CInfoViewer::start ()
 
 	ChanNameY = BoxStartY + (ChanHeight / 2);	//oberkante schatten?
 	ChanInfoX = BoxStartX;
-
+	getIconInfo();
 }
 
 void CInfoViewer::showRecords()
@@ -2192,11 +2196,8 @@ bool CInfoViewer::checkIcon(const char * const icon, int *w, int *h)
 
 void CInfoViewer::getIconInfo()
 {
-	initBBOffset();
 	bbIconMaxH 		= 0;
 	showBBIcons_width = 0;
-	BBarY 			= BoxEndY + bottom_bar_offset;
-	BBarFontY 		= BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2; /* center in buttonbar */
 	bbIconMinX 		= BoxEndX - 2*OFFSET_INNER_MID;
 	bool isRadioMode	= (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio);
 
@@ -2273,6 +2274,7 @@ void CInfoViewer::getButtonInfo()
 	bbButtonMaxX = ChanInfoX;
 	int bbButtonMaxW = 0;
 	int mode = NeutrinoModes::mode_unknown;
+	int sfs = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getSize();
 	for (int i = 0; i < CInfoViewer::BUTTON_MAX; i++)
 	{
 		int w = 0, h = 0;
@@ -2350,11 +2352,14 @@ void CInfoViewer::getButtonInfo()
 				text = CMoviePlayerGui::getInstance(false).CurrentAudioName(); // use instance_mp
 		}
 		bbButtonInfo[i].w = w;
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->setSize(h-4);
 		bbButtonInfo[i].cx = std::min(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(text),w);
 		bbButtonInfo[i].h = h;
 		bbButtonInfo[i].text = text;
 		bbButtonInfo[i].icon = icon;
 	}
+	BBarFontY = BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2;
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->setSize(sfs);
 	// Calculate position/size of buttons
 	minX = std::min(bbIconMinX, ChanInfoX + (((BoxEndX - ChanInfoX) * 75) / 100));
 	int MaxBr = (BoxEndX - OFFSET_INNER_MID) - (ChanInfoX + OFFSET_INNER_MID);
@@ -2436,8 +2441,11 @@ void CInfoViewer::showButtons(bool)
 			{
 				frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
 
+				int sfs = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getSize();
+				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->setSize(bbButtonInfo[i].h-4);
 				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->RenderString(bbButtonInfo[i].x + (bbButtonInfo[i].w /2 - bbButtonInfo[i].cx /2), BBarFontY,
 				        bbButtonInfo[i].w, bbButtonInfo[i].text, COL_MENUFOOT_TEXT);
+				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->setSize(sfs);
 			}
 		}
 
@@ -2506,6 +2514,8 @@ void CInfoViewer::showIcon_Logo()
 
 void CInfoViewer::paintFoot(int w)
 {
+	initBBOffset();
+	BBarY = BoxEndY + bottom_bar_offset;
 	int width = (w == 0) ? BoxEndX - ChanInfoX : w;
 
 	if (foot == NULL)
