@@ -233,7 +233,7 @@ void CInfoViewer::Init()
 		bbButtonInfo[i].x   = -1;
 	}
 
-	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 5;
+	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + OFFSET_INNER_MID;
 	initBBOffset();
 
 	ResetPBars();
@@ -277,7 +277,7 @@ void CInfoViewer::start ()
 	ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
 	ChanHeight+= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2 + OFFSET_SHADOW;
 
-	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 5;
+	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + OFFSET_INNER_MID;
 	initBBOffset();
 
 	BoxStartX = g_settings.screen_StartX + OFFSET_INNER_MID;
@@ -2274,7 +2274,6 @@ void CInfoViewer::getButtonInfo()
 	bbButtonMaxX = ChanInfoX;
 	int bbButtonMaxW = 0;
 	int mode = NeutrinoModes::mode_unknown;
-	int sfs = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getSize();
 	for (int i = 0; i < CInfoViewer::BUTTON_MAX; i++)
 	{
 		int w = 0, h = 0;
@@ -2352,14 +2351,12 @@ void CInfoViewer::getButtonInfo()
 				text = CMoviePlayerGui::getInstance(false).CurrentAudioName(); // use instance_mp
 		}
 		bbButtonInfo[i].w = w;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->setSize(h-4);
 		bbButtonInfo[i].cx = std::min(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(text),w);
-		bbButtonInfo[i].h = h;
 		bbButtonInfo[i].text = text;
 		bbButtonInfo[i].icon = icon;
 	}
 	BBarFontY = BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->setSize(sfs);
+
 	// Calculate position/size of buttons
 	minX = std::min(bbIconMinX, ChanInfoX + (((BoxEndX - ChanInfoX) * 75) / 100));
 	int MaxBr = (BoxEndX - OFFSET_INNER_MID) - (ChanInfoX + OFFSET_INNER_MID);
@@ -2439,13 +2436,11 @@ void CInfoViewer::showButtons(bool)
 				continue;
 			if (bbButtonInfo[i].x > 0)
 			{
-				frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
+				//frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
+				g_PicViewer->DisplayImage(frameBuffer->getIconPath(bbButtonInfo[i].icon), bbButtonInfo[i].x, BBarY + OFFSET_INNER_MIN, bbButtonInfo[i].w, InfoHeightY_Info - 2*OFFSET_INNER_MIN);
 
-				int sfs = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getSize();
-				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->setSize(bbButtonInfo[i].h-4);
 				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->RenderString(bbButtonInfo[i].x + (bbButtonInfo[i].w /2 - bbButtonInfo[i].cx /2), BBarFontY,
 				        bbButtonInfo[i].w, bbButtonInfo[i].text, COL_MENUFOOT_TEXT);
-				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->setSize(sfs);
 			}
 		}
 
@@ -2465,7 +2460,7 @@ void CInfoViewer::showIcons(const int modus, const std::string & icon)
 	if ((modus >= CInfoViewer::ICON_SUBT) && (modus < CInfoViewer::ICON_MAX) && (bbIconInfo[modus].x != -1) && (is_visible))
 	{
 		frameBuffer->paintIcon(icon, bbIconInfo[modus].x - time_width, ChanNameY + (header_height - bbIconMaxH)/2,
-		                       InfoHeightY_Info, 1, true, !g_settings.theme.infobar_gradient_top, COL_INFOBAR_BUTTONS_BACKGROUND);
+		                       0, 1, true, !g_settings.theme.infobar_gradient_top, COL_INFOBAR_BUTTONS_BACKGROUND);
 	}
 }
 
