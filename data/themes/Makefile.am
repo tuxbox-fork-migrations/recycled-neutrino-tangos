@@ -2,6 +2,7 @@ SUBDIRS = \
 	Grey-3.0/icons/buttons \
 	Grey-Blue/icons/buttons \
 	Neutrino-3.0/icons/buttons \
+	NI/icons \
 	Olive-3.0/icons/buttons \
 	TangoCash/icons/buttons \
 	TangoCash/icons/hourglass
@@ -38,6 +39,7 @@ install_DATA = \
 	nesh.theme \
 	NovaTux.theme \
 	Neutrino-3.0.theme \
+	NI.theme \
 	Olive.theme \
 	Olive-3.0.theme \
 	Origin.theme \
