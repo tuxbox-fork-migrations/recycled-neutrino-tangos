@@ -207,7 +207,6 @@ void CShellWindow::exec()
 							lines_read = 0;
 							lastPaint = now;
 							dirty = false;
-							frameBuffer->blit();
 						}
 					}
 				} else
@@ -283,7 +282,6 @@ void CShellWindow::showResult()
 				btn.paint(false);
 			}
 
-			frameBuffer->blit();
 			neutrino_msg_t msg;
 			neutrino_msg_data_t data;
 			uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);

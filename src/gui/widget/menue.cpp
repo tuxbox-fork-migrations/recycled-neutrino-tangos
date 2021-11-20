@@ -937,7 +937,6 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 						paint();
 						break;
 				}
-				frameBuffer->blit();
 				continue;
 			}
 			for (unsigned int i= 0; i< items.size(); i++) {

@@ -195,7 +195,6 @@ void CProgressWindow::showStatusMessageUTF(const string & text)
 	status_txt->setText(txt, CTextBox::CENTER, *CNeutrinoFonts::getInstance()->getDynFont(w_txt, h_txt, txt, CNeutrinoFonts::FONT_STYLE_BOLD), COL_MENUCONTENT_TEXT);
 
 	status_txt->paint(false);
-	frameBuffer->blit();
 
 #ifdef VFD_UPDATE
 	CVFD::getInstance()->showProgressBar2(-1,text.c_str()); // set local text in VFD
@@ -211,7 +210,6 @@ unsigned int CProgressWindow::getGlobalStatus(void)
 void CProgressWindow::hide()
 {
 	CComponentsWindow::hide();
-	frameBuffer->blit();
 }
 
 int CProgressWindow::exec(CMenuTarget* parent, const string & /*actionKey*/)
@@ -221,7 +219,6 @@ int CProgressWindow::exec(CMenuTarget* parent, const string & /*actionKey*/)
 		parent->hide();
 	}
 	paint();
-	frameBuffer->blit();
 
 	return menu_return::RETURN_REPAINT;
 }

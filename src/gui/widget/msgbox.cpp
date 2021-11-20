@@ -372,7 +372,6 @@ int CMsgBox::exec()
 void CMsgBox::refreshFoot(void)
 {
 	ccw_footer->getButtonChainObject()->paint();
-	CFrameBuffer::getInstance()->blit();
 }
 
 

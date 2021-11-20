@@ -164,7 +164,6 @@ class CTextBox : public sigc::trackable
 		int text_Hborder_width;
 		int text_Vborder_width;
 		bool m_FontUseDigitHeight;
-		bool m_blit;
 
 	public:
 		/* Constructor */
@@ -251,7 +250,6 @@ class CTextBox : public sigc::trackable
 		void paint (void);
 		void hide (void);
 		void clear(void);
-		void blit(bool b) { m_blit = b; };
 		bool clearScreenBuffer();
 		sigc::signal<void> OnAfterRefresh;
 		sigc::signal<void> OnAfterScrollPage;

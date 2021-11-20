@@ -137,7 +137,6 @@ void CBEChannelWidget::paintItems()
 	int current_page;
 	getScrollBarData(&total_pages, &current_page, Channels->size(), items_count, selected);
 	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, body_height, total_pages, current_page);
-	frameBuffer->blit();
 }
 
 void CBEChannelWidget::paintHead()
@@ -164,7 +163,6 @@ void CBEChannelWidget::paintFoot()
 	size_t numbuttons = sizeof(CBEChannelWidgetButtons)/sizeof(CBEChannelWidgetButtons[0]);
 
 	CBEGlobals::paintFoot(numbuttons, CBEChannelWidgetButtons);
-	frameBuffer->blit();
 }
 
 std::string CBEChannelWidget::getInfoText(int index)
@@ -415,7 +413,6 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		{
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
-		frameBuffer->blit();
 	}
 	CBEGlobals::hide();
 	return res;
