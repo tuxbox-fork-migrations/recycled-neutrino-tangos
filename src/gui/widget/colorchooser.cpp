@@ -175,7 +175,6 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 
 	paint();
 	setColor();
-	frameBuffer->blit();
 
 	int  selected = 0;
 
@@ -287,7 +286,6 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 				}
 			}
 		}
-		frameBuffer->blit();
 	}
 
 	hide();
@@ -301,7 +299,6 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 void CColorChooser::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + header_height + OFFSET_SHADOW);
-	frameBuffer->blit();
 }
 
 void CColorChooser::paint()

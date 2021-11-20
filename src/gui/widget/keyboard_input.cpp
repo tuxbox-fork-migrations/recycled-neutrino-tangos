@@ -481,7 +481,6 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 	bool loop=true;
 	while (loop)
 	{
-		frameBuffer->blit();
 		if (changed)
 		{
 			changed = false;
@@ -595,7 +594,6 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 void CKeyboardInput::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
-	frameBuffer->blit();
 }
 
 int CKeyboardInput::paintFooter(bool show)
