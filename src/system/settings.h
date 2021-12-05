@@ -336,7 +336,7 @@ struct SNeutrinoSettings
 	int zapto_pre_time;
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int zappingmode;
-	int hdmimode;
+	int hdmi_colorimetry;
 #endif
 	int infobar_analogclock;
 	int infobar_sat_display;
