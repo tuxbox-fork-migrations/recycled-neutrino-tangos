@@ -56,6 +56,7 @@
 #include <daemonc/remotecontrol.h>
 
 #include <system/debug.h>
+#include <system/helpers.h>
 
 #include <cs_api.h>
 #include <hardware/video.h>
