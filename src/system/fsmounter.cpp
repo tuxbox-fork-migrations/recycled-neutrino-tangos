@@ -266,8 +266,8 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 		//cmd += ip;
 		//cmd += '/';
 		//cmd += dir;
-		//cmd += ',';
-		//cmd += options1;
+		cmd += ',';
+		cmd += options1;
 	}
 	else
 	{
