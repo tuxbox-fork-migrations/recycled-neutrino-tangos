@@ -22,23 +22,27 @@
 
 #include <linux/types.h>
 
-struct erase_info_user {
+struct erase_info_user
+{
 	__u32 start;
 	__u32 length;
 };
 
-struct erase_info_user64 {
+struct erase_info_user64
+{
 	__u64 start;
 	__u64 length;
 };
 
-struct mtd_oob_buf {
+struct mtd_oob_buf
+{
 	__u32 start;
 	__u32 length;
 	unsigned char *ptr;
 };
 
-struct mtd_oob_buf64 {
+struct mtd_oob_buf64
+{
 	__u64 start;
 	__u32 pad;
 	__u32 length;
@@ -58,7 +62,8 @@ struct mtd_oob_buf64 {
  * See notes on "MTD file modes" for discussion on %MTD_OPS_RAW vs.
  * %MTD_FILE_MODE_RAW.
  */
-enum {
+enum
+{
 	MTD_OPS_PLACE_OOB = 0,
 	MTD_OPS_AUTO_OOB = 1,
 	MTD_OPS_RAW = 2,
@@ -80,7 +85,8 @@ enum {
  * write data-only, set @usr_oob == NULL. However, setting both @usr_data and
  * @usr_oob to NULL is not allowed.
  */
-struct mtd_write_req {
+struct mtd_write_req
+{
 	__u64 start;
 	__u64 len;
 	__u64 ooblen;
@@ -122,7 +128,8 @@ struct mtd_write_req {
 #define MTD_OTP_FACTORY		1
 #define MTD_OTP_USER		2
 
-struct mtd_info_user {
+struct mtd_info_user
+{
 	__u8 type;
 	__u32 flags;
 	__u32 size;	/* Total size of the MTD */
@@ -132,7 +139,8 @@ struct mtd_info_user {
 	__u64 padding;	/* Old obsolete field; do not use */
 };
 
-struct region_info_user {
+struct region_info_user
+{
 	__u32 offset;		/* At which this region starts,
 				 * from the beginning of the MTD */
 	__u32 erasesize;	/* For this region */
@@ -140,7 +148,8 @@ struct region_info_user {
 	__u32 regionindex;
 };
 
-struct otp_info {
+struct otp_info
+{
 	__u32 start;
 	__u32 length;
 	__u32 locked;
@@ -206,14 +215,16 @@ struct otp_info {
  * Obsolete legacy interface. Keep it in order not to break userspace
  * interfaces
  */
-struct nand_oobinfo {
+struct nand_oobinfo
+{
 	__u32 useecc;
 	__u32 eccbytes;
 	__u32 oobfree[8][2];
 	__u32 eccpos[32];
 };
 
-struct nand_oobfree {
+struct nand_oobfree
+{
 	__u32 offset;
 	__u32 length;
 };
@@ -228,7 +239,8 @@ struct nand_oobfree {
  * ioctl. Note that the "MTD_MAX_..._ENTRIES" macros represent the max size of
  * the user struct, not the MAX size of the internal struct nand_ecclayout.
  */
-struct nand_ecclayout_user {
+struct nand_ecclayout_user
+{
 	__u32 eccbytes;
 	__u32 eccpos[MTD_MAX_ECCPOS_ENTRIES];
 	__u32 oobavail;
@@ -243,7 +255,8 @@ struct nand_ecclayout_user {
  * @badblocks:	number of bad blocks in this partition
  * @bbtblocks:	number of blocks reserved for bad block tables
  */
-struct mtd_ecc_stats {
+struct mtd_ecc_stats
+{
 	__u32 corrected;
 	__u32 failed;
 	__u32 badblocks;
@@ -267,7 +280,8 @@ struct mtd_ecc_stats {
  * (e.g., when using ioctl(MEMWRITE)), but in some cases, the MTD_FILE_MODE is
  * used out of necessity (e.g., `write()', ioctl(MEMWRITEOOB64)).
  */
-enum mtd_file_modes {
+enum mtd_file_modes
+{
 	MTD_FILE_MODE_NORMAL = MTD_OTP_OFF,
 	MTD_FILE_MODE_OTP_FACTORY = MTD_OTP_FACTORY,
 	MTD_FILE_MODE_OTP_USER = MTD_OTP_USER,

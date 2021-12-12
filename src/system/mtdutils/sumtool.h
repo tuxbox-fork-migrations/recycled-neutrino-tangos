@@ -59,7 +59,7 @@ class CSumtoolJFFS2
 		void full_write(void *target_buff, const void *buf, int len);
 		void pad(int req);
 		inline void padword(void) { if (data_ofs % 4) full_write(data_buffer + data_ofs, ffbuf, 4 - (data_ofs % 4)); }
-		inline void pad_block_if_less_than(int req,int plus);
+		inline void pad_block_if_less_than(int req, int plus);
 		void write_xref_to_buff(union jffs2_node_union *node);
 		void write_xattr_to_buff(union jffs2_node_union *node);
 		void write_inode_to_buff(union jffs2_node_union *node);
@@ -76,12 +76,12 @@ class CSumtoolJFFS2
 		~CSumtoolJFFS2();
 
 
-		bool sumtool(std::string& imageName,
-			     std::string& sumName,
-			     int eraseBlockSize=0x20000,
-			     int padTo=0,
-			     int addCleanmarkers=0,
-			     int targetEndian=__LITTLE_ENDIAN);
+		bool sumtool(std::string &imageName,
+			std::string &sumName,
+			int eraseBlockSize = 0x20000,
+			int padTo = 0,
+			int addCleanmarkers = 0,
+			int targetEndian = __LITTLE_ENDIAN);
 };
 
 #endif // __SUMTOOL_JFFS2__

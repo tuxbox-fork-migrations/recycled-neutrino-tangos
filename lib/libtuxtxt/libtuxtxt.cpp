@@ -19,14 +19,14 @@ int tuxtxt_stop();
  * Initialize                                                                 *
  ******************************************************************************/
 
-static int tuxtxt_initialized=0;
+static int tuxtxt_initialized = 0;
 
 int tuxtxt_init()
 {
-	if ( tuxtxt_initialized )
+	if (tuxtxt_initialized)
 		return 0;
 
-	tuxtxt_initialized=1;
+	tuxtxt_initialized = 1;
 
 	/* init data */
 	tuxtxt_stop();
@@ -45,7 +45,8 @@ int tuxtxt_init()
 
 int tuxtxt_stop()
 {
-	if (!tuxtxt_cache.receiving) return 1;
+	if (!tuxtxt_cache.receiving)
+		return 1;
 	tuxtxt_cache.receiving = 0;
 
 	return tuxtxt_stop_thread();
@@ -76,11 +77,11 @@ void tuxtxt_start(int tpid, int source)
 void tuxtxt_close()
 {
 #if TUXTXT_DEBUG
-	printf ("libtuxtxt: cleaning up\n");
+	printf("libtuxtxt: cleaning up\n");
 #endif
 	tuxtxt_stop();
 	tuxtxt_clear_cache();
-	tuxtxt_initialized=0;
+	tuxtxt_initialized = 0;
 }
 
 /* Local Variables: */

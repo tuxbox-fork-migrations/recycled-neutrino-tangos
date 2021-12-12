@@ -33,7 +33,7 @@ extern "C" {
 #define MTD_TYPE_MAX 64
 
 /* MTD library descriptor */
-typedef void * libmtd_t;
+typedef void *libmtd_t;
 
 /* Forward decls */
 struct region_info_user;
@@ -49,7 +49,7 @@ struct mtd_info
 	int mtd_dev_cnt;
 	int lowest_mtd_num;
 	int highest_mtd_num;
-	unsigned int sysfs_supported:1;
+	unsigned int sysfs_supported: 1;
 };
 
 /**
@@ -85,8 +85,8 @@ struct mtd_dev_info
 	int subpage_size;
 	int oob_size;
 	int region_cnt;
-	unsigned int writable:1;
-	unsigned int bb_allowed:1;
+	unsigned int writable: 1;
+	unsigned int bb_allowed: 1;
 };
 
 /**
@@ -260,7 +260,7 @@ int mtd_mark_bad(const struct mtd_dev_info *mtd, int fd, int eb);
  * Returns %0 in case of success and %-1 in case of failure.
  */
 int mtd_read(const struct mtd_dev_info *mtd, int fd, int eb, int offs,
-	     void *buf, int len);
+	void *buf, int len);
 
 /**
  * mtd_write - write data to an MTD device.
@@ -282,8 +282,8 @@ int mtd_read(const struct mtd_dev_info *mtd, int fd, int eb, int offs,
  * Can only write to a single page at a time if writing to OOB.
  */
 int mtd_write(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb,
-	      int offs, void *data, int len, void *oob, int ooblen,
-	      uint8_t mode);
+	int offs, void *data, int len, void *oob, int ooblen,
+	uint8_t mode);
 
 /**
  * mtd_read_oob - read out-of-band area.
@@ -300,7 +300,7 @@ int mtd_write(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb,
  * success and %-1 in case of failure.
  */
 int mtd_read_oob(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
-		 uint64_t start, uint64_t length, void *data);
+	uint64_t start, uint64_t length, void *data);
 
 /**
  * mtd_write_oob - write out-of-band area.
@@ -317,7 +317,7 @@ int mtd_read_oob(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
  * in case of failure.
  */
 int mtd_write_oob(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
-		  uint64_t start, uint64_t length, void *data);
+	uint64_t start, uint64_t length, void *data);
 
 /**
  * mtd_write_img - write a file to MTD device.
@@ -332,7 +332,7 @@ int mtd_write_oob(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
  * %0 in case of success and %-1 in case of failure.
  */
 int mtd_write_img(const struct mtd_dev_info *mtd, int fd, int eb, int offs,
-		  const char *img_name);
+	const char *img_name);
 
 /**
  * mtd_probe_node - test MTD node.

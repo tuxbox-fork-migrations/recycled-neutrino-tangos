@@ -43,11 +43,11 @@
 class CFrameBuffer;
 class CPicture
 {
-public:
-	std::string Filename;
-	std::string Name;
-	std::string Type;
-	time_t Date;
+	public:
+		std::string Filename;
+		std::string Name;
+		std::string Type;
+		time_t Date;
 };
 
 typedef std::vector<CPicture> CViewList;
@@ -58,13 +58,13 @@ class CPictureViewerGui : public CMenuTarget
 	public:
 		enum State
 		{
-			VIEW=0,
+			VIEW = 0,
 			MENU,
 			SLIDESHOW
 		};
 		enum SortOrder
 		{
-			DATE=0,
+			DATE = 0,
 			FILENAME,
 			NAME
 		};
@@ -79,7 +79,7 @@ class CPictureViewerGui : public CMenuTarget
 		int			footer_height;
 		int			buttons1_height;
 		int			buttons2_height;
-		bool				visible;			
+		bool				visible;
 		State          m_state;
 		SortOrder      m_sort;
 
@@ -104,7 +104,7 @@ class CPictureViewerGui : public CMenuTarget
 		void hide();
 
 		CFileFilter picture_filter;
-		void view(unsigned int nr, bool unscaled=false);
+		void view(unsigned int nr, bool unscaled = false);
 		void endView();
 		int  show();
 
@@ -115,7 +115,7 @@ class CPictureViewerGui : public CMenuTarget
 		int m_currentTitle;
 
 		pthread_t	decodeT;
-		static void*	decodeThread(void *arg);
+		static void	*decodeThread(void *arg);
 		bool		decodeTflag;
 
 		void thrView();
@@ -124,7 +124,7 @@ class CPictureViewerGui : public CMenuTarget
 	public:
 		CPictureViewerGui();
 		~CPictureViewerGui();
-		int  exec(CMenuTarget* parent, const std::string & actionKey);
+		int  exec(CMenuTarget *parent, const std::string &actionKey);
 
 		CAudioPlayerGui *m_audioPlayer;
 };

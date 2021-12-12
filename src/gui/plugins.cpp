@@ -56,15 +56,15 @@
 #include <vector>
 
 #include <hardware/video.h>
-extern cVideo * videoDecoder;
+extern cVideo *videoDecoder;
 
 #include "plugins.h"
 
 #include <daemonc/remotecontrol.h>
 #include <gui/lua/luainstance.h>
 
-extern CPlugins       * g_Plugins;    /* neutrino.cpp */
-extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
+extern CPlugins        *g_Plugins;    /* neutrino.cpp */
+extern CRemoteControl *g_RemoteControl;  /* neutrino.cpp */
 
 CPlugins::CPlugins()
 {
@@ -72,16 +72,16 @@ CPlugins::CPlugins()
 	number_of_plugins = 0;
 }
 
-bool CPlugins::plugin_exists(const std::string & filename)
+bool CPlugins::plugin_exists(const std::string &filename)
 {
 	return (find_plugin(filename) >= 0);
 }
 
-int CPlugins::find_plugin(const std::string & filename)
+int CPlugins::find_plugin(const std::string &filename)
 {
-	for (int i = 0; i <  (int) plugin_list.size(); i++)
+	for (int i = 0; i < (int) plugin_list.size(); i++)
 	{
-		if ( (filename.compare(plugin_list[i].filename) == 0) || (filename.compare(plugin_list[i].filename + ".cfg") == 0) )
+		if ((filename.compare(plugin_list[i].filename) == 0) || (filename.compare(plugin_list[i].filename + ".cfg") == 0))
 			return i;
 	}
 	return -1;
@@ -152,7 +152,7 @@ void CPlugins::loadPlugins()
 	scanDir(PLUGINDIR_VAR);
 	scanDir(PLUGINDIR);
 
-	sort (plugin_list.begin(), plugin_list.end());
+	sort(plugin_list.begin(), plugin_list.end());
 }
 
 CPlugins::~CPlugins()
@@ -162,12 +162,14 @@ CPlugins::~CPlugins()
 
 bool CPlugins::overrideType(plugin *plugin_data, std::string &setting, p_type type)
 {
-	if (!setting.empty()) {
+	if (!setting.empty())
+	{
 		char s[setting.length() + 1];
 		cstrncpy(s, setting, setting.length() + 1);
 		char *t, *p = s;
 		while ((t = strsep(&p, ",")))
-			if (!strcmp(t, plugin_data->filename.c_str())) {
+			if (!strcmp(t, plugin_data->filename.c_str()))
+			{
 				plugin_data->type = type;
 				return true;
 			}
@@ -296,9 +298,9 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	return !reject;
 }
 
-int CPlugins::startPlugin_by_name(const std::string & name)
+int CPlugins::startPlugin_by_name(const std::string &name)
 {
-	for (int i = 0; i <  (int) plugin_list.size(); i++)
+	for (int i = 0; i < (int) plugin_list.size(); i++)
 	{
 		if (name.compare(g_Plugins->getName(i)) == 0)
 		{
@@ -308,7 +310,7 @@ int CPlugins::startPlugin_by_name(const std::string & name)
 	return menu_return::RETURN_REPAINT;
 }
 
-int CPlugins::startPlugin(const char * const filename)
+int CPlugins::startPlugin(const char *const filename)
 {
 	int pluginnr = find_plugin(filename);
 	if (pluginnr > -1)
@@ -318,13 +320,13 @@ int CPlugins::startPlugin(const char * const filename)
 	return menu_return::RETURN_REPAINT;
 }
 
-int CPlugins::popenScriptPlugin(int number, const char * script)
+int CPlugins::popenScriptPlugin(int number, const char *script)
 {
 	pid_t pid = 0;
 	FILE *f = my_popen(pid, script, "r");
 	if (f != NULL)
 	{
-		char *output=NULL;
+		char *output = NULL;
 		size_t len = 0;
 		g_RCInput->clearRCMsg();
 		g_RCInput->stopInput();
@@ -332,7 +334,7 @@ int CPlugins::popenScriptPlugin(int number, const char * script)
 			scriptOutput += output;
 		pclose(f);
 		int s;
-		while (waitpid(pid, &s, WNOHANG)>0);
+		while (waitpid(pid, &s, WNOHANG) > 0);
 		kill(pid, SIGTERM);
 		if (output)
 			free(output);
@@ -340,7 +342,7 @@ int CPlugins::popenScriptPlugin(int number, const char * script)
 		g_RCInput->clearRCMsg();
 	}
 	else
-		printf("[CPlugins] can't execute %s\n",script);
+		printf("[CPlugins] can't execute %s\n", script);
 
 	return plugin_list[number].menu_return;
 }
@@ -348,11 +350,11 @@ int CPlugins::popenScriptPlugin(int number, const char * script)
 int CPlugins::startScriptPlugin(int number)
 {
 	const char *script = plugin_list[number].pluginfile.c_str();
-	printf("[CPlugins] executing script %s\n",script);
+	printf("[CPlugins] executing script %s\n", script);
 	if (!file_exists(script))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
-		       script, plugin_list[number].cfgfile.c_str());
+			script, plugin_list[number].cfgfile.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
 
@@ -362,7 +364,7 @@ int CPlugins::startScriptPlugin(int number)
 	if (plugin_list[number].shellwindow)
 	{
 		int res = 0;
-		CShellWindow (script, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE, &res);
+		CShellWindow(script, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE, &res);
 		scriptOutput = "";
 	}
 	else
@@ -374,11 +376,11 @@ int CPlugins::startScriptPlugin(int number)
 int CPlugins::startLuaPlugin(int number)
 {
 	const char *script = plugin_list[number].pluginfile.c_str();
-	printf("[CPlugins] executing lua script %s\n",script);
+	printf("[CPlugins] executing lua script %s\n", script);
 	if (!file_exists(script))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
-		       script, plugin_list[number].cfgfile.c_str());
+			script, plugin_list[number].cfgfile.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
 #ifdef ENABLE_LUA
@@ -424,7 +426,7 @@ int CPlugins::startPlugin(int number)
 	if (!file_exists(plugin_list[number].pluginfile.c_str()))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
-		       plugin_list[number].pluginfile.c_str(), plugin_list[number].cfgfile.c_str());
+			plugin_list[number].pluginfile.c_str(), plugin_list[number].cfgfile.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
 
@@ -452,8 +454,8 @@ int CPlugins::startPlugin(int number)
 
 bool CPlugins::hasPlugin(CPlugins::p_type_t type)
 {
-	for (std::vector<plugin>::iterator it=plugin_list.begin();
-			it!=plugin_list.end(); ++it)
+	for (std::vector<plugin>::iterator it = plugin_list.begin();
+		it != plugin_list.end(); ++it)
 	{
 		if ((it->type & type) && !it->hide)
 			return true;
@@ -461,7 +463,7 @@ bool CPlugins::hasPlugin(CPlugins::p_type_t type)
 	return false;
 }
 
-const std::string& CPlugins::getScriptOutput() const
+const std::string &CPlugins::getScriptOutput() const
 {
 	return scriptOutput;
 }
@@ -475,22 +477,22 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 {
 	switch (type)
 	{
-	case PLUGIN_TYPE_DISABLED:
-		return P_TYPE_DISABLED;
-		break;
-	case PLUGIN_TYPE_GAME:
-		return P_TYPE_GAME;
-		break;
-	case PLUGIN_TYPE_TOOL:
-		return P_TYPE_TOOL;
-		break;
-	case PLUGIN_TYPE_SCRIPT:
-		return P_TYPE_SCRIPT;
-		break;
-	case PLUGIN_TYPE_LUA:
-		return P_TYPE_LUA;
-	default:
-		return P_TYPE_DISABLED;
+		case PLUGIN_TYPE_DISABLED:
+			return P_TYPE_DISABLED;
+			break;
+		case PLUGIN_TYPE_GAME:
+			return P_TYPE_GAME;
+			break;
+		case PLUGIN_TYPE_TOOL:
+			return P_TYPE_TOOL;
+			break;
+		case PLUGIN_TYPE_SCRIPT:
+			return P_TYPE_SCRIPT;
+			break;
+		case PLUGIN_TYPE_LUA:
+			return P_TYPE_LUA;
+		default:
+			return P_TYPE_DISABLED;
 	}
 }
 

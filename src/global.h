@@ -26,7 +26,7 @@
 #include <system/settings.h>
 
 #ifndef NEUTRINO_CPP
-  #define NEUTRINO_CPP extern
+#define NEUTRINO_CPP extern
 #endif
 
 #define NEUTRINO_SETTINGS_FILE		CONFIGDIR "/neutrino.conf"
@@ -80,10 +80,10 @@ NEUTRINO_CPP  FBFontRenderClass	*g_dynFontRenderer;
 NEUTRINO_CPP  FBFontRenderClass	*g_shellFontRenderer;
 
 class Font;
-NEUTRINO_CPP  Font * g_Font[SNeutrinoSettings::FONT_TYPE_COUNT];
-NEUTRINO_CPP  Font * g_FixedFont[SNeutrinoSettings::FONT_TYPE_FIXED_COUNT];
-NEUTRINO_CPP  Font * g_SignalFont;
-NEUTRINO_CPP  Font * g_ShellFont;
+NEUTRINO_CPP  Font *g_Font[SNeutrinoSettings::FONT_TYPE_COUNT];
+NEUTRINO_CPP  Font *g_FixedFont[SNeutrinoSettings::FONT_TYPE_FIXED_COUNT];
+NEUTRINO_CPP  Font *g_SignalFont;
+NEUTRINO_CPP  Font *g_ShellFont;
 
 class CRCInput;
 NEUTRINO_CPP  CRCInput		*g_RCInput;

@@ -46,7 +46,7 @@
 #include <driver/screen_max.h>
 #include "gui/cam_menu.h"
 
-extern CCAMMenuHandler * g_CamHandler;
+extern CCAMMenuHandler *g_CamHandler;
 
 CInfoMenu::CInfoMenu()
 {
@@ -57,7 +57,7 @@ CInfoMenu::~CInfoMenu()
 {
 }
 
-int CInfoMenu::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
+int CInfoMenu::exec(CMenuTarget *parent, const std::string &/*actionKey*/)
 {
 	int   res = menu_return::RETURN_REPAINT;
 
@@ -82,7 +82,7 @@ int CInfoMenu::showMenu()
 
 
 	info->addIntroItems();
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, &imageinfo, NULL, CRCInput::RC_red);
+	CMenuForwarder *mf = new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, &imageinfo, NULL, CRCInput::RC_red);
 	mf->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_IMAGEINFO);
 	info->addItem(mf);
 

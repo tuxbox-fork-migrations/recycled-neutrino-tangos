@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* $Id: 
+/* $Id:
  ****************************************************************************/
 #include <linux/fb.h>
 #include <linux/ioctl.h>
@@ -21,25 +21,25 @@
  */
 typedef struct _cnxtfb_handle
 {
-  void     *hImage;
-  void     *hDRM_SD;
-  void     *hTvEnc_SD;
-  void     *hDRM;
-  void     *hTvEnc;
+	void     *hImage;
+	void     *hDRM_SD;
+	void     *hTvEnc_SD;
+	void     *hDRM;
+	void     *hTvEnc;
 } cnxtfb_handle;
 
 typedef struct _cnxtfb_resolution
 {
-  u_int32_t uWidth;
-  u_int32_t uHeight;
+	u_int32_t uWidth;
+	u_int32_t uHeight;
 
 } cnxtfb_resolution;
 
 typedef enum
 {
-  CNXTFB_BLEND_MODE_GLOBAL_ALPHA = 0, /* Global / Region Alpha */
-  CNXTFB_BLEND_MODE_PIXEL_ALPHA,      /* Alpha from pixel */
-  CNXTFB_BLEND_MODE_ALPHA_MULTIPLIED /* Global alpha multiplied with pixel alpha */
+	CNXTFB_BLEND_MODE_GLOBAL_ALPHA = 0, /* Global / Region Alpha */
+	CNXTFB_BLEND_MODE_PIXEL_ALPHA,      /* Alpha from pixel */
+	CNXTFB_BLEND_MODE_ALPHA_MULTIPLIED /* Global alpha multiplied with pixel alpha */
 } CNXTFB_BLEND_MODE;
 
 #define CNXTFB_IO(type)            _IO('F', type)

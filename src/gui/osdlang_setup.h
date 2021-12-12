@@ -45,27 +45,27 @@
 class CLangSelectNotifier : public CChangeObserver
 {
 	public:
-		bool changeNotify(const neutrino_locale_t, void * data);
+		bool changeNotify(const neutrino_locale_t, void *data);
 };
 
 class COsdLangSetup : public CMenuTarget, CChangeObserver
-{	
-	private:				
+{
+	private:
 		int  width;
 		int is_wizard;
-		CTZChangeNotifier * tzNotifier;
-		
+		CTZChangeNotifier *tzNotifier;
+
 		int showLocalSetup();
 		void showPrefMenu(CMenuWidget *prefMenu, CLangSelectNotifier *langNotifier);
-		
-		CMenuOptionStringChooser* getTzItems();
-		
+
+		CMenuOptionStringChooser *getTzItems();
+
 		bool changeNotify(const neutrino_locale_t, void *);
 
 	public:
 		COsdLangSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 		~COsdLangSetup();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		void showLanguageSetup(CMenuWidget *osdl_setup);
 };
 

@@ -49,8 +49,8 @@ class CBat : public OpenThreads::Thread
 
 		void run();
 		bool Read();
-		bool ParseServiceList(ServiceListDescriptor * sd, BouquetAssociation * b);
-		bool ParseLogicalChannels(LogicalChannelDescriptor * ld, BouquetAssociation * b);
+		bool ParseServiceList(ServiceListDescriptor *sd, BouquetAssociation *b);
+		bool ParseLogicalChannels(LogicalChannelDescriptor *ld, BouquetAssociation *b);
 
 	public:
 		CBat(t_satellite_position spos, freq_id_t frq, int dnum = 0);
@@ -58,8 +58,8 @@ class CBat : public OpenThreads::Thread
 		bool Start();
 		bool Stop();
 		bool Parse();
-		channel_number_map_t & getLogicalMap() { return logical_map; }
-		bouquet_map_t & getBouquets() { return bouquet_map; }
+		channel_number_map_t &getLogicalMap() { return logical_map; }
+		bouquet_map_t &getBouquets() { return bouquet_map; }
 };
 
 #endif

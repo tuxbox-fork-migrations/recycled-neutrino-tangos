@@ -90,8 +90,8 @@ struct libmtd
 	char *mtd_oob_size;
 	char *mtd_region_cnt;
 	char *mtd_flags;
-	unsigned int sysfs_supported:1;
-	unsigned int offs64_ioctls:2;
+	unsigned int sysfs_supported: 1;
+	unsigned int offs64_ioctls: 2;
 };
 
 int legacy_libmtd_open(void);

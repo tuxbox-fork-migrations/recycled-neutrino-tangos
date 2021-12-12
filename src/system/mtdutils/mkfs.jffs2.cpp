@@ -82,7 +82,8 @@ extern CLocaleManager *g_Locale;
 int page_size = -1;
 int target_endian = __BYTE_ORDER;
 struct rb_root hardlinks;
-struct filesystem_entry {
+struct filesystem_entry
+{
 	char *name;				/* Name of this directory (think basename) */
 	char *path;				/* Path of this directory (think dirname) */
 	char *fullname;				/* Full name of this directory (i.e. path+name) */
@@ -134,13 +135,15 @@ CMkfsJFFS2::~CMkfsJFFS2()
 
 bool CMkfsJFFS2::classInit()
 {
-	if (useSumtool_) {
+	if (useSumtool_)
+	{
 		sumName_ = imageName_;
 		imageName_ += ".tmp";
 	}
 
 	out_fd = open(imageName_.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0644);
-	if (out_fd == -1) {
+	if (out_fd == -1)
+	{
 		sys_errmsg("open output file: %s", imageName_.c_str());
 		return false;
 	}
@@ -151,15 +154,18 @@ bool CMkfsJFFS2::classInit()
 
 void CMkfsJFFS2::classClear()
 {
-	if (fse_root != NULL) {
+	if (fse_root != NULL)
+	{
 		cleanup(fse_root);
 		fse_root = NULL;
 	}
-	if (out_fd > 0) {
+	if (out_fd > 0)
+	{
 		close(out_fd);
 		out_fd = -1;
 	}
-	if (compressorIsInit) {
+	if (compressorIsInit)
+	{
 		jffs2_compressors_exit();
 		compressorIsInit = false;
 	}
@@ -203,14 +209,17 @@ char *CMkfsJFFS2::xreadlink(const char *path)
 	char *buf = NULL;
 	int bufsize = 0, readsize = 0;
 
-	do {
-		buf = (char*)xrealloc(buf, bufsize += GROWBY);
+	do
+	{
+		buf = (char *)xrealloc(buf, bufsize += GROWBY);
 		readsize = readlink(path, buf, bufsize); /* 1st try */
-		if (readsize == -1) {
+		if (readsize == -1)
+		{
 			sys_errmsg("%s:%s", PROGRAM_NAME, path);
 			return NULL;
 		}
-	} while (bufsize < readsize + 1);
+	}
+	while (bufsize < readsize + 1);
 
 	buf[readsize] = '\0';
 
@@ -222,7 +231,8 @@ void CMkfsJFFS2::cleanup(struct filesystem_entry *dir)
 	struct filesystem_entry *e;
 
 	e = dir->files;
-	while (e) {
+	while (e)
+	{
 		if (e->name)
 			free(e->name);
 		if (e->path)
@@ -234,7 +244,8 @@ void CMkfsJFFS2::cleanup(struct filesystem_entry *dir)
 		e->fullname = NULL;
 		e->prev = NULL;
 		filesystem_entry *prev = e;
-		if (S_ISDIR(e->sb.st_mode)) {
+		if (S_ISDIR(e->sb.st_mode))
+		{
 			cleanup(e);
 		}
 		e = e->next;
@@ -243,8 +254,9 @@ void CMkfsJFFS2::cleanup(struct filesystem_entry *dir)
 }
 
 struct filesystem_entry *CMkfsJFFS2::add_host_filesystem_entry(const char *name,
-					const char *path, unsigned long uid, unsigned long gid,
-					unsigned long mode, dev_t rdev, struct filesystem_entry *parent) {
+	const char *path, unsigned long uid, unsigned long gid,
+	unsigned long mode, dev_t rdev, struct filesystem_entry *parent)
+{
 	int status;
 	char *tmp;
 	struct stat sb;
@@ -254,17 +266,22 @@ struct filesystem_entry *CMkfsJFFS2::add_host_filesystem_entry(const char *name,
 	memset(&sb, 0, sizeof(struct stat));
 	status = lstat(path, &sb);
 
-	if (status >= 0) {
+	if (status >= 0)
+	{
 		/* It is ok for some types of files to not exit on disk (such as
 		 * device nodes), but if they _do_ exist the specified mode had
 		 * better match the actual file or strange things will happen.... */
-		if ((mode & S_IFMT) != (sb.st_mode & S_IFMT)) {
-			sys_errmsg ("%s: file type does not match specified type!", path);
+		if ((mode & S_IFMT) != (sb.st_mode & S_IFMT))
+		{
+			sys_errmsg("%s: file type does not match specified type!", path);
 		}
 		timestamp = sb.st_mtime;
-	} else {
+	}
+	else
+	{
 		/* If this is a regular file, it _must_ exist on disk */
-		if ((mode & S_IFMT) == S_IFREG) {
+		if ((mode & S_IFMT) == S_IFREG)
+		{
 			sys_errmsg("%s: does not exist!", path);
 		}
 	}
@@ -272,20 +289,24 @@ struct filesystem_entry *CMkfsJFFS2::add_host_filesystem_entry(const char *name,
 	/* Squash all permissions so files are owned by root, all
 	 * timestamps are _right now_, and file permissions
 	 * have group and other write removed */
-	if (squash_uids) {
+	if (squash_uids)
+	{
 		uid = gid = 0;
 	}
-	if (squash_perms) {
-		if (!S_ISLNK(mode)) {
+	if (squash_perms)
+	{
+		if (!S_ISLNK(mode))
+		{
 			mode &= ~(S_IWGRP | S_IWOTH);
 			mode &= ~(S_ISUID | S_ISGID);
 		}
 	}
-	if (fake_times) {
+	if (fake_times)
+	{
 		timestamp = 0;
 	}
 
-	entry = reinterpret_cast<filesystem_entry*>(xcalloc(1, sizeof(struct filesystem_entry)));
+	entry = reinterpret_cast<filesystem_entry *>(xcalloc(1, sizeof(struct filesystem_entry)));
 
 	entry->hostname = xstrdup(path);
 	entry->fullname = xstrdup(name);
@@ -305,11 +326,13 @@ struct filesystem_entry *CMkfsJFFS2::add_host_filesystem_entry(const char *name,
 	entry->sb.st_mode = mode;
 	entry->sb.st_rdev = rdev;
 	entry->sb.st_atime = entry->sb.st_ctime =
-				     entry->sb.st_mtime = timestamp;
-	if (S_ISREG(mode)) {
+			entry->sb.st_mtime = timestamp;
+	if (S_ISREG(mode))
+	{
 		entry->sb.st_size = sb.st_size;
 	}
-	if (S_ISLNK(mode)) {
+	if (S_ISLNK(mode))
+	{
 		entry->link = xreadlink(path);
 		entry->sb.st_size = strlen(entry->link);
 	}
@@ -320,9 +343,12 @@ struct filesystem_entry *CMkfsJFFS2::add_host_filesystem_entry(const char *name,
 
 	/* Hook the file into the parent directory */
 	entry->parent = parent;
-	if (!parent->files) {
+	if (!parent->files)
+	{
 		parent->files = entry;
-	} else {
+	}
+	else
+	{
 		struct filesystem_entry *prev;
 		for (prev = parent->files; prev->next; prev = prev->next);
 		prev->next = entry;
@@ -333,10 +359,12 @@ struct filesystem_entry *CMkfsJFFS2::add_host_filesystem_entry(const char *name,
 }
 
 struct filesystem_entry *CMkfsJFFS2::find_filesystem_entry(
-				struct filesystem_entry *dir, char *fullname, uint32_t type) {
+	struct filesystem_entry *dir, char *fullname, uint32_t type)
+{
 	struct filesystem_entry *e = dir;
 
-	if (S_ISDIR(dir->sb.st_mode)) {
+	if (S_ISDIR(dir->sb.st_mode))
+	{
 		/* If this is the first call, and we actually want this
 		 * directory, then return it now */
 		if (strcmp(fullname, e->fullname) == 0)
@@ -344,27 +372,38 @@ struct filesystem_entry *CMkfsJFFS2::find_filesystem_entry(
 
 		e = dir->files;
 	}
-	while (e) {
-		if (S_ISDIR(e->sb.st_mode)) {
+	while (e)
+	{
+		if (S_ISDIR(e->sb.st_mode))
+		{
 			int len = strlen(e->fullname);
 
 			/* Check if we are a parent of the correct path */
-			if (strncmp(e->fullname, fullname, len) == 0) {
+			if (strncmp(e->fullname, fullname, len) == 0)
+			{
 				/* Is this an _exact_ match? */
-				if (strcmp(fullname, e->fullname) == 0) {
+				if (strcmp(fullname, e->fullname) == 0)
+				{
 					return (e);
 				}
 				/* Looks like we found a parent of the correct path */
-				if (fullname[len] == '/') {
-					if (e->files) {
-						return (find_filesystem_entry (e, fullname, type));
-					} else {
+				if (fullname[len] == '/')
+				{
+					if (e->files)
+					{
+						return (find_filesystem_entry(e, fullname, type));
+					}
+					else
+					{
 						return NULL;
 					}
 				}
 			}
-		} else {
-			if (strcmp(fullname, e->fullname) == 0) {
+		}
+		else
+		{
+			if (strcmp(fullname, e->fullname) == 0)
+			{
 				return (e);
 			}
 		}
@@ -376,9 +415,11 @@ struct filesystem_entry *CMkfsJFFS2::find_filesystem_entry(
 void CMkfsJFFS2::printProgressData(bool finish)
 {
 	static int p_old = -1;
-	if (finish) p_old = -1;
-	int p = (finish) ? 100 : ((all_read/1024)*100 )/kbUsed;
-	if (p != p_old) {
+	if (finish)
+		p_old = -1;
+	int p = (finish) ? 100 : ((all_read / 1024) * 100) / kbUsed;
+	if (p != p_old)
+	{
 		p_old = p;
 		printf("mkfs.jffs2: %ld KB from %ld KB read (%d%%)\n", all_read / 1024, kbUsed, p); fflush(stdout);
 	}
@@ -387,9 +428,11 @@ void CMkfsJFFS2::printProgressData(bool finish)
 void CMkfsJFFS2::paintProgressBar(bool finish)
 {
 	static int p_old = -1;
-	if (finish) p_old = -1;
-	int p = (finish) ? 100 : ((all_read/1024)*100 )/kbUsed;
-	if (p != p_old) {
+	if (finish)
+		p_old = -1;
+	int p = (finish) ? 100 : ((all_read / 1024) * 100) / kbUsed;
+	if (p != p_old)
+	{
 		p_old = p;
 		progressBar->showLocalStatus(p);
 	}
@@ -406,22 +449,24 @@ unsigned int CMkfsJFFS2::write_regular_file(struct filesystem_entry *e)
 	unsigned int totcomp = 0;
 
 	statbuf = &(e->sb);
-	if ((uint32_t)statbuf->st_size >= JFFS2_MAX_FILE_SIZE) {
+	if ((uint32_t)statbuf->st_size >= JFFS2_MAX_FILE_SIZE)
+	{
 		errmsg("Skipping file \"%s\" too large.", e->path);
 		return -1;
 	}
 	fd = open(e->hostname, O_RDONLY);
-	if (fd == -1) {
+	if (fd == -1)
+	{
 		sys_errmsg("%s: open file", e->hostname);
 	}
 
 	e->ino = ++ino;
 	mkfs_debug_msg("writing file '%s'  ino=%lu  parent_ino=%lu",
-		       e->name, (unsigned long) e->ino,
-		       (unsigned long) e->parent->ino);
+		e->name, (unsigned long) e->ino,
+		(unsigned long) e->parent->ino);
 	write_dirent(e);
 
-	buf = (unsigned char*)xmalloc(page_size);
+	buf = (unsigned char *)xmalloc(page_size);
 	cbuf = NULL;
 
 	ver = 0;
@@ -440,14 +485,17 @@ unsigned int CMkfsJFFS2::write_regular_file(struct filesystem_entry *e)
 	ri.mtime = cpu_to_je32(statbuf->st_mtime);
 	ri.isize = cpu_to_je32(statbuf->st_size);
 
-	while ((len = read(fd, buf, page_size))) {
+	while ((len = read(fd, buf, page_size)))
+	{
 		unsigned char *tbuf = buf;
 
-		if (len < 0) {
+		if (len < 0)
+		{
 			sys_errmsg("read");
 		}
 
-		if ((printProgress) || (progressBar)) {
+		if ((printProgress) || (progressBar))
+		{
 			all_read += len;
 			if (printProgress)
 				printProgressData(false);
@@ -455,7 +503,8 @@ unsigned int CMkfsJFFS2::write_regular_file(struct filesystem_entry *e)
 				paintProgressBar();
 		}
 
-		while (len) {
+		while (len)
+		{
 			uint32_t dsize, space;
 			uint16_t compression;
 
@@ -473,16 +522,19 @@ unsigned int CMkfsJFFS2::write_regular_file(struct filesystem_entry *e)
 			ri.compr = compression & 0xff;
 			ri.usercompr = (compression >> 8) & 0xff;
 
-			if (ri.compr) {
+			if (ri.compr)
+			{
 				wbuf = cbuf;
-			} else {
+			}
+			else
+			{
 				wbuf = tbuf;
 				dsize = space;
 			}
 
 			ri.totlen = cpu_to_je32(sizeof(ri) + space);
 			ri.hdr_crc = cpu_to_je32(mtd_crc32(0,
-							   &ri, sizeof(struct jffs2_unknown_node) - 4));
+						&ri, sizeof(struct jffs2_unknown_node) - 4));
 
 			ri.version = cpu_to_je32(++ver);
 			ri.offset = cpu_to_je32(offset);
@@ -497,7 +549,8 @@ unsigned int CMkfsJFFS2::write_regular_file(struct filesystem_entry *e)
 			totcomp += space;
 			padword();
 
-			if (tbuf != cbuf) {
+			if (tbuf != cbuf)
+			{
 				free(cbuf);
 				cbuf = NULL;
 			}
@@ -508,14 +561,15 @@ unsigned int CMkfsJFFS2::write_regular_file(struct filesystem_entry *e)
 
 		}
 	}
-	if (!je32_to_cpu(ri.version)) {
+	if (!je32_to_cpu(ri.version))
+	{
 		/* Was empty file */
 		pad_block_if_less_than(sizeof(ri));
 
 		ri.version = cpu_to_je32(++ver);
 		ri.totlen = cpu_to_je32(sizeof(ri));
 		ri.hdr_crc = cpu_to_je32(mtd_crc32(0,
-						   &ri, sizeof(struct jffs2_unknown_node) - 4));
+					&ri, sizeof(struct jffs2_unknown_node) - 4));
 		ri.csize = cpu_to_je32(0);
 		ri.dsize = cpu_to_je32(0);
 		ri.node_crc = cpu_to_je32(mtd_crc32(0, &ri, sizeof(ri) - 8));
@@ -537,14 +591,15 @@ void CMkfsJFFS2::write_symlink(struct filesystem_entry *e)
 	statbuf = &(e->sb);
 	e->ino = ++ino;
 	mkfs_debug_msg("writing symlink '%s'  ino=%lu  parent_ino=%lu",
-		       e->name, (unsigned long) e->ino,
-		       (unsigned long) e->parent->ino);
+		e->name, (unsigned long) e->ino,
+		(unsigned long) e->parent->ino);
 	write_dirent(e);
 
 	len = strlen(e->link);
-	if (len > JFFS2_MAX_SYMLINK_LEN) {
+	if (len > JFFS2_MAX_SYMLINK_LEN)
+	{
 		errmsg("symlink too large. Truncated to %d chars.",
-		       JFFS2_MAX_SYMLINK_LEN);
+			JFFS2_MAX_SYMLINK_LEN);
 		len = JFFS2_MAX_SYMLINK_LEN;
 	}
 
@@ -554,7 +609,7 @@ void CMkfsJFFS2::write_symlink(struct filesystem_entry *e)
 	ri.nodetype = cpu_to_je16(JFFS2_NODETYPE_INODE);
 	ri.totlen = cpu_to_je32(sizeof(ri) + len);
 	ri.hdr_crc = cpu_to_je32(mtd_crc32(0,
-					   &ri, sizeof(struct jffs2_unknown_node) - 4));
+				&ri, sizeof(struct jffs2_unknown_node) - 4));
 
 	ri.ino = cpu_to_je32(e->ino);
 	ri.mode = cpu_to_jemode(statbuf->st_mode);
@@ -583,10 +638,11 @@ void CMkfsJFFS2::write_pipe(struct filesystem_entry *e)
 
 	statbuf = &(e->sb);
 	e->ino = ++ino;
-	if (S_ISDIR(statbuf->st_mode)) {
+	if (S_ISDIR(statbuf->st_mode))
+	{
 		mkfs_debug_msg("writing dir '%s'  ino=%lu  parent_ino=%lu",
-			       e->name, (unsigned long) e->ino,
-			       (unsigned long) (e->parent) ? e->parent->ino : 1);
+			e->name, (unsigned long) e->ino,
+			(unsigned long)(e->parent) ? e->parent->ino : 1);
 	}
 	write_dirent(e);
 
@@ -596,7 +652,7 @@ void CMkfsJFFS2::write_pipe(struct filesystem_entry *e)
 	ri.nodetype = cpu_to_je16(JFFS2_NODETYPE_INODE);
 	ri.totlen = cpu_to_je32(sizeof(ri));
 	ri.hdr_crc = cpu_to_je32(mtd_crc32(0,
-					   &ri, sizeof(struct jffs2_unknown_node) - 4));
+				&ri, sizeof(struct jffs2_unknown_node) - 4));
 
 	ri.ino = cpu_to_je32(e->ino);
 	ri.mode = cpu_to_jemode(statbuf->st_mode);
@@ -628,7 +684,7 @@ void CMkfsJFFS2::write_special_file(struct filesystem_entry *e)
 	write_dirent(e);
 
 	kdev = cpu_to_je16((major(statbuf->st_rdev) << 8) +
-			   minor(statbuf->st_rdev));
+			minor(statbuf->st_rdev));
 
 	memset(&ri, 0, sizeof(ri));
 
@@ -636,7 +692,7 @@ void CMkfsJFFS2::write_special_file(struct filesystem_entry *e)
 	ri.nodetype = cpu_to_je16(JFFS2_NODETYPE_INODE);
 	ri.totlen = cpu_to_je32(sizeof(ri) + sizeof(kdev));
 	ri.hdr_crc = cpu_to_je32(mtd_crc32(0,
-					   &ri, sizeof(struct jffs2_unknown_node) - 4));
+				&ri, sizeof(struct jffs2_unknown_node) - 4));
 
 	ri.ino = cpu_to_je32(e->ino);
 	ri.mode = cpu_to_jemode(statbuf->st_mode);
@@ -671,7 +727,7 @@ void CMkfsJFFS2::write_dirent(struct filesystem_entry *e)
 	rd.nodetype = cpu_to_je16(JFFS2_NODETYPE_DIRENT);
 	rd.totlen = cpu_to_je32(sizeof(rd) + strlen(name));
 	rd.hdr_crc = cpu_to_je32(mtd_crc32(0, &rd,
-					   sizeof(struct jffs2_unknown_node) - 4));
+				sizeof(struct jffs2_unknown_node) - 4));
 	rd.pino = cpu_to_je32((e->parent) ? e->parent->ino : 1);
 	rd.version = cpu_to_je32(version++);
 	rd.ino = cpu_to_je32(e->ino);
@@ -694,19 +750,22 @@ uint32_t CMkfsJFFS2::find_hardlink(struct filesystem_entry *e)
 	struct rb_node **n = &hardlinks.rb_node;
 	struct rb_node *parent = NULL;
 
-	while (*n) {
+	while (*n)
+	{
 		struct filesystem_entry *f;
 		parent = *n;
 		f = rb_entry(parent, struct filesystem_entry, hardlink_rb);
 		if ((f->sb.st_dev < e->sb.st_dev) ||
-				(f->sb.st_dev == e->sb.st_dev &&
-				 f->sb.st_ino < e->sb.st_ino))
+			(f->sb.st_dev == e->sb.st_dev &&
+				f->sb.st_ino < e->sb.st_ino))
 			n = &parent->rb_left;
 		else if ((f->sb.st_dev > e->sb.st_dev) ||
-				(f->sb.st_dev == e->sb.st_dev &&
-				 f->sb.st_ino > e->sb.st_ino)) {
+			(f->sb.st_dev == e->sb.st_dev &&
+				f->sb.st_ino > e->sb.st_ino))
+		{
 			n = &parent->rb_right;
-		} else
+		}
+		else
 			return f->ino;
 	}
 
@@ -717,9 +776,10 @@ uint32_t CMkfsJFFS2::find_hardlink(struct filesystem_entry *e)
 
 void CMkfsJFFS2::full_write(int fd, const void *buf, int len)
 {
-	char* buf1 = (char*)buf;
+	char *buf1 = (char *)buf;
 
-	while (len > 0) {
+	while (len > 0)
+	{
 		int ret = write(fd, buf1, len);
 
 		if (ret < 0)
@@ -736,18 +796,23 @@ void CMkfsJFFS2::full_write(int fd, const void *buf, int len)
 
 void CMkfsJFFS2::pad_block_if_less_than(int req)
 {
-	if (add_cleanmarkers) {
-		if ((out_ofs % erase_block_size) == 0) {
+	if (add_cleanmarkers)
+	{
+		if ((out_ofs % erase_block_size) == 0)
+		{
 			full_write(out_fd, &cleanmarker, sizeof(cleanmarker));
 			pad(cleanmarker_size - sizeof(cleanmarker));
 			padword();
 		}
 	}
-	if ((out_ofs % erase_block_size) + req > erase_block_size) {
+	if ((out_ofs % erase_block_size) + req > erase_block_size)
+	{
 		padblock();
 	}
-	if (add_cleanmarkers) {
-		if ((out_ofs % erase_block_size) == 0) {
+	if (add_cleanmarkers)
+	{
+		if ((out_ofs % erase_block_size) == 0)
+		{
 			full_write(out_fd, &cleanmarker, sizeof(cleanmarker));
 			pad(cleanmarker_size - sizeof(cleanmarker));
 			padword();
@@ -757,23 +822,28 @@ void CMkfsJFFS2::pad_block_if_less_than(int req)
 
 void CMkfsJFFS2::padblock(void)
 {
-	while (out_ofs % erase_block_size) {
+	while (out_ofs % erase_block_size)
+	{
 #if __cplusplus < 201103
 		full_write(out_fd, ffbuf, min(sizeof(ffbuf),
 #else
 		full_write(out_fd, ffbuf, std::min(sizeof(ffbuf),
 #endif
-					      (size_t)(erase_block_size - (out_ofs % erase_block_size))));
+				(size_t)(erase_block_size - (out_ofs % erase_block_size))));
 	}
 }
 
 void CMkfsJFFS2::pad(int req)
 {
-	while (req) {
-		if (req > (int)sizeof(ffbuf)) {
+	while (req)
+	{
+		if (req > (int)sizeof(ffbuf))
+		{
 			full_write(out_fd, ffbuf, sizeof(ffbuf));
 			req -= sizeof(ffbuf);
-		} else {
+		}
+		else
+		{
 			full_write(out_fd, ffbuf, req);
 			req = 0;
 		}
@@ -784,11 +854,14 @@ void CMkfsJFFS2::recursive_populate_directory(struct filesystem_entry *dir)
 {
 	struct filesystem_entry *e;
 	e = dir->files;
-	while (e) {
+	while (e)
+	{
 		if (e->sb.st_nlink >= 1 && (e->ino = find_hardlink(e)))
 			write_dirent(e);
-		else {
-			switch (e->sb.st_mode & S_IFMT) {
+		else
+		{
+			switch (e->sb.st_mode & S_IFMT)
+			{
 				case S_IFDIR:
 					write_pipe(e);
 					break;
@@ -812,12 +885,14 @@ void CMkfsJFFS2::recursive_populate_directory(struct filesystem_entry *dir)
 					break;
 				default:
 					errmsg("Unknown mode %o for %s", e->sb.st_mode,
-					       e->fullname);
+						e->fullname);
 					break;
 			}
 
-			if ((printProgress) || (progressBar)) {
-				switch (e->sb.st_mode & S_IFMT) {
+			if ((printProgress) || (progressBar))
+			{
+				switch (e->sb.st_mode & S_IFMT)
+				{
 					case S_IFDIR:
 					case S_IFSOCK:
 					case S_IFIFO:
@@ -840,9 +915,12 @@ void CMkfsJFFS2::recursive_populate_directory(struct filesystem_entry *dir)
 	}
 
 	e = dir->files;
-	while (e) {
-		if (S_ISDIR(e->sb.st_mode)) {
-			if (e->files) {
+	while (e)
+	{
+		if (S_ISDIR(e->sb.st_mode))
+		{
+			if (e->files)
+			{
 				recursive_populate_directory(e);
 			}
 		}
@@ -855,7 +933,7 @@ void CMkfsJFFS2::create_target_filesystem(struct filesystem_entry *root)
 	cleanmarker.magic    = cpu_to_je16(JFFS2_MAGIC_BITMASK);
 	cleanmarker.nodetype = cpu_to_je16(JFFS2_NODETYPE_CLEANMARKER);
 	cleanmarker.totlen   = cpu_to_je32(cleanmarker_size);
-	cleanmarker.hdr_crc  = cpu_to_je32(mtd_crc32(0, &cleanmarker, sizeof(struct jffs2_unknown_node)-4));
+	cleanmarker.hdr_crc  = cpu_to_je32(mtd_crc32(0, &cleanmarker, sizeof(struct jffs2_unknown_node) - 4));
 
 	if (ino == 0)
 		ino = 1;
@@ -863,18 +941,26 @@ void CMkfsJFFS2::create_target_filesystem(struct filesystem_entry *root)
 	root->ino = 1;
 	recursive_populate_directory(root);
 
-	if (pad_fs_size == -1) {
+	if (pad_fs_size == -1)
+	{
 		padblock();
-	} else {
-		if (pad_fs_size && add_cleanmarkers) {
+	}
+	else
+	{
+		if (pad_fs_size && add_cleanmarkers)
+		{
 			padblock();
-			while (out_ofs < pad_fs_size) {
+			while (out_ofs < pad_fs_size)
+			{
 				full_write(out_fd, &cleanmarker, sizeof(cleanmarker));
 				pad(cleanmarker_size - sizeof(cleanmarker));
 				padblock();
 			}
-		} else {
-			while (out_ofs < pad_fs_size) {
+		}
+		else
+		{
+			while (out_ofs < pad_fs_size)
+			{
 #if __cplusplus < 201103
 				full_write(out_fd, ffbuf, min(sizeof(ffbuf), (size_t)(pad_fs_size - out_ofs)));
 #else
@@ -914,17 +1000,19 @@ bool CMkfsJFFS2::interpret_table_entry(struct filesystem_entry *root, const char
 
 	memset(name, '\0', 512);
 	if (sscanf(line, "%511s %c %lo %lu %lu %lu %lu %lu %lu %lu",
-		   name, &type, &mode, &uid, &gid, &major, &minor, &start, &increment, &count) < 0)
+			name, &type, &mode, &uid, &gid, &major, &minor, &start, &increment, &count) < 0)
 		return false;
 
-	if (!strcmp(name, "/")) {
+	if (!strcmp(name, "/"))
+	{
 		sys_errmsg("Device table entries require absolute paths");
 	}
 
 	xasprintf(&hostpath, "%s%s", rootdir.c_str(), name);
 
 	/* Check if this file already exists... */
-	switch (type) {
+	switch (type)
+	{
 		case 'd':
 			mode |= S_IFDIR;
 			break;
@@ -947,16 +1035,20 @@ bool CMkfsJFFS2::interpret_table_entry(struct filesystem_entry *root, const char
 			sys_errmsg("Unsupported file type '%c'", type);
 	}
 	entry = find_filesystem_entry(root, name, mode);
-	if (entry && !(count > 0 && (type == 'c' || type == 'b'))) {
+	if (entry && !(count > 0 && (type == 'c' || type == 'b')))
+	{
 		/* Ok, we just need to fixup the existing entry
 		 * and we will be all done... */
 		entry->sb.st_uid = uid;
 		entry->sb.st_gid = gid;
 		entry->sb.st_mode = mode;
-		if (major && minor) {
+		if (major && minor)
+		{
 			entry->sb.st_rdev = makedev(major, minor);
 		}
-	} else {
+	}
+	else
+	{
 		/* If parent is NULL (happens with device table entries),
 		 * try and find our parent now) */
 		char *tmp, *dir;
@@ -965,13 +1057,15 @@ bool CMkfsJFFS2::interpret_table_entry(struct filesystem_entry *root, const char
 		dir = dirname(tmp);
 		parent = find_filesystem_entry(root, dir, S_IFDIR);
 		free(tmp);
-		if (parent == NULL) {
-			errmsg ("skipping device_table entry '%s': no parent directory!", name);
+		if (parent == NULL)
+		{
+			errmsg("skipping device_table entry '%s': no parent directory!", name);
 			free(hostpath);
 			return false;
 		}
 
-		switch (type) {
+		switch (type)
+		{
 			case 'd':
 				add_host_filesystem_entry(name, hostpath, uid, gid, mode, 0, parent);
 				break;
@@ -983,24 +1077,28 @@ bool CMkfsJFFS2::interpret_table_entry(struct filesystem_entry *root, const char
 				break;
 			case 'c':
 			case 'b':
-				if (count > 0) {
+				if (count > 0)
+				{
 					dev_t rdev;
 					unsigned long i;
 					char *dname, *hpath;
 
-					for (i = start; i < (start + count); i++) {
+					for (i = start; i < (start + count); i++)
+					{
 						xasprintf(&dname, "%s%lu", name, i);
 						xasprintf(&hpath, "%s/%s%lu", rootdir.c_str(), name, i);
 						rdev = makedev(major, minor + (i - start) * increment);
 						add_host_filesystem_entry(dname, hpath, uid, gid,
-									  mode, rdev, parent);
+							mode, rdev, parent);
 						free(dname);
 						free(hpath);
 					}
-				} else {
+				}
+				else
+				{
 					dev_t rdev = makedev(major, minor);
 					add_host_filesystem_entry(name, hostpath, uid, gid,
-								  mode, rdev, parent);
+						mode, rdev, parent);
 				}
 				break;
 			default:
@@ -1020,7 +1118,8 @@ bool CMkfsJFFS2::parse_device_table(struct filesystem_entry *root, v_devtable_t 
 
 	bool status = false;
 	std::vector<std::string>::iterator it = v_devtable->begin();
-	while (it < v_devtable->end()) {
+	while (it < v_devtable->end())
+	{
 		std::string line = *it;
 		line = trim(line);
 		if (interpret_table_entry(root, line.c_str()))
@@ -1031,9 +1130,10 @@ bool CMkfsJFFS2::parse_device_table(struct filesystem_entry *root, v_devtable_t 
 }
 
 struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
-				struct filesystem_entry *parent, const char *targetpath,
-				const char *hostpath, bool skipSpezialFolders,
-				CProgressWindow *progress) {
+	struct filesystem_entry *parent, const char *targetpath,
+	const char *hostpath, bool skipSpezialFolders,
+	CProgressWindow *progress)
+{
 	int i, n;
 	struct stat sb;
 	char *hpath, *tpath;
@@ -1041,14 +1141,17 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 	struct filesystem_entry *entry;
 	bool skipCheck = false;
 
-	if (lstat(hostpath, &sb)) {
+	if (lstat(hostpath, &sb))
+	{
 		sys_errmsg("%s", hostpath);
 	}
-	if (skipSpezialFolders) {
+	if (skipSpezialFolders)
+	{
 		// check for spezial folders and mounted folders
 		struct statfs s;
 		::statfs(hostpath, &s);
-		switch (s.f_type) {
+		switch (s.f_type)
+		{
 			case 0xEF53L:		/*EXT2 & EXT3*/
 			case 0x6969L:		/*NFS*/
 			case 0xFF534D42L:	/*CIFS*/
@@ -1062,9 +1165,10 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 		}
 
 		if (((sb.st_dev == dev_x[dev_dev])  && (strstr(targetpath, "/dev")  == targetpath)) ||
-		    ((sb.st_dev == dev_x[dev_proc]) && (strstr(targetpath, "/proc") == targetpath)) ||
-		    ((sb.st_dev == dev_x[dev_sys])  && (strstr(targetpath, "/sys")  == targetpath)) ||
-		    ((sb.st_dev == dev_x[dev_tmp])  && (strstr(targetpath, "/tmp")  == targetpath))) {
+			((sb.st_dev == dev_x[dev_proc]) && (strstr(targetpath, "/proc") == targetpath)) ||
+			((sb.st_dev == dev_x[dev_sys])  && (strstr(targetpath, "/sys")  == targetpath)) ||
+			((sb.st_dev == dev_x[dev_tmp])  && (strstr(targetpath, "/tmp")  == targetpath)))
+		{
 			skipCheck = true;
 		}
 
@@ -1075,7 +1179,7 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 	}
 
 	entry = add_host_filesystem_entry(targetpath, hostpath,
-					  sb.st_uid, sb.st_gid, sb.st_mode, 0, parent);
+			sb.st_uid, sb.st_gid, sb.st_mode, 0, parent);
 
 	if ((skipSpezialFolders) && (skipCheck))
 		return NULL;
@@ -1086,33 +1190,42 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 #endif
 
 	n = scandir(hostpath, &namelist, 0, alphasort);
-	if (n < 0) {
+	if (n < 0)
+	{
 		sys_errmsg("opening directory %s", hostpath);
 	}
 
 	int i_pr = 0, n_pr = 0;
-	if (progress != NULL) {
-		n_pr = (n <= 2) ? 1 : n-2;
+	if (progress != NULL)
+	{
+		n_pr = (n <= 2) ? 1 : n - 2;
 	}
-	for (i=0; i<n; i++) {
+	for (i = 0; i < n; i++)
+	{
 		struct dirent *dp = namelist[i];
 		if (dp->d_name[0] == '.' && (dp->d_name[1] == 0 ||
-	           (dp->d_name[1] == '.' &&  dp->d_name[2] == 0))) {
+				(dp->d_name[1] == '.' &&  dp->d_name[2] == 0)))
+		{
 			free(dp);
 			continue;
 		}
 
 		xasprintf(&hpath, "%s/%s", hostpath, dp->d_name);
-		if (lstat(hpath, &sb)) {
+		if (lstat(hpath, &sb))
+		{
 			sys_errmsg("%s", hpath);
 		}
-		if (strcmp(targetpath, "/") == 0) {
+		if (strcmp(targetpath, "/") == 0)
+		{
 			xasprintf(&tpath, "%s%s", targetpath, dp->d_name);
-		} else {
+		}
+		else
+		{
 			xasprintf(&tpath, "%s/%s", targetpath, dp->d_name);
 		}
 
-		switch (sb.st_mode & S_IFMT) {
+		switch (sb.st_mode & S_IFMT)
+		{
 			case S_IFDIR:
 				recursive_add_host_directory(entry, tpath, hpath, skipSpezialFolders);
 				break;
@@ -1124,7 +1237,7 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 			case S_IFCHR:
 			case S_IFBLK:
 				add_host_filesystem_entry(tpath, hpath, sb.st_uid,
-							  sb.st_gid, sb.st_mode, sb.st_rdev, entry);
+					sb.st_gid, sb.st_mode, sb.st_rdev, entry);
 				break;
 
 			default:
@@ -1134,7 +1247,8 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 		free(dp);
 		free(hpath);
 		free(tpath);
-		if (progress != NULL) {
+		if (progress != NULL)
+		{
 			progress->showLocalStatus((i_pr * 100) / n_pr);
 			i_pr++;
 		}
@@ -1149,16 +1263,16 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 #define GETCWD_SIZE -1
 #endif
 
-bool CMkfsJFFS2::makeJffs2Image(std::string& path,
-				std::string& imageName,
-				int eraseBlockSize,
-				int padFsSize,
-				int addCleanmarkers,
-				int targetEndian,
-				bool skipSpezialFolders,
-				bool useSumtool,
-				CProgressWindow *progress/*=NULL*/,
-				v_devtable_t *v_devtable/*=NULL*/)
+bool CMkfsJFFS2::makeJffs2Image(std::string &path,
+	std::string &imageName,
+	int eraseBlockSize,
+	int padFsSize,
+	int addCleanmarkers,
+	int targetEndian,
+	bool skipSpezialFolders,
+	bool useSumtool,
+	CProgressWindow *progress/*=NULL*/,
+	v_devtable_t *v_devtable/*=NULL*/)
 {
 
 	Init();
@@ -1180,7 +1294,8 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 
 	char *cwd;
 	struct stat sb;
-	if (lstat(rootdir.c_str(), &sb)) {
+	if (lstat(rootdir.c_str(), &sb))
+	{
 		sys_errmsg("%s", rootdir.c_str());
 	}
 	if (chdir(rootdir.c_str()))
@@ -1188,11 +1303,13 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 	if (!(cwd = getcwd(0, GETCWD_SIZE)))
 		sys_errmsg("getcwd failed");
 
-	if (skipSpezialFolders) {
+	if (skipSpezialFolders)
+	{
 		std::string tmpPath = (path == "/") ? "" : path;
 		std::string path_x[dev_max] = {tmpPath + "/sys", tmpPath + "/proc", tmpPath + "/tmp", tmpPath + "/dev", tmpPath + "/"};
 
-		for (int ix = dev_sys; ix < dev_max; ix++) {
+		for (int ix = dev_sys; ix < dev_max; ix++)
+		{
 			if (lstat(path_x[ix].c_str(), &sb) == 0)
 				dev_x[ix] = sb.st_dev;
 			else
@@ -1200,13 +1317,15 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 		}
 	}
 
-	if (progressBar != NULL) {
+	if (progressBar != NULL)
+	{
 		progressBar->showLocalStatus(0);
 		progressBar->showGlobalStatus(0);
 		progressBar->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MKFS_PREPARING_FILES));
 	}
 	fse_root = recursive_add_host_directory(NULL, "/", cwd, skipSpezialFolders, progressBar);
-	if (progressBar != NULL) {
+	if (progressBar != NULL)
+	{
 		progressBar->showLocalStatus(100);
 		progressBar->showGlobalStatus(50);
 	}
@@ -1216,8 +1335,9 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 
 	pid_t pid;
 	std::string pcmd = "du -sx " + rootdir;
-	FILE* fp = my_popen(pid, pcmd.c_str(), "r");
-	if (fp != NULL) {
+	FILE *fp = my_popen(pid, pcmd.c_str(), "r");
+	if (fp != NULL)
+	{
 		char buff[256];
 		fgets(buff, sizeof(buff), fp);
 		fclose(fp);
@@ -1226,12 +1346,14 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 	if (kbUsed == 0)
 		kbUsed = 60000;
 
-	if (progressBar != NULL) {
+	if (progressBar != NULL)
+	{
 		progressBar->showLocalStatus(0);
 		progressBar->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MKFS_CREATE_IMAGE));
 	}
 	create_target_filesystem(fse_root);
-	if (progressBar != NULL) {
+	if (progressBar != NULL)
+	{
 		progressBar->showGlobalStatus(90);
 		progressBar->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MKFS_USING_SUMTOOL));
 	}
@@ -1241,12 +1363,14 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 	classClear();
 
 	sync();
-	if (useSumtool_) {
+	if (useSumtool_)
+	{
 		CSumtoolJFFS2 st;
-		st.sumtool(imageName_, sumName_, eraseBlockSize, ((padFsSize==0)?0:1), addCleanmarkers, targetEndian);
+		st.sumtool(imageName_, sumName_, eraseBlockSize, ((padFsSize == 0) ? 0 : 1), addCleanmarkers, targetEndian);
 		unlink(imageName_.c_str());
 	}
-	if (progressBar != NULL) {
+	if (progressBar != NULL)
+	{
 		paintProgressBar(true);
 		progressBar->showGlobalStatus(100);
 		sync();

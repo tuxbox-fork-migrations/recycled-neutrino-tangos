@@ -43,7 +43,8 @@
 #define ZAPBACK_ALERT_PERIOD 15 // seconds
 #define ADZAP_DATA "/tmp/adzap.data"
 
-static const struct button_label CAdZapMenuFooterButtons[] = {
+static const struct button_label CAdZapMenuFooterButtons[] =
+{
 	//{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_ADZAP_DISABLE },
 	{ NEUTRINO_ICON_BUTTON_GREEN,	LOCALE_ADZAP_ENABLE },
 	{ NEUTRINO_ICON_BUTTON_BLUE,	LOCALE_ADZAP_MONITOR }
@@ -78,7 +79,7 @@ CAdZapMenu::CAdZapMenu()
 		pthread_detach(thr);
 }
 
-static bool sortByDateTime(const CChannelEvent & a, const CChannelEvent & b)
+static bool sortByDateTime(const CChannelEvent &a, const CChannelEvent &b)
 {
 	return a.startTime < b.startTime;
 }
@@ -87,7 +88,7 @@ void CAdZapMenu::Init()
 {
 	CChannelList *channelList = CNeutrinoApp::getInstance()->channelList;
 	channelId = channelList ? channelList->getActiveChannel_ChannelID() : -1;
-	if(channelList)
+	if (channelList)
 		channelName = channelList->getActiveChannelName();
 	evtlist.clear();
 	CEitManager::getInstance()->getEventsServiceKey(channelId & 0xFFFFFFFFFFFFULL, evtlist);
@@ -199,7 +200,7 @@ void CAdZapMenu::Run()
 					if (channelId != curChannelId)
 					{
 						char name[1024];
-						snprintf(name, sizeof(name)-1, g_Locale->getText(LOCALE_ADZAP_ANNOUNCE), ZAPBACK_ALERT_PERIOD, channelName.c_str());
+						snprintf(name, sizeof(name) - 1, g_Locale->getText(LOCALE_ADZAP_ANNOUNCE), ZAPBACK_ALERT_PERIOD, channelName.c_str());
 						ShowHint(LOCALE_ADZAP, name);
 					}
 					alerted = true;
@@ -231,12 +232,12 @@ void CAdZapMenu::WriteData()
 	if (FILE *f = fopen(ADZAP_DATA, "w"))
 	{
 		fprintf(f, "%" PRIx64 "\n%s\n%d\n%d:%02d\n%ld\n%ld:%02ld\n",
-				channelId,
-				channelName.c_str(),
-				zp,
-				zp / 60, zp % 60,
-				zb,
-				zb / 60, zb % 60);
+			channelId,
+			channelName.c_str(),
+			zp,
+			zp / 60, zp % 60,
+			zb,
+			zb / 60, zb % 60);
 		fclose(f);
 	}
 	else
@@ -248,7 +249,7 @@ void CAdZapMenu::RemoveData()
 	if (access(ADZAP_DATA, F_OK) == 0)
 		unlink(ADZAP_DATA);
 }
-int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
+int CAdZapMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	Init();
 
@@ -289,7 +290,8 @@ int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 	}
 	if (actionKey == "adzap")
 	{
-		if (armed || monitor) {
+		if (armed || monitor)
+		{
 			armed = false;
 			monitor = false;
 			alerted = false;
@@ -323,7 +325,7 @@ int CAdZapMenu::exec(CMenuTarget *parent, const std::string & actionKey)
 
 void CAdZapMenu::ShowMenu()
 {
-	#define ADZAP_ZAP_OPTION_COUNT 3
+#define ADZAP_ZAP_OPTION_COUNT 3
 	const CMenuOptionChooser::keyval ADZAP_ZAP_OPTIONS[ADZAP_ZAP_OPTION_COUNT] =
 	{
 		{ SNeutrinoSettings::ADZAP_ZAP_OFF, LOCALE_ADZAP_ZAP_OFF },
@@ -350,7 +352,8 @@ void CAdZapMenu::ShowMenu()
 	menu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_ADZAP_SWITCHBACK));
 
 	neutrino_locale_t minute = LOCALE_ADZAP_MINUTE;
-	for (int shortcut = 1; shortcut < 10; shortcut++) {
+	for (int shortcut = 1; shortcut < 10; shortcut++)
+	{
 		char actionKey[2];
 		actionKey[0] = '0' + shortcut;
 		actionKey[1] = 0;
@@ -378,7 +381,7 @@ void CAdZapMenu::ShowMenu()
 	Update();
 }
 
-bool CAdZapMenu::changeNotify(const neutrino_locale_t, void * data)
+bool CAdZapMenu::changeNotify(const neutrino_locale_t, void *data)
 {
 	int z = (*(int *)data);
 	g_settings.adzap_zapBackPeriod = z * 60;

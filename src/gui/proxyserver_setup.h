@@ -46,10 +46,10 @@ class CProxySetup : public CMenuTarget
 
 		int showProxySetup();
 
-	public:	
-		CProxySetup(const neutrino_locale_t title = LOCALE_FLASHUPDATE_PROXYSERVER_SEP, const char * const IconName = NEUTRINO_ICON_SETTINGS);
+	public:
+		CProxySetup(const neutrino_locale_t title = LOCALE_FLASHUPDATE_PROXYSERVER_SEP, const char *const IconName = NEUTRINO_ICON_SETTINGS);
 		~CProxySetup();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 

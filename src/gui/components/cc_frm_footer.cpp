@@ -1,5 +1,5 @@
 /*
-	Based up Neutrino-GUI - Tuxbox-Project 
+	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
@@ -35,33 +35,33 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsFooter inherit from CComponentsHeader
-CComponentsFooter::CComponentsFooter(CComponentsForm* parent):CCButtonSelect()
+CComponentsFooter::CComponentsFooter(CComponentsForm *parent): CCButtonSelect()
 {
 	//CComponentsFooter
 	initVarFooter(1, 1, 0, 0, 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUFOOT_PLUS_0, COL_SHADOW_PLUS_0, CC_HEADER_SIZE_LARGE);
 }
 
-CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const int& buttons,
-					CComponentsForm* parent,
-					int shadow_mode,
-					fb_pixel_t color_frame,
-					fb_pixel_t color_body,
-					fb_pixel_t color_shadow,
-					int sizeMode):CCButtonSelect()
+CComponentsFooter::CComponentsFooter(const int &x_pos, const int &y_pos, const int &w, const int &h,
+	const int &buttons,
+	CComponentsForm *parent,
+	int shadow_mode,
+	fb_pixel_t color_frame,
+	fb_pixel_t color_body,
+	fb_pixel_t color_shadow,
+	int sizeMode): CCButtonSelect()
 {
 	//CComponentsFooter
 	initVarFooter(x_pos, y_pos, w, h, buttons, parent, shadow_mode, color_frame, color_body, color_shadow, sizeMode);
 }
 
-void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const int& buttons,
-					CComponentsForm* parent,
-					int shadow_mode,
-					fb_pixel_t color_frame,
-					fb_pixel_t color_body,
-					fb_pixel_t color_shadow,
-					int sizeMode)
+void CComponentsFooter::initVarFooter(const int &x_pos, const int &y_pos, const int &w, const int &h,
+	const int &buttons,
+	CComponentsForm *parent,
+	int shadow_mode,
+	fb_pixel_t color_frame,
+	fb_pixel_t color_body,
+	fb_pixel_t color_shadow,
+	int sizeMode)
 {
 	cc_item_type.id 	= CC_ITEMTYPE_FOOTER;
 	cc_item_type.name 	= "cc_footer";
@@ -86,7 +86,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 
 	shadow		= shadow_mode;
 	ccf_enable_button_shadow 	= false ;
-	ccf_button_shadow_width  	= shadow ? OFFSET_SHADOW/2 : 0;
+	ccf_button_shadow_width  	= shadow ? OFFSET_SHADOW / 2 : 0;
 	ccf_button_shadow_force_paint 	= false;
 	ccf_button_container_y		= -1; //centered as default
 	col_frame			= color_frame;
@@ -110,7 +110,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	initRepaintSlot();
 }
 
-int CComponentsFooter::initButtonContainer(const int& chain_width)
+int CComponentsFooter::initButtonContainer(const int &chain_width)
 {
 	/*
 	 * Button container contains all passed button label items and
@@ -118,7 +118,8 @@ int CComponentsFooter::initButtonContainer(const int& chain_width)
 	 */
 
 	/* clean up before init */
-	if (btn_container){
+	if (btn_container)
+	{
 		removeCCItem(btn_container);
 		btn_container = NULL;
 	}
@@ -130,12 +131,13 @@ int CComponentsFooter::initButtonContainer(const int& chain_width)
 	 * Default width of container is footer width minus width of all containing items and offsets inside footer object.
 	 */
 	int dx_used = 0;
-	for (size_t i = 0; i< size(); i++){
+	for (size_t i = 0; i < size(); i++)
+	{
 		if (getCCItem(i) != btn_container) // avoid to point on button container itself!
 			dx_used -= getCCItem(i)->getWidth();
 	}
-	int dx_container_max = width - dx_used - 2*cch_offset;
-	int dx_container = min(width - 2*cch_offset, dx_container_max);
+	int dx_container_max = width - dx_used - 2 * cch_offset;
+	int dx_container = min(width - 2 * cch_offset, dx_container_max);
 
 	/*
 	 * Initialize width and x position of button container
@@ -175,12 +177,13 @@ int CComponentsFooter::initButtonContainer(const int& chain_width)
 		}
 	}
 
-	int dist = height/2-cch_offset;
-	int dy_container = ccf_btn_font->getHeight() > height+dist ? height-dist : ccf_btn_font->getHeight()+dist;
-	dy_container -= cc_parent ? (cc_parent->getFrameThickness()/2 - shadow_w) : 0; // if footer is embedded then consider possible frame around parent object (e.g. window)
-	int y_container = ccf_button_container_y < 0 ? height/2 - dy_container/2 : ccf_button_container_y;
+	int dist = height / 2 - cch_offset;
+	int dy_container = ccf_btn_font->getHeight() > height + dist ? height - dist : ccf_btn_font->getHeight() + dist;
+	dy_container -= cc_parent ? (cc_parent->getFrameThickness() / 2 - shadow_w) : 0; // if footer is embedded then consider possible frame around parent object (e.g. window)
+	int y_container = ccf_button_container_y < 0 ? height / 2 - dy_container / 2 : ccf_button_container_y;
 
-	if (btn_container == NULL){
+	if (btn_container == NULL)
+	{
 		btn_container = new CComponentsFrmChain(x_container, y_container, dx_container, dy_container, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body_std);
 		btn_container->setItemName(cc_parent ? cc_parent->getItemName() + ":" + getItemName() + ":btn_container" : "");
 		btn_container->setAppendOffset(0, 0);
@@ -191,7 +194,7 @@ int CComponentsFooter::initButtonContainer(const int& chain_width)
 	return dx_container;
 }
 
-void CComponentsFooter::setButtonLabels(const struct button_label_cc * const content, const size_t& label_count, const int& chain_width, const int& label_width)
+void CComponentsFooter::setButtonLabels(const struct button_label_cc *const content, const size_t &label_count, const int &chain_width, const int &label_width)
 {
 	/* init button container and get its usable width*/
 	int dx_container = initButtonContainer(chain_width);
@@ -208,8 +211,8 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	 * Button label width is default auto generated, if no label width is defined.
 	 * If parameter label_width is too large, we use maximal possible value.
 	*/
-	int btn_offset = cch_offset/2;
-	int dx_btn = (dx_container - btn_offset * (int)l_count-1) / (int)l_count;
+	int btn_offset = cch_offset / 2;
+	int dx_btn = (dx_container - btn_offset * (int)l_count - 1) / (int)l_count;
 	if (label_width)
 		if (label_width < dx_btn)
 			dx_btn = label_width;
@@ -220,13 +223,14 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	 * dimensions and have a fix value.
 	*/
 	int x_btn = 0;
-	int dy_btn = btn_container->getHeight()- 2*fr_thickness - ccf_button_shadow_width;
-	int y_btn = ccf_button_container_y < 0 ? btn_container->getHeight()/2 - dy_btn/2 : ccf_button_container_y;
+	int dy_btn = btn_container->getHeight() - 2 * fr_thickness - ccf_button_shadow_width;
+	int y_btn = ccf_button_container_y < 0 ? btn_container->getHeight() / 2 - dy_btn / 2 : ccf_button_container_y;
 
 	/*
 	 * Init button label objects
 	*/
-	for (size_t i = 0; i < l_count; i++){
+	for (size_t i = 0; i < l_count; i++)
+	{
 		/*
 		 * init button label face values
 		*/
@@ -236,7 +240,8 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 		/*
 		 * Ignore item, if no text and no icon is defined.
 		*/
-		if (txt.empty() && icon_name.empty()){
+		if (txt.empty() && icon_name.empty())
+		{
 			//l_count -= 1;
 			dprintf(DEBUG_NORMAL, "[CComponentsFooter]\t[%s - %d]\tignore item [%zu], no icon and text defined!\n", __func__, __LINE__, i);
 			continue;
@@ -249,7 +254,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 		CComponentsButton *btn = new CComponentsButton(x_btn, y_btn, dx_btn, dy_btn, txt, icon_name, btn_container, false, true, ccf_enable_button_shadow);
 		btn->setButtonFont(NULL/*ccf_btn_font*/); // ensure init font type by item itself
 		btn->doPaintBg(ccf_enable_button_bg);
-		
+
 		x_btn += btn_container->getCCItem(i)->getWidth();
 		x_btn += btn_offset;
 
@@ -262,7 +267,8 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 		/*
 		 * Set button frames to icon color, predefined for available color buttons
 		*/
-		if (btn_auto_frame_col){
+		if (btn_auto_frame_col)
+		{
 			fb_pixel_t f_col = btn->getColorFrame();
 			if (icon_name == NEUTRINO_ICON_BUTTON_RED)
 				f_col = COL_DARK_RED;
@@ -275,7 +281,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 			btn->setColorFrame(f_col);
 		}
 	}
-	
+
 	//set width of button container and ensure its center position inside button area of footer
 	int dx_cont_free = btn_container->getFreeDX();
 	int dx_cont = btn_container->getWidth();
@@ -283,16 +289,17 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	if (dx_cont_free > 0)
 	{
 		btn_container->setWidth(dx_cont - dx_cont_free);
-		btn_container->setXPos(x_cont + dx_cont_free/2);
+		btn_container->setXPos(x_cont + dx_cont_free / 2);
 	}
 
 	// get the lowest font height for unified typeface
 	int dy_font_min = btn_container->getHeight();
 	int dy_font_max = 0;
 	CComponentsButton *btn_smallest = NULL;
-	
-	for (size_t i = 0; i < l_count; i++){
-		CComponentsButton *btn = static_cast<CComponentsButton*>(btn_container->getCCItem(i));
+
+	for (size_t i = 0; i < l_count; i++)
+	{
+		CComponentsButton *btn = static_cast<CComponentsButton *>(btn_container->getCCItem(i));
 		int dy_font_tmp = btn->getButtonFont()->getHeight();
 		if (dy_font_tmp < dy_font_min)
 		{
@@ -307,20 +314,22 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	// set smallest font height
 	if (btn_smallest)
 	{
-		Font* tmp_font = btn_smallest->getButtonFont();
-		for (size_t i = 0; i < l_count; i++){
-			CComponentsButton *btn = static_cast<CComponentsButton*>(btn_container->getCCItem(i));
+		Font *tmp_font = btn_smallest->getButtonFont();
+		for (size_t i = 0; i < l_count; i++)
+		{
+			CComponentsButton *btn = static_cast<CComponentsButton *>(btn_container->getCCItem(i));
 			btn->setButtonFont(tmp_font);
 		}
 // 		dprintf(DEBUG_NORMAL, "[CComponentsFooter]\t[%s - %d]\tsmallest button font height: dy_font_min [%d] dy_font_max [%d]\n", __func__, __LINE__, dy_font_min, dy_font_max);
 	}
 }
 
-void CComponentsFooter::setButtonLabels(const struct button_label * const content, const size_t& label_count, const int& chain_width, const int& label_width)
+void CComponentsFooter::setButtonLabels(const struct button_label *const content, const size_t &label_count, const int &chain_width, const int &label_width)
 {
 	//conversion for compatibility with older paintButtons() methode, find in /gui/widget/buttons.h
 	button_label_cc *buttons = new button_label_cc[label_count];
-	for (size_t i = 0; i< label_count; i++){
+	for (size_t i = 0; i < label_count; i++)
+	{
 		buttons[i].button = content[i].button;
 		buttons[i].locale = content[i].locale;
 		//NOTE: here are used default values, because old button label struct don't know about this,
@@ -334,16 +343,17 @@ void CComponentsFooter::setButtonLabels(const struct button_label * const conten
 	buttons = NULL;
 }
 
-void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content, const int& chain_width, const int& label_width)
+void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content, const int &chain_width, const int &label_width)
 {
 	size_t label_count = v_content.size();
 	button_label_cc *buttons = new button_label_cc[label_count];
 
-	for (size_t i= 0; i< label_count; i++){
+	for (size_t i = 0; i < label_count; i++)
+	{
 		buttons[i].button = v_content[i].button;
 		buttons[i].text = v_content[i].text;
 		buttons[i].locale = v_content[i].locale;
-		for (size_t j= 0; j< v_content[i].directKeys.size(); j++)
+		for (size_t j = 0; j < v_content[i].directKeys.size(); j++)
 			buttons[i].directKeys.push_back(v_content[i].directKeys[j]);
 		buttons[i].btn_result = v_content[i].btn_result;
 		buttons[i].btn_alias = v_content[i].btn_alias;
@@ -354,13 +364,13 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content
 	buttons = NULL;
 }
 
-void CComponentsFooter::setButtonLabel(	const char *button_icon,
-					const std::string& text,
-					const int& chain_width,
-					const int& label_width,
-					const neutrino_msg_t& msg,
-					const int& result_value,
-					const int& alias_value)
+void CComponentsFooter::setButtonLabel(const char *button_icon,
+	const std::string &text,
+	const int &chain_width,
+	const int &label_width,
+	const neutrino_msg_t &msg,
+	const int &result_value,
+	const int &alias_value)
 {
 	button_label_cc button[1];
 
@@ -373,13 +383,13 @@ void CComponentsFooter::setButtonLabel(	const char *button_icon,
 	setButtonLabels(button, 1, chain_width, label_width);
 }
 
-void CComponentsFooter::setButtonLabel(	const char *button_icon,
-					const neutrino_locale_t& locale,
-					const int& chain_width,
-					const int& label_width,
-					const neutrino_msg_t& msg,
-					const int& result_value,
-					const int& alias_value)
+void CComponentsFooter::setButtonLabel(const char *button_icon,
+	const neutrino_locale_t &locale,
+	const int &chain_width,
+	const int &label_width,
+	const neutrino_msg_t &msg,
+	const int &result_value,
+	const int &alias_value)
 {
 	string txt = locale != NONEXISTANT_LOCALE ? g_Locale->getText(locale) : "";
 
@@ -389,22 +399,23 @@ void CComponentsFooter::setButtonLabel(	const char *button_icon,
 void CComponentsFooter::enableButtonBg(bool enable)
 {
 	ccf_enable_button_bg = enable;
-	if (btn_container) {
-		for (size_t i= 0; i< btn_container->size(); i++)
+	if (btn_container)
+	{
+		for (size_t i = 0; i < btn_container->size(); i++)
 			btn_container->getCCItem(i)->doPaintBg(ccf_enable_button_bg);
 	}
 }
 
-void CComponentsFooter::paintButtons(const int& x_pos,
-				     const int& y_pos,
-				     const int& w,
-				     const int& h,
-				     const size_t& label_count,
-				     const struct button_label * const content,
-				     const int& label_width,
-				     const int& context_buttons,
-				     Font* font,
-				     const bool &do_save_bg)
+void CComponentsFooter::paintButtons(const int &x_pos,
+	const int &y_pos,
+	const int &w,
+	const int &h,
+	const size_t &label_count,
+	const struct button_label *const content,
+	const int &label_width,
+	const int &context_buttons,
+	Font *font,
+	const bool &do_save_bg)
 {
 	this->setDimensionsAll(x_pos, y_pos, w, h);
 	this->setButtonFont(font);
@@ -413,11 +424,12 @@ void CComponentsFooter::paintButtons(const int& x_pos,
 	this->paint(do_save_bg);
 }
 
-void CComponentsFooter::setButtonText(const uint& btn_id, const std::string& text)
+void CComponentsFooter::setButtonText(const uint &btn_id, const std::string &text)
 {
 	CComponentsItem *item = getButtonChainObject()->getCCItem(btn_id);
-	if (item){
-		CComponentsButton *button = static_cast<CComponentsButton*>(item);
+	if (item)
+	{
+		CComponentsButton *button = static_cast<CComponentsButton *>(item);
 		button->setCaption(text);
 	}
 	else
@@ -425,16 +437,18 @@ void CComponentsFooter::setButtonText(const uint& btn_id, const std::string& tex
 }
 
 
-void CComponentsFooter::enableButtonShadow(int mode, const int& shadow_width, bool force_paint)
+void CComponentsFooter::enableButtonShadow(int mode, const int &shadow_width, bool force_paint)
 {
 	ccf_enable_button_shadow = mode;
 	ccf_button_shadow_width = shadow_width;
 	ccf_button_shadow_force_paint = force_paint;
-	if (btn_container){
-		for(size_t i=0; i<btn_container->size(); i++){
+	if (btn_container)
+	{
+		for (size_t i = 0; i < btn_container->size(); i++)
+		{
 			btn_container->getCCItem(i)->enableShadow(ccf_enable_button_shadow, ccf_button_shadow_width, ccf_button_shadow_force_paint);
 			//int y_btn = ccf_enable_button_shadow == CC_SHADOW_OFF ? CC_CENTERED : chain->getHeight()/2 - chain->getCCItem(i)->getHeight()/2 - ccf_button_shadow_width;
-			int y_btn = btn_container->getHeight()/2 - btn_container->getCCItem(i)->getHeight()/2;
+			int y_btn = btn_container->getHeight() / 2 - btn_container->getCCItem(i)->getHeight() / 2;
 			btn_container->getCCItem(i)->setYPos(y_btn);
 		}
 	}
@@ -446,9 +460,9 @@ void CComponentsFooter::initDefaultFonts()
 	s_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];
 }
 
-CComponentsButton* CComponentsFooter::getButtonLabel(const uint& item_id)
+CComponentsButton *CComponentsFooter::getButtonLabel(const uint &item_id)
 {
 	if (btn_container)
-		return static_cast<CComponentsButton*>(btn_container->getCCItem(item_id));
+		return static_cast<CComponentsButton *>(btn_container->getCCItem(item_id));
 	return NULL;
 }

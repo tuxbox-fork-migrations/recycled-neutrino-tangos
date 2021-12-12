@@ -185,7 +185,7 @@
 #define UBI_IOCEBISMAP _IOR(UBI_VOL_IOC_MAGIC, 5, int32_t)
 /* Set an UBI volume property */
 #define UBI_IOCSETVOLPROP _IOW(UBI_VOL_IOC_MAGIC, 6, \
-			       struct ubi_set_vol_prop_req)
+	struct ubi_set_vol_prop_req)
 
 /* Maximum MTD device name length supported by UBI */
 #define MAX_UBI_MTD_NAME_LEN 127
@@ -199,7 +199,8 @@
  * @UBI_DYNAMIC_VOLUME: dynamic volume
  * @UBI_STATIC_VOLUME:  static volume
  */
-enum {
+enum
+{
 	UBI_DYNAMIC_VOLUME = 3,
 	UBI_STATIC_VOLUME  = 4,
 };
@@ -211,7 +212,8 @@ enum {
  *                             user to directly write and erase individual
  *                             eraseblocks on dynamic volumes
  */
-enum {
+enum
+{
 	UBI_VOL_PROP_DIRECT_WRITE = 1,
 };
 
@@ -257,7 +259,8 @@ enum {
  * eraseblocks (if any). The accepted range is 0-768. If 0 is given, the
  * default kernel value of %CONFIG_MTD_UBI_BEB_LIMIT will be used.
  */
-struct ubi_attach_req {
+struct ubi_attach_req
+{
 	int32_t ubi_num;
 	int32_t mtd_num;
 	int32_t vid_hdr_offset;
@@ -296,7 +299,8 @@ struct ubi_attach_req {
  * alignment it is possible to update this volume using plane UBI volume image
  * BLOBs, without caring about how to properly align them.
  */
-struct ubi_mkvol_req {
+struct ubi_mkvol_req
+{
 	int32_t vol_id;
 	int32_t alignment;
 	int64_t bytes;
@@ -318,7 +322,8 @@ struct ubi_mkvol_req {
  * volume, it must be wiped out first (by means of volume update operation with
  * zero number of bytes).
  */
-struct ubi_rsvol_req {
+struct ubi_rsvol_req
+{
 	int64_t bytes;
 	int32_t vol_id;
 } __attribute__((packed));
@@ -354,10 +359,12 @@ struct ubi_rsvol_req {
  * existing volume is removed, unless it is re-named as well at the same
  * re-name request.
  */
-struct ubi_rnvol_req {
+struct ubi_rnvol_req
+{
 	int32_t count;
 	int8_t padding1[12];
-	struct {
+	struct
+	{
 		int32_t vol_id;
 		int16_t name_len;
 		int8_t  padding2[2];
@@ -382,7 +389,8 @@ struct ubi_rnvol_req {
  * field. But for better compatibility with older kernels it is recommended to
  * set @dtype to 3 (unknown).
  */
-struct ubi_leb_change_req {
+struct ubi_leb_change_req
+{
 	int32_t lnum;
 	int32_t bytes;
 	int8_t  dtype; /* obsolete, do not use! */
@@ -395,7 +403,8 @@ struct ubi_leb_change_req {
  * @lnum: logical eraseblock number to unmap
  * @padding: reserved for future, not used, has to be zeroed
  */
-struct ubi_map_req {
+struct ubi_map_req
+{
 	int32_t lnum;
 	int8_t  dtype; /* obsolete, do not use! */
 	int8_t  padding[3];
@@ -409,7 +418,8 @@ struct ubi_map_req {
  * @padding: reserved for future, not used, has to be zeroed
  * @value: value to set
  */
-struct ubi_set_vol_prop_req {
+struct ubi_set_vol_prop_req
+{
 	uint8_t  property;
 	uint8_t  padding[7];
 	uint64_t value;

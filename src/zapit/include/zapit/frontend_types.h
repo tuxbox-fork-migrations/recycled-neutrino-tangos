@@ -43,20 +43,20 @@
 #define ZAPIT_DS_MASK		0x0000FFFF // WARNING: update this mask if delivery systems are added.
 // Delivery Method
 #define ZAPIT_DM_SAT		(ZAPIT_DS_DVB_S  | \
-				 ZAPIT_DS_DVB_S2 | \
-				 ZAPIT_DS_DVB_S2X| \
-				 ZAPIT_DS_DSS	 | \
-				 ZAPIT_DS_TURBO  | \
-				 ZAPIT_DS_ISDBS)
+	ZAPIT_DS_DVB_S2 | \
+	ZAPIT_DS_DVB_S2X| \
+	ZAPIT_DS_DSS	 | \
+	ZAPIT_DS_TURBO  | \
+	ZAPIT_DS_ISDBS)
 
 #define ZAPIT_DM_CABLE		(ZAPIT_DS_DVB_C  | \
-				 ZAPIT_DS_DVB_C2 | \
-				 ZAPIT_DS_ISDBC)
+	ZAPIT_DS_DVB_C2 | \
+	ZAPIT_DS_ISDBC)
 
 #define ZAPIT_DM_TERR		(ZAPIT_DS_DVB_T  | \
-				 ZAPIT_DS_DVB_T2 | \
-				 ZAPIT_DS_DTMB   | \
-				 ZAPIT_DS_ISDBT)
+	ZAPIT_DS_DVB_T2 | \
+	ZAPIT_DS_DTMB   | \
+	ZAPIT_DS_ISDBT)
 
 #define ZAPIT_DS_IS_SAT(ds)	(((ds) & ZAPIT_DM_SAT) != 0)
 #define ZAPIT_DS_IS_TERR(ds)	(((ds) & ZAPIT_DM_TERR) != 0)
@@ -75,7 +75,8 @@
 #endif
 
 /* dvb transmission types */
-typedef enum {
+typedef enum
+{
 	UNKNOWN_DS = ZAPIT_DS_UNKNOWN,
 	DVB_C	= ZAPIT_DS_DVB_C,
 	DVB_C2	= ZAPIT_DS_DVB_C2,
@@ -96,30 +97,35 @@ typedef enum {
 	ALL_TERR = ZAPIT_DM_TERR
 } delivery_system_t;
 
-typedef enum {
+typedef enum
+{
 	ZPILOT_ON,
 	ZPILOT_OFF,
 	ZPILOT_AUTO
 } zapit_pilot_t;
 
-typedef enum {
+typedef enum
+{
 	PLS_Root,
 	PLS_Gold,
 	PLS_Combo,
 	PLS_Unknown
 } fe_pls_mode_t;
 
-typedef enum {
+typedef enum
+{
 	PLS_Default_Gold_Code,
 	PLS_Default_Root_Code
 } fe_pls_code_t;
 
-enum {
+enum
+{
 	No_T2MI_PLP_Id = NO_STREAM_ID_FILTER,
 	T2MI_Default_Pid = 4096
 };
 
-typedef struct {
+typedef struct
+{
 	delivery_system_t	delsys;
 	uint32_t		frequency;
 	fe_modulation_t		modulation;
@@ -145,7 +151,8 @@ typedef struct {
 	uint32_t		pls_code; //0-262142
 } FrontendParameters;
 
-typedef struct frontend_config {
+typedef struct frontend_config
+{
 	int diseqcRepeats;
 	int diseqcType;
 	int uni_scr;

@@ -52,15 +52,15 @@ CRCLock::~CRCLock()
 	}
 }
 
-CRCLock* CRCLock::getInstance()
+CRCLock *CRCLock::getInstance()
 {
-	static CRCLock* me = NULL;
+	static CRCLock *me = NULL;
 	if (!me)
 		me = new CRCLock();
 	return me;
 }
 
-int CRCLock::exec(CMenuTarget* parent, const std::string &actionKey)
+int CRCLock::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	if (locked)
 	{
@@ -74,10 +74,10 @@ int CRCLock::exec(CMenuTarget* parent, const std::string &actionKey)
 	bool no_input = (actionKey == NO_USER_INPUT);
 	std::string key_unlock = CRCInput::getKeyName((neutrino_msg_t) g_settings.key_unlock);
 	char lock_msg[1024];
-	snprintf(lock_msg, sizeof(lock_msg)-1, g_Locale->getText(LOCALE_RCLOCK_LOCKMSG), key_unlock.c_str());
+	snprintf(lock_msg, sizeof(lock_msg) - 1, g_Locale->getText(LOCALE_RCLOCK_LOCKMSG), key_unlock.c_str());
 
 	if (ShowMsg(LOCALE_RCLOCK_TITLE, lock_msg, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel,
-			 NEUTRINO_ICON_INFO, 450, no_input ? 5 : -1, no_input) == CMsgBox::mbrCancel)
+			NEUTRINO_ICON_INFO, 450, no_input ? 5 : -1, no_input) == CMsgBox::mbrCancel)
 		return menu_return::RETURN_EXIT_ALL;
 
 	locked = true;
@@ -85,7 +85,7 @@ int CRCLock::exec(CMenuTarget* parent, const std::string &actionKey)
 	locked = false;
 
 	ShowMsg(LOCALE_RCLOCK_TITLE, LOCALE_RCLOCK_UNLOCKMSG, CMsgBox::mbrBack, CMsgBox::mbBack,
-			NEUTRINO_ICON_INFO, 450, no_input ? 5 : -1);
+		NEUTRINO_ICON_INFO, 450, no_input ? 5 : -1);
 	return  menu_return::RETURN_EXIT_ALL;
 }
 

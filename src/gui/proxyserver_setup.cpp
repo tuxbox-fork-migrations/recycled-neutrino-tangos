@@ -45,7 +45,7 @@
 #include <system/debug.h>
 
 
-CProxySetup::CProxySetup(const neutrino_locale_t title, const char * const IconName )
+CProxySetup::CProxySetup(const neutrino_locale_t title, const char *const IconName)
 {
 	menue_title = title;
 	menue_icon = IconName;
@@ -57,7 +57,7 @@ CProxySetup::~CProxySetup()
 {
 }
 
-int CProxySetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
+int CProxySetup::exec(CMenuTarget *parent, const std::string &/*actionKey*/)
 {
 	dprintf(DEBUG_DEBUG, "init proxy menu\n");
 	int   res = menu_return::RETURN_REPAINT;
@@ -68,7 +68,7 @@ int CProxySetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	}
 
 	res = showProxySetup();
-	
+
 	return res;
 }
 
@@ -76,13 +76,13 @@ int CProxySetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 int CProxySetup::showProxySetup()
 {
 	//init
-	CMenuWidget * mn = new CMenuWidget(menue_title, menue_icon, width, MN_WIDGET_ID_PROXYSETUP);
-	
+	CMenuWidget *mn = new CMenuWidget(menue_title, menue_icon, width, MN_WIDGET_ID_PROXYSETUP);
+
 	neutrino_locale_t subtitle = (menue_title == LOCALE_FLASHUPDATE_PROXYSERVER_SEP ? NONEXISTANT_LOCALE : LOCALE_FLASHUPDATE_PROXYSERVER_SEP);
 	mn->addIntroItems(subtitle);
 
 	CKeyboardInput softUpdate_proxy(LOCALE_FLASHUPDATE_PROXYSERVER, &g_settings.softupdate_proxyserver, 0, NULL, NULL, LOCALE_FLASHUPDATE_PROXYSERVER_HINT1, LOCALE_FLASHUPDATE_PROXYSERVER_HINT2);
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER, true, g_settings.softupdate_proxyserver, &softUpdate_proxy, NULL, CRCInput::RC_red);
+	CMenuForwarder *mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER, true, g_settings.softupdate_proxyserver, &softUpdate_proxy, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_NET_PROXYSERVER);
 	mn->addItem(mf);
 
@@ -101,7 +101,8 @@ int CProxySetup::showProxySetup()
 
 	if (g_settings.softupdate_proxyserver.empty())
 		unsetenv("http_proxy");
-	else {
+	else
+	{
 		std::string proxy = "http://";
 		if (!g_settings.softupdate_proxyusername.empty())
 			proxy += g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword + "@";

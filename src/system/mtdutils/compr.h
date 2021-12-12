@@ -51,7 +51,8 @@
 #define KERN_INFO
 #define KERN_DEBUG
 
-struct list_head {
+struct list_head
+{
 	struct list_head *next, *prev;
 };
 
@@ -64,15 +65,16 @@ int jffs2_disable_compressor_name(const char *name);
 
 int jffs2_set_compressor_priority(const char *name, int priority);
 
-struct jffs2_compressor {
+struct jffs2_compressor
+{
 	struct list_head list;
 	int priority;             /* used by prirority comr. mode */
 	const char *name;
 	char compr;               /* JFFS2_COMPR_XXX */
 	int (*compress)(unsigned char *data_in, unsigned char *cpage_out,
-			uint32_t *srclen, uint32_t *destlen);
+		uint32_t *srclen, uint32_t *destlen);
 	int (*decompress)(unsigned char *cdata_in, unsigned char *data_out,
-			uint32_t cdatalen, uint32_t datalen);
+		uint32_t cdatalen, uint32_t datalen);
 	int usecount;
 	int disabled;             /* if seted the compressor won't compress */
 	unsigned char *compr_buf; /* used by size compr. mode */
@@ -90,7 +92,7 @@ int jffs2_compressors_init(void);
 int jffs2_compressors_exit(void);
 
 uint16_t jffs2_compress(unsigned char *data_in, unsigned char **cpage_out,
-		uint32_t *datalen, uint32_t *cdatalen);
+	uint32_t *datalen, uint32_t *cdatalen);
 
 /* If it is setted, a decompress will be called after every compress */
 void jffs2_compression_check_set(int yesno);

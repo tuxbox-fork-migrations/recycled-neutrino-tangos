@@ -30,11 +30,11 @@
 #include "luainstance.h"
 #include "lua_configfile.h"
 
-CLuaInstConfigFile* CLuaInstConfigFile::getInstance()
+CLuaInstConfigFile *CLuaInstConfigFile::getInstance()
 {
-	static CLuaInstConfigFile* LuaInstConfigFile = NULL;
+	static CLuaInstConfigFile *LuaInstConfigFile = NULL;
 
-	if(!LuaInstConfigFile)
+	if (!LuaInstConfigFile)
 		LuaInstConfigFile = new CLuaInstConfigFile();
 	return LuaInstConfigFile;
 }
@@ -46,7 +46,8 @@ CLuaConfigFile *CLuaInstConfigFile::LuaConfigFileCheck(lua_State *L, int n)
 
 void CLuaInstConfigFile::LuaConfigFileRegister(lua_State *L)
 {
-	luaL_Reg meth[] = {
+	luaL_Reg meth[] =
+	{
 		{ "new",        CLuaInstConfigFile::LuaConfigFileNew },
 		{ "loadConfig", CLuaInstConfigFile::LuaConfigFileLoadConfig },
 		{ "saveConfig", CLuaInstConfigFile::LuaConfigFileSaveConfig },
@@ -90,7 +91,8 @@ int CLuaInstConfigFile::LuaConfigFileNew(lua_State *L)
 int CLuaInstConfigFile::LuaConfigFileLoadConfig(lua_State *L)
 {
 	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	const char *fname = luaL_checkstring(L, 2);
 	bool ret = D->c->loadConfig(fname);
@@ -101,7 +103,8 @@ int CLuaInstConfigFile::LuaConfigFileLoadConfig(lua_State *L)
 int CLuaInstConfigFile::LuaConfigFileSaveConfig(lua_State *L)
 {
 	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	const char *fname = luaL_checkstring(L, 2);
 	bool ret = D->c->saveConfig(fname);
@@ -112,7 +115,8 @@ int CLuaInstConfigFile::LuaConfigFileSaveConfig(lua_State *L)
 int CLuaInstConfigFile::LuaConfigFileClear(lua_State *L)
 {
 	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	D->c->clear();
 	return 0;
@@ -121,7 +125,8 @@ int CLuaInstConfigFile::LuaConfigFileClear(lua_State *L)
 int CLuaInstConfigFile::LuaConfigFileGetString(lua_State *L)
 {
 	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 	int numargs = lua_gettop(L);
 
 	std::string ret;
@@ -137,7 +142,8 @@ int CLuaInstConfigFile::LuaConfigFileGetString(lua_State *L)
 int CLuaInstConfigFile::LuaConfigFileSetString(lua_State *L)
 {
 	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	const char *key = luaL_checkstring(L, 2);
 	const char *val = luaL_checkstring(L, 3);
@@ -148,7 +154,8 @@ int CLuaInstConfigFile::LuaConfigFileSetString(lua_State *L)
 int CLuaInstConfigFile::LuaConfigFileGetInt32(lua_State *L)
 {
 	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 	int numargs = lua_gettop(L);
 
 	int ret;
@@ -164,7 +171,8 @@ int CLuaInstConfigFile::LuaConfigFileGetInt32(lua_State *L)
 int CLuaInstConfigFile::LuaConfigFileSetInt32(lua_State *L)
 {
 	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	const char *key = luaL_checkstring(L, 2);
 	int val = luaL_checkint(L, 3);
@@ -175,7 +183,8 @@ int CLuaInstConfigFile::LuaConfigFileSetInt32(lua_State *L)
 int CLuaInstConfigFile::LuaConfigFileGetBool(lua_State *L)
 {
 	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 	int numargs = lua_gettop(L);
 
 	bool ret;
@@ -191,7 +200,8 @@ int CLuaInstConfigFile::LuaConfigFileGetBool(lua_State *L)
 int CLuaInstConfigFile::LuaConfigFileSetBool(lua_State *L)
 {
 	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	const char *key = luaL_checkstring(L, 2);
 	bool val = _luaL_checkbool(L, 3);
@@ -202,7 +212,8 @@ int CLuaInstConfigFile::LuaConfigFileSetBool(lua_State *L)
 int CLuaInstConfigFile::LuaConfigFileDeleteKey(lua_State *L)
 {
 	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	const char *s1 = luaL_checkstring(L, 2);
 	std::string key(s1);
@@ -213,7 +224,8 @@ int CLuaInstConfigFile::LuaConfigFileDeleteKey(lua_State *L)
 int CLuaInstConfigFile::LuaConfigFileDelete(lua_State *L)
 {
 	CLuaConfigFile *D = LuaConfigFileCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 	delete D;
 	return 0;
 }

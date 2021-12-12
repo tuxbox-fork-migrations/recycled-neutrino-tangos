@@ -63,7 +63,7 @@ bool CPmt::Read(unsigned short pid, unsigned short sid)
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 
-	cDemux * dmx = new cDemux(dmxnum);
+	cDemux *dmx = new cDemux(dmxnum);
 	dmx->Open(DMX_PSI_CHANNEL);
 
 	memset(filter, 0x00, DMX_FILTER_SIZE);
@@ -79,7 +79,8 @@ bool CPmt::Read(unsigned short pid, unsigned short sid)
 	mask[2] = 0xFF;
 	mask[3] = 0x01;
 	mask[4] = 0xFF;
-	if ((!dmx->sectionFilter(pid, filter, mask, 5)) || (dmx->Read(buffer, PMT_SECTION_SIZE) < 0)) {
+	if ((!dmx->sectionFilter(pid, filter, mask, 5)) || (dmx->Read(buffer, PMT_SECTION_SIZE) < 0))
+	{
 		printf("CPmt::Read: pid %x failed\n", pid);
 		ret = false;
 	}
@@ -87,14 +88,14 @@ bool CPmt::Read(unsigned short pid, unsigned short sid)
 	return ret;
 }
 
-bool CPmt::Parse(CZapitChannel * const channel)
+bool CPmt::Parse(CZapitChannel *const channel)
 {
 	printf("[zapit] parsing pmt pid 0x%X (%s)\n", channel->getPmtPid(), channel->getName().c_str());
 
 	if (channel->getPmtPid() == 0)
 		return false;
 
-	if(!Read(channel->getPmtPid(), channel->getServiceId()))
+	if (!Read(channel->getPmtPid(), channel->getServiceId()))
 		return false;
 
 	ProgramMapSection pmt(buffer);
@@ -106,9 +107,10 @@ bool CPmt::Parse(CZapitChannel * const channel)
 	channel->setPmtVersion(pmt.getVersionNumber());
 	channel->setPcrPid(pmt.getPcrPid());
 
-	const ElementaryStreamInfoList * eslist = pmt.getEsInfo();
+	const ElementaryStreamInfoList *eslist = pmt.getEsInfo();
 	ElementaryStreamInfoConstIterator it;
-	for (it = eslist->begin(); it != eslist->end(); ++it) {
+	for (it = eslist->begin(); it != eslist->end(); ++it)
+	{
 		ElementaryStreamInfo *esinfo = *it;
 		ParseEsInfo(esinfo, channel);
 	}
@@ -117,12 +119,15 @@ bool CPmt::Parse(CZapitChannel * const channel)
 	MakeCAMap(camap);
 	channel->scrambled = !camap.empty();
 
-	if(CServiceScan::getInstance()->Scanning()) {
+	if (CServiceScan::getInstance()->Scanning())
+	{
 		channel->setRawPmt(NULL);
-	} else {
+	}
+	else
+	{
 		channel->camap = camap;
-		int pmtlen= pmt.getSectionLength() + 3;
-		unsigned char * p = new unsigned char[pmtlen];
+		int pmtlen = pmt.getSectionLength() + 3;
+		unsigned char *p = new unsigned char[pmtlen];
 		memmove(p, buffer, pmtlen);
 		channel->setRawPmt(p, pmtlen);
 	}
@@ -131,7 +136,7 @@ bool CPmt::Parse(CZapitChannel * const channel)
 	return true;
 }
 
-bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const channel)
+bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel *const channel)
 {
 	std::string description = "";
 	unsigned char componentTag = 0xFF;
@@ -141,65 +146,70 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 
 	bool audio = false;
 
-	const DescriptorList * dlist = esinfo->getDescriptors();
+	const DescriptorList *dlist = esinfo->getDescriptors();
 	DescriptorConstIterator dit;
-	for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
-		Descriptor * d = *dit;
-		switch (d->getTag()) {
-		case REGISTRATION_DESCRIPTOR:
+	for (dit = dlist->begin(); dit != dlist->end(); ++dit)
+	{
+		Descriptor *d = *dit;
+		switch (d->getTag())
+		{
+			case REGISTRATION_DESCRIPTOR:
 			{
-				RegistrationDescriptor *sd = (RegistrationDescriptor*) d;
-				switch (sd->getFormatIdentifier()) {
-				case DRF_ID_DTS1:
-				case DRF_ID_DTS2:
-				case DRF_ID_DTS3:
-					audio_type = CZapitAudioChannel::DTS;
-					break;
-				case DRF_ID_AC3:
-					audio_type = CZapitAudioChannel::AC3;
-					break;
-				case DRF_ID_EAC3:
-					audio_type = CZapitAudioChannel::EAC3;
-					break;
-				default:
+				RegistrationDescriptor *sd = (RegistrationDescriptor *) d;
+				switch (sd->getFormatIdentifier())
+				{
+					case DRF_ID_DTS1:
+					case DRF_ID_DTS2:
+					case DRF_ID_DTS3:
+						audio_type = CZapitAudioChannel::DTS;
+						break;
+					case DRF_ID_AC3:
+						audio_type = CZapitAudioChannel::AC3;
+						break;
+					case DRF_ID_EAC3:
+						audio_type = CZapitAudioChannel::EAC3;
+						break;
+					default:
 #ifdef DEBUG_PMT
-					printf("PMT: REGISTRATION_DESCRIPTOR: %x\n", sd->getFormatIdentifier());
+						printf("PMT: REGISTRATION_DESCRIPTOR: %x\n", sd->getFormatIdentifier());
 #endif
-					break;
+						break;
 				}
 			}
 			break;
-		case ISO_639_LANGUAGE_DESCRIPTOR:
+			case ISO_639_LANGUAGE_DESCRIPTOR:
 			{
-				Iso639LanguageDescriptor * sd = (Iso639LanguageDescriptor*) d;
+				Iso639LanguageDescriptor *sd = (Iso639LanguageDescriptor *) d;
 				const Iso639LanguageList *languages = sd->getIso639Languages();
 				Iso639LanguageConstIterator it;
-				for (it = languages->begin(); it != languages->end(); ++it) {
+				for (it = languages->begin(); it != languages->end(); ++it)
+				{
 					description = (*it)->getIso639LanguageCode();
 					break;
 				}
 			}
 			break;
-		case STREAM_IDENTIFIER_DESCRIPTOR:
+			case STREAM_IDENTIFIER_DESCRIPTOR:
 			{
-				StreamIdentifierDescriptor *sd = (StreamIdentifierDescriptor*) d;
+				StreamIdentifierDescriptor *sd = (StreamIdentifierDescriptor *) d;
 				componentTag = sd->getComponentTag();
 			}
 			break;
-		case TELETEXT_DESCRIPTOR:
+			case TELETEXT_DESCRIPTOR:
 			{
-				TeletextDescriptor *td = (TeletextDescriptor*)d;
+				TeletextDescriptor *td = (TeletextDescriptor *)d;
 				const VbiTeletextList *vbilist = td->getVbiTeletexts();
 				VbiTeletextConstIterator it;
 				DBG("[pmt] teletext pid %04x\n", esinfo->getPid());
-				for (it = vbilist->begin(); it != vbilist->end(); ++it) {
-					VbiTeletext * vbi = *it;
+				for (it = vbilist->begin(); it != vbilist->end(); ++it)
+				{
+					VbiTeletext *vbi = *it;
 
 					std::string lang = vbi->getIso639LanguageCode();
 					uint8_t page = vbi->getTeletextPageNumber();
 					uint8_t magazine = vbi->getTeletextMagazineNumber();
 					DBG("[pmt] teletext type %d mag %d page %d lang [%s]\n",
-							vbi->getTeletextType(), magazine, page, lang.c_str());
+						vbi->getTeletextType(), magazine, page, lang.c_str());
 					if (vbi->getTeletextType() == 0x01)
 						channel->setTeletextLang(lang);
 					else if (vbi->getTeletextType() == 0x02)
@@ -210,60 +220,64 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 				channel->setTeletextPid(esinfo->getPid());
 			}
 			break;
-		case SUBTITLING_DESCRIPTOR:
-			if(stream_type == 0x06) {
-				SubtitlingDescriptor *sd = (SubtitlingDescriptor*) d;
-				const SubtitlingList *sublist = sd->getSubtitlings();
-				SubtitlingConstIterator it;
-				for (it = sublist->begin(); it != sublist->end(); ++it) {
-					Subtitling * sub = *it;
+			case SUBTITLING_DESCRIPTOR:
+				if (stream_type == 0x06)
+				{
+					SubtitlingDescriptor *sd = (SubtitlingDescriptor *) d;
+					const SubtitlingList *sublist = sd->getSubtitlings();
+					SubtitlingConstIterator it;
+					for (it = sublist->begin(); it != sublist->end(); ++it)
+					{
+						Subtitling *sub = *it;
 
-					uint16_t composition_page_id = sub->getCompositionPageId();
-					uint16_t ancillary_page_id = sub->getAncillaryPageId();
-					std::string lang = sub->getIso639LanguageCode();
+						uint16_t composition_page_id = sub->getCompositionPageId();
+						uint16_t ancillary_page_id = sub->getAncillaryPageId();
+						std::string lang = sub->getIso639LanguageCode();
 
-					channel->addDVBSubtitle(esinfo->getPid(), lang, sub->getSubtitlingType(),
+						channel->addDVBSubtitle(esinfo->getPid(), lang, sub->getSubtitlingType(),
 							composition_page_id, ancillary_page_id);
+					}
 				}
-			}
-			break;
-		case AC3_DESCRIPTOR:
-			audio_type = CZapitAudioChannel::AC3;
-			break;
-		case ENHANCED_AC3_DESCRIPTOR:
-			audio_type = CZapitAudioChannel::EAC3;
-			break;
-		case DTS_DESCRIPTOR:
-			audio_type = CZapitAudioChannel::DTS;
-			break;
-		case AAC_DESCRIPTOR:
-			audio_type = CZapitAudioChannel::AAC;
-			break;
-		case 0xC5: /* User Private descriptor - Canal+ Radio */
-			if(d->getLength() >= 25) {
-				uint8_t *buf = new uint8_t[2 + d->getLength()];
-				if(buf){
-					d->writeToBuffer(buf);
-					int tsidonid =  channel->getTransportStreamId() << 16 | channel->getOriginalNetworkId();
-					description = convertDVBUTF8((const char*)&buf[3], 24, 2, tsidonid);
-					delete []buf;
+				break;
+			case AC3_DESCRIPTOR:
+				audio_type = CZapitAudioChannel::AC3;
+				break;
+			case ENHANCED_AC3_DESCRIPTOR:
+				audio_type = CZapitAudioChannel::EAC3;
+				break;
+			case DTS_DESCRIPTOR:
+				audio_type = CZapitAudioChannel::DTS;
+				break;
+			case AAC_DESCRIPTOR:
+				audio_type = CZapitAudioChannel::AAC;
+				break;
+			case 0xC5: /* User Private descriptor - Canal+ Radio */
+				if (d->getLength() >= 25)
+				{
+					uint8_t *buf = new uint8_t[2 + d->getLength()];
+					if (buf)
+					{
+						d->writeToBuffer(buf);
+						int tsidonid =  channel->getTransportStreamId() << 16 | channel->getOriginalNetworkId();
+						description = convertDVBUTF8((const char *)&buf[3], 24, 2, tsidonid);
+						delete []buf;
+					}
 				}
-			}
-			break;
-		case AUDIO_STREAM_DESCRIPTOR:
-			break;
-		case VIDEO_STREAM_DESCRIPTOR:
-			break;
-		case CA_DESCRIPTOR:
-			break;
-		default:
+				break;
+			case AUDIO_STREAM_DESCRIPTOR:
+				break;
+			case VIDEO_STREAM_DESCRIPTOR:
+				break;
+			case CA_DESCRIPTOR:
+				break;
+			default:
 			{
 #ifdef DEBUG_PMT_UNUSED
 				printf("PMT: descriptor %02x: ", d->getTag());
-				uint8_t len = 2+d->getLength();
+				uint8_t len = 2 + d->getLength();
 				uint8_t buf[len];
 				d->writeToBuffer(buf);
-				for(uint8_t i = 0; i < len; i++)
+				for (uint8_t i = 0; i < len; i++)
 					printf("%02x ", buf[i]);
 				printf("\n");
 #endif
@@ -271,105 +285,110 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 			break;
 		}
 	}
-	switch (stream_type) {
-	case STREAM_TYPE_VIDEO_MPEG1:
-	case STREAM_TYPE_VIDEO_MPEG2:
-		channel->setVideoPid(esinfo->getPid());
-		channel->type = CHANNEL_MPEG2;
-		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
-		break;
-	case STREAM_TYPE_VIDEO_MPEG4:
-	case STREAM_TYPE_VIDEO_H264:
-		channel->setVideoPid(esinfo->getPid());
-		channel->type = CHANNEL_MPEG4;
-		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
-		break;
-	case STREAM_TYPE_VIDEO_HEVC:
-	case STREAM_TYPE_VIDEO_SHVC:
-		channel->setVideoPid(esinfo->getPid());
-		channel->type = CHANNEL_HEVC;
-		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
-		break;
-	case STREAM_TYPE_VIDEO_CAVS:
-		channel->setVideoPid(esinfo->getPid());
-		channel->type = CHANNEL_CAVS;
-		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
-		break;
-	case STREAM_TYPE_AUDIO_MPEG1:
-	case STREAM_TYPE_AUDIO_MPEG2:
-		audio_type = CZapitAudioChannel::MPEG;
-		audio = true;
-		break;
-	case STREAM_TYPE_PRIVATE_DATA: // MPEG2 Subtitles
-		if(audio_type != CZapitAudioChannel::UNKNOWN)
+	switch (stream_type)
+	{
+		case STREAM_TYPE_VIDEO_MPEG1:
+		case STREAM_TYPE_VIDEO_MPEG2:
+			channel->setVideoPid(esinfo->getPid());
+			channel->type = CHANNEL_MPEG2;
+			DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
+			break;
+		case STREAM_TYPE_VIDEO_MPEG4:
+		case STREAM_TYPE_VIDEO_H264:
+			channel->setVideoPid(esinfo->getPid());
+			channel->type = CHANNEL_MPEG4;
+			DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
+			break;
+		case STREAM_TYPE_VIDEO_HEVC:
+		case STREAM_TYPE_VIDEO_SHVC:
+			channel->setVideoPid(esinfo->getPid());
+			channel->type = CHANNEL_HEVC;
+			DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
+			break;
+		case STREAM_TYPE_VIDEO_CAVS:
+			channel->setVideoPid(esinfo->getPid());
+			channel->type = CHANNEL_CAVS;
+			DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
+			break;
+		case STREAM_TYPE_AUDIO_MPEG1:
+		case STREAM_TYPE_AUDIO_MPEG2:
+			audio_type = CZapitAudioChannel::MPEG;
 			audio = true;
-		break;
-	case STREAM_TYPE_AUDIO_AAC:
-		audio_type = CZapitAudioChannel::AAC;
-		audio = true;
-		break;
-	case STREAM_TYPE_AUDIO_AAC_LATM:
-		audio_type = CZapitAudioChannel::AACPLUS;
-		audio = true;
-		break;
-	case STREAM_TYPE_AUDIO_AC3:
-		audio_type = CZapitAudioChannel::AC3;
-		audio = true;
-		break;
-	case STREAM_TYPE_AUDIO_DTS:
-		audio_type = CZapitAudioChannel::DTS;
-		audio = true;
-		break;
+			break;
+		case STREAM_TYPE_PRIVATE_DATA: // MPEG2 Subtitles
+			if (audio_type != CZapitAudioChannel::UNKNOWN)
+				audio = true;
+			break;
+		case STREAM_TYPE_AUDIO_AAC:
+			audio_type = CZapitAudioChannel::AAC;
+			audio = true;
+			break;
+		case STREAM_TYPE_AUDIO_AAC_LATM:
+			audio_type = CZapitAudioChannel::AACPLUS;
+			audio = true;
+			break;
+		case STREAM_TYPE_AUDIO_AC3:
+			audio_type = CZapitAudioChannel::AC3;
+			audio = true;
+			break;
+		case STREAM_TYPE_AUDIO_DTS:
+			audio_type = CZapitAudioChannel::DTS;
+			audio = true;
+			break;
 // STREAM_TYPE_AUDIO_DTSHD: SCTE-35[5] digital program insertion cue message
 // or DTS 8 channel lossless audio in a packetized stream
 // disabled until furhther detection
 #if 0
-	case STREAM_TYPE_AUDIO_DTSHD:
-		audio_type = CZapitAudioChannel::DTSHD;
-		audio = true;
-		break;
+		case STREAM_TYPE_AUDIO_DTSHD:
+			audio_type = CZapitAudioChannel::DTSHD;
+			audio = true;
+			break;
 #endif
-	case STREAM_TYPE_AUDIO_LPCM:
-		audio_type = CZapitAudioChannel::LPCM;
-		audio = true;
-		break;
-	case STREAM_TYPE_AUDIO_EAC3:
-		audio_type = CZapitAudioChannel::EAC3;
-		audio = true;
-		break;
+		case STREAM_TYPE_AUDIO_LPCM:
+			audio_type = CZapitAudioChannel::LPCM;
+			audio = true;
+			break;
+		case STREAM_TYPE_AUDIO_EAC3:
+			audio_type = CZapitAudioChannel::EAC3;
+			audio = true;
+			break;
 #if ENABLE_AIT
-	case STREAM_TYPE_PRIVATE_SECTION:
-		for (DescriptorConstIterator desc = esinfo->getDescriptors()->begin(); desc != esinfo->getDescriptors()->end(); ++desc)
-		{
-			switch ((*desc)->getTag())
+		case STREAM_TYPE_PRIVATE_SECTION:
+			for (DescriptorConstIterator desc = esinfo->getDescriptors()->begin(); desc != esinfo->getDescriptors()->end(); ++desc)
 			{
-				case APPLICATION_SIGNALLING_DESCRIPTOR:
-					channel->setAitPid(esinfo->getPid());
-					printf("[pmt] found aitpid: 0x%x\n", esinfo->getPid());
-					break;
+				switch ((*desc)->getTag())
+				{
+					case APPLICATION_SIGNALLING_DESCRIPTOR:
+						channel->setAitPid(esinfo->getPid());
+						printf("[pmt] found aitpid: 0x%x\n", esinfo->getPid());
+						break;
+				}
 			}
-		}
-		break;
+			break;
 #endif
-	default:
+		default:
 #ifdef DEBUG_PMT_UNUSED
-		printf("PMT: pid %04x stream_type: %02x\n", esinfo->getPid(), stream_type);
+			printf("PMT: pid %04x stream_type: %02x\n", esinfo->getPid(), stream_type);
 #endif
-		break;
+			break;
 	}
-	if(audio) {
-		if(description.empty()) {
+	if (audio)
+	{
+		if (description.empty())
+		{
 			char str[DESC_MAX_LEN];
 //			snprintf(str, DESC_MAX_LEN, "Unknown 0x%04x", esinfo->getPid());
 			snprintf(str, DESC_MAX_LEN, "Unknown");
 			description = str;
 		}
 		DBG("[pmt] apid %04x stream %02x type %d [%s]\n", esinfo->getPid(), stream_type,
-				(int) audio_type, description.c_str());
-		if(CServiceScan::getInstance()->Scanning()) {
-			if(channel->getPreAudioPid() == 0)
+			(int) audio_type, description.c_str());
+		if (CServiceScan::getInstance()->Scanning())
+		{
+			if (channel->getPreAudioPid() == 0)
 				channel->setAudioPid(esinfo->getPid());
-		} else
+		}
+		else
 			channel->addAudioChannel(esinfo->getPid(), audio_type, description, componentTag);
 	}
 	return true;
@@ -380,30 +399,35 @@ void CPmt::MakeCAMap(casys_map_t &camap)
 	ProgramMapSection pmt(buffer);
 	CaProgramMapSection capmt(&pmt, 0x03, 0x01);
 	DescriptorConstIterator dit;
-	for (dit = capmt.getDescriptors()->begin(); dit != capmt.getDescriptors()->end(); ++dit) {
-		if ((*dit)->getTag() == CA_DESCRIPTOR ) {
-			CaDescriptor * d = (CaDescriptor*) *dit;
+	for (dit = capmt.getDescriptors()->begin(); dit != capmt.getDescriptors()->end(); ++dit)
+	{
+		if ((*dit)->getTag() == CA_DESCRIPTOR)
+		{
+			CaDescriptor *d = (CaDescriptor *) *dit;
 			//printf("%02X: casys %04X capid %04X, ", d->getTag(), d->getCaSystemId(), d->getCaPid());
 			camap.insert(d->getCaSystemId());
 		}
 	}
-	const ElementaryStreamInfoList * eslist = pmt.getEsInfo();
+	const ElementaryStreamInfoList *eslist = pmt.getEsInfo();
 	ElementaryStreamInfoConstIterator it;
-	for (it = eslist->begin(); it != eslist->end(); ++it) {
+	for (it = eslist->begin(); it != eslist->end(); ++it)
+	{
 		ElementaryStreamInfo *esinfo = *it;
-		const DescriptorList * dlist = esinfo->getDescriptors();
-		for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
-			if ((*dit)->getTag() == CA_DESCRIPTOR ) {
-				CaDescriptor * d = (CaDescriptor*) *dit;
+		const DescriptorList *dlist = esinfo->getDescriptors();
+		for (dit = dlist->begin(); dit != dlist->end(); ++dit)
+		{
+			if ((*dit)->getTag() == CA_DESCRIPTOR)
+			{
+				CaDescriptor *d = (CaDescriptor *) *dit;
 				camap.insert(d->getCaSystemId());
 			}
 		}
 	}
 }
 
-bool CPmt::haveCaSys(int pmtpid, int service_id )
+bool CPmt::haveCaSys(int pmtpid, int service_id)
 {
-	if(!Read(pmtpid, service_id))
+	if (!Read(pmtpid, service_id))
 		return false;
 
 	casys_map_t camap;
@@ -411,15 +435,16 @@ bool CPmt::haveCaSys(int pmtpid, int service_id )
 	return !camap.empty();
 }
 
-cDemux * pmtDemux;
+cDemux *pmtDemux;
 
-int pmt_set_update_filter(CZapitChannel * const channel, int * fd)
+int pmt_set_update_filter(CZapitChannel *const channel, int *fd)
 {
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 	unsigned char mode[DMX_FILTER_SIZE];
 
-	if(pmtDemux == NULL) {
+	if (pmtDemux == NULL)
+	{
 		pmtDemux = new cDemux(0);
 		pmtDemux->Open(DMX_PSI_CHANNEL);
 	}
@@ -458,13 +483,13 @@ int pmt_set_update_filter(CZapitChannel * const channel, int * fd)
 	return 0;
 }
 
-int pmt_stop_update_filter(int * fd)
+int pmt_stop_update_filter(int *fd)
 {
 	DBG("[pmt] stop update filter\n");
 
-	if(pmtDemux)
+	if (pmtDemux)
 		pmtDemux->Stop();
 
 	*fd = -1;
-        return 0;
+	return 0;
 }

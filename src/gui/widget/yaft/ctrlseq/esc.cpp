@@ -34,8 +34,10 @@ void YaFT_p::tab(void)
 {
 	int i;
 	txt.back().append(" ");
-	for (i = cursor.x + 1; i < cols; i++) {
-		if (tabstop[i]) {
+	for (i = cursor.x + 1; i < cols; i++)
+	{
+		if (tabstop[i])
+		{
 			set_cursor(cursor.y, i);
 			return;
 		}

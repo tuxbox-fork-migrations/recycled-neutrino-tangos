@@ -66,7 +66,7 @@ class CHintBox : public CComponentsWindow
 		sigc::slot0<void> sl_tbar_on_timer;
 		bool enable_timeout_bar;
 
-		Font* hb_font;
+		Font *hb_font;
 
 		///timeout value, see also setTimeOut()
 		int timeout;
@@ -76,23 +76,23 @@ class CHintBox : public CComponentsWindow
 		CComponentsTimer *timeout_pb_timer;
 
 		///scroll handler, default down and for the 1st hint item (=0), NOTE: exec() must be called! see also scroll_down()/scroll_up()
-		void Scroll(bool down, const uint& hint_id = 0);
+		void Scroll(bool down, const uint &hint_id = 0);
 
 		///main init handler
-		void init(	const std::string& Text,
-				const int& Width,
-				const std::string& Picon,
-				const int& header_buttons,
-				const int& text_mode,
-				const int& indent,
-				const fb_pixel_t& color_frame,
-				const fb_pixel_t& color_body,
-				const fb_pixel_t& color_shadow,
-				const int& frame_width);
+		void init(const std::string &Text,
+			const int &Width,
+			const std::string &Picon,
+			const int &header_buttons,
+			const int &text_mode,
+			const int &indent,
+			const fb_pixel_t &color_frame,
+			const fb_pixel_t &color_body,
+			const fb_pixel_t &color_shadow,
+			const int &frame_width);
 
 		virtual void ReSize();
-		void showTimeOutBar(){initTimeOutBar();}
-		int getMaxWidth(const std::string& Text, const std::string& Title, Font *font, const int& minWidth);
+		void showTimeOutBar() {initTimeOutBar();}
+		int getMaxWidth(const std::string &Text, const std::string &Title, Font *font, const int &minWidth);
 
 	public:
 		/**CHintBox Constructor
@@ -126,36 +126,36 @@ class CHintBox : public CComponentsWindow
 		*
 		* 	@see	classes CComponentsText(), CTextBox()
 		*/
-		CHintBox(	const neutrino_locale_t Caption,
-				const char * const Text,
-				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = DEFAULT_HEADER_ICON,
-				const char * const Picon = NULL,
-				const int& header_buttons = 0,
-				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
-				const int& indent = W_FRAME,
-				const fb_pixel_t& color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
-				const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
-				const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
-				const int& frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
+		CHintBox(const neutrino_locale_t Caption,
+			const char *const Text,
+			const int Width = HINTBOX_MIN_WIDTH,
+			const char *const Icon = DEFAULT_HEADER_ICON,
+			const char *const Picon = NULL,
+			const int &header_buttons = 0,
+			const int &text_mode = DEFAULT_HINTBOX_TEXT_MODE,
+			const int &indent = W_FRAME,
+			const fb_pixel_t &color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
+			const fb_pixel_t &color_body = COL_MENUCONTENT_PLUS_0,
+			const fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0,
+			const int &frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
 
 		/**CHintBox Constructor
 		* @param[in]	Caption
 		* 	@li 	expects type const char*
 		* 	@see	for other parameters take a look to basic class CHintBox()
 		*/
-		CHintBox(	const char * const Caption,
-				const char * const Text,
-				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = DEFAULT_HEADER_ICON,
-				const char * const Picon = NULL,
-				const int& header_buttons = 0,
-				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
-				const int& indent = W_FRAME,
-				const fb_pixel_t& color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
-				const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
-				const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
-				const int& frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
+		CHintBox(const char *const Caption,
+			const char *const Text,
+			const int Width = HINTBOX_MIN_WIDTH,
+			const char *const Icon = DEFAULT_HEADER_ICON,
+			const char *const Picon = NULL,
+			const int &header_buttons = 0,
+			const int &text_mode = DEFAULT_HINTBOX_TEXT_MODE,
+			const int &indent = W_FRAME,
+			const fb_pixel_t &color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
+			const fb_pixel_t &color_body = COL_MENUCONTENT_PLUS_0,
+			const fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0,
+			const int &frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
 
 		/**CHintBox Constructor
 		* @param[in]	Caption
@@ -164,18 +164,18 @@ class CHintBox : public CComponentsWindow
 		* 	@li 	expects type neutrino_locale_t with locale entry from /system/locals.h
 		* 	@see	for other parameters take a look to basic class CHintBox()
 		*/
-		CHintBox(	const neutrino_locale_t Caption,
-				const neutrino_locale_t Text,
-				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = DEFAULT_HEADER_ICON,
-				const char * const Picon = NULL,
-				const int& header_buttons = 0,
-				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
-				const int& indent = W_FRAME,
-				const fb_pixel_t& color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
-				const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
-				const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
-				const int& frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
+		CHintBox(const neutrino_locale_t Caption,
+			const neutrino_locale_t Text,
+			const int Width = HINTBOX_MIN_WIDTH,
+			const char *const Icon = DEFAULT_HEADER_ICON,
+			const char *const Picon = NULL,
+			const int &header_buttons = 0,
+			const int &text_mode = DEFAULT_HINTBOX_TEXT_MODE,
+			const int &indent = W_FRAME,
+			const fb_pixel_t &color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
+			const fb_pixel_t &color_body = COL_MENUCONTENT_PLUS_0,
+			const fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0,
+			const int &frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
 
 		/**CHintBox Constructor
 		* @param[in]	Caption
@@ -184,18 +184,18 @@ class CHintBox : public CComponentsWindow
 		* 	@li 	expects type neutrino_locale_t with locale entry from /system/locals.h
 		* 	@see	for other parameters take a look to basic class CHintBox()
 		*/
-		CHintBox(	const char * const Caption,
-				const neutrino_locale_t Text,
-				const int Width = HINTBOX_MIN_WIDTH,
-				const char * const Icon = DEFAULT_HEADER_ICON,
-				const char * const Picon = NULL,
-				const int& header_buttons = 0,
-				const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
-				const int& indent = W_FRAME,
-				const fb_pixel_t& color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
-				const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
-				const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
-				const int& frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
+		CHintBox(const char *const Caption,
+			const neutrino_locale_t Text,
+			const int Width = HINTBOX_MIN_WIDTH,
+			const char *const Icon = DEFAULT_HEADER_ICON,
+			const char *const Picon = NULL,
+			const int &header_buttons = 0,
+			const int &text_mode = DEFAULT_HINTBOX_TEXT_MODE,
+			const int &indent = W_FRAME,
+			const fb_pixel_t &color_frame = HINTBOX_DEFAULT_FRAME_COLOR,
+			const fb_pixel_t &color_body = COL_MENUCONTENT_PLUS_0,
+			const fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0,
+			const int &frame_width = HINTBOX_DEFAULT_FRAME_WIDTH);
 
 		virtual ~CHintBox();
 		/**
@@ -207,7 +207,7 @@ class CHintBox : public CComponentsWindow
 		/**
 		* hide caller
 		*/
-		void hide(){hideCCItems(); CCDraw::hide();}
+		void hide() {hideCCItems(); CCDraw::hide();}
 
 		/**
 		* Defines timeout for message window.
@@ -216,20 +216,20 @@ class CHintBox : public CComponentsWindow
 		* @param[in]	Timeout as int as seconds
 		* @param[in]	enable_Timeout_Bar as bool
 		*/
-		virtual void setTimeOut(const int& Timeout, const bool& enable_Timeout_Bar){timeout = Timeout; enable_timeout_bar = enable_Timeout_Bar;}
+		virtual void setTimeOut(const int &Timeout, const bool &enable_Timeout_Bar) {timeout = Timeout; enable_timeout_bar = enable_Timeout_Bar;}
 
 		/**
 		 * enable/disable visualized timeout as progressbar under titlebar
 		 * @param[in]	enable
 		 * 	@li	expects type bool, default = true
 		 */
-		void enableTimeOutBar(bool enable = true){enable_timeout_bar = enable;}
+		void enableTimeOutBar(bool enable = true) {enable_timeout_bar = enable;}
 
 		/**
 		 * disable visualized timeout as progressbar under titlebar
 		 * 	@see	enableTimeOutBar()
 		 */
-		void disableTimeOutBar(){enableTimeOutBar(false);}
+		void disableTimeOutBar() {enableTimeOutBar(false);}
 
 		/**
 		* init or unload visualized timeout as progressbar under titlebar
@@ -242,7 +242,7 @@ class CHintBox : public CComponentsWindow
 		* unload visualized timeout as progressbar
 		* 	@see initTimeOutBar
 		*/
-		void clearTimeOutBar(){initTimeOutBar(false);}
+		void clearTimeOutBar() {initTimeOutBar(false);}
 
 		/**
 		* scroll handler for text objects: NOTE: exec() must be called !
@@ -251,7 +251,7 @@ class CHintBox : public CComponentsWindow
 		* 		default for the 1st hint item (=0), item id arises from the order of added items with addHintItem(), default we have minimal one item with id=0
 		* @see		Scroll()
 		*/
-		void scroll_up(const uint& hint_id = 0);
+		void scroll_up(const uint &hint_id = 0);
 
 		/**
 		* scroll down handler for text objects: NOTE: exec() must be called !
@@ -260,7 +260,7 @@ class CHintBox : public CComponentsWindow
 		* 		default for the 1st hint item (=0), item id arises from the order of added items with addHintItem(), default we h
 		* @see		Scroll()
 		*/
-		void scroll_down(const uint& hint_id = 0);
+		void scroll_down(const uint &hint_id = 0);
 
 		/**
 		* Member to add a hint item
@@ -285,20 +285,20 @@ class CHintBox : public CComponentsWindow
 		* * @param[in]	font_text
 		* 	@li 	optional: expects type Font*, defines the text font type, default = NULL for system preset for message contents
 		*/
-		void addHintItem(	const std::string& Text,
-					const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
-					const std::string& Picon = std::string(),
-					const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
-					Font* font_text = NULL);
+		void addHintItem(const std::string &Text,
+			const int &text_mode = DEFAULT_HINTBOX_TEXT_MODE,
+			const std::string &Picon = std::string(),
+			const fb_pixel_t &color_text = COL_MENUCONTENT_TEXT,
+			Font *font_text = NULL);
 
 		/**
 		* Member to add a hint item from specified cc-item type
 		* @param[in]	cc_Item
 		* 	@li 	expects type CComponentsItem*, allows to add any possible cc-item type
-		* 
+		*
 		* 	@see	/gui/components/cc_types.h
 		*/
-		void addHintItem(CComponentsItem* cc_Item){ccw_body->addCCItem(cc_Item);}
+		void addHintItem(CComponentsItem *cc_Item) {ccw_body->addCCItem(cc_Item);}
 
 		/**
 		* Sets a text to a hint item.
@@ -328,18 +328,18 @@ class CHintBox : public CComponentsWindow
 		*		FONT_STYLE_BOLD
 		*		FONT_STYLE_ITALIC
 		*/
-		void setMsgText(const std::string& Text,
-				const uint& hint_id = 0,
-				const int& mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER,
-				Font* font_text = NULL,
-				const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
-				const int& style = CComponentsText::FONT_STYLE_REGULAR);
-		void setMsgText(const neutrino_locale_t& locale,
-				const uint& hint_id = 0,
-				const int& mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER,
-				Font* font_text = NULL,
-				const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
-				const int& style = CComponentsText::FONT_STYLE_REGULAR);
+		void setMsgText(const std::string &Text,
+			const uint &hint_id = 0,
+			const int &mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER,
+			Font *font_text = NULL,
+			const fb_pixel_t &color_text = COL_MENUCONTENT_TEXT,
+			const int &style = CComponentsText::FONT_STYLE_REGULAR);
+		void setMsgText(const neutrino_locale_t &locale,
+			const uint &hint_id = 0,
+			const int &mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER,
+			Font *font_text = NULL,
+			const fb_pixel_t &color_text = COL_MENUCONTENT_TEXT,
+			const int &style = CComponentsText::FONT_STYLE_REGULAR);
 };
 
 /**
@@ -347,10 +347,10 @@ class CHintBox : public CComponentsWindow
 * Text is UTF-8 encoded
 * 	@see	for possible parameters take a look to CHintBox()
 */
-int ShowHint(const neutrino_locale_t Caption, const char * const Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL, const char * const Picon = NULL, const int& header_buttons = 0);
-int ShowHint(const neutrino_locale_t Caption, const neutrino_locale_t Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL, const char * const Picon = NULL, const int& header_buttons = 0);
-int ShowHint(const char * const Caption, const char * const Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL, const char * const Picon = NULL, const int& header_buttons = 0);
-int ShowHint(const char * const Caption, const neutrino_locale_t Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL, const char * const Picon = NULL, const int& header_buttons = 0);
+int ShowHint(const neutrino_locale_t Caption, const char *const Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char *const Icon = NULL, const char *const Picon = NULL, const int &header_buttons = 0);
+int ShowHint(const neutrino_locale_t Caption, const neutrino_locale_t Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char *const Icon = NULL, const char *const Picon = NULL, const int &header_buttons = 0);
+int ShowHint(const char *const Caption, const char *const Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char *const Icon = NULL, const char *const Picon = NULL, const int &header_buttons = 0);
+int ShowHint(const char *const Caption, const neutrino_locale_t Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char *const Icon = NULL, const char *const Picon = NULL, const int &header_buttons = 0);
 
 
 
@@ -368,8 +368,8 @@ class CHint : public CHintBox
 		void initHint(bool enable_bg)
 		{
 			paint_bg = enable_bg;
-											ccw_show_header = false;
-											ccw_show_footer = false;
+			ccw_show_header = false;
+			ccw_show_footer = false;
 			cc_item_type.name = "wg.hint";
 			delay = 0;
 		}
@@ -380,7 +380,7 @@ class CHint : public CHintBox
 		* @param[in]	show_background
 		* 	@li 	optional: expects type bool, enable/disable backround paint, default = true
 		*/
-		CHint(const char * const Text, bool show_background = true);
+		CHint(const char *const Text, bool show_background = true);
 		/**CHint Constructor
 		* @param[in]	Text
 		* 	@li 	expects type neutrino_locale_t, this is the message text inside the window, text is UTF-8 encoded
@@ -427,7 +427,7 @@ typedef struct hint_message_data_t
 * 	@see	for possible text parameters take a look to CHintBox()
 */
 int ShowHintS(const neutrino_locale_t Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
-int ShowHintS(const char * const Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+int ShowHintS(const char *const Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
 int ShowHintS(const std::string &Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
 
 /**
@@ -449,7 +449,7 @@ int ShowHintS(const std::string &Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bo
  * 	@li 	optional: expects type bool, enable/disable backround paint, default = true
  */
 int ShowHintS(const neutrino_locale_t Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
-int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+int ShowHintS(const char *const Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
 int ShowHintS(const std::string &Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
 
 int ShowHintS(const hint_message_data_t &hint_data);

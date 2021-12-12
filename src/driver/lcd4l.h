@@ -62,7 +62,7 @@ class CLCD4l : public OpenThreads::Thread
 		int	GetMaxBrightness();
 
 		void	ResetParseID() { m_ParseID = 0; }
-		static CLCD4l* getInstance();
+		static CLCD4l *getInstance();
 	private:
 		void 		run();
 		struct tm	*tm_struct;

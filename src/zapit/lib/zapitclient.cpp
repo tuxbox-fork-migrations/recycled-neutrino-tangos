@@ -49,7 +49,7 @@ unsigned char CZapitClient::getVersion() const
 	return CZapitMessages::ACTVERSION;
 }
 
-const char * CZapitClient::getSocketName() const
+const char *CZapitClient::getSocketName() const
 {
 	return ZAPIT_UDS_NAME;
 }
@@ -77,7 +77,7 @@ void CZapitClient::zapTo(const unsigned int bouquet, const unsigned int channel)
 	msg.channel = channel - 1;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_ZAPTO, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_ZAPTO, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }
@@ -102,7 +102,7 @@ t_channel_id CZapitClient::getCurrentServiceID()
 	send(CZapitMessages::CMD_GET_CURRENT_SERVICEID);
 
 	CZapitMessages::responseGetCurrentServiceID response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 
@@ -115,7 +115,7 @@ CZapitClient::CCurrentServiceInfo CZapitClient::getCurrentServiceInfo()
 	send(CZapitMessages::CMD_GET_CURRENT_SERVICEINFO);
 
 	CZapitClient::CCurrentServiceInfo response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 	return response;
@@ -128,7 +128,7 @@ void CZapitClient::getLastChannel(t_channel_id &channel_id, int &mode)
 	send(CZapitMessages::CMD_GET_LAST_CHANNEL);
 
 	CZapitClient::responseGetLastChannel response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 	channel_id = response.channel_id;
 	mode = response.mode;
 
@@ -178,7 +178,7 @@ unsigned int CZapitClient::zapTo_serviceID(const t_channel_id channel_id)
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
 
 	CZapitMessages::responseZapComplete response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 
@@ -199,7 +199,7 @@ unsigned int CZapitClient::zapTo_record(const t_channel_id channel_id)
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
 
 	CZapitMessages::responseZapComplete response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 
@@ -220,7 +220,7 @@ unsigned int CZapitClient::zapTo_pip(const t_channel_id channel_id, int pip)
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
 
 	CZapitMessages::responseZapComplete response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 
@@ -238,7 +238,7 @@ unsigned int CZapitClient::zapTo_epg(const t_channel_id channel_id, bool standby
 	send(CZapitMessages::CMD_ZAPTO_EPG, (const char *) & msg, sizeof(msg));
 
 	CZapitMessages::responseZapComplete response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 
@@ -259,7 +259,7 @@ unsigned int CZapitClient::zapTo_subServiceID(const t_channel_id channel_id)
 	send(CZapitMessages::CMD_ZAPTO_SUBSERVICEID, (const char *) & msg, sizeof(msg));
 
 	CZapitMessages::responseZapComplete response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 
@@ -320,26 +320,26 @@ int CZapitClient::getMode()
 	send(CZapitMessages::CMD_GET_MODE);
 
 	CZapitMessages::responseGetMode response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 	return response.mode;
 }
 
-void CZapitClient::setSubServices( subServiceList& subServices )
+void CZapitClient::setSubServices(subServiceList &subServices)
 {
 	unsigned int i;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_SETSUBSERVICES);
 
-	for (i = 0; i< subServices.size(); i++)
-		send_data((char*)&subServices[i], sizeof(subServices[i]));
+	for (i = 0; i < subServices.size(); i++)
+		send_data((char *)&subServices[i], sizeof(subServices[i]));
 
 	close_connection();
 }
 
-void CZapitClient::getPIDS(responseGetPIDs& pids)
+void CZapitClient::getPIDS(responseGetPIDs &pids)
 {
 	CZapitMessages::responseGeneralInteger responseInteger;
 	responseGetAPIDs                       responseAPID;
@@ -347,17 +347,17 @@ void CZapitClient::getPIDS(responseGetPIDs& pids)
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_GETPIDS);
 
-	CBasicClient::receive_data((char* )&(pids.PIDs), sizeof(pids.PIDs));
+	CBasicClient::receive_data((char *) & (pids.PIDs), sizeof(pids.PIDs));
 
 	pids.APIDs.clear();
 
-	if (CBasicClient::receive_data((char* )&responseInteger, sizeof(responseInteger)))
+	if (CBasicClient::receive_data((char *)&responseInteger, sizeof(responseInteger)))
 	{
 		pids.APIDs.reserve(responseInteger.number);
 
 		while (responseInteger.number-- > 0)
 		{
-			CBasicClient::receive_data((char*)&responseAPID, sizeof(responseAPID));
+			CBasicClient::receive_data((char *)&responseAPID, sizeof(responseAPID));
 			pids.APIDs.push_back(responseAPID);
 		}
 	}
@@ -380,7 +380,7 @@ void CZapitClient::zaptoNvodSubService(const int num)
 
 /* gets all bouquets */
 /* bouquets are numbered starting at 0 */
-void CZapitClient::getBouquets(BouquetList& bouquets, const bool emptyBouquetsToo, const bool utf_encoded, channelsMode mode)
+void CZapitClient::getBouquets(BouquetList &bouquets, const bool emptyBouquetsToo, const bool utf_encoded, channelsMode mode)
 {
 	char buffer[30];
 
@@ -391,10 +391,10 @@ void CZapitClient::getBouquets(BouquetList& bouquets, const bool emptyBouquetsTo
 	msg.mode = mode;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_GET_BOUQUETS, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_GET_BOUQUETS, (char *)&msg, sizeof(msg));
 
 	responseGetBouquets response;
-	while (CBasicClient::receive_data((char*)&response, sizeof(responseGetBouquets)))
+	while (CBasicClient::receive_data((char *)&response, sizeof(responseGetBouquets)))
 	{
 		if (response.bouquet_nr == RESPONSE_GET_BOUQUETS_END_MARKER)
 			break;
@@ -402,7 +402,7 @@ void CZapitClient::getBouquets(BouquetList& bouquets, const bool emptyBouquetsTo
 		if (!utf_encoded)
 		{
 			strncpy(buffer, response.name, sizeof(buffer));
-			snprintf(response.name,sizeof(buffer),"%s",ZapitTools::UTF8_to_Latin1(buffer).c_str());
+			snprintf(response.name, sizeof(buffer), "%s", ZapitTools::UTF8_to_Latin1(buffer).c_str());
 		}
 		bouquets.push_back(response);
 	}
@@ -411,20 +411,20 @@ void CZapitClient::getBouquets(BouquetList& bouquets, const bool emptyBouquetsTo
 }
 
 
-bool CZapitClient::receive_channel_list(BouquetChannelList& channels, const bool utf_encoded)
+bool CZapitClient::receive_channel_list(BouquetChannelList &channels, const bool utf_encoded)
 {
 	CZapitMessages::responseGeneralInteger responseInteger;
 	responseGetBouquetChannels             response;
 
 	channels.clear();
 
-	if (CBasicClient::receive_data((char* )&responseInteger, sizeof(responseInteger)))
+	if (CBasicClient::receive_data((char *)&responseInteger, sizeof(responseInteger)))
 	{
 		channels.reserve(responseInteger.number);
 
 		while (responseInteger.number-- > 0)
 		{
-			if (!CBasicClient::receive_data((char*)&response, sizeof(responseGetBouquetChannels)))
+			if (!CBasicClient::receive_data((char *)&response, sizeof(responseGetBouquetChannels)))
 				return false;
 
 			response.nr++;
@@ -433,29 +433,29 @@ bool CZapitClient::receive_channel_list(BouquetChannelList& channels, const bool
 				char buffer[CHANNEL_NAME_SIZE + 1];
 				buffer[CHANNEL_NAME_SIZE] = (char) 0x00;
 				strncpy(buffer, response.name, CHANNEL_NAME_SIZE);
-				snprintf(response.name,CHANNEL_NAME_SIZE,"%s",ZapitTools::UTF8_to_Latin1(buffer).c_str());
+				snprintf(response.name, CHANNEL_NAME_SIZE, "%s", ZapitTools::UTF8_to_Latin1(buffer).c_str());
 			}
 			channels.push_back(response);
 		}
 	}
 	return true;
 }
-#if 0 
+#if 0
 //never used
-bool CZapitClient::receive_nchannel_list(BouquetNChannelList& channels)
+bool CZapitClient::receive_nchannel_list(BouquetNChannelList &channels)
 {
 	CZapitMessages::responseGeneralInteger responseInteger;
 	responseGetBouquetNChannels             response;
 
 	channels.clear();
 
-	if (CBasicClient::receive_data((char* )&responseInteger, sizeof(responseInteger)))
+	if (CBasicClient::receive_data((char *)&responseInteger, sizeof(responseInteger)))
 	{
 		channels.reserve(responseInteger.number);
 
 		while (responseInteger.number-- > 0)
 		{
-			if (!CBasicClient::receive_data((char*)&response, sizeof(responseGetBouquetNChannels)))
+			if (!CBasicClient::receive_data((char *)&response, sizeof(responseGetBouquetNChannels)))
 				return false;
 
 			response.nr++;
@@ -468,7 +468,7 @@ bool CZapitClient::receive_nchannel_list(BouquetNChannelList& channels)
 
 /* gets all channels that are in specified bouquet */
 /* bouquets are numbered starting at 0 */
-bool CZapitClient::getBouquetChannels(const unsigned int bouquet, BouquetChannelList& channels, channelsMode mode, const bool utf_encoded)
+bool CZapitClient::getBouquetChannels(const unsigned int bouquet, BouquetChannelList &channels, channelsMode mode, const bool utf_encoded)
 {
 	bool                                      return_value;
 	CZapitMessages::commandGetBouquetChannels msg;
@@ -478,14 +478,14 @@ bool CZapitClient::getBouquetChannels(const unsigned int bouquet, BouquetChannel
 	msg.mode = mode;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	return_value = (send(CZapitMessages::CMD_GET_BOUQUET_CHANNELS, (char*)&msg, sizeof(msg))) ? receive_channel_list(channels, utf_encoded) : false;
+	return_value = (send(CZapitMessages::CMD_GET_BOUQUET_CHANNELS, (char *)&msg, sizeof(msg))) ? receive_channel_list(channels, utf_encoded) : false;
 
 	close_connection();
 	return return_value;
 }
 
 #if 0
-bool CZapitClient::getBouquetNChannels(const unsigned int bouquet, BouquetNChannelList& channels, channelsMode mode, const bool /*utf_encoded*/)
+bool CZapitClient::getBouquetNChannels(const unsigned int bouquet, BouquetNChannelList &channels, channelsMode mode, const bool /*utf_encoded*/)
 {
 	bool                                      return_value;
 	CZapitMessages::commandGetBouquetChannels msg;
@@ -493,14 +493,14 @@ bool CZapitClient::getBouquetNChannels(const unsigned int bouquet, BouquetNChann
 	msg.bouquet = bouquet;
 	msg.mode = mode;
 
-	return_value = (send(CZapitMessages::CMD_GET_BOUQUET_NCHANNELS, (char*)&msg, sizeof(msg))) ? receive_nchannel_list(channels) : false;
+	return_value = (send(CZapitMessages::CMD_GET_BOUQUET_NCHANNELS, (char *)&msg, sizeof(msg))) ? receive_nchannel_list(channels) : false;
 
 	close_connection();
 	return return_value;
 }
 #endif
 /* gets all channels */
-bool CZapitClient::getChannels( BouquetChannelList& channels, channelsMode mode, channelsOrder order, const bool utf_encoded)
+bool CZapitClient::getChannels(BouquetChannelList &channels, channelsMode mode, channelsOrder order, const bool utf_encoded)
 {
 	bool                               return_value;
 	CZapitMessages::commandGetChannels msg;
@@ -510,7 +510,7 @@ bool CZapitClient::getChannels( BouquetChannelList& channels, channelsMode mode,
 	msg.order = order;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	return_value = (send(CZapitMessages::CMD_GET_CHANNELS, (char*)&msg, sizeof(msg))) ? receive_channel_list(channels, utf_encoded) : false;
+	return_value = (send(CZapitMessages::CMD_GET_CHANNELS, (char *)&msg, sizeof(msg))) ? receive_channel_list(channels, utf_encoded) : false;
 
 	close_connection();
 	return return_value;
@@ -527,7 +527,7 @@ std::string CZapitClient::getChannelName(const t_channel_id channel_id)
 	send(CZapitMessages::CMD_GET_CHANNEL_NAME, (char *) & channel_id, sizeof(channel_id));
 
 	CZapitMessages::responseGetChannelName response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 	close_connection();
 	return std::string(response.name);
 }
@@ -540,7 +540,7 @@ bool CZapitClient::isChannelTVChannel(const t_channel_id channel_id)
 	send(CZapitMessages::CMD_IS_TV_CHANNEL, (char *) & channel_id, sizeof(channel_id));
 
 	CZapitMessages::responseGeneralTrueFalse response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 	close_connection();
 	return response.status;
 }
@@ -555,7 +555,7 @@ void CZapitClient::restoreBouquets()
 	send(CZapitMessages::CMD_BQ_RESTORE);
 
 	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 	close_connection();
 }
 
@@ -566,7 +566,7 @@ void CZapitClient::reinitChannels()
 	send(CZapitMessages::CMD_REINIT_CHANNELS);
 
 	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response), true);
+	CBasicClient::receive_data((char *)&response, sizeof(response), true);
 	close_connection();
 }
 
@@ -577,7 +577,7 @@ void CZapitClient::reloadCurrentServices()
 	send(CZapitMessages::CMD_RELOAD_CURRENTSERVICES);
 #if 0
 	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response), true);
+	CBasicClient::receive_data((char *)&response, sizeof(response), true);
 #endif
 	close_connection();
 }
@@ -590,7 +590,7 @@ void CZapitClient::muteAudio(const bool mute)
 	msg.truefalse = mute;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_MUTE, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_MUTE, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }
@@ -601,8 +601,8 @@ bool CZapitClient::getMuteStatus()
 	VALGRIND_PARANOIA;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_GET_MUTE_STATUS, (char*)&msg, sizeof(msg));
-	CBasicClient::receive_data((char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_GET_MUTE_STATUS, (char *)&msg, sizeof(msg));
+	CBasicClient::receive_data((char *)&msg, sizeof(msg));
 	close_connection();
 	return msg.truefalse;
 }
@@ -616,24 +616,24 @@ void CZapitClient::setVolume(const unsigned int left, const unsigned int right)
 	msg.right = right;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SET_VOLUME, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SET_VOLUME, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }
 
 void CZapitClient::getVolume(unsigned int *left, unsigned int *right)
 {
-        CZapitMessages::commandVolume msg;
+	CZapitMessages::commandVolume msg;
 	VALGRIND_PARANOIA;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-        send(CZapitMessages::CMD_GET_VOLUME, 0, 0);
+	send(CZapitMessages::CMD_GET_VOLUME, 0, 0);
 
-        CBasicClient::receive_data((char*)&msg, sizeof(msg));
-        *left = msg.left;
-        *right = msg.right;
+	CBasicClient::receive_data((char *)&msg, sizeof(msg));
+	*left = msg.left;
+	*right = msg.right;
 
-        close_connection();
+	close_connection();
 }
 
 void CZapitClient::lockRc(const bool b)
@@ -644,12 +644,12 @@ void CZapitClient::lockRc(const bool b)
 	msg.truefalse = b;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_LOCKRC, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_LOCKRC, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }
 
-#if 0 
+#if 0
 //never used
 delivery_system_t CZapitClient::getDeliverySystem(void)
 {
@@ -658,7 +658,7 @@ delivery_system_t CZapitClient::getDeliverySystem(void)
 
 	CZapitMessages::responseDeliverySystem response;
 
-	if (!CBasicClient::receive_data((char* )&response, sizeof(response)))
+	if (!CBasicClient::receive_data((char *)&response, sizeof(response)))
 		response.system = DVB_S;  // return DVB_S if communication fails
 
 	close_connection();
@@ -667,12 +667,12 @@ delivery_system_t CZapitClient::getDeliverySystem(void)
 }
 #endif
 #if 0
-bool CZapitClient::get_current_TP(transponder* TP)
+bool CZapitClient::get_current_TP(transponder *TP)
 {
 	TP_params TP_temp;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_GET_CURRENT_TP);
-	bool reply = CBasicClient::receive_data((char*)&TP_temp, sizeof(TP_temp));
+	bool reply = CBasicClient::receive_data((char *)&TP_temp, sizeof(TP_temp));
 	memmove(TP, &TP_temp, sizeof(TP_temp));
 	close_connection();
 	return reply;
@@ -692,7 +692,7 @@ void CZapitClient::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t cm
 	msg.param2 = param2;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SEND_MOTOR_COMMAND, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SEND_MOTOR_COMMAND, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }
@@ -708,7 +708,7 @@ void CZapitClient::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t cm
 bool CZapitClient::startScan(const int scan_mode)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	bool reply = send(CZapitMessages::CMD_SCANSTART, (char*)&scan_mode, sizeof(scan_mode));
+	bool reply = send(CZapitMessages::CMD_SCANSTART, (char *)&scan_mode, sizeof(scan_mode));
 
 	close_connection();
 
@@ -717,19 +717,19 @@ bool CZapitClient::startScan(const int scan_mode)
 bool CZapitClient::stopScan()
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-        bool reply = send(CZapitMessages::CMD_SCANSTOP);
-        close_connection();
-        return reply;
+	bool reply = send(CZapitMessages::CMD_SCANSTOP);
+	close_connection();
+	return reply;
 }
 #if 0
 bool CZapitClient::setConfig(Zapit_config Cfg)
 {
-        //bool reply = send(CZapitMessages::CMD_LOADCONFIG);
-	bool reply = send(CZapitMessages::CMD_SETCONFIG, (char*)&Cfg, sizeof(Cfg));
-        close_connection();
-        return reply;
+	//bool reply = send(CZapitMessages::CMD_LOADCONFIG);
+	bool reply = send(CZapitMessages::CMD_SETCONFIG, (char *)&Cfg, sizeof(Cfg));
+	close_connection();
+	return reply;
 }
-void CZapitClient::getConfig (Zapit_config * Cfg)
+void CZapitClient::getConfig(Zapit_config *Cfg)
 {
 	send(CZapitMessages::CMD_GETCONFIG);
 	CBasicClient::receive_data((char *) Cfg, sizeof(Zapit_config));
@@ -739,35 +739,35 @@ void CZapitClient::getConfig (Zapit_config * Cfg)
 bool CZapitClient::Rezap()
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-        bool reply = send(CZapitMessages::CMD_REZAP);
-        close_connection();
-        return reply;
+	bool reply = send(CZapitMessages::CMD_REZAP);
+	close_connection();
+	return reply;
 }
 
 /* start manual scan */
 bool CZapitClient::scan_TP(TP_params TP)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	bool reply = send(CZapitMessages::CMD_SCAN_TP, (char*)&TP, sizeof(TP));
+	bool reply = send(CZapitMessages::CMD_SCAN_TP, (char *)&TP, sizeof(TP));
 	close_connection();
 	return reply;
 }
 bool CZapitClient::tune_TP(TP_params TP)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	bool reply = send(CZapitMessages::CMD_TUNE_TP, (char*)&TP, sizeof(TP));
+	bool reply = send(CZapitMessages::CMD_TUNE_TP, (char *)&TP, sizeof(TP));
 	close_connection();
 	return reply;
 }
 
 /* query if ts-scan is ready - response gives status */
-bool CZapitClient::isScanReady(unsigned int &satellite,  unsigned int &processed_transponder, unsigned int &transponder, unsigned int &services )
+bool CZapitClient::isScanReady(unsigned int &satellite,  unsigned int &processed_transponder, unsigned int &transponder, unsigned int &services)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_SCANREADY);
 
 	CZapitMessages::responseIsScanReady response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	satellite = response.satellite;
 	processed_transponder = response.processed_transponder;
@@ -779,7 +779,7 @@ bool CZapitClient::isScanReady(unsigned int &satellite,  unsigned int &processed
 }
 
 /* query possible satellits*/
-void CZapitClient::getScanSatelliteList(SatelliteList& satelliteList)
+void CZapitClient::getScanSatelliteList(SatelliteList &satelliteList)
 {
 	uint32_t  satlength;
 
@@ -787,12 +787,12 @@ void CZapitClient::getScanSatelliteList(SatelliteList& satelliteList)
 	send(CZapitMessages::CMD_SCANGETSATLIST);
 
 	responseGetSatelliteList response;
-	while (CBasicClient::receive_data((char*)&satlength, sizeof(satlength)))
+	while (CBasicClient::receive_data((char *)&satlength, sizeof(satlength)))
 	{
 		if (satlength == SATNAMES_END_MARKER)
 			break;
 
-		if (!CBasicClient::receive_data((char*)&(response), satlength))
+		if (!CBasicClient::receive_data((char *) & (response), satlength))
 			break;
 
 		satelliteList.push_back(response);
@@ -803,28 +803,28 @@ void CZapitClient::getScanSatelliteList(SatelliteList& satelliteList)
 }
 
 /* tell zapit which satellites to scan*/
-void CZapitClient::setScanSatelliteList( ScanSatelliteList& satelliteList )
+void CZapitClient::setScanSatelliteList(ScanSatelliteList &satelliteList)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_SCANSETSCANSATLIST);
 
-	for (uint32_t i=0; i<satelliteList.size(); i++)
+	for (uint32_t i = 0; i < satelliteList.size(); i++)
 	{
-		send_data((char*)&satelliteList[i], sizeof(satelliteList[i]));
+		send_data((char *)&satelliteList[i], sizeof(satelliteList[i]));
 	}
 	close_connection();
 }
 
 #if 0
 /* tell zapit stored satellite positions in diseqc 1.2 motor */
-void CZapitClient::setScanMotorPosList( ScanMotorPosList& motorPosList )
+void CZapitClient::setScanMotorPosList(ScanMotorPosList &motorPosList)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_SCANSETSCANMOTORPOSLIST);
 
 	for (uint32_t i = 0; i < motorPosList.size(); i++)
 	{
-		send_data((char*)&motorPosList[i], sizeof(motorPosList[i]));
+		send_data((char *)&motorPosList[i], sizeof(motorPosList[i]));
 	}
 	close_connection();
 }
@@ -860,14 +860,14 @@ void CZapitClient::setScanType(const scanType mode)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_SCANSETTYPE, (const char *) & mode, sizeof(mode));
-  	close_connection();
+	close_connection();
 }
 #endif
 #if 0
 //
 // -- query Frontend Signal parameters
 //
-void CZapitClient::getFESignal (struct responseFESignal &f)
+void CZapitClient::getFESignal(struct responseFESignal &f)
 {
 	struct responseFESignal rsignal;
 
@@ -890,7 +890,7 @@ void CZapitClient::getFESignal (struct responseFESignal &f)
 /***********************************************/
 
 /* adds bouquet at the end of the bouquetlist  */
-void CZapitClient::addBouquet(const char * const name)
+void CZapitClient::addBouquet(const char *const name)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	if (send(CZapitMessages::CMD_BQ_ADD_BOUQUET))
@@ -910,7 +910,7 @@ void CZapitClient::moveBouquet(const unsigned int bouquet, const unsigned int ne
 	msg.newPos = newPos;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_MOVE_BOUQUET, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_BQ_MOVE_BOUQUET, (char *)&msg, sizeof(msg));
 	close_connection();
 }
 
@@ -924,14 +924,14 @@ void CZapitClient::deleteBouquet(const unsigned int bouquet)
 	msg.bouquet = bouquet;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_DELETE_BOUQUET, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_BQ_DELETE_BOUQUET, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }
 
 /* assigns new name to bouquet */
 /* bouquets are numbered starting at 0 */
-void CZapitClient::renameBouquet(const unsigned int bouquet, const char * const newName)
+void CZapitClient::renameBouquet(const unsigned int bouquet, const char *const newName)
 {
 	CZapitMessages::commandRenameBouquet msg;
 	VALGRIND_PARANOIA;
@@ -939,7 +939,7 @@ void CZapitClient::renameBouquet(const unsigned int bouquet, const char * const 
 	msg.bouquet = bouquet;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	if (send(CZapitMessages::CMD_BQ_RENAME_BOUQUET, (char*)&msg, sizeof(msg)))
+	if (send(CZapitMessages::CMD_BQ_RENAME_BOUQUET, (char *)&msg, sizeof(msg)))
 		send_string(newName);
 
 	close_connection();
@@ -948,7 +948,7 @@ void CZapitClient::renameBouquet(const unsigned int bouquet, const char * const 
 // -- check if Bouquet-Name exists
 // -- Return: Bouquet-ID  or  -1 == no Bouquet found
 /* bouquets are numbered starting at 0 */
-signed int CZapitClient::existsBouquet(const char * const name)
+signed int CZapitClient::existsBouquet(const char *const name)
 {
 	CZapitMessages::responseGeneralInteger response;
 
@@ -956,7 +956,7 @@ signed int CZapitClient::existsBouquet(const char * const name)
 	if (send(CZapitMessages::CMD_BQ_EXISTS_BOUQUET))
 		send_string(name);
 
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 	close_connection();
 	return response.number;
 }
@@ -974,9 +974,9 @@ bool CZapitClient::existsChannelInBouquet(const unsigned int bouquet, const t_ch
 	msg.channel_id = channel_id;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_EXISTS_CHANNEL_IN_BOUQUET, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_BQ_EXISTS_CHANNEL_IN_BOUQUET, (char *)&msg, sizeof(msg));
 
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 	close_connection();
 	return (unsigned int) response.status;
 }
@@ -985,7 +985,7 @@ bool CZapitClient::existsChannelInBouquet(const unsigned int bouquet, const t_ch
 #if 0
 /* moves a channel of a bouquet from one position to another, channel lists begin at position=1*/
 /* bouquets are numbered starting at 0 */
-void CZapitClient::moveChannel( unsigned int bouquet, unsigned int oldPos, unsigned int newPos, channelsMode mode)
+void CZapitClient::moveChannel(unsigned int bouquet, unsigned int oldPos, unsigned int newPos, channelsMode mode)
 {
 	CZapitMessages::commandMoveChannel msg;
 
@@ -995,7 +995,7 @@ void CZapitClient::moveChannel( unsigned int bouquet, unsigned int oldPos, unsig
 	msg.mode    = mode;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_MOVE_CHANNEL, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_BQ_MOVE_CHANNEL, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }
@@ -1014,7 +1014,7 @@ void CZapitClient::addChannelToBouquet(const unsigned int bouquet, const t_chann
 	msg.channel_id = channel_id;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_ADD_CHANNEL_TO_BOUQUET, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_BQ_ADD_CHANNEL_TO_BOUQUET, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }
@@ -1030,7 +1030,7 @@ void CZapitClient::removeChannelFromBouquet(const unsigned int bouquet, const t_
 	msg.channel_id = channel_id;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_REMOVE_CHANNEL_FROM_BOUQUET, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_BQ_REMOVE_CHANNEL_FROM_BOUQUET, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }
@@ -1046,7 +1046,7 @@ void CZapitClient::setBouquetLock(const unsigned int bouquet, const bool b)
 	msg.state   = b;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_SET_LOCKSTATE, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_BQ_SET_LOCKSTATE, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }
@@ -1062,7 +1062,7 @@ void CZapitClient::setBouquetHidden(const unsigned int bouquet, const bool hidde
 	msg.state   = hidden;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_SET_HIDDENSTATE, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_BQ_SET_HIDDENSTATE, (char *)&msg, sizeof(msg));
 	close_connection();
 }
 
@@ -1085,10 +1085,10 @@ void CZapitClient::saveBouquets(const bool saveall)
 	msg.truefalse = saveall;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_SAVE_BOUQUETS, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_BQ_SAVE_BOUQUETS, (char *)&msg, sizeof(msg));
 
 	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 }
@@ -1099,9 +1099,9 @@ void CZapitClient::setStandby(const bool enable)
 	VALGRIND_PARANOIA;
 	msg.truefalse = enable;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SET_STANDBY, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SET_STANDBY, (char *)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 	close_connection();
 }
 
@@ -1111,7 +1111,7 @@ void CZapitClient::setVideoSystem(int video_system)
 	VALGRIND_PARANOIA;
 	msg.val = video_system;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SET_VIDEO_SYSTEM, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SET_VIDEO_SYSTEM, (char *)&msg, sizeof(msg));
 	close_connection();
 }
 
@@ -1121,7 +1121,7 @@ void CZapitClient::startPlayBack(const bool sendpmt)
 	VALGRIND_PARANOIA;
 	msg.truefalse = sendpmt;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SB_START_PLAYBACK, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SB_START_PLAYBACK, (char *)&msg, sizeof(msg));
 	close_connection();
 }
 
@@ -1131,9 +1131,9 @@ void CZapitClient::stopPlayBack(const bool sendpmt)
 	VALGRIND_PARANOIA;
 	msg.truefalse = sendpmt;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SB_STOP_PLAYBACK, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SB_STOP_PLAYBACK, (char *)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 	close_connection();
 }
 
@@ -1142,9 +1142,9 @@ void CZapitClient::stopPip(int pip)
 	CZapitMessages::commandZaptoServiceID msg;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	msg.pip_dev = pip;
-	send(CZapitMessages::CMD_STOP_PIP, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_STOP_PIP, (char *)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 	close_connection();
 }
 
@@ -1154,9 +1154,9 @@ void CZapitClient::lockPlayBack(const bool sendpmt)
 	VALGRIND_PARANOIA;
 	msg.truefalse = sendpmt;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SB_LOCK_PLAYBACK, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SB_LOCK_PLAYBACK, (char *)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 	close_connection();
 }
 void CZapitClient::unlockPlayBack(const bool sendpmt)
@@ -1165,9 +1165,9 @@ void CZapitClient::unlockPlayBack(const bool sendpmt)
 	VALGRIND_PARANOIA;
 	msg.truefalse = sendpmt;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SB_UNLOCK_PLAYBACK, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SB_UNLOCK_PLAYBACK, (char *)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 	close_connection();
 }
 
@@ -1177,7 +1177,7 @@ bool CZapitClient::isPlayBackActive()
 	send(CZapitMessages::CMD_SB_GET_PLAYBACK_ACTIVE);
 
 	CZapitMessages::responseGetPlaybackState response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 	return response.activated;
@@ -1187,7 +1187,7 @@ void CZapitClient::setDisplayFormat(const video_display_format_t format)
 {
 	CZapitMessages::commandInt msg;
 	msg.val = format;
-	send(CZapitMessages::CMD_SET_DISPLAY_FORMAT, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SET_DISPLAY_FORMAT, (char *)&msg, sizeof(msg));
 	close_connection();
 }
 #endif
@@ -1197,19 +1197,19 @@ void CZapitClient::setAudioMode(const int mode)
 	VALGRIND_PARANOIA;
 	msg.val = mode;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SET_AUDIO_MODE, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SET_AUDIO_MODE, (char *)&msg, sizeof(msg));
 	close_connection();
 }
 
 #if 0
-void CZapitClient::getAudioMode(int * mode)
+void CZapitClient::getAudioMode(int *mode)
 {
-        CZapitMessages::commandInt msg;
+	CZapitMessages::commandInt msg;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-        send(CZapitMessages::CMD_GET_AUDIO_MODE, 0, 0);
-        CBasicClient::receive_data((char* )&msg, sizeof(msg));
-        * mode = msg.val;
-        close_connection();
+	send(CZapitMessages::CMD_GET_AUDIO_MODE, 0, 0);
+	CBasicClient::receive_data((char *)&msg, sizeof(msg));
+	* mode = msg.val;
+	close_connection();
 }
 #endif
 void CZapitClient::setRecordMode(const bool activate)
@@ -1218,16 +1218,16 @@ void CZapitClient::setRecordMode(const bool activate)
 	VALGRIND_PARANOIA;
 	msg.activate = activate;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SET_RECORD_MODE, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SET_RECORD_MODE, (char *)&msg, sizeof(msg));
 	close_connection();
 }
-#if 0 
+#if 0
 //never used
 void CZapitClient::setEventMode(const bool activate)
 {
 	CZapitMessages::commandSetRecordMode msg;
 	msg.activate = activate;
-	send(CZapitMessages::CMD_SET_EVENT_MODE, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SET_EVENT_MODE, (char *)&msg, sizeof(msg));
 	close_connection();
 }
 #endif
@@ -1237,7 +1237,7 @@ bool CZapitClient::isRecordModeActive()
 	send(CZapitMessages::CMD_GET_RECORD_MODE);
 
 	CZapitMessages::responseGetRecordModeState response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	CBasicClient::receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 	return response.activated;
@@ -1248,7 +1248,7 @@ void CZapitClient::getAspectRatio(int *ratio)
 	CZapitMessages::commandInt msg;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_GET_ASPECTRATIO, 0, 0);
-	CBasicClient::receive_data((char* )&msg, sizeof(msg));
+	CBasicClient::receive_data((char *)&msg, sizeof(msg));
 	* ratio = msg.val;
 	close_connection();
 }
@@ -1259,7 +1259,7 @@ void CZapitClient::setAspectRatio(int ratio)
 	VALGRIND_PARANOIA;
 	msg.val = ratio;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SET_ASPECTRATIO, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SET_ASPECTRATIO, (char *)&msg, sizeof(msg));
 	close_connection();
 }
 
@@ -1269,7 +1269,7 @@ void CZapitClient::getOSDres(int *mosd)
 	VALGRIND_PARANOIA;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_GET_OSD_RES, 0, 0);
-	CBasicClient::receive_data((char* )&msg, sizeof(msg));
+	CBasicClient::receive_data((char *)&msg, sizeof(msg));
 	* mosd = msg.val;
 	close_connection();
 }
@@ -1280,7 +1280,7 @@ void CZapitClient::setOSDres(int mosd)
 	VALGRIND_PARANOIA;
 	msg.val = mosd;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SET_OSD_RES, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SET_OSD_RES, (char *)&msg, sizeof(msg));
 	close_connection();
 }
 
@@ -1290,7 +1290,7 @@ void CZapitClient::getMode43(int *m43)
 	VALGRIND_PARANOIA;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_GET_MODE43, 0, 0);
-	CBasicClient::receive_data((char* )&msg, sizeof(msg));
+	CBasicClient::receive_data((char *)&msg, sizeof(msg));
 	* m43 = msg.val;
 	close_connection();
 }
@@ -1301,7 +1301,7 @@ void CZapitClient::setMode43(int m43)
 	VALGRIND_PARANOIA;
 	msg.val = m43;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_SET_MODE43, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_SET_MODE43, (char *)&msg, sizeof(msg));
 	close_connection();
 }
 
@@ -1311,12 +1311,12 @@ void CZapitClient::getVideoFormat(int *vf)
 	VALGRIND_PARANOIA;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_GET_VIDEO_FORMAT, 0, 0);
-	CBasicClient::receive_data((char* )&msg, sizeof(msg));
+	CBasicClient::receive_data((char *)&msg, sizeof(msg));
 	* vf = msg.val;
 	close_connection();
 }
 
-void CZapitClient::registerEvent(const unsigned int eventID, const unsigned int clientID, const char * const udsName)
+void CZapitClient::registerEvent(const unsigned int eventID, const unsigned int clientID, const char *const udsName)
 {
 	CEventServer::commandRegisterEvent msg;
 	VALGRIND_PARANOIA;
@@ -1327,7 +1327,7 @@ void CZapitClient::registerEvent(const unsigned int eventID, const unsigned int 
 	strcpy(msg.udsName, udsName);
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_REGISTEREVENTS, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_REGISTEREVENTS, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }
@@ -1341,7 +1341,7 @@ void CZapitClient::unRegisterEvent(const unsigned int eventID, const unsigned in
 	msg.clientID = clientID;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_UNREGISTEREVENTS, (char*)&msg, sizeof(msg));
+	send(CZapitMessages::CMD_UNREGISTEREVENTS, (char *)&msg, sizeof(msg));
 
 	close_connection();
 }

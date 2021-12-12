@@ -50,7 +50,7 @@
 
 #include <hardware/video.h>
 
-extern cVideo * videoDecoder;
+extern cVideo *videoDecoder;
 
 struct PSI_list
 {
@@ -70,7 +70,8 @@ struct PSI_list
 
 #define PSI_SCALE_COUNT 5
 static PSI_list
-	psi_list[PSI_SCALE_COUNT] = {
+psi_list[PSI_SCALE_COUNT] =
+{
 #define PSI_CONTRAST 0
 	{ VIDEO_CONTROL_CONTRAST, LOCALE_VIDEOMENU_PSI_CONTRAST, true, NULL, 0, 0, 0, 0, 0, 0, 0, 0 }
 #define PSI_SATURATION 1
@@ -87,9 +88,9 @@ static PSI_list
 #define SLIDERHEIGHT 15
 #define LOCGAP 5
 
-CPSISetup::CPSISetup (const neutrino_locale_t Name)
+CPSISetup::CPSISetup(const neutrino_locale_t Name)
 {
-	frameBuffer = CFrameBuffer::getInstance ();
+	frameBuffer = CFrameBuffer::getInstance();
 	name = Name;
 	selected = 0;
 
@@ -102,17 +103,18 @@ CPSISetup::CPSISetup (const neutrino_locale_t Name)
 	psi_list[PSI_TINT].value = g_settings.psi_tint;
 
 	for (int i = 0; i < PSI_RESET; i++)
-		videoDecoder->SetControl (psi_list[i].control, psi_list[i].value);
+		videoDecoder->SetControl(psi_list[i].control, psi_list[i].value);
 
 	needsBlit = true;
 }
 
-void CPSISetup::blankScreen(bool blank) {
+void CPSISetup::blankScreen(bool blank)
+{
 	for (int i = 0; i < PSI_RESET; i++)
 		videoDecoder->SetControl(psi_list[i].control, blank ? 0 : psi_list[i].value);
 }
 
-int CPSISetup::exec (CMenuTarget * parent, const std::string &)
+int CPSISetup::exec(CMenuTarget *parent, const std::string &)
 {
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
@@ -120,22 +122,22 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 	locWidth = 0;
 	for (int i = 0; i < PSI_RESET; i++)
 	{
-		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (g_Locale->getText(psi_list[i].loc)) + 3;	// UTF-8
+		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(psi_list[i].loc)) + 3;	// UTF-8
 		if (w > locWidth)
 			locWidth = w;
 	}
-	locHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight ();
+	locHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	if (locHeight < SLIDERHEIGHT)
 		locHeight = SLIDERHEIGHT + 2;
 
 	sliderOffset = (locHeight - SLIDERHEIGHT) >> 1;
 
-  //            [ SLIDERWIDTH ][5][locwidth    ]
-  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-  // [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
-  // [locHeight]                  [XXXXXXXXXXXX]
+	//            [ SLIDERWIDTH ][5][locwidth    ]
+	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+	// [locHeight][XXXXXXXXXXXXX]   [XXXXXXXXXXXX]
+	// [locHeight]                  [XXXXXXXXXXXX]
 
 	dx = SLIDERWIDTH + LOCGAP + locWidth;
 	dy = PSI_SCALE_COUNT * locHeight + (PSI_SCALE_COUNT - 1) * 2;
@@ -145,7 +147,7 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 
 	int res = menu_return::RETURN_REPAINT;
 	if (parent)
-		parent->hide ();
+		parent->hide();
 
 	for (int i = 0; i < PSI_SCALE_COUNT; i++)
 	{
@@ -162,7 +164,7 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 	psi_list[PSI_RESET].xBox = x;
 
 	for (int i = 0; i < PSI_RESET; i++)
-		psi_list[i].scale->reset ();
+		psi_list[i].scale->reset();
 
 	psi_list[PSI_CONTRAST].value = g_settings.psi_contrast;
 	psi_list[PSI_SATURATION].value = g_settings.psi_saturation;
@@ -178,99 +180,100 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 	bool loop = true;
 	while (loop)
 	{
-		if(needsBlit) {
+		if (needsBlit)
+		{
 			frameBuffer->blit();
 			needsBlit = false;
-	}
-	g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
-	if ( msg <= CRCInput::RC_MaxRC )
-		timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] ? g_settings.timing[SNeutrinoSettings::TIMING_MENU] : 0xffff);
-	int i;
-	int direction = 1; // down
-	switch (msg)
-	{
-		case CRCInput::RC_up:
-			direction = -1;
+		}
+		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
+		if (msg <= CRCInput::RC_MaxRC)
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] ? g_settings.timing[SNeutrinoSettings::TIMING_MENU] : 0xffff);
+		int i;
+		int direction = 1; // down
+		switch (msg)
+		{
+			case CRCInput::RC_up:
+				direction = -1;
 			/* fall through */
-		case CRCInput::RC_down:
-			if (selected + direction > -1 && selected + direction < PSI_SCALE_COUNT)
-			{
-				psi_list[selected].selected = false;
-				paintSlider (selected);
-				selected += direction;
-				psi_list[selected].selected = true;
-				paintSlider (selected);
-			}
-			break;
-		case CRCInput::RC_right:
-			if (selected < PSI_RESET && psi_list[selected].value < 255)
-			{
-				int val = psi_list[selected].value + g_settings.psi_step;
-				psi_list[selected].value = (val > 255) ? 255 : val;
-				paintSlider (selected);
-				videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
-			}
-			break;
-		case CRCInput::RC_left:
-			if (selected < PSI_RESET && psi_list[selected].value > 0)
-			{
-				int val = psi_list[selected].value - g_settings.psi_step;
-				psi_list[selected].value = (val < 0) ? 0 : val;
-				paintSlider (selected);
-				videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
-			}
-			break;
-		case CRCInput::RC_home:	// exit -> revert changes
-			for (i = 0; (i < PSI_RESET) && (psi_list[i].value == psi_list[i].value_old); i++);
-			if (ShowMsg(name, LOCALE_MESSAGEBOX_ACCEPT, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)
-				for (i = 0; i < PSI_RESET; i++)
+			case CRCInput::RC_down:
+				if (selected + direction > -1 && selected + direction < PSI_SCALE_COUNT)
 				{
-					psi_list[i].value = psi_list[i].value_old;
+					psi_list[selected].selected = false;
+					paintSlider(selected);
+					selected += direction;
+					psi_list[selected].selected = true;
+					paintSlider(selected);
+				}
+				break;
+			case CRCInput::RC_right:
+				if (selected < PSI_RESET && psi_list[selected].value < 255)
+				{
+					int val = psi_list[selected].value + g_settings.psi_step;
+					psi_list[selected].value = (val > 255) ? 255 : val;
+					paintSlider(selected);
 					videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
 				}
-			/* fall through */
-		case CRCInput::RC_ok:
-			if (selected != PSI_RESET)
-			{
-				loop = false;
-				g_settings.psi_contrast = psi_list[PSI_CONTRAST].value;
-				g_settings.psi_saturation = psi_list[PSI_SATURATION].value;
-				g_settings.psi_brightness = psi_list[PSI_BRIGHTNESS].value;
-				g_settings.psi_tint = psi_list[PSI_TINT].value;
 				break;
-			}
+			case CRCInput::RC_left:
+				if (selected < PSI_RESET && psi_list[selected].value > 0)
+				{
+					int val = psi_list[selected].value - g_settings.psi_step;
+					psi_list[selected].value = (val < 0) ? 0 : val;
+					paintSlider(selected);
+					videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
+				}
+				break;
+			case CRCInput::RC_home:	// exit -> revert changes
+				for (i = 0; (i < PSI_RESET) && (psi_list[i].value == psi_list[i].value_old); i++);
+				if (ShowMsg(name, LOCALE_MESSAGEBOX_ACCEPT, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)
+					for (i = 0; i < PSI_RESET; i++)
+					{
+						psi_list[i].value = psi_list[i].value_old;
+						videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
+					}
 			/* fall through */
-		case CRCInput::RC_red:
-			for (i = 0; i < PSI_RESET; i++)
-			{
-				psi_list[i].value = 128;
-				videoDecoder->SetControl(psi_list[i].control, psi_list[i].value);
-				paintSlider (i);
-			}
-			break;
-		default:
-			;
+			case CRCInput::RC_ok:
+				if (selected != PSI_RESET)
+				{
+					loop = false;
+					g_settings.psi_contrast = psi_list[PSI_CONTRAST].value;
+					g_settings.psi_saturation = psi_list[PSI_SATURATION].value;
+					g_settings.psi_brightness = psi_list[PSI_BRIGHTNESS].value;
+					g_settings.psi_tint = psi_list[PSI_TINT].value;
+					break;
+				}
+			/* fall through */
+			case CRCInput::RC_red:
+				for (i = 0; i < PSI_RESET; i++)
+				{
+					psi_list[i].value = 128;
+					videoDecoder->SetControl(psi_list[i].control, psi_list[i].value);
+					paintSlider(i);
+				}
+				break;
+			default:
+				;
 		}
 	}
 
-	hide ();
+	hide();
 
 	return res;
 }
 
-void CPSISetup::hide ()
+void CPSISetup::hide()
 {
-	frameBuffer->paintBackgroundBoxRel (x, y, dx, dy);
+	frameBuffer->paintBackgroundBoxRel(x, y, dx, dy);
 	frameBuffer->blit();
 }
 
-void CPSISetup::paint ()
+void CPSISetup::paint()
 {
 	for (int i = 0; i < PSI_SCALE_COUNT; i++)
-		paintSlider (i);
+		paintSlider(i);
 }
 
-void CPSISetup::paintSlider (int i)
+void CPSISetup::paintSlider(int i)
 {
 	Font *f = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
 	fb_pixel_t fg_col[] = { COL_MENUCONTENT_TEXT, COL_MENUHEAD_TEXT };
@@ -279,18 +282,18 @@ void CPSISetup::paintSlider (int i)
 	{
 		psi_list[i].scale->setProgress(psi_list[i].x, psi_list[i].y + sliderOffset, SLIDERWIDTH, SLIDERHEIGHT, psi_list[i].value, 255);
 		psi_list[i].scale->paint();
-		f->RenderString (psi_list[i].xLoc, psi_list[i].yLoc, locWidth, g_Locale->getText(psi_list[i].loc), fg_col[psi_list[i].selected]);
+		f->RenderString(psi_list[i].xLoc, psi_list[i].yLoc, locWidth, g_Locale->getText(psi_list[i].loc), fg_col[psi_list[i].selected]);
 	}
 	else
 	{
 		int fh = f->getHeight();
-		f->RenderString (psi_list[i].x + 2 + fh + fh/8, psi_list[i].yLoc, dx - 2 - fh, g_Locale->getText(psi_list[i].loc), fg_col[psi_list[i].selected]);
-		frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_RED, psi_list[i].x + 2, psi_list[i].yLoc - fh + fh/4, 0, (6 * fh)/8);
+		f->RenderString(psi_list[i].x + 2 + fh + fh / 8, psi_list[i].yLoc, dx - 2 - fh, g_Locale->getText(psi_list[i].loc), fg_col[psi_list[i].selected]);
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RED, psi_list[i].x + 2, psi_list[i].yLoc - fh + fh / 4, 0, (6 * fh) / 8);
 	}
 	needsBlit = true;
 }
 
-bool CPSISetup::changeNotify (const neutrino_locale_t OptionName, void *Data)
+bool CPSISetup::changeNotify(const neutrino_locale_t OptionName, void *Data)
 {
 	for (int i = 0; i < PSI_RESET; i++)
 		if (OptionName == psi_list[i].loc)

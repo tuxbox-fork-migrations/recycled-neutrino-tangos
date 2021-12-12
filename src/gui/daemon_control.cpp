@@ -43,7 +43,7 @@ CDaemonControlMenu::~CDaemonControlMenu()
 {
 }
 
-int CDaemonControlMenu::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
+int CDaemonControlMenu::exec(CMenuTarget *parent, const std::string & /*actionKey*/)
 {
 	if (parent)
 		parent->hide();
@@ -55,27 +55,27 @@ typedef struct daemons_data_t
 {
 	neutrino_locale_t name;
 	neutrino_locale_t desc;
-	const char * icon;
-	const char * flag;
+	const char *icon;
+	const char *flag;
 	int daemon_exist; // currently unused
 	int flag_exist;
 }
 daemons_data_struct;
 
-daemons_data_t daemons_data[]=
+daemons_data_t daemons_data[] =
 {
-	{LOCALE_DAEMON_ITEM_BOOTLOGO_NAME,		LOCALE_DAEMON_ITEM_BOOTLOGO_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"bootlogo",		0 ,0},
-	{LOCALE_DAEMON_ITEM_NFSSERVER_NAME,		LOCALE_DAEMON_ITEM_NFSSERVER_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"nfsd",			0 ,0},
-	{LOCALE_DAEMON_ITEM_SAMBASERVER_NAME,	LOCALE_DAEMON_ITEM_SAMBASERVER_DESC,NEUTRINO_ICON_HINT_SETTINGS,	"samba",		0 ,0},
-	{LOCALE_DAEMON_ITEM_XUPNPD_NAME,		LOCALE_DAEMON_ITEM_XUPNPD_DESC,		NEUTRINO_ICON_HINT_SETTINGS,	"xupnpd",		0 ,0},
-	{LOCALE_DAEMON_ITEM_TUXCALD_NAME,		LOCALE_DAEMON_ITEM_TUXCALD_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"tuxcald",		0 ,0},
-	{LOCALE_DAEMON_ITEM_TUXMAILD_NAME,		LOCALE_DAEMON_ITEM_TUXMAILD_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"tuxmaild",		0 ,0},
-	{LOCALE_DAEMON_ITEM_DROPBEAR_NAME,		LOCALE_DAEMON_ITEM_DROPBEAR_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"dropbear",		0 ,0},
-	{LOCALE_DAEMON_ITEM_DJMOUNT_NAME,		LOCALE_DAEMON_ITEM_DJMOUNT_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"djmount",		0 ,0},
-	{LOCALE_DAEMON_ITEM_CROND_NAME,			LOCALE_DAEMON_ITEM_CROND_DESC,		NEUTRINO_ICON_HINT_SETTINGS,	"crond",		0 ,0},
-	{LOCALE_DAEMON_ITEM_FCM_NAME,			LOCALE_DAEMON_ITEM_FCM_DESC,		NEUTRINO_ICON_HINT_SETTINGS,	"fritzcall",	0 ,0},
-	{LOCALE_DAEMON_ITEM_MOUNTBEFORE_NAME,	LOCALE_DAEMON_ITEM_MOUNTBEFORE_DESC,NEUTRINO_ICON_HINT_SETTINGS,	"mbefore",		0 ,0},
-	{LOCALE_DAEMON_ITEM_ETIMER_NAME,		LOCALE_DAEMON_ITEM_ETIMER_DESC,		NEUTRINO_ICON_HINT_SETTINGS,	"adjust",		0 ,0}
+	{LOCALE_DAEMON_ITEM_BOOTLOGO_NAME,		LOCALE_DAEMON_ITEM_BOOTLOGO_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"bootlogo",		0, 0},
+	{LOCALE_DAEMON_ITEM_NFSSERVER_NAME,		LOCALE_DAEMON_ITEM_NFSSERVER_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"nfsd",			0, 0},
+	{LOCALE_DAEMON_ITEM_SAMBASERVER_NAME,	LOCALE_DAEMON_ITEM_SAMBASERVER_DESC, NEUTRINO_ICON_HINT_SETTINGS,	"samba",		0, 0},
+	{LOCALE_DAEMON_ITEM_XUPNPD_NAME,		LOCALE_DAEMON_ITEM_XUPNPD_DESC,		NEUTRINO_ICON_HINT_SETTINGS,	"xupnpd",		0, 0},
+	{LOCALE_DAEMON_ITEM_TUXCALD_NAME,		LOCALE_DAEMON_ITEM_TUXCALD_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"tuxcald",		0, 0},
+	{LOCALE_DAEMON_ITEM_TUXMAILD_NAME,		LOCALE_DAEMON_ITEM_TUXMAILD_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"tuxmaild",		0, 0},
+	{LOCALE_DAEMON_ITEM_DROPBEAR_NAME,		LOCALE_DAEMON_ITEM_DROPBEAR_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"dropbear",		0, 0},
+	{LOCALE_DAEMON_ITEM_DJMOUNT_NAME,		LOCALE_DAEMON_ITEM_DJMOUNT_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"djmount",		0, 0},
+	{LOCALE_DAEMON_ITEM_CROND_NAME,			LOCALE_DAEMON_ITEM_CROND_DESC,		NEUTRINO_ICON_HINT_SETTINGS,	"crond",		0, 0},
+	{LOCALE_DAEMON_ITEM_FCM_NAME,			LOCALE_DAEMON_ITEM_FCM_DESC,		NEUTRINO_ICON_HINT_SETTINGS,	"fritzcall",	0, 0},
+	{LOCALE_DAEMON_ITEM_MOUNTBEFORE_NAME,	LOCALE_DAEMON_ITEM_MOUNTBEFORE_DESC, NEUTRINO_ICON_HINT_SETTINGS,	"mbefore",		0, 0},
+	{LOCALE_DAEMON_ITEM_ETIMER_NAME,		LOCALE_DAEMON_ITEM_ETIMER_DESC,		NEUTRINO_ICON_HINT_SETTINGS,	"adjust",		0, 0}
 //	{LOCALE_DAEMON_ITEM_EMMREMIND_NAME,		LOCALE_DAEMON_ITEM_EMMREMIND_DESC,	NEUTRINO_ICON_HINT_SETTINGS,	"emmrd",		0 ,0},
 //	{LOCALE_DAEMON_ITEM_INADYN_NAME,		LOCALE_DAEMON_ITEM_INADYN_DESC,		NEUTRINO_ICON_HINT_SETTINGS,	"inadyn",		0 ,0},
 //	{LOCALE_DAEMON_ITEM_USHARE_NAME,		LOCALE_DAEMON_ITEM_USHARE_DESC,		NEUTRINO_ICON_HINT_SETTINGS,	"ushare",		0 ,0},
@@ -86,11 +86,11 @@ int CDaemonControlMenu::show()
 {
 	int daemon_shortcut = 0;
 
-	CMenuWidget* daemonControlMenu = new CMenuWidget(LOCALE_DAEMON_CONTROL, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_DAEMON_CONTROL);
+	CMenuWidget *daemonControlMenu = new CMenuWidget(LOCALE_DAEMON_CONTROL, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_DAEMON_CONTROL);
 	daemonControlMenu->addIntroItems();
 
 	CMenuOptionChooser *mc;
-	CFlagFileNotifier * flagFileNotifier[DAEMONS_COUNT];
+	CFlagFileNotifier *flagFileNotifier[DAEMONS_COUNT];
 	for (unsigned int i = 0; i < DAEMONS_COUNT; i++)
 	{
 		std::string flagfile = CONFIGDIR;
@@ -106,7 +106,7 @@ int CDaemonControlMenu::show()
 		daemonControlMenu->addItem(mc);
 	}
 
-	int res = daemonControlMenu->exec(NULL,"");
+	int res = daemonControlMenu->exec(NULL, "");
 	daemonControlMenu->hide();
 	for (unsigned int i = 0; i < DAEMONS_COUNT; i++)
 		delete flagFileNotifier[i];
@@ -125,7 +125,7 @@ CCamdControlMenu::~CCamdControlMenu()
 {
 }
 
-int CCamdControlMenu::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
+int CCamdControlMenu::exec(CMenuTarget *parent, const std::string & /*actionKey*/)
 {
 	if (parent)
 		parent->hide();
@@ -137,14 +137,14 @@ typedef struct camds_data_t
 {
 	neutrino_locale_t name;
 	neutrino_locale_t desc;
-	const char * camd_name;
-	const char * camd_file;
+	const char *camd_name;
+	const char *camd_file;
 	int camd_exist;
 	int camd_runs;
 }
 camds_data_struct;
 
-camds_data_t camds_data[]=
+camds_data_t camds_data[] =
 {
 	{LOCALE_CAMD_ITEM_MGCAMD_NAME,		LOCALE_CAMD_ITEM_MGCAMD_HINT,	"MGCAMD",		"mgcamd",		0, 0},
 	{LOCALE_CAMD_ITEM_DOSCAM_NAME,		LOCALE_CAMD_ITEM_DOSCAM_HINT,	"DOSCAM",		"doscam",		0, 0},
@@ -153,7 +153,7 @@ camds_data_t camds_data[]=
 	{LOCALE_CAMD_ITEM_OSCAM_NAME,		LOCALE_CAMD_ITEM_OSCAM_HINT,	"OSCAM",		"oscam",		0, 0},
 	{LOCALE_CAMD_ITEM_CCCAM_NAME,		LOCALE_CAMD_ITEM_CCCAM_HINT,	"CCCAM",		"cccam",		0, 0},
 	{LOCALE_CAMD_ITEM_GBOX_NAME,		LOCALE_CAMD_ITEM_GBOX_HINT,		"GBOX.NET",		"gbox",			0, 0},
-	{LOCALE_CAMD_ITEM_CIPHELPER_NAME,	LOCALE_CAMD_ITEM_CIPHELPER_HINT,"CI+ Helper",	"ciplushelper",	0, 0}
+	{LOCALE_CAMD_ITEM_CIPHELPER_NAME,	LOCALE_CAMD_ITEM_CIPHELPER_HINT, "CI+ Helper",	"ciplushelper",	0, 0}
 };
 #define CAMDS_COUNT (sizeof(camds_data)/sizeof(struct camds_data_t))
 
@@ -166,7 +166,7 @@ int CCamdControlMenu::show()
 	size_t len;
 	FILE *fh;
 
-	CMenuWidget* camdControlMenu = new CMenuWidget(LOCALE_CAMD_CONTROL, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_CAMD_CONTROL);
+	CMenuWidget *camdControlMenu = new CMenuWidget(LOCALE_CAMD_CONTROL, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_CAMD_CONTROL);
 	camdControlMenu->addIntroItems();
 
 	// camd reset
@@ -177,7 +177,7 @@ int CCamdControlMenu::show()
 	camdControlMenu->addItem(GenericMenuSeparatorLine);
 
 	CMenuOptionChooser *mc;
-	CFlagFileNotifier * flagFileNotifier[CAMDS_COUNT];
+	CFlagFileNotifier *flagFileNotifier[CAMDS_COUNT];
 	for (unsigned int i = 0; i < CAMDS_COUNT; i++)
 	{
 		std::string camd_binary = "/var/emu/";
@@ -199,7 +199,7 @@ int CCamdControlMenu::show()
 		camdControlMenu->addItem(mc);
 	}
 
-	int res = camdControlMenu->exec(NULL,"");
+	int res = camdControlMenu->exec(NULL, "");
 	camdControlMenu->hide();
 	for (unsigned int i = 0; i < CAMDS_COUNT; i++)
 		delete flagFileNotifier[i];

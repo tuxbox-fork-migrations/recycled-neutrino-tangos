@@ -79,24 +79,24 @@ class CEpgData
 		int			ox, oy, sx, sy, toph, sb;
 		int			emptyLineCount, info1_lines;
 		int         		textCount;
-		typedef std::pair<std::string,int> epg_pair;
+		typedef std::pair<std::string, int> epg_pair;
 		std::vector<epg_pair> epgText;
 		std::vector<epg_pair> epgText_saved;
 		std::string epgTextSwitch;
 		std::string extMovieInfo;
-		int			topheight,topboxheight;
-		int			buttonheight,botboxheight;
-		int			medlineheight,medlinecount;
+		int			topheight, topboxheight;
+		int			buttonheight, botboxheight;
+		int			medlineheight, medlinecount;
 
 		MI_MOVIE_INFO *mp_movie_info;
 
-		void GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* startzeit, bool clear = true );
-		void GetPrevNextEPGData( uint64_t id, time_t* startzeit );
-		void addTextToArray( const std::string & text, int screening );
+		void GetEPGData(const t_channel_id channel_id, uint64_t id, time_t *startzeit, bool clear = true);
+		void GetPrevNextEPGData(uint64_t id, time_t *startzeit);
+		void addTextToArray(const std::string &text, int screening);
 		void processTextToArray(std::string text, int screening = 0, bool has_cover = false);
 		void showText(int startPos, int ypos, bool has_cover = false, bool fullClear = true);
-		bool hasFollowScreenings(const t_channel_id channel_id, const std::string & title);
-		int FollowScreenings(const t_channel_id channel_id, const std::string & title);
+		bool hasFollowScreenings(const t_channel_id channel_id, const std::string &title);
+		int FollowScreenings(const t_channel_id channel_id, const std::string &title);
 		void showTimerEventBar(bool show, bool adzap = false, bool mp_info = false);
 		void showProgressBar();
 		bool isCurrentEPG(const t_channel_id channel_id);
@@ -114,8 +114,8 @@ class CEpgData
 
 		CEpgData();
 		~CEpgData();
-		void start( );
-		int show(const t_channel_id channel_id, uint64_t id = 0, time_t* startzeit = NULL, bool doLoop = true, bool callFromfollowlist = false, bool mp_info = false );
+		void start();
+		int show(const t_channel_id channel_id, uint64_t id = 0, time_t *startzeit = NULL, bool doLoop = true, bool callFromfollowlist = false, bool mp_info = false);
 		int show_mp(MI_MOVIE_INFO *mi, int mp_position = 0, int mp_duration = 0, bool doLoop = true);
 		void hide();
 		void ResetModules();
@@ -124,14 +124,14 @@ class CEpgData
 class CEPGDataHandler : public CMenuTarget
 {
 	public:
-		int exec(CMenuTarget* parent,  const std::string &actionkey);
+		int exec(CMenuTarget *parent,  const std::string &actionkey);
 
 };
 
 class CEPGRateBanner : public CComponentsIconForm
 {
 	private:
-		void init(const std::string& quote_icon, const std::string& quote_icon_bg, const size_t& quote, const size_t& quote_max, const std::string& provider_logo)
+		void init(const std::string &quote_icon, const std::string &quote_icon_bg, const size_t &quote, const size_t &quote_max, const std::string &provider_logo)
 		{
 			cc_item_type.name 	= "epg_rate_banner";
 			append_x_offset = 5;
@@ -143,22 +143,22 @@ class CEPGRateBanner : public CComponentsIconForm
 
 	public:
 
-	CEPGRateBanner(	const int &x_pos,
+		CEPGRateBanner(const int &x_pos,
 			const int &y_pos,
-			const size_t& quote,
-			const size_t& quote_max = 10,
-			const std::string& provider_logo = "",
-			const std::string& quote_icon = NEUTRINO_ICON_STAR_ON,
-			const std::string& quote_icon_bg = NEUTRINO_ICON_STAR_OFF,
+			const size_t &quote,
+			const size_t &quote_max = 10,
+			const std::string &provider_logo = "",
+			const std::string &quote_icon = NEUTRINO_ICON_STAR_ON,
+			const std::string &quote_icon_bg = NEUTRINO_ICON_STAR_OFF,
 			int shadow_mode = CC_SHADOW_OFF,
 			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 			fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
 			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 			CComponentsForm *parent = NULL)
-			:CComponentsIconForm(x_pos, y_pos, 0, 0, std::vector<std::string>(), parent, shadow_mode, color_frame, color_body, color_shadow)
-			{
-				init(quote_icon, quote_icon_bg, quote, quote_max, provider_logo);
-			};
+			: CComponentsIconForm(x_pos, y_pos, 0, 0, std::vector<std::string>(), parent, shadow_mode, color_frame, color_body, color_shadow)
+		{
+			init(quote_icon, quote_icon_bg, quote, quote_max, provider_logo);
+		};
 };
 
 

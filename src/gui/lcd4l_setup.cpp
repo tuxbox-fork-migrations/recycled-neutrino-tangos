@@ -104,11 +104,11 @@ CLCD4lSetup::~CLCD4lSetup()
 {
 }
 
-CLCD4lSetup* CLCD4lSetup::getInstance()
+CLCD4lSetup *CLCD4lSetup::getInstance()
 {
-	static CLCD4lSetup* me = NULL;
+	static CLCD4lSetup *me = NULL;
 
-	if(!me)
+	if (!me)
 		me = new CLCD4lSetup();
 
 	return me;
@@ -229,7 +229,7 @@ int CLCD4lSetup::show()
 		delete lcd_clock_a;
 	if (lcd4lSetup)
 		delete lcd4lSetup;
-	if(lcd_weather)
+	if (lcd_weather)
 		delete lcd_weather;
 
 	// the things to do on exit

@@ -1,4 +1,4 @@
-/* 
+/*
  * public definitions for the CX2450x Infrared receiver driver
  *
  * Copyright (C) 2008-2011 Coolstream International Limited
@@ -10,31 +10,31 @@
 
 typedef enum
 {
-    IR_PROTOCOL_UNKNOWN    = 0x00000,
-    IR_PROTOCOL_RMAP       = 0x00001,   /* Ruwido rMAP */
-    IR_PROTOCOL_RMAP_E     = 0x00002,   /* Ruwido rMAP with extension for MNC Ltd sp. z o.o. */
-    IR_PROTOCOL_NRC17      = 0x00004,   /* Nokia NRC17 */
-    IR_PROTOCOL_JVC        = 0x00008,   /* JVC */
-    IR_PROTOCOL_RCA        = 0x00010,   /* RCA */
-    IR_PROTOCOL_PSD        = 0x00020,   /* Precision Squared (not yet supported) */
-    IR_PROTOCOL_RC5        = 0x00040,   /* Philips RC5 */
-    IR_PROTOCOL_RCMM       = 0x00080,   /* Philips RCMM */
-    IR_PROTOCOL_RECS80     = 0x00100,   /* Philips RECS80 */
-    IR_PROTOCOL_NEC        = 0x00200,   /* NEC */
-    IR_PROTOCOL_NECE       = 0x00400,   /* NEC with 16 bit address capability */
-    IR_PROTOCOL_SCA        = 0x00800,   /* Scientific Atlanta */
-    IR_PROTOCOL_MATSUSHITA = 0x01000,   /* Matsushita (Technics/Panasonics) */
-    IR_PROTOCOL_SONY       = 0x02000,   /* Sony SIRC 12 bit */
-    IR_PROTOCOL_SONY15     = 0x04000,   /* Sony SIRC 15 bit */
-    IR_PROTOCOL_SONY20     = 0x08000,   /* Sony SIRC 20 bit */
-    IR_PROTOCOL_SONY24     = 0x10000,   /* Sony SIRC 24 bit */
-    IR_PROTOCOL_ALL        = 0x1FFFF
+	IR_PROTOCOL_UNKNOWN    = 0x00000,
+	IR_PROTOCOL_RMAP       = 0x00001,   /* Ruwido rMAP */
+	IR_PROTOCOL_RMAP_E     = 0x00002,   /* Ruwido rMAP with extension for MNC Ltd sp. z o.o. */
+	IR_PROTOCOL_NRC17      = 0x00004,   /* Nokia NRC17 */
+	IR_PROTOCOL_JVC        = 0x00008,   /* JVC */
+	IR_PROTOCOL_RCA        = 0x00010,   /* RCA */
+	IR_PROTOCOL_PSD        = 0x00020,   /* Precision Squared (not yet supported) */
+	IR_PROTOCOL_RC5        = 0x00040,   /* Philips RC5 */
+	IR_PROTOCOL_RCMM       = 0x00080,   /* Philips RCMM */
+	IR_PROTOCOL_RECS80     = 0x00100,   /* Philips RECS80 */
+	IR_PROTOCOL_NEC        = 0x00200,   /* NEC */
+	IR_PROTOCOL_NECE       = 0x00400,   /* NEC with 16 bit address capability */
+	IR_PROTOCOL_SCA        = 0x00800,   /* Scientific Atlanta */
+	IR_PROTOCOL_MATSUSHITA = 0x01000,   /* Matsushita (Technics/Panasonics) */
+	IR_PROTOCOL_SONY       = 0x02000,   /* Sony SIRC 12 bit */
+	IR_PROTOCOL_SONY15     = 0x04000,   /* Sony SIRC 15 bit */
+	IR_PROTOCOL_SONY20     = 0x08000,   /* Sony SIRC 20 bit */
+	IR_PROTOCOL_SONY24     = 0x10000,   /* Sony SIRC 24 bit */
+	IR_PROTOCOL_ALL        = 0x1FFFF
 } ir_protocol_t;
 
 typedef enum
 {
-    FP_MODE_KEYS_DISABLED = 0,
-    FP_MODE_KEYS_ENABLED  = 1
+	FP_MODE_KEYS_DISABLED = 0,
+	FP_MODE_KEYS_ENABLED  = 1
 } fp_mode_t;
 
 #define EVENT_KEY_UP			0

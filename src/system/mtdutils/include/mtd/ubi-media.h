@@ -52,7 +52,8 @@
  * @UBI_VID_DYNAMIC: dynamic volume
  * @UBI_VID_STATIC: static volume
  */
-enum {
+enum
+{
 	UBI_VID_DYNAMIC = 1,
 	UBI_VID_STATIC  = 2
 };
@@ -90,7 +91,8 @@ enum {
  * eraseblock handling, and then re-sizes the volume, not vice-versa. This
  * means that the pool of reserved physical eraseblocks will always be present.
  */
-enum {
+enum
+{
 	UBI_VTBL_AUTORESIZE_FLG = 0x01,
 };
 
@@ -105,7 +107,8 @@ enum {
  *                       sub-system to move them
  * @UBI_COMPAT_REJECT: reject this UBI image
  */
-enum {
+enum
+{
 	UBI_COMPAT_DELETE   = 1,
 	UBI_COMPAT_RO       = 2,
 	UBI_COMPAT_PRESERVE = 4,
@@ -154,7 +157,8 @@ enum {
  * an image is flashed over an existing image, then, if the flashing does not
  * complete, UBI will detect the error when scanning.
  */
-struct ubi_ec_hdr {
+struct ubi_ec_hdr
+{
 	__be32  magic;
 	__u8    version;
 	__u8    padding1[3];
@@ -164,7 +168,7 @@ struct ubi_ec_hdr {
 	__be32  image_seq;
 	__u8    padding2[32];
 	__be32  hdr_crc;
-} __attribute__ ((packed));
+} __attribute__((packed));
 
 /**
  * struct ubi_vid_hdr - on-flash UBI volume identifier header.
@@ -275,7 +279,8 @@ struct ubi_ec_hdr {
  * eraseblocks of this volume. This is very handy when one uses block-oriented
  * software (say, cramfs) on top of the UBI volume.
  */
-struct ubi_vid_hdr {
+struct ubi_vid_hdr
+{
 	__be32  magic;
 	__u8    version;
 	__u8    vol_type;
@@ -292,7 +297,7 @@ struct ubi_vid_hdr {
 	__be64  sqnum;
 	__u8    padding3[12];
 	__be32  hdr_crc;
-} __attribute__ ((packed));
+} __attribute__((packed));
 
 /* Internal UBI volumes count */
 #define UBI_INT_VOL_COUNT 1
@@ -362,17 +367,18 @@ struct ubi_vid_hdr {
  *
  * Empty records contain all zeroes and the CRC checksum of those zeroes.
  */
-struct ubi_vtbl_record {
+struct ubi_vtbl_record
+{
 	__be32  reserved_pebs;
 	__be32  alignment;
 	__be32  data_pad;
 	__u8    vol_type;
 	__u8    upd_marker;
 	__be16  name_len;
-	__u8    name[UBI_VOL_NAME_MAX+1];
+	__u8    name[UBI_VOL_NAME_MAX + 1];
 	__u8    flags;
 	__u8    padding[23];
 	__be32  crc;
-} __attribute__ ((packed));
+} __attribute__((packed));
 
 #endif /* !__UBI_MEDIA_H__ */

@@ -32,7 +32,7 @@ CTermWindow::CTermWindow(const std::string &Command, const int Mode, int *Res, b
 	setCommand(Command, Mode, Res, auto_exec);
 }
 
-void CTermWindow::setCommand(const std::string &Command, const int Mode, int* Res, bool auto_exec)
+void CTermWindow::setCommand(const std::string &Command, const int Mode, int *Res, bool auto_exec)
 {
 	command = Command;
 	mode = Mode;
@@ -46,10 +46,12 @@ void CTermWindow::exec()
 {
 	fprintf(stderr, "CTermWindow::exec: mode %d command: %s\n", mode, command.c_str());
 	std::string cmd;
-	if (mode == 0){ /* not used */
+	if (mode == 0)  /* not used */
+	{
 		cmd = "PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin ; export PATH ; " + command + " 2>/dev/null >&2";
 		int r = my_system(cmd.c_str());
-		if (res) {
+		if (res)
+		{
 			if (r == -1)
 				*res = r;
 			else
@@ -57,17 +59,18 @@ void CTermWindow::exec()
 			dprintf(DEBUG_NORMAL,  "[CTermWindow] [%s - %d]  Error! system returns: %d command: %s\n", __func__, __LINE__, *res, cmd.c_str());
 		}
 	}
-	else {
-		const char * const argv[] = {"/bin/sh\0", "-c\0", command.c_str(), NULL };
+	else
+	{
+		const char *const argv[] = {"/bin/sh\0", "-c\0", command.c_str(), NULL };
 		int ret;
-fprintf(stderr, "%s:%d %s\n", __func__, __LINE__, argv[0]);
+		fprintf(stderr, "%s:%d %s\n", __func__, __LINE__, argv[0]);
 		YaFT *y = new YaFT(argv, res, !!(mode & VERBOSE), OnShellOutputLoop);
 		ret = y->run();
 		if (res)
 			*res = ret;
 		delete y;
 		y = NULL;
-fprintf(stderr, "%s:%d\n", __func__, __LINE__);
+		fprintf(stderr, "%s:%d\n", __func__, __LINE__);
 		showResult();
 	}
 }
@@ -82,20 +85,26 @@ void CTermWindow::showResult()
 
 	if (mode & ACKNOWLEDGE)
 		show_button = true;
-	else if (mode & ACKNOWLEDGE_EVENT) {
-		if (res && *res != 0){
+	else if (mode & ACKNOWLEDGE_EVENT)
+	{
+		if (res && *res != 0)
+		{
 			OnResultError(res);
 			if (OnResultError.empty())
 				DisplayErrorMessage("Error while execution of task. Please see window for details!");
 			show_button = true;
-		}else{
+		}
+		else
+		{
 			OnResultOk(res);
 			exit = true; //TODO: evaluate plausible statement
 		}
 	}
 
-	if (mode & VERBOSE) {
-		if (show_button) {
+	if (mode & VERBOSE)
+	{
+		if (show_button)
+		{
 			int b_width = 150;
 			int b_height = 35;
 			/*
@@ -112,14 +121,18 @@ void CTermWindow::showResult()
 		neutrino_msg_data_t data;
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
-		if (!exit) {
-			do {
+		if (!exit)
+		{
+			do
+			{
 				g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
-				if ( msg >  CRCInput::RC_MaxRC && msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout){
-					CNeutrinoApp::getInstance()->handleMsg( msg, data );
+				if (msg >  CRCInput::RC_MaxRC && msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout)
+				{
+					CNeutrinoApp::getInstance()->handleMsg(msg, data);
 				}
 
-			} while (msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout);
+			}
+			while (msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout);
 		}
 		frameBuffer->Clear();
 	}
@@ -127,7 +140,7 @@ void CTermWindow::showResult()
 
 #if 0
 // only for debug
-void CTermWindow::handleShellOutput(std::string* cur_line, int* Res, bool* /*ok*/)
+void CTermWindow::handleShellOutput(std::string *cur_line, int *Res, bool * /*ok*/)
 {
 	int _res = *Res;
 	std::string line = *cur_line;

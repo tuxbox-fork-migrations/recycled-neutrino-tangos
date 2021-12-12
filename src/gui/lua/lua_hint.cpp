@@ -29,18 +29,19 @@
 #include "luainstance.h"
 #include "lua_hint.h"
 
-CLuaInstHint* CLuaInstHint::getInstance()
+CLuaInstHint *CLuaInstHint::getInstance()
 {
-	static CLuaInstHint* LuaInstHint = NULL;
+	static CLuaInstHint *LuaInstHint = NULL;
 
-	if(!LuaInstHint)
-		      LuaInstHint = new CLuaInstHint();
+	if (!LuaInstHint)
+		LuaInstHint = new CLuaInstHint();
 	return LuaInstHint;
 }
 
 void CLuaInstHint::HintRegister(lua_State *L)
 {
-	luaL_Reg meth[] = {
+	luaL_Reg meth[] =
+	{
 		{ "new",             CLuaInstHint::HintNew },
 		{ "paint",           CLuaInstHint::HintPaint },
 		{ "hide",            CLuaInstHint::HintHide },
@@ -57,7 +58,7 @@ void CLuaInstHint::HintRegister(lua_State *L)
 
 int CLuaInstHint::HintNew(lua_State *L)
 {
-	lua_assert(lua_istable(L,1));
+	lua_assert(lua_istable(L, 1));
 
 	std::string text = "";
 	tableLookup(L, "text", text);
@@ -88,12 +89,14 @@ CLuaHint *CLuaInstHint::HintCheck(lua_State *L, int n)
 
 int CLuaInstHint::HintPaint(lua_State *L)
 {
-	lua_assert(lua_istable(L,1));
+	lua_assert(lua_istable(L, 1));
 	CLuaHint *D = HintCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	bool do_save_bg = true;
-	if (!tableLookup(L, "do_save_bg", do_save_bg)) {
+	if (!tableLookup(L, "do_save_bg", do_save_bg))
+	{
 		std::string tmp = "true";
 		if (tableLookup(L, "do_save_bg", tmp))
 			paramBoolDeprecated(L, tmp.c_str());
@@ -105,9 +108,10 @@ int CLuaInstHint::HintPaint(lua_State *L)
 
 int CLuaInstHint::HintHide(lua_State *L)
 {
-	lua_assert(lua_istable(L,1));
+	lua_assert(lua_istable(L, 1));
 	CLuaHint *D = HintCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	bool tmp1 = false;
 	std::string tmp2 = "false";
@@ -122,7 +126,8 @@ int CLuaInstHint::HintDelete(lua_State *L)
 {
 	LUA_DEBUG("CLuaInstHint::%s %d\n", __func__, lua_gettop(L));
 	CLuaHint *D = HintCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 	delete D;
 	return 0;
 }

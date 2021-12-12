@@ -28,7 +28,8 @@
 #include "widget/menue.h"
 #include <gui/widget/hintbox.h>
 
-struct devtool_s {
+struct devtool_s
+{
 	std::string fmt;
 	std::string fsck;
 	std::string fsck_options;
@@ -40,8 +41,8 @@ struct devtool_s {
 
 class CHDDDestExec : public CMenuTarget
 {
-public:
-        int exec(CMenuTarget* parent, const std::string&);
+	public:
+		int exec(CMenuTarget *parent, const std::string &);
 };
 
 class CHDDMenuHandler : public CMenuTarget
@@ -54,7 +55,8 @@ class CHDDMenuHandler : public CMenuTarget
 		std::string fmt_label;
 		std::string fmt_mpoint;
 		std::map<std::string, std::string> devtitle;
-		struct hdd_s {
+		struct hdd_s
+		{
 			std::string devname;
 			std::string fmt;
 			std::string desc;
@@ -66,12 +68,12 @@ class CHDDMenuHandler : public CMenuTarget
 		std::vector<hdd_s> hdd_list;
 		std::set<std::string> kernel_fs_list;
 		struct cmp_hdd_by_name: public std::binary_function <const struct hdd_s, const struct hdd_s, bool>
-		{
-			bool operator() (const struct hdd_s &c1, const struct hdd_s &c2)
-			{
-				return std::lexicographical_compare(c1.devname.begin(), c1.devname.end(), c2.devname.begin(), c2.devname.end());
-			};
-		};
+				{
+					bool operator()(const struct hdd_s &c1, const struct hdd_s &c2)
+					{
+						return std::lexicographical_compare(c1.devname.begin(), c1.devname.end(), c2.devname.begin(), c2.devname.end());
+					};
+				};
 
 		static devtool_s devtools[];
 
@@ -86,7 +88,7 @@ class CHDDMenuHandler : public CMenuTarget
 		bool waitfordev(std::string dev, int maxwait);
 		void check_dev_tools();
 		void check_kernel_fs();
-		devtool_s * get_dev_tool(std::string fmt);
+		devtool_s *get_dev_tool(std::string fmt);
 
 		int showDeviceMenu(std::string dev);
 		int checkDevice(std::string dev);
@@ -100,10 +102,10 @@ class CHDDMenuHandler : public CMenuTarget
 	public:
 		~CHDDMenuHandler();
 
-		static CHDDMenuHandler* getInstance();
-		int exec( CMenuTarget* parent,  const std::string &actionkey);
+		static CHDDMenuHandler *getInstance();
+		int exec(CMenuTarget *parent,  const std::string &actionkey);
 		int doMenu();
-		int filterDevName(const char * name);
+		int filterDevName(const char *name);
 		int handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
 };
 

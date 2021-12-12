@@ -41,20 +41,20 @@ class CMediaPlayerMenu : public CMenuTarget
 {
 	private:
 		int width;
-		
+
 #if 0
 		CAudioPlayerGui *audioPlayer;
 		CAudioPlayerGui *inetPlayer;
 #endif
 
-	public:	
+	public:
 		CMediaPlayerMenu();
 		~CMediaPlayerMenu();
-		static CMediaPlayerMenu* getInstance();
-		
+		static CMediaPlayerMenu *getInstance();
+
 		int initMenuMedia(CMenuWidget *m = NULL, CPersonalizeGui *p = NULL);
-		
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 #if 0
 		CAudioPlayerGui *getPlayerInstance() { if (audioPlayer != NULL) return audioPlayer; else if (inetPlayer != NULL) return inetPlayer; else return NULL; }
 #endif

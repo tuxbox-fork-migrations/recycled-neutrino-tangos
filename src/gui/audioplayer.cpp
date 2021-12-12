@@ -58,7 +58,7 @@
 #include <gui/widget/keyboard_input.h>
 #include <gui/screensaver.h>
 #include "gui/pictureviewer.h"
-extern CPictureViewer * g_PicViewer;
+extern CPictureViewer *g_PicViewer;
 #include <gui/infoclock.h>
 #include <system/settings.h>
 #include <system/helpers.h>
@@ -81,7 +81,7 @@ extern CPictureViewer * g_PicViewer;
 
 #include <zapit/zapit.h>
 #include <hardware/video.h>
-extern cVideo * videoDecoder;
+extern cVideo *videoDecoder;
 
 #define AUDIOPLAYERGUI_SMSKEY_TIMEOUT 1000
 #define SHOW_FILE_LOAD_LIMIT 50
@@ -106,11 +106,11 @@ CAudiofileExt::CAudiofileExt(std::string name, CFile::FileType type) : CAudiofil
 {
 }
 
-CAudiofileExt::CAudiofileExt(const CAudiofileExt& src) : CAudiofile(src), firstChar(src.firstChar)
+CAudiofileExt::CAudiofileExt(const CAudiofileExt &src) : CAudiofile(src), firstChar(src.firstChar)
 {
 }
 
-void CAudiofileExt::operator=(const CAudiofileExt& src)
+void CAudiofileExt::operator=(const CAudiofileExt &src)
 {
 	if (&src == this)
 		return;
@@ -137,7 +137,7 @@ void CAudioPlayerGui::Init(void)
 
 	pictureviewer = false;
 
-	m_select_title_by_name = g_settings.audioplayer_select_title_by_name==1;
+	m_select_title_by_name = g_settings.audioplayer_select_title_by_name == 1;
 
 	if (!g_settings.network_nfs_audioplayerdir.empty())
 		m_Path = g_settings.network_nfs_audioplayerdir.c_str();
@@ -231,7 +231,7 @@ CAudioPlayerGui::~CAudioPlayerGui()
 	}
 };
 
-int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
+int CAudioPlayerGui::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 
 	if (actionKey == "init")
@@ -242,9 +242,9 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	CAudioPlayer::getInstance()->init();
 	m_state = CAudioPlayerGui::STOP;
 
-	m_show_playlist = g_settings.audioplayer_show_playlist==1;
+	m_show_playlist = g_settings.audioplayer_show_playlist == 1;
 
-	if (m_select_title_by_name != (g_settings.audioplayer_select_title_by_name==1))
+	if (m_select_title_by_name != (g_settings.audioplayer_select_title_by_name == 1))
 	{
 		if ((g_settings.audioplayer_select_title_by_name == 1) && m_playlistHasChanged)
 		{
@@ -274,13 +274,13 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_item_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 
 	m_meta_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-	m_title_height = 3*OFFSET_INNER_SMALL + 2*m_item_height + m_meta_height;
+	m_title_height = 3 * OFFSET_INNER_SMALL + 2 * m_item_height + m_meta_height;
 	m_cover_width = 0;
-	m_info_height = 2*OFFSET_INNER_SMALL + 2*g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
+	m_info_height = 2 * OFFSET_INNER_SMALL + 2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
 	m_button_height = ::paintButtons(AudioPlayerButtons[0], 4, 0, 0, 0, 0, 0, false, NULL, NULL);
 
-	m_listmaxshow = (m_height - m_title_height - OFFSET_SHADOW - OFFSET_INTER - m_header_height - 2*m_button_height - OFFSET_SHADOW - OFFSET_INTER - m_info_height - OFFSET_SHADOW) / (m_item_height);
-	m_height = m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + m_listmaxshow*m_item_height + 2*m_button_height + OFFSET_SHADOW + OFFSET_INTER + m_info_height + OFFSET_SHADOW; // recalc height
+	m_listmaxshow = (m_height - m_title_height - OFFSET_SHADOW - OFFSET_INTER - m_header_height - 2 * m_button_height - OFFSET_SHADOW - OFFSET_INTER - m_info_height - OFFSET_SHADOW) / (m_item_height);
+	m_height = m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + m_listmaxshow * m_item_height + 2 * m_button_height + OFFSET_SHADOW + OFFSET_INTER + m_info_height + OFFSET_SHADOW; // recalc height
 
 	m_x = getScreenStartX(m_width);
 	if (m_x < DETAILSLINE_WIDTH)
@@ -307,7 +307,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	// tell neutrino we're in audio mode
 	m_LastMode = CNeutrinoApp::getInstance()->getMode();
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE , NeutrinoModes::mode_audio);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_audio);
 
 	// wake up hdd
 	printf("[audioplayer.cpp] wakeup_hdd(%s)\n", g_settings.network_nfs_audioplayerdir.c_str());
@@ -329,7 +329,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	CZapit::getInstance()->EnablePlayback(true);
 
 	m_frameBuffer->stopFrame();
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE , m_LastMode);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
 	g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);
 
 	CNeutrinoApp::getInstance()->StartSubtitles();
@@ -456,7 +456,7 @@ int CAudioPlayerGui::show()
 		if (msg == CRCInput::RC_home)
 		{
 			if (m_state == CAudioPlayerGui::STOP)
-				loop=false;
+				loop = false;
 		}
 		else if (msg == CRCInput::RC_stop)
 		{
@@ -491,13 +491,13 @@ int CAudioPlayerGui::show()
 				{
 					m_current--;
 					if (m_current < 0)
-						m_current = m_playlist.size()-1;
+						m_current = m_playlist.size() - 1;
 					update = true;
 				}
 				else if (!m_playlist.empty())
 				{
 					if (m_selected < m_listmaxshow)
-						m_selected = m_playlist.size()-1;
+						m_selected = m_playlist.size() - 1;
 					else
 						m_selected -= m_listmaxshow;
 					m_liststart = (m_selected / m_listmaxshow) * m_listmaxshow;
@@ -529,14 +529,14 @@ int CAudioPlayerGui::show()
 						if (((m_playlist.size() / m_listmaxshow) + 1) * m_listmaxshow == m_playlist.size() + m_listmaxshow)
 							m_selected = 0;
 						else
-							m_selected = m_selected < (((m_playlist.size() / m_listmaxshow) + 1) * m_listmaxshow) ? (m_playlist.size()-1) : 0;
+							m_selected = m_selected < (((m_playlist.size() / m_listmaxshow) + 1) * m_listmaxshow) ? (m_playlist.size() - 1) : 0;
 					}
 					m_liststart = (m_selected / m_listmaxshow) * m_listmaxshow;
 					update = true;
 				}
 			}
 		}
-		else if ((msg &~ CRCInput::RC_Repeat) == CRCInput::RC_up || (msg &~ CRCInput::RC_Repeat) == CRCInput::RC_page_up)
+		else if ((msg & ~ CRCInput::RC_Repeat) == CRCInput::RC_up || (msg & ~ CRCInput::RC_Repeat) == CRCInput::RC_page_up)
 		{
 			if (m_show_playlist && !m_playlist.empty())
 			{
@@ -544,11 +544,11 @@ int CAudioPlayerGui::show()
 				int step = msg == CRCInput::RC_page_up ? m_listmaxshow : 1;
 
 				m_selected -= step;
-				if ((prevselected-step) < 0)
-					m_selected = m_playlist.size()-1;
+				if ((prevselected - step) < 0)
+					m_selected = m_playlist.size() - 1;
 
 				unsigned int oldliststart = m_liststart;
-				m_liststart = (m_selected/m_listmaxshow)*m_listmaxshow;
+				m_liststart = (m_selected / m_listmaxshow) * m_listmaxshow;
 				if (oldliststart != m_liststart)
 				{
 					update = true;
@@ -560,7 +560,7 @@ int CAudioPlayerGui::show()
 				}
 			}
 		}
-		else if ((msg &~ CRCInput::RC_Repeat) == CRCInput::RC_down || (msg &~ CRCInput::RC_Repeat) == CRCInput::RC_page_down)
+		else if ((msg & ~ CRCInput::RC_Repeat) == CRCInput::RC_down || (msg & ~ CRCInput::RC_Repeat) == CRCInput::RC_page_down)
 		{
 			if (m_show_playlist && !m_playlist.empty())
 			{
@@ -573,12 +573,12 @@ int CAudioPlayerGui::show()
 					if (((m_playlist.size() / m_listmaxshow) + 1) * m_listmaxshow == m_playlist.size() + m_listmaxshow) // last page has full entries
 						m_selected = 0;
 					else
-						m_selected = ((step == m_listmaxshow) && (m_selected < (((m_playlist.size() / m_listmaxshow)+1) * m_listmaxshow))) ? (m_playlist.size() - 1) : 0;
+						m_selected = ((step == m_listmaxshow) && (m_selected < (((m_playlist.size() / m_listmaxshow) + 1) * m_listmaxshow))) ? (m_playlist.size() - 1) : 0;
 				}
 				//m_selected = (m_selected + 1) % m_playlist.size();
 
 				unsigned int oldliststart = m_liststart;
-				m_liststart = (m_selected/m_listmaxshow)*m_listmaxshow;
+				m_liststart = (m_selected / m_listmaxshow) * m_listmaxshow;
 				if (oldliststart != m_liststart)
 				{
 					update = true;
@@ -647,7 +647,7 @@ int CAudioPlayerGui::show()
 			if (m_key_level == 0)
 			{
 				openFilebrowser();
-				update=true;
+				update = true;
 			}
 			else if (m_key_level == 1)
 			{
@@ -655,7 +655,8 @@ int CAudioPlayerGui::show()
 					rev();
 			}
 			else
-			{ // key_level == 2
+			{
+				// key_level == 2
 
 				if (m_state == CAudioPlayerGui::STOP)
 				{
@@ -671,16 +672,16 @@ int CAudioPlayerGui::show()
 				{
 					// keylevel 2 can only be reached if the currently played file
 					// is no stream, so we do not have to test for this case
-					int seconds=0;
-					CIntInput secondsInput(	LOCALE_AUDIOPLAYER_JUMP_DIALOG_TITLE,
-								&seconds,
-								5,
-								LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT1,
-								LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT2);
-					int res = secondsInput.exec(NULL,"");
-					if (seconds != 0 && res!= menu_return::RETURN_EXIT_ALL)
+					int seconds = 0;
+					CIntInput secondsInput(LOCALE_AUDIOPLAYER_JUMP_DIALOG_TITLE,
+						&seconds,
+						5,
+						LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT1,
+						LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT2);
+					int res = secondsInput.exec(NULL, "");
+					if (seconds != 0 && res != menu_return::RETURN_EXIT_ALL)
 						rev(seconds);
-					update=true;
+					update = true;
 				}
 			}
 		}
@@ -701,8 +702,9 @@ int CAudioPlayerGui::show()
 				pause();
 			}
 			else
-			{ // key_level==2
-				m_select_title_by_name =! m_select_title_by_name;
+			{
+				// key_level==2
+				m_select_title_by_name = ! m_select_title_by_name;
 				if (m_select_title_by_name && m_playlistHasChanged)
 					buildSearchTree();
 				paint();
@@ -723,20 +725,20 @@ int CAudioPlayerGui::show()
 					// -- setup menue for inetradio input
 					sprintf(cnt, "%d", count);
 					InputSelector.addItem(new CMenuForwarder(
-								LOCALE_AUDIOPLAYER_ADD_FAV, true, NULL, InetRadioInputChanger,
-								cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
+							LOCALE_AUDIOPLAYER_ADD_FAV, true, NULL, InetRadioInputChanger,
+							cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
 					sprintf(cnt, "%d", ++count);
 					InputSelector.addItem(new CMenuForwarder(
-								LOCALE_AUDIOPLAYER_ADD_LOC, true, NULL, InetRadioInputChanger,
-								cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
+							LOCALE_AUDIOPLAYER_ADD_LOC, true, NULL, InetRadioInputChanger,
+							cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
 					sprintf(cnt, "%d", ++count);
 					InputSelector.addItem(new CMenuForwarder(
-								LOCALE_AUDIOPLAYER_ADD_IC, true, NULL, InetRadioInputChanger,
-								cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
+							LOCALE_AUDIOPLAYER_ADD_IC, true, NULL, InetRadioInputChanger,
+							cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
 					sprintf(cnt, "%d", ++count);
 					InputSelector.addItem(new CMenuForwarder(
-								LOCALE_AUDIOPLAYER_ADD_SC, g_settings.shoutcast_enabled, NULL, InetRadioInputChanger,
-								cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
+							LOCALE_AUDIOPLAYER_ADD_SC, g_settings.shoutcast_enabled, NULL, InetRadioInputChanger,
+							cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
 
 					//InputSelector.addItem(GenericMenuSeparator);
 					hide();
@@ -774,7 +776,7 @@ int CAudioPlayerGui::show()
 					}
 					m_current = 0;
 					m_selected = 0;
-					update=true;
+					update = true;
 				}
 				else if (shufflePlaylist())
 				{
@@ -792,14 +794,14 @@ int CAudioPlayerGui::show()
 				{
 					// keylevel 2 can only be reached if the currently played file
 					// is no stream, so we do not have to test for this case
-					int seconds=0;
-					CIntInput secondsInput(	LOCALE_AUDIOPLAYER_JUMP_DIALOG_TITLE,
-								&seconds,
-								5,
-								LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT1,
-								LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT2);
-					int res = secondsInput.exec(NULL,"");
-					if (seconds != 0 && res!= menu_return::RETURN_EXIT_ALL)
+					int seconds = 0;
+					CIntInput secondsInput(LOCALE_AUDIOPLAYER_JUMP_DIALOG_TITLE,
+						&seconds,
+						5,
+						LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT1,
+						LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT2);
+					int res = secondsInput.exec(NULL, "");
+					if (seconds != 0 && res != menu_return::RETURN_EXIT_ALL)
 						ff(seconds);
 					update = true;
 				}
@@ -812,7 +814,7 @@ int CAudioPlayerGui::show()
 			pictureviewer = true;
 			m_frameBuffer->Clear();
 			m_frameBuffer->stopFrame();
-			CPictureViewerGui * picture = new CPictureViewerGui();
+			CPictureViewerGui *picture = new CPictureViewerGui();
 			picture->m_audioPlayer = this;
 			picture->exec(this, "audio");
 			delete picture;
@@ -882,7 +884,8 @@ int CAudioPlayerGui::show()
 			}
 		}
 		else if (CRCInput::isNumeric(msg) && !(m_playlist.empty()))
-		{ //numeric zap or SMS zap
+		{
+			//numeric zap or SMS zap
 			if (m_select_title_by_name)
 			{
 				//printf("select by name\n");
@@ -896,18 +899,19 @@ int CAudioPlayerGui::show()
 					//printf(" new key: %c", smsKey);
 					/* show a hint box with current char (too slow at the moment?)*/
 					char selectedKey[2];
-					sprintf(selectedKey,"%c",smsKey);
-					int x1=(g_settings.screen_EndX- g_settings.screen_StartX)/2 + g_settings.screen_StartX-50;
-					int y1=(g_settings.screen_EndY- g_settings.screen_StartY)/2 + g_settings.screen_StartY;
+					sprintf(selectedKey, "%c", smsKey);
+					int x1 = (g_settings.screen_EndX - g_settings.screen_StartX) / 2 + g_settings.screen_StartX - 50;
+					int y1 = (g_settings.screen_EndY - g_settings.screen_StartY) / 2 + g_settings.screen_StartY;
 					int h = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight();
 					w = std::max(w, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getRenderWidth(selectedKey));
 					m_frameBuffer->paintBoxRel(x1 - 7, y1 - h - 5, w + 14, h + 10, COL_FRAME_PLUS_0, RADIUS_SMALL);
 					m_frameBuffer->paintBoxRel(x1 - 6, y1 - h - 4, w + 12, h +  8, COL_MENUCONTENTSELECTED_PLUS_0, RADIUS_SMALL);
-					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->RenderString(x1,y1,w+1,selectedKey,COL_MENUCONTENTSELECTED_TEXT);
+					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->RenderString(x1, y1, w + 1, selectedKey, COL_MENUCONTENTSELECTED_TEXT);
 
 					g_RCInput->getMsg_ms(&msg, &data, AUDIOPLAYERGUI_SMSKEY_TIMEOUT - 200);
 
-				} while (CRCInput::isNumeric(msg) && !(m_playlist.empty()));
+				}
+				while (CRCInput::isNumeric(msg) && !(m_playlist.empty()));
 
 				if (msg == CRCInput::RC_timeout || msg == CRCInput::RC_nokey)
 				{
@@ -921,7 +925,7 @@ int CAudioPlayerGui::show()
 			{
 				//printf("numeric zap\n");
 				int val = 0;
-				if (getNumericInput(msg,val))
+				if (getNumericInput(msg, val))
 					m_selected = std::min((int)m_playlist.size(), val) - 1;
 				update = true;
 			}
@@ -943,16 +947,16 @@ int CAudioPlayerGui::show()
 			if ((data & NeutrinoModes::mode_mask) != NeutrinoModes::mode_audio)
 			{
 				loop = false;
-				m_LastMode=data;
+				m_LastMode = data;
 			}
 		}
 		else if (
-				msg == NeutrinoMessages::RECORD_START ||
-				msg == NeutrinoMessages::ZAPTO ||
-				msg == NeutrinoMessages::STANDBY_ON ||
-				msg == NeutrinoMessages::LEAVE_ALL ||
-				msg == NeutrinoMessages::SHUTDOWN ||
-				(msg == NeutrinoMessages::SLEEPTIMER && !data)
+			msg == NeutrinoMessages::RECORD_START ||
+			msg == NeutrinoMessages::ZAPTO ||
+			msg == NeutrinoMessages::STANDBY_ON ||
+			msg == NeutrinoMessages::LEAVE_ALL ||
+			msg == NeutrinoMessages::SHUTDOWN ||
+			(msg == NeutrinoMessages::SLEEPTIMER && !data)
 		)
 		{
 			if (msg != NeutrinoMessages::RECORD_START)
@@ -1002,7 +1006,7 @@ bool CAudioPlayerGui::playNext(bool allow_rotate)
 		result = true;
 	}
 
-	return(result);
+	return (result);
 }
 
 void CAudioPlayerGui::wantNextPlay()
@@ -1026,16 +1030,16 @@ bool CAudioPlayerGui::playPrev(bool allow_rotate)
 	{
 		if (m_current == -1)
 			stop();
-		else if (m_current-1 > 0)
-			play(m_current-1);
+		else if (m_current - 1 > 0)
+			play(m_current - 1);
 		else if (allow_rotate)
-			play(m_playlist.size()-1);
+			play(m_playlist.size() - 1);
 		else
 			play(0);
 		result = true;
 	}
 
-	return(result);
+	return (result);
 }
 
 bool CAudioPlayerGui::clearPlaylist(void)
@@ -1044,7 +1048,8 @@ bool CAudioPlayerGui::clearPlaylist(void)
 
 	CAudioPlayList::const_iterator it;
 #if 0
-	for (it = m_playlist.begin(); it!=m_playlist.end(); ++it) {
+	for (it = m_playlist.begin(); it != m_playlist.end(); ++it)
+	{
 		unlink(it->MetaData.cover.c_str());
 	}
 #endif
@@ -1057,7 +1062,7 @@ bool CAudioPlayerGui::clearPlaylist(void)
 		m_title2Pos.clear();
 		result = true;
 	}
-	return(result);
+	return (result);
 }
 
 bool CAudioPlayerGui::shufflePlaylist(void)
@@ -1081,7 +1086,7 @@ bool CAudioPlayerGui::shufflePlaylist(void)
 
 		result = true;
 	}
-	return(result);
+	return (result);
 }
 
 void CAudioPlayerGui::addUrl2Playlist(const char *url, const char *name, const char *logo, const time_t bitrate)
@@ -1122,7 +1127,7 @@ void CAudioPlayerGui::processPlaylistUrl(const char *url, const char *name, cons
 	const long int GET_PLAYLIST_TIMEOUT = 2;
 
 	printf("CAudioPlayerGui::processPlaylistUrl (%s, %s)\n", url, name);
-	chunk.memory=NULL; /* we expect realloc(NULL, size) to work */
+	chunk.memory = NULL; /* we expect realloc(NULL, size) to work */
 	chunk.size = 0; /* no data at this point */
 
 	curl_global_init(CURL_GLOBAL_ALL);
@@ -1169,7 +1174,7 @@ void CAudioPlayerGui::processPlaylistUrl(const char *url, const char *name, cons
 		{
 			//printf("\nchunk = %s\n", chunk.memory);
 			std::istringstream iss;
-			iss.str (std::string(chunk.memory, chunk.size));
+			iss.str(std::string(chunk.memory, chunk.size));
 			char line[512];
 			char *ptr;
 			while (iss.rdstate() == std::ifstream::goodbit)
@@ -1180,7 +1185,8 @@ void CAudioPlayerGui::processPlaylistUrl(const char *url, const char *name, cons
 					//printf("chunk: line = %s\n", line);
 					const char *schemes[] = {"http://", "https://", NULL };
 					const char **scheme = schemes;
-					while (*scheme) {
+					while (*scheme)
+					{
 						ptr = strstr(line, *scheme);
 						scheme++;
 						if (ptr == NULL)
@@ -1216,7 +1222,7 @@ void CAudioPlayerGui::readDir_ic(void)
 	const std::string icecasturl = "http://dir.xiph.org/yp.xml";
 	const long int GET_ICECAST_TIMEOUT = 90; // list is about 500kB!
 
-	std::string answer="";
+	std::string answer = "";
 	std::cout << "[readDir_ic] IC URL: " << icecasturl << std::endl;
 	CURL *curl_handle;
 	CURLcode httpres;
@@ -1306,7 +1312,7 @@ void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *urltag, c
 				bool skip = true;
 				listPos++;
 				// show status
-				int global = 100*listPos / maxProgress;
+				int global = 100 * listPos / maxProgress;
 				progress.showStatus(global);
 #ifdef LCD_UPDATE
 				CVFD::getInstance()->showProgressBar(global, "read xmldata...");
@@ -1337,10 +1343,14 @@ void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *urltag, c
 					}
 					if (type)
 					{
-						if	(strcmp("audio/mpeg", type) == 0)	skip = false;
-						else if	(strcmp("application/ogg", type) == 0)	skip = false;
-						else if	(strcmp("mp3", type) == 0)		skip = false;
-						else if	(strcmp("application/mp3", type) == 0)	skip = false;
+						if	(strcmp("audio/mpeg", type) == 0)
+							skip = false;
+						else if	(strcmp("application/ogg", type) == 0)
+							skip = false;
+						else if	(strcmp("mp3", type) == 0)
+							skip = false;
+						else if	(strcmp("application/mp3", type) == 0)
+							skip = false;
 					}
 				}
 				else
@@ -1369,8 +1379,8 @@ void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *urltag, c
 				element = xmlNextNode(element);
 				g_RCInput->getMsg(&msg, &data, 0);
 
-				if( ( msg>= CRCInput::RC_WithData ) && ( msg< CRCInput::RC_WithData+ 0x10000000 ) )
-					delete[] (unsigned char*) data;
+				if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
+					delete[](unsigned char *) data;
 
 			}
 			progress.hide();
@@ -1396,7 +1406,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 	{
 #ifdef AUDIOPLAYER_TIME_DEBUG
 		timeval start;
-		gettimeofday(&start,NULL);
+		gettimeofday(&start, NULL);
 #endif
 		CProgressWindow progress;
 		long maxProgress = (filebrowser.getSelectedFiles().size() > 1) ? filebrowser.getSelectedFiles().size() - 1 : 1;
@@ -1404,7 +1414,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 		if (maxProgress > SHOW_FILE_LOAD_LIMIT)
 		{
 			progress.setTitle(LOCALE_AUDIOPLAYER_READING_FILES);
-			progress.exec(this,"");
+			progress.exec(this, "");
 		}
 
 		m_Path = filebrowser.getCurrentDir();
@@ -1415,7 +1425,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 			{
 				currentProgress++;
 				// show status
-				int global = 100*currentProgress/maxProgress;
+				int global = 100 * currentProgress / maxProgress;
 				progress.showStatus(global);
 				progress.showStatusMessageUTF(files->Name);
 #ifdef LCD_UPDATE
@@ -1429,14 +1439,14 @@ bool CAudioPlayerGui::openFilebrowser(void)
 				|| (files->getType() == CFile::FILE_MP3)
 				|| (files->getType() == CFile::FILE_WAV)
 #ifdef ENABLE_FFMPEGDEC
-					||  (files->getType() == CFile::FILE_AAC)
-					||  (files->getType() == CFile::FILE_FLV)
+				|| (files->getType() == CFile::FILE_AAC)
+				|| (files->getType() == CFile::FILE_FLV)
 #endif
-					||  (files->getType() == CFile::FILE_FLAC)
-			   )
+				|| (files->getType() == CFile::FILE_FLAC)
+			)
 			{
 				CAudiofileExt audiofile(files->Name,
-							files->getType());
+					files->getType());
 				addToPlaylist(audiofile);
 			}
 			if (files->getType() == CFile::STREAM_AUDIO)
@@ -1473,11 +1483,11 @@ bool CAudioPlayerGui::openFilebrowser(void)
 					infile.getline(cLine, 255);
 					int duration;
 					sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &duration, name);
-					if (strlen(cLine) > 0 && cLine[0]!='#')
+					if (strlen(cLine) > 0 && cLine[0] != '#')
 					{
 						// remove CR
-						if (cLine[strlen(cLine)-1]=='\r')
-							cLine[strlen(cLine)-1]=0;
+						if (cLine[strlen(cLine) - 1] == '\r')
+							cLine[strlen(cLine) - 1] = 0;
 						char *url = strstr(cLine, "http://");
 						if (url != NULL)
 						{
@@ -1499,8 +1509,8 @@ bool CAudioPlayerGui::openFilebrowser(void)
 							std::string filename = sPath + '/' + cLine;
 
 							std::string::size_type pos;
-							while ((pos=filename.find('\\'))!=std::string::npos)
-								filename[pos]='/';
+							while ((pos = filename.find('\\')) != std::string::npos)
+								filename[pos] = '/';
 
 							std::ifstream testfile;
 							testfile.open(filename.c_str(), std::ifstream::in);
@@ -1509,13 +1519,13 @@ bool CAudioPlayerGui::openFilebrowser(void)
 #ifdef AUDIOPLAYER_CHECK_FOR_DUPLICATES
 								// Check for duplicates and remove (new entry has higher prio)
 								// this really needs some time :(
-								for (unsigned long i=0; i<m_playlist.size(); i++)
+								for (unsigned long i = 0; i < m_playlist.size(); i++)
 								{
 									if (m_playlist[i].Filename == filename)
 										removeFromPlaylist(i);
 								}
 #endif
-								if (strcasecmp(filename.substr(filename.length()-3,3).c_str(), "url")==0)
+								if (strcasecmp(filename.substr(filename.length() - 3, 3).c_str(), "url") == 0)
 								{
 									addUrl2Playlist(filename.c_str());
 								}
@@ -1525,16 +1535,16 @@ bool CAudioPlayerGui::openFilebrowser(void)
 									playlistItem.Name = filename;
 									CFile::FileType fileType = playlistItem.getType();
 									if (fileType == CFile::FILE_CDR
-											|| fileType == CFile::FILE_MP3
-											|| fileType == CFile::FILE_OGG
-											|| fileType == CFile::FILE_WAV
-											|| fileType == CFile::FILE_FLAC
+										|| fileType == CFile::FILE_MP3
+										|| fileType == CFile::FILE_OGG
+										|| fileType == CFile::FILE_WAV
+										|| fileType == CFile::FILE_FLAC
 #ifdef ENABLE_FFMPEGDEC
-											|| fileType == CFile::FILE_FLV
+										|| fileType == CFile::FILE_FLV
 #endif
-									   )
+									)
 									{
-										CAudiofileExt audioFile(filename,fileType);
+										CAudiofileExt audioFile(filename, fileType);
 										addToPlaylist(audioFile);
 									}
 									else
@@ -1560,9 +1570,9 @@ bool CAudioPlayerGui::openFilebrowser(void)
 
 #ifdef AUDIOPLAYER_TIME_DEBUG
 		timeval end;
-		gettimeofday(&end,NULL);
-		printf("adding %ld files took: ",maxProgress+1);
-		printTimevalDiff(start,end);
+		gettimeofday(&end, NULL);
+		printf("adding %ld files took: ", maxProgress + 1);
+		printTimevalDiff(start, end);
 #endif
 		//store last dir
 		if (g_settings.network_nfs_audioplayerdir.size() > m_Path.size() && g_settings.network_nfs_audioplayerdir != m_Path.c_str())
@@ -1598,15 +1608,15 @@ bool CAudioPlayerGui::openSCbrowser(void)
 	{
 #ifdef AUDIOPLAYER_TIME_DEBUG
 		timeval start;
-		gettimeofday(&start,NULL);
+		gettimeofday(&start, NULL);
 #endif
 		CProgressWindow progress;
-		long maxProgress = (filebrowser.getSelectedFiles().size() > 1) ? filebrowser.getSelectedFiles().size() - 1: 1;
+		long maxProgress = (filebrowser.getSelectedFiles().size() > 1) ? filebrowser.getSelectedFiles().size() - 1 : 1;
 		long currentProgress = -1;
 		//if (maxProgress > SHOW_FILE_LOAD_LIMIT)
 		{
 			progress.setTitle(LOCALE_AUDIOPLAYER_READING_FILES);
-			progress.exec(this,"");
+			progress.exec(this, "");
 		}
 
 		m_Path = filebrowser.getCurrentDir();
@@ -1620,7 +1630,7 @@ bool CAudioPlayerGui::openSCbrowser(void)
 			{
 				currentProgress++;
 				// show progress
-				int global = 100*currentProgress/maxProgress;
+				int global = 100 * currentProgress / maxProgress;
 				progress.showStatus(global);
 				progress.showStatusMessageUTF(files->Name);
 #ifdef LCD_UPDATE
@@ -1632,16 +1642,16 @@ bool CAudioPlayerGui::openSCbrowser(void)
 			processPlaylistUrl(files->Url.c_str(), files->Name.c_str(), NULL, files->Time);
 			g_RCInput->getMsg(&msg, &data, 0);
 
-			if( ( msg>= CRCInput::RC_WithData ) && ( msg< CRCInput::RC_WithData+ 0x10000000 ) )
-					delete[] (unsigned char*) data;
+			if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
+				delete[](unsigned char *) data;
 		}
 		if (m_select_title_by_name)
 			buildSearchTree();
 #ifdef AUDIOPLAYER_TIME_DEBUG
 		timeval end;
-		gettimeofday(&end,NULL);
-		printf("adding %ld files took: ",maxProgress+1);
-		printTimevalDiff(start,end);
+		gettimeofday(&end, NULL);
+		printf("adding %ld files took: ", maxProgress + 1);
+		printTimevalDiff(start, end);
 #endif
 		result = true;
 	}
@@ -1672,7 +1682,7 @@ void CAudioPlayerGui::paintItem(int pos)
 	if (!m_show_playlist)
 		return;
 
-	int ypos = m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + pos*m_item_height;
+	int ypos = m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + pos * m_item_height;
 	unsigned int currpos = m_liststart + pos;
 
 	bool i_selected	= currpos == m_selected;
@@ -1712,7 +1722,7 @@ void CAudioPlayerGui::paintItem(int pos)
 			snprintf(dura, sizeof(dura), "%ld:%02ld", m_playlist[currpos].MetaData.total_time / 60, m_playlist[currpos].MetaData.total_time % 60);
 
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(dura);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + OFFSET_INNER_MID, ypos + m_item_height, m_width - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - w, tmp, color, m_item_height);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + OFFSET_INNER_MID, ypos + m_item_height, m_width - SCROLLBAR_WIDTH - 3 * OFFSET_INNER_MID - w, tmp, color, m_item_height);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + m_width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - w, ypos + m_item_height, w, dura, color, m_item_height);
 		if (currpos == m_selected)
 		{
@@ -1728,7 +1738,7 @@ void CAudioPlayerGui::paintHead()
 		return;
 
 	CComponentsHeader header(m_x, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER, m_width, m_header_height, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_AUDIO);
-	header.enableShadow( CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
+	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 
 	if (m_inetmode)
 		header.setCaption(LOCALE_INETRADIO_NAME);
@@ -1742,13 +1752,13 @@ void CAudioPlayerGui::paintHead()
 	m_frameBuffer->blit();
 }
 
-	#define BUTTON_LABEL_COUNT 3
-	const struct button_label SecondLineButtons[BUTTON_LABEL_COUNT] =
-	{
-		{ NEUTRINO_ICON_BUTTON_OKAY,	LOCALE_AUDIOPLAYER_PLAY		},
-		{ NEUTRINO_ICON_BUTTON_HELP,	LOCALE_AUDIOPLAYER_KEYLEVEL	},
-		{ NEUTRINO_ICON_BUTTON_INFO,	LOCALE_PICTUREVIEWER_HEAD	}
-	};
+#define BUTTON_LABEL_COUNT 3
+const struct button_label SecondLineButtons[BUTTON_LABEL_COUNT] =
+{
+	{ NEUTRINO_ICON_BUTTON_OKAY,	LOCALE_AUDIOPLAYER_PLAY		},
+	{ NEUTRINO_ICON_BUTTON_HELP,	LOCALE_AUDIOPLAYER_KEYLEVEL	},
+	{ NEUTRINO_ICON_BUTTON_INFO,	LOCALE_PICTUREVIEWER_HEAD	}
+};
 
 void CAudioPlayerGui::paintFoot()
 {
@@ -1756,7 +1766,7 @@ void CAudioPlayerGui::paintFoot()
 		return;
 
 	int radius = RADIUS_LARGE;
-	int button_y = m_y + m_height - OFFSET_SHADOW - m_info_height - OFFSET_INTER - OFFSET_SHADOW - 2*m_button_height;
+	int button_y = m_y + m_height - OFFSET_SHADOW - m_info_height - OFFSET_INTER - OFFSET_SHADOW - 2 * m_button_height;
 	int button_x = m_x;
 	int button_width = m_width;
 
@@ -1764,12 +1774,12 @@ void CAudioPlayerGui::paintFoot()
 	if (!m_show_playlist && radius)
 	{
 		button_x += radius;
-		button_width -= 2*radius;
+		button_width -= 2 * radius;
 	}
 
 	// shadow
-	m_frameBuffer->paintBoxRel(m_x + OFFSET_SHADOW, button_y + OFFSET_SHADOW, m_width, 2*m_button_height, COL_SHADOW_PLUS_0, radius, (m_show_playlist ? CORNER_BOTTOM : CORNER_ALL));
-	m_frameBuffer->paintBoxRel(m_x, button_y, m_width, 2*m_button_height, COL_MENUFOOT_PLUS_0, radius, (m_show_playlist ? CORNER_BOTTOM : CORNER_ALL));
+	m_frameBuffer->paintBoxRel(m_x + OFFSET_SHADOW, button_y + OFFSET_SHADOW, m_width, 2 * m_button_height, COL_SHADOW_PLUS_0, radius, (m_show_playlist ? CORNER_BOTTOM : CORNER_ALL));
+	m_frameBuffer->paintBoxRel(m_x, button_y, m_width, 2 * m_button_height, COL_MENUFOOT_PLUS_0, radius, (m_show_playlist ? CORNER_BOTTOM : CORNER_ALL));
 
 	if (!m_playlist.empty())
 		::paintButtons(button_x, button_y + m_button_height, button_width, BUTTON_LABEL_COUNT, SecondLineButtons, button_width, m_button_height);
@@ -1869,14 +1879,14 @@ void CAudioPlayerGui::paintCover()
 		int cover_x = m_x + OFFSET_INNER_MID;
 		int cover_y = m_y + OFFSET_INNER_SMALL;
 		m_cover_width = 0;
-		CComponentsPicture cover_object(cover_x, cover_y, 0, m_title_height - 2*OFFSET_INNER_SMALL, m_cover);
+		CComponentsPicture cover_object(cover_x, cover_y, 0, m_title_height - 2 * OFFSET_INNER_SMALL, m_cover);
 		cover_object.SetTransparent(CFrameBuffer::TM_BLACK);
-		cover_object.setHeight(m_title_height - 2*OFFSET_INNER_SMALL);
+		cover_object.setHeight(m_title_height - 2 * OFFSET_INNER_SMALL);
 		m_cover_width = cover_object.getWidth() + OFFSET_INNER_MID;
 		cover_object.paint();
 	}
 }
-void CAudioPlayerGui::getCurrentCaption(std::string* text)
+void CAudioPlayerGui::getCurrentCaption(std::string *text)
 {
 	if (m_inetmode)
 	{
@@ -1891,7 +1901,7 @@ void CAudioPlayerGui::getCurrentCaption(std::string* text)
 	}
 }
 
-void CAudioPlayerGui::getCurrentTitleArtist(std::string* text)
+void CAudioPlayerGui::getCurrentTitleArtist(std::string *text)
 {
 	GetMetaData(m_curr_audiofile);
 
@@ -1943,19 +1953,19 @@ void CAudioPlayerGui::paintTitleBox()
 		getCurrentCaption(&tmp);
 
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-		int xstart = (m_width - w)/2;
+		int xstart = (m_width - w) / 2;
 		if (xstart < OFFSET_INNER_MID + m_cover_width)
 			xstart = OFFSET_INNER_MID + m_cover_width;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 1*m_item_height, m_width - OFFSET_INNER_MID - xstart, tmp, COL_MENUHEAD_TEXT); //caption "current track"
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 1 * m_item_height, m_width - OFFSET_INNER_MID - xstart, tmp, COL_MENUHEAD_TEXT); //caption "current track"
 
 		// second line (Artist/Title...)
 		getCurrentTitleArtist(&tmp);
 
 		w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
-		xstart = (m_width - w)/2;
+		xstart = (m_width - w) / 2;
 		if (xstart < OFFSET_INNER_MID + m_cover_width)
 			xstart = OFFSET_INNER_MID + m_cover_width;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 2*m_item_height, m_width - OFFSET_INNER_MID - xstart, tmp, COL_MENUHEAD_TEXT); //artist - title
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 2 * m_item_height, m_width - OFFSET_INNER_MID - xstart, tmp, COL_MENUHEAD_TEXT); //artist - title
 
 		// reset so fields get painted always
 		m_metainfo.clear();
@@ -1977,7 +1987,7 @@ void CAudioPlayerGui::paint()
 			tmp_max = 1;
 		m_liststart = (m_selected / tmp_max) * m_listmaxshow;
 		paintHead();
-		for (unsigned int count=0; count<m_listmaxshow; count++)
+		for (unsigned int count = 0; count < m_listmaxshow; count++)
 			paintItem(count);
 
 		// scrollbar
@@ -1985,7 +1995,7 @@ void CAudioPlayerGui::paint()
 		int current_page;
 		getScrollBarData(&total_pages, &current_page, m_playlist.size(), m_listmaxshow, m_selected);
 
-		paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page, CC_SHADOW_ON);
+		paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height, SCROLLBAR_WIDTH, m_item_height * m_listmaxshow, total_pages, current_page, CC_SHADOW_ON);
 	}
 
 	paintTitleBox();
@@ -2002,7 +2012,7 @@ void CAudioPlayerGui::clearDetailsLine()
 void CAudioPlayerGui::paintDetailsLine(int pos)
 {
 	int xpos = m_x - DETAILSLINE_WIDTH;
-	int ypos1 = m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + pos*m_item_height;
+	int ypos1 = m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + pos * m_item_height;
 	int ypos2 = m_y + (m_height - OFFSET_SHADOW - m_info_height);
 	int ypos1a = ypos1 + (m_item_height / 2);
 	int ypos2a = ypos2 + (m_info_height / 2);
@@ -2020,7 +2030,7 @@ void CAudioPlayerGui::paintDetailsLine(int pos)
 	{
 		//details line
 		if (m_detailsline == NULL)
-			m_detailsline = new CComponentsDetailsLine(xpos, ypos1a, ypos2a, m_item_height/2, m_info_height - RADIUS_LARGE*2);
+			m_detailsline = new CComponentsDetailsLine(xpos, ypos1a, ypos2a, m_item_height / 2, m_info_height - RADIUS_LARGE * 2);
 		m_detailsline->paint(false);
 
 		// paint id3 infobox
@@ -2117,7 +2127,7 @@ void CAudioPlayerGui::stop()
 void CAudioPlayerGui::pause()
 {
 	if (
-		   m_state == CAudioPlayerGui::PLAY
+		m_state == CAudioPlayerGui::PLAY
 		|| m_state == CAudioPlayerGui::FF
 		|| m_state == CAudioPlayerGui::REV
 	)
@@ -2141,7 +2151,7 @@ void CAudioPlayerGui::ff(unsigned int seconds)
 		CAudioPlayer::getInstance()->ff(seconds);
 	}
 	else if (
-		   m_state == CAudioPlayerGui::PLAY
+		m_state == CAudioPlayerGui::PLAY
 		|| m_state == CAudioPlayerGui::PAUSE
 		|| m_state == CAudioPlayerGui::REV
 	)
@@ -2160,7 +2170,7 @@ void CAudioPlayerGui::rev(unsigned int seconds)
 		CAudioPlayer::getInstance()->rev(seconds);
 	}
 	else if (
-		   m_state == CAudioPlayerGui::PLAY
+		m_state == CAudioPlayerGui::PLAY
 		|| m_state == CAudioPlayerGui::PAUSE
 		|| m_state == CAudioPlayerGui::FF
 	)
@@ -2242,7 +2252,7 @@ void CAudioPlayerGui::play(unsigned int pos)
 
 int CAudioPlayerGui::getNext()
 {
-	int ret= m_current + 1;
+	int ret = m_current + 1;
 	if (m_playlist.empty())
 		return -1;
 	if ((unsigned)ret >= m_playlist.size())
@@ -2276,11 +2286,11 @@ void CAudioPlayerGui::updateMetaData()
 			info << " / ";
 			if (meta.vbr)
 				info << "VBR ";
-			info << meta.bitrate/1000 << "kbps";
+			info << meta.bitrate / 1000 << "kbps";
 		}
 
 		if (meta.samplerate > 0)
-			info << " / " << meta.samplerate/1000 << "." << (meta.samplerate/100)%10 <<"kHz";
+			info << " / " << meta.samplerate / 1000 << "." << (meta.samplerate / 100) % 10 << "kHz";
 
 		m_metainfo = meta.type_info + info.str();
 		updateMeta = !CScreenSaver::getInstance()->isActive();
@@ -2324,13 +2334,13 @@ void CAudioPlayerGui::updateMetaData()
 
 	if (updateMeta || updateScreen)
 	{
-		m_frameBuffer->paintBoxRel(m_x + OFFSET_INNER_MID + m_cover_width, m_y + OFFSET_INNER_SMALL + 2*m_item_height + OFFSET_INNER_SMALL, m_width - 2*OFFSET_INNER_MID - m_cover_width, m_meta_height, m_titlebox->getColorBody());
+		m_frameBuffer->paintBoxRel(m_x + OFFSET_INNER_MID + m_cover_width, m_y + OFFSET_INNER_SMALL + 2 * m_item_height + OFFSET_INNER_SMALL, m_width - 2 * OFFSET_INNER_MID - m_cover_width, m_meta_height, m_titlebox->getColorBody());
 
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(m_metainfo);
-		int xstart = (m_width - w)/2;
+		int xstart = (m_width - w) / 2;
 		if (xstart < OFFSET_INNER_MID)
 			xstart = OFFSET_INNER_MID;
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 2*m_item_height + OFFSET_INNER_SMALL + m_meta_height, m_width - 2*xstart, m_metainfo, COL_MENUHEAD_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 2 * m_item_height + OFFSET_INNER_SMALL + m_meta_height, m_width - 2 * xstart, m_metainfo, COL_MENUHEAD_TEXT);
 		m_frameBuffer->blit();
 	}
 }
@@ -2373,7 +2383,7 @@ void CAudioPlayerGui::updateTimes(const bool force)
 			if (m_inetmode)
 				w_total_time = 0;
 
-			int x_total_time = m_x + m_width - OFFSET_INNER_MID - w_total_time - 2*m_titlebox->getFrameThickness();
+			int x_total_time = m_x + m_width - OFFSET_INNER_MID - w_total_time - 2 * m_titlebox->getFrameThickness();
 			// played time offset to align this value on the right side
 			int o_played_time = std::max(w_faked_time - w_played_time, 0);
 			int x_faked_time = x_total_time - w_faked_time;
@@ -2405,25 +2415,25 @@ void CAudioPlayerGui::updateTimes(const bool force)
 			CVFD::getInstance()->showAudioProgress(uint8_t(100 * m_time_played / m_time_total));
 		}
 #ifdef ENABLE_GRAPHLCD
-			//glcd_duration = to_string(m_time_played / (60 * 1000)) + "/" + to_string(m_time_total / (60 * 1000));
-			glcd_duration = std::to_string(m_time_played/60) + ":" + std::to_string(m_time_played%60) + "/" + to_string(m_time_total/60) + ":" + to_string(m_time_total%60);
+		//glcd_duration = to_string(m_time_played / (60 * 1000)) + "/" + to_string(m_time_total / (60 * 1000));
+		glcd_duration = std::to_string(m_time_played / 60) + ":" + std::to_string(m_time_played % 60) + "/" + to_string(m_time_total / 60) + ":" + to_string(m_time_total % 60);
 
-			time_t sTime = time(NULL);
-			sTime -= m_time_played;
-			tm_struct = localtime(&sTime);
-			glcd_start = std::to_string(tm_struct->tm_hour/10) + std::to_string(tm_struct->tm_hour%10) + ":" + to_string(tm_struct->tm_min/10) + to_string(tm_struct->tm_min%10);
+		time_t sTime = time(NULL);
+		sTime -= m_time_played;
+		tm_struct = localtime(&sTime);
+		glcd_start = std::to_string(tm_struct->tm_hour / 10) + std::to_string(tm_struct->tm_hour % 10) + ":" + to_string(tm_struct->tm_min / 10) + to_string(tm_struct->tm_min % 10);
 
-			time_t eTime = time(NULL);
-			eTime += m_time_total - m_time_played;
-			tm_struct = localtime(&eTime);
-			glcd_end = std::to_string(tm_struct->tm_hour/10) + std::to_string(tm_struct->tm_hour%10) + ":" + to_string(tm_struct->tm_min/10) + to_string(tm_struct->tm_min%10);
+		time_t eTime = time(NULL);
+		eTime += m_time_total - m_time_played;
+		tm_struct = localtime(&eTime);
+		glcd_end = std::to_string(tm_struct->tm_hour / 10) + std::to_string(tm_struct->tm_hour % 10) + ":" + to_string(tm_struct->tm_min / 10) + to_string(tm_struct->tm_min % 10);
 
-			glcd_position = 100 * m_time_played / m_time_total;
+		glcd_position = 100 * m_time_played / m_time_total;
 
-			cGLCD::lockChannel(glcd_channel, glcd_epg, uint8_t(glcd_position));
-			cGLCD::lockDuration(glcd_duration);
-			cGLCD::lockStart(glcd_start);
-			cGLCD::lockEnd(glcd_end);
+		cGLCD::lockChannel(glcd_channel, glcd_epg, uint8_t(glcd_position));
+		cGLCD::lockDuration(glcd_duration);
+		cGLCD::lockStart(glcd_start);
+		cGLCD::lockEnd(glcd_end);
 #endif
 	}
 }
@@ -2432,11 +2442,11 @@ void CAudioPlayerGui::paintLCD()
 {
 #ifdef ENABLE_GRAPHLCD
 	const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
-	if ( !meta.artist.empty() )
+	if (!meta.artist.empty())
 		glcd_epg = meta.artist;
-	if ( !meta.artist.empty() && !meta.title.empty() )
+	if (!meta.artist.empty() && !meta.title.empty())
 		glcd_epg = " - ";
-	if ( !meta.title.empty() )
+	if (!meta.title.empty())
 		glcd_epg = meta.title;
 #endif
 	switch (m_state)
@@ -2523,10 +2533,11 @@ void CAudioPlayerGui::GetMetaData(CAudiofileExt &File)
 	{
 		//Set from Filename
 		std::string tmp = File.Filename.substr(File.Filename.rfind('/') + 1);
-		tmp = tmp.substr(0,tmp.length() - 4); //remove extension (.mp3)
+		tmp = tmp.substr(0, tmp.length() - 4); //remove extension (.mp3)
 		std::string::size_type i = tmp.rfind(" - ");
 		if (i != std::string::npos)
-		{ // Trennzeichen " - " gefunden
+		{
+			// Trennzeichen " - " gefunden
 			File.MetaData.artist = tmp.substr(0, i);
 			File.MetaData.title = tmp.substr(i + 3);
 		}
@@ -2534,7 +2545,8 @@ void CAudioPlayerGui::GetMetaData(CAudiofileExt &File)
 		{
 			i = tmp.rfind('-');
 			if (i != std::string::npos)
-			{ //Trennzeichen "-"
+			{
+				//Trennzeichen "-"
 				File.MetaData.artist = tmp.substr(0, i);
 				File.MetaData.title = tmp.substr(i + 1);
 			}
@@ -2546,7 +2558,7 @@ void CAudioPlayerGui::GetMetaData(CAudiofileExt &File)
 	}
 }
 
-bool CAudioPlayerGui::getNumericInput(neutrino_msg_t& msg, int& val)
+bool CAudioPlayerGui::getNumericInput(neutrino_msg_t &msg, int &val)
 {
 	//FIXME - remove fixed values
 
@@ -2569,15 +2581,17 @@ bool CAudioPlayerGui::getNumericInput(neutrino_msg_t& msg, int& val)
 		{
 			g_RCInput->getMsg(&msg, &data, 100);
 			if (msg > CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout)
-			{	// not a key event
+			{
+				// not a key event
 				CNeutrinoApp::getInstance()->handleMsg(msg, data);
 				continue;
 			}
-			if (msg & (CRCInput::RC_Repeat|CRCInput::RC_Release)) // repeat / release
+			if (msg & (CRCInput::RC_Repeat | CRCInput::RC_Release)) // repeat / release
 				continue;
 			break;
 		}
-	} while (g_RCInput->isNumeric(msg) && val < 1000000);
+	}
+	while (g_RCInput->isNumeric(msg) && val < 1000000);
 	return (msg == CRCInput::RC_ok);
 }
 
@@ -2589,7 +2603,7 @@ void CAudioPlayerGui::getFileInfoToDisplay(std::string &fileInfo, CAudiofileExt 
 
 	if (!m_inetmode)
 	{
-		artist ="Artist?";
+		artist = "Artist?";
 		title = "Title?";
 	}
 
@@ -2637,7 +2651,7 @@ void CAudioPlayerGui::addToPlaylist(CAudiofileExt &file)
 	if (m_select_title_by_name)
 	{
 		std::string t("");
-		getFileInfoToDisplay(t,file);
+		getFileInfoToDisplay(t, file);
 	}
 	else
 		GetMetaData(file);
@@ -2661,7 +2675,7 @@ void CAudioPlayerGui::removeFromPlaylist(long pos)
 	{
 #ifdef AUDIOPLAYER_TIME_DEBUG
 		timeval start;
-		gettimeofday(&start,NULL);
+		gettimeofday(&start, NULL);
 #endif
 		//printf("searching for key: %c val: %ld\n",firstChar,pos);
 
@@ -2676,15 +2690,15 @@ void CAudioPlayerGui::removeFromPlaylist(long pos)
 		}
 		else
 		{
-			printf("could not find key: %c pos: %ld\n",firstChar,pos);
+			printf("could not find key: %c pos: %ld\n", firstChar, pos);
 		}
 		// decrease position information for all titles with a position
 		// behind item to delete
 		long p = 0;
-		for (CTitle2Pos::iterator title=m_title2Pos.begin(); title!=m_title2Pos.end(); ++title)
+		for (CTitle2Pos::iterator title = m_title2Pos.begin(); title != m_title2Pos.end(); ++title)
 		{
 			CPosList newList;
-			for (CPosList::iterator posIt=title->second.begin(); posIt!=title->second.end(); ++posIt)
+			for (CPosList::iterator posIt = title->second.begin(); posIt != title->second.end(); ++posIt)
 			{
 				p = *(posIt);
 				if (*posIt > pos)
@@ -2696,9 +2710,9 @@ void CAudioPlayerGui::removeFromPlaylist(long pos)
 		}
 #ifdef AUDIOPLAYER_TIME_DEBUG
 		timeval end;
-		gettimeofday(&end,NULL);
+		gettimeofday(&end, NULL);
 		printf("delete took: ");
-		printTimevalDiff(start,end);
+		printTimevalDiff(start, end);
 #endif
 	}
 }
@@ -2709,7 +2723,7 @@ void CAudioPlayerGui::selectTitle(unsigned char selectionChar)
 
 	//printf("fastLookup: key %c\n",selectionChar);
 	CTitle2Pos::iterator it = m_title2Pos.find(selectionChar);
-	if (it!=m_title2Pos.end())
+	if (it != m_title2Pos.end())
 	{
 		// search for the next greater id
 		// if nothing found take the first
@@ -2743,7 +2757,7 @@ void CAudioPlayerGui::selectTitle(unsigned char selectionChar)
 	m_selected = i;
 
 	unsigned int oldliststart = m_liststart;
-	m_liststart = (m_selected / m_listmaxshow)*m_listmaxshow;
+	m_liststart = (m_selected / m_listmaxshow) * m_listmaxshow;
 	//printf("before paint\n");
 	if (oldliststart != m_liststart)
 	{
@@ -2758,14 +2772,14 @@ void CAudioPlayerGui::selectTitle(unsigned char selectionChar)
 
 void CAudioPlayerGui::printSearchTree()
 {
-	for (CTitle2Pos::iterator it=m_title2Pos.begin(); it!=m_title2Pos.end(); ++it)
+	for (CTitle2Pos::iterator it = m_title2Pos.begin(); it != m_title2Pos.end(); ++it)
 	{
-		printf("key: %c\n",it->first);
-		long pos=-1;
-		for (CPosList::iterator it2=it->second.begin(); it2!=it->second.end(); ++it2)
+		printf("key: %c\n", it->first);
+		long pos = -1;
+		for (CPosList::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 		{
 			pos++;
-			printf(" val: %ld ",*it2);
+			printf(" val: %ld ", *it2);
 			if (pos % 5 == 4)
 				printf("\n");
 		}
@@ -2780,7 +2794,7 @@ void CAudioPlayerGui::buildSearchTree()
 
 #ifdef AUDIOPLAYER_TIME_DEBUG
 	timeval start;
-	gettimeofday(&start,NULL);
+	gettimeofday(&start, NULL);
 #endif
 
 	CProgressWindow progress;
@@ -2792,13 +2806,13 @@ void CAudioPlayerGui::buildSearchTree()
 	m_title2Pos.clear();
 	long listPos = -1;
 
-	for (CAudioPlayList::iterator it=m_playlist.begin(); it!=m_playlist.end(); ++it)
+	for (CAudioPlayList::iterator it = m_playlist.begin(); it != m_playlist.end(); ++it)
 	{
 		listPos++;
-		progress.showStatus(100*listPos / maxProgress);
+		progress.showStatus(100 * listPos / maxProgress);
 		progress.showStatusMessageUTF(it->Filename);
 		unsigned char firstChar = getFirstChar(*it);
-		const std::pair<CTitle2Pos::iterator,bool> item = m_title2Pos.insert(CTitle2PosItem(firstChar,CPosList()));
+		const std::pair<CTitle2Pos::iterator, bool> item = m_title2Pos.insert(CTitle2PosItem(firstChar, CPosList()));
 		item.first->second.insert(listPos);
 	}
 	progress.hide();
@@ -2806,9 +2820,9 @@ void CAudioPlayerGui::buildSearchTree()
 
 #ifdef AUDIOPLAYER_TIME_DEBUG
 	timeval end;
-	gettimeofday(&end,NULL);
+	gettimeofday(&end, NULL);
 	printf("searchtree took: ");
-	printTimevalDiff(start,end);
+	printTimevalDiff(start, end);
 #endif
 	//printf("after:\n");
 	//printSearchTree();
@@ -2829,13 +2843,13 @@ unsigned char CAudioPlayerGui::getFirstChar(CAudiofileExt &file)
 void CAudioPlayerGui::printTimevalDiff(timeval &start, timeval &end)
 {
 	long secs = end.tv_sec - start.tv_sec;
-	long usecs = end.tv_usec -start.tv_usec;
+	long usecs = end.tv_usec - start.tv_usec;
 	if (usecs < 0)
 	{
 		usecs = 1000000 + usecs;
 		secs--;
 	}
-	printf("%ld:%ld\n",secs,usecs);
+	printf("%ld:%ld\n", secs, usecs);
 }
 #endif
 
@@ -2927,9 +2941,9 @@ void CAudioPlayerGui::savePlaylist()
 			const int msgsize = 255;
 			char msg[msgsize] = "";
 			snprintf(msg, msgsize,
-					"%s\n%s",
-					g_Locale->getText(LOCALE_AUDIOPLAYER_PLAYLIST_FILEERROR_MSG),
-			absPlaylistFilename.c_str());
+				"%s\n%s",
+				g_Locale->getText(LOCALE_AUDIOPLAYER_PLAYLIST_FILEERROR_MSG),
+				absPlaylistFilename.c_str());
 
 			DisplayErrorMessage(msg);
 			// refresh view
@@ -2941,7 +2955,7 @@ void CAudioPlayerGui::savePlaylist()
 		playlistFile << "#EXTM3U" << std::endl;
 
 		CAudioPlayList::const_iterator it;
-		for (it = m_playlist.begin(); it!=m_playlist.end(); ++it)
+		for (it = m_playlist.begin(); it != m_playlist.end(); ++it)
 		{
 			playlistFile << "#EXTINF:" << it->MetaData.total_time << "," << it->MetaData.artist << " - " << it->MetaData.title << std::endl;
 			if (m_inetmode)
@@ -2954,20 +2968,20 @@ void CAudioPlayerGui::savePlaylist()
 	this->paint();
 }
 
-bool CAudioPlayerGui::askToOverwriteFile(const std::string& filename)
+bool CAudioPlayerGui::askToOverwriteFile(const std::string &filename)
 {
 
 	char msg[filename.length() + 127];
 	snprintf(msg, filename.length() + 126,
-			"%s\n%s",
-			g_Locale->getText(LOCALE_AUDIOPLAYER_PLAYLIST_FILEOVERWRITE_MSG),
-	filename.c_str());
+		"%s\n%s",
+		g_Locale->getText(LOCALE_AUDIOPLAYER_PLAYLIST_FILEOVERWRITE_MSG),
+		filename.c_str());
 	bool res = (ShowMsg(LOCALE_AUDIOPLAYER_PLAYLIST_FILEOVERWRITE_TITLE, msg, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes);
 	this->paint();
 	return res;
 }
 
-std::string CAudioPlayerGui::absPath2Rel(const std::string& fromDir, const std::string& absFilename)
+std::string CAudioPlayerGui::absPath2Rel(const std::string &fromDir, const std::string &absFilename)
 {
 	std::string res = "";
 
@@ -2977,7 +2991,7 @@ std::string CAudioPlayerGui::absPath2Rel(const std::string& fromDir, const std::
 	// fromDir:	/foo/bar/angle/1		(length: 16)
 	// absFilename:	/foo/bar/devil/2/fire.mp3	(length: 19)
 	// -> /foo/bar/ is prefix, lastSlash will be 8
-	for (int i=0; i<length; i++)
+	for (int i = 0; i < length; i++)
 	{
 		if (fromDir[i] == absFilename[i])
 		{
@@ -2999,7 +3013,7 @@ std::string CAudioPlayerGui::absPath2Rel(const std::string& fromDir, const std::
 	// relFromDir is now /angle/1
 
 	// go up as many directories as neccessary
-	for (unsigned int i=0; i<relFromDir.size(); i++)
+	for (unsigned int i = 0; i < relFromDir.size(); i++)
 	{
 		if (relFromDir[i] == '/')
 			res = res + "../";

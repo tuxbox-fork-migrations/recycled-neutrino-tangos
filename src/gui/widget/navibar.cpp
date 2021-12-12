@@ -31,26 +31,26 @@
 using namespace std;
 
 
-CNaviBar::CNaviBar(	const int &x_pos,
-			const int &y_pos,
-			const int &dx,
-			const int &dy,
-			CComponentsForm *parent,
-			int shadow_mode,
-			fb_pixel_t &color_frame,
-			fb_pixel_t &color_body,
-			fb_pixel_t &color_shadow)
-			: CComponentsFrmChain(  x_pos,
-						y_pos,
-						dx,
-						dy,
-						NULL,
-						CC_DIR_X,
-						parent,
-						shadow_mode,
-						color_frame,
-						color_body,
-						color_shadow)
+CNaviBar::CNaviBar(const int &x_pos,
+	const int &y_pos,
+	const int &dx,
+	const int &dy,
+	CComponentsForm *parent,
+	int shadow_mode,
+	fb_pixel_t &color_frame,
+	fb_pixel_t &color_body,
+	fb_pixel_t &color_shadow)
+	: CComponentsFrmChain(x_pos,
+		  y_pos,
+		  dx,
+		  dy,
+		  NULL,
+		  CC_DIR_X,
+		  parent,
+		  shadow_mode,
+		  color_frame,
+		  color_body,
+		  color_shadow)
 {
 	setCornerType(CORNER_NONE);
 	enableColBodyGradient(g_settings.theme.infobar_gradient_bottom, COL_MENUFOOT_PLUS_0, g_settings.theme.infobar_gradient_bottom_direction);

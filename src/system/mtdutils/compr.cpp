@@ -25,8 +25,8 @@ extern int page_size;
 	struct list_head name = LIST_HEAD_INIT(name)
 
 static inline void __list_add(struct list_head *new_,
-		struct list_head *prev,
-		struct list_head *next)
+	struct list_head *prev,
+	struct list_head *next)
 {
 	next->prev = new_;
 	new_->next = next;
@@ -63,13 +63,13 @@ static inline void list_del(struct list_head *entry)
 #if __cplusplus < 201103
 #define list_for_each_entry(pos, head, member)                          \
 	for (pos = list_entry((head)->next, typeof(*pos), member);      \
-			&pos->member != (head);                                    \
-			pos = list_entry(pos->member.next, typeof(*pos), member))
+		&pos->member != (head);                                    \
+		pos = list_entry(pos->member.next, typeof(*pos), member))
 #else
 #define list_for_each_entry(pos, head, member)                          \
 	for (pos = list_entry((head)->next, __typeof__(*pos), member);      \
-			&pos->member != (head);                                    \
-			pos = list_entry(pos->member.next, __typeof__(*pos), member))
+		&pos->member != (head);                                    \
+		pos = list_entry(pos->member.next, __typeof__(*pos), member))
 #endif
 
 /* Available compressors are on this_ list */
@@ -89,7 +89,7 @@ int jffs2_get_compression_mode(void)
 }
 
 /* Statistics for blocks stored without compression */
-static uint32_t none_stat_compr_blocks=0,none_stat_decompr_blocks=0,none_stat_compr_size=0;
+static uint32_t none_stat_compr_blocks = 0, none_stat_decompr_blocks = 0, none_stat_compr_size = 0;
 
 /* Compression test stuffs */
 
@@ -120,50 +120,59 @@ int jffs2_compression_check_errorcnt_get(void)
    the buffer for buffer overflow test */
 static void jffs2_decompression_test_prepare(unsigned char *buf, int size)
 {
-	memset(buf,JFFS2_BUFFER_FILL,size+1);
+	memset(buf, JFFS2_BUFFER_FILL, size + 1);
 }
 
 /* Called after compression (if compression_check is setted) to test the result */
 static void jffs2_decompression_test(struct jffs2_compressor *compr,
-		unsigned char *data_in, unsigned char *output_buf,
-		uint32_t cdatalen, uint32_t datalen, uint32_t buf_size)
+	unsigned char *data_in, unsigned char *output_buf,
+	uint32_t cdatalen, uint32_t datalen, uint32_t buf_size)
 {
 	uint32_t i;
 
 	/* buffer overflow test */
-	for (i=buf_size;i>cdatalen;i--) {
-		if (output_buf[i]!=JFFS2_BUFFER_FILL) {
-			fprintf(stderr,"COMPR_ERROR: buffer overflow at %s. "
-					"(bs=%d csize=%d b[%d]=%d)\n", compr->name,
-					buf_size, cdatalen, i, (int)(output_buf[i]));
+	for (i = buf_size; i > cdatalen; i--)
+	{
+		if (output_buf[i] != JFFS2_BUFFER_FILL)
+		{
+			fprintf(stderr, "COMPR_ERROR: buffer overflow at %s. "
+				"(bs=%d csize=%d b[%d]=%d)\n", compr->name,
+				buf_size, cdatalen, i, (int)(output_buf[i]));
 			jffs2_error_cnt++;
 			return;
 		}
 	}
 	/* allocing temporary buffer for decompression */
-	if (!jffs2_compression_check_buf) {
-		jffs2_compression_check_buf = (unsigned char*)malloc(page_size);
-		if (!jffs2_compression_check_buf) {
-			fprintf(stderr,"No memory for buffer allocation. Compression check disabled.\n");
+	if (!jffs2_compression_check_buf)
+	{
+		jffs2_compression_check_buf = (unsigned char *)malloc(page_size);
+		if (!jffs2_compression_check_buf)
+		{
+			fprintf(stderr, "No memory for buffer allocation. Compression check disabled.\n");
 			jffs2_compression_check = 0;
 			return;
 		}
 	}
 	/* decompressing */
-	if (!compr->decompress) {
-		fprintf(stderr,"JFFS2 compression check: there is no decompress function at %s.\n", compr->name);
+	if (!compr->decompress)
+	{
+		fprintf(stderr, "JFFS2 compression check: there is no decompress function at %s.\n", compr->name);
 		jffs2_error_cnt++;
 		return;
 	}
-	if (compr->decompress(output_buf,jffs2_compression_check_buf,cdatalen,datalen)) {
-		fprintf(stderr,"JFFS2 compression check: decompression failed at %s.\n", compr->name);
+	if (compr->decompress(output_buf, jffs2_compression_check_buf, cdatalen, datalen))
+	{
+		fprintf(stderr, "JFFS2 compression check: decompression failed at %s.\n", compr->name);
 		jffs2_error_cnt++;
 	}
 	/* validate decompression */
-	else {
-		for (i=0;i<datalen;i++) {
-			if (data_in[i]!=jffs2_compression_check_buf[i]) {
-				fprintf(stderr,"JFFS2 compression check: data mismatch at %s (pos %d).\n", compr->name, i);
+	else
+	{
+		for (i = 0; i < datalen; i++)
+		{
+			if (data_in[i] != jffs2_compression_check_buf[i])
+			{
+				fprintf(stderr, "JFFS2 compression check: data mismatch at %s (pos %d).\n", compr->name, i);
 				jffs2_error_cnt++;
 				break;
 			}
@@ -175,24 +184,25 @@ static void jffs2_decompression_test(struct jffs2_compressor *compr,
  * Return 1 to use this_ compression
  */
 static int jffs2_is_best_compression(struct jffs2_compressor *this_,
-		struct jffs2_compressor *best, uint32_t size, uint32_t bestsize)
+	struct jffs2_compressor *best, uint32_t size, uint32_t bestsize)
 {
-	switch (jffs2_compression_mode) {
-	case JFFS2_COMPR_MODE_SIZE:
-		if (bestsize > size)
-			return 1;
-		return 0;
-	case JFFS2_COMPR_MODE_FAVOURLZO:
-		if ((this_->compr == JFFS2_COMPR_LZO) && (bestsize > size))
-			return 1;
-		if ((best->compr != JFFS2_COMPR_LZO) && (bestsize > size))
-			return 1;
-		if ((this_->compr == JFFS2_COMPR_LZO) && (bestsize > (size * FAVOUR_LZO_PERCENT / 100)))
-			return 1;
-		if ((bestsize * FAVOUR_LZO_PERCENT / 100) > size)
-			return 1;
+	switch (jffs2_compression_mode)
+	{
+		case JFFS2_COMPR_MODE_SIZE:
+			if (bestsize > size)
+				return 1;
+			return 0;
+		case JFFS2_COMPR_MODE_FAVOURLZO:
+			if ((this_->compr == JFFS2_COMPR_LZO) && (bestsize > size))
+				return 1;
+			if ((best->compr != JFFS2_COMPR_LZO) && (bestsize > size))
+				return 1;
+			if ((this_->compr == JFFS2_COMPR_LZO) && (bestsize > (size * FAVOUR_LZO_PERCENT / 100)))
+				return 1;
+			if ((bestsize * FAVOUR_LZO_PERCENT / 100) > size)
+				return 1;
 
-		return 0;
+			return 0;
 	}
 	/* Shouldn't happen */
 	return 0;
@@ -216,30 +226,33 @@ static int jffs2_is_best_compression(struct jffs2_compressor *this_,
  * jffs2_compress should compress as much as will fit, and should set
  * *datalen accordingly to show the amount of data which were compressed.
  */
-uint16_t jffs2_compress( unsigned char *data_in, unsigned char **cpage_out,
-		uint32_t *datalen, uint32_t *cdatalen)
+uint16_t jffs2_compress(unsigned char *data_in, unsigned char **cpage_out,
+	uint32_t *datalen, uint32_t *cdatalen)
 {
 	int ret = JFFS2_COMPR_NONE;
 	int compr_ret;
-	struct jffs2_compressor *this_, *best=NULL;
+	struct jffs2_compressor *this_, *best = NULL;
 	unsigned char *output_buf = NULL, *tmp_buf;
 	uint32_t orig_slen, orig_dlen;
-	uint32_t best_slen=0, best_dlen=0;
+	uint32_t best_slen = 0, best_dlen = 0;
 
-	switch (jffs2_compression_mode) {
+	switch (jffs2_compression_mode)
+	{
 		case JFFS2_COMPR_MODE_NONE:
 			break;
 		case JFFS2_COMPR_MODE_PRIORITY:
 			orig_slen = *datalen;
 			orig_dlen = *cdatalen;
-			output_buf = (unsigned char*)malloc(orig_dlen+jffs2_compression_check);
-			if (!output_buf) {
-				fprintf(stderr,"mkfs.jffs2: No memory for compressor allocation. Compression failed.\n");
+			output_buf = (unsigned char *)malloc(orig_dlen + jffs2_compression_check);
+			if (!output_buf)
+			{
+				fprintf(stderr, "mkfs.jffs2: No memory for compressor allocation. Compression failed.\n");
 				goto out;
 			}
-			list_for_each_entry(this_, &jffs2_compressor_list, list) {
+			list_for_each_entry(this_, &jffs2_compressor_list, list)
+			{
 				/* Skip decompress-only backwards-compatibility and disabled modules */
-				if ((!this_->compress)||(this_->disabled))
+				if ((!this_->compress) || (this_->disabled))
 					continue;
 
 				this_->usecount++;
@@ -251,7 +264,8 @@ uint16_t jffs2_compress( unsigned char *data_in, unsigned char **cpage_out,
 				*cdatalen = orig_dlen;
 				compr_ret = this_->compress(data_in, output_buf, datalen, cdatalen);
 				this_->usecount--;
-				if (!compr_ret) {
+				if (!compr_ret)
+				{
 					ret = this_->compr;
 					this_->stat_compr_blocks++;
 					this_->stat_compr_orig_size += *datalen;
@@ -261,13 +275,15 @@ uint16_t jffs2_compress( unsigned char *data_in, unsigned char **cpage_out,
 					break;
 				}
 			}
-			if (ret == JFFS2_COMPR_NONE) free(output_buf);
+			if (ret == JFFS2_COMPR_NONE)
+				free(output_buf);
 			break;
 		case JFFS2_COMPR_MODE_FAVOURLZO:
 		case JFFS2_COMPR_MODE_SIZE:
 			orig_slen = *datalen;
 			orig_dlen = *cdatalen;
-			list_for_each_entry(this_, &jffs2_compressor_list, list) {
+			list_for_each_entry(this_, &jffs2_compressor_list, list)
+			{
 				uint32_t needed_buf_size;
 
 				if (jffs2_compression_mode == JFFS2_COMPR_MODE_FAVOURLZO)
@@ -276,44 +292,51 @@ uint16_t jffs2_compress( unsigned char *data_in, unsigned char **cpage_out,
 					needed_buf_size = orig_dlen + jffs2_compression_check;
 
 				/* Skip decompress-only backwards-compatibility and disabled modules */
-				if ((!this_->compress)||(this_->disabled))
+				if ((!this_->compress) || (this_->disabled))
 					continue;
 				/* Allocating memory for output buffer if necessary */
-				if ((this_->compr_buf_size < needed_buf_size) && (this_->compr_buf)) {
+				if ((this_->compr_buf_size < needed_buf_size) && (this_->compr_buf))
+				{
 					free(this_->compr_buf);
-					this_->compr_buf_size=0;
-					this_->compr_buf=NULL;
+					this_->compr_buf_size = 0;
+					this_->compr_buf = NULL;
 				}
-				if (!this_->compr_buf) {
-					tmp_buf = (unsigned char*)malloc(needed_buf_size);
-					if (!tmp_buf) {
-						fprintf(stderr,"mkfs.jffs2: No memory for compressor allocation. (%d bytes)\n",orig_dlen);
+				if (!this_->compr_buf)
+				{
+					tmp_buf = (unsigned char *)malloc(needed_buf_size);
+					if (!tmp_buf)
+					{
+						fprintf(stderr, "mkfs.jffs2: No memory for compressor allocation. (%d bytes)\n", orig_dlen);
 						continue;
 					}
-					else {
+					else
+					{
 						this_->compr_buf = tmp_buf;
 						this_->compr_buf_size = orig_dlen;
 					}
 				}
 				this_->usecount++;
 				if (jffs2_compression_check) /*preparing output buffer for testing buffer overflow */
-					jffs2_decompression_test_prepare(this_->compr_buf,this_->compr_buf_size);
+					jffs2_decompression_test_prepare(this_->compr_buf, this_->compr_buf_size);
 				*datalen  = orig_slen;
 				*cdatalen = orig_dlen;
 				compr_ret = this_->compress(data_in, this_->compr_buf, datalen, cdatalen);
 				this_->usecount--;
-				if (!compr_ret) {
+				if (!compr_ret)
+				{
 					if (jffs2_compression_check)
 						jffs2_decompression_test(this_, data_in, this_->compr_buf, *cdatalen, *datalen, this_->compr_buf_size);
 					if (((!best_dlen) || jffs2_is_best_compression(this_, best, *cdatalen, best_dlen))
-								&& (*cdatalen < *datalen)) {
+						&& (*cdatalen < *datalen))
+					{
 						best_dlen = *cdatalen;
 						best_slen = *datalen;
 						best = this_;
 					}
 				}
 			}
-			if (best_dlen) {
+			if (best_dlen)
+			{
 				*cdatalen = best_dlen;
 				*datalen  = best_slen;
 				output_buf = best->compr_buf;
@@ -326,16 +349,18 @@ uint16_t jffs2_compress( unsigned char *data_in, unsigned char **cpage_out,
 			}
 			break;
 		default:
-			fprintf(stderr,"mkfs.jffs2: unknown compression mode.\n");
+			fprintf(stderr, "mkfs.jffs2: unknown compression mode.\n");
 	}
 out:
-	if (ret == JFFS2_COMPR_NONE) {
+	if (ret == JFFS2_COMPR_NONE)
+	{
 		*cpage_out = data_in;
 		*datalen = *cdatalen;
 		none_stat_compr_blocks++;
 		none_stat_compr_size += *datalen;
 	}
-	else {
+	else
+	{
 		*cpage_out = output_buf;
 	}
 	return ret;
@@ -346,20 +371,23 @@ int jffs2_register_compressor(struct jffs2_compressor *comp)
 {
 	struct jffs2_compressor *this_;
 
-	if (!comp->name) {
-		fprintf(stderr,"NULL compressor name at registering JFFS2 compressor. Failed.\n");
+	if (!comp->name)
+	{
+		fprintf(stderr, "NULL compressor name at registering JFFS2 compressor. Failed.\n");
 		return -1;
 	}
-	comp->compr_buf_size=0;
-	comp->compr_buf=NULL;
-	comp->usecount=0;
-	comp->stat_compr_orig_size=0;
-	comp->stat_compr_new_size=0;
-	comp->stat_compr_blocks=0;
-	comp->stat_decompr_blocks=0;
+	comp->compr_buf_size = 0;
+	comp->compr_buf = NULL;
+	comp->usecount = 0;
+	comp->stat_compr_orig_size = 0;
+	comp->stat_compr_new_size = 0;
+	comp->stat_compr_blocks = 0;
+	comp->stat_decompr_blocks = 0;
 
-	list_for_each_entry(this_, &jffs2_compressor_list, list) {
-		if (this_->priority < comp->priority) {
+	list_for_each_entry(this_, &jffs2_compressor_list, list)
+	{
+		if (this_->priority < comp->priority)
+		{
 			list_add(&comp->list, this_->list.prev);
 			goto out;
 		}
@@ -372,8 +400,9 @@ out:
 int jffs2_unregister_compressor(struct jffs2_compressor *comp)
 {
 
-	if (comp->usecount) {
-		fprintf(stderr,"mkfs.jffs2: Compressor modul is in use. Unregister failed.\n");
+	if (comp->usecount)
+	{
+		fprintf(stderr, "mkfs.jffs2: Compressor modul is in use. Unregister failed.\n");
 		return -1;
 	}
 	list_del(&comp->list);
@@ -388,14 +417,15 @@ char *jffs2_list_compressors(void)
 	struct jffs2_compressor *this_;
 	char *buf, *act_buf;
 
-	act_buf = buf = (char*)malloc(JFFS2_STAT_BUF_SIZE);
-	list_for_each_entry(this_, &jffs2_compressor_list, list) {
+	act_buf = buf = (char *)malloc(JFFS2_STAT_BUF_SIZE);
+	list_for_each_entry(this_, &jffs2_compressor_list, list)
+	{
 		act_buf += sprintf(act_buf, "%10s priority:%d ", this_->name, this_->priority);
-		if ((this_->disabled)||(!this_->compress))
-			act_buf += sprintf(act_buf,"disabled");
+		if ((this_->disabled) || (!this_->compress))
+			act_buf += sprintf(act_buf, "disabled");
 		else
-			act_buf += sprintf(act_buf,"enabled");
-		act_buf += sprintf(act_buf,"\n");
+			act_buf += sprintf(act_buf, "enabled");
+		act_buf += sprintf(act_buf, "\n");
 	}
 	return buf;
 }
@@ -405,18 +435,19 @@ char *jffs2_stats(void)
 	struct jffs2_compressor *this_;
 	char *buf, *act_buf;
 
-	act_buf = buf = (char*)malloc(JFFS2_STAT_BUF_SIZE);
+	act_buf = buf = (char *)malloc(JFFS2_STAT_BUF_SIZE);
 
-	act_buf += sprintf(act_buf,"Compression mode: ");
-	switch (jffs2_compression_mode) {
+	act_buf += sprintf(act_buf, "Compression mode: ");
+	switch (jffs2_compression_mode)
+	{
 		case JFFS2_COMPR_MODE_NONE:
-			act_buf += sprintf(act_buf,"none");
+			act_buf += sprintf(act_buf, "none");
 			break;
 		case JFFS2_COMPR_MODE_PRIORITY:
-			act_buf += sprintf(act_buf,"priority");
+			act_buf += sprintf(act_buf, "priority");
 			break;
 		case JFFS2_COMPR_MODE_SIZE:
-			act_buf += sprintf(act_buf,"size");
+			act_buf += sprintf(act_buf, "size");
 			break;
 		case JFFS2_COMPR_MODE_FAVOURLZO:
 			act_buf += sprintf(act_buf, "favourlzo");
@@ -425,39 +456,44 @@ char *jffs2_stats(void)
 			act_buf += sprintf(act_buf, "unknown");
 			break;
 	}
-	act_buf += sprintf(act_buf,"\nCompressors:\n");
-	act_buf += sprintf(act_buf,"%10s             ","none");
-	act_buf += sprintf(act_buf,"compr: %d blocks (%d)  decompr: %d blocks\n", none_stat_compr_blocks,
+	act_buf += sprintf(act_buf, "\nCompressors:\n");
+	act_buf += sprintf(act_buf, "%10s             ", "none");
+	act_buf += sprintf(act_buf, "compr: %d blocks (%d)  decompr: %d blocks\n", none_stat_compr_blocks,
 			none_stat_compr_size, none_stat_decompr_blocks);
-	list_for_each_entry(this_, &jffs2_compressor_list, list) {
-		act_buf += sprintf(act_buf,"%10s (prio:%d) ",this_->name,this_->priority);
-		if ((this_->disabled)||(!this_->compress))
-			act_buf += sprintf(act_buf,"- ");
+	list_for_each_entry(this_, &jffs2_compressor_list, list)
+	{
+		act_buf += sprintf(act_buf, "%10s (prio:%d) ", this_->name, this_->priority);
+		if ((this_->disabled) || (!this_->compress))
+			act_buf += sprintf(act_buf, "- ");
 		else
-			act_buf += sprintf(act_buf,"+ ");
-		act_buf += sprintf(act_buf,"compr: %d blocks (%d/%d)  decompr: %d blocks ", this_->stat_compr_blocks,
+			act_buf += sprintf(act_buf, "+ ");
+		act_buf += sprintf(act_buf, "compr: %d blocks (%d/%d)  decompr: %d blocks ", this_->stat_compr_blocks,
 				this_->stat_compr_new_size, this_->stat_compr_orig_size,
 				this_->stat_decompr_blocks);
-		act_buf += sprintf(act_buf,"\n");
+		act_buf += sprintf(act_buf, "\n");
 	}
 	return buf;
 }
 
 int jffs2_set_compression_mode_name(const char *name)
 {
-	if (!strcmp("none",name)) {
+	if (!strcmp("none", name))
+	{
 		jffs2_compression_mode = JFFS2_COMPR_MODE_NONE;
 		return 0;
 	}
-	if (!strcmp("priority",name)) {
+	if (!strcmp("priority", name))
+	{
 		jffs2_compression_mode = JFFS2_COMPR_MODE_PRIORITY;
 		return 0;
 	}
-	if (!strcmp("size",name)) {
+	if (!strcmp("size", name))
+	{
 		jffs2_compression_mode = JFFS2_COMPR_MODE_SIZE;
 		return 0;
 	}
-	if (!strcmp("favourlzo", name)) {
+	if (!strcmp("favourlzo", name))
+	{
 		jffs2_compression_mode = JFFS2_COMPR_MODE_FAVOURLZO;
 		return 0;
 	}
@@ -468,8 +504,10 @@ int jffs2_set_compression_mode_name(const char *name)
 static int jffs2_compressor_Xable(const char *name, int disabled)
 {
 	struct jffs2_compressor *this_;
-	list_for_each_entry(this_, &jffs2_compressor_list, list) {
-		if (!strcmp(this_->name, name)) {
+	list_for_each_entry(this_, &jffs2_compressor_list, list)
+	{
+		if (!strcmp(this_->name, name))
+		{
 			this_->disabled = disabled;
 			return 0;
 		}
@@ -489,23 +527,27 @@ int jffs2_disable_compressor_name(const char *name)
 
 int jffs2_set_compressor_priority(const char *name, int priority)
 {
-	struct jffs2_compressor *this_,*comp;
-	list_for_each_entry(this_, &jffs2_compressor_list, list) {
-		if (!strcmp(this_->name, name)) {
+	struct jffs2_compressor *this_, *comp;
+	list_for_each_entry(this_, &jffs2_compressor_list, list)
+	{
+		if (!strcmp(this_->name, name))
+		{
 			this_->priority = priority;
 			comp = this_;
 			goto reinsert;
 		}
 	}
-	fprintf(stderr,"mkfs.jffs2: compressor %s not found.\n",name);
+	fprintf(stderr, "mkfs.jffs2: compressor %s not found.\n", name);
 	return 1;
 reinsert:
 	/* list is sorted in the order of priority, so if
 	   we change it we have to reinsert it into the
 	   good place */
 	list_del(&comp->list);
-	list_for_each_entry(this_, &jffs2_compressor_list, list) {
-		if (this_->priority < comp->priority) {
+	list_for_each_entry(this_, &jffs2_compressor_list, list)
+	{
+		if (this_->priority < comp->priority)
+		{
 			list_add(&comp->list, this_->list.prev);
 			return 0;
 		}

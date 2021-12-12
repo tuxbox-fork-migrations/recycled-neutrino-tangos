@@ -40,7 +40,7 @@
 using namespace std;
 
 
-CComponentsTimer::CComponentsTimer(const int64_t& interval)
+CComponentsTimer::CComponentsTimer(const int64_t &interval)
 {
 	tm_thread_name		= string();
 	tm_interval 		= interval;
@@ -67,9 +67,9 @@ void CComponentsTimer::threadCallback(CComponentsTimer *tm)
 	set_threadname(tm->tn.c_str());
 
 	if (tm->OnTimer.empty())
-		dprintf(DEBUG_NORMAL," \033[36m[CComponentsTimer] [%s - %d] Signal OnTimer for %s is empty, no callback defined \033[0m\n", __func__, __LINE__, tm->tn.c_str());
+		dprintf(DEBUG_NORMAL, " \033[36m[CComponentsTimer] [%s - %d] Signal OnTimer for %s is empty, no callback defined \033[0m\n", __func__, __LINE__, tm->tn.c_str());
 
-	dprintf(DEBUG_DEBUG,"\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] loop start \033[0m\n", tm->tm_thread, tm->tn.c_str(), __func__, __LINE__);
+	dprintf(DEBUG_DEBUG, "\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] loop start \033[0m\n", tm->tm_thread, tm->tn.c_str(), __func__, __LINE__);
 
 #if HAVE_CST_HARDWARE //time offset
 	const int64_t MAX_COUNT = tm->tm_interval  / 10;
@@ -80,7 +80,7 @@ void CComponentsTimer::threadCallback(CComponentsTimer *tm)
 
 	TIMER_START();
 	tm->tm_ticks = 0;
-	while(tm->tm_enable) //exit loop handled in destructor
+	while (tm->tm_enable) //exit loop handled in destructor
 	{
 		if (tm->tm_interval > 0)
 		{
@@ -101,7 +101,7 @@ void CComponentsTimer::threadCallback(CComponentsTimer *tm)
 			tm->tm_ticks ++;
 		}
 	}
-	dprintf(DEBUG_DEBUG,"\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] loop/callback finished\033[0m\n ", tm->tm_thread, tm->tn.c_str(), __func__, __LINE__);
+	dprintf(DEBUG_DEBUG, "\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] loop/callback finished\033[0m\n ", tm->tm_thread, tm->tn.c_str(), __func__, __LINE__);
 }
 
 
@@ -111,23 +111,24 @@ void CComponentsTimer::initThread()
 	if (!tm_thread)
 	{
 		tm_enable = true;
-		tm_thread = new std::thread (threadCallback, this);
+		tm_thread = new std::thread(threadCallback, this);
 		tm_mutex.lock();
 	}
 }
 
 void CComponentsTimer::stopThread()
 {
-	if (tm_thread) {
+	if (tm_thread)
+	{
 		tm_enable = false;
 		tm_mutex.unlock();
 		tm_thread->join();
-		dprintf(DEBUG_DEBUG,"\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] joined\033[0m\n", tm_thread, tn.c_str(), __func__, __LINE__);
+		dprintf(DEBUG_DEBUG, "\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] joined\033[0m\n", tm_thread, tn.c_str(), __func__, __LINE__);
 
 		delete tm_thread;
 		tm_thread = NULL;
 		tn.clear();
-		dprintf(DEBUG_DEBUG,"\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] thread object terminated after %" PRIu64 " ticks\033[0m\n", tm_thread, tn.c_str(), __func__, __LINE__, tm_ticks);
+		dprintf(DEBUG_DEBUG, "\033[32m[CComponentsTimer] thread [%p] [%s] [%s - %d] thread object terminated after %" PRIu64 " ticks\033[0m\n", tm_thread, tn.c_str(), __func__, __LINE__, tm_ticks);
 	}
 }
 
@@ -147,7 +148,7 @@ bool CComponentsTimer::isRun() const
 	return ret;
 }
 
-void CComponentsTimer::setTimerInterval(const int64_t& interval)
+void CComponentsTimer::setTimerInterval(const int64_t &interval)
 {
 	if (tm_interval == interval)
 		return;

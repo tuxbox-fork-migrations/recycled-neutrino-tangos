@@ -41,9 +41,9 @@ class CPictureViewerHelp : public CMenuTarget
 		{
 			audioplayer = enable_audioplayer_help;
 		}
-		~CPictureViewerHelp(){};
+		~CPictureViewerHelp() {};
 
-		int exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
+		int exec(CMenuTarget * /*parent*/, const std::string & /*actionKey*/)
 		{
 			Helpbox helpbox(g_Locale->getText(LOCALE_HELP_BOX_TITLE));
 
@@ -72,7 +72,8 @@ class CPictureViewerHelp : public CMenuTarget
 			helpbox.addLine(NEUTRINO_ICON_BUTTON_0, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP19));
 			helpbox.addLine(NEUTRINO_ICON_BUTTON_HOME, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP8));
 
-			if(audioplayer){
+			if (audioplayer)
+			{
 				helpbox.addPagebreak();
 				helpbox.addLine(g_Locale->getText(LOCALE_PICTUREVIEWER_HELP30));
 				helpbox.addLine(NEUTRINO_ICON_BUTTON_PLAY, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP31));
@@ -85,9 +86,9 @@ class CPictureViewerHelp : public CMenuTarget
 			helpbox.addExitKey(CRCInput::RC_ok);
 
 			helpbox.show();
- 			int ret = helpbox.exec();
+			int ret = helpbox.exec();
 			helpbox.hide();
-			
+
 			return ret;
 		}
 };

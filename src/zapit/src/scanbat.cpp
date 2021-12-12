@@ -35,7 +35,7 @@
 #define DEBUG_BAT_UNUSED
 #define DEBUG_LCN
 
-static bool compare_section_num(BouquetAssociationSection * first, BouquetAssociationSection * second)
+static bool compare_section_num(BouquetAssociationSection *first, BouquetAssociationSection *second)
 {
 	return first->getSectionNumber() < second->getSectionNumber();
 }
@@ -50,7 +50,8 @@ CBat::CBat(t_satellite_position spos, freq_id_t frq, int dnum)
 CBat::~CBat()
 {
 	BouquetAssociationSectionConstIterator sit;
-	for (sit = sections.begin(); sit != sections.end(); ++sit) {
+	for (sit = sections.begin(); sit != sections.end(); ++sit)
+	{
 		delete *(sit);
 	}
 }
@@ -70,7 +71,7 @@ bool CBat::Stop()
 void CBat::run()
 {
 	set_threadname("zap:bat");
-	if(Parse())
+	if (Parse())
 		printf("[scan] BAT finished.\n");
 	else
 		printf("[scan] BAT failed !\n");
@@ -84,7 +85,7 @@ bool CBat::Read()
 
 	memset(secdone, 0, sizeof(secdone));
 
-	cDemux * dmx = new cDemux(dmxnum);
+	cDemux *dmx = new cDemux(dmxnum);
 	dmx->Open(DMX_PSI_CHANNEL);
 
 	unsigned char buffer[BAT_SECTION_SIZE];
@@ -99,23 +100,28 @@ bool CBat::Read()
 	filter[0] = 0x4A;
 	mask[0] = 0xFF;
 
-	if (!dmx->sectionFilter(0x11, filter, mask, flen)) {
+	if (!dmx->sectionFilter(0x11, filter, mask, flen))
+	{
 		delete dmx;
 		return false;
 	}
 
-	do {
-		if (dmx->Read(buffer, BAT_SECTION_SIZE) < 0) {
+	do
+	{
+		if (dmx->Read(buffer, BAT_SECTION_SIZE) < 0)
+		{
 			delete dmx;
 			return false;
 		}
 
-		if (CServiceScan::getInstance()->Aborted()) {
+		if (CServiceScan::getInstance()->Aborted())
+		{
 			ret = false;
 			goto _return;
 		}
 
-		if (buffer[0] != 0x4A) {
+		if (buffer[0] != 0x4A)
+		{
 			printf("[BAT] ******************************************* Bogus section received: 0x%x\n", buffer[0]);
 			ret = false;
 			goto _return;
@@ -125,19 +131,21 @@ bool CBat::Read()
 #ifdef DEBUG_BAT
 		printf("[BAT] section %X last %X -> %s\n", secnum, buffer[7], secdone[secnum] ? "skip" : "use");
 #endif
-                if(secdone[secnum]) {
-                        secdone[secnum]++;
-                        if(secdone[secnum] >= 5)
-                                break;
-                        continue;
-                }
+		if (secdone[secnum])
+		{
+			secdone[secnum]++;
+			if (secdone[secnum] >= 5)
+				break;
+			continue;
+		}
 		secdone[secnum] = 1;
 		sectotal++;
 
-		BouquetAssociationSection * bat = new BouquetAssociationSection(buffer);
+		BouquetAssociationSection *bat = new BouquetAssociationSection(buffer);
 		sections.push_back(bat);
 
-	} while(sectotal < buffer[7]);
+	}
+	while (sectotal < buffer[7]);
 _return:
 	dmx->Stop();
 	delete dmx;
@@ -148,84 +156,91 @@ bool CBat::Parse()
 {
 	printf("[scan] trying to parse BAT\n");
 
-	if(!Read())
+	if (!Read())
 		return false;
 
 	sections.sort(compare_section_num);
 	BouquetAssociationSectionConstIterator sit;
-	for (sit = sections.begin(); sit != sections.end(); ++sit) {
-		BouquetAssociationSection * bat = *sit;
+	for (sit = sections.begin(); sit != sections.end(); ++sit)
+	{
+		BouquetAssociationSection *bat = *sit;
 		uint16_t bouquet_id = bat->getTableIdExtension();
 
 		if (CServiceScan::getInstance()->Aborted())
 			return false;
 
-		const DescriptorList * dlist = bat->getDescriptors();
+		const DescriptorList *dlist = bat->getDescriptors();
 		DescriptorConstIterator dit;
 #ifdef DEBUG_BAT
 		printf("BAT: section %d, %d descriptors\n", bat->getSectionNumber(), (int)dlist->size());
 #endif
 		unsigned int pdsd = 0;
-		for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
-			Descriptor * d = *dit;
+		for (dit = dlist->begin(); dit != dlist->end(); ++dit)
+		{
+			Descriptor *d = *dit;
 			//printf("BAT: parse descriptor %02x len %d\n", d->getTag(), d->getLength());
-			switch(d->getTag()) {
+			switch (d->getTag())
+			{
 				case BOUQUET_NAME_DESCRIPTOR:
-					{
-						BouquetNameDescriptor * nd = (BouquetNameDescriptor *) d;
-						/*std::string*/ bouquetName = stringDVBUTF8(nd->getBouquetName());
-						printf("BAT: bouquet name [%s]\n", bouquetName.c_str());
-					}
-					break;
+				{
+					BouquetNameDescriptor *nd = (BouquetNameDescriptor *) d;
+					/*std::string*/ bouquetName = stringDVBUTF8(nd->getBouquetName());
+					printf("BAT: bouquet name [%s]\n", bouquetName.c_str());
+				}
+				break;
 				case LINKAGE_DESCRIPTOR:
-					{
+				{
 #ifdef DEBUG_BAT
-						LinkageDescriptor * ld = (LinkageDescriptor*) d;
-						printf("BAT: linkage, tsid %04x onid %04x sid %04x type %02x\n", ld->getTransportStreamId(),
-								ld->getOriginalNetworkId(), ld->getServiceId(), ld->getLinkageType());
+					LinkageDescriptor *ld = (LinkageDescriptor *) d;
+					printf("BAT: linkage, tsid %04x onid %04x sid %04x type %02x\n", ld->getTransportStreamId(),
+						ld->getOriginalNetworkId(), ld->getServiceId(), ld->getLinkageType());
 #endif
-					}
-					break;
+				}
+				break;
 				case PRIVATE_DATA_SPECIFIER_DESCRIPTOR:
-					{
-						PrivateDataSpecifierDescriptor * pd = (PrivateDataSpecifierDescriptor *)d;
-						pdsd = pd->getPrivateDataSpecifier();
+				{
+					PrivateDataSpecifierDescriptor *pd = (PrivateDataSpecifierDescriptor *)d;
+					pdsd = pd->getPrivateDataSpecifier();
 #ifdef DEBUG_BAT
-						printf("BAT: private data specifier %08x\n", pdsd);
+					printf("BAT: private data specifier %08x\n", pdsd);
 #endif
-					}
-					break;
+				}
+				break;
 				case COUNTRY_AVAILABILITY_DESCRIPTOR:
 				default:
-					{
+				{
 #ifdef DEBUG_BAT_UNUSED
-						printf("BAT: descriptor %02x: ", d->getTag());
-						uint8_t len = 2+d->getLength();
-						uint8_t *buf = new uint8_t[len];
-						if(buf){
-							d->writeToBuffer(buf);
-							for(uint8_t i = 0; i < len; i++)
-								printf("%02x ", buf[i]);
-							printf("\n");
-							delete []buf;
-						}
-#endif
+					printf("BAT: descriptor %02x: ", d->getTag());
+					uint8_t len = 2 + d->getLength();
+					uint8_t *buf = new uint8_t[len];
+					if (buf)
+					{
+						d->writeToBuffer(buf);
+						for (uint8_t i = 0; i < len; i++)
+							printf("%02x ", buf[i]);
+						printf("\n");
+						delete []buf;
 					}
-					break;
+#endif
+				}
+				break;
 			}
 		}
 		const BouquetAssociationList &blist = *bat->getBouquets();
 		BouquetAssociationConstIterator it;
-		for(it = blist.begin(); it != blist.end(); ++it) {
-			BouquetAssociation * b = *it;
+		for (it = blist.begin(); it != blist.end(); ++it)
+		{
+			BouquetAssociation *b = *it;
 			dlist = b->getDescriptors();
 #if 1
 			printf("BAT: bouquet_id %04x tsid %04x onid %04x %d descriptors\n", bouquet_id, b->getTransportStreamId(),
-					b->getOriginalNetworkId(), (int)dlist->size());
+				b->getOriginalNetworkId(), (int)dlist->size());
 #endif
-			for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
-				Descriptor * d = *dit;
-				switch(d->getTag()) {
+			for (dit = dlist->begin(); dit != dlist->end(); ++dit)
+			{
+				Descriptor *d = *dit;
+				switch (d->getTag())
+				{
 					case SERVICE_LIST_DESCRIPTOR:
 						ParseServiceList((ServiceListDescriptor *) d, b);
 						break;
@@ -235,36 +250,40 @@ bool CBat::Parse()
 						break;
 #endif
 					case PRIVATE_DATA_SPECIFIER_DESCRIPTOR:
-						{
-							PrivateDataSpecifierDescriptor * pd = (PrivateDataSpecifierDescriptor *)d;
-							pdsd = pd->getPrivateDataSpecifier();
+					{
+						PrivateDataSpecifierDescriptor *pd = (PrivateDataSpecifierDescriptor *)d;
+						pdsd = pd->getPrivateDataSpecifier();
 #ifdef DEBUG_BAT
-							printf("BAT: private data specifier %08x\n", pdsd);
+						printf("BAT: private data specifier %08x\n", pdsd);
 #endif
-						}
-						break;
+					}
+					break;
 					default:
-						{
+					{
 #ifdef DEBUG_BAT_UNUSED
-							printf("BAT: descriptor %02x: ", d->getTag());
-							uint8_t len = 2+d->getLength();
-							uint8_t *buf = new uint8_t[len];
-							if(buf){
-								d->writeToBuffer(buf);
-								for(uint8_t i = 0; i < len; i++)
-									printf("%02x ", buf[i]);
-								printf("\n");
-								delete []buf;
-							}
-#endif
+						printf("BAT: descriptor %02x: ", d->getTag());
+						uint8_t len = 2 + d->getLength();
+						uint8_t *buf = new uint8_t[len];
+						if (buf)
+						{
+							d->writeToBuffer(buf);
+							for (uint8_t i = 0; i < len; i++)
+								printf("%02x ", buf[i]);
+							printf("\n");
+							delete []buf;
 						}
-						break;
+#endif
+					}
+					break;
 				}
-				switch(pdsd) {
+				switch (pdsd)
+				{
 					case 0x00000010:
-						if(d->getTag() == 0x82) {
+						if (d->getTag() == 0x82)
+						{
 							uint8_t *buf = new uint8_t[2 + d->getLength()];
-							if(buf){
+							if (buf)
+							{
 								d->writeToBuffer(buf);
 								LogicalChannelDescriptor ld(buf);
 								ParseLogicalChannels(&ld, b);
@@ -281,12 +300,13 @@ bool CBat::Parse()
 	return true;
 }
 
-bool CBat::ParseServiceList(ServiceListDescriptor * sd, BouquetAssociation * b)
+bool CBat::ParseServiceList(ServiceListDescriptor *sd, BouquetAssociation *b)
 {
-	const ServiceListItemList * slist = sd->getServiceList();
+	const ServiceListItemList *slist = sd->getServiceList();
 	ServiceListItemConstIterator it;
-	for (it = slist->begin(); it != slist->end(); ++it) {
-		ServiceListItem * s = *it;
+	for (it = slist->begin(); it != slist->end(); ++it)
+	{
+		ServiceListItem *s = *it;
 #if 1
 		t_channel_id channel_id = CZapitChannel::makeChannelId(0 /*satellitePosition*/,
 				0 /*freq_id*/, b->getTransportStreamId(), b->getOriginalNetworkId(), s->getServiceId());
@@ -294,23 +314,24 @@ bool CBat::ParseServiceList(ServiceListDescriptor * sd, BouquetAssociation * b)
 #endif
 #ifdef DEBUG_BAT
 		printf("BAT: service tsid %04x onid %04x sid %04x type %02x\n",
-				b->getTransportStreamId(), b->getOriginalNetworkId(), s->getServiceId(), s->getServiceType());
+			b->getTransportStreamId(), b->getOriginalNetworkId(), s->getServiceId(), s->getServiceType());
 #endif
 		bouquet_map[bouquetName].insert(channel_id);
 	}
 	return true;
 }
 
-bool CBat::ParseLogicalChannels(LogicalChannelDescriptor * ld, BouquetAssociation * b)
+bool CBat::ParseLogicalChannels(LogicalChannelDescriptor *ld, BouquetAssociation *b)
 {
 	t_transport_stream_id transport_stream_id = b->getTransportStreamId();
 	t_original_network_id original_network_id = b->getOriginalNetworkId();
 
 	const LogicalChannelList &clist = *ld->getChannelList();
 	LogicalChannelListConstIterator it;
-	for (it = clist.begin(); it != clist.end(); ++it) {
+	for (it = clist.begin(); it != clist.end(); ++it)
+	{
 		int lcn = (*it)->getLogicalChannelNumber();
-		if(lcn == 0)
+		if (lcn == 0)
 			continue;
 
 		t_service_id service_id = (*it)->getServiceId();
@@ -320,8 +341,8 @@ bool CBat::ParseLogicalChannels(LogicalChannelDescriptor * ld, BouquetAssociatio
 		logical_map[channel_id] = lcn;
 #ifdef DEBUG_LCN
 		std::string name;
-		CZapitChannel * chan = CServiceManager::getInstance()->FindChannel48(channel_id);
-		if(chan)
+		CZapitChannel *chan = CServiceManager::getInstance()->FindChannel48(channel_id);
+		if (chan)
 			name = chan->getName();
 		printf("BAT: logical channel %05d: tsid %04x onid %04x %016" PRIx64 " [%s] visible %d\n", lcn, transport_stream_id, original_network_id, channel_id, name.c_str(), (*it)->getVisibleServiceFlag());
 #endif

@@ -79,21 +79,25 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CListFrame::CListFrame(	lf_line_types_t* lines, Font* font_text, const int pmode,
-		const CBox* position, const char* textTitle, Font* font_title)
+CListFrame::CListFrame(lf_line_types_t *lines, Font *font_text, const int pmode,
+	const CBox *position, const char *textTitle, Font *font_title)
 {
 	//TRACE("[CListFrame] new\r\n");
 	initVar();
 
-	if(lines != NULL) {
+	if (lines != NULL)
+	{
 		m_pLines = lines;
 		m_nNrOfRows = lines->rows;
-		if(m_nNrOfRows > LF_MAX_ROWS)
+		if (m_nNrOfRows > LF_MAX_ROWS)
 			m_nNrOfRows = LF_MAX_ROWS;
 	}
-	if(font_text != NULL)	m_pcFontList = font_text;
-	if(font_text != NULL)	m_pcFontHeaderList = font_text;
-	if(position != NULL) {
+	if (font_text != NULL)
+		m_pcFontList = font_text;
+	if (font_text != NULL)
+		m_pcFontHeaderList = font_text;
+	if (position != NULL)
+	{
 		m_cFrame	= *position;
 		m_nMaxHeight = m_cFrame.iHeight;
 		m_nMaxWidth = m_cFrame.iWidth;
@@ -103,16 +107,19 @@ CListFrame::CListFrame(	lf_line_types_t* lines, Font* font_text, const int pmode
 
 #if 0
 	TRACE("  Mode: ");
-	if(pmode & SCROLL) TRACE("SCROLL ");
-	if(pmode & AUTO_WIDTH) TRACE("AUTO_WIDTH ");
-	if(pmode & AUTO_HIGH) TRACE("AUTO_HIGH");
+	if (pmode & SCROLL)
+		TRACE("SCROLL ");
+	if (pmode & AUTO_WIDTH)
+		TRACE("AUTO_WIDTH ");
+	if (pmode & AUTO_HIGH)
+		TRACE("AUTO_HIGH");
 	TRACE("\r\n");
 #endif
 
-	if(font_title != NULL)
+	if (font_title != NULL)
 		m_pcFontTitle = font_title;
 
-	if( textTitle != NULL)
+	if (textTitle != NULL)
 		m_textTitle = textTitle;
 
 	m_nFontListHeight  = m_pcFontList->getHeight();
@@ -128,16 +135,16 @@ CListFrame::CListFrame(	lf_line_types_t* lines, Font* font_text, const int pmode
 	onNewLineArray();
 }
 
-CListFrame::CListFrame(	lf_line_types_t* lines)
+CListFrame::CListFrame(lf_line_types_t *lines)
 {
 	//TRACE("[CListFrame] new\r\n");
 	initVar();
 
-	if(lines != NULL)
+	if (lines != NULL)
 	{
 		m_pLines = lines;
 		m_nNrOfRows = lines->rows;
-		if(m_nNrOfRows > LF_MAX_ROWS)
+		if (m_nNrOfRows > LF_MAX_ROWS)
 			m_nNrOfRows = LF_MAX_ROWS;
 	}
 
@@ -159,8 +166,9 @@ CListFrame::CListFrame()
 
 CListFrame::~CListFrame()
 {
-	if (m_pLines){
-		for(int row = 0; row < m_pLines->rows; row++)
+	if (m_pLines)
+	{
+		for (int row = 0; row < m_pLines->rows; row++)
 			cleanupRow(m_pLines, row);
 	}
 
@@ -197,8 +205,8 @@ void CListFrame::initVar(void)
 
 	m_nBgRadius = RADIUS_NONE;
 
-	m_cFrame.iX		= frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - MIN_WINDOW_WIDTH) >>1);
-	m_cFrame.iY		= frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - MIN_WINDOW_HEIGHT) >>1);
+	m_cFrame.iX		= frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - MIN_WINDOW_WIDTH) >> 1);
+	m_cFrame.iY		= frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - MIN_WINDOW_HEIGHT) >> 1);
 	m_cFrame.iWidth		= MIN_WINDOW_WIDTH;
 	m_cFrame.iHeight	= MIN_WINDOW_HEIGHT;
 
@@ -211,10 +219,12 @@ void CListFrame::reSizeMainFrameWidth(int textWidth)
 {
 	//TRACE("[CListFrame]->ReSizeMainFrameWidth: %d, current: %d\r\n",textWidth,m_cFrameListRel.iWidth);
 
-	int iNewWindowWidth =	textWidth  + m_cFrameScrollRel.iWidth   + 2*OFFSET_INNER_MID;
+	int iNewWindowWidth =	textWidth  + m_cFrameScrollRel.iWidth   + 2 * OFFSET_INNER_MID;
 
-	if(iNewWindowWidth > m_nMaxWidth) iNewWindowWidth = m_nMaxWidth;
-	if((unsigned int) iNewWindowWidth < MIN_WINDOW_WIDTH) iNewWindowWidth = MIN_WINDOW_WIDTH;
+	if (iNewWindowWidth > m_nMaxWidth)
+		iNewWindowWidth = m_nMaxWidth;
+	if ((unsigned int) iNewWindowWidth < MIN_WINDOW_WIDTH)
+		iNewWindowWidth = MIN_WINDOW_WIDTH;
 
 	m_cFrame.iWidth	= iNewWindowWidth;
 
@@ -226,10 +236,12 @@ void CListFrame::reSizeMainFrameHeight(int textHeight)
 {
 	//TRACE("[CListFrame]->ReSizeMainFrameHeight: %d, current: %d\r\n",textHeight,m_cFrameListRel.iHeight);
 
-	int iNewWindowHeight =	textHeight + 2*OFFSET_INNER_MID;
+	int iNewWindowHeight =	textHeight + 2 * OFFSET_INNER_MID;
 
-	if( iNewWindowHeight > m_nMaxHeight) iNewWindowHeight = m_nMaxHeight;
-	if( iNewWindowHeight < MIN_WINDOW_HEIGHT) iNewWindowHeight = MIN_WINDOW_HEIGHT;
+	if (iNewWindowHeight > m_nMaxHeight)
+		iNewWindowHeight = m_nMaxHeight;
+	if (iNewWindowHeight < MIN_WINDOW_HEIGHT)
+		iNewWindowHeight = MIN_WINDOW_HEIGHT;
 
 	m_cFrame.iHeight	= iNewWindowHeight;
 
@@ -241,11 +253,11 @@ void CListFrame::initFramesRel(void)
 {
 	//TRACE("-[CListFrame]->InitFramesRel\r\n");
 
-	if(m_nMode & TITLE)
+	if (m_nMode & TITLE)
 	{
 		m_cFrameTitleRel.iX		= 0;
 		m_cFrameTitleRel.iY		= 0;
-		m_cFrameTitleRel.iHeight	= m_nFontTitleHeight + 2*OFFSET_INNER_MIN;
+		m_cFrameTitleRel.iHeight	= m_nFontTitleHeight + 2 * OFFSET_INNER_MIN;
 		m_cFrameTitleRel.iWidth		= m_cFrame.iWidth;
 	}
 	else
@@ -256,11 +268,11 @@ void CListFrame::initFramesRel(void)
 		m_cFrameTitleRel.iWidth		= 0;
 	}
 
-	if(m_nMode & HEADER_LINE)
+	if (m_nMode & HEADER_LINE)
 	{
 		m_cFrameHeaderListRel.iX	= 0;
 		m_cFrameHeaderListRel.iY	= m_cFrameTitleRel.iHeight;
-		m_cFrameHeaderListRel.iHeight	= m_nFontHeaderListHeight + 2*OFFSET_INNER_MIN;
+		m_cFrameHeaderListRel.iHeight	= m_nFontHeaderListHeight + 2 * OFFSET_INNER_MIN;
 	}
 	else
 	{
@@ -274,7 +286,7 @@ void CListFrame::initFramesRel(void)
 	m_cFrameListRel.iY		= m_cFrameHeaderListRel.iHeight + m_cFrameTitleRel.iHeight;
 	m_cFrameListRel.iHeight		= m_cFrame.iHeight - m_cFrameHeaderListRel.iHeight - m_cFrameTitleRel.iHeight;
 
-	if(m_nMode & SCROLL)
+	if (m_nMode & SCROLL)
 	{
 		m_cFrameScrollRel.iX		= m_cFrame.iWidth - SCROLLBAR_WIDTH;
 		m_cFrameScrollRel.iY		= m_cFrameTitleRel.iHeight + m_cFrameHeaderListRel.iHeight;
@@ -291,7 +303,7 @@ void CListFrame::initFramesRel(void)
 
 	m_cFrameListRel.iWidth		= m_cFrame.iWidth - m_cFrameScrollRel.iWidth;
 
-	if(m_nMode & HEADER_LINE)
+	if (m_nMode & HEADER_LINE)
 	{
 		m_cFrameHeaderListRel.iWidth	= m_cFrame.iWidth;
 	}
@@ -306,33 +318,33 @@ void CListFrame::onNewLineArray(void)
 
 	maxTextWidth = 300; // TODO
 	m_nNrOfLines = m_pLines->lineArray[0].v_text.size();
-	if(m_nNrOfLines > 0 )
+	if (m_nNrOfLines > 0)
 	{
 		/* check if we have to recalculate the window frame size, due to auto width and auto height */
-		if( m_nMode & AUTO_WIDTH)
+		if (m_nMode & AUTO_WIDTH)
 		{
 			reSizeMainFrameWidth(maxTextWidth);
 		}
 
-		if(m_nMode & AUTO_HIGH)
+		if (m_nMode & AUTO_HIGH)
 		{
 			reSizeMainFrameHeight(m_nNrOfLines * m_nFontListHeight);
 		}
 		m_nLinesPerPage = m_cFrameListRel.iHeight / m_nFontListHeight;
 
-		if(m_nLinesPerPage <= 0)
+		if (m_nLinesPerPage <= 0)
 			m_nLinesPerPage = 1;
 
-		m_nNrOfPages =	((m_nNrOfLines-1) / m_nLinesPerPage) + 1;
+		m_nNrOfPages =	((m_nNrOfLines - 1) / m_nLinesPerPage) + 1;
 
-		if(m_nCurrentLine >= m_nNrOfLines)
+		if (m_nCurrentLine >= m_nNrOfLines)
 		{
 			m_nCurrentPage = m_nNrOfPages - 1;
 			if (m_nCurrentPage < 0)
 				m_nCurrentPage = 0;
 			m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
 		}
-		if(m_nSelectedLine >= m_nNrOfLines)
+		if (m_nSelectedLine >= m_nNrOfLines)
 		{
 			m_nSelectedLine = m_nCurrentLine;
 		}
@@ -358,19 +370,20 @@ void CListFrame::onNewLineArray(void)
 void CListFrame::refreshTitle(void)
 {
 	//TRACE("[CListFrame]->refreshTitle \r\n");
-	if( frameBuffer == NULL) return;
+	if (frameBuffer == NULL)
+		return;
 #if 0
-	frameBuffer->paintBoxRel(m_cFrameTitleRel.iX+m_cFrame.iX, m_cFrameTitleRel.iY+m_cFrame.iY,
-			m_cFrameTitleRel.iWidth, m_cFrameTitleRel.iHeight, TITLE_BACKGROUND_COLOR,
-			m_nBgRadius, CORNER_TOP);
+	frameBuffer->paintBoxRel(m_cFrameTitleRel.iX + m_cFrame.iX, m_cFrameTitleRel.iY + m_cFrame.iY,
+		m_cFrameTitleRel.iWidth, m_cFrameTitleRel.iHeight, TITLE_BACKGROUND_COLOR,
+		m_nBgRadius, CORNER_TOP);
 
 	m_pcFontTitle->RenderString(m_cFrameTitleRel.iX + OFFSET_INNER_MID + m_cFrame.iX,
-			m_cFrameTitleRel.iY + m_cFrameTitleRel.iHeight - OFFSET_INNER_MIN + m_cFrame.iY,
-			m_cFrameTitleRel.iWidth - 2*OFFSET_INNER_MID,
-			m_textTitle.c_str(), TITLE_FONT_COLOR);
+		m_cFrameTitleRel.iY + m_cFrameTitleRel.iHeight - OFFSET_INNER_MIN + m_cFrame.iY,
+		m_cFrameTitleRel.iWidth - 2 * OFFSET_INNER_MID,
+		m_textTitle.c_str(), TITLE_FONT_COLOR);
 #endif
-	CComponentsText title (NULL, m_cFrameTitleRel.iX + m_cFrame.iX, m_cFrameTitleRel.iY+m_cFrame.iY, m_cFrameTitleRel.iWidth, m_cFrameTitleRel.iHeight,
-			m_textTitle, CTextBox::AUTO_WIDTH, m_pcFontTitle, CComponentsText::FONT_STYLE_REGULAR, CC_SHADOW_OFF, TITLE_FONT_COLOR, COL_FRAME_PLUS_0, TITLE_BACKGROUND_COLOR);
+	CComponentsText title(NULL, m_cFrameTitleRel.iX + m_cFrame.iX, m_cFrameTitleRel.iY + m_cFrame.iY, m_cFrameTitleRel.iWidth, m_cFrameTitleRel.iHeight,
+		m_textTitle, CTextBox::AUTO_WIDTH, m_pcFontTitle, CComponentsText::FONT_STYLE_REGULAR, CC_SHADOW_OFF, TITLE_FONT_COLOR, COL_FRAME_PLUS_0, TITLE_BACKGROUND_COLOR);
 	title.setTextBorderWidth(OFFSET_INNER_MID, OFFSET_INNER_NONE);
 	title.enableColBodyGradient(g_settings.theme.menu_SubHead_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_SubHead_gradient_direction);
 
@@ -380,8 +393,10 @@ void CListFrame::refreshTitle(void)
 void CListFrame::refreshScroll(void)
 {
 	//TRACE("[CListFrame]->refreshScroll\r\n");
-	if( frameBuffer == NULL) return;
-	if(!(m_nMode & SCROLL)) return;
+	if (frameBuffer == NULL)
+		return;
+	if (!(m_nMode & SCROLL))
+		return;
 
 	/*
 	   FIXME: Find right conditions.
@@ -390,27 +405,29 @@ void CListFrame::refreshScroll(void)
 	*/
 	if (1)
 	{
-		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
-				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight, COL_MENUCONTENT_PLUS_0,
-				m_nBgRadius, CORNER_BOTTOM_RIGHT);
+		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX + m_cFrame.iX, m_cFrameScrollRel.iY + m_cFrame.iY,
+			m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight, COL_MENUCONTENT_PLUS_0,
+			m_nBgRadius, CORNER_BOTTOM_RIGHT);
 	}
 
 	if (m_nNrOfPages > 1)
 	{
-		paintScrollBar(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
-				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
-				m_nNrOfPages, m_nCurrentPage);
+		paintScrollBar(m_cFrameScrollRel.iX + m_cFrame.iX, m_cFrameScrollRel.iY + m_cFrame.iY,
+			m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
+			m_nNrOfPages, m_nCurrentPage);
 	}
 }
 
 int CListFrame::paintListIcon(int x, int y, int line)
 {
 	int xDiff = 0;
-	if ((!m_pLines->Icon.empty()) && (!m_pLines->Icon[line].empty())) {
+	if ((!m_pLines->Icon.empty()) && (!m_pLines->Icon[line].empty()))
+	{
 		int icol_w, icol_h;
 		frameBuffer->getIconSize(m_pLines->Icon[line].c_str(), &icol_w, &icol_h);
-		if ((icol_w > 0) && (icol_h > 0)) {
-			frameBuffer->paintIcon(m_pLines->Icon[line], x+m_cFrame.iX, y+m_cFrame.iY-m_nFontListHeight, m_nFontListHeight);
+		if ((icol_w > 0) && (icol_h > 0))
+		{
+			frameBuffer->paintIcon(m_pLines->Icon[line], x + m_cFrame.iX, y + m_cFrame.iY - m_nFontListHeight, m_nFontListHeight);
 			xDiff = icol_w + OFFSET_INNER_MID;
 		}
 	}
@@ -423,9 +440,9 @@ void CListFrame::refreshList(void)
 	if (frameBuffer == NULL)
 		return;
 
-	frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, m_cFrameListRel.iY+m_cFrame.iY,
-			m_cFrameListRel.iWidth, m_cFrameListRel.iHeight, COL_MENUCONTENT_PLUS_0,
-			m_nBgRadius, CORNER_BOTTOM_LEFT);
+	frameBuffer->paintBoxRel(m_cFrameListRel.iX + m_cFrame.iX, m_cFrameListRel.iY + m_cFrame.iY,
+		m_cFrameListRel.iWidth, m_cFrameListRel.iHeight, COL_MENUCONTENT_PLUS_0,
+		m_nBgRadius, CORNER_BOTTOM_LEFT);
 
 	if (m_nNrOfLines <= 0)
 		return;
@@ -438,16 +455,18 @@ void CListFrame::refreshList(void)
 
 void CListFrame::refreshLine(int line)
 {
-	if( frameBuffer == NULL) return;
-	if( m_nNrOfLines <= 0) return;
+	if (frameBuffer == NULL)
+		return;
+	if (m_nNrOfLines <= 0)
+		return;
 
 	//TRACE("[CListFrame]->refreshLine: %d\r\n", line);
-	if((line < m_nCurrentLine) && (line > m_nCurrentLine + m_nLinesPerPage))
+	if ((line < m_nCurrentLine) && (line > m_nCurrentLine + m_nLinesPerPage))
 		return;
 
 	fb_pixel_t color, bgcolor;
 	int rel_line = line - m_nCurrentLine;
-	int y = m_cFrameListRel.iY + (rel_line*m_nFontListHeight);
+	int y = m_cFrameListRel.iY + (rel_line * m_nFontListHeight);
 	int radius = 0;
 
 	bool selected = (line == m_nSelectedLine && m_showSelection == true);
@@ -458,8 +477,8 @@ void CListFrame::refreshLine(int line)
 	if (selected || marked)
 		radius = RADIUS_LARGE;
 
-	frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, y+m_cFrame.iY,
-			m_cFrameListRel.iWidth, m_nFontListHeight, bgcolor, radius);
+	frameBuffer->paintBoxRel(m_cFrameListRel.iX + m_cFrame.iX, y + m_cFrame.iY,
+		m_cFrameListRel.iWidth, m_nFontListHeight, bgcolor, radius);
 
 	int width;
 	int x = m_cFrameListRel.iX + OFFSET_INNER_MID;
@@ -468,7 +487,7 @@ void CListFrame::refreshLine(int line)
 	int xDiff = paintListIcon(x, y, line);
 
 	int net_width = m_cFrameListRel.iWidth - OFFSET_INNER_SMALL * (m_pLines->rows - 1);
-	for(int row = 0; row < m_pLines->rows; row++)
+	for (int row = 0; row < m_pLines->rows; row++)
 	{
 		width = std::min(m_pLines->rowWidth[row] * net_width / 100,
 				m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - OFFSET_INNER_MID);
@@ -476,13 +495,13 @@ void CListFrame::refreshLine(int line)
 			xDiff = 0;
 
 		if (!m_pLines->lineArray[row].v_text[line].empty())
-			paintRowText(m_pLines->lineArray[row].v_text[line], m_pcFontList, x+m_cFrame.iX+xDiff, y+m_cFrame.iY, width-xDiff, m_nFontListHeight, color);
+			paintRowText(m_pLines->lineArray[row].v_text[line], m_pcFontList, x + m_cFrame.iX + xDiff, y + m_cFrame.iY, width - xDiff, m_nFontListHeight, color);
 
 		if (m_pLines->lineArray[row].v_ccItem[line] != NULL)
 		{
 			CComponentsItem *item = (m_pLines->lineArray[row].v_ccItem[line]);
 			int h_item = item->getHeight();
-			item->setDimensionsAll(x+m_cFrame.iX+xDiff, y+m_cFrame.iY - m_nFontListHeight/2 - h_item/2, width-xDiff, h_item);
+			item->setDimensionsAll(x + m_cFrame.iX + xDiff, y + m_cFrame.iY - m_nFontListHeight / 2 - h_item / 2, width - xDiff, h_item);
 			item->setColorBody(bgcolor);
 			item->setCorner(0);
 			item->forceRePaint();
@@ -493,37 +512,37 @@ void CListFrame::refreshLine(int line)
 	}
 }
 
-void CListFrame::paintRowText(const std::string& text, Font* font, const int& x_pos, const int& y_pos, const int& dx, const int& dy, const fb_pixel_t& col)
+void CListFrame::paintRowText(const std::string &text, Font *font, const int &x_pos, const int &y_pos, const int &dx, const int &dy, const fb_pixel_t &col)
 {
 	Font *tmp_font = font;
 	int y_tmp = y_pos;
 
 	if (dx < tmp_font->getRenderWidth(text))
 	{
-		int w_row = dx-OFFSET_INNER_MID;
-		int h_row = dy-OFFSET_INNER_MIN;
+		int w_row = dx - OFFSET_INNER_MID;
+		int h_row = dy - OFFSET_INNER_MIN;
 
 		if (m_cutRowText)
 			if (!*m_cutRowText)
 				tmp_font = *CNeutrinoFonts::getInstance()->getDynFont(w_row, h_row, text);
 
-		y_tmp -= (font->getHeight() - tmp_font->getHeight()) >>1 ;
+		y_tmp -= (font->getHeight() - tmp_font->getHeight()) >> 1 ;
 	}
 	tmp_font->RenderString(x_pos, y_tmp, dx, text.c_str(), col);
 }
 
-void CListFrame::addLine2Row(lf_line_types_t* lines, const int& row_num, const std::string& text, CComponentsItem* cc_Item)
+void CListFrame::addLine2Row(lf_line_types_t *lines, const int &row_num, const std::string &text, CComponentsItem *cc_Item)
 {
 	lines->lineArray[row_num].v_text.push_back(text);
 	lines->lineArray[row_num].v_ccItem.push_back(cc_Item);
 }
 
-void CListFrame::cleanupRow(lf_line_types_t* lines, const int& row_num)
+void CListFrame::cleanupRow(lf_line_types_t *lines, const int &row_num)
 {
 	lines->lineArray[row_num].v_text.clear();
-	for(size_t i = 0; i < lines->lineArray[row_num].v_ccItem.size(); i++)
+	for (size_t i = 0; i < lines->lineArray[row_num].v_ccItem.size(); i++)
 	{
-		if(lines->lineArray[row_num].v_ccItem[i])
+		if (lines->lineArray[row_num].v_ccItem[i])
 		{
 			//TRACE("[CListFrame]->cleanupRow: item = %p getItemName() = %s getItemType() = %d\r\n", lines->lineArray[row_num].v_ccItem[i], lines->lineArray[row_num].v_ccItem[i]->getItemName().c_str(), lines->lineArray[row_num].v_ccItem[i]->getItemType());
 			delete lines->lineArray[row_num].v_ccItem[i];
@@ -536,11 +555,13 @@ void CListFrame::cleanupRow(lf_line_types_t* lines, const int& row_num)
 void CListFrame::refreshHeaderList(void)
 {
 	//TRACE("[CListFrame]->refreshHeaderList \r\n");
-	if( frameBuffer == NULL) return;
-	if(!(m_nMode & HEADER_LINE))return;
+	if (frameBuffer == NULL)
+		return;
+	if (!(m_nMode & HEADER_LINE))
+		return;
 
-	frameBuffer->paintBoxRel(m_cFrameHeaderListRel.iX+m_cFrame.iX, m_cFrameHeaderListRel.iY+m_cFrame.iY,
-			m_cFrameHeaderListRel.iWidth, m_cFrameHeaderListRel.iHeight, HEADER_LIST_BACKGROUND_COLOR);
+	frameBuffer->paintBoxRel(m_cFrameHeaderListRel.iX + m_cFrame.iX, m_cFrameHeaderListRel.iY + m_cFrame.iY,
+		m_cFrameHeaderListRel.iWidth, m_cFrameHeaderListRel.iHeight, HEADER_LIST_BACKGROUND_COLOR);
 
 	int width;
 	int x = m_cFrameHeaderListRel.iX + OFFSET_INNER_MID;
@@ -548,7 +569,7 @@ void CListFrame::refreshHeaderList(void)
 	int net_width = m_cFrameHeaderListRel.iWidth - OFFSET_INNER_SMALL * (m_pLines->rows - 1);
 	net_width -= m_cFrameScrollRel.iWidth;
 	bool loop = true;
-	for(int row = 0; row < m_pLines->rows && loop == true; row++)
+	for (int row = 0; row < m_pLines->rows && loop == true; row++)
 	{
 		width = m_pLines->rowWidth[row] * net_width / 100;
 		if (width > m_cFrameHeaderListRel.iWidth - x + m_cFrameHeaderListRel.iX - OFFSET_INNER_MID)
@@ -558,7 +579,7 @@ void CListFrame::refreshHeaderList(void)
 			loop = false;
 		}
 
-		paintRowText(m_pLines->lineHeader[row], m_pcFontHeaderList, x+m_cFrame.iX, y+m_cFrame.iY, width, m_nFontHeaderListHeight, HEADER_LIST_FONT_COLOR);
+		paintRowText(m_pLines->lineHeader[row], m_pcFontHeaderList, x + m_cFrame.iX, y + m_cFrame.iY, width, m_nFontHeaderListHeight, HEADER_LIST_FONT_COLOR);
 
 		x += width + OFFSET_INNER_SMALL;
 	}
@@ -568,8 +589,10 @@ void CListFrame::scrollLineDown(const int lines)
 {
 	//TRACE("[CListFrame]->scrollLineDown \r\n");
 
-	if( !(m_nMode & SCROLL)) return;
-	if( m_nNrOfLines <= 1) return;
+	if (!(m_nMode & SCROLL))
+		return;
+	if (m_nNrOfLines <= 1)
+		return;
 
 	setSelectedLine((m_nSelectedLine + lines) % m_nNrOfLines);
 }
@@ -577,8 +600,10 @@ void CListFrame::scrollLineDown(const int lines)
 void CListFrame::scrollLineUp(const int lines)
 {
 	//TRACE("[CListFrame]->scrollLineUp \r\n");
-	if( !(m_nMode & SCROLL)) return;
-	if( m_nNrOfLines <= 1) return;
+	if (!(m_nMode & SCROLL))
+		return;
+	if (m_nNrOfLines <= 1)
+		return;
 
 	setSelectedLine((m_nSelectedLine - lines + m_nNrOfLines) % m_nNrOfLines);
 }
@@ -587,10 +612,12 @@ void CListFrame::scrollPageDown(const int pages)
 {
 	//TRACE("[CListFrame]->ScrollPageDown \r\n");
 
-	if( !(m_nMode & SCROLL)) return;
-	if( m_nNrOfLines <= 1) return;
+	if (!(m_nMode & SCROLL))
+		return;
+	if (m_nNrOfLines <= 1)
+		return;
 
-	if(m_nCurrentPage + pages < m_nNrOfPages)
+	if (m_nCurrentPage + pages < m_nNrOfPages)
 		setSelectedLine(m_nSelectedLine + pages * m_nLinesPerPage);
 	else if (m_nSelectedLine == m_nNrOfLines - 1)
 		setSelectedLine(0);
@@ -603,10 +630,12 @@ void CListFrame::scrollPageUp(const int pages)
 {
 	//TRACE("[CListFrame]->ScrollPageUp \r\n");
 
-	if( !(m_nMode & SCROLL)) return;
-	if( m_nNrOfLines <= 1) return;
+	if (!(m_nMode & SCROLL))
+		return;
+	if (m_nNrOfLines <= 1)
+		return;
 
-	if(m_nCurrentPage - pages >= 0)
+	if (m_nCurrentPage - pages >= 0)
 		setSelectedLine(m_nSelectedLine - pages * m_nLinesPerPage);
 	else if (m_nSelectedLine == 0)
 		setSelectedLine(m_nNrOfLines - 1);
@@ -619,7 +648,8 @@ void CListFrame::scrollPageUp(const int pages)
 void CListFrame::refresh(void)
 {
 	//TRACE("[CListFrame]->Refresh\r\n");
-	if( frameBuffer == NULL) return;
+	if (frameBuffer == NULL)
+		return;
 
 	refreshTitle();
 	refreshScroll();
@@ -627,33 +657,35 @@ void CListFrame::refresh(void)
 	refreshList();
 }
 
-bool CListFrame::setLines(lf_line_types_t* lines)
+bool CListFrame::setLines(lf_line_types_t *lines)
 {
-	if(lines == NULL)
-		return(false);
+	if (lines == NULL)
+		return (false);
 	//TRACE("[CListFrame]->setLines \r\n");
 
 	m_pLines = lines;
 	m_nNrOfRows = lines->rows;
 
-	if(m_nNrOfRows > LF_MAX_ROWS)
+	if (m_nNrOfRows > LF_MAX_ROWS)
 		m_nNrOfRows = LF_MAX_ROWS;
 	onNewLineArray();
 	refresh();
 
-	return(true);
+	return (true);
 }
 
-bool CListFrame::setTitle(char* title)
+bool CListFrame::setTitle(char *title)
 {
 	//TRACE("[CListFrame]->setTitle \r\n");
-	if(!(m_nMode & TITLE)) return(false);
-	if(title == NULL) return(false);
+	if (!(m_nMode & TITLE))
+		return (false);
+	if (title == NULL)
+		return (false);
 
 	m_textTitle = title;
 	refreshTitle();
 
-	return(true);
+	return (true);
 }
 
 bool CListFrame::setSelectedLine(int selection)
@@ -670,10 +702,13 @@ bool CListFrame::setSelectedLine(int selection)
 	m_nSelectedLine = selection;
 	m_nCurrentPage =  selection / m_nLinesPerPage;
 	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
-	if (m_nCurrentPage != old_page) {
+	if (m_nCurrentPage != old_page)
+	{
 		refreshList();
 		refreshScroll();
-	} else {
+	}
+	else
+	{
 		refreshLine(old_selected);
 		refreshLine(m_nSelectedLine);
 	}
@@ -686,7 +721,8 @@ bool CListFrame::setSelectedLine(int selection)
 
 void CListFrame::setSelectedMarked(bool enable)
 {
-	if (!m_pLines->marked.empty() && m_nSelectedLine < (int) m_pLines->marked.size()) {
+	if (!m_pLines->marked.empty() && m_nSelectedLine < (int) m_pLines->marked.size())
+	{
 		m_pLines->marked[m_nSelectedLine] = enable;
 		refreshLine(m_nSelectedLine);
 	}
@@ -694,7 +730,8 @@ void CListFrame::setSelectedMarked(bool enable)
 
 void CListFrame::hide(void)
 {
-	if(frameBuffer == NULL) return;
+	if (frameBuffer == NULL)
+		return;
 	TRACE("[CListFrame]->hide %s\n", m_textTitle.c_str());
 
 	frameBuffer->paintBackgroundBoxRel(m_cFrame.iX, m_cFrame.iY, m_cFrame.iWidth, m_cFrame.iHeight);

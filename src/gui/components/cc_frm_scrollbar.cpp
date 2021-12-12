@@ -68,19 +68,19 @@ using namespace std;
 */
 
 //sub class CComponentsScrollBar inherit from CComponentsFrmChain
-CComponentsScrollBar::CComponentsScrollBar(	const int &x_pos,
-						const int &y_pos,
-						const int &w,
-						const int &h,
-						const int &count,
-						CComponentsForm *parent,
-						int shadow_mode,
-						fb_pixel_t color_frame,
-						fb_pixel_t color_body,
-						fb_pixel_t color_shadow,
-						fb_pixel_t color_select,
-						fb_pixel_t color_passive)
-						: CComponentsFrmChain(x_pos, y_pos, w, h, NULL, CC_DIR_Y, parent, shadow_mode, color_frame, color_body, color_shadow)
+CComponentsScrollBar::CComponentsScrollBar(const int &x_pos,
+	const int &y_pos,
+	const int &w,
+	const int &h,
+	const int &count,
+	CComponentsForm *parent,
+	int shadow_mode,
+	fb_pixel_t color_frame,
+	fb_pixel_t color_body,
+	fb_pixel_t color_shadow,
+	fb_pixel_t color_select,
+	fb_pixel_t color_passive)
+	: CComponentsFrmChain(x_pos, y_pos, w, h, NULL, CC_DIR_Y, parent, shadow_mode, color_frame, color_body, color_shadow)
 {
 	initVarSbForm(count, color_select, color_passive);
 }
@@ -258,18 +258,18 @@ void getScrollBarData(int *total_pages, int *current_page, int total_items, int 
 	*current_page	= selected_item / items_per_page;
 }
 
-void paintScrollBar(	const int &x_pos,
-			const int &y_pos,
-			const int &w,
-			const int &h,
-			const int &count,
-			const int &current_num,
-			int shadow_mode,
-			fb_pixel_t color_frame,
-			fb_pixel_t color_body,
-			fb_pixel_t color_shadow,
-			fb_pixel_t color_select,
-			fb_pixel_t color_passive)
+void paintScrollBar(const int &x_pos,
+	const int &y_pos,
+	const int &w,
+	const int &h,
+	const int &count,
+	const int &current_num,
+	int shadow_mode,
+	fb_pixel_t color_frame,
+	fb_pixel_t color_body,
+	fb_pixel_t color_shadow,
+	fb_pixel_t color_select,
+	fb_pixel_t color_passive)
 {
 	CComponentsScrollBar scrollbar(x_pos, y_pos, w, h, count, NULL, shadow_mode, color_frame, color_body, color_shadow, color_select, color_passive);
 	scrollbar.setMarkID(current_num);

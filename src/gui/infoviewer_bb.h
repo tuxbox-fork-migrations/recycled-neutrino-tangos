@@ -55,7 +55,7 @@ class CInfoViewerBB
 		};
 
 	private:
-		CFrameBuffer * frameBuffer;
+		CFrameBuffer *frameBuffer;
 
 		enum
 		{
@@ -108,15 +108,15 @@ class CInfoViewerBB
 		CComponentsShapeSquare *foot, *ca_bar;
 		int ca_h;
 		void paintFoot(int w = 0);
-		void showBBIcons(const int modus, const std::string & icon);
+		void showBBIcons(const int modus, const std::string &icon);
 		void getBBIconInfo(void);
-		bool checkBBIcon(const char * const icon, int *w, int *h);
+		bool checkBBIcon(const char *const icon, int *w, int *h);
 
-		void paint_ca_icon(int, const char*, int&);
+		void paint_ca_icon(int, const char *, int &);
 		void paint_ca_bar();
 
-		static void* scrambledThread(void *arg);
-		void scrambledCheck(bool force=false);
+		static void *scrambledThread(void *arg);
+		void scrambledCheck(bool force = false);
 
 		void showBarSys(int percent = 0);
 		void showBarHdd(int percent = 0);
@@ -125,7 +125,7 @@ class CInfoViewerBB
 
 	public:
 		~CInfoViewerBB();
-		static CInfoViewerBB* getInstance();
+		static CInfoViewerBB *getInstance();
 		void Init(void);
 
 		int bottom_bar_offset, InfoHeightY_Info;
@@ -147,8 +147,8 @@ class CInfoViewerBB
 		void reset_allScala(void);
 		void initBBOffset(void);
 		// modules
-		CComponentsShapeSquare* getFooter(void){return foot;}
-		CComponentsShapeSquare* getCABar(void){return ca_bar;}
+		CComponentsShapeSquare *getFooter(void) {return foot;}
+		CComponentsShapeSquare *getCABar(void) {return ca_bar;}
 		void ResetModules(void);
 		void changePB(void);
 };

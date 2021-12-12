@@ -40,8 +40,8 @@ class CRadioTextGUI : public CComponentsWindow
 
 		bool hasDescription();
 		bool hasTitle();
-		bool isDubLine(std::vector<std::string>& vec, const std::string& to_compare_str);
-		void addLine(std::vector<std::string>& vec, std::string str);
+		bool isDubLine(std::vector<std::string> &vec, const std::string &to_compare_str);
+		void addLine(std::vector<std::string> &vec, std::string str);
 		bool GetData();
 		void initSlots();
 		void resetPos();
@@ -54,15 +54,15 @@ class CRadioTextGUI : public CComponentsWindow
 		CRadioTextGUI();
 		virtual~CRadioTextGUI();
 
-		void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = ~CC_FBDATA_TYPES);
+		void kill(const fb_pixel_t &bg_color = COL_BACKGROUND_PLUS_0, const int &corner_radius = -1, const int &fblayer_type = ~CC_FBDATA_TYPES);
 		void clearLines();
-		bool hasLines(){ return (hasTitle() || hasDescription());}
+		bool hasLines() { return (hasTitle() || hasDescription());}
 		void paint(const bool &do_save_bg);
 
 		sigc::slot<void>sl_after_decode_line,
-				sl_on_start_screensaver,
-				sl_on_stop_screensaver,
-				sl_on_after_kill_infobar,
-				sl_on_show_radiotext;
+		     sl_on_start_screensaver,
+		     sl_on_stop_screensaver,
+		     sl_on_after_kill_infobar,
+		     sl_on_show_radiotext;
 };
 #endif

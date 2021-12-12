@@ -55,10 +55,10 @@ extern int zapit_debug;
  * Later on, __FILE__ is the real filename, so if it starts with ../ now, the build
  * is from within the source tree => __FILE__ is only basename => strip nothing */
 static int __striplen = (strncmp(__FILE__, "../", 3) == 0) ? 0 :
-			(strstr(__FILE__, "src/zapit") != NULL) ? (strstr(__FILE__, "src/zapit") - __FILE__ + 4) : 0;
+	(strstr(__FILE__, "src/zapit") != NULL) ? (strstr(__FILE__, "src/zapit") - __FILE__ + 4) : 0;
 #else
 static int __striplen = (strncmp(__FILE__, "../", 3) == 0) ? 0 :
-			(strstr(__FILE__, "src/zapit") != NULL) ? (strstr(__FILE__, "src/zapit") - __FILE__ + 14) : 0;
+	(strstr(__FILE__, "src/zapit") != NULL) ? (strstr(__FILE__, "src/zapit") - __FILE__ + 14) : 0;
 #endif
 #define __SHORTFILE__ (__FILE__ + __striplen)
 
@@ -101,23 +101,23 @@ static int __striplen = (strncmp(__FILE__, "../", 3) == 0) ? 0 :
 #endif /* DEBUG */
 
 #define fop(cmd, args...) ({					\
-	int _r;							\
-	if (fd >= 0) { 						\
-		if ((_r = ::cmd(fd, args)) < 0)			\
-			ERROR(#cmd"(fd, "#args")");		\
-		else if (zapit_debug)					\
-			INFO(#cmd"(fd, "#args")");		\
-	}							\
-	else { _r = fd; } 					\
-	_r;							\
-})
+		int _r;							\
+		if (fd >= 0) { 						\
+			if ((_r = ::cmd(fd, args)) < 0)			\
+				ERROR(#cmd"(fd, "#args")");		\
+			else if (zapit_debug)					\
+				INFO(#cmd"(fd, "#args")");		\
+		}							\
+		else { _r = fd; } 					\
+		_r;							\
+	})
 
 #define quiet_fop(cmd, args...) ({				\
-	int _r;							\
-	if (fd >= 0) { _r = ::cmd(fd, args); }			\
-	else { _r = fd; } 					\
-	_r;							\
-})
+		int _r;							\
+		if (fd >= 0) { _r = ::cmd(fd, args); }			\
+		else { _r = fd; } 					\
+		_r;							\
+	})
 
 #define TIMER_START()						\
 	static struct timeval tv, tv2;				\

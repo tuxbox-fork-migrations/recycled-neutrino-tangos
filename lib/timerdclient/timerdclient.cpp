@@ -2,7 +2,7 @@
 	Timer Daemon  -   DBoxII-Project
 
 	Copyright (C) 2002 Dirk Szymanski 'Dirch'
-	
+
 	$Id: timerdclient.cpp,v 1.55 2007/10/09 20:46:05 guenther Exp $
 
 	License: GPL
@@ -36,19 +36,19 @@
 #define VALGRIND_PARANOIA(x) {}
 #endif
 
-unsigned char   CTimerdClient::getVersion   () const
+unsigned char   CTimerdClient::getVersion() const
 {
 	return CTimerdMsg::ACTVERSION;
 }
 
-const          char * CTimerdClient::getSocketName() const
+const          char *CTimerdClient::getSocketName() const
 {
 	return TIMERD_UDS_NAME;
 }
 
 //-------------------------------------------------------------------------
 
-void CTimerdClient::registerEvent(unsigned int eventID, unsigned int clientID, const char * const udsName)
+void CTimerdClient::registerEvent(unsigned int eventID, unsigned int clientID, const char *const udsName)
 {
 	CEventServer::commandRegisterEvent msg2;
 	VALGRIND_PARANOIA(msg2);
@@ -58,7 +58,7 @@ void CTimerdClient::registerEvent(unsigned int eventID, unsigned int clientID, c
 
 	cstrncpy(msg2.udsName, udsName, sizeof(msg2.udsName));
 
-	send(CTimerdMsg::CMD_REGISTEREVENT, (char*)&msg2, sizeof(msg2));
+	send(CTimerdMsg::CMD_REGISTEREVENT, (char *)&msg2, sizeof(msg2));
 
 	close_connection();
 }
@@ -72,7 +72,7 @@ void CTimerdClient::unRegisterEvent(unsigned int eventID, unsigned int clientID)
 	msg2.eventID = eventID;
 	msg2.clientID = clientID;
 
-	send(CTimerdMsg::CMD_UNREGISTEREVENT, (char*)&msg2, sizeof(msg2));
+	send(CTimerdMsg::CMD_UNREGISTEREVENT, (char *)&msg2, sizeof(msg2));
 
 	close_connection();
 }
@@ -82,21 +82,21 @@ int CTimerdClient::setSleeptimer(time_t announcetime, time_t alarmtime, int time
 {
 	int timerID;
 
-	if(timerid == 0)
+	if (timerid == 0)
 		timerID = getSleeptimerID();
 	else
 		timerID = timerid;
 
-	if(timerID != 0)
+	if (timerID != 0)
 	{
 		modifyTimerEvent(timerID, announcetime, alarmtime, 0);
 	}
 	else
 	{
-		timerID = addTimerEvent(CTimerd::TIMER_SLEEPTIMER,NULL,announcetime,alarmtime,0);
+		timerID = addTimerEvent(CTimerd::TIMER_SLEEPTIMER, NULL, announcetime, alarmtime, 0);
 	}
 
-	return timerID;   
+	return timerID;
 }
 //-------------------------------------------------------------------------
 
@@ -104,9 +104,9 @@ int CTimerdClient::getSleeptimerID()
 {
 	send(CTimerdMsg::CMD_GETSLEEPTIMER);
 	CTimerdMsg::responseGetSleeptimer response;
-	if(!receive_data((char*)&response, sizeof(CTimerdMsg::responseGetSleeptimer)))
-		response.eventID =0;
-	close_connection();  
+	if (!receive_data((char *)&response, sizeof(CTimerdMsg::responseGetSleeptimer)))
+		response.eventID = 0;
+	close_connection();
 	return response.eventID;
 }
 //-------------------------------------------------------------------------
@@ -114,13 +114,13 @@ int CTimerdClient::getSleeptimerID()
 int CTimerdClient::getSleepTimerRemaining()
 {
 	int timerID;
-	if((timerID = getSleeptimerID()) != 0)
+	if ((timerID = getSleeptimerID()) != 0)
 	{
 		CTimerd::responseGetTimer timer;
-		getTimer( timer, timerID);
-		int min=(((timer.alarmTime + 1 - time(NULL)) / 60)+1); //aufrunden auf n�chst gr��erere Min.
-		if(min <1)
-			min=1;
+		getTimer(timer, timerID);
+		int min = (((timer.alarmTime + 1 - time(NULL)) / 60) + 1); //aufrunden auf n�chst gr��erere Min.
+		if (min < 1)
+			min = 1;
 		return min;
 	}
 	else
@@ -130,33 +130,33 @@ int CTimerdClient::getSleepTimerRemaining()
 
 void CTimerdClient::getTimerList(CTimerd::TimerList &timerlist)
 {
-        CTimerdMsg::generalInteger responseInteger;
+	CTimerdMsg::generalInteger responseInteger;
 	CTimerd::responseGetTimer  response;
 
 	send(CTimerdMsg::CMD_GETTIMERLIST);
 
 	timerlist.clear();
 
-        if (CBasicClient::receive_data((char* )&responseInteger, sizeof(responseInteger)))
-        {
-                while (responseInteger.number-- > 0)
-                {
-                        if (CBasicClient::receive_data((char*)&response, sizeof(response)))
+	if (CBasicClient::receive_data((char *)&responseInteger, sizeof(responseInteger)))
+	{
+		while (responseInteger.number-- > 0)
+		{
+			if (CBasicClient::receive_data((char *)&response, sizeof(response)))
 				if (response.eventState != CTimerd::TIMERSTATE_TERMINATED)
 					timerlist.push_back(response);
-                };
-        }
+		};
+	}
 
 	close_connection();
 }
 //-------------------------------------------------------------------------
 
-void CTimerdClient::getTimer( CTimerd::responseGetTimer &timer, unsigned timerID)
+void CTimerdClient::getTimer(CTimerd::responseGetTimer &timer, unsigned timerID)
 {
-	send(CTimerdMsg::CMD_GETTIMER, (char*)&timerID, sizeof(timerID));
+	send(CTimerdMsg::CMD_GETTIMER, (char *)&timerID, sizeof(timerID));
 
 	CTimerd::responseGetTimer response;
-	receive_data((char*)&response, sizeof(CTimerd::responseGetTimer));
+	receive_data((char *)&response, sizeof(CTimerd::responseGetTimer));
 	timer = response;
 	close_connection();
 }
@@ -165,12 +165,12 @@ void CTimerdClient::getTimer( CTimerd::responseGetTimer &timer, unsigned timerID
 
 bool CTimerdClient::modifyTimerEvent(int eventid, time_t announcetime, time_t alarmtime, time_t stoptime, CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount)
 {
-	return modifyTimerEvent(eventid,announcetime,alarmtime,stoptime,evrepeat,repeatcount,NULL);
+	return modifyTimerEvent(eventid, announcetime, alarmtime, stoptime, evrepeat, repeatcount, NULL);
 }
 //-------------------------------------------------------------------------
 
 bool CTimerdClient::modifyTimerEvent(int eventid, time_t announcetime, time_t alarmtime, time_t stoptime, CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount, void *data,
-				     int datalen)
+	int datalen)
 {
 	// set new time values for event eventid
 
@@ -182,13 +182,13 @@ bool CTimerdClient::modifyTimerEvent(int eventid, time_t announcetime, time_t al
 	msgModifyTimer.stopTime = stoptime;
 	msgModifyTimer.eventRepeat = evrepeat;
 	msgModifyTimer.repeatCount = repeatcount;
-	send(CTimerdMsg::CMD_MODIFYTIMER, (char*) &msgModifyTimer, sizeof(msgModifyTimer));
+	send(CTimerdMsg::CMD_MODIFYTIMER, (char *) &msgModifyTimer, sizeof(msgModifyTimer));
 
 	if (data && datalen)
-		send_data((char*)data,datalen);
+		send_data((char *)data, datalen);
 
 	CTimerdMsg::responseStatus response;
-	receive_data((char*)&response, sizeof(response));
+	receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 	return true;
@@ -196,17 +196,17 @@ bool CTimerdClient::modifyTimerEvent(int eventid, time_t announcetime, time_t al
 //-------------------------------------------------------------------------
 
 bool CTimerdClient::modifyRecordTimerEvent(int eventid, time_t announcetime, time_t alarmtime, time_t stoptime, CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount,
-					   const char * const recordingdir)
+	const char *const recordingdir)
 {
 	CTimerdMsg::commandRecordDir rdir;
-	strncpy(rdir.recDir,recordingdir,RECORD_DIR_MAXLEN-1);
-	return modifyTimerEvent(eventid,announcetime,alarmtime,stoptime,evrepeat,repeatcount,&rdir,sizeof(rdir));
+	strncpy(rdir.recDir, recordingdir, RECORD_DIR_MAXLEN - 1);
+	return modifyTimerEvent(eventid, announcetime, alarmtime, stoptime, evrepeat, repeatcount, &rdir, sizeof(rdir));
 }
 //-------------------------------------------------------------------------
 
 bool CTimerdClient::rescheduleTimerEvent(int eventid, time_t diff)
 {
-	rescheduleTimerEvent(eventid,diff,diff,diff);
+	rescheduleTimerEvent(eventid, diff, diff, diff);
 	return true;
 }
 //-------------------------------------------------------------------------
@@ -220,10 +220,10 @@ bool CTimerdClient::rescheduleTimerEvent(int eventid, time_t announcediff, time_
 	msgModifyTimer.alarmTime = alarmdiff;
 	msgModifyTimer.stopTime = stopdiff;
 
-	send(CTimerdMsg::CMD_RESCHEDULETIMER, (char*) &msgModifyTimer, sizeof(msgModifyTimer));
+	send(CTimerdMsg::CMD_RESCHEDULETIMER, (char *) &msgModifyTimer, sizeof(msgModifyTimer));
 
 	CTimerdMsg::responseStatus response;
-	receive_data((char*)&response, sizeof(response));
+	receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 	return response.status;
@@ -243,42 +243,42 @@ int CTimerdClient::addTimerEvent( CTimerEventTypes evType, void* data , int min,
 	if (day > 0)
 		actTime->tm_mday = day;
 	if (month > 0)
-		actTime->tm_mon = month -1; 
-	
+		actTime->tm_mon = month -1;
+
 	addTimerEvent(evType,true,data,0,mktime(actTime),0);
 }
 */
-bool CTimerdClient::checkDouble(CTimerd::CTimerEventTypes evType, void* data, time_t announcetime, time_t alarmtime,time_t stoptime,
-				  CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount)
+bool CTimerdClient::checkDouble(CTimerd::CTimerEventTypes evType, void *data, time_t announcetime, time_t alarmtime, time_t stoptime,
+	CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount)
 {
 	if (evType != CTimerd::TIMER_RECORD && evType != CTimerd::TIMER_ZAPTO)
 		return false;//skip check not zap and record timer
 
 	CTimerd::TimerList timerlist;
 	getTimerList(timerlist);
-	for (CTimerd::TimerList::iterator it = timerlist.begin(); it != timerlist.end();++it)
+	for (CTimerd::TimerList::iterator it = timerlist.begin(); it != timerlist.end(); ++it)
 	{
-		if ( (it->eventType == CTimerd::TIMER_RECORD || it->eventType == CTimerd::TIMER_ZAPTO ) &&
-			(it->alarmTime  == alarmtime && it->announceTime == announcetime && it->stopTime == stoptime && it->eventRepeat == evrepeat && it->repeatCount == repeatcount ) )
+		if ((it->eventType == CTimerd::TIMER_RECORD || it->eventType == CTimerd::TIMER_ZAPTO) &&
+			(it->alarmTime  == alarmtime && it->announceTime == announcetime && it->stopTime == stoptime && it->eventRepeat == evrepeat && it->repeatCount == repeatcount))
 		{
-			if( it->eventType == CTimerd::TIMER_ZAPTO )
+			if (it->eventType == CTimerd::TIMER_ZAPTO)
 			{
-				CTimerd::EventInfo *ei=static_cast<CTimerd::EventInfo*>(data);
-				if( ei->channel_id == it->channel_id )
+				CTimerd::EventInfo *ei = static_cast<CTimerd::EventInfo *>(data);
+				if (ei->channel_id == it->channel_id)
 				{
-					if(( ei->epg_id != 0 && ei->epg_id != it->epg_id ) || ( ei->epg_starttime != 0 && it->epg_starttime != ei->epg_starttime) )
+					if ((ei->epg_id != 0 && ei->epg_id != it->epg_id) || (ei->epg_starttime != 0 && it->epg_starttime != ei->epg_starttime))
 					{
 						return false;//not double
 					}
 					return true;
 				}
 			}
-			else if(it->eventType == CTimerd::TIMER_RECORD)
+			else if (it->eventType == CTimerd::TIMER_RECORD)
 			{
-				CTimerd::RecordingInfo *ri=static_cast<CTimerd::RecordingInfo*>(data);
-				if(ri->channel_id == it->channel_id && ri->apids == it->apids && !strncmp(ri->recordingDir, it->recordingDir, RECORD_DIR_MAXLEN-1) )
+				CTimerd::RecordingInfo *ri = static_cast<CTimerd::RecordingInfo *>(data);
+				if (ri->channel_id == it->channel_id && ri->apids == it->apids && !strncmp(ri->recordingDir, it->recordingDir, RECORD_DIR_MAXLEN - 1))
 				{
-					if( ( ri->epg_id != 0 && ri->epg_id != it->epg_id ) || ( ri->epg_starttime != 0 && it->epg_starttime != ri->epg_starttime) )
+					if ((ri->epg_id != 0 && ri->epg_id != it->epg_id) || (ri->epg_starttime != 0 && it->epg_starttime != ri->epg_starttime))
 					{
 						return false;//not double
 					}
@@ -290,10 +290,10 @@ bool CTimerdClient::checkDouble(CTimerd::CTimerEventTypes evType, void* data, ti
 	return false;//not double
 }
 //-------------------------------------------------------------------------
-int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, time_t announcetime, time_t alarmtime,time_t stoptime,
-				  CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount,bool forceadd)
+int CTimerdClient::addTimerEvent(CTimerd::CTimerEventTypes evType, void *data, time_t announcetime, time_t alarmtime, time_t stoptime,
+	CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount, bool forceadd)
 {
-	if(checkDouble(evType, data, announcetime,  alarmtime, stoptime, evrepeat,  repeatcount))//check if timer is add double
+	if (checkDouble(evType, data, announcetime,  alarmtime, stoptime, evrepeat,  repeatcount)) //check if timer is add double
 		return -1;
 
 	if (!forceadd)
@@ -307,7 +307,7 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 			return -1;
 		}
 	}
-	CTimerd::TransferEventInfo tei; 
+	CTimerd::TransferEventInfo tei;
 	CTimerd::TransferRecordingInfo tri;
 	CTimerdMsg::commandAddTimer msgAddTimer;
 	VALGRIND_PARANOIA(tei);
@@ -320,7 +320,7 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 	msgAddTimer.eventRepeat = evrepeat;
 	msgAddTimer.repeatCount = repeatcount;
 	int length;
-	if( evType == CTimerd::TIMER_SHUTDOWN || evType == CTimerd::TIMER_SLEEPTIMER )
+	if (evType == CTimerd::TIMER_SHUTDOWN || evType == CTimerd::TIMER_SLEEPTIMER)
 	{
 		length = 0;
 	}
@@ -328,18 +328,18 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 	else if (evType == CTimerd::TIMER_ZAPTO ||
 		evType == CTimerd::TIMER_IMMEDIATE_RECORD)
 	{
-		CTimerd::EventInfo *ei=static_cast<CTimerd::EventInfo*>(data); 
+		CTimerd::EventInfo *ei = static_cast<CTimerd::EventInfo *>(data);
 		tei.apids = ei->apids;
 		tei.channel_id = ei->channel_id;
 		tei.epg_starttime	= ei->epg_starttime;
 		tei.epg_id = ei->epg_id;
 		tei.recordingSafety = ei->recordingSafety;
-		length = sizeof( CTimerd::TransferEventInfo);
+		length = sizeof(CTimerd::TransferEventInfo);
 		data = &tei;
 	}
-	else if(evType == CTimerd::TIMER_RECORD)
+	else if (evType == CTimerd::TIMER_RECORD)
 	{
-		CTimerd::RecordingInfo *ri=static_cast<CTimerd::RecordingInfo*>(data); 
+		CTimerd::RecordingInfo *ri = static_cast<CTimerd::RecordingInfo *>(data);
 		tri.apids = ri->apids;
 		tri.channel_id = ri->channel_id;
 		tri.epg_starttime	= ri->epg_starttime;
@@ -347,18 +347,18 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 		tri.recordingSafety = ri->recordingSafety;
 		tri.autoAdjustToEPG = ri->autoAdjustToEPG;
 		strncpy(tri.recordingDir, ri->recordingDir, RECORD_DIR_MAXLEN);
-		length = sizeof( CTimerd::TransferRecordingInfo);
+		length = sizeof(CTimerd::TransferRecordingInfo);
 		data = &tri;
 	}
-	else if(evType == CTimerd::TIMER_STANDBY)
+	else if (evType == CTimerd::TIMER_STANDBY)
 	{
 		length = sizeof(CTimerdMsg::commandSetStandby);
 	}
-	else if(evType == CTimerd::TIMER_REMIND)
+	else if (evType == CTimerd::TIMER_REMIND)
 	{
 		length = sizeof(CTimerdMsg::commandRemind);
 	}
-	else if(evType == CTimerd::TIMER_EXEC_PLUGIN)
+	else if (evType == CTimerd::TIMER_EXEC_PLUGIN)
 	{
 		length = sizeof(CTimerdMsg::commandExecPlugin);
 	}
@@ -367,61 +367,61 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 		length = 0;
 	}
 
-	send(CTimerdMsg::CMD_ADDTIMER, (char*)&msgAddTimer, sizeof(msgAddTimer));
+	send(CTimerdMsg::CMD_ADDTIMER, (char *)&msgAddTimer, sizeof(msgAddTimer));
 
-	if((data != NULL) && (length > 0))
-		send_data((char*)data, length);
+	if ((data != NULL) && (length > 0))
+		send_data((char *)data, length);
 
 	CTimerdMsg::responseAddTimer response;
-	receive_data((char*)&response, sizeof(response));
+	receive_data((char *)&response, sizeof(response));
 	close_connection();
-	
-	return( response.eventID);
+
+	return (response.eventID);
 }
 //-------------------------------------------------------------------------
 
-void CTimerdClient::removeTimerEvent( int evId)
+void CTimerdClient::removeTimerEvent(int evId)
 {
 	CTimerdMsg::commandRemoveTimer msgRemoveTimer;
 	VALGRIND_PARANOIA(msgRemoveTimer);
 
 	msgRemoveTimer.eventID  = evId;
 
-	send(CTimerdMsg::CMD_REMOVETIMER, (char*) &msgRemoveTimer, sizeof(msgRemoveTimer));
+	send(CTimerdMsg::CMD_REMOVETIMER, (char *) &msgRemoveTimer, sizeof(msgRemoveTimer));
 
-	close_connection();  
+	close_connection();
 }
 //-------------------------------------------------------------------------
 
 bool CTimerdClient::isTimerdAvailable()
 {
-	if(!send(CTimerdMsg::CMD_TIMERDAVAILABLE))
+	if (!send(CTimerdMsg::CMD_TIMERDAVAILABLE))
 		return false;
 
 	CTimerdMsg::responseAvailable response;
-	bool ret=receive_data((char*)&response, sizeof(response));
+	bool ret = receive_data((char *)&response, sizeof(response));
 	close_connection();
 	return ret;
 }
 //-------------------------------------------------------------------------
 
-CTimerd::TimerList CTimerdClient::getOverlappingTimers(time_t& startTime, time_t& stopTime)
+CTimerd::TimerList CTimerdClient::getOverlappingTimers(time_t &startTime, time_t &stopTime)
 {
-	CTimerd::TimerList timerlist; 
+	CTimerd::TimerList timerlist;
 	CTimerd::TimerList overlapping;
 	int timerPre;
 	int timerPost;
 
 	getTimerList(timerlist);
-	getRecordingSafety(timerPre,timerPost);
+	getRecordingSafety(timerPre, timerPost);
 
 	for (CTimerd::TimerList::iterator it = timerlist.begin();
-	     it != timerlist.end();++it)
+		it != timerlist.end(); ++it)
 	{
-		if(it->stopTime != 0 && stopTime != 0)
+		if (it->stopTime != 0 && stopTime != 0)
 		{
 			// Check if both timers have start and end. In this case do not show conflict, if endtime is the same than the starttime of the following timer
-			if ((stopTime+timerPost > it->alarmTime) && (startTime-timerPre < it->stopTime))
+			if ((stopTime + timerPost > it->alarmTime) && (startTime - timerPre < it->stopTime))
 			{
 				overlapping.push_back(*it);
 			}
@@ -444,7 +444,7 @@ bool CTimerdClient::shutdown()
 	send(CTimerdMsg::CMD_SHUTDOWN);
 
 	CTimerdMsg::responseStatus response;
-	receive_data((char*)&response, sizeof(response));
+	receive_data((char *)&response, sizeof(response));
 
 	close_connection();
 	return response.status;
@@ -454,9 +454,9 @@ void CTimerdClient::modifyTimerAPid(int eventid, unsigned char apids)
 {
 	CTimerdMsg::commandSetAPid data;
 	VALGRIND_PARANOIA(data);
-	data.eventID=eventid;
+	data.eventID = eventid;
 	data.apids = apids;
-	send(CTimerdMsg::CMD_SETAPID, (char*) &data, sizeof(data)); 
+	send(CTimerdMsg::CMD_SETAPID, (char *) &data, sizeof(data));
 	close_connection();
 }
 
@@ -467,7 +467,7 @@ void CTimerdClient::setRecordingSafety(int pre, int post)
 	VALGRIND_PARANOIA(data);
 	data.pre = pre;
 	data.post = post;
-	send(CTimerdMsg::CMD_SETRECSAFETY, (char*) &data, sizeof(data)); 
+	send(CTimerdMsg::CMD_SETRECSAFETY, (char *) &data, sizeof(data));
 	close_connection();
 }
 
@@ -477,7 +477,7 @@ void CTimerdClient::getRecordingSafety(int &pre, int &post)
 	send(CTimerdMsg::CMD_GETRECSAFETY);
 	CTimerdMsg::commandRecordingSafety data;
 
-	bool success = receive_data((char*)&data, sizeof(data));
+	bool success = receive_data((char *)&data, sizeof(data));
 	close_connection();
 	if (success)
 	{
@@ -498,18 +498,18 @@ void CTimerdClient::getWeekdaysFromStr(CTimerd::CTimerEventRepeat *eventRepeat, 
 {
 	if (str.length() < 7)
 		str.append(7 - str.length(), '-');
-	int rep = (int) *eventRepeat;
-	if(rep >= (int)CTimerd::TIMERREPEAT_WEEKDAYS)
+	int rep = (int) * eventRepeat;
+	if (rep >= (int)CTimerd::TIMERREPEAT_WEEKDAYS)
 	{
-		for(int n=0;n<7;n++)
+		for (int n = 0; n < 7; n++)
 		{
-			if(str[n]=='X' || str[n]=='x')
+			if (str[n] == 'X' || str[n] == 'x')
 			{
-				rep |= (1 << (n+9));
+				rep |= (1 << (n + 9));
 			}
 			else
 			{
-				rep &= (~(1 << (n+9)));
+				rep &= (~(1 << (n + 9)));
 			}
 		}
 	}
@@ -520,29 +520,29 @@ void CTimerdClient::setWeekdaysToStr(CTimerd::CTimerEventRepeat rep, std::string
 {
 	if (str.length() < 7)
 		str.append(7 - str.length(), '-');
-	if(rep >= CTimerd::TIMERREPEAT_WEEKDAYS)
+	if (rep >= CTimerd::TIMERREPEAT_WEEKDAYS)
 	{
-		for(int n=0;n<7;n++)
+		for (int n = 0; n < 7; n++)
 		{
-			if(rep & (1 << (n+9)))
-				str.at(n)='X';
+			if (rep & (1 << (n + 9)))
+				str.at(n) = 'X';
 			else
-				str.at(n)='-';
+				str.at(n) = '-';
 		}
 	}
 	else
 		str = "-------";
 }
 //-------------------------------------------------------------------------
-void CTimerdClient::stopTimerEvent( int evId)
+void CTimerdClient::stopTimerEvent(int evId)
 {
 	CTimerdMsg::commandRemoveTimer msgRemoveTimer;
 	VALGRIND_PARANOIA(msgRemoveTimer);
 
 	msgRemoveTimer.eventID  = evId;
 
-	send(CTimerdMsg::CMD_STOPTIMER, (char*) &msgRemoveTimer, sizeof(msgRemoveTimer));
+	send(CTimerdMsg::CMD_STOPTIMER, (char *) &msgRemoveTimer, sizeof(msgRemoveTimer));
 
-	close_connection();  
+	close_connection();
 }
 

@@ -26,20 +26,23 @@
 
 #include <linux/types.h>
 
-typedef enum {
+typedef enum
+{
 	AUDIO_SOURCE_DEMUX, /* Select the demux as the main source */
 	AUDIO_SOURCE_MEMORY /* Select internal memory as the main source */
 } audio_stream_source_t;
 
 
-typedef enum {
+typedef enum
+{
 	AUDIO_STOPPED,      /* Device is stopped */
 	AUDIO_PLAYING,      /* Device is currently playing */
 	AUDIO_PAUSED        /* Device is paused */
 } audio_play_state_t;
 
 
-typedef enum {
+typedef enum
+{
 	AUDIO_STEREO,
 	AUDIO_MONO_LEFT,
 	AUDIO_MONO_RIGHT,
@@ -48,14 +51,16 @@ typedef enum {
 } audio_channel_select_t;
 
 
-typedef struct audio_mixer {
+typedef struct audio_mixer
+{
 	unsigned int volume_left;
 	unsigned int volume_right;
-  // what else do we need? bass, pass-through, ...
+	// what else do we need? bass, pass-through, ...
 } audio_mixer_t;
 
 
-typedef struct audio_status {
+typedef struct audio_status
+{
 	int                    AV_sync_state;  /* sync audio and video? */
 	int                    mute_state;     /* audio is muted */
 	audio_play_state_t     play_state;     /* current playback state */
@@ -67,12 +72,13 @@ typedef struct audio_status {
 
 
 typedef
-struct audio_karaoke {  /* if Vocal1 or Vocal2 are non-zero, they get mixed  */
+struct audio_karaoke    /* if Vocal1 or Vocal2 are non-zero, they get mixed  */
+{
 	int vocal1;    /* into left and right t at 70% each */
 	int vocal2;    /* if both, Vocal1 and Vocal2 are non-zero, Vocal1 gets*/
 	int melody;    /* mixed into the left channel and */
-		       /* Vocal2 into the right channel at 100% each. */
-		       /* if Melody is non-zero, the melody channel gets mixed*/
+	/* Vocal2 into the right channel at 100% each. */
+	/* if Melody is non-zero, the melody channel gets mixed*/
 } audio_karaoke_t;     /* into left and right  */
 
 

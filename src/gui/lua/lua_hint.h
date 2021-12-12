@@ -33,7 +33,7 @@ class CLuaInstHint
 	public:
 		CLuaInstHint() {};
 		~CLuaInstHint() {};
-		static CLuaInstHint* getInstance();
+		static CLuaInstHint *getInstance();
 		static void HintRegister(lua_State *L);
 
 	private:

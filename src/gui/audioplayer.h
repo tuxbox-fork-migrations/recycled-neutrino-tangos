@@ -51,9 +51,9 @@ class CAudiofileExt : public CAudiofile
 
 		CAudiofileExt(std::string name, CFile::FileType type);
 
-		CAudiofileExt(const CAudiofileExt& src);
+		CAudiofileExt(const CAudiofileExt &src);
 
-		void operator=(const CAudiofileExt& src);
+		void operator=(const CAudiofileExt &src);
 
 		char firstChar;
 };
@@ -73,7 +73,7 @@ class CAudioPlayerGui : public CMenuTarget
 	public:
 		enum State
 		{
-			PLAY=0,
+			PLAY = 0,
 			STOP,
 			PAUSE,
 			FF,
@@ -83,12 +83,12 @@ class CAudioPlayerGui : public CMenuTarget
 		enum DisplayOrder
 		{
 			ARTIST_TITLE = 0,
-			TITLE_ARTIST=1
+			TITLE_ARTIST = 1
 		};
 
 	private:
 		void Init(void);
-		CFrameBuffer *	m_frameBuffer;
+		CFrameBuffer 	*m_frameBuffer;
 		unsigned int	m_selected;
 		int		m_current;
 		unsigned int	m_liststart;
@@ -146,20 +146,20 @@ class CAudioPlayerGui : public CMenuTarget
 		void clearDetailsLine();
 		void hide();
 
-		void get_id3(CAudiofileExt * audiofile);
-		void get_mp3info(CAudiofileExt * audiofile);
+		void get_id3(CAudiofileExt *audiofile);
+		void get_mp3info(CAudiofileExt *audiofile);
 		CFileFilter audiofilefilter;
-		void ff(unsigned int seconds=0);
-		void rev(unsigned int seconds=0);
+		void ff(unsigned int seconds = 0);
+		void rev(unsigned int seconds = 0);
 		int getNext();
 		void GetMetaData(CAudiofileExt &File);
 		void updateMetaData();
 		void updateTimes(const bool force = false);
 		void showMetaData();
-		bool getNumericInput(neutrino_msg_t& msg, int& val);
+		bool getNumericInput(neutrino_msg_t &msg, int &val);
 
-		void getCurrentCaption(std::string* text);
-		void getCurrentTitleArtist(std::string* text);
+		void getCurrentCaption(std::string *text);
+		void getCurrentTitleArtist(std::string *text);
 
 		void addToPlaylist(CAudiofileExt &file);
 		void removeFromPlaylist(long pos);
@@ -196,7 +196,7 @@ class CAudioPlayerGui : public CMenuTarget
 		 * @param fileInfo a string where the file information will be appended
 		 * @param file the file to return the information for
 		 */
-		void getFileInfoToDisplay(std::string& fileInfo, CAudiofileExt &file);
+		void getFileInfoToDisplay(std::string &fileInfo, CAudiofileExt &file);
 
 		void printSearchTree();
 
@@ -225,14 +225,14 @@ class CAudioPlayerGui : public CMenuTarget
 		 * @return the location of absFilename as seen from fromDir
 		 * (relative path)
 		 */
-		std::string absPath2Rel(const std::string& fromDir, const std::string& absFilename);
+		std::string absPath2Rel(const std::string &fromDir, const std::string &absFilename);
 
 		/**
 		 * Asks the user if the file filename should be overwritten or not
 		 * @param filename the name of the file
 		 * @return true if file should be overwritten, false otherwise
 		 */
-		bool askToOverwriteFile(const std::string& filename);
+		bool askToOverwriteFile(const std::string &filename);
 
 		void cleanupCovers();
 
@@ -247,7 +247,7 @@ class CAudioPlayerGui : public CMenuTarget
 		CAudioPlayerGui(bool inetmode = false);
 		~CAudioPlayerGui();
 		int show();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 
 		void wantNextPlay();
 		void pause();

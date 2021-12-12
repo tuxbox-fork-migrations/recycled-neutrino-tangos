@@ -94,11 +94,12 @@ const CMenuOptionChooser::keyval HDD_SLEEP_OPTIONS[HDD_SLEEP_OPTION_COUNT] =
 	{ 242, LOCALE_HDD_60MIN }
 };
 
-devtool_s CHDDMenuHandler::devtools[] = {
+devtool_s CHDDMenuHandler::devtools[] =
+{
 	{ "ext4",  "/sbin/fsck.ext4",  "-C 1 -f -y", "/sbin/mkfs.ext4",  "-T largefile -m0", false, false },
 	{ "ext3",  "/sbin/fsck.ext3",  "-C 1 -f -y", "/sbin/mkfs.ext3",  "-T largefile -m0", false, false },
 	{ "ext2",  "/sbin/fsck.ext2",  "-C 1 -f -y", "/sbin/mkfs.ext2",  "-T largefile -m0", false, false },
-	{ "f2fs",  "/sbin/fsck.f2fs" , ""          , "/sbin/mkfs.f2fs" , "-f",               false, false },
+	{ "f2fs",  "/sbin/fsck.f2fs", "", "/sbin/mkfs.f2fs", "-f",               false, false },
 	{ "jfs",   "/sbin/fsck.jfs",   "-a -f -p",   "/sbin/mkfs.jfs",   "-q",               false, false },
 	{ "vfat",  "/sbin/fsck.vfat",  "-a",         "/sbin/mkfs.vfat",  "",                 false, false },
 	{ "exfat", "/sbin/fsck.exfat", "",           "/sbin/mkfs.exfat", "",                 false, false },
@@ -106,7 +107,7 @@ devtool_s CHDDMenuHandler::devtools[] = {
 };
 #define FS_MAX (sizeof(CHDDMenuHandler::devtools)/sizeof(devtool_s))
 
-static int my_filter(const struct dirent * dent)
+static int my_filter(const struct dirent *dent)
 {
 	return CHDDMenuHandler::getInstance()->filterDevName(dent->d_name);
 }
@@ -125,17 +126,17 @@ CHDDMenuHandler::~CHDDMenuHandler()
 {
 }
 
-CHDDMenuHandler* CHDDMenuHandler::getInstance()
+CHDDMenuHandler *CHDDMenuHandler::getInstance()
 {
-	static CHDDMenuHandler* me = NULL;
+	static CHDDMenuHandler *me = NULL;
 
-	if(!me)
+	if (!me)
 		me = new CHDDMenuHandler();
 
 	return me;
 }
 
-int CHDDMenuHandler::filterDevName(const char * name)
+int CHDDMenuHandler::filterDevName(const char *name)
 {
 	if (((name[0] == 's' || name[0] == 'h') && (name[1] == 'd' || name[1] == 'r'))
 #if !HAVE_ARM_HARDWARE
@@ -167,8 +168,10 @@ bool CHDDMenuHandler::is_mounted(const char *dev)
 	std::string realdev = readlink(devpath);
 	realdev = trim(realdev);
 	FILE *f = fopen("/proc/mounts", "r");
-	if(f) {
-		while (!res && fgets(buffer, sizeof(buffer), f)) {
+	if (f)
+	{
+		while (!res && fgets(buffer, sizeof(buffer), f))
+		{
 			if (buffer[0] != '/')
 				continue; /* only "real" devices are interesting */
 			char *p = strchr(buffer, ' ');
@@ -176,7 +179,8 @@ bool CHDDMenuHandler::is_mounted(const char *dev)
 				*p = 0; /* terminate at first space, kernel-user ABI is fixed */
 			if (!strcmp(buffer, devpath)) /* default '/dev/sda1' mount */
 				res = true;
-			else {	/* now the case of '/dev/disk/by-label/myharddrive' mounts */
+			else  	/* now the case of '/dev/disk/by-label/myharddrive' mounts */
+			{
 				std::string realmount = readlink(buffer);
 				if (realdev == trim(realmount))
 					res = true;
@@ -190,8 +194,8 @@ bool CHDDMenuHandler::is_mounted(const char *dev)
 
 void CHDDMenuHandler::getBlkIds()
 {
-	FILE *          mountFile;
-	struct mntent * mnt;
+	FILE           *mountFile;
+	struct mntent *mnt;
 	struct dirent **namelist;
 	blkid_cache c;
 
@@ -217,13 +221,13 @@ void CHDDMenuHandler::getBlkIds()
 				continue;
 #endif
 			hdd_s hdd;
-			hdd.devname = std::string(mnt->mnt_fsname +5 );
+			hdd.devname = std::string(mnt->mnt_fsname + 5);
 
-			label = blkid_get_tag_value(c,"LABEL",mnt->mnt_fsname);
+			label = blkid_get_tag_value(c, "LABEL", mnt->mnt_fsname);
 			if (label == NULL)
 				label = "unknown";
 
-			type = blkid_get_tag_value(c,"TYPE",mnt->mnt_fsname);
+			type = blkid_get_tag_value(c, "TYPE", mnt->mnt_fsname);
 			if (type == NULL)
 				type = "unknown";
 
@@ -231,14 +235,14 @@ void CHDDMenuHandler::getBlkIds()
 			hdd.label = label;
 			hdd.mounted = true;
 			hdd.mountpoint = mnt->mnt_dir;
-			hdd.desc = hdd.devname + " ("+std::string(hdd.label)+"," + hdd.fmt + ") " + hdd.mountpoint;
+			hdd.desc = hdd.devname + " (" + std::string(hdd.label) + "," + hdd.fmt + ") " + hdd.mountpoint;
 			hdd_list.push_back(hdd);
 		}
 		endmntent(mountFile);
 	}
 
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
-	for(int i = 0; i < n; i++)
+	for (int i = 0; i < n; i++)
 	{
 		struct dirent **namelist_part;
 		char blockdir[281];
@@ -252,11 +256,11 @@ void CHDDMenuHandler::getBlkIds()
 			if (is_mounted(buf))
 				continue;
 
-			label = blkid_get_tag_value(c,"LABEL",buf);
+			label = blkid_get_tag_value(c, "LABEL", buf);
 			if (label == NULL)
 				label = "unknown";
 
-			type = blkid_get_tag_value(c,"TYPE",buf);
+			type = blkid_get_tag_value(c, "TYPE", buf);
 			if (type == NULL)
 				type = "unknown";
 
@@ -269,7 +273,7 @@ void CHDDMenuHandler::getBlkIds()
 			hdd.label = label;
 			hdd.mounted = is_mounted(buf + 5);
 			hdd.mountpoint = "no mountpoint";
-			hdd.desc = hdd.devname + " ("+ std::string(hdd.label)+"," + hdd.fmt + ") " + hdd.mountpoint;
+			hdd.desc = hdd.devname + " (" + std::string(hdd.label) + "," + hdd.fmt + ") " + hdd.mountpoint;
 			hdd_list.push_back(hdd);
 		}
 		if (p >= 0)
@@ -293,8 +297,10 @@ std::string CHDDMenuHandler::getFmtType(std::string name, std::string part)
 {
 	std::string ret;
 	std::string dev = name + part;
-	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
-		if (it->devname == dev) {
+	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+	{
+		if (it->devname == dev)
+		{
 			ret = it->fmt;
 			break;
 		}
@@ -308,11 +314,13 @@ void CHDDMenuHandler::check_kernel_fs()
 	char line[128]; /* /proc/filesystems lines are shorter */
 	kernel_fs_list.clear();
 	FILE *f = fopen("/proc/filesystems", "r");
-	if (! f) {
+	if (! f)
+	{
 		fprintf(stderr, "CHDDMenuHandler::%s: opening /proc/filesystems failed: %m\n", __func__);
 		return;
 	}
-	while (fgets(line, sizeof(line), f)) {
+	while (fgets(line, sizeof(line), f))
+	{
 		size_t l = strlen(line);
 		if (l > 0)
 			line[l - 1] = 0; /* remove \n */
@@ -327,8 +335,10 @@ void CHDDMenuHandler::check_kernel_fs()
 
 void CHDDMenuHandler::check_dev_tools()
 {
-	for (unsigned i = 0; i < FS_MAX; i++) {
-		if (kernel_fs_list.find(devtools[i].fmt) == kernel_fs_list.end()) {
+	for (unsigned i = 0; i < FS_MAX; i++)
+	{
+		if (kernel_fs_list.find(devtools[i].fmt) == kernel_fs_list.end())
+		{
 			printf("%s: filesystem '%s' not supported by kernel\n",
 				__func__, devtools[i].fmt.c_str());
 			continue;
@@ -341,9 +351,10 @@ void CHDDMenuHandler::check_dev_tools()
 	}
 }
 
-devtool_s * CHDDMenuHandler::get_dev_tool(std::string fmt)
+devtool_s *CHDDMenuHandler::get_dev_tool(std::string fmt)
 {
-	for (unsigned i = 0; i < FS_MAX; i++) {
+	for (unsigned i = 0; i < FS_MAX; i++)
+	{
 		if (fmt == devtools[i].fmt)
 			return &devtools[i];
 	}
@@ -353,7 +364,8 @@ devtool_s * CHDDMenuHandler::get_dev_tool(std::string fmt)
 bool CHDDMenuHandler::mount_dev(std::string name)
 {
 	std::string dev = name.substr(0, 2);
-	if (dev == "sr" && !access(EJECT_BIN, X_OK)) {
+	if (dev == "sr" && !access(EJECT_BIN, X_OK))
+	{
 		std::string eject = std::string(EJECT_BIN) + " -t /dev/" + name;
 		system(eject.c_str());
 		sleep(3);
@@ -361,22 +373,24 @@ bool CHDDMenuHandler::mount_dev(std::string name)
 #ifdef ASSUME_MDEV
 	std::string cmd = std::string("ACTION=add") + " MDEV=" + name + " " + MDEV_MOUNT;
 #else
-	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
-		if (it->devname == name) {
+	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+	{
+		if (it->devname == name)
+		{
 			CFileBrowser b;
-			b.Dir_Mode=true;
-			const char* type = it->fmt.c_str();
-			std::string device = "/dev/"+it->devname;
+			b.Dir_Mode = true;
+			const char *type = it->fmt.c_str();
+			std::string device = "/dev/" + it->devname;
 			if (it->mountpoint == "no mountpoint")
 			{
 				int ret = b.exec("/mnt");
 				if (ret)
 					it->mountpoint = b.getSelectedFile()->Name.c_str();
 			}
-			if (mount(device.c_str(), it->mountpoint.c_str(), type, MS_MGC_VAL | MS_NOATIME | MS_NODIRATIME,"") == 0)
-				it->mounted=true;
+			if (mount(device.c_str(), it->mountpoint.c_str(), type, MS_MGC_VAL | MS_NOATIME | MS_NODIRATIME, "") == 0)
+				it->mounted = true;
 			else
-				ShowMsg ( LOCALE_NFS_MOUNTERROR , g_Locale->getText(LOCALE_NFS_MOUNTERROR_NOTSUP) , CMsgBox::mbrOk, CMsgBox::mbrOk);
+				ShowMsg(LOCALE_NFS_MOUNTERROR, g_Locale->getText(LOCALE_NFS_MOUNTERROR_NOTSUP), CMsgBox::mbrOk, CMsgBox::mbrOk);
 		}
 	}
 #endif
@@ -391,18 +405,21 @@ bool CHDDMenuHandler::umount_dev(std::string name)
 	printf("CHDDMenuHandler::umount_dev: umount cmd [%s]\n", cmd.c_str());
 	system(cmd.c_str());
 #else
-	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
-		if (it->mountpoint == name) {
+	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+	{
+		if (it->mountpoint == name)
+		{
 			if (umount2(it->mountpoint.c_str(), MNT_FORCE) == 0)
 			{
 				it->mountpoint = "no mountpoint";
-				it->mounted=false;
+				it->mounted = false;
 			}
 		}
 	}
 #endif
 	std::string dev = name.substr(0, 2);
-	if (dev == "sr" && !access(EJECT_BIN, X_OK)) {
+	if (dev == "sr" && !access(EJECT_BIN, X_OK))
+	{
 		std::string eject = std::string(EJECT_BIN) + " /dev/" + name;
 		system(eject.c_str());
 	}
@@ -413,9 +430,11 @@ bool CHDDMenuHandler::umount_dev(std::string name)
 bool CHDDMenuHandler::umount_all(std::string dev)
 {
 	bool ret = true;
-	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
+	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+	{
 		std::string mdev = it->devname.substr(0, dev.size());
-		if (mdev == dev) {
+		if (mdev == dev)
+		{
 			if (is_mounted(it->devname.c_str()))
 				ret &= umount_dev(it->mountpoint);
 		}
@@ -427,11 +446,13 @@ bool CHDDMenuHandler::umount_all(std::string dev)
 bool CHDDMenuHandler::add_dev(std::string dev, std::string part)
 {
 	std::string filename = "/sys/block/" + dev + "/" + dev + part + "/uevent";
-	if (!access(filename.c_str(), W_OK)) {
+	if (!access(filename.c_str(), W_OK))
+	{
 		FILE *f = fopen(filename.c_str(), "w");
 		if (!f)
 			printf("HDD: %s could not open %s: %m\n", __func__, filename.c_str());
-		else {
+		else
+		{
 			printf("-> triggering add uevent in %s\n", filename.c_str());
 			fprintf(f, "add\n");
 			fclose(f);
@@ -446,14 +467,16 @@ bool CHDDMenuHandler::waitfordev(std::string dev, int maxwait)
 	int ret = true;
 	int waitcount = 0;
 	/* wait for the device to show up... */
-	while (access(dev.c_str(), W_OK)) {
+	while (access(dev.c_str(), W_OK))
+	{
 		if (!waitcount)
 			printf("CHDDFmtExec: waiting for %s", dev.c_str());
 		else
 			printf(".");
 		fflush(stdout);
 		waitcount++;
-		if (waitcount > maxwait) {
+		if (waitcount > maxwait)
+		{
 			fprintf(stderr, "CHDDFmtExec: device %s did not appear!\n", dev.c_str());
 			ret = false;
 			break;
@@ -472,15 +495,17 @@ void CHDDMenuHandler::showHint(std::string &message)
 	hintBox.paint();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(3);
-        neutrino_msg_t      msg;
-        neutrino_msg_data_t data;
+	neutrino_msg_t      msg;
+	neutrino_msg_data_t data;
 
-	while(true) {
+	while (true)
+	{
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
 		if ((msg == CRCInput::RC_timeout) || (msg < CRCInput::RC_MaxRC))
 			break;
-		else if (msg == NeutrinoMessages::EVT_HOTPLUG) {
+		else if (msg == NeutrinoMessages::EVT_HOTPLUG)
+		{
 			g_RCInput->postMsg(msg, data);
 			break;
 		}
@@ -493,25 +518,28 @@ void CHDDMenuHandler::showHint(std::string &message)
 void CHDDMenuHandler::setRecordPath(std::string &dev)
 {
 	std::string newpath = std::string(MOUNT_BASE) + dev + "/movie";
-	if (g_settings.network_nfs_recordingdir == newpath) {
+	if (g_settings.network_nfs_recordingdir == newpath)
+	{
 		printf("CHDDMenuHandler::setRecordPath: recordingdir already set to %s\n", newpath.c_str());
 		return;
 	}
 	/* don't annoy if the recordingdir is a symlink pointing to the 'right' location */
 	std::string readl = readlink(g_settings.network_nfs_recordingdir.c_str());
 	readl = trim(readl);
-	if (newpath.compare(readl) == 0) {
+	if (newpath.compare(readl) == 0)
+	{
 		printf("CHDDMenuHandler::%s: recordingdir is a symlink to %s\n",
-					__func__, newpath.c_str());
+			__func__, newpath.c_str());
 		return;
 	}
 	bool old_menu = in_menu;
 	in_menu = false;
 	int res = ShowMsg(LOCALE_RECORDINGMENU_DEFDIR, LOCALE_HDD_SET_RECDIR, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
-	if(res == CMsgBox::mbrYes) {
+	if (res == CMsgBox::mbrYes)
+	{
 		g_settings.network_nfs_recordingdir = newpath;
 		CRecordManager::getInstance()->SetDirectory(g_settings.network_nfs_recordingdir);
-		if(g_settings.timeshiftdir.empty())
+		if (g_settings.timeshiftdir.empty())
 		{
 			std::string timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
 			safe_mkdir(timeshiftDir.c_str());
@@ -524,18 +552,20 @@ void CHDDMenuHandler::setRecordPath(std::string &dev)
 
 int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
-	if (msg == NeutrinoMessages::EVT_HOTPLUG) {
+	if (msg == NeutrinoMessages::EVT_HOTPLUG)
+	{
 		std::string str((char *) data);
-		std::map<std::string,std::string> smap;
+		std::map<std::string, std::string> smap;
 
 		if (!split_config_string(str, smap))
 			return messages_return::handled;
 
 		std::string dev;
-		std::map<std::string,std::string>::iterator it = smap.find("MDEV");
+		std::map<std::string, std::string>::iterator it = smap.find("MDEV");
 		if (it != smap.end())
 			dev = it->second;
-		else {
+		else
+		{
 			it = smap.find("DEVNAME");
 			if (it == smap.end())
 				return messages_return::handled;
@@ -555,19 +585,24 @@ int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t dat
 		bool mounted = is_mounted(dev.c_str());
 		std::string tmp = dev.substr(0, 2);
 
-		if (added && !mounted && tmp != "sr") {
+		if (added && !mounted && tmp != "sr")
+		{
 			std::string message = dev + ": " + g_Locale->getText(LOCALE_HDD_MOUNT_FAILED);
 			message +=  std::string(" ") + g_Locale->getText(LOCALE_HDD_FORMAT) + std::string(" ?");
 			int res = ShowMsg(LOCALE_MESSAGEBOX_INFO, message, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
-			if(res == CMsgBox::mbrYes) {
-				unsigned char * p = new unsigned char[dev.size() + 1];
-				if (p) {
+			if (res == CMsgBox::mbrYes)
+			{
+				unsigned char *p = new unsigned char[dev.size() + 1];
+				if (p)
+				{
 					sprintf((char *)p, "%s", dev.c_str());
-					g_RCInput->postMsg(NeutrinoMessages::EVT_FORMAT_DRIVE , (neutrino_msg_data_t)p);
+					g_RCInput->postMsg(NeutrinoMessages::EVT_FORMAT_DRIVE, (neutrino_msg_data_t)p);
 					return messages_return::handled | messages_return::cancel_all;
 				}
 			}
-		} else {
+		}
+		else
+		{
 			std::string message = dev + ": " + (added ?
 					g_Locale->getText(mounted ? LOCALE_HDD_MOUNT_OK : LOCALE_HDD_MOUNT_FAILED)
 					: g_Locale->getText(LOCALE_HDD_UMOUNTED));
@@ -575,21 +610,25 @@ int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t dat
 			if (added && tmp != "sr")
 				setRecordPath(dev);
 		}
-		if (in_menu && !lock_refresh) {
+		if (in_menu && !lock_refresh)
+		{
 			show_menu = true;
 			return messages_return::handled | messages_return::cancel_all;
 		}
 		lock_refresh = false;
 		return messages_return::handled;
 	}
-	else if (msg == NeutrinoMessages::EVT_FORMAT_DRIVE) {
+	else if (msg == NeutrinoMessages::EVT_FORMAT_DRIVE)
+	{
 		std::string dev((char *) data);
 		printf("NeutrinoMessages::EVT_FORMAT_DRIVE: [%s]\n", dev.c_str());
 		check_dev_tools();
 		getBlkIds();
 		scanDevices();
-		for (std::map<std::string, std::string>::iterator it = devtitle.begin(); it != devtitle.end(); ++it) {
-			if (dev.substr(0, it->first.size()) == it->first) {
+		for (std::map<std::string, std::string>::iterator it = devtitle.begin(); it != devtitle.end(); ++it)
+		{
+			if (dev.substr(0, it->first.size()) == it->first)
+			{
 				showDeviceMenu(it->first);
 				break;
 			}
@@ -601,7 +640,7 @@ int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t dat
 	return messages_return::unhandled;
 }
 
-int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
+int CHDDMenuHandler::exec(CMenuTarget *parent, const std::string &actionkey)
 {
 	if (parent)
 		parent->hide();
@@ -611,44 +650,52 @@ int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 
 	std::string dev = actionkey.substr(1);
 	printf("CHDDMenuHandler::exec actionkey %s dev %s\n", actionkey.c_str(), dev.c_str());
-	if (actionkey[0] == 'm') {
-		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
-			if (it->devname == dev) {
+	if (actionkey[0] == 'm')
+	{
+		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+		{
+			if (it->devname == dev)
+			{
 				CHintBox hintbox(it->mounted ? LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT, it->devname.c_str());
 				hintbox.paint();
-				if  (it->mounted)
+				if (it->mounted)
 					umount_dev(it->mountpoint);
 				else
 					mount_dev(it->devname);
 
 				it->cmf->setOption(g_Locale->getText(it->mounted ? LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT));
-				it->desc = it->devname + " ("+std::string(it->label)+"," + it->fmt + ") " + it->mountpoint;
+				it->desc = it->devname + " (" + std::string(it->label) + "," + it->fmt + ") " + it->mountpoint;
 				it->cmf->setName(it->desc.c_str());
 				hintbox.hide();
 				return menu_return::RETURN_REPAINT;
 			}
 		}
 	}
-	else if (actionkey[0] == 'd') {
+	else if (actionkey[0] == 'd')
+	{
 		return showDeviceMenu(dev);
 	}
-	else if (actionkey[0] == 'c') {
+	else if (actionkey[0] == 'c')
+	{
 		return checkDevice(dev);
 	}
-	else if (actionkey[0] == 'f') {
+	else if (actionkey[0] == 'f')
+	{
 		int ret = formatDevice(dev);
 #if 0
 		std::string devname = "/dev/" + dev + getDefaultPart(dev);
-		if (show_menu && is_mounted(devname.c_str())) {
+		if (show_menu && is_mounted(devname.c_str()))
+		{
 			devname = dev + getDefaultPart(dev);
 			setRecordPath(devname);
 		}
 #endif
 		return ret;
 	}
-	else if (actionkey[0] == 'g') {
+	else if (actionkey[0] == 'g')
+	{
 		CFileBrowser b;
-		b.Dir_Mode=true;
+		b.Dir_Mode = true;
 		int res = b.exec(fmt_mpoint.c_str());
 		if (res)
 			fmt_mpoint = b.getSelectedFile()->Name.c_str();
@@ -660,18 +707,20 @@ int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 int CHDDMenuHandler::showDeviceMenu(std::string dev)
 {
 	printf("CHDDMenuHandler::showDeviceMenu: dev %s\n", dev.c_str());
-	CMenuWidget* hddmenu = new CMenuWidget(devtitle[dev].c_str(), NEUTRINO_ICON_SETTINGS);
+	CMenuWidget *hddmenu = new CMenuWidget(devtitle[dev].c_str(), NEUTRINO_ICON_SETTINGS);
 	hddmenu->addIntroItems();
 
-	CMenuForwarder * mf;
+	CMenuForwarder *mf;
 
 	std::string fmt_type = getFmtType(dev, getDefaultPart(dev));
 	bool fsck_enabled = false;
 	bool mkfs_enabled = false;
 	struct CMenuOptionChooser::keyval_ext fsoptions[FS_MAX];
 	int opcount = 0;
-	for (unsigned i = 0; i < FS_MAX; i++) {
-		if (devtools[i].mkfs_supported) {
+	for (unsigned i = 0; i < FS_MAX; i++)
+	{
+		if (devtools[i].mkfs_supported)
+		{
 			fsoptions[opcount].key = i;
 			fsoptions[opcount].value = NONEXISTANT_LOCALE;
 			fsoptions[opcount].valname = devtools[i].fmt.c_str();
@@ -681,20 +730,24 @@ int CHDDMenuHandler::showDeviceMenu(std::string dev)
 		if (fmt_type == devtools[i].fmt)
 			g_settings.hdd_fs = i;
 	}
-	if (!opcount) {
+	if (!opcount)
+	{
 		fsoptions[0].key = 0;
 		fsoptions[0].valname = devtools[0].fmt.c_str();
 		opcount++;
 	}
 	int cnt = 0;
 	bool found = false;
-	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
+	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+	{
 		std::string mdev = it->devname.substr(0, dev.size());
-		if (mdev == dev) {
+		if (mdev == dev)
+		{
 			printf("found %s partition %s\n", dev.c_str(), it->devname.c_str());
 			fsck_enabled = false;
-			devtool_s * devtool = get_dev_tool(it->fmt);
-			if (devtool) {
+			devtool_s *devtool = get_dev_tool(it->fmt);
+			if (devtool)
+			{
 				fsck_enabled = devtool->fsck_supported;
 			}
 
@@ -710,7 +763,7 @@ int CHDDMenuHandler::showDeviceMenu(std::string dev)
 	if (found)
 		hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE));
 
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, fsoptions, opcount, mkfs_enabled);
+	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, fsoptions, opcount, mkfs_enabled);
 	mc->setHint("", LOCALE_MENU_HINT_HDD_FMT);
 	hddmenu->addItem(mc);
 
@@ -741,7 +794,8 @@ bool CHDDMenuHandler::scanDevices()
 	int root_dev = -1;
 
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
-	if (n < 0) {
+	if (n < 0)
+	{
 		perror("CHDDMenuHandler::scanDevices: scandir(\"/sys/block\") failed");
 		return false;
 	}
@@ -755,7 +809,8 @@ bool CHDDMenuHandler::scanDevices()
 	}
 	printf("HDD: root_dev: 0x%04x\n", root_dev);
 
-	for(int i = 0; i < n;i++) {
+	for (int i = 0; i < n; i++)
+	{
 		char str[281];
 		char vendor[128] = { 0 };
 		char model[128] = { 0 };
@@ -767,38 +822,47 @@ bool CHDDMenuHandler::scanDevices()
 		printf("HDD: checking /sys/block/%s\n", namelist[i]->d_name);
 		snprintf(str, sizeof(str), "/dev/%s", namelist[i]->d_name);
 		int fd = open(str, O_RDONLY);
-		if (fd >= 0) {
+		if (fd >= 0)
+		{
 			if (ioctl(fd, BLKGETSIZE64, &bytes))
 				perror("BLKGETSIZE64");
 
 			int ret = fstat(fd, &s);
-			if (ret != -1) {
-				if ((int)(s.st_rdev & drive_mask) == root_dev) {
+			if (ret != -1)
+			{
+				if ((int)(s.st_rdev & drive_mask) == root_dev)
+				{
 					isroot = true;
 					/* dev_t is different sized on different architectures :-( */
 					printf("-> root device is on this disk 0x%04x, skipping\n", (int)s.st_rdev);
 				}
 			}
 			close(fd);
-		} else {
+		}
+		else
+		{
 			printf("Cant open %s\n", str);
 		}
 		if (isroot)
 			continue;
 
-		megabytes = bytes/1000000;
+		megabytes = bytes / 1000000;
 
 		snprintf(str, sizeof(str), "/sys/block/%s/device/vendor", namelist[i]->d_name);
-		FILE * f = fopen(str, "r");
-		if(!f) {
+		FILE *f = fopen(str, "r");
+		if (!f)
+		{
 			printf("Cant open %s\n", str);
 			snprintf(str, sizeof(str), "/sys/block/%s/device/type", namelist[i]->d_name);
 			f = fopen(str, "r");
 		}
-		if (f) {
+		if (f)
+		{
 			fscanf(f, "%s", vendor);
 			fclose(f);
-		} else {
+		}
+		else
+		{
 			oldkernel = true;
 			strcpy(vendor, "");
 		}
@@ -809,12 +873,14 @@ bool CHDDMenuHandler::scanDevices()
 		else
 			snprintf(str, sizeof(str), "/sys/block/%s/device/model", namelist[i]->d_name);
 		f = fopen(str, "r");
-		if(!f) {
+		if (!f)
+		{
 			printf("Cant open %s\n", str);
 			snprintf(str, sizeof(str), "/sys/block/%s/device/name", namelist[i]->d_name);
 			f = fopen(str, "r");
 		}
-		if (f) {
+		if (f)
+		{
 			fscanf(f, "%s", model);
 			fclose(f);
 		}
@@ -822,7 +888,8 @@ bool CHDDMenuHandler::scanDevices()
 		int removable = 0;
 		snprintf(str, sizeof(str), "/sys/block/%s/removable", namelist[i]->d_name);
 		f = fopen(str, "r");
-		if(!f) {
+		if (!f)
+		{
 			printf("Cant open %s\n", str);
 			continue;
 		}
@@ -832,7 +899,8 @@ bool CHDDMenuHandler::scanDevices()
 		std::string dev = std::string(namelist[i]->d_name).substr(0, 2);
 		std::string fmt = getFmtType(namelist[i]->d_name);
 		/* epmty cdrom do not appear in blkid output */
-		if (fmt.empty() && dev == "sr") {
+		if (fmt.empty() && dev == "sr")
+		{
 			hdd_s hdd;
 			hdd.devname = namelist[i]->d_name;
 			hdd.mounted = false;
@@ -841,7 +909,7 @@ bool CHDDMenuHandler::scanDevices()
 			hdd_list.push_back(hdd);
 		}
 
-		snprintf(str, sizeof(str), "%s %s %ld %s", vendor, model, (long)(megabytes < 10000 ? megabytes : megabytes/1000), megabytes < 10000 ? "MB" : "GB");
+		snprintf(str, sizeof(str), "%s %s %ld %s", vendor, model, (long)(megabytes < 10000 ? megabytes : megabytes / 1000), megabytes < 10000 ? "MB" : "GB");
 		printf("HDD: %s\n", str);
 		devtitle[namelist[i]->d_name] = str;
 
@@ -864,23 +932,24 @@ _show_menu:
 	getBlkIds();
 	scanDevices();
 
-	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_DRIVESETUP);
+	CMenuWidget *hddmenu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_DRIVESETUP);
 
 	hddmenu->addIntroItems(LOCALE_HDD_SETTINGS, LOCALE_HDD_EXTENDED_SETTINGS);
 
 	CHDDDestExec hddexec;
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_HDD_ACTIVATE, true, "", &hddexec, NULL, CRCInput::RC_red);
+	CMenuForwarder *mf = new CMenuForwarder(LOCALE_HDD_ACTIVATE, true, "", &hddexec, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_HDD_APPLY);
 	hddmenu->addItem(mf);
 
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_HDD_SLEEP, &g_settings.hdd_sleep, HDD_SLEEP_OPTIONS, HDD_SLEEP_OPTION_COUNT, true);
+	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_HDD_SLEEP, &g_settings.hdd_sleep, HDD_SLEEP_OPTIONS, HDD_SLEEP_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_HDD_SLEEP);
 	hddmenu->addItem(mc);
 
 	const char hdparm[] = "/sbin/hdparm";
 	struct stat stat_buf;
 	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
-	if (have_nonbb_hdparm) {
+	if (have_nonbb_hdparm)
+	{
 		mc = new CMenuOptionChooser(LOCALE_HDD_NOISE, &g_settings.hdd_noise, HDD_NOISE_OPTIONS, HDD_NOISE_OPTION_COUNT, true);
 		mc->setHint("", LOCALE_MENU_HINT_HDD_NOISE);
 		hddmenu->addItem(mc);
@@ -888,7 +957,8 @@ _show_menu:
 
 	hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MANAGE));
 
-	for (std::map<std::string, std::string>::iterator it = devtitle.begin(); it != devtitle.end(); ++it) {
+	for (std::map<std::string, std::string>::iterator it = devtitle.begin(); it != devtitle.end(); ++it)
+	{
 		std::string dev = it->first.substr(0, 2);
 		bool enabled = !CNeutrinoApp::getInstance()->recordingstatus && dev != "sr";
 		std::string key = "d" + it->first;
@@ -897,14 +967,16 @@ _show_menu:
 		hddmenu->addItem(mf);
 	}
 
-	if(devtitle.empty()) {
+	if (devtitle.empty())
+	{
 		//if no drives found, select 'back'
 		if (hddmenu->getSelected() != -1)
 			hddmenu->setSelected(2);
 		hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_NOT_FOUND, false));
 	}
 
-	if (!hdd_list.empty()) {
+	if (!hdd_list.empty())
+	{
 		struct stat rec_st, root_st, dev_st;
 		memset(&rec_st, 0, sizeof(rec_st));
 		memset(&root_st, 0, sizeof(root_st));
@@ -914,9 +986,11 @@ _show_menu:
 		sort(hdd_list.begin(), hdd_list.end(), cmp_hdd_by_name());
 		int shortcut = 1;
 		hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MOUNT_UMOUNT));
-		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
-			const char * rec_icon = NULL;
-			if (it->mounted) {
+		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+		{
+			const char *rec_icon = NULL;
+			if (it->mounted)
+			{
 				std::string dst = MOUNT_BASE + it->devname;
 				if (!stat(dst.c_str(), &stat_buf) && rec_st.st_dev == stat_buf.st_dev)
 					rec_icon = CNeutrinoApp::getInstance()->recordingstatus ? NEUTRINO_ICON_MARKER_RECORD : NEUTRINO_ICON_MARKER_RECORD_GRAY;
@@ -926,12 +1000,12 @@ _show_menu:
 			/* do not allow to unmount the rootfs, and skip filesystems without kernel support */
 			memset(&dev_st, 0, sizeof(dev_st));
 			if (stat(("/dev/" + it->devname).c_str(), &dev_st) != -1
-			    && dev_st.st_rdev == root_st.st_dev)
+				&& dev_st.st_rdev == root_st.st_dev)
 				enabled = false;
 			else if (kernel_fs_list.find(it->fmt) == kernel_fs_list.end())
 				enabled = false;
-			it->cmf = new CMenuForwarder(it->desc, enabled, g_Locale->getText(it->mounted ? LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT) , this,
-					key.c_str(), CRCInput::convertDigitToKey(shortcut++), NULL, rec_icon);
+			it->cmf = new CMenuForwarder(it->desc, enabled, g_Locale->getText(it->mounted ? LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT), this,
+				key.c_str(), CRCInput::convertDigitToKey(shortcut++), NULL, rec_icon);
 			hddmenu->addItem(it->cmf);
 		}
 	}
@@ -941,7 +1015,8 @@ _show_menu:
 	delete hddmenu;
 	hdd_list.clear();
 	devtitle.clear();
-	if (show_menu) {
+	if (show_menu)
+	{
 		show_menu = false;
 		goto _show_menu;
 	}
@@ -954,11 +1029,13 @@ static int dev_umount(char *dev)
 {
 	char buffer[255];
 	FILE *f = fopen("/proc/mounts", "r");
-	if(f == NULL)
+	if (f == NULL)
 		return -1;
-	while (fgets (buffer, 255, f) != NULL) {
+	while (fgets(buffer, 255, f) != NULL)
+	{
 		char *p = buffer + strlen(dev);
-		if (strstr(buffer, dev) == buffer && *p == ' ') {
+		if (strstr(buffer, dev) == buffer && *p == ' ')
+		{
 			p++;
 			char *q = strchr(p, ' ');
 			if (q == NULL)
@@ -1000,7 +1077,8 @@ static int umount_all(const char *dev)
 #ifdef ASSUME_MDEV
 		/* we can't use a 'remove' uevent, as that would also remove the device node
 		 * which we certainly need for formatting :-) */
-		if (! access("/etc/mdev/mdev-mount.sh", X_OK)) {
+		if (! access("/etc/mdev/mdev-mount.sh", X_OK))
+		{
 			sprintf(buffer, "MDEV=%s%d ACTION=remove /etc/mdev/mdev-mount.sh block", d, i);
 			printf("-> running '%s'\n", buffer);
 			my_system(3, "/bin/sh", "-c", buffer);
@@ -1032,11 +1110,13 @@ static int mount_all(const char *dev)
 	{
 #ifdef ASSUME_MDEV
 		sprintf(buffer, "/sys/block/%s/%s%d/uevent", d, d, i);
-		if (!access(buffer, W_OK)) {
+		if (!access(buffer, W_OK))
+		{
 			FILE *f = fopen(buffer, "w");
 			if (!f)
 				fprintf(stderr, "HDD: %s could not open %s: %m\n", __func__, buffer);
-			else {
+			else
+			{
 				printf("-> triggering add uevent in %s\n", buffer);
 				fprintf(f, "add\n");
 				fclose(f);
@@ -1053,14 +1133,16 @@ static void waitfordev(const char *src, int maxwait)
 {
 	int waitcount = 0;
 	/* wait for the device to show up... */
-	while (access(src, W_OK)) {
+	while (access(src, W_OK))
+	{
 		if (!waitcount)
 			printf("CHDDFmtExec: waiting for %s", src);
 		else
 			printf(".");
 		fflush(stdout);
 		waitcount++;
-		if (waitcount > maxwait) {
+		if (waitcount > maxwait)
+		{
 			fprintf(stderr, "CHDDFmtExec: device %s did not appear!\n", src);
 			break;
 		}
@@ -1086,8 +1168,8 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	char cmd[100];
 	char cmd2[100];
 	int res;
-	FILE * f;
-	CProgressWindow * progress;
+	FILE *f;
+	CProgressWindow *progress;
 	std::string fdisk, sfdisk, sgdisk, tune2fs;
 
 	printf("CHDDMenuHandler::formatDevice: dev %s hdd_fs %d\n", dev.c_str(), g_settings.hdd_fs);
@@ -1095,8 +1177,9 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	if (g_settings.hdd_fs < 0 || g_settings.hdd_fs >= (int) FS_MAX)
 		return menu_return::RETURN_REPAINT;
 
-	devtool_s * devtool = &devtools[g_settings.hdd_fs];
-	if (!devtool || !devtool->mkfs_supported) {
+	devtool_s *devtool = &devtools[g_settings.hdd_fs];
+	if (!devtool || !devtool->mkfs_supported)
+	{
 		printf("CHDDMenuHandler::formatDevice: mkfs.%s is not supported\n", devtool ? devtool->fmt.c_str() : "unknown");
 		return menu_return::RETURN_REPAINT;
 	}
@@ -1110,15 +1193,14 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	std::string mkfscmd;
 	if (fmt_label.empty())
 		mkfscmd = devtool->mkfs + " " + devtool->mkfs_options + " " + partname;
+	else if (devtool->mkfs == "/sbin/mkfs.f2fs")
+		mkfscmd = devtool->mkfs + " " + "-l " + fmt_label + " " + devtool->mkfs_options + " " + partname;
 	else
-		if (devtool->mkfs == "/sbin/mkfs.f2fs")
-			mkfscmd = devtool->mkfs + " " + "-l " + fmt_label + " " + devtool->mkfs_options + " " + partname;
-		else
-			mkfscmd = devtool->mkfs + " " + "-L " + fmt_label + " " + devtool->mkfs_options + " " + partname;
+		mkfscmd = devtool->mkfs + " " + "-L " + fmt_label + " " + devtool->mkfs_options + " " + partname;
 	printf("mkfs cmd: [%s]\n", mkfscmd.c_str());
 
-	res = ShowMsg(LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo );
-	if(res != CMsgBox::mbrYes)
+	res = ShowMsg(LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
+	if (res != CMsgBox::mbrYes)
 		return menu_return::RETURN_REPAINT;
 
 	bool srun = my_system(3, "killall", "-9", "smbd");
@@ -1126,14 +1208,16 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	res = umount_all(dev);
 	printf("CHDDMenuHandler::formatDevice: umount res %d\n", res);
 
-	if(!res) {
+	if (!res)
+	{
 		showError(LOCALE_HDD_UMOUNT_WARN);
 		goto _return;
 	}
 
 #ifndef ASSUME_MDEV
 	f = fopen("/proc/sys/kernel/hotplug", "w");
-	if(f) {
+	if (f)
+	{
 		fprintf(f, "none\n");
 		fclose(f);
 	}
@@ -1142,7 +1226,7 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 
 	progress = new CProgressWindow();
 	progress->setTitle(LOCALE_HDD_FORMAT);
-	progress->exec(NULL,"");
+	progress->exec(NULL, "");
 	progress->showGlobalStatus(0);
 
 	fdisk   = find_executable("fdisk");
@@ -1150,18 +1234,22 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	sgdisk  = find_executable("sgdisk");
 	tune2fs = find_executable("tune2fs");
 
-	if (! sgdisk.empty()) {
+	if (! sgdisk.empty())
+	{
 		snprintf(cmd, sizeof(cmd), "%s -Z -N 0 %s", sgdisk.c_str(), devname.c_str());
 	}
-	else if (! sfdisk.empty()) {
+	else if (! sfdisk.empty())
+	{
 		std::string conf = "echo 'label: gpt\n;' | ";
 		snprintf(cmd, sizeof(cmd), "%s %s -f %s", conf.c_str(), sfdisk.c_str(), devname.c_str());
 	}
-	else if (! fdisk.empty()) {
+	else if (! fdisk.empty())
+	{
 		snprintf(cmd, sizeof(cmd), "%s -u %s", fdisk.c_str(), devname.c_str());
 		strcpy(cmd2, "o\nn\np\n1\n2048\n\nw\n");
 	}
-	else {
+	else
+	{
 		/* cannot do anything */
 		fprintf(stderr, "CHDDFmtExec: neither fdisk, sfdisk or sgdisk found in $PATH :-(\n");
 		showError(LOCALE_HDD_FORMAT_FAILED);
@@ -1175,7 +1263,8 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 #endif
 	printf("CHDDMenuHandler::formatDevice: executing %s\n", cmd);
 	f = popen(cmd, "w");
-	if (!f) {
+	if (!f)
+	{
 		showError(LOCALE_HDD_FORMAT_FAILED);
 		res = -1;
 		goto _remount;
@@ -1185,7 +1274,8 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	fprintf(f, "%s", cmd2);
 	res = pclose(f);
 	printf("CHDDMenuHandler::formatDevice: (s(g))(f)disk res: %d\n", res);
-	if (res) {
+	if (res)
+	{
 		showError(LOCALE_HDD_FORMAT_FAILED);
 		goto _remount;
 	}
@@ -1199,7 +1289,8 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	res = umount_all(dev);
 	printf("CHDDMenuHandler::formatDevice: umount res %d\n", res);
 	f = popen(mkfscmd.c_str(), "r");
-	if (!f) {
+	if (!f)
+	{
 		showError(LOCALE_HDD_FORMAT_FAILED);
 		res = -1;
 		goto _remount;
@@ -1222,41 +1313,48 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 		if (in == '\b' || in == '\n')
 			pos = 0; /* start a new line */
 		//printf("%s", buf);
-		switch (stage) {
+		switch (stage)
+		{
 			case 0:
-				if (strcmp(buf, "Writing inode tables:") == 0) {
+				if (strcmp(buf, "Writing inode tables:") == 0)
+				{
 					stage++;
 					progress->showGlobalStatus(20);
 					progress->showStatusMessageUTF(buf);
 				}
 				break;
 			case 1:
-				if (in == '\b' && sscanf(buf, "%d/%d\b", &n, &t) == 2) {
+				if (in == '\b' && sscanf(buf, "%d/%d\b", &n, &t) == 2)
+				{
 					if (t == 0)
 						t = 1;
 					int percent = 100 * n / t;
 					progress->showLocalStatus(percent);
 					progress->showGlobalStatus(20 + percent / 5);
 				}
-				if (strstr(buf, "done")) {
+				if (strstr(buf, "done"))
+				{
 					stage++;
 					pos = 0;
 				}
 				break;
 			case 2:
-				if (strstr(buf, "blocks):") && sscanf(buf, "Creating journal (%d blocks):", &n) == 1) {
+				if (strstr(buf, "blocks):") && sscanf(buf, "Creating journal (%d blocks):", &n) == 1)
+				{
 					progress->showLocalStatus(0);
 					progress->showGlobalStatus(60);
 					progress->showStatusMessageUTF(buf);
 					pos = 0;
 				}
-				if (strstr(buf, "done")) {
+				if (strstr(buf, "done"))
+				{
 					stage++;
 					pos = 0;
 				}
 				break;
 			case 3:
-				if (strcmp(buf, "Writing superblocks and filesystem accounting information:") == 0) {
+				if (strcmp(buf, "Writing superblocks and filesystem accounting information:") == 0)
+				{
 					progress->showGlobalStatus(80);
 					progress->showStatusMessageUTF(buf);
 					pos = 0;
@@ -1271,13 +1369,15 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	res = pclose(f);
 	printf("CHDDMenuHandler::formatDevice: mkfs res: %d\n", res);
 	progress->showGlobalStatus(100);
-	if (res) {
+	if (res)
+	{
 		showError(LOCALE_HDD_FORMAT_FAILED);
 		goto _remount;
 	}
 	sleep(2);
 
-	if (devtool->fmt.substr(0, 3) == "ext" && ! tune2fs.empty()) {
+	if (devtool->fmt.substr(0, 3) == "ext" && ! tune2fs.empty())
+	{
 		std::string d = "/dev/" + devpart;
 		printf("CHDDMenuHandler::formatDevice: executing %s %s %s\n", tune2fs.c_str(), "-r 0 -c 0 -i 0", d.c_str());
 		my_system(8, tune2fs.c_str(), "-r", "0", "-c", "0", "-i", "0", d.c_str());
@@ -1291,14 +1391,18 @@ _remount:
 
 #ifndef ASSUME_MDEV
 	f = fopen("/proc/sys/kernel/hotplug", "w");
-	if(f) {
+	if (f)
+	{
 		fprintf(f, "/sbin/mdev\n");
 		fclose(f);
 	}
 #endif
-	if (!res) {
-		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
-			if (it->devname == devpart) {
+	if (!res)
+	{
+		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+		{
+			if (it->devname == devpart)
+			{
 				it->fmt = devtool->fmt;
 				it->mountpoint = fmt_mpoint;
 			}
@@ -1306,10 +1410,13 @@ _remount:
 
 		res = mount_dev(devpart);
 
-		if(res && fmt_label == "RECORD") {
+		if (res && fmt_label == "RECORD")
+		{
 			std::string dst;
-			for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
-				if (it->devname == devpart) {
+			for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+			{
+				if (it->devname == devpart)
+				{
 					dst = it->mountpoint;
 				}
 			}
@@ -1333,7 +1440,8 @@ _remount:
 		}
 	}
 _return:
-	if (!srun) my_system(1, "smbd");
+	if (!srun)
+		my_system(1, "smbd");
 	if (show_menu)
 		return menu_return::RETURN_EXIT_ALL;
 
@@ -1343,8 +1451,8 @@ _return:
 int CHDDMenuHandler::checkDevice(std::string dev)
 {
 	int res;
-	FILE * f;
-	CProgressWindow * progress;
+	FILE *f;
+	CProgressWindow *progress;
 	int oldpass = 0, pass, step, total;
 	int percent = 0, opercent = 0;
 	char buf[256] = { 0 };
@@ -1360,7 +1468,7 @@ int CHDDMenuHandler::checkDevice(std::string dev)
 	printf("CHDDMenuHandler::checkDevice: dev %s\n", dev.c_str());
 
 	std::string fmt = getFmtType(dev);
-	devtool_s * devtool = get_dev_tool(fmt);
+	devtool_s *devtool = get_dev_tool(fmt);
 	if (!devtool || !devtool->fsck_supported)
 		return menu_return::RETURN_REPAINT;
 
@@ -1371,60 +1479,69 @@ int CHDDMenuHandler::checkDevice(std::string dev)
 
 	res = true;
 	if (is_mounted(dev.c_str()))
-		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
-			if (it->devname == dev) {
+		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+		{
+			if (it->devname == dev)
+			{
 				tmp_mpoint = it->mountpoint;
 				res = umount_dev(it->mountpoint);
 			}
 		}
 
 	printf("CHDDMenuHandler::checkDevice: umount res %d\n", res);
-	if(!res) {
+	if (!res)
+	{
 		showError(LOCALE_HDD_UMOUNT_WARN);
 		return menu_return::RETURN_REPAINT;
 	}
 
 	printf("CHDDMenuHandler::checkDevice: Executing %s\n", cmd.c_str());
-	f=popen(cmd.c_str(), "r");
-	if(!f) {
+	f = popen(cmd.c_str(), "r");
+	if (!f)
+	{
 		showError(LOCALE_HDD_CHECK_FAILED);
 		goto ret1;
 	}
 
 	progress = new CProgressWindow();
 	progress->setTitle(LOCALE_HDD_CHECK);
-	progress->exec(NULL,"");
+	progress->exec(NULL, "");
 	progress->showStatusMessageUTF(cmd.c_str());
 
-	while(fgets(buf, 255, f) != NULL)
+	while (fgets(buf, 255, f) != NULL)
 	{
-		if(isdigit(buf[0])) {
+		if (isdigit(buf[0]))
+		{
 			sscanf(buf, "%d %d %d\n", &pass, &step, &total);
-			if(total == 0)
+			if (total == 0)
 				total = 1;
-			if(oldpass != pass) {
+			if (oldpass != pass)
+			{
 				oldpass = pass;
-				progress->showGlobalStatus(pass > 0 ? (pass-1)*20: 0);
+				progress->showGlobalStatus(pass > 0 ? (pass - 1) * 20 : 0);
 			}
 			percent = (step * 100) / total;
-			if(opercent != percent) {
+			if (opercent != percent)
+			{
 				opercent = percent;
 //printf("CHDDChkExec: pass %d : %d\n", pass, percent);
 				progress->showLocalStatus(percent);
 			}
 		}
-		else {
+		else
+		{
 			char *t = strrchr(buf, '\n');
 			if (t)
 				*t = 0;
-			if(!strncmp(buf, "Pass", 4)) {
+			if (!strncmp(buf, "Pass", 4))
+			{
 				progress->showStatusMessageUTF(buf);
 			}
 		}
 	}
 //printf("CHDDChkExec: %s\n", buf);
 	res = pclose(f);
-	if(res)
+	if (res)
 		showError(LOCALE_HDD_CHECK_FAILED);
 
 	progress->showGlobalStatus(100);
@@ -1443,7 +1560,8 @@ int CHDDMenuHandler::checkDevice(std::string dev)
 	delete progress;
 
 ret1:
-	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
+	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it)
+	{
 		if (it->devname == dev)
 			it->mountpoint = tmp_mpoint;
 	}
@@ -1451,14 +1569,15 @@ ret1:
 	res = mount_dev(dev);
 	printf("CHDDMenuHandler::checkDevice: mount res %d\n", res);
 
-	if (!srun) my_system(1, "smbd");
+	if (!srun)
+		my_system(1, "smbd");
 	return menu_return::RETURN_REPAINT;
 }
 
-int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
+int CHDDDestExec::exec(CMenuTarget * /*parent*/, const std::string &)
 {
 	char str[281];
-	FILE * f;
+	FILE *f;
 	int removable = 0;
 	struct dirent **namelist;
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
@@ -1468,25 +1587,27 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 
 	const char hdidle[] = "/sbin/hd-idle";
 	bool have_hdidle = !access(hdidle, X_OK);
-	
+
 	const char hdparm[] = "/sbin/hdparm";
 	bool have_hdparm = !access(hdparm, X_OK);
 
 	if (g_settings.hdd_sleep > 0 && g_settings.hdd_sleep < 60)
 		g_settings.hdd_sleep = 60;
 
-	if (have_hdidle && g_settings.hdd_sleep > 0) {
+	if (have_hdidle && g_settings.hdd_sleep > 0)
+	{
 		system("kill $(pidof hd-idle)");
 		int sleep_seconds = g_settings.hdd_sleep;
-		switch (sleep_seconds) {
+		switch (sleep_seconds)
+		{
 			case 241:
-					sleep_seconds = 30 * 60;
-					break;
+				sleep_seconds = 30 * 60;
+				break;
 			case 242:
-					sleep_seconds = 60 * 60;
-					break;
+				sleep_seconds = 60 * 60;
+				break;
 			default:
-					sleep_seconds *= 5;
+				sleep_seconds *= 5;
 		}
 		if (sleep_seconds)
 			my_system(3, hdidle, "-i", std::to_string(sleep_seconds).c_str());
@@ -1495,38 +1616,44 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 	struct stat stat_buf;
 	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
 
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++)
+	{
 		removable = 0;
 		printf("CHDDDestExec: checking /sys/block/%s\n", namelist[i]->d_name);
 
 		snprintf(str, sizeof(str), "/sys/block/%s/removable", namelist[i]->d_name);
 		f = fopen(str, "r");
-		if (!f) {
+		if (!f)
+		{
 			printf("Can't open %s\n", str);
 			continue;
 		}
 		fscanf(f, "%d", &removable);
 		fclose(f);
 
-		if (removable) {
+		if (removable)
+		{
 			// show USB icon, no need for hdparm/hd-idle
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			CVFD::getInstance()->ShowIcon(FP_ICON_USB, true);
 #endif
 			printf("CHDDDestExec: /dev/%s is not a hdd, no sleep needed\n", namelist[i]->d_name);
-		} else {
+		}
+		else
+		{
 			//show HDD icon and set hdparm for all hdd's
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			CVFD::getInstance()->ShowIcon(FP_ICON_HDD, true);
 #endif
-			if (!have_hdidle && have_hdparm) {
+			if (!have_hdidle && have_hdparm)
+			{
 				printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
-					 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
+					g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
 
-				char M_opt[50],S_opt[50], opt[261];
+				char M_opt[50], S_opt[50], opt[261];
 				snprintf(S_opt, sizeof(S_opt), "-S%d", g_settings.hdd_sleep);
 				snprintf(M_opt, sizeof(M_opt), "-M%d", g_settings.hdd_noise);
-				snprintf(opt, sizeof(opt), "/dev/%s",namelist[i]->d_name);
+				snprintf(opt, sizeof(opt), "/dev/%s", namelist[i]->d_name);
 
 				if (have_nonbb_hdparm)
 					my_system(4, hdparm, M_opt, S_opt, opt);

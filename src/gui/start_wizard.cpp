@@ -2,11 +2,11 @@
 	Neutrino-GUI  -  Tuxbox-Project
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	http://www.tuxbox.org
-		
+
 	Startup wizard
-	based upon an implementation created by 
+	based upon an implementation created by
 	Copyright (C) 2009 CoolStream International Ltd.
-      
+
 	Reworked by dbt (Thilo Graf)
 	Copyright (C) 2012 dbt
 	http://www.dbox2-tuning.net
@@ -27,11 +27,11 @@
 	License along with this program; if not, write to the
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 	Boston, MA  02110-1301, USA.
-	
+
 	NOTE for ignorant distributors:
 	It's not allowed to distribute any compiled parts of this code, if you don't accept the terms of GPL.
 	Please read it and understand it right!
-	This means for you: Hold it, if not, leave it! You could face legal action! 
+	This means for you: Hold it, if not, leave it! You could face legal action!
 	Otherwise ask the copyright owners, anything else would be theft!
 */
 
@@ -55,7 +55,7 @@
 
 #include <hardware/video.h>
 
-extern cVideo * videoDecoder;
+extern cVideo *videoDecoder;
 extern Zapit_config zapitCfg;
 using namespace std;
 
@@ -75,7 +75,7 @@ const CMenuOptionChooser::keyval WIZARD_SETUP_TYPE[] =
 };
 #endif
 
-int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
+int CStartUpWizard::exec(CMenuTarget *parent, const string & /*actionKey*/)
 {
 	int res = menu_return::RETURN_REPAINT;
 	showBackgroundLogo();
@@ -83,7 +83,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	if (parent)
 		parent->hide();
 
-        //language setup
+	//language setup
 	COsdLangSetup languageSettings(SNeutrinoSettings::WIZARD_START);
 	CMenuWidget osdl_setup(LOCALE_LANGUAGESETUP_OSD, NEUTRINO_ICON_LANGUAGE, 45, MN_WIDGET_ID_LANGUAGESETUP_LOCALE);
 	osdl_setup.setWizardMode(true);
@@ -99,35 +99,37 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	settingsManager.exec(NULL, "");
 
 #if 0
-	if(ShowMsg (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbrCancel) == CMsgBox::mbrYes)
+	if (ShowMsg(LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbrCancel) == CMsgBox::mbrYes)
 #endif
 	{
 		int advanced = 1;
 #ifdef ENABLE_FASTSCAN
 		std::string lang = g_settings.language;
-		if (lang == "nederlands") {
+		if (lang == "nederlands")
+		{
 			advanced = 0;
 			CMenuWidget wtype(LOCALE_WIZARD_SETUP);
 			wtype.setWizardMode(SNeutrinoSettings::WIZARD_ON);
 			wtype.addIntroItems();
-			CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_WIZARD_SETUP_TYPE, &advanced, WIZARD_SETUP_TYPE, 2, true, NULL);
+			CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_WIZARD_SETUP_TYPE, &advanced, WIZARD_SETUP_TYPE, 2, true, NULL);
 			mc->setHint("", LOCALE_WIZARD_SETUP_TYPE_HINT);
 			wtype.addItem(mc);
 			wtype.exec(NULL, "");
 		}
 #endif
 		//open video settings in wizardmode
-		if(advanced && res != menu_return::RETURN_EXIT_ALL) {
+		if (advanced && res != menu_return::RETURN_EXIT_ALL)
+		{
 			g_videoSettings->setWizardMode(SNeutrinoSettings::WIZARD_ON);
 			res = g_videoSettings->exec(NULL, "");
 			g_videoSettings->setWizardMode(SNeutrinoSettings::WIZARD_OFF);
 		}
-		if(advanced && res != menu_return::RETURN_EXIT_ALL)
+		if (advanced && res != menu_return::RETURN_EXIT_ALL)
 		{
 			COsdSetup osdSettings(SNeutrinoSettings::WIZARD_ON);
 			res = osdSettings.exec(NULL, "");
 		}
-		if(advanced && res != menu_return::RETURN_EXIT_ALL)
+		if (advanced && res != menu_return::RETURN_EXIT_ALL)
 		{
 			CNetworkSetup::getInstance()->setWizardMode(SNeutrinoSettings::WIZARD_ON);
 			res = CNetworkSetup::getInstance()->exec(NULL, "");
@@ -137,34 +139,40 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 		if (CFEManager::getInstance()->haveSat())
 			init_settings = file_exists(CONFIGDIR "/initial/");
 
-		if(advanced && init_settings && (res != menu_return::RETURN_EXIT_ALL))
+		if (advanced && init_settings && (res != menu_return::RETURN_EXIT_ALL))
 		{
 			if (ShowMsg(LOCALE_WIZARD_INITIAL_SETTINGS, g_Locale->getText(LOCALE_WIZARD_INSTALL_SETTINGS),
-				CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30) == CMsgBox::mbrYes) {
+					CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, 30) == CMsgBox::mbrYes)
+			{
 				system("/bin/cp " CONFIGDIR "/initial/* " ZAPITDIR);
 				CFEManager::getInstance()->loadSettings();
 				CFEManager::getInstance()->saveSettings();
 				CZapit::getInstance()->PrepareChannels();
 			}
 		}
-		if(res != menu_return::RETURN_EXIT_ALL)
+		if (res != menu_return::RETURN_EXIT_ALL)
 		{
 			CScanSetup::getInstance()->setWizardMode(SNeutrinoSettings::WIZARD_ON);
-			if (advanced) {
+			if (advanced)
+			{
 				res = CScanSetup::getInstance()->exec(NULL, "setup_frontend");
-				if(res != menu_return::RETURN_EXIT_ALL)
+				if (res != menu_return::RETURN_EXIT_ALL)
 					res = CScanSetup::getInstance()->exec(NULL, "");
-			} else {
+			}
+			else
+			{
 				CZapit::getInstance()->GetConfig(zapitCfg);
 #ifdef ENABLE_FASTSCAN
-				if (CFEManager::getInstance()->haveSat()) {
+				if (CFEManager::getInstance()->haveSat())
+				{
 					CMenuWidget fastScanMenu(LOCALE_SATSETUP_FASTSCAN_HEAD, NEUTRINO_ICON_SETTINGS, 45, MN_WIDGET_ID_SCAN_FAST_SCAN);
 					fastScanMenu.setWizardMode(SNeutrinoSettings::WIZARD_ON);
 					CScanSetup::getInstance()->addScanMenuFastScan(&fastScanMenu);
 					res = fastScanMenu.exec(NULL, "");
 				}
 #endif
-				if (CFEManager::getInstance()->haveCable()) {
+				if (CFEManager::getInstance()->haveCable())
+				{
 					CMenuWidget cableScan(LOCALE_SATSETUP_CABLE, NEUTRINO_ICON_SETTINGS, 45, MN_WIDGET_ID_SCAN_CABLE_SCAN);
 					cableScan.setWizardMode(SNeutrinoSettings::WIZARD_ON);
 					CScanSetup::getInstance()->addScanMenuCable(&cableScan);

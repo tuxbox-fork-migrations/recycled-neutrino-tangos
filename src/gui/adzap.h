@@ -34,7 +34,7 @@
 class CAdZapMenu: public CMenuTarget, CChangeObserver
 {
 	private:
-		CFrameBuffer * frameBuffer;
+		CFrameBuffer *frameBuffer;
 		int width;
 		bool armed;
 		bool alerted;
@@ -59,8 +59,8 @@ class CAdZapMenu: public CMenuTarget, CChangeObserver
 		static void *Run(void *arg);
 	public:
 		static CAdZapMenu *getInstance();
-		int exec(CMenuTarget * parent, const std::string & actionKey);
-		bool changeNotify(const neutrino_locale_t, void * data);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
+		bool changeNotify(const neutrino_locale_t, void *data);
 		bool isActive() { return (armed || monitor); };
 		void Zap_On_Activation(t_channel_id channel_id);
 };

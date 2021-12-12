@@ -14,13 +14,13 @@
 
 class YaFT : public sigc::trackable
 {
- private:
-	int *res;
-	bool paint;
- public:
-	YaFT(const char * const *argv, int *Res, bool Paint, sigc::signal<void, std::string*, int*, bool*>);
-	~YaFT();
-	int run(); /* returns exit code */
-	sigc::signal<void, std::string*, int*, bool*> OnShellOutputLoop;
+	private:
+		int *res;
+		bool paint;
+	public:
+		YaFT(const char *const *argv, int *Res, bool Paint, sigc::signal<void, std::string *, int *, bool *>);
+		~YaFT();
+		int run(); /* returns exit code */
+		sigc::signal<void, std::string *, int *, bool *> OnShellOutputLoop;
 };
 #endif

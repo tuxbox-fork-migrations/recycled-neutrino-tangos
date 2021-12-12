@@ -38,7 +38,7 @@ class CLuaInstCCText
 	public:
 		CLuaInstCCText() {};
 		~CLuaInstCCText() {};
-		static CLuaInstCCText* getInstance();
+		static CLuaInstCCText *getInstance();
 		static void CCTextRegister(lua_State *L);
 
 	private:

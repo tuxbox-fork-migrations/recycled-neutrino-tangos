@@ -59,7 +59,7 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 
 	private:
 		///object: CTextBox object
-		CTextBox 	* ct_textbox;
+		CTextBox 	 *ct_textbox;
 		CBox		ct_box;
 		///property: font style
 		int 		ct_text_style;
@@ -78,17 +78,17 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		std::mutex ct_mutex;
 
 		///initialize all required attributes
-		void initVarText(	const int x_pos, const int y_pos, const int w, const int h,
-					std::string text,
-					const int mode,
-					Font* font_text,
-					const int& font_style,
-					CComponentsForm *parent,
-					int shadow_mode,
-					fb_pixel_t color_text,
-					fb_pixel_t color_frame,
-					fb_pixel_t color_body,
-					fb_pixel_t color_shadow);
+		void initVarText(const int x_pos, const int y_pos, const int w, const int h,
+			std::string text,
+			const int mode,
+			Font *font_text,
+			const int &font_style,
+			CComponentsForm *parent,
+			int shadow_mode,
+			fb_pixel_t color_text,
+			fb_pixel_t color_frame,
+			fb_pixel_t color_body,
+			fb_pixel_t color_shadow);
 
 		///destroy current CTextBox and CBox objects
 		void clearCCText();
@@ -99,35 +99,36 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		///paint CCItem backckrond (if paint_bg=true), apply initCCText() and send paint() to the CTextBox object
 		void paintText(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 	public:
-		enum {
+		enum
+		{
 			FONT_STYLE_REGULAR	= 0,
 			FONT_STYLE_BOLD		= 1,
 			FONT_STYLE_ITALIC	= 2
 		};
 
-		CComponentsText(	const int x_pos = 10, const int y_pos = 10, const int w = 0, const int h = 0,
-					std::string text = "",
-					const int mode = CTextBox::AUTO_WIDTH,
-					Font* font_text = NULL,
-					const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
-					CComponentsForm *parent = NULL,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENT_TEXT,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		CComponentsText(const int x_pos = 10, const int y_pos = 10, const int w = 0, const int h = 0,
+			std::string text = "",
+			const int mode = CTextBox::AUTO_WIDTH,
+			Font *font_text = NULL,
+			const int &font_style = CComponentsText::FONT_STYLE_REGULAR,
+			CComponentsForm *parent = NULL,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_text = COL_MENUCONTENT_TEXT,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
-		CComponentsText(	CComponentsForm *parent,
-					const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
-					std::string text = "",
-					const int mode = CTextBox::AUTO_WIDTH,
-					Font* font_text = NULL,
-					const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENT_TEXT,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		CComponentsText(CComponentsForm *parent,
+			const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
+			std::string text = "",
+			const int mode = CTextBox::AUTO_WIDTH,
+			Font *font_text = NULL,
+			const int &font_style = CComponentsText::FONT_STYLE_REGULAR,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_text = COL_MENUCONTENT_TEXT,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		virtual ~CComponentsText();
 
@@ -135,28 +136,28 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		///hide textbox
 		void hide();
 		///remove textbox from screen
-		void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, const int& corner_radius = -1, const int& fblayer_type = CC_FBDATA_TYPES);
+		void kill(const fb_pixel_t &bg_color = COL_BACKGROUND_PLUS_0, const int &corner_radius = -1, const int &fblayer_type = CC_FBDATA_TYPES);
 		///paint text box, parameter do_save_bg: default = true, causes fill of backckrond pixel buffer
 		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///send options for text font (size and type), color and mode (allignment)
-		void setTextFont(Font* font_text);
+		void setTextFont(Font *font_text);
 		///set text color
-		void setTextColor(const fb_pixel_t& color_text);
+		void setTextColor(const fb_pixel_t &color_text);
 		///set all basic framebuffer element colors at once
 		///Note: Possible color values are defined in "gui/color.h" and "gui/color_custom.h"
-		void setColorAll(	const fb_pixel_t& color_frame,
-					const fb_pixel_t& color_body,
-					const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
-					const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
-					const fb_pixel_t& color_body_sel = COL_MENUCONTENTSELECTED_PLUS_0,
-					const fb_pixel_t& color_body_sec = COL_MENUCONTENTINACTIVE_PLUS_0)
-					{
-						CCDraw::setColorAll(color_frame, color_body, color_shadow, color_body_sel, color_body_sec);
-						setTextColor(color_text);
-					};
+		void setColorAll(const fb_pixel_t &color_frame,
+			const fb_pixel_t &color_body,
+			const fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0,
+			const fb_pixel_t &color_text = COL_MENUCONTENT_TEXT,
+			const fb_pixel_t &color_body_sel = COL_MENUCONTENTSELECTED_PLUS_0,
+			const fb_pixel_t &color_body_sec = COL_MENUCONTENTINACTIVE_PLUS_0)
+		{
+			CCDraw::setColorAll(color_frame, color_body, color_shadow, color_body_sel, color_body_sec);
+			setTextColor(color_text);
+		};
 		///get text color
-		fb_pixel_t getTextColor(){return ct_col_text;};
+		fb_pixel_t getTextColor() {return ct_col_text;};
 		///set text alignment, also see textbox.h for possible alignment modes
 		void setTextMode(const int mode);
 		///set text border width
@@ -169,17 +170,17 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		void initCCText();
 
 		///set text as string also possible with overloades members for loacales, const char and text file, returns true if text was changed
-		bool setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
+		bool setText(const std::string &stext, const int mode = ~CTextBox::AUTO_WIDTH, Font *font_text = NULL, const fb_pixel_t &color_text = 0, const int &style = FONT_STYLE_REGULAR);
 		///set text with const char*, returns true if text was changed
-		bool setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
+		bool setText(const char *ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font *font_text = NULL, const fb_pixel_t &color_text = 0, const int &style = FONT_STYLE_REGULAR);
 		///set text from locale, returns true if text was changed
-		bool setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
+		bool setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font *font_text = NULL, const fb_pixel_t &color_text = 0, const int &style = FONT_STYLE_REGULAR);
 		///set text from digit, digit is integer, returns true if text was changed
-		bool setText(const int digit, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
+		bool setText(const int digit, const int mode = ~CTextBox::AUTO_WIDTH, Font *font_text = NULL, const fb_pixel_t &color_text = 0, const int &style = FONT_STYLE_REGULAR);
 		///set text directly from a textfile, path as string is required, returns true if text was changed
-		bool setTextFromFile(const std::string& path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
+		bool setTextFromFile(const std::string &path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font *font_text = NULL, const fb_pixel_t &color_text = 0, const int &style = FONT_STYLE_REGULAR);
 		///get text directly from a textfile, path as string is required
-		static std::string getTextFromFile(const std::string& path_to_textfile);
+		static std::string getTextFromFile(const std::string &path_to_textfile);
 		///returns current text content of text/label object as std::string
 		std::string getText();
 
@@ -187,27 +188,27 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		static std::string iToString(int int_val); //helper to convert int to string: TODO: replace with helper methode
 
 		///return current font
-		Font* getFont();
+		Font *getFont();
 
 		///set screen x-position, parameter as int
-		void setXPos(const int& xpos);
+		void setXPos(const int &xpos);
 		///set screen y-position, parameter as int
-		void setYPos(const int& ypos);
+		void setYPos(const int &ypos);
 		///set height of component on screen
-		void setHeight(const int& h);
+		void setHeight(const int &h);
 		///set width of component on screen
-		void setWidth(const int& w);
+		void setWidth(const int &w);
 
 		///helper to remove linebreak chars from a string if needed
-		void removeLineBreaks(std::string& str);
+		void removeLineBreaks(std::string &str);
 
 		///force paint of text even if text was changed or not
 		void forceTextPaint(bool force_text_paint = true);
 		///gets the embedded CTextBox object, so it's possible to get access directly to its methods and properties
-		CTextBox* getCTextBoxObject();
+		CTextBox *getCTextBoxObject();
 
 		///returns count of lines from a text box page
-		int getTextLinesAutoHeight(const int& textMaxHeight, const int& textWidth, const int& mode);
+		int getTextLinesAutoHeight(const int &textMaxHeight, const int &textWidth, const int &mode);
 
 		/**Member to modify background behavior of textbox object
 		* @param[in]  mode
@@ -244,18 +245,18 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 class CComponentsTextTransp : public CComponentsText
 {
 	public:
-		CComponentsTextTransp(	CComponentsForm *parent,
-					const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
-					std::string text = "",
-					const int mode = CTextBox::AUTO_WIDTH,
-					Font* font_text = NULL,
-					const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
-					fb_pixel_t color_text = COL_MENUCONTENT_TEXT)
-					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, CC_SHADOW_OFF, color_text)
-					{
-						doPaintBg(false);
-						enableTboxSaveScreen(true);
-					};
+		CComponentsTextTransp(CComponentsForm *parent,
+			const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
+			std::string text = "",
+			const int mode = CTextBox::AUTO_WIDTH,
+			Font *font_text = NULL,
+			const int &font_style = CComponentsText::FONT_STYLE_REGULAR,
+			fb_pixel_t color_text = COL_MENUCONTENT_TEXT)
+			: CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, CC_SHADOW_OFF, color_text)
+		{
+			doPaintBg(false);
+			enableTboxSaveScreen(true);
+		};
 };
 
 
@@ -270,38 +271,38 @@ CComponentsLbel provides a interface to the embedded CTextBox object.
 class CComponentsLabel : public CComponentsText
 {
 	public:
-		CComponentsLabel(	const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
-					std::string text = "",
-					const int mode = CTextBox::AUTO_WIDTH,
-					Font* font_text = NULL,
-					const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
-					CComponentsForm *parent = NULL,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE_TEXT,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
-					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, shadow_mode, color_text, color_frame, color_body, color_shadow)
+		CComponentsLabel(const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
+			std::string text = "",
+			const int mode = CTextBox::AUTO_WIDTH,
+			Font *font_text = NULL,
+			const int &font_style = CComponentsText::FONT_STYLE_REGULAR,
+			CComponentsForm *parent = NULL,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_text = COL_MENUCONTENTINACTIVE_TEXT,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+			: CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, shadow_mode, color_text, color_frame, color_body, color_shadow)
 		{
 			cc_item_type.id 	= CC_ITEMTYPE_LABEL;
-			cc_item_type.name	="cc_label_box";
+			cc_item_type.name	= "cc_label_box";
 		};
 
-		CComponentsLabel(	CComponentsForm *parent,
-					const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
-					std::string text = "",
-					const int mode = CTextBox::AUTO_WIDTH,
-					Font* font_text = NULL,
-					const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE_TEXT,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
-					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, shadow_mode, color_text, color_frame, color_body, color_shadow)
+		CComponentsLabel(CComponentsForm *parent,
+			const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
+			std::string text = "",
+			const int mode = CTextBox::AUTO_WIDTH,
+			Font *font_text = NULL,
+			const int &font_style = CComponentsText::FONT_STYLE_REGULAR,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_text = COL_MENUCONTENTINACTIVE_TEXT,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+			: CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, font_style, parent, shadow_mode, color_text, color_frame, color_body, color_shadow)
 		{
 			cc_item_type.id		= CC_ITEMTYPE_LABEL;
-			cc_item_type.name	="cc_label_box";
+			cc_item_type.name	= "cc_label_box";
 		};
 };
 

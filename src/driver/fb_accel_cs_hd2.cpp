@@ -44,7 +44,8 @@ void CFbAccelCSHD2::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 	if (!getActive())
 		return;
 
-	if (dx >= 10) {
+	if (dx >= 10)
+	{
 		fb_fillrect fillrect;
 		fillrect.dx = x;
 		fillrect.dy = y;
@@ -78,8 +79,9 @@ void CFbAccelCSHD2::paintBoxRel(const int x, const int y, const int dx, const in
 	if (!getActive())
 		return;
 
-	if (dx == 0 || dy == 0) {
-		dprintf(DEBUG_DEBUG, "[CFbAccelCSHD2] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx, y+dy);
+	if (dx == 0 || dy == 0)
+	{
+		dprintf(DEBUG_DEBUG, "[CFbAccelCSHD2] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x + dx, y + dy);
 		return;
 	}
 	if (radius < 0)
@@ -91,14 +93,17 @@ void CFbAccelCSHD2::paintBoxRel(const int x, const int y, const int dx, const in
 	fillrect.color	= col;
 	fillrect.rop	= ROP_COPY;
 
-	if (type && radius) {
+	if (type && radius)
+	{
 		setCornerFlags(type);
 		radius = limitRadius(dx, dy, radius);
 
 		int line = 0;
-		while (line < dy) {
+		while (line < dy)
+		{
 			int ofl, ofr;
-			if (calcCorners(NULL, &ofl, &ofr, dy, line, radius, type)) {
+			if (calcCorners(NULL, &ofl, &ofr, dy, line, radius, type))
+			{
 				int rect_height_mult = ((type & CORNER_TOP) && (type & CORNER_BOTTOM)) ? 2 : 1;
 				fillrect.dx	= x;
 				fillrect.dy	= y + line;
@@ -110,22 +115,29 @@ void CFbAccelCSHD2::paintBoxRel(const int x, const int y, const int dx, const in
 				continue;
 			}
 
-			if (dx-ofr-ofl < 1) {
-				if (dx-ofr-ofl == 0){
-					dprintf(DEBUG_INFO, "[CFbAccelCSHD2] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx-ofr-ofl, y+line);
-				}else{
+			if (dx - ofr - ofl < 1)
+			{
+				if (dx - ofr - ofl == 0)
+				{
+					dprintf(DEBUG_INFO, "[CFbAccelCSHD2] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x + dx - ofr - ofl, y + line);
+				}
+				else
+				{
 					dprintf(DEBUG_INFO, "[CFbAccelCSHD2] [%s - %04d]: Calculated width: %d\n                      (radius %d, dx %d, offsetLeft %d, offsetRight %d).\n                      Width can not be less than 0, abort.\n",
-						__func__, __LINE__, dx-ofr-ofl, radius, dx, ofl, ofr);
+						__func__, __LINE__, dx - ofr - ofl, radius, dx, ofl, ofr);
 				}
 				line++;
 				continue;
 			}
-			paintHLineRel(x+ofl, dx-ofl-ofr, y+line, col);
+			paintHLineRel(x + ofl, dx - ofl - ofr, y + line, col);
 			line++;
 		}
-	} else {
+	}
+	else
+	{
 		/* FIXME small size faster to do by software */
-		if (dx > 10 || dy > 10) {
+		if (dx > 10 || dy > 10)
+		{
 			fillrect.dx	= x;
 			fillrect.dy	= y;
 			fillrect.width	= dx;
@@ -135,8 +147,9 @@ void CFbAccelCSHD2::paintBoxRel(const int x, const int y, const int dx, const in
 			return;
 		}
 		int line = 0;
-		while (line < dy) {
-			CFrameBuffer::paintHLineRelInternal(x, dx, y+line, col);
+		while (line < dy)
+		{
+			CFrameBuffer::paintHLineRelInternal(x, dx, y + line, col);
 			line++;
 		}
 	}
@@ -152,12 +165,14 @@ void CFbAccelCSHD2::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, 
 	w_ = (width > xRes) ? xRes : width;
 	h_ = (height > yRes) ? yRes : height;
 
-	if (sysRev < 0) {
+	if (sysRev < 0)
+	{
 		sysRev = cs_get_revision();
 		IsApollo = (sysRev == 9);
 	}
 
-	if(!(w_ % 4) && !IsApollo) {
+	if (!(w_ % 4) && !IsApollo)
+	{
 		/* workaround for bad fb driver */
 		w_ -= 1;
 		h_ -= 1;
@@ -171,10 +186,12 @@ void CFbAccelCSHD2::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, 
 		ioctl(fd, FBIO_COPY_AREA, &area);
 //		printf("\033[33m>>>>\033[0m%s fb_copyarea w: %d, h: %d, dst_x: %d, dst_y: %d, src_x: %d, src_y: %d\n", __func_ext__, w_, h_, dst_x, dst_y, src_x, src_y);
 	}
-	else {
+	else
+	{
 		int mode = CS_FBCOPY_FB2FB;
 		uint32_t src_y_ = src_y;
-		if (src_y >= yRes) {
+		if (src_y >= yRes)
+		{
 			mode = CS_FBCOPY_BB2FB;
 			src_y_ -= yRes;
 		}
@@ -189,7 +206,8 @@ void CFbAccelCSHD2::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint3
 	xc = (width > xRes) ? xRes : width;
 	yc = (height > yRes) ? yRes : height;
 
-	if(!(width%4)) {
+	if (!(width % 4))
+	{
 		fb_image image;
 		image.dx = xoff;
 		image.dy = yoff;
@@ -197,22 +215,23 @@ void CFbAccelCSHD2::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint3
 		image.height = yc;
 		image.cmap.len = 0;
 		image.depth = 32;
-		image.data = (const char*)fbbuff;
+		image.data = (const char *)fbbuff;
 		ioctl(fd, FBIO_IMAGE_BLT, &image);
 		return;
 	}
 	CFrameBuffer::blit2FB(fbbuff, width, height, xoff, yoff, xp, yp, transp);
 }
 
-void CFbAccelCSHD2::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
+void CFbAccelCSHD2::blitBox2FB(const fb_pixel_t *boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
 {
-	if(width <1 || height <1 || !boxBuf )
+	if (width < 1 || height < 1 || !boxBuf)
 		return;
 
 	uint32_t xc = (width > xRes) ? (uint32_t)xRes : width;
 	uint32_t yc = (height > yRes) ? (uint32_t)yRes : height;
 
-	if (!(width%4)) {
+	if (!(width % 4))
+	{
 		fb_image image;
 		image.dx = xoff;
 		image.dy = yoff;
@@ -220,7 +239,7 @@ void CFbAccelCSHD2::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_
 		image.height = yc;
 		image.cmap.len = 0;
 		image.depth = 32;
-		image.data = (const char*)boxBuf;
+		image.data = (const char *)boxBuf;
 		ioctl(fd, FBIO_IMAGE_BLT, &image);
 		return;
 	}
@@ -237,7 +256,8 @@ void CFbAccelCSHD2::setOsdResolutions()
 	res.bpp  = 32;
 	res.mode = OSDMODE_720;
 	osd_resolutions.push_back(res);
-	if (fullHdAvailable()) {
+	if (fullHdAvailable())
+	{
 		res.xRes = 1920;
 		res.yRes = 1080;
 		res.bpp  = 32;
@@ -248,7 +268,7 @@ void CFbAccelCSHD2::setOsdResolutions()
 
 int CFbAccelCSHD2::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int nbpp)
 {
-	if (!available&&!active)
+	if (!available && !active)
 		return -1;
 
 	if (osd_resolutions.empty())
@@ -257,37 +277,40 @@ int CFbAccelCSHD2::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int 
 	unsigned int nxRes_ = nxRes;
 	unsigned int nyRes_ = nyRes;
 	unsigned int nbpp_  = nbpp;
-	if (!fullHdAvailable()) {
+	if (!fullHdAvailable())
+	{
 		nxRes_ = 1280;
 		nyRes_ = 720;
 		nbpp_  = 32;
 	}
-	screeninfo.xres=nxRes_;
-	screeninfo.yres=nyRes_;
-	screeninfo.xres_virtual=nxRes_;
-	screeninfo.yres_virtual=nyRes_*2;
-	screeninfo.height=0;
-	screeninfo.width=0;
-	screeninfo.xoffset=screeninfo.yoffset=0;
-	screeninfo.bits_per_pixel=nbpp_;
+	screeninfo.xres = nxRes_;
+	screeninfo.yres = nyRes_;
+	screeninfo.xres_virtual = nxRes_;
+	screeninfo.yres_virtual = nyRes_ * 2;
+	screeninfo.height = 0;
+	screeninfo.width = 0;
+	screeninfo.xoffset = screeninfo.yoffset = 0;
+	screeninfo.bits_per_pixel = nbpp_;
 
-	if (ioctl(fd, FBIOPUT_VSCREENINFO, &screeninfo)<0)
+	if (ioctl(fd, FBIOPUT_VSCREENINFO, &screeninfo) < 0)
 		perror(LOGTAG "FBIOPUT_VSCREENINFO");
 
 	printf(LOGTAG "SetMode: %dbits, red %d:%d green %d:%d blue %d:%d transp %d:%d\n",
-	screeninfo.bits_per_pixel, screeninfo.red.length, screeninfo.red.offset, screeninfo.green.length, screeninfo.green.offset, screeninfo.blue.length, screeninfo.blue.offset, screeninfo.transp.length, screeninfo.transp.offset);
+		screeninfo.bits_per_pixel, screeninfo.red.length, screeninfo.red.offset, screeninfo.green.length, screeninfo.green.offset, screeninfo.blue.length, screeninfo.blue.offset, screeninfo.transp.length, screeninfo.transp.offset);
 	if ((screeninfo.xres != nxRes_) ||
-	    (screeninfo.yres != nyRes_) ||
-	    (screeninfo.bits_per_pixel != nbpp_)) {
+		(screeninfo.yres != nyRes_) ||
+		(screeninfo.bits_per_pixel != nbpp_))
+	{
 		printf(LOGTAG "SetMode failed: wanted: %dx%dx%d, got %dx%dx%d\n",
-			   nxRes_, nyRes_, nbpp_,
-			   screeninfo.xres, screeninfo.yres, screeninfo.bits_per_pixel);
+			nxRes_, nyRes_, nbpp_,
+			screeninfo.xres, screeninfo.yres, screeninfo.bits_per_pixel);
 		return -1;
 	}
 
 	fb_fix_screeninfo _fix;
 
-	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix) < 0) {
+	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix) < 0)
+	{
 		perror(LOGTAG "FBIOGET_FSCREENINFO");
 		return -1;
 	}
@@ -300,14 +323,14 @@ int CFbAccelCSHD2::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int 
 	bpp  = screeninfo.bits_per_pixel;
 	printf(LOGTAG "%dx%dx%d line length %d. using %s graphics accelerator.\n", xRes, yRes, bpp, stride, _fix.id);
 
-/*
-max res 1280x720
-	available	14745600
-	stride		5120
-max res 1920x1080
-	available	16588800
-	stride		7680
-*/
+	/*
+	max res 1280x720
+		available	14745600
+		stride		5120
+	max res 1920x1080
+		available	16588800
+		stride		7680
+	*/
 
 	if (videoDecoder != NULL)
 		videoDecoder->updateOsdScreenInfo();
@@ -323,7 +346,7 @@ max res 1920x1080
 	return 0; /* dont fail because of this */
 }
 
-fb_pixel_t * CFbAccelCSHD2::getBackBufferPointer() const
+fb_pixel_t *CFbAccelCSHD2::getBackBufferPointer() const
 {
 	return backbuffer;
 }
@@ -358,7 +381,7 @@ int CFbAccelCSHD2::scale2Res(int size)
 
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
 	if (screeninfo.xres == 1920)
-		size += size/2;
+		size += size / 2;
 #endif
 
 	return size;
@@ -378,8 +401,8 @@ uint32_t CFbAccelCSHD2::getWidth4FB_HW_ACC(const uint32_t _x, const uint32_t _w,
 {
 	uint32_t ret = _w;
 	if ((_x + ret) >= xRes)
-		ret = xRes-_x-1;
-	if (ret%4 == 0)
+		ret = xRes - _x - 1;
+	if (ret % 4 == 0)
 		return ret;
 
 	int add = (max) ? 3 : 0;

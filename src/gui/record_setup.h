@@ -48,10 +48,10 @@ class CRecordSetup : public CMenuTarget, public CChangeObserver
 
 		void showRecordTimeShiftSetup(CMenuWidget *menu_ts);
 
-	public:	
+	public:
 		CRecordSetup();
 		~CRecordSetup();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 };
 

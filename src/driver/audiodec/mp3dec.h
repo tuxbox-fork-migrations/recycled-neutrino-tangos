@@ -4,7 +4,7 @@
 	Copyright (C) 2002 Bjoern Kalkbrenner <terminar@cyberphoria.org>
 	Copyright (C) 2002,2003 Dirch
 	Copyright (C) 2002,2003,2004 Zwen
-	
+
 	libmad MP3 low-level core
 	Homepage: http://www.dbox2.info/
 
@@ -52,29 +52,29 @@ extern "C"
 
 class CMP3Dec : public CBaseDec
 {
-private:
+	private:
 #if !((MAD_VERSION_MAJOR>=1) || \
 	((MAD_VERSION_MAJOR==0) && \
 	 (((MAD_VERSION_MINOR==14) && \
 	   (MAD_VERSION_PATCH>=2)) || \
 	  (MAD_VERSION_MINOR>14))))
-	const char*  MadErrorString(const struct mad_stream *Stream);
+		const char  *MadErrorString(const struct mad_stream *Stream);
 #endif
-	signed short MadFixedToSShort(const mad_fixed_t Fixed, bool left = false);
-	void CreateInfo(CAudioMetaData* const, const int);
-	bool GetMP3Info(FILE*, const bool, CAudioMetaData* const);
-	void GetID3(FILE*, CAudioMetaData* const);
-	long scanHeader( FILE*, struct mad_header* const, struct tag* const,
-					 const bool );
+		signed short MadFixedToSShort(const mad_fixed_t Fixed, bool left = false);
+		void CreateInfo(CAudioMetaData *const, const int);
+		bool GetMP3Info(FILE *, const bool, CAudioMetaData *const);
+		void GetID3(FILE *, CAudioMetaData *const);
+		long scanHeader(FILE *, struct mad_header *const, struct tag *const,
+			const bool);
 
-public:
-	static CMP3Dec* getInstance();
-	virtual RetCode Decoder(FILE *InputFp, const int OutputFd,
-							State* const state, CAudioMetaData* m,
-							time_t* const t, unsigned int* const secondsToSkip);
-	bool GetMetaData(FILE *in, const bool nice, CAudioMetaData* const m);
-	bool SaveCover(FILE*, CAudioMetaData * const m);
-	CMP3Dec(){};
+	public:
+		static CMP3Dec *getInstance();
+		virtual RetCode Decoder(FILE *InputFp, const int OutputFd,
+			State *const state, CAudioMetaData *m,
+			time_t *const t, unsigned int *const secondsToSkip);
+		bool GetMetaData(FILE *in, const bool nice, CAudioMetaData *const m);
+		bool SaveCover(FILE *, CAudioMetaData *const m);
+		CMP3Dec() {};
 
 };
 

@@ -45,16 +45,16 @@ class CStreamInstance : public OpenThreads::Thread
 {
 	protected:
 		bool	running;
-		cDemux * dmx;
-		CFrontend * frontend;
+		cDemux *dmx;
+		CFrontend *frontend;
 		OpenThreads::Mutex mutex;
-		unsigned char * buf;
+		unsigned char *buf;
 
 		t_channel_id channel_id;
 		stream_pids_t pids;
 		stream_fds_t fds;
 
-		virtual bool Send(ssize_t r, unsigned char * _buf = NULL);
+		virtual bool Send(ssize_t r, unsigned char *_buf = NULL);
 		virtual void Close();
 		virtual void run();
 		friend class CStreamManager;
@@ -67,7 +67,7 @@ class CStreamInstance : public OpenThreads::Thread
 		void AddClient(int clientfd);
 		void RemoveClient(int clientfd);
 		bool HasFd(int fd);
-		stream_fds_t & GetFds() { return fds; }
+		stream_fds_t &GetFds() { return fds; }
 		t_channel_id GetChannelId() { return channel_id; }
 };
 
@@ -96,12 +96,12 @@ class CStreamStream : public CStreamInstance
 		bool Start();
 		bool Stop();
 
-		static int Interrupt(void * data);
+		static int Interrupt(void *data);
 		static int write_packet(void *opaque, uint8_t *buf, int buf_size);
 };
 
-typedef std::pair<t_channel_id, CStreamInstance*> streammap_pair_t;
-typedef std::map<t_channel_id, CStreamInstance*> streammap_t;
+typedef std::pair<t_channel_id, CStreamInstance *> streammap_pair_t;
+typedef std::map<t_channel_id, CStreamInstance *> streammap_t;
 typedef streammap_t::iterator streammap_iterator_t;
 
 class CStreamManager : public OpenThreads::Thread
@@ -113,27 +113,27 @@ class CStreamManager : public OpenThreads::Thread
 		int	port;
 
 		OpenThreads::Mutex mutex;
-		static	CStreamManager * sm;
+		static	CStreamManager *sm;
 		CZapitClient zapit;
 
 		streammap_t streams;
 
 		bool	Listen();
-		bool	Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFrontend * &frontend);
-		void	AddPids(int fd, CZapitChannel * channel, stream_pids_t &pids);
+		bool	Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFrontend*&frontend);
+		void	AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids);
 		void	CheckStandby(bool enter);
-		CFrontend * FindFrontend(CZapitChannel * channel);
+		CFrontend *FindFrontend(CZapitChannel *channel);
 		bool	StopAll();
 		void	RemoveClient(int fd);
 		void	run();
 		CStreamManager();
 	public:
 		~CStreamManager();
-		static CStreamManager * getInstance();
+		static CStreamManager *getInstance();
 		bool Start(int port = 0);
 		bool Stop();
 		bool StopStream(t_channel_id channel_id = 0);
-		bool StopStream(CFrontend * fe);
+		bool StopStream(CFrontend *fe);
 		bool StreamStatus(t_channel_id channel_id = 0);
 		bool SetPort(int newport);
 		int GetPort() { return port; }

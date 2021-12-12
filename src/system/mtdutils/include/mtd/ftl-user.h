@@ -33,26 +33,27 @@
 #ifndef __MTD_FTL_USER_H__
 #define __MTD_FTL_USER_H__
 
-typedef struct erase_unit_header_t {
-    uint8_t	LinkTargetTuple[5];
-    uint8_t	DataOrgTuple[10];
-    uint8_t	NumTransferUnits;
-    u_int32_t	EraseCount;
-    u_int16_t	LogicalEUN;
-    uint8_t	BlockSize;
-    uint8_t	EraseUnitSize;
-    u_int16_t	FirstPhysicalEUN;
-    u_int16_t	NumEraseUnits;
-    u_int32_t	FormattedSize;
-    u_int32_t	FirstVMAddress;
-    u_int16_t	NumVMPages;
-    uint8_t	Flags;
-    uint8_t	Code;
-    u_int32_t	SerialNumber;
-    u_int32_t	AltEUHOffset;
-    u_int32_t	BAMOffset;
-    uint8_t	Reserved[12];
-    uint8_t	EndTuple[2];
+typedef struct erase_unit_header_t
+{
+	uint8_t	LinkTargetTuple[5];
+	uint8_t	DataOrgTuple[10];
+	uint8_t	NumTransferUnits;
+	u_int32_t	EraseCount;
+	u_int16_t	LogicalEUN;
+	uint8_t	BlockSize;
+	uint8_t	EraseUnitSize;
+	u_int16_t	FirstPhysicalEUN;
+	u_int16_t	NumEraseUnits;
+	u_int32_t	FormattedSize;
+	u_int32_t	FirstVMAddress;
+	u_int16_t	NumVMPages;
+	uint8_t	Flags;
+	uint8_t	Code;
+	u_int32_t	SerialNumber;
+	u_int32_t	AltEUHOffset;
+	u_int32_t	BAMOffset;
+	uint8_t	Reserved[12];
+	uint8_t	EndTuple[2];
 } erase_unit_header_t;
 
 /* Flags in erase_unit_header_t */

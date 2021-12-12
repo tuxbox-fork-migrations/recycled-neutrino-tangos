@@ -37,9 +37,10 @@ class CKernelOptions : public CMenuTarget, public CChangeObserver
 {
 	private:
 		int width;
-		struct module {
+		struct module
+		{
 			std::string comment;
-			std::vector<std::pair <std::string,std::string> > moduleList;
+			std::vector<std::pair <std::string, std::string> > moduleList;
 			int active_orig;
 			int active;
 			bool installed;
@@ -54,7 +55,7 @@ class CKernelOptions : public CMenuTarget, public CChangeObserver
 	public:
 		CKernelOptions();
 		void hide();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		int Settings();
 		bool isEnabled(std::string name);
 		bool Enable(std::string name, bool active);

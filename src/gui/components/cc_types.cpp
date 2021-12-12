@@ -36,7 +36,8 @@ CCTypes::CCTypes()
 //returns current item element type, if no available, return -1 as unknown type
 int CCTypes::CCTypes::getItemType()
 {
-	for(int i =0; i< (CC_ITEMTYPES) ;i++){
+	for (int i = 0; i < (CC_ITEMTYPES) ; i++)
+	{
 		if (i == cc_item_type.id)
 			return i;
 	}
@@ -47,7 +48,7 @@ int CCTypes::CCTypes::getItemType()
 }
 
 //sets item name
-void CCTypes::CCTypes::setItemName(const std::string& name)
+void CCTypes::CCTypes::setItemName(const std::string &name)
 {
 	cc_item_type.name = name;
 }

@@ -44,40 +44,40 @@ struct sectionsd
 		unsigned char command;
 		unsigned short stuff_bytes;
 		unsigned int dataLength;
-	} __attribute__ ((packed)) ;
+	} __attribute__((packed)) ;
 
 	struct msgResponseHeader
 	{
 		unsigned int dataLength;
-	} __attribute__ ((packed)) ;
+	} __attribute__((packed)) ;
 
-        enum commands
-        {
-                dumpStatusinformation,          // commandDumpStatusInformation
-                pauseScanning,                  // commandPauseScanning // for the grabbers ;)
-                getIsScanningActive,            // commandGetIsScanningActive
-                getIsTimeSet,                   // commandGetIsTimeSet
-                serviceChanged,                 // commandserviceChanged
-                serviceStopped,                 // commandserviceChanged
-                CMD_registerEvents,             // commandRegisterEventClient
-                CMD_unregisterEvents,           // commandUnRegisterEventClient
-                freeMemory,                     // commandFreeMemory
-                readSIfromXML,                  // commandReadSIfromXML
-                writeSI2XML,                    // commandWriteSI2XML
+	enum commands
+	{
+		dumpStatusinformation,          // commandDumpStatusInformation
+		pauseScanning,                  // commandPauseScanning // for the grabbers ;)
+		getIsScanningActive,            // commandGetIsScanningActive
+		getIsTimeSet,                   // commandGetIsTimeSet
+		serviceChanged,                 // commandserviceChanged
+		serviceStopped,                 // commandserviceChanged
+		CMD_registerEvents,             // commandRegisterEventClient
+		CMD_unregisterEvents,           // commandUnRegisterEventClient
+		freeMemory,                     // commandFreeMemory
+		readSIfromXML,                  // commandReadSIfromXML
+		writeSI2XML,                    // commandWriteSI2XML
 
-                setConfig,                      // commandSetConfig
+		setConfig,                      // commandSetConfig
 
-                readSIfromXMLTV,                // commandReadSIfromXMLTV
+		readSIfromXMLTV,                // commandReadSIfromXMLTV
 
-                numberOfCommands        // <- no actual command, end of command marker
-        };
+		numberOfCommands        // <- no actual command, end of command marker
+	};
 
 #if 0
 	struct commandGetEPGid
 	{
 		uint64_t eventid;
 		time_t             starttime;
-	} __attribute__ ((packed)) ;
+	} __attribute__((packed)) ;
 #endif
 
 	struct commandSetServiceChanged

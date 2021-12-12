@@ -26,7 +26,8 @@
 
 #include <linux/types.h>
 
-struct dvb_net_if {
+struct dvb_net_if
+{
 	__u16 pid;
 	__u16 if_num;
 	__u8  feedtype;
@@ -41,7 +42,8 @@ struct dvb_net_if {
 
 
 /* binary compatibility cruft: */
-struct __dvb_net_if_old {
+struct __dvb_net_if_old
+{
 	__u16 pid;
 	__u16 if_num;
 };

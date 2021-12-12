@@ -57,7 +57,8 @@ CFollowScreenings::~CFollowScreenings()
 
 CChannelEventList *CFollowScreenings::getFollowScreenings(void)
 {
-	if (evtlist && followlist.empty()) {
+	if (evtlist && followlist.empty())
+	{
 		CChannelEventList::iterator e;
 		for (e = evtlist->begin(); e != evtlist->end(); ++e)
 		{
@@ -76,27 +77,32 @@ CChannelEventList *CFollowScreenings::getFollowScreenings(void)
 	return &followlist;
 }
 
-int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
+int CFollowScreenings::exec(CMenuTarget * /*parent*/, const std::string &actionKey)
 {
 	unsigned long a;
-	if (1 == sscanf(actionKey.c_str(), "%lu", &a)) {
+	if (1 == sscanf(actionKey.c_str(), "%lu", &a))
+	{
 		int ix = 0;
 		CChannelEventList::iterator e;
 		for (e = followlist.begin(); e != followlist.end(); e++, ix++)
-			if ((time_t)a == e->startTime) {
+			if ((time_t)a == e->startTime)
+			{
 				time_t start = e->startTime - (ANNOUNCETIME + 120);
 				time_t stop = e->startTime + e->duration;
 				CTimerd::TimerList overlappingTimers = Timer.getOverlappingTimers(start, stop);
 				CTimerd::TimerList::iterator i;
 				for (i = overlappingTimers.begin(); i != overlappingTimers.end(); i++)
-					if (i->eventType == CTimerd::TIMER_RECORD) {
-						if (channel_id == i->channel_id && e->startTime == i->epg_starttime) {
+					if (i->eventType == CTimerd::TIMER_RECORD)
+					{
+						if (channel_id == i->channel_id && e->startTime == i->epg_starttime)
+						{
 							Timer.removeTimerEvent(i->eventID);
 							if (!forwarders.empty() && (followlist.size() > 1 || g_settings.timer_followscreenings == FOLLOWSCREENINGS_ALWAYS))
 								forwarders[ix]->iconName_Info_right = "";
 							return menu_return::RETURN_REPAINT;
 						}
-						if (!SAME_TRANSPONDER(channel_id, i->channel_id)) {
+						if (!SAME_TRANSPONDER(channel_id, i->channel_id))
+						{
 							if (!askUserOnTimerConflict(start, stop, channel_id))
 								return menu_return::RETURN_REPAINT;
 							else
@@ -104,12 +110,15 @@ int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionK
 						}
 					}
 #if 0 //ch is unused
-				CZapitChannel * ch = CServiceManager::getInstance()->FindChannel(channel_id);
+				CZapitChannel *ch = CServiceManager::getInstance()->FindChannel(channel_id);
 #endif
 				if (g_Timerd->addRecordTimerEvent(channel_id, e->startTime, e->startTime + e->duration, e->eventID,
-								  e->startTime, e->startTime - (ANNOUNCETIME + 120 ), apids, true, e->startTime - (ANNOUNCETIME + 120) > time(NULL), recDir, true) == -1) {
+						e->startTime, e->startTime - (ANNOUNCETIME + 120), apids, true, e->startTime - (ANNOUNCETIME + 120) > time(NULL), recDir, true) == -1)
+				{
 					//FIXME -- no error handling, but this shouldn't happen ...
-				} else {
+				}
+				else
+				{
 					if (!forwarders.empty() && (followlist.size() > 1 || g_settings.timer_followscreenings == FOLLOWSCREENINGS_ALWAYS))
 						forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_MARKER_RECORD;
 					else if (notify && g_settings.timer_followscreenings != FOLLOWSCREENINGS_ALWAYS)
@@ -125,19 +134,23 @@ int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionK
 	return menu_return::RETURN_EXIT_ALL;
 }
 
-void CFollowScreenings::updateRightIcon(int ix, time_t start, unsigned int duration) {
+void CFollowScreenings::updateRightIcon(int ix, time_t start, unsigned int duration)
+{
 	time_t stop = start + duration;
 	start -= (ANNOUNCETIME + 120);
 	CTimerd::TimerList overlappingTimers = Timer.getOverlappingTimers(start, stop);
 	start += (ANNOUNCETIME + 120);
 	CTimerd::TimerList::iterator i;
 	for (i = overlappingTimers.begin(); i != overlappingTimers.end(); i++)
-		if (i->eventType == CTimerd::TIMER_RECORD) {
-			if (channel_id == i->channel_id && start == i->epg_starttime) {
+		if (i->eventType == CTimerd::TIMER_RECORD)
+		{
+			if (channel_id == i->channel_id && start == i->epg_starttime)
+			{
 				forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_MARKER_RECORD;
 				return;
 			}
-			if (!SAME_TRANSPONDER(channel_id, i->channel_id)) {
+			if (!SAME_TRANSPONDER(channel_id, i->channel_id))
+			{
 				forwarders[ix]->iconName_Info_right = NEUTRINO_ICON_MARKER_WARNING;
 				return;
 			}
@@ -172,7 +185,7 @@ void CFollowScreenings::show()
 			screening_date += '.';
 			screening_date += strftime(" %d.", tmStartZeit);
 			screening_date += g_Locale->getText(CLocaleManager::getMonth(tmStartZeit));
-			screening_date += strftime(". %H:%M", tmStartZeit );
+			screening_date += strftime(". %H:%M", tmStartZeit);
 			snprintf(actionstr, sizeof(actionstr), "%lu", e->startTime);
 			forwarders.push_back(new CMenuForwarder(screening_date, true, NULL, this, actionstr, directKey, icon));
 			updateRightIcon(i, e->startTime, e->duration);

@@ -35,7 +35,7 @@ class CLuaInstConfigFile
 	public:
 		CLuaInstConfigFile() {};
 		~CLuaInstConfigFile() {};
-		static CLuaInstConfigFile* getInstance();
+		static CLuaInstConfigFile *getInstance();
 		static void LuaConfigFileRegister(lua_State *L);
 
 	private:

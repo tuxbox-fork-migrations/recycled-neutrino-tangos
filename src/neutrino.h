@@ -56,204 +56,208 @@ class CScanSettings;
 
 class CNeutrinoApp : public CMenuTarget, CChangeObserver, public sigc::trackable
 {
-public:
-	enum // Neutrino's exit codes to be handled in it's start script
-	{
-		EXIT_ERROR = -1,
+	public:
+		enum // Neutrino's exit codes to be handled in it's start script
+		{
+			EXIT_ERROR = -1,
 //		EXIT_NORMAL = 0,	// g_info.hw_caps->can_shutdown == 0
-		EXIT_SHUTDOWN = 0,	// g_info.hw_caps->can_shutdown == 1
-		EXIT_REBOOT = 1,
-		EXIT_NOTUSED = 2,
-		EXIT_RESTART = 3
-	};
-	void ExitRun(int can_shutdown = 0);
+			EXIT_SHUTDOWN = 0,	// g_info.hw_caps->can_shutdown == 1
+			EXIT_REBOOT = 1,
+			EXIT_NOTUSED = 2,
+			EXIT_RESTART = 3
+		};
+		void ExitRun(int can_shutdown = 0);
 
-private:
-	CFrameBuffer * frameBuffer;
+	private:
+		CFrameBuffer *frameBuffer;
 
-	CMenuWidget			*mainMenu;
-	CConfigFile			configfile;
-	CScanSettings			scanSettings;
-	CPersonalizeGui			personalize;
-	int                             network_dhcp;
-	int                             network_automatic_start;
+		CMenuWidget			*mainMenu;
+		CConfigFile			configfile;
+		CScanSettings			scanSettings;
+		CPersonalizeGui			personalize;
+		int                             network_dhcp;
+		int                             network_automatic_start;
 
-	int				mode;
-	int				lastMode;
-	bool				softupdate;
+		int				mode;
+		int				lastMode;
+		bool				softupdate;
 //	bool				fromflash;
-	bool 				init_cec_setting;
-	int				lastChannelMode;
-	struct timeval                  standby_pressed_at;
+		bool 				init_cec_setting;
+		int				lastChannelMode;
+		struct timeval                  standby_pressed_at;
 
-	time_t				neutrino_start_time;
+		time_t				neutrino_start_time;
 
-	int				current_muted;
+		int				current_muted;
 
-	bool				skipShutdownTimer;
-	bool 				skipSleepTimer;
-	bool                            lockStandbyCall;
-	bool 				pbBlinkChange;
-	bool				channels_changed;
-	bool				favorites_changed;
-	bool				bouquets_changed;
-	bool				channels_init;
-	int tvsort[LIST_MODE_LAST];
-	int radiosort[LIST_MODE_LAST];
+		bool				skipShutdownTimer;
+		bool 				skipSleepTimer;
+		bool                            lockStandbyCall;
+		bool 				pbBlinkChange;
+		bool				channels_changed;
+		bool				favorites_changed;
+		bool				bouquets_changed;
+		bool				channels_init;
+		int tvsort[LIST_MODE_LAST];
+		int radiosort[LIST_MODE_LAST];
 
-	bool				channelList_allowed;
-	bool				channelList_painted;
-	int				first_mode_found;
-	int				osd_resolution_tmp;
-	bool				frameBufferInitialized;
+		bool				channelList_allowed;
+		bool				channelList_painted;
+		int				first_mode_found;
+		int				osd_resolution_tmp;
+		bool				frameBufferInitialized;
 
-	void SDT_ReloadChannels();
-	void setupNetwork( bool force= false );
-	void setupNFS();
+		void SDT_ReloadChannels();
+		void setupNetwork(bool force = false);
+		void setupNFS();
 
-	void tvMode( bool rezap = true );
-	void radioMode( bool rezap = true );
-	void AVInputMode( bool bOnOff );
-	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
-	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
+		void tvMode(bool rezap = true);
+		void radioMode(bool rezap = true);
+		void AVInputMode(bool bOnOff);
+		void standbyMode(bool bOnOff, bool fromDeepStandby = false);
+		void getAnnounceEpgName(CTimerd::RecordingInfo *eventinfo, std::string &name);
 
-	void RealRun();
-	void InitZapper();
-	void InitTimerdClient();
-	void InitZapitClient();
-	void InitSectiondClient();
+		void RealRun();
+		void InitZapper();
+		void InitTimerdClient();
+		void InitZapitClient();
+		void InitSectiondClient();
 
-	void migrateConfig(const char *fname);
+		void migrateConfig(const char *fname);
 
-	//menues
-	void InitMenu();
- 	void InitMenuMain();
-	void InitMenuSettings();
-	void InitMenuService();
+		//menues
+		void InitMenu();
+		void InitMenuMain();
+		void InitMenuSettings();
+		void InitMenuService();
 
-	void SetupFrameBuffer();
-	void CmdParser(int argc, char **argv);
-	void Cleanup();
-	void CheckFastScan(bool standby = false, bool reload = true);
-	CNeutrinoApp();
+		void SetupFrameBuffer();
+		void CmdParser(int argc, char **argv);
+		void Cleanup();
+		void CheckFastScan(bool standby = false, bool reload = true);
+		CNeutrinoApp();
 
-public:
-	CUserMenu usermenu;
+	public:
+		CUserMenu usermenu;
 
-	void saveSetup(const char * fname);
-	int loadSetup(const char * fname);
-	void setScreenSettings();
-	void upgradeSetup(const char * fname);
-	void loadKeys(const char * fname = NULL);
-	void saveKeys(const char * fname = NULL);
-	void SetupTiming();
-	void SetupFonts(int fmode = CNeutrinoFonts::FONTSETUP_ALL);
-	void setupRecordingDevice(void);
+		void saveSetup(const char *fname);
+		int loadSetup(const char *fname);
+		void setScreenSettings();
+		void upgradeSetup(const char *fname);
+		void loadKeys(const char *fname = NULL);
+		void saveKeys(const char *fname = NULL);
+		void SetupTiming();
+		void SetupFonts(int fmode = CNeutrinoFonts::FONTSETUP_ALL);
+		void setupRecordingDevice(void);
 
-	~CNeutrinoApp();
-	CScanSettings& getScanSettings() {
-		return scanSettings;
-	};
+		~CNeutrinoApp();
+		CScanSettings &getScanSettings()
+		{
+			return scanSettings;
+		};
 
-	CChannelList			*TVchannelList;
-	CChannelList			*RADIOchannelList;
-	CChannelList			*channelList;
-	bool				timer_wakeup;
+		CChannelList			*TVchannelList;
+		CChannelList			*RADIOchannelList;
+		CChannelList			*channelList;
+		bool				timer_wakeup;
 
-	static CNeutrinoApp* getInstance();
+		static CNeutrinoApp *getInstance();
 
-	void channelsInit(bool bOnly = false);
-	int run(int argc, char **argv);
+		void channelsInit(bool bOnly = false);
+		int run(int argc, char **argv);
 
 #ifdef ENABLE_PIP
-	bool avinput_pip;
-	void StartAVInputPiP();
-	void StopAVInputPiP();
+		bool avinput_pip;
+		void StartAVInputPiP();
+		void StopAVInputPiP();
 #endif
 
-	//callback stuff only....
-	int exec(CMenuTarget* parent, const std::string & actionKey);
+		//callback stuff only....
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 
 // 	//onchange
- 	bool changeNotify(const neutrino_locale_t OptionName, void *);
+		bool changeNotify(const neutrino_locale_t OptionName, void *);
 
-	bool listModeKey(const neutrino_msg_t msg);
-	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
+		bool listModeKey(const neutrino_msg_t msg);
+		int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 
-	int getMode() {
-		return mode;
-	}
-	int getLastMode() {
-		return lastMode;
-	}
-	int getVideoFormat() { return g_settings.video_Format; }
-	void switchTvRadioMode(const int prev_mode = NeutrinoModes::mode_unknown);
+		int getMode()
+		{
+			return mode;
+		}
+		int getLastMode()
+		{
+			return lastMode;
+		}
+		int getVideoFormat() { return g_settings.video_Format; }
+		void switchTvRadioMode(const int prev_mode = NeutrinoModes::mode_unknown);
 
-	time_t getStartTime() { return neutrino_start_time; }
-	
-	bool isMuted() {return current_muted; }
-	void setCurrentMuted(int m) { current_muted = m; }
-	int recordingstatus;
-	void MakeSectionsdConfig(CSectionsdClient::epg_config& config);
-	void SendSectionsdConfig(void);
-	int GetChannelMode(void) {
-		return lastChannelMode;
-	};
-	void SetChannelMode(int mode);
-	void MarkChannelsChanged(void) { channels_changed = true; };
-	void MarkFavoritesChanged(void) { favorites_changed = true; };
-	void MarkBouquetsChanged(void) { bouquets_changed = true; };
-	void MarkChannelsInit(void) { channels_init = true; };
-	void quickZap(int msg);
-	void numericZap(int msg);
-	void StopSubtitles(bool enable_glcd_mirroring = true);
-	void StartSubtitles(bool show = true);
-	bool StartPip(const t_channel_id channel_id, int pip = 0);
-	void SelectSubtitles();
-	void showInfo(void);
-	void showMainMenu(void);
-	CConfigFile* getConfigFile() {return &configfile;};
-	bool 		SDTreloadChannels;
+		time_t getStartTime() { return neutrino_start_time; }
 
-	void saveEpg(int _mode);
-	void stopDaemonsForFlash();
-	int showChannelList(const neutrino_msg_t msg, bool from_menu = false);
-	void allowChannelList(bool allow){channelList_allowed = allow;}
-	CPersonalizeGui & getPersonalizeGui() { return personalize; }
-	bool getChannellistIsVisible() { return channelList_painted; }
-	void zapTo(t_channel_id channel_id);
-	bool wakeupFromStandby(void);
-	void standbyToStandby(void);
-	void lockPlayBack(bool blank = true);
-	void stopPlayBack(bool lock = false);
-	bool adjustToChannelID(const t_channel_id channel_id);
-	//signal/event handler before restart of neutrino gui
-	sigc::signal<void> OnBeforeRestart;
-	sigc::signal<void> OnShutDown;
-	sigc::signal<void> OnAfterSetupFonts;
-	sigc::signal<void> OnBeforeSetupFonts;
-	void channelRezap();
+		bool isMuted() {return current_muted; }
+		void setCurrentMuted(int m) { current_muted = m; }
+		int recordingstatus;
+		void MakeSectionsdConfig(CSectionsdClient::epg_config &config);
+		void SendSectionsdConfig(void);
+		int GetChannelMode(void)
+		{
+			return lastChannelMode;
+		};
+		void SetChannelMode(int mode);
+		void MarkChannelsChanged(void) { channels_changed = true; };
+		void MarkFavoritesChanged(void) { favorites_changed = true; };
+		void MarkBouquetsChanged(void) { bouquets_changed = true; };
+		void MarkChannelsInit(void) { channels_init = true; };
+		void quickZap(int msg);
+		void numericZap(int msg);
+		void StopSubtitles(bool enable_glcd_mirroring = true);
+		void StartSubtitles(bool show = true);
+		bool StartPip(const t_channel_id channel_id, int pip = 0);
+		void SelectSubtitles();
+		void showInfo(void);
+		void showMainMenu(void);
+		CConfigFile *getConfigFile() {return &configfile;};
+		bool 		SDTreloadChannels;
 
-	void g_settings_video_Mode(int value) { g_settings.video_Mode = value; }
+		void saveEpg(int _mode);
+		void stopDaemonsForFlash();
+		int showChannelList(const neutrino_msg_t msg, bool from_menu = false);
+		void allowChannelList(bool allow) {channelList_allowed = allow;}
+		CPersonalizeGui &getPersonalizeGui() { return personalize; }
+		bool getChannellistIsVisible() { return channelList_painted; }
+		void zapTo(t_channel_id channel_id);
+		bool wakeupFromStandby(void);
+		void standbyToStandby(void);
+		void lockPlayBack(bool blank = true);
+		void stopPlayBack(bool lock = false);
+		bool adjustToChannelID(const t_channel_id channel_id);
+		//signal/event handler before restart of neutrino gui
+		sigc::signal<void> OnBeforeRestart;
+		sigc::signal<void> OnShutDown;
+		sigc::signal<void> OnAfterSetupFonts;
+		sigc::signal<void> OnBeforeSetupFonts;
+		void channelRezap();
 
-	void g_settings_xmltv_xml_auto_clear()
-	{
-		g_settings.xmltv_xml_auto.clear();
-	}
-	void g_settings_xmltv_xml_auto_pushback(std::string _xmltv_url)
-	{
-		if (find(g_settings.xmltv_xml_auto.begin(), g_settings.xmltv_xml_auto.end(), _xmltv_url) == g_settings.xmltv_xml_auto.end())
-			g_settings.xmltv_xml_auto.push_back(_xmltv_url);
-	}
-	void xmltv_xml_readepg()
-	{
-		for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); it++)
-			g_Sectionsd->readSIfromXMLTV((*it).c_str());
-	}
-	void xmltv_xml_auto_readepg()
-	{
-		for (std::list<std::string>::iterator it = g_settings.xmltv_xml_auto.begin(); it != g_settings.xmltv_xml_auto.end(); it++)
-			g_Sectionsd->readSIfromXMLTV((*it).c_str());
-	}
+		void g_settings_video_Mode(int value) { g_settings.video_Mode = value; }
+
+		void g_settings_xmltv_xml_auto_clear()
+		{
+			g_settings.xmltv_xml_auto.clear();
+		}
+		void g_settings_xmltv_xml_auto_pushback(std::string _xmltv_url)
+		{
+			if (find(g_settings.xmltv_xml_auto.begin(), g_settings.xmltv_xml_auto.end(), _xmltv_url) == g_settings.xmltv_xml_auto.end())
+				g_settings.xmltv_xml_auto.push_back(_xmltv_url);
+		}
+		void xmltv_xml_readepg()
+		{
+			for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); it++)
+				g_Sectionsd->readSIfromXMLTV((*it).c_str());
+		}
+		void xmltv_xml_auto_readepg()
+		{
+			for (std::list<std::string>::iterator it = g_settings.xmltv_xml_auto.begin(); it != g_settings.xmltv_xml_auto.end(); it++)
+				g_Sectionsd->readSIfromXMLTV((*it).c_str());
+		}
 };
 #endif

@@ -30,14 +30,14 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsSlider
-CComponentsSlider::CComponentsSlider(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const int& current_value,
-					const int& max_value,
-					CComponentsForm *parent,
-					int shadow_mode,
-					fb_pixel_t& color_frame,
-					fb_pixel_t& color_body,
-					fb_pixel_t& color_shadow)
+CComponentsSlider::CComponentsSlider(const int &x_pos, const int &y_pos, const int &w, const int &h,
+	const int &current_value,
+	const int &max_value,
+	CComponentsForm *parent,
+	int shadow_mode,
+	fb_pixel_t &color_frame,
+	fb_pixel_t &color_body,
+	fb_pixel_t &color_shadow)
 {
 	cc_item_type.id 	= CC_ITEMTYPE_SLIDER;
 	cc_item_type.name 	= "cc_slider";
@@ -73,8 +73,10 @@ CComponentsSlider::~CComponentsSlider()
 //init slider caption object and add to container
 void CComponentsSlider::initCCSlSlider()
 {
-	if (!csl_slider_icon.empty()){
-		if (csl_slider_obj == NULL){
+	if (!csl_slider_icon.empty())
+	{
+		if (csl_slider_obj == NULL)
+		{
 			int icon_h, icon_w;
 			frameBuffer->getIconSize(csl_slider_icon.c_str(), &icon_w, &icon_h); //current size is required
 			csl_slider_obj = new CComponentsPicture(0, 0, icon_w, icon_h, csl_slider_icon, this);
@@ -85,7 +87,8 @@ void CComponentsSlider::initCCSlSlider()
 		else
 			csl_slider_obj->setPicture(frameBuffer->getIconPath(csl_slider_icon));
 	}
-	else{
+	else
+	{
 		dprintf(DEBUG_NORMAL, "[CComponentsSlider]\t[%s - %d]: \033[35m WARNING:\033[0m missing or undefinied slider icon  %s\n", __func__, __LINE__, csl_slider_icon.c_str());
 		return;
 	}
@@ -98,10 +101,11 @@ void CComponentsSlider::initCCSlSlider()
 
 	//position of slider icon
 	int slider_space = width - slider_w;
-	int slider_x = csl_current_value * slider_space/csl_max_value;
+	int slider_x = csl_current_value * slider_space / csl_max_value;
 	printf("[CComponentsSlider]    [%s]  csl_current_value = %d slider_x =  %d csl_max_value = %d \n", __func__, csl_current_value, slider_x, csl_max_value);
 
-	if (csl_slider_obj){
+	if (csl_slider_obj)
+	{
 		printf("[CComponentsSlider]    [%s]  width =  %d\n", __func__, width);
 		csl_slider_obj->setHeight(height, true);
 		csl_slider_obj->setXPos(slider_x);
@@ -123,7 +127,7 @@ void CComponentsSlider::setSliderIcon(const std::string &icon_name)
 // {
 // 	//prepare items before paint
 // 	initCCSlItems();
-// 
+//
 // 	//paint form contents
 // 	paintForm(do_save_bg);
 // }
@@ -145,17 +149,17 @@ void CComponentsSlider::paint(const bool &do_save_bg)
 
 void CComponentsSlider::paintMarker()
 {
-	if(csl_slider_obj->isPainted())
+	if (csl_slider_obj->isPainted())
 		csl_slider_obj->hide();
 // 			//if (csl_slider_obj->getXPos()>0)
 // 			PaintBoxRel(cc_xr, cc_yr, csl_slider_obj->getXPos(), height, COL_GREEN);
-	if(!csl_slider_obj->isPainted())
+	if (!csl_slider_obj->isPainted())
 		csl_slider_obj->paint();
 
 }
 
 //set current value
-void CComponentsSlider::setValue(const int& current_value, bool enable_paint)
+void CComponentsSlider::setValue(const int &current_value, bool enable_paint)
 {
 	if (csl_current_value == current_value)
 		return;
@@ -163,12 +167,12 @@ void CComponentsSlider::setValue(const int& current_value, bool enable_paint)
 	csl_current_value = current_value;
 	initCCSlItems();
 
-	if(enable_paint)
+	if (enable_paint)
 		paintMarker();
 }
 
 //set current scale values
-void CComponentsSlider::setValueMax(const int& max_value)
+void CComponentsSlider::setValueMax(const int &max_value)
 {
 	csl_max_value = max_value;
 	initCCSlItems();

@@ -326,9 +326,9 @@ int filefilter(const struct dirent *entry)
 
 	int len = strlen(entry->d_name);
 	if (len > 3 && (
-		   (entry->d_name[len - 3] == 'x' && entry->d_name[len - 2] == 'm' && entry->d_name[len - 1] == 'l')
-		|| (entry->d_name[len - 3] == 'm' && entry->d_name[len - 2] == '3' && entry->d_name[len - 1] == 'u')
-		|| (                                 entry->d_name[len - 2] == 't' && entry->d_name[len - 1] == 'v')
+			(entry->d_name[len - 3] == 'x' && entry->d_name[len - 2] == 'm' && entry->d_name[len - 1] == 'l')
+			|| (entry->d_name[len - 3] == 'm' && entry->d_name[len - 2] == '3' && entry->d_name[len - 1] == 'u')
+			|| (entry->d_name[len - 2] == 't' && entry->d_name[len - 1] == 'v')
 		)
 	)
 		return 1;
@@ -428,7 +428,7 @@ bool CWebChannelsSetup::webchannels_autodir(std::string directory)
 	if (webradio)
 	{
 		if (
-			   (directory.find(WEBRADIODIR) != std::string::npos)
+			(directory.find(WEBRADIODIR) != std::string::npos)
 			|| (directory.find(WEBRADIODIR_VAR) != std::string::npos)
 		)
 			return true;
@@ -436,7 +436,7 @@ bool CWebChannelsSetup::webchannels_autodir(std::string directory)
 	else
 	{
 		if (
-			   (directory.find(WEBTVDIR) != std::string::npos)
+			(directory.find(WEBTVDIR) != std::string::npos)
 			|| (directory.find(WEBTVDIR_VAR) != std::string::npos)
 		)
 			return true;
@@ -447,7 +447,7 @@ bool CWebChannelsSetup::webchannels_autodir(std::string directory)
 int xml_filter(const struct dirent *entry)
 {
 	int len = strlen(entry->d_name);
-	if (len > 3 && entry->d_name[len-3] == 'x' && entry->d_name[len-2] == 'm' && entry->d_name[len-1] == 'l')
+	if (len > 3 && entry->d_name[len - 3] == 'x' && entry->d_name[len - 2] == 'm' && entry->d_name[len - 1] == 'l')
 		return 1;
 	return 0;
 }
@@ -475,8 +475,8 @@ int CWebTVResolution::Show()
 
 	CMenuOptionChooser *mc;
 	mc = new CMenuOptionChooser(LOCALE_LIVESTREAM_RESOLUTION, &g_settings.livestreamResolution,
-				    LIVESTREAM_RESOLUTION_OPTIONS, LIVESTREAM_RESOLUTION_OPTION_COUNT,
-				    true, NULL, CRCInput::RC_nokey, NULL, true);
+		LIVESTREAM_RESOLUTION_OPTIONS, LIVESTREAM_RESOLUTION_OPTION_COUNT,
+		true, NULL, CRCInput::RC_nokey, NULL, true);
 	m->addItem(mc);
 
 	int livestreamResolution = g_settings.livestreamResolution;
@@ -485,7 +485,7 @@ int CWebTVResolution::Show()
 	delete m;
 
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
-			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+		(!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
 	if (livestreamResolution != g_settings.livestreamResolution && _mode_webtv)
 		RestartStream();

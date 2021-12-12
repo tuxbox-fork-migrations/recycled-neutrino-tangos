@@ -75,18 +75,20 @@ static int proc_parse_start(struct proc_parse_info *pi)
 	if (fd == -1)
 		return -1;
 
-	pi->buf = (char*)xmalloc(PROC_MTD_MAX_LEN);
+	pi->buf = (char *)xmalloc(PROC_MTD_MAX_LEN);
 
 	ret = read(fd, pi->buf, PROC_MTD_MAX_LEN);
-	if (ret == -1) {
+	if (ret == -1)
+	{
 		sys_errmsg("cannot read \"%s\"", MTD_PROC_FILE);
 		goto out_free;
 	}
 
 	if (ret < (int)PROC_MTD_FIRST_LEN ||
-	    memcmp(pi->buf, PROC_MTD_FIRST, PROC_MTD_FIRST_LEN)) {
+		memcmp(pi->buf, PROC_MTD_FIRST, PROC_MTD_FIRST_LEN))
+	{
 		errmsg("\"%s\" does not start with \"%s\"", MTD_PROC_FILE,
-		       PROC_MTD_FIRST);
+			PROC_MTD_FIRST);
 		goto out_free;
 	}
 
@@ -107,17 +109,18 @@ static int proc_parse_next(struct proc_parse_info *pi)
 	int ret, len, pos = pi->next - pi->buf;
 	char *p, *p1;
 
-	if (pos >= pi->data_size) {
+	if (pos >= pi->data_size)
+	{
 		free(pi->buf);
 		return 0;
 	}
 
 	ret = sscanf(pi->next, PROC_MTD_PATT, &pi->mtd_num, &pi->size,
-		     &pi->eb_size);
+			&pi->eb_size);
 	if (ret != 3)
 		return errmsg("\"%s\" pattern not found", PROC_MTD_PATT);
 
-	p = (char*)memchr(pi->next, '\"', pi->data_size - pos);
+	p = (char *)memchr(pi->next, '\"', pi->data_size - pos);
 	if (!p)
 		return errmsg("opening \" not found");
 	p += 1;
@@ -125,7 +128,7 @@ static int proc_parse_next(struct proc_parse_info *pi)
 	if (pos >= pi->data_size)
 		return errmsg("opening \" not found");
 
-	p1 = (char*)memchr(p, '\"', pi->data_size - pos);
+	p1 = (char *)memchr(p, '\"', pi->data_size - pos);
 	if (!p1)
 		return errmsg("closing \" not found");
 	pos = p1 - pi->buf;
@@ -159,7 +162,8 @@ int legacy_libmtd_open(void)
 	int fd;
 
 	fd = open(MTD_PROC_FILE, O_RDONLY);
-	if (fd == -1) {
+	if (fd == -1)
+	{
 		if (errno == ENOENT)
 			errno = 0;
 		return -1;
@@ -186,7 +190,8 @@ int legacy_dev_present(int mtd_num)
 	if (ret)
 		return -1;
 
-	while (proc_parse_next(&pi)) {
+	while (proc_parse_next(&pi))
+	{
 		if (pi.mtd_num == mtd_num)
 			return 1;
 	}
@@ -210,7 +215,8 @@ int legacy_mtd_get_info(struct mtd_info *info)
 		return -1;
 
 	info->lowest_mtd_num = INT_MAX;
-	while (proc_parse_next(&pi)) {
+	while (proc_parse_next(&pi))
+	{
 		info->mtd_dev_cnt += 1;
 		if (pi.mtd_num > info->highest_mtd_num)
 			info->highest_mtd_num = pi.mtd_num;
@@ -237,15 +243,17 @@ int legacy_get_dev_info(const char *node, struct mtd_dev_info *mtd)
 	loff_t offs = 0;
 	struct proc_parse_info pi;
 
-	if (stat(node, &st)) {
+	if (stat(node, &st))
+	{
 		sys_errmsg("cannot open \"%s\"", node);
 		if (errno == ENOENT)
 			normsg("MTD subsystem is old and does not support "
-			       "sysfs, so MTD character device nodes have "
-			       "to exist");
+				"sysfs, so MTD character device nodes have "
+				"to exist");
 	}
 
-	if (!S_ISCHR(st.st_mode)) {
+	if (!S_ISCHR(st.st_mode))
+	{
 		errno = EINVAL;
 		return errmsg("\"%s\" is not a character device", node);
 	}
@@ -254,10 +262,11 @@ int legacy_get_dev_info(const char *node, struct mtd_dev_info *mtd)
 	mtd->major = major(st.st_rdev);
 	mtd->minor = minor(st.st_rdev);
 
-	if (mtd->major != MTD_DEV_MAJOR) {
+	if (mtd->major != MTD_DEV_MAJOR)
+	{
 		errno = EINVAL;
 		return errmsg("\"%s\" has major number %d, MTD devices have "
-			      "major %d", node, mtd->major, MTD_DEV_MAJOR);
+				"major %d", node, mtd->major, MTD_DEV_MAJOR);
 	}
 
 	mtd->mtd_num = mtd->minor / 2;
@@ -266,20 +275,24 @@ int legacy_get_dev_info(const char *node, struct mtd_dev_info *mtd)
 	if (fd == -1)
 		return sys_errmsg("cannot open \"%s\"", node);
 
-	if (ioctl(fd, MEMGETINFO, &ui)) {
+	if (ioctl(fd, MEMGETINFO, &ui))
+	{
 		sys_errmsg("MEMGETINFO ioctl request failed");
 		goto out_close;
 	}
 
 	ret = ioctl(fd, MEMGETBADBLOCK, &offs);
-	if (ret == -1) {
-		if (errno != EOPNOTSUPP) {
+	if (ret == -1)
+	{
+		if (errno != EOPNOTSUPP)
+		{
 			sys_errmsg("MEMGETBADBLOCK ioctl failed");
 			goto out_close;
 		}
 		errno = 0;
 		mtd->bb_allowed = 0;
-	} else
+	}
+	else
 		mtd->bb_allowed = 1;
 
 	mtd->type = ui.type;
@@ -288,48 +301,52 @@ int legacy_get_dev_info(const char *node, struct mtd_dev_info *mtd)
 	mtd->min_io_size = ui.writesize;
 	mtd->oob_size = ui.oobsize;
 
-	if (mtd->min_io_size <= 0) {
+	if (mtd->min_io_size <= 0)
+	{
 		errmsg("mtd%d (%s) has insane min. I/O unit size %d",
-		       mtd->mtd_num, node, mtd->min_io_size);
+			mtd->mtd_num, node, mtd->min_io_size);
 		goto out_close;
 	}
-	if (mtd->eb_size <= 0 || mtd->eb_size < mtd->min_io_size) {
+	if (mtd->eb_size <= 0 || mtd->eb_size < mtd->min_io_size)
+	{
 		errmsg("mtd%d (%s) has insane eraseblock size %d",
-		       mtd->mtd_num, node, mtd->eb_size);
+			mtd->mtd_num, node, mtd->eb_size);
 		goto out_close;
 	}
-	if (mtd->size <= 0 || mtd->size < mtd->eb_size) {
+	if (mtd->size <= 0 || mtd->size < mtd->eb_size)
+	{
 		errmsg("mtd%d (%s) has insane size %lld",
-		       mtd->mtd_num, node, mtd->size);
+			mtd->mtd_num, node, mtd->size);
 		goto out_close;
 	}
 	mtd->eb_cnt = mtd->size / mtd->eb_size;
 
-	switch(mtd->type) {
-	case MTD_ABSENT:
-		errmsg("mtd%d (%s) is removable and is not present",
-		       mtd->mtd_num, node);
-		goto out_close;
-	case MTD_RAM:
-		strcpy((char *)mtd->type_str, "ram");
-		break;
-	case MTD_ROM:
-		strcpy((char *)mtd->type_str, "rom");
-		break;
-	case MTD_NORFLASH:
-		strcpy((char *)mtd->type_str, "nor");
-		break;
-	case MTD_NANDFLASH:
-		strcpy((char *)mtd->type_str, "nand");
-		break;
-	case MTD_DATAFLASH:
-		strcpy((char *)mtd->type_str, "dataflash");
-		break;
-	case MTD_UBIVOLUME:
-		strcpy((char *)mtd->type_str, "ubi");
-		break;
-	default:
-		goto out_close;
+	switch (mtd->type)
+	{
+		case MTD_ABSENT:
+			errmsg("mtd%d (%s) is removable and is not present",
+				mtd->mtd_num, node);
+			goto out_close;
+		case MTD_RAM:
+			strcpy((char *)mtd->type_str, "ram");
+			break;
+		case MTD_ROM:
+			strcpy((char *)mtd->type_str, "rom");
+			break;
+		case MTD_NORFLASH:
+			strcpy((char *)mtd->type_str, "nor");
+			break;
+		case MTD_NANDFLASH:
+			strcpy((char *)mtd->type_str, "nand");
+			break;
+		case MTD_DATAFLASH:
+			strcpy((char *)mtd->type_str, "dataflash");
+			break;
+		case MTD_UBIVOLUME:
+			strcpy((char *)mtd->type_str, "ubi");
+			break;
+		default:
+			goto out_close;
 	}
 
 	if (ui.flags & MTD_WRITEABLE)
@@ -346,8 +363,10 @@ int legacy_get_dev_info(const char *node, struct mtd_dev_info *mtd)
 	if (ret)
 		return -1;
 
-	while (proc_parse_next(&pi)) {
-		if (pi.mtd_num == mtd->mtd_num) {
+	while (proc_parse_next(&pi))
+	{
+		if (pi.mtd_num == mtd->mtd_num)
+		{
 			strcpy((char *)mtd->name, pi.name);
 			return 0;
 		}

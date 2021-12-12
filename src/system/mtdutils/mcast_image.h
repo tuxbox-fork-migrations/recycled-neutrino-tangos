@@ -2,7 +2,8 @@
 
 #define PKT_SIZE 2820
 
-struct image_pkt_hdr {
+struct image_pkt_hdr
+{
 	uint32_t resend;
 	uint32_t totcrc;
 	uint32_t nr_blocks;
@@ -16,7 +17,8 @@ struct image_pkt_hdr {
 	uint32_t thiscrc;
 };
 
-struct image_pkt {
+struct image_pkt
+{
 	struct image_pkt_hdr hdr;
 	unsigned char data[PKT_SIZE];
 };
@@ -38,9 +40,9 @@ void fec_free(struct fec_parms *p);
  * mucking about with packet pointers.
  */
 void fec_encode(struct fec_parms *code, unsigned char *src[],
-		unsigned char *fec, int index, int sz);
+	unsigned char *fec, int index, int sz);
 void fec_encode_linear(struct fec_parms *code, unsigned char *src,
-		       unsigned char *fec, int index, int sz);
+	unsigned char *fec, int index, int sz);
 
 /* data  - array of (k) pointers to data packets, in arbitrary order (see i)
  * i     - indices of (data) packets
@@ -51,4 +53,4 @@ void fec_encode_linear(struct fec_parms *code, unsigned char *src,
  * are ordered on return.
  */
 int fec_decode(struct fec_parms *code, unsigned char *data[],
-	       int i[], int sz);
+	int i[], int sz);

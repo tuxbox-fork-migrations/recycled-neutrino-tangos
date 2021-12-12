@@ -107,7 +107,7 @@ uint8_t getBrightnessRGB(fb_pixel_t color)
 	RgbColor rgb;
 	rgb.r  = (uint8_t)((color & 0x00FF0000) >> 16);
 	rgb.g  = (uint8_t)((color & 0x0000FF00) >>  8);
-	rgb.b  = (uint8_t) (color & 0x000000FF);
+	rgb.b  = (uint8_t)(color & 0x000000FF);
 
 	return rgb.r > rgb.g ? (rgb.r > rgb.b ? rgb.r : rgb.b) : (rgb.g > rgb.b ? rgb.g : rgb.b);
 }
@@ -138,9 +138,9 @@ fb_pixel_t Hsv2SysColor(HsvColor *hsv, uint8_t tr)
 	RgbColor rgb;
 	Hsv2Rgb(hsv, &rgb);
 	return (((tr    << 24) & 0xFF000000) |
-		((rgb.r << 16) & 0x00FF0000) |
-		((rgb.g <<  8) & 0x0000FF00) |
-		((rgb.b      ) & 0x000000FF));
+			((rgb.r << 16) & 0x00FF0000) |
+			((rgb.g <<  8) & 0x0000FF00) |
+			((rgb.b) & 0x000000FF));
 }
 
 uint8_t SysColor2Hsv(fb_pixel_t color, HsvColor *hsv)
@@ -150,7 +150,7 @@ uint8_t SysColor2Hsv(fb_pixel_t color, HsvColor *hsv)
 	tr     = (uint8_t)((color & 0xFF000000) >> 24);
 	rgb.r  = (uint8_t)((color & 0x00FF0000) >> 16);
 	rgb.g  = (uint8_t)((color & 0x0000FF00) >>  8);
-	rgb.b  = (uint8_t) (color & 0x000000FF);
+	rgb.b  = (uint8_t)(color & 0x000000FF);
 	Rgb2Hsv(&rgb, hsv);
 	return tr;
 }

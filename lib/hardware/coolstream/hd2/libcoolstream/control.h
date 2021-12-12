@@ -27,7 +27,8 @@ int cs_gpio_drive(int gpio, int value);
 
 #include "tsrouter.h"
 
-typedef struct _scart_status {
+typedef struct _scart_status
+{
 	bool	widescreen;
 	bool	function;
 	bool	fastblank;

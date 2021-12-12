@@ -54,12 +54,12 @@ class CNit : public OpenThreads::Thread
 
 		void run();
 		bool Read();
-		bool ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
-		bool ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
-		bool ParseTerrestrialDescriptor(TerrestrialDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
-		bool ParseTerrestrial2Descriptor(T2DeliverySystemDescriptor * sd, TransportStreamInfo * ts);
-		bool ParseServiceList(ServiceListDescriptor * sd, TransportStreamInfo * ts);
-		bool ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamInfo * ts, bool hd = false);
+		bool ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor *sd, TransportStreamInfo *ts);
+		bool ParseCableDescriptor(CableDeliverySystemDescriptor *sd, TransportStreamInfo *ts);
+		bool ParseTerrestrialDescriptor(TerrestrialDeliverySystemDescriptor *sd, TransportStreamInfo *ts);
+		bool ParseTerrestrial2Descriptor(T2DeliverySystemDescriptor *sd, TransportStreamInfo *ts);
+		bool ParseServiceList(ServiceListDescriptor *sd, TransportStreamInfo *ts);
+		bool ParseLogicalChannels(LogicalChannelDescriptor *ld, TransportStreamInfo *ts, bool hd = false);
 
 	public:
 		CNit(t_satellite_position spos, freq_id_t frq, unsigned short pnid, int dnum = 0);
@@ -67,8 +67,8 @@ class CNit : public OpenThreads::Thread
 		bool Start();
 		bool Stop();
 		bool Parse();
-		channel_number_map_t & getLogicalMap() { return logical_map; };
-		channel_number_map_t & getHDLogicalMap() { return hd_logical_map; };
+		channel_number_map_t &getLogicalMap() { return logical_map; };
+		channel_number_map_t &getHDLogicalMap() { return hd_logical_map; };
 		std::string GetNetworkName() { return networkName; }
 		t_satellite_position getOrbitalPosition() { return orbitalPosition; }
 };

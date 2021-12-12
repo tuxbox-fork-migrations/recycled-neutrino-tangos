@@ -53,15 +53,15 @@
 int fh_svg_id(const char *name)
 {
 	std::string fn = name;
-	if(fn.substr(fn.find_last_of(".") + 1) == "svg")
-		return(1);
+	if (fn.substr(fn.find_last_of(".") + 1) == "svg")
+		return (1);
 	else
-		return(0);
+		return (0);
 }
 
-int fh_svg_load(const char *name, unsigned char **buffer, int* xp, int* yp);
+int fh_svg_load(const char *name, unsigned char **buffer, int *xp, int *yp);
 
-int fh_svg_load(const char *name, unsigned char **buffer, int* xp, int* yp)
+int fh_svg_load(const char *name, unsigned char **buffer, int *xp, int *yp)
 {
 	NSVGimage *image = NULL;
 	NSVGrasterizer *rast = NULL;
@@ -84,10 +84,10 @@ int fh_svg_load(const char *name, unsigned char **buffer, int* xp, int* yp)
 		goto error;
 	}
 
-	if(w > *xp || h > *yp)
+	if (w > *xp || h > *yp)
 	{
 		free(*buffer);
-		*buffer = (unsigned char*) malloc(w*h*4);
+		*buffer = (unsigned char *) malloc(w * h * 4);
 	}
 	*xp = w;
 	*yp = h;
@@ -99,7 +99,7 @@ int fh_svg_load(const char *name, unsigned char **buffer, int* xp, int* yp)
 	}
 
 	//printf("[SVG] rasterizing image %d x %d\n", w, h);
-	nsvgRasterize(rast, image, 0,0,1, *buffer, w, h, w*4);
+	nsvgRasterize(rast, image, 0, 0, 1, *buffer, w, h, w * 4);
 
 error:
 	nsvgDeleteRasterizer(rast);
@@ -108,9 +108,9 @@ error:
 	return 0;
 }
 
-int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, int dx, int dy);
+int svg_load_resize(const char *name, unsigned char **buffer, int *ox, int *oy, int dx, int dy);
 
-int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, int dx, int dy)
+int svg_load_resize(const char *name, unsigned char **buffer, int *ox, int *oy, int dx, int dy)
 {
 	NSVGimage *image = NULL;
 	NSVGrasterizer *rast = NULL;
@@ -133,15 +133,15 @@ int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, 
 		goto error;
 	}
 
-	float scale_w,scale_h;
-	scale_w = (float)dx/(float)w;
-	scale_h = (float)dy/(float)h;
+	float scale_w, scale_h;
+	scale_w = (float)dx / (float)w;
+	scale_h = (float)dy / (float)h;
 
-	w = (int)(w*scale_w);
-	h = (int)(h*scale_h);
+	w = (int)(w * scale_w);
+	h = (int)(h * scale_h);
 
 	free(*buffer);
-	*buffer = (unsigned char*) malloc(w*h*4);
+	*buffer = (unsigned char *) malloc(w * h * 4);
 
 	*ox = w;
 	*oy = h;
@@ -153,7 +153,7 @@ int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, 
 	}
 
 	//printf("[SVG] rasterizing image %d x %d\n", w, h);
-	nsvgRasterizeFull(rast, image, 0, 0, scale_w, scale_h, *buffer, w, h, w*4);
+	nsvgRasterizeFull(rast, image, 0, 0, scale_w, scale_h, *buffer, w, h, w * 4);
 
 error:
 	nsvgDeleteRasterizer(rast);
@@ -162,7 +162,7 @@ error:
 	return 0;
 }
 
-int fh_svg_getsize(const char *name,int *x,int *y, int /*wanted_width*/, int /*wanted_height*/)
+int fh_svg_getsize(const char *name, int *x, int *y, int /*wanted_width*/, int /*wanted_height*/)
 {
 	NSVGimage *image = NULL;
 	int w, h;

@@ -66,7 +66,7 @@
 #include <gui/components/cc_timer.h>
 
 #if HAVE_CST_HARDWARE
-extern int cs_test_card(int unit, char * str);
+extern int cs_test_card(int unit, char *str);
 #endif
 
 #define TestButtonsCount 4
@@ -127,26 +127,27 @@ void CTestMenu::handleShellOutput(std::string *line, int *, bool *)
 	fprintf(stderr, "%s: %s\n", __func__, line->c_str());
 }
 
-int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
+int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init test menu\n");
-	
+
 	int   res = menu_return::RETURN_REPAINT;
 
 	if (parent)
 		parent->hide();
 
 	printf("CTestMenu::exec: %s\n", actionKey.c_str());
-	
+
 	if (actionKey == "vfd")
 	{
 		CVFD::getInstance()->Clear();
 		int icon = 0x00040000;
-		while (icon > 0x2) {
+		while (icon > 0x2)
+		{
 			CVFD::getInstance()->ShowIcon((fp_icon) icon, true);
 			icon /= 2;
 		}
-		for (int i = 0x01000001; i <= 0x0C000001; i+= 0x01000000)
+		for (int i = 0x01000001; i <= 0x0C000001; i += 0x01000000)
 		{
 			CVFD::getInstance()->ShowIcon((fp_icon) i, true);
 		}
@@ -158,38 +159,38 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		size_t len = tmp.size();
 		for (int i = 0; i < 12; i++)
 		{
-			memmove(&text[i*len], tmp.c_str(), len);
+			memmove(&text[i * len], tmp.c_str(), len);
 		}
-		text[12*len] = 0;
+		text[12 * len] = 0;
 
 		CVFD::getInstance()->ShowText(text);
 		ShowMsg(LOCALE_MESSAGEBOX_INFO, "VFD test, Press OK to return", CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 		CVFD::getInstance()->Clear();
-		
+
 		return res;
 	}
 	else if (actionKey == "network")
 	{
 		int fd, ret;
 		struct ifreq ifr;
-		char * ip = NULL, str[255];
-		struct sockaddr_in *addrp=NULL;
+		char *ip = NULL, str[255];
+		struct sockaddr_in *addrp = NULL;
 
 		fd = socket(AF_INET, SOCK_DGRAM, 0);
 
 		ifr.ifr_addr.sa_family = AF_INET;
-		strncpy(ifr.ifr_name, "eth0", IFNAMSIZ-1);
+		strncpy(ifr.ifr_name, "eth0", IFNAMSIZ - 1);
 
 		ret = ioctl(fd, SIOCGIFHWADDR, &ifr);
 		if (ret < 0)
 			perror("SIOCGIFHWADDR");
 
-		ret = ioctl(fd, SIOCGIFADDR, &ifr );
+		ret = ioctl(fd, SIOCGIFADDR, &ifr);
 		if (ret < 0)
 			perror("SIOCGIFADDR");
 		else
 		{
-			addrp = (struct sockaddr_in *)&(ifr.ifr_addr);
+			addrp = (struct sockaddr_in *) & (ifr.ifr_addr);
 			ip = inet_ntoa(addrp->sin_addr);
 		}
 
@@ -202,9 +203,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			(unsigned char)ifr.ifr_hwaddr.sa_data[5], ip == NULL ? "Unknown" : ip);
 
 		close(fd);
-		
+
 		ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
-		
+
 		return res;
 	}
 #if HAVE_CST_HARDWARE
@@ -212,7 +213,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		char str[255];
 		int ret = cs_test_card(0, str);
-		switch(ret)
+		switch (ret)
 		{
 			case 0:
 				ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMsgBox::mbrBack, CMsgBox::mbBack, "info.raw");
@@ -228,14 +229,14 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 open failed", CMsgBox::mbrBack, CMsgBox::mbBack, "info");
 				break;
 		}
-		
+
 		return res;
 	}
 	else if (actionKey == "card1")
 	{
 		char str[255];
 		int ret = cs_test_card(1, str);
-		switch(ret)
+		switch (ret)
 		{
 			case 0:
 				ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMsgBox::mbrBack, CMsgBox::mbBack, "info.raw");
@@ -251,7 +252,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 open failed", CMsgBox::mbrBack, CMsgBox::mbBack, "info");
 				break;
 		}
-		
+
 		return res;
 	}
 #endif
@@ -260,9 +261,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		char buffer[255];
 		FILE *f = fopen("/proc/mounts", "r");
 		bool mounted = false;
-		if (f != NULL) {
-			while (fgets (buffer, 255, f) != NULL) {
-				if (strstr(buffer, "/dev/sda1")) {
+		if (f != NULL)
+		{
+			while (fgets(buffer, 255, f) != NULL)
+			{
+				if (strstr(buffer, "/dev/sda1"))
+				{
 					mounted = true;
 					break;
 				}
@@ -271,9 +275,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		sprintf(buffer, "HDD: /dev/sda1 is %s", mounted ? "mounted" : "NOT mounted");
 		printf("%s\n", buffer);
-		
+
 		ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
-		
+
 		return res;
 	}
 	else if (actionKey == "mmc")
@@ -281,9 +285,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		char buffer[255];
 		FILE *f = fopen("/proc/mounts", "r");
 		bool mounted = false;
-		if (f != NULL) {
-			while (fgets (buffer, 255, f) != NULL) {
-				if (strstr(buffer, "/dev/mmcblk0p1")) {
+		if (f != NULL)
+		{
+			while (fgets(buffer, 255, f) != NULL)
+			{
+				if (strstr(buffer, "/dev/mmcblk0p1"))
+				{
 					mounted = true;
 					break;
 				}
@@ -292,16 +299,16 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		sprintf(buffer, "MMC: /dev/mmcblk0p1 is %s", mounted ? "mounted" : "NOT mounted");
 		printf("%s\n", buffer);
-		
+
 		ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
-		
+
 		return res;
 	}
 	else if (actionKey == "buttons")
 	{
 		neutrino_msg_t      msg;
 		neutrino_msg_data_t data;
-		CHintBox * khintBox = NULL;
+		CHintBox *khintBox = NULL;
 		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Press button, or press EXIT to return");
 		hintBox.paint();
 		while (1)
@@ -358,16 +365,20 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		delivery_system_t delsys = ALL_SAT;
 
 		CFrontend *frontend = CFEManager::getInstance()->getFE(fnum);
-		if (frontend->hasSat()) {
+		if (frontend->hasSat())
+		{
 			scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]);
 			scansettings.sat_TP_freq = std::to_string((fnum & 1) ? /*12439000*/ 3951000 : 4000000);
-			scansettings.sat_TP_rate = std::to_string((fnum & 1) ? /*2500*1000*/ 9520*1000 : 27500*1000);
+			scansettings.sat_TP_rate = std::to_string((fnum & 1) ? /*2500*1000*/ 9520 * 1000 : 27500 * 1000);
 			scansettings.sat_TP_fec = FEC_3_4; //(fnum & 1) ? FEC_3_4 : FEC_1_2;
 			scansettings.sat_TP_pol = (fnum & 1) ? 1 : 0;
-		} else if (frontend->hasCable()) {
+		}
+		else if (frontend->hasCable())
+		{
 			unsigned count = CFEManager::getInstance()->getFrontendCount();
-			for (unsigned i = 0; i < count; i++) {
-				CFrontend * fe = CFEManager::getInstance()->getFE(i);
+			for (unsigned i = 0; i < count; i++)
+			{
+				CFrontend *fe = CFEManager::getInstance()->getFE(i);
 				if (fe->hasCable())
 					fe->setMode(CFrontend::FE_MODE_UNUSED);
 			}
@@ -378,7 +389,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			scansettings.cable_TP_fec  = 1;
 			scansettings.cable_TP_mod  = 5;
 			delsys = ALL_CABLE;
-		} else {
+		}
+		else
+		{
 			return res;
 		}
 
@@ -387,39 +400,47 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 #endif
-	else if (actionKey == "button"){
-		if (button == NULL){
+	else if (actionKey == "button")
+	{
+		if (button == NULL)
+		{
 			button = new CComponentsButtonRed(100, 100, 100, 50, "Test", NULL, false, true, CC_SHADOW_OFF);
 			button->enableShadow();
-		}else
+		}
+		else
 			button->disableShadow();
-		
 
-		if (!button->isPainted()){
+
+		if (!button->isPainted())
+		{
 			if (button->isSelected())
 				button->setSelected(false);
 			else
 				button->setSelected(true);
 			button->paint();
-		}else			
+		}
+		else
 			button->hide();
 
 		return res;
 	}
-	else if (actionKey == "circle"){
+	else if (actionKey == "circle")
+	{
 		if (circle == NULL)
-			circle = new CComponentsShapeCircle (100, 100, 100, NULL, CC_SHADOW_ON, COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_RED);
+			circle = new CComponentsShapeCircle(100, 100, 100, NULL, CC_SHADOW_ON, COL_MENUCONTENT_PLUS_6, COL_MENUCONTENT_PLUS_0, COL_RED);
 
-		if (!circle->isPainted())	
+		if (!circle->isPainted())
 			circle->paint();
 		else
-			circle->hide();			
+			circle->hide();
 		return res;
 	}
-	else if (actionKey == "square"){
-		if (sq == NULL){
-			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_DARK_YELLOW, COL_LIGHT_GRAY, COL_RED);
-			sq->enableFrame(true,1);
+	else if (actionKey == "square")
+	{
+		if (sq == NULL)
+		{
+			sq = new CComponentsShapeSquare(0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_DARK_YELLOW, COL_LIGHT_GRAY, COL_RED);
+			sq->enableFrame(true, 1);
 		}
 
 		if (!sq->isPainted())
@@ -428,9 +449,10 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			sq->hide();
 		return res;
 	}
-	else if (actionKey == "picture"){
+	else if (actionKey == "picture")
+	{
 		if (pic == NULL)
-			pic = new CComponentsPicture (100, 100, 200, 100, ICONSDIR "/mp3-5.jpg");
+			pic = new CComponentsPicture(100, 100, 200, 100, ICONSDIR "/mp3-5.jpg");
 
 		if (!pic->isPainted())
 			pic->paint();
@@ -438,42 +460,46 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			pic->hide();
 		return res;
 	}
-	else if (actionKey == "picture_svg"){
+	else if (actionKey == "picture_svg")
+	{
 		if (picsvg == NULL)
-		picsvg = new CComponentsPicture (100, 100, 100, 0, "tux");
+			picsvg = new CComponentsPicture(100, 100, 100, 0, "tux");
 
 		if (!picsvg->isPainted())
 			picsvg->paint();
 		else
 			picsvg->hide();
 
-	 return res;
-     }
-	else if (actionKey == "blink"){
+		return res;
+	}
+	else if (actionKey == "blink")
+	{
 		if (sq == NULL)
-			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_DARK_YELLOW, COL_LIGHT_GRAY, COL_RED);
+			sq = new CComponentsShapeSquare(0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_DARK_YELLOW, COL_LIGHT_GRAY, COL_RED);
 
 		sq->paintBlink(500);
-			sleep(10);
+		sleep(10);
 
 		if (sq->cancelBlink())
-			ShowHint("Testmenu: Blink","Testmenu: Blinking square stopped ...", 700, 2);
+			ShowHint("Testmenu: Blink", "Testmenu: Blinking square stopped ...", 700, 2);
 
 		return res;
 	}
-	else if (actionKey == "blink_image"){
+	else if (actionKey == "blink_image")
+	{
 		if (pic == NULL)
-			pic = new CComponentsPicture (50, 50, 50, 50, ICONSDIR "/btn_pause.png");
+			pic = new CComponentsPicture(50, 50, 50, 50, ICONSDIR "/btn_pause.png");
 
 		pic->paintBlink(500);
-			sleep(10);
+		sleep(10);
 
 		if (pic->cancelBlink())
-			ShowHint("Testmenu: Blink","Testmenu: Blinking image stopped ...", 700, 2);
+			ShowHint("Testmenu: Blink", "Testmenu: Blinking image stopped ...", 700, 2);
 
 		return res;
 	}
-	else if (actionKey == "channellogo"){
+	else if (actionKey == "channellogo")
+	{
 		uint64_t chid = CZapit::getInstance()->GetCurrentChannelID();
 		std::string chname = "";
 		if (CServiceManager::getInstance()->FindChannel(chid))
@@ -495,7 +521,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
-	else if (actionKey == "form"){
+	else if (actionKey == "form")
+	{
 		if (form == NULL)
 			form = new CComponentsForm();
 		form->setColorBody(COL_LIGHT_GRAY);
@@ -512,8 +539,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		CComponentsText *t1 = new CComponentsText(28, 0, 100, 28, "Text1", CTextBox::NO_AUTO_LINEBREAK);
 		form->addCCItem(t1);
-		
-		CComponentsText *t2 = new CComponentsText(t1->getXPos()+t1->getWidth(), 0, 200, 50, "Text2", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT);
+
+		CComponentsText *t2 = new CComponentsText(t1->getXPos() + t1->getWidth(), 0, 200, 50, "Text2", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT);
 		t2->setCorner(RADIUS_MID, CORNER_TOP_RIGHT);
 		form->addCCItem(t2);
 
@@ -523,9 +550,10 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 // 		form->removeCCItem(form->getCCItemId(t1));
 //  		form->insertCCItem(1,  new CComponentsPicture(28, 0, 0, 0, NEUTRINO_ICON_BUTTON_RED));
-		
-		
-		if (form->isPainted()) {
+
+
+		if (form->isPainted())
+		{
 			form->hide();
 			delete form;
 			form = NULL;
@@ -534,8 +562,10 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			form->paint();
 		return res;
 	}
-	else if (actionKey == "form_blink_item"){
-		if (form == NULL){
+	else if (actionKey == "form_blink_item")
+	{
+		if (form == NULL)
+		{
 			form = new CComponentsForm();
 			form->setColorBody(COL_DARK_GRAY);
 			form->setDimensionsAll(100, 100, 250, 100);
@@ -555,22 +585,25 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			ptmp->kill();
 		}
 
-		if (static_cast<CComponentsPicture*>(form->getCCItem(0))-> paintBlink(500)){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking embedded image ...", 700, 10);
+		if (static_cast<CComponentsPicture *>(form->getCCItem(0))-> paintBlink(500))
+		{
+			ShowHint("Testmenu: Blink", "Testmenu: Blinking embedded image ...", 700, 10);
 		}
-		if (form->getCCItem(0)->cancelBlink()){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking embedded image stopped ...", 700, 2);
+		if (form->getCCItem(0)->cancelBlink())
+		{
+			ShowHint("Testmenu: Blink", "Testmenu: Blinking embedded image stopped ...", 700, 2);
 		}
 
 		form->kill();
 		delete form; form = NULL;
 		return res;
 	}
-	else if (actionKey == "text"){
+	else if (actionKey == "text")
+	{
 		if (txt == NULL)
 			txt = new CComponentsText();
 		txt->setDimensionsAll(100, 100, 250, 100);
- 		txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
+		txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
 
 		if (txt->isPainted())
 			txt->hide();
@@ -579,62 +612,74 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return res;
 	}
-	else if (actionKey == "blinking_text"){
-		if (txt == NULL){
+	else if (actionKey == "blinking_text")
+	{
+		if (txt == NULL)
+		{
 			txt = new CComponentsText();
 			txt->setDimensionsAll(50, 50, 250, 100);
 			txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
 		}
 
-		if (txt->paintBlink(50)){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking text is running ...", 700, 10);
+		if (txt->paintBlink(50))
+		{
+			ShowHint("Testmenu: Blink", "Testmenu: Blinking text is running ...", 700, 10);
 		}
-		if (txt->cancelBlink()){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking text stopped ...", 700, 2);
+		if (txt->cancelBlink())
+		{
+			ShowHint("Testmenu: Blink", "Testmenu: Blinking text stopped ...", 700, 2);
 		}
 
 		return res;
 	}
-	else if (actionKey == "text_ext"){
+	else if (actionKey == "text_ext")
+	{
 		if (text_ext == NULL)
 			text_ext = new CComponentsExtTextForm();
-		text_ext->setDimensionsAll(10, 20, 300, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight()+2*2);
+		text_ext->setDimensionsAll(10, 20, 300, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight() + 2 * 2);
 		text_ext->setLabelAndText("Label", "Text for demo", g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
 		text_ext->setFrameThickness(2);
 // 		text_ext->setLabelWidthPercent(15/*%*/);
-		
+
 		if (text_ext->isPainted())
 			text_ext->hide();
 		else
 			text_ext->paint();
 		return res;
 	}
-	else if (actionKey == "blinking_text_ext"){
-		if (text_ext == NULL){
+	else if (actionKey == "blinking_text_ext")
+	{
+		if (text_ext == NULL)
+		{
 			text_ext = new CComponentsExtTextForm();
 			text_ext->setDimensionsAll(10, 20, 300, 48);
 			text_ext->setLabelAndText("Label", "Text for demo", g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
 			text_ext->setFrameThickness(2);
 		}
 
-		if (text_ext->paintBlink(500)){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text is running ...", 700, 10);
+		if (text_ext->paintBlink(500))
+		{
+			ShowHint("Testmenu: Blink", "Testmenu: Blinking extended text is running ...", 700, 10);
 		}
-		if (text_ext->cancelBlink()){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking extended text stopped ...", 700, 2);
+		if (text_ext->cancelBlink())
+		{
+			ShowHint("Testmenu: Blink", "Testmenu: Blinking extended text stopped ...", 700, 2);
 		}
 		return res;
 	}
-	else if (actionKey == "header"){
+	else if (actionKey == "header")
+	{
 		int hh = 0;//g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-		if (header == NULL){
-			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header"/*, NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU*/);
+		if (header == NULL)
+		{
+			header = new CComponentsHeader(100, 50, 500, hh, "Test-Header"/*, NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU*/);
 			header->addContextButton(NEUTRINO_ICON_BUTTON_RED);
 			header->addContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		}
-		else{	//For existing instances it's recommended to remove old button icons before add new buttons,
+		else 	//For existing instances it's recommended to remove old button icons before add new buttons,
+		{
 			//otherwise icons will be appended to already existent icons, alternatively use the setContextButton() methode
- 			header->removeContextButtons();
+			header->removeContextButtons();
 			//enable clock in header with default format
 			header->enableClock(true, "%H:%M", "%H %M", true);
 		}
@@ -652,7 +697,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 // 		v_buttons.push_back(NEUTRINO_ICON_BUTTON_YELLOW);
 // 		v_buttons.push_back(NEUTRINO_ICON_BUTTON_RED);
 // 		header->addContextButton(v_buttons);
-// 
+//
 // //		add any other button icon via string
 //   		header->addContextButton(NEUTRINO_ICON_BUTTON_BLUE);
 // 		header->addContextButton(NEUTRINO_ICON_BUTTON_GREEN);
@@ -673,26 +718,30 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 //		insert the ne object
 // 		header->insertCCItem(1, logo); //replace text with logo
 
-		
-		if (!header->isPainted()){
+
+		if (!header->isPainted())
+		{
 			header->paint();
 		}
-		else{
+		else
+		{
 			header->hide();
 		}
 
 		return res;
 	}
-	else if (actionKey == "footer"){
+	else if (actionKey == "footer")
+	{
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-		if (footer == NULL){
-			footer = new CComponentsFooter (100, 30, 1000, hh, CComponentsFooter::CC_BTN_HELP | CComponentsFooter::CC_BTN_EXIT | CComponentsFooter::CC_BTN_MENU |CComponentsFooter::CC_BTN_MUTE_ZAP_ACTIVE, NULL, true);
+		if (footer == NULL)
+		{
+			footer = new CComponentsFooter(100, 30, 1000, hh, CComponentsFooter::CC_BTN_HELP | CComponentsFooter::CC_BTN_EXIT | CComponentsFooter::CC_BTN_MENU | CComponentsFooter::CC_BTN_MUTE_ZAP_ACTIVE, NULL, true);
 			//int start = 5, btnw =90, btnh = 37;
 			footer->setButtonFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]);
 			footer->setIcon(NEUTRINO_ICON_INFO);
 
 			//add button labels with conventional button label struct
-			footer->setButtonLabels(TestButtons, TestButtonsCount, 1000, footer->getWidth()/TestButtonsCount);
+			footer->setButtonLabels(TestButtons, TestButtonsCount, 1000, footer->getWidth() / TestButtonsCount);
 
 			//also possible: use directly button name and as 2nd parameter string or locale as text
 //			footer->setButtonLabel(NULL, "Test", 0, 250);
@@ -710,17 +759,21 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			footer->hide();
 		return res;
 	}
-	else if (actionKey == "scrollbar"){
+	else if (actionKey == "scrollbar")
+	{
 		if (scrollbar == NULL)
 			scrollbar = new CComponentsScrollBar(50, 100, 20, 400, 1);
-		
-		if (scrollbar->isPainted()){
-			if (scrollbar->getMarkID() == scrollbar->getSegmentCount()){
+
+		if (scrollbar->isPainted())
+		{
+			if (scrollbar->getMarkID() == scrollbar->getSegmentCount())
+			{
 				scrollbar->hide();
-				scrollbar->setSegmentCount(scrollbar->getSegmentCount()+1);
+				scrollbar->setSegmentCount(scrollbar->getSegmentCount() + 1);
 			}
-			else{
-				scrollbar->setMarkID(scrollbar->getMarkID()+1);
+			else
+			{
+				scrollbar->setMarkID(scrollbar->getMarkID() + 1);
 				scrollbar->paint();
 			}
 		}
@@ -729,11 +782,13 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return res;
 	}
-	else if (actionKey == "iconform"){
-		if (iconform == NULL){
+	else if (actionKey == "iconform")
+	{
+		if (iconform == NULL)
+		{
 			iconform = new CComponentsIconForm();
 			iconform->setColorBody(COL_LIGHT_GRAY);
-			iconform->setDimensionsAll(100, 100,80/*480*/, 80);
+			iconform->setDimensionsAll(100, 100, 80/*480*/, 80);
 			iconform->setFrameThickness(2);
 			iconform->setColorFrame(COL_WHITE);
 			iconform->setDirection(CC_DIR_X);
@@ -757,18 +812,20 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 			//insert any icon, here as first (index = 0...n)
 			iconform->insertIcon(0, NEUTRINO_ICON_HINT_APLAY);
-	// 		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
+			// 		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
 			iconform->paint();
 		}
 
-		CComponentsPicture* img = static_cast<CComponentsPicture*>(iconform->getCCItem(2));
+		CComponentsPicture *img = static_cast<CComponentsPicture *>(iconform->getCCItem(2));
 		img->kill();
 
-		if (img->paintBlink(500)){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking image is running ...", 700, 10);
+		if (img->paintBlink(500))
+		{
+			ShowHint("Testmenu: Blink", "Testmenu: Blinking image is running ...", 700, 10);
 		}
-		if (img->cancelBlink(true)){
-			ShowHint("Testmenu: Blink","Testmenu: Blinking image stopped ...", 700, 2);
+		if (img->cancelBlink(true))
+		{
+			ShowHint("Testmenu: Blink", "Testmenu: Blinking image stopped ...", 700, 2);
 		}
 
 		iconform->kill();
@@ -776,8 +833,10 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		iconform = NULL;
 		return res;
 	}
-	else if (actionKey == "window"){
-		if (window == NULL){
+	else if (actionKey == "window")
+	{
+		if (window == NULL)
+		{
 			window = new CComponentsWindow();
 			window->setWindowCaption("|........HEADER........|", CCHeaderTypes::CC_TITLE_CENTER);
 			window->setDimensionsAll(50, 50, 500, 500);
@@ -794,7 +853,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			c12->setColorBody(COL_YELLOW);
 			c13->setColorBody(COL_BLUE);
 
-			window->getBodyObject()->setAppendOffset(0,50);
+			window->getBodyObject()->setAppendOffset(0, 50);
 			window->addWindowItem(c10);
 			window->addWindowItem(c11);
 			window->addWindowItem(c12);
@@ -820,10 +879,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			window->addWindowItem(text_2);
 		}
 #if 0
-		if (!window->isPainted()){
+		if (!window->isPainted())
+		{
 			window->paint(); //if no other page has been defined, 1st page always painted
 		}
-		else{
+		else
+		{
 #endif			//or paint direct a defined page
 // 			if (window->getCurrentPage() == 1)
 			window->enablePageScroll(CComponentsWindow::PG_SCROLL_M_UP_DOWN_KEY | CComponentsWindow::PG_SCROLL_M_LEFT_RIGHT_KEY);
@@ -836,20 +897,25 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 #endif
 		return res;
 	}
-	else if (actionKey == "running_clock"){	
-		if (clock_r == NULL){
+	else if (actionKey == "running_clock")
+	{
+		if (clock_r == NULL)
+		{
 			clock_r = new CComponentsFrmClock(100, 50, NULL, "%H.%M:%S", NULL, true);
 			clock_r->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
 			clock_r->setClockInterval(1);
 // 			clock_r->doPaintBg(false);
 		}
-		
-		if (!clock_r->isPainted()){
+
+		if (!clock_r->isPainted())
+		{
 			if (clock_r->Start())
 				return menu_return::RETURN_EXIT_ALL;;
 		}
-		else {
-			if (clock_r->Stop()){
+		else
+		{
+			if (clock_r->Stop())
+			{
 				clock_r->kill();
 				delete clock_r;
 				clock_r = NULL;
@@ -857,27 +923,32 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			}
 		}
 	}
-	else if (actionKey == "clock"){
-		if (clock == NULL){
+	else if (actionKey == "clock")
+	{
+		if (clock == NULL)
+		{
 			clock = new CComponentsFrmClock(100, 50, NULL, "%d.%m.%Y-%H:%M");
 			clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
 		}
 
 		if (!clock->isPainted())
 			clock->paint();
-		else {
+		else
+		{
 			clock->hide();
 			delete clock;
 			clock = NULL;
 		}
 		return res;
 	}
-	else if (actionKey == "progress_window"){
+	else if (actionKey == "progress_window")
+	{
 		//classical
 		CProgressWindow pw0("Test 1: Local Bar Classic");
 		pw0.paint();
 		size_t max = 4;
-		for(size_t i = 0; i<= max; i++){
+		for (size_t i = 0; i <= max; i++)
+		{
 			pw0.showStatus(i, max, std::to_string(i));
 			sleep(1);
 		}
@@ -885,9 +956,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		CProgressWindow pw1("Test 2: Local/Global Bars Classic");
 		pw1.paint();
-		for(size_t i = 1; i<= max; i++){
+		for (size_t i = 1; i <= max; i++)
+		{
 			pw1.showGlobalStatus(i, max, std::to_string(i));
-			for(size_t j = 1; j<= max; j++){
+			for (size_t j = 1; j <= max; j++)
+			{
 				pw1.showLocalStatus(j, max, std::to_string(j));
 				sleep(1);
 			}
@@ -900,7 +973,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CProgressWindow pw2("Test 3: Local Bar via Signal/Slot", CCW_PERCENT 50, CCW_PERCENT 30, &OnProgress);
 		pw2.paint();
 
-		for(size_t i = 0; i<= max; i++){
+		for (size_t i = 0; i <= max; i++)
+		{
 			OnProgress(i, max, std::to_string(i));
 			sleep(1);
 		}
@@ -912,12 +986,14 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CProgressWindow pw3("Test 4: Local/Global via Signal/Slot", CCW_PERCENT 50, CCW_PERCENT 20, &OnProgress, &OnProgress1);
 		pw3.paint();
 
-		for(size_t i = 1; i <= max; i++){
+		for (size_t i = 1; i <= max; i++)
+		{
 			OnProgress1(i, max, std::to_string(i));
-				for(size_t j = 1; j<= 7; j++){
-					OnProgress(j, 7, std::to_string(j));
-					sleep(1);
-				}
+			for (size_t j = 1; j <= 7; j++)
+			{
+				OnProgress(j, 7, std::to_string(j));
+				sleep(1);
+			}
 		}
 		sleep(1);
 		pw3.hide();
@@ -929,8 +1005,10 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		pw4.paint();
 		//OnSetGlobalMax(max);
 		pw4.setGlobalMax(max);
-		for(size_t i = 1; i <= max; i++){
-			for(size_t j = 1; j<= 8; j++){
+		for (size_t i = 1; i <= max; i++)
+		{
+			for (size_t j = 1; j <= 8; j++)
+			{
 				pw4.showStatus(j, 8, std::to_string(j));
 				sleep(1);
 			}
@@ -954,8 +1032,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "msgbox_test_cancel"){
-		CMsgBox * msgBox = new CMsgBox("Testmenu: MsgBox exit test", "Please press key");
+	else if (actionKey == "msgbox_test_cancel")
+	{
+		CMsgBox *msgBox = new CMsgBox("Testmenu: MsgBox exit test", "Please press key");
 		// msgBox->setTimeOut(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR]);
 		msgBox->paint();
 		res = msgBox->exec();
@@ -969,7 +1048,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return res;
 	}
-	else if (actionKey == "msgbox_test_all"){
+	else if (actionKey == "msgbox_test_all")
+	{
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbAll, NULL, 700);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
@@ -977,7 +1057,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "msgbox_test_yes_no_cancel"){
+	else if (actionKey == "msgbox_test_yes_no_cancel")
+	{
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbCancel, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
@@ -985,7 +1066,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "msgbox_test_ok_cancel"){
+	else if (actionKey == "msgbox_test_ok_cancel")
+	{
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbOk | CMsgBox::mbCancel, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
@@ -993,7 +1075,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "msgbox_test_no_yes"){
+	else if (actionKey == "msgbox_test_no_yes")
+	{
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press key! ...", CMsgBox::mbrOk, CMsgBox::mbNoYes, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
@@ -1001,7 +1084,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "msgbox_test_ok"){
+	else if (actionKey == "msgbox_test_ok")
+	{
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press ok key! ...", CMsgBox::mbrOk, CMsgBox::mbOk, NULL, 500);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
@@ -1009,7 +1093,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "msgbox_test_cancel_timeout"){
+	else if (actionKey == "msgbox_test_cancel_timeout")
+	{
 		int msgRet = ShowMsg("Testmenu: MsgBox test", "Test for MsgBox,\nPlease press ok key or wait! ...", CMsgBox::mbrCancel, CMsgBox::mbOKCancel, NULL, 500, 6, true);
 
 		std::string msg_txt = "Return value of MsgBox test is ";
@@ -1017,16 +1102,19 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHint("MsgBox test returns", msg_txt.c_str());
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "msgbox_error"){
+	else if (actionKey == "msgbox_error")
+	{
 		DisplayErrorMessage("Error Test!");
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "msgbox_info"){
+	else if (actionKey == "msgbox_info")
+	{
 		DisplayInfoMessage("Info Test!");
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "shellwindow"){
-		sigc::slot3<void, std::string*, int *, bool *> sl_shell_output;
+	else if (actionKey == "shellwindow")
+	{
+		sigc::slot3<void, std::string *, int *, bool *> sl_shell_output;
 		sl_shell_output = sigc::mem_fun(*this, &CTestMenu::handleShellOutput);
 		int r = 0;
 		const char *c = getenv("TEST_COMMAND");
@@ -1038,7 +1126,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		term.exec();
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "short_hint"){
+	else if (actionKey == "short_hint")
+	{
 		CHint *hint = new CHint("Short hint with sleep and CHint instance");
 		// Set the message window outside of screen mid to demonstrate the hide behavior,
 		// so that the hide behavior will not be influenced by any other window or menu.
@@ -1051,15 +1140,18 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		delete hint;
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "short_hint_timed"){
+	else if (actionKey == "short_hint_timed")
+	{
 		ShowHintS("Info Test...", 3, true);
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "short_hint_timed_slot"){
+	else if (actionKey == "short_hint_timed_slot")
+	{
 		ShowHintS("Info test with function...", sigc::mem_fun(*this, &CTestMenu::showRecords), 3);
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "short_hint_struct"){
+	else if (actionKey == "short_hint_struct")
+	{
 		hint_message_data_t hint;
 		hint.text = "Info Test...";
 		hint.slot = sigc::mem_fun(*this, &CTestMenu::showRecords);
@@ -1067,7 +1159,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHintS(hint);
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey=="restarttuner")
+	else if (actionKey == "restarttuner")
 	{
 #if 0
 // 		use with CHint instance
@@ -1083,14 +1175,15 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 // 		Use of ShowHintS with slot does the same like previous block,
 // 		but with multiple messages and despite that with lesser effort.
 		std::vector <hint_message_data_t> hints;
-		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), true),"Stopping tuner...", NONEXISTANT_LOCALE, 2, true});
+		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), true), "Stopping tuner...", NONEXISTANT_LOCALE, 2, true});
 		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), false), "Start tuner...", NONEXISTANT_LOCALE, 2, true});
 		hints.push_back({sigc::hide_return(sigc::mem_fun(g_Zapit, &CZapitClient::Rezap)), "Rezap...", NONEXISTANT_LOCALE, 2, true});
 		ShowHintS(hints);
 
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "msgbox_alt_btn"){
+	else if (actionKey == "msgbox_alt_btn")
+	{
 		CMsgBox msgBox("Variable buttontext...", "Msgbox Test");
 		msgBox.setShowedButtons(CMsgBox::mbNo | CMsgBox::mbYes);
 		msgBox.setButtonText(CMsgBox::mbNo, "Left Button");
@@ -1106,7 +1199,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return res;
 	}
-	else if (actionKey == "footer_key"){
+	else if (actionKey == "footer_key")
+	{
 		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Footer-Key pressed. Press EXIT to return", 350, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
 		hintBox.setTimeOut(15, true);
 
@@ -1123,18 +1217,19 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return res;
 	}
-	else if (actionKey == "show_records"){
+	else if (actionKey == "show_records")
+	{
 		showRecords();
 		return res;
 	}
-	
-	
+
+
 	return showTestMenu();
 }
 
 void CTestMenu::showRecords()
 {
-	CRecordManager * crm	= CRecordManager::getInstance();
+	CRecordManager *crm	= CRecordManager::getInstance();
 
 	const int box_posX = 30;
 	const int box_posY = 300;
@@ -1150,17 +1245,17 @@ void CTestMenu::showRecords()
 		//recordsbox->setColorBody(COL_BACKGROUND_PLUS_0);
 
 		recmap_t recmap = crm->GetRecordMap();
-		std::vector<CComponentsPicture*> images;
+		std::vector<CComponentsPicture *> images;
 		CComponentsForm *recline = NULL;
 		CComponentsText *rec_name = NULL;
 		int y_recline = 0;
 		int h_recline = 0;
 		int w_recbox = 0;
-		int w_shadow = OFFSET_SHADOW/2;
+		int w_shadow = OFFSET_SHADOW / 2;
 
-		for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
+		for (recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
 		{
-			CRecordInstance * inst = it->second;
+			CRecordInstance *inst = it->second;
 
 			recline = new CComponentsForm(0, y_recline, 0);
 			recline->doPaintBg(true);
@@ -1180,12 +1275,12 @@ void CTestMenu::showRecords()
 
 			std::string records_msg = inst->GetEpgTitle();
 
-			rec_name = new CComponentsText(iconf->getWidth()+2*OFFSET_INNER_MID, CC_CENTERED, 0, 0, records_msg, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
+			rec_name = new CComponentsText(iconf->getWidth() + 2 * OFFSET_INNER_MID, CC_CENTERED, 0, 0, records_msg, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
 			rec_name->doPaintBg(false);
 			rec_name->setTextColor(COL_INFOBAR_TEXT);
 
 			recline->setHeight(std::max(rec_name->getHeight(), iconf->getHeight()));
-			recline->setWidth(OFFSET_INNER_MIN+iconf->getWidth()+OFFSET_INNER_MID+rec_name->getWidth()+OFFSET_INNER_MID);
+			recline->setWidth(OFFSET_INNER_MIN + iconf->getWidth() + OFFSET_INNER_MID + rec_name->getWidth() + OFFSET_INNER_MID);
 			w_recbox = (std::max(recline->getWidth(), recordsbox->getWidth()));
 
 			recline->addCCItem(rec_name);
@@ -1195,13 +1290,14 @@ void CTestMenu::showRecords()
 		}
 
 		int h_rbox = 0;
-		for(size_t i = 0; i< recordsbox->size(); i++)
-			h_rbox += recordsbox->getCCItem(i)->getHeight()+w_shadow;
+		for (size_t i = 0; i < recordsbox->size(); i++)
+			h_rbox += recordsbox->getCCItem(i)->getHeight() + w_shadow;
 
-		recordsbox->setDimensionsAll(box_posX, box_posY, w_recbox+w_shadow, h_rbox);
+		recordsbox->setDimensionsAll(box_posX, box_posY, w_recbox + w_shadow, h_rbox);
 		recordsbox->paint0();
 
-		for(size_t j = 0; j< images.size(); j++){
+		for (size_t j = 0; j < images.size(); j++)
+		{
 			images[j]->kill();
 			images[j]->paintBlink(timer);
 		}
@@ -1218,39 +1314,39 @@ void CTestMenu::showRecords()
 int CTestMenu::showTestMenu()
 {
 	unsigned int system_rev = cs_get_revision();
-	
+
 	//init
 	char rev[255];
 	sprintf(rev, "Test menu, System revision %d %s", system_rev, system_rev == 0 ? "WARNING - INVALID" : "");
 	CMenuWidget w_test(rev /*"Test menu"*/, NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU);
 	w_test.addIntroItems("Subhead");
-	
+
 	w_test.addItem(new CMenuForwarder("Shell Window Test", true, NULL, this, "shellwindow"));
 	//hardware
-	CMenuWidget * w_hw = new CMenuWidget("Hardware Test", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HARDWARE);
+	CMenuWidget *w_hw = new CMenuWidget("Hardware Test", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HARDWARE);
 	w_test.addItem(new CMenuForwarder(w_hw->getName(), true, NULL, w_hw));
 	showHWTests(w_hw);
-	
+
 	//buttons
 	w_test.addItem(new CMenuForwarder("Buttons", true, NULL, this, "buttons"));
-	
+
 	//components
-	CMenuWidget * w_cc = new CMenuWidget("OSD-Components Demo", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_COMPONENTS);
+	CMenuWidget *w_cc = new CMenuWidget("OSD-Components Demo", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_COMPONENTS);
 	w_test.addItem(new CMenuForwarder(w_cc->getName(), true, NULL, w_cc));
 	showCCTests(w_cc);
-	
+
 	//buildinfo
 	CMenuForwarder *f_bi = new CMenuForwarder(LOCALE_BUILDINFO_MENU,  true, NULL, new CBuildInfo());
 	f_bi->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_BUILDINFO);
 	w_test.addItem(f_bi);
 
 	//msg/hintbox
-	CMenuWidget * w_msg = new CMenuWidget("MsgBox/Hint-Tests", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HINT_MSG_TESTS);
+	CMenuWidget *w_msg = new CMenuWidget("MsgBox/Hint-Tests", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HINT_MSG_TESTS);
 	w_test.addItem(new CMenuForwarder(w_msg->getName(), true, NULL, w_msg));
 	showMsgTests(w_msg);
 
 	//separator types
-	CMenuWidget * w_types = new CMenuWidget("Menu Separators", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HINT_MSG_TESTS);
+	CMenuWidget *w_types = new CMenuWidget("Menu Separators", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HINT_MSG_TESTS);
 	w_test.addItem(new CMenuForwarder(w_types->getName(), true, NULL, w_types));
 	showSeparatorTypes(w_types);
 
@@ -1259,7 +1355,7 @@ int CTestMenu::showTestMenu()
 	w_test.addItem(new CMenuForwarder("Text input", true, NULL, &input));
 
 	//restart gui
-	w_test.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, CNeutrinoApp::getInstance(), "restart", CRCInput::RC_standby));
+	w_test.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RESTART, true, NULL, CNeutrinoApp::getInstance(), "restart", CRCInput::RC_standby));
 
 	w_test.addItem(GenericMenuSeparatorLine);
 
@@ -1274,7 +1370,8 @@ int CTestMenu::showTestMenu()
 
 
 	//footer buttons
-	static const struct button_label footerButtons[2] = {
+	static const struct button_label footerButtons[2] =
+	{
 		{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_COLORCHOOSER_RED	},
 		{ NEUTRINO_ICON_BUTTON_GREEN,	LOCALE_COLORCHOOSER_GREEN }
 	};
@@ -1332,26 +1429,33 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Tuner Reset", true, NULL, this, "restarttuner"));
 
 #if 0 //some parts DEPRECATED
-	for (unsigned i = 0; i < sizeof(test_pos)/sizeof(int); i++) {
+	for (unsigned i = 0; i < sizeof(test_pos) / sizeof(int); i++)
+	{
 		CServiceManager::getInstance()->InitSatPosition(test_pos[i], NULL, true);
 	}
 
 	unsigned count = CFEManager::getInstance()->getFrontendCount();
-	for (unsigned i = 0; i < count; i++) {
+	for (unsigned i = 0; i < count; i++)
+	{
 		widget->addItem(GenericMenuSeparatorLine);
-		CFrontend * frontend = CFEManager::getInstance()->getFE(i);
+		CFrontend *frontend = CFEManager::getInstance()->getFE(i);
 		char title[100];
 		char scan[100];
 		sprintf(scan, "scan%d", i);
-		if (frontend->hasSat()) {
-			sprintf(title, "Satellite tuner %d: Scan %s", i+1, (i & 1) ? /*"12439-02500-H-5/6"*/"3951-9520-V-3/4" : "4000-27500-V-3/4");
-		} else if (frontend->hasCable()) {
-			sprintf(title, "Cable tuner %d: Scan 474-6875-QAM-256", i+1);
-		} else
+		if (frontend->hasSat())
+		{
+			sprintf(title, "Satellite tuner %d: Scan %s", i + 1, (i & 1) ? /*"12439-02500-H-5/6"*/"3951-9520-V-3/4" : "4000-27500-V-3/4");
+		}
+		else if (frontend->hasCable())
+		{
+			sprintf(title, "Cable tuner %d: Scan 474-6875-QAM-256", i + 1);
+		}
+		else
 			continue;
 
 		widget->addItem(new CMenuForwarder(title, true, NULL, this, scan));
-		if (frontend->hasSat()) {
+		if (frontend->hasSat())
+		{
 			frontend->setMode(CFrontend::FE_MODE_INDEPENDENT);
 
 			satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
@@ -1359,19 +1463,23 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 			satmap[test_pos[i]].lnbOffsetLow = 5150;
 			satmap[test_pos[i]].lnbOffsetHigh = 5150;
 			frontend->setSatellites(satmap);
-			if (i == 0) {
+			if (i == 0)
+			{
 				widget->addItem(new CMenuForwarder("Tuner 1: 22 Khz ON", true, NULL, this, "22kon0"));
 				widget->addItem(new CMenuForwarder("Tuner 1: 22 Khz OFF", true, NULL, this, "22koff0"));
 			}
-			if (i == 1) {
+			if (i == 1)
+			{
 				widget->addItem(new CMenuForwarder("Tuner 2: 22 Khz ON", true, NULL, this, "22kon1"));
 				widget->addItem(new CMenuForwarder("Tuner 2: 22 Khz OFF", true, NULL, this, "22koff1"));
 			}
-			if (i == 2) {
+			if (i == 2)
+			{
 				widget->addItem(new CMenuForwarder("Tuner 3: 22 Khz ON", true, NULL, this, "22kon2"));
 				widget->addItem(new CMenuForwarder("Tuner 3: 22 Khz OFF", true, NULL, this, "22koff2"));
 			}
-			if (i == 3) {
+			if (i == 3)
+			{
 				widget->addItem(new CMenuForwarder("Tuner 4: 22 Khz ON", true, NULL, this, "22kon3"));
 				widget->addItem(new CMenuForwarder("Tuner 4: 22 Khz OFF", true, NULL, this, "22koff3"));
 			}

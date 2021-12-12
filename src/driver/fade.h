@@ -30,7 +30,7 @@ class COSDFader
 	private:
 		uint32_t	fadeTimer;
 		int		fadeValue;
-		unsigned char	& max_alpha;
+		unsigned char	 &max_alpha;
 		bool		fadeIn;
 		bool		fadeOut;
 

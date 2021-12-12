@@ -32,7 +32,8 @@
 class CScreenShot
 {
 	public:
-		typedef enum {
+		typedef enum
+		{
 			FORMAT_PNG,
 			FORMAT_JPG,
 		} screenshot_format_t;

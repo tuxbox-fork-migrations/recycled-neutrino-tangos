@@ -49,70 +49,70 @@ typedef struct
 
 class cTmdb
 {
-private:
-	tmdbinfo minfo;
-	CHintBox* hintbox;
-	std::string key; // tmdb api key
-	bool GetMovieDetails(std::string lang, bool second = false);
-	bool GetData(std::string url, Json::Value *root);
-	void selectResult(Json::Value elements, int results, int &used_result);
+	private:
+		tmdbinfo minfo;
+		CHintBox *hintbox;
+		std::string key; // tmdb api key
+		bool GetMovieDetails(std::string lang, bool second = false);
+		bool GetData(std::string url, Json::Value *root);
+		void selectResult(Json::Value elements, int results, int &used_result);
 
-public:
-	cTmdb();
-	~cTmdb();
-	static cTmdb* getInstance();
-	void        setTitle(std::string epgtitle);
-	std::string CreateEPGText();
+	public:
+		cTmdb();
+		~cTmdb();
+		static cTmdb *getInstance();
+		void        setTitle(std::string epgtitle);
+		std::string CreateEPGText();
 
-	std::string getTitle()
-	{
-		return minfo.epgtitle;
-	}
-	std::string getOrgTitle()
-	{
-		return minfo.original_title;
-	}
-	std::string getReleaseDate()
-	{
-		return minfo.release_date;
-	}
-	std::string getDescription()
-	{
-		return minfo.overview;
-	}
-	std::string getVote()
-	{
-		return minfo.vote_average;
-	}
-	std::string getCast()
-	{
-		return minfo.cast;
-	}
-	std::string getCover()
-	{
-		return TMDB_COVER;
-	}
-	bool        hasCover()
-	{
-		return !minfo.poster_path.empty();
-	}
-	bool        getBigCover(std::string cover)
-	{
-		return downloadUrl("http://image.tmdb.org/t/p/w342" + minfo.poster_path, cover);
-	}
-	bool        getSmallCover(std::string cover)
-	{
-		return downloadUrl("http://image.tmdb.org/t/p/w185" + minfo.poster_path, cover);
-	}
-	int         getResults()
-	{
-		return minfo.result;
-	}
-	int         getStars()
-	{
-		return (int) (atof(minfo.vote_average.c_str())+0.5);
-	}
-	void        cleanup();
+		std::string getTitle()
+		{
+			return minfo.epgtitle;
+		}
+		std::string getOrgTitle()
+		{
+			return minfo.original_title;
+		}
+		std::string getReleaseDate()
+		{
+			return minfo.release_date;
+		}
+		std::string getDescription()
+		{
+			return minfo.overview;
+		}
+		std::string getVote()
+		{
+			return minfo.vote_average;
+		}
+		std::string getCast()
+		{
+			return minfo.cast;
+		}
+		std::string getCover()
+		{
+			return TMDB_COVER;
+		}
+		bool        hasCover()
+		{
+			return !minfo.poster_path.empty();
+		}
+		bool        getBigCover(std::string cover)
+		{
+			return downloadUrl("http://image.tmdb.org/t/p/w342" + minfo.poster_path, cover);
+		}
+		bool        getSmallCover(std::string cover)
+		{
+			return downloadUrl("http://image.tmdb.org/t/p/w185" + minfo.poster_path, cover);
+		}
+		int         getResults()
+		{
+			return minfo.result;
+		}
+		int         getStars()
+		{
+			return (int)(atof(minfo.vote_average.c_str()) + 0.5);
+		}
+		void        cleanup();
 };
 
 #endif

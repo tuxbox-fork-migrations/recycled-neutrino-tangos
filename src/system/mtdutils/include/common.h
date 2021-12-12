@@ -63,39 +63,39 @@ extern "C" {
 
 /* Verbose messages */
 #define bareverbose(verbose, fmt, ...) do {                        \
-	if (verbose)                                               \
-		printf(fmt, ##__VA_ARGS__);                        \
-} while(0)
+		if (verbose)                                               \
+			printf(fmt, ##__VA_ARGS__);                        \
+	} while(0)
 #define verbose(verbose, fmt, ...) \
 	bareverbose(verbose, "%s: " fmt "\n", PROGRAM_NAME, ##__VA_ARGS__)
 
 /* Normal messages */
 #define normsg_cont(fmt, ...) do {                                 \
-	printf("%s: " fmt, PROGRAM_NAME, ##__VA_ARGS__);           \
-} while(0)
+		printf("%s: " fmt, PROGRAM_NAME, ##__VA_ARGS__);           \
+	} while(0)
 #define normsg(fmt, ...) do {                                      \
-	normsg_cont(fmt "\n", ##__VA_ARGS__);                      \
-} while(0)
+		normsg_cont(fmt "\n", ##__VA_ARGS__);                      \
+	} while(0)
 
 /* Error messages */
 #define errmsg(fmt, ...)  ({                                                \
-	fprintf(stderr, "%s: error!: " fmt "\n", PROGRAM_NAME, ##__VA_ARGS__); \
-	-1;                                                                 \
-})
+		fprintf(stderr, "%s: error!: " fmt "\n", PROGRAM_NAME, ##__VA_ARGS__); \
+		-1;                                                                 \
+	})
 
 /* System error messages */
 #define sys_errmsg(fmt, ...)  ({                                            \
-	int _err = errno;                                                   \
-	errmsg(fmt, ##__VA_ARGS__);                                         \
-	fprintf(stderr, "%*serror %d (%s)\n", (int)sizeof(PROGRAM_NAME) + 1,\
-		"", _err, strerror(_err));                                  \
-	-1;                                                                 \
-})
+		int _err = errno;                                                   \
+		errmsg(fmt, ##__VA_ARGS__);                                         \
+		fprintf(stderr, "%*serror %d (%s)\n", (int)sizeof(PROGRAM_NAME) + 1,\
+			"", _err, strerror(_err));                                  \
+		-1;                                                                 \
+	})
 
 /* Warnings */
 #define warnmsg(fmt, ...) do {                                                \
-	fprintf(stderr, "%s: warning!: " fmt "\n", PROGRAM_NAME, ##__VA_ARGS__); \
-} while(0)
+		fprintf(stderr, "%s: warning!: " fmt "\n", PROGRAM_NAME, ##__VA_ARGS__); \
+	} while(0)
 
 static inline int is_power_of_2(unsigned long long n)
 {
@@ -119,18 +119,18 @@ static inline int is_power_of_2(unsigned long long n)
  * 	error_happened();
  */
 #define simple_strtoX(func, type) \
-static inline type simple_##func(const char *snum, int *error) \
-{ \
-	char *endptr; \
-	type ret = func(snum, &endptr, 0); \
- \
-	if (error && (!*snum || *endptr)) { \
-		errmsg("%s: unable to parse the number '%s'", #func, snum); \
-		*error = 1; \
-	} \
- \
-	return ret; \
-}
+	static inline type simple_##func(const char *snum, int *error) \
+	{ \
+		char *endptr; \
+		type ret = func(snum, &endptr, 0); \
+		\
+		if (error && (!*snum || *endptr)) { \
+			errmsg("%s: unable to parse the number '%s'", #func, snum); \
+			*error = 1; \
+		} \
+		\
+		return ret; \
+	}
 simple_strtoX(strtol, long int)
 simple_strtoX(strtoll, long long int)
 simple_strtoX(strtoul, unsigned long int)
@@ -138,9 +138,9 @@ simple_strtoX(strtoull, unsigned long long int)
 
 /* Simple version-printing for utils */
 #define common_print_version() \
-do { \
-	printf("%s %s\n", PROGRAM_NAME, X_VERSION); \
-} while (0)
+	do { \
+		printf("%s %s\n", PROGRAM_NAME, X_VERSION); \
+	} while (0)
 
 #include "xalloc.h"
 

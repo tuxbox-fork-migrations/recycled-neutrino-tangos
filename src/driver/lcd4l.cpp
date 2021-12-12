@@ -114,10 +114,10 @@ extern CPictureViewer *g_PicViewer;
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
 #define PNGFILE			"/tmp/lcd4linux.png"
 
-CLCD4l * CLCD4l::l4l_instance = NULL;
+CLCD4l *CLCD4l::l4l_instance = NULL;
 
 //hack to get an instance before first call
-CLCD4l * L4L = CLCD4l::getInstance();
+CLCD4l *L4L = CLCD4l::getInstance();
 
 static void lcd4linux(bool run)
 {
@@ -125,8 +125,8 @@ static void lcd4linux(bool run)
 	const char *conf = "/etc/lcd4linux.conf";
 	std::string lcd4l_bin = find_executable(buf);
 
-	chmod(conf,0x600);
-	chown(conf,0,0);
+	chmod(conf, 0x600);
+	chown(conf, 0, 0);
 
 	if ((run == true) && !lcd4l_bin.empty())
 	{
@@ -134,7 +134,9 @@ static void lcd4linux(bool run)
 		{
 			if (my_system(3, lcd4l_bin.c_str(), "-o", PNGFILE) != 0)
 				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, buf, PNGFILE);
-		} else {
+		}
+		else
+		{
 			if (my_system(1, lcd4l_bin.c_str()) != 0)
 				printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, buf);
 		}
@@ -159,7 +161,7 @@ CLCD4l::~CLCD4l()
 	lcd4linux(false);
 }
 
-CLCD4l* CLCD4l::getInstance()
+CLCD4l *CLCD4l::getInstance()
 {
 	if (l4l_instance == NULL)
 	{
@@ -303,7 +305,7 @@ void CLCD4l::run()
 	bool NewParseID = false;
 
 	//printf("[CLCD4l] %s: starting loop\n", __FUNCTION__);
-	while(running)
+	while (running)
 	{
 		for (int i = 0; i < 10; i++)
 		{
@@ -339,9 +341,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	/* ----------------------------------------------------------------- */
 
 	std::string fgcolor	= hexStr(t.infobar_Text_red)
-				+ hexStr(t.infobar_Text_green)
-				+ hexStr(t.infobar_Text_blue)
-				+ hexStrA2A(t.infobar_Text_alpha);
+		+ hexStr(t.infobar_Text_green)
+		+ hexStr(t.infobar_Text_blue)
+		+ hexStrA2A(t.infobar_Text_alpha);
 
 	if (m_fgcolor.compare(fgcolor))
 	{
@@ -352,9 +354,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	/* ----------------------------------------------------------------- */
 
 	std::string bgcolor	= hexStr(t.infobar_red)
-				+ hexStr(t.infobar_green)
-				+ hexStr(t.infobar_blue)
-				+ hexStrA2A(t.infobar_alpha);
+		+ hexStr(t.infobar_green)
+		+ hexStr(t.infobar_blue)
+		+ hexStrA2A(t.infobar_alpha);
 
 	if (m_bgcolor.compare(bgcolor))
 	{
@@ -365,9 +367,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	/* ----------------------------------------------------------------- */
 
 	std::string fcolor1	= hexStr(t.infobar_Text_red)
-				+ hexStr(t.infobar_Text_green)
-				+ hexStr(t.infobar_Text_blue)
-				+ hexStr(t.infobar_Text_alpha);
+		+ hexStr(t.infobar_Text_green)
+		+ hexStr(t.infobar_Text_blue)
+		+ hexStr(t.infobar_Text_alpha);
 
 	if (m_fcolor1.compare(fcolor1))
 	{
@@ -378,9 +380,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	/* ----------------------------------------------------------------- */
 
 	std::string fcolor2	= hexStr(t.colored_events_red)
-				+ hexStr(t.colored_events_green)
-				+ hexStr(t.colored_events_blue)
-				+ hexStr(t.colored_events_alpha);
+		+ hexStr(t.colored_events_green)
+		+ hexStr(t.colored_events_blue)
+		+ hexStr(t.colored_events_alpha);
 
 	if (!t.colored_events_infobar)
 		fcolor2 = fcolor1;
@@ -394,9 +396,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	/* ----------------------------------------------------------------- */
 
 	std::string pbcolor	= hexStr(t.menu_Content_Selected_red)
-				+ hexStr(t.menu_Content_Selected_green)
-				+ hexStr(t.menu_Content_Selected_blue)
-				+ hexStrA2A(t.menu_Content_Selected_alpha);
+		+ hexStr(t.menu_Content_Selected_green)
+		+ hexStr(t.menu_Content_Selected_blue)
+		+ hexStrA2A(t.menu_Content_Selected_alpha);
 
 	if (m_pbcolor.compare(pbcolor))
 	{
@@ -428,7 +430,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	int x_res, y_res, framerate;
 	if (videoDecoder)
-	{	// Hack: That should not happen, but while shutting down there
+	{
+		// Hack: That should not happen, but while shutting down there
 		// could be a null pointer and this can lead to a crash.
 		// This behavior was observed with LeakSanitizer on pc hardware.
 		videoDecoder->getPictureInfo(x_res, y_res, framerate);
@@ -506,7 +509,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	std::string DolbyDigital;
 	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < g_RemoteControl->current_PIDs.APIDs.size()) &&
-	    (g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
+		(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
 		DolbyDigital = "yes";
 	else
 		DolbyDigital = g_RemoteControl->has_ac3 ? "available" : "no";
@@ -562,7 +565,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	if (m_ModeRec != ModeRec)
 	{
 		WriteFile(MODE_REC, ModeRec ? "on" : "off");
-		std::string rec_icon ="";
+		std::string rec_icon = "";
 		if (ModeRec)
 			rec_icon = ICONSDIR "/" NEUTRINO_ICON_REC ICONSEXT;
 		else
@@ -651,7 +654,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		else if (parseID == NeutrinoModes::mode_audio)
 		{
 			const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
-			if ( (!meta.sc_station.empty()) && (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP))
+			if ((!meta.sc_station.empty()) && (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP))
 				Service = meta.sc_station;
 			else
 			{
@@ -715,8 +718,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 					if (ModeTshift && CMoviePlayerGui::getInstance().p_movie_info) /* show channel-logo */
 					{
 						if (!g_PicViewer->GetLogoName(CMoviePlayerGui::getInstance().p_movie_info->channelId,
-									      CMoviePlayerGui::getInstance().p_movie_info->channelName,
-									      Logo, &dummy, &dummy, true, true))
+								CMoviePlayerGui::getInstance().p_movie_info->channelName,
+								Logo, &dummy, &dummy, true, true))
 							Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
 					}
 					else /* show play-icon */
@@ -770,7 +773,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		std::string Layout;
 
 		std::string DisplayType;
-		switch (g_settings.lcd4l_display_type) {
+		switch (g_settings.lcd4l_display_type)
+		{
 			case PNG:
 				DisplayType = "PNG_";
 				break;
@@ -849,7 +853,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	{
 		t_channel_id channel_id = parseID & 0xFFFFFFFFFFFFULL;
 
-		CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+		CZapitChannel *channel = CZapit::getInstance()->GetCurrentChannel();
 		if (channel)
 			channel_id = channel->getEpgID();
 
@@ -908,11 +912,11 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		else
 		{
 			const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
-			if ( !meta.artist.empty() )
+			if (!meta.artist.empty())
 				Event += meta.artist;
-			if ( !meta.artist.empty() && !meta.title.empty() )
+			if (!meta.artist.empty() && !meta.title.empty())
 				Event += " - ";
-			if ( !meta.title.empty() )
+			if (!meta.title.empty())
 				Event += meta.title;
 
 			if (!meta.album.empty())
@@ -924,7 +928,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			time_t total = meta.total_time;
 			time_t done = CAudioPlayer::getInstance()->getTimePlayed();
 
-			if ( (total > 0) && (done > 0) )
+			if ((total > 0) && (done > 0))
 			{
 				Progress = 100 * done / total;
 				snprintf(Duration, sizeof(Duration), "%ld:%02ld/%ld:%02ld", done / 60, done % 60, total / 60, total % 60);
@@ -965,13 +969,13 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		}
 
 		time_t sTime = time(NULL);
-		sTime -= (CMoviePlayerGui::getInstance().GetPosition()/1000);
+		sTime -= (CMoviePlayerGui::getInstance().GetPosition() / 1000);
 		tm_struct = localtime(&sTime);
 
 		snprintf(Start, sizeof(Start), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 
 		time_t eTime = time(NULL);
-		eTime +=(CMoviePlayerGui::getInstance().GetDuration()/1000) - (CMoviePlayerGui::getInstance().GetPosition()/1000);
+		eTime += (CMoviePlayerGui::getInstance().GetDuration() / 1000) - (CMoviePlayerGui::getInstance().GetPosition() / 1000);
 		tm_struct = localtime(&eTime);
 
 		snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
@@ -1199,9 +1203,9 @@ std::string CLCD4l::hexStrA2A(unsigned char data)
 	int a = 100 - data;
 	int ret = a * 0xFF / 100;
 
-	if(data == 0)
+	if (data == 0)
 		ret = 0xFF;
-	else if(data >= 100)
+	else if (data >= 100)
 		ret = 0x00;
 
 	snprintf(hexstr, sizeof hexstr, "%02x", ret);

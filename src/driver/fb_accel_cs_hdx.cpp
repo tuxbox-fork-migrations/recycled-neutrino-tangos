@@ -37,10 +37,12 @@ CFbAccelCSHDx::~CFbAccelCSHDx()
 */
 
 int CFbAccelCSHDx::fbCopy(uint32_t *mem_p, int width, int height,
-			  int dst_x, int dst_y, int src_x, int src_y, int mode)
+	int dst_x, int dst_y, int src_x, int src_y, int mode)
 {
-	if (videoDecoder == NULL) {
-		if (dst_y < (int)yRes) {
+	if (videoDecoder == NULL)
+	{
+		if (dst_y < (int)yRes)
+		{
 			uint32_t src_y_ = src_y;
 			if (mode == CS_FBCOPY_BB2FB)
 				src_y_ += yRes;
@@ -61,7 +63,8 @@ int CFbAccelCSHDx::fbCopy(uint32_t *mem_p, int width, int height,
 
 int CFbAccelCSHDx::fbFill(int sx, int sy, int width, int height, fb_pixel_t color, int mode/*=0*/)
 {
-	if (videoDecoder == NULL) {
+	if (videoDecoder == NULL)
+	{
 		CFbAccel::paintRect(sx, sy, width, height, color);
 		return 0;
 	}
@@ -77,32 +80,33 @@ int CFbAccelCSHDx::fbFill(int sx, int sy, int width, int height, fb_pixel_t colo
 
 #if 0
 /* TODO: Run this functions with hardware acceleration */
-void CFbAccelCSHDx::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
+void CFbAccelCSHDx::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t *const memp)
 {
 	if (!getActive())
 		return;
 
 	checkFbArea(x, y, dx, dy, true);
-	fb_pixel_t * pos = getFrameBufferPointer() + x + swidth * y;
-	fb_pixel_t * bkpos = memp;
-	for (int count = 0; count < dy; count++) {
-		fb_pixel_t * dest = (fb_pixel_t *)pos;
+	fb_pixel_t *pos = getFrameBufferPointer() + x + swidth * y;
+	fb_pixel_t *bkpos = memp;
+	for (int count = 0; count < dy; count++)
+	{
+		fb_pixel_t *dest = (fb_pixel_t *)pos;
 		for (int i = 0; i < dx; i++)
 			*(bkpos++) = *(dest++);
 		pos += swidth;
 	}
 	checkFbArea(x, y, dx, dy, false);
-printf("%s\n", __func_ext__);
+	printf("%s\n", __func_ext__);
 }
 
-void CFbAccelCSHDx::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
+void CFbAccelCSHDx::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t *const memp)
 {
 	if (!getActive())
 		return;
 
 	checkFbArea(x, y, dx, dy, true);
-	fb_pixel_t * fbpos = getFrameBufferPointer() + x + swidth * y;
-	fb_pixel_t * bkpos = memp;
+	fb_pixel_t *fbpos = getFrameBufferPointer() + x + swidth * y;
+	fb_pixel_t *bkpos = memp;
 	for (int count = 0; count < dy; count++)
 	{
 		memmove(fbpos, bkpos, dx * sizeof(fb_pixel_t));
@@ -111,12 +115,12 @@ void CFbAccelCSHDx::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * con
 	}
 	mark(x, y, x + dx, y + dy);
 	checkFbArea(x, y, dx, dy, false);
-printf("%s\n", __func_ext__);
+	printf("%s\n", __func_ext__);
 }
 
 void CFbAccelCSHDx::Clear()
 {
 	paintBackground();
-printf("%s\n", __func_ext__);
+	printf("%s\n", __func_ext__);
 }
 #endif

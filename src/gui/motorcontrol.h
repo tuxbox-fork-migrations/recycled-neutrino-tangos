@@ -40,8 +40,8 @@
 
 #define STEP_MODE_OFF 0
 #define STEP_MODE_AUTO 1
-#define STEP_MODE_ON 2 
-#define STEP_MODE_TIMED 3       
+#define STEP_MODE_ON 2
+#define STEP_MODE_TIMED 3
 
 class CFrameBuffer;
 class CMotorControl : public CMenuTarget
@@ -55,10 +55,10 @@ class CMotorControl : public CMenuTarget
 		int y;
 		int width;
 		int height;
-		int hheight,mheight; // head/menu font height
+		int hheight, mheight; // head/menu font height
 		int ypos;
 		int ypos_status;
-		Font* m_font;
+		Font *m_font;
 		int8_t stepSize;
 		int32_t stepDelay;
 		int stepMode;
@@ -75,7 +75,7 @@ class CMotorControl : public CMenuTarget
 		void paintLine(int x, int *y, int width, const char *txt);
 		void paintLine(int x, int y, int width, const char *txt);
 		void paintLine(int ix, int tx, int *y, int pwidth, const char *icon, const char *txt);
-		void paintSeparator(int xpos, int * ypos, int width, const char *txt);
+		void paintSeparator(int xpos, int *ypos, int width, const char *txt);
 		void motorStep(bool west);
 		void startSatFind(void);
 		void stopSatFind(void);
@@ -87,7 +87,7 @@ class CMotorControl : public CMenuTarget
 		CMotorControl(int tnum = 0);
 		~CMotorControl();
 		void hide();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 

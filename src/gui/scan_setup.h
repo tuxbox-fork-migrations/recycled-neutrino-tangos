@@ -46,7 +46,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 {
 	protected:
 		int width;
-	
+
 	private:
 		CMenuWidget			*satOnOff;
 
@@ -55,17 +55,17 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CMenuForwarder  *frontendSetup;
 		CMenuForwarder  *fsatSetup;
 		CMenuForwarder  *fsatSelect;
-		CMenuOptionChooser * dtype;
-		CMenuOptionChooser * dorder;
-		CMenuOptionChooser * tsp;
+		CMenuOptionChooser *dtype;
+		CMenuOptionChooser *dorder;
+		CMenuOptionChooser *tsp;
 		CMenuForwarder  *uniSetup;
-		CMenuOptionNumberChooser * ojDiseqcRepeats;
-		CIntInput * nid;
-		CMenuOptionChooser * lcnhd;
+		CMenuOptionNumberChooser *ojDiseqcRepeats;
+		CIntInput *nid;
+		CMenuOptionChooser *lcnhd;
 		/* items active for master/independent fe mode */
 		CGenericMenuActivate msettings;
 
-		CMenuOptionChooser * linkfe;
+		CMenuOptionChooser *linkfe;
 #if BOXMODEL_VUULTIMO4K
 		std::string modestr[24];
 #else
@@ -87,7 +87,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		int femaster;
 
 		std::vector<std::string> satoptions;
-		std::vector<CMenuForwarder*> satmf;
+		std::vector<CMenuForwarder *> satmf;
 
 		/* flag to allow any operations which can damage recordings */
 		bool allow_start;
@@ -97,7 +97,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		bool in_menu;
 
 		int is_wizard;
-		
+
 		int r_system;
 
 		neutrino_locale_t satprov_locale;
@@ -117,10 +117,10 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 
 		neutrino_locale_t getModeLocale(int mode);
 		int showScanMenuFrontendSetup();
- 		void addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t &satconfig);
- 		void addScanMenuManualScan(CMenuWidget *manual_Scan, bool stest = false);
- 		void addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll);
- 		void addScanMenuAutoScan(CMenuWidget *auto_Scan);
+		void addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t &satconfig);
+		void addScanMenuManualScan(CMenuWidget *manual_Scan, bool stest = false);
+		void addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll);
+		void addScanMenuAutoScan(CMenuWidget *auto_Scan);
 		void addScanMenuFrontendOptions(CMenuWidget *settings);
 
 		int addScanOptionsItems(CMenuWidget *options_menu, const int &shortcut = 1);
@@ -135,19 +135,19 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CScanSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 
 		/* required to set display count of selected satellites, see: showFrontendSetup() */
-		void setOptionSatSelect(int fe_number, CMenuForwarder* menu_item);
-	public:	
+		void setOptionSatSelect(int fe_number, CMenuForwarder *menu_item);
+	public:
 		~CScanSetup();
 
-		static CScanSetup* getInstance();
+		static CScanSetup *getInstance();
 
 		void setWizardMode(int mode) {is_wizard = mode;};
 		void updateManualSettings();
 
-		int exec(CMenuTarget* parent, const std::string & actionKey = "");
+		int exec(CMenuTarget *parent, const std::string &actionKey = "");
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 #ifdef ENABLE_FASTSCAN
- 		void addScanMenuFastScan(CMenuWidget *fast_ScanMenu);
+		void addScanMenuFastScan(CMenuWidget *fast_ScanMenu);
 #endif
 		void addScanMenuCable(CMenuWidget *menu);
 };
@@ -155,6 +155,6 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 class CTPSelectHandler : public CMenuTarget //CScanSetup
 {
 	public:
-		int exec(CMenuTarget* parent,  const std::string &actionkey);
+		int exec(CMenuTarget *parent,  const std::string &actionkey);
 };
 #endif

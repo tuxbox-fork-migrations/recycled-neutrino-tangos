@@ -33,7 +33,7 @@ class CSleepTimerWidget: public CMenuTarget
 
 	public:
 		CSleepTimerWidget(bool _permanent = false) { permanent = _permanent; }
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		std::string &getValue(void);
 };
 

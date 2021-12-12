@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Timerliste by Zwen
-	
+
 	Homepage: http://dbox.cyberphoria.org/
 
 	Kommentar:
@@ -64,7 +64,7 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		int		httpConnectTimeout;
 
 		CTimerdClient *Timer;
-		CTimerd::TimerList timerlist;             // List of timers		
+		CTimerd::TimerList timerlist;             // List of timers
 		CTimerd::responseGetTimer timerNew;
 		int timerNew_standby_on;
 		std::string timerNew_channel_name;
@@ -93,20 +93,20 @@ class CTimerList : public CMenuTarget, public CListHelpers
 		std::string RemoteBoxConnectUrl(std::string _rbname);
 		bool RemoteBoxChanExists(t_channel_id channel_id);
 		bool LocalBoxChanExists(t_channel_id channel_id);
-		int rem_pre,rem_post;
+		int rem_pre, rem_post;
 		int item_offset;
 		bool changed;
 		int  bselected;
 		CMenuWidget *remboxmenu;
-		bool askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTime, char * remotebox_ip);
+		bool askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTime, char *remotebox_ip);
 
 	public:
 		CTimerList();
 		~CTimerList();
 		void updateEvents(void);
 		int  show();
-		int  exec(CMenuTarget* parent, const std::string & actionKey);
-		static const char * convertTimerType2String(const CTimerd::CTimerEventTypes type); // UTF-8
+		int  exec(CMenuTarget *parent, const std::string &actionKey);
+		static const char *convertTimerType2String(const CTimerd::CTimerEventTypes type);  // UTF-8
 		static std::string convertTimerRepeat2String(const CTimerd::CTimerEventRepeat rep); // UTF-8
 		static std::string convertChannelId2String(const t_channel_id id); // UTF-8
 		void RemoteBoxTimerList(CTimerd::TimerList &timerlist);

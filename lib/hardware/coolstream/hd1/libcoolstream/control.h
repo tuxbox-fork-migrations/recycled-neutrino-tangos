@@ -23,19 +23,22 @@ typedef unsigned int u32;
 
 #include "tsrouter.h"
 
-typedef struct _scart_status {
+typedef struct _scart_status
+{
 	bool	widescreen;
 	bool	function;
 	bool	fastblank;
 } scart_status_t;
 
-typedef struct _pwm_status {
+typedef struct _pwm_status
+{
 	u16	pwm_pulse_first;
 	u16	pwm_pulse_second;
 	u32	pwm_clock;
 } pwm_status_t;
 
-typedef struct cs_control_data {
+typedef struct cs_control_data
+{
 	scart_status_t scart_status;
 	pwm_status_t pwm_status;
 	bool hdd_power;

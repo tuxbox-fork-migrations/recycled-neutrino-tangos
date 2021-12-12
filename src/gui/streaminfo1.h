@@ -37,14 +37,14 @@ class CStreamInfo2 : public CMenuTarget
 
 		CFrameBuffer	*frameBuffer;
 		CFrontend	*frontend;
-		CComponentsPIP  * pip;
+		CComponentsPIP   *pip;
 		CMoviePlayerGui *mp;
 		COSDFader	fader;
 		int x;
 		int y;
 		int width;
 		int height;
-		int hheight,iheight,sheight; 	// head/info/small font height
+		int hheight, iheight, sheight; 	// head/info/small font height
 
 		int  max_height;	// Frambuffer 0.. max
 		int  max_width;
@@ -70,14 +70,16 @@ class CStreamInfo2 : public CMenuTarget
 		int   average_bitrate_offset;
 		unsigned int scaling;
 		unsigned int pmt_version;
-		int box_h,box_h2;
-		struct feSignal {
+		int box_h, box_h2;
+		struct feSignal
+		{
 			unsigned long	ber, old_ber, max_ber, min_ber;
 			unsigned long	sig, old_sig, max_sig, min_sig;
 			unsigned long	snr, old_snr, max_snr, min_snr;
 		} signal;
 
-		struct bitrate {
+		struct bitrate
+		{
 			unsigned int short_average, max_short_average, min_short_average;
 		} rate;
 
@@ -98,17 +100,17 @@ class CStreamInfo2 : public CMenuTarget
 		void paint_signal_fe_box(int x, int y, int w, int h);
 		void paint_signal_fe(struct bitrate rate, struct feSignal s);
 		int  y_signal_fe(unsigned long value, unsigned long max_range, int max_y);
-		void SignalRenderStr (unsigned int value, int x, int y);
+		void SignalRenderStr(unsigned int value, int x, int y);
 		CSignalBox *signalbox;
 
-		void showSNR ();
+		void showSNR();
 	public:
 
 		CStreamInfo2();
 		~CStreamInfo2();
 
 		void hide();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 
 };
 #endif

@@ -51,12 +51,12 @@ class CSdt
 
 		uint8_t FixServiceType(uint8_t type);
 		bool CheckScanType(uint8_t service_type);
-		CZapitChannel * CheckChannelId(t_service_id service_id);
+		CZapitChannel *CheckChannelId(t_service_id service_id);
 		void FixWhiteSpaces(std::string &str);
 		bool AddToBouquet(std::string &providerName, CZapitChannel *channel);
 
 		bool Read();
-		bool ParseServiceDescriptor(ServiceDescription * service, ServiceDescriptor * sd, t_service_id SID = 0);
+		bool ParseServiceDescriptor(ServiceDescription *service, ServiceDescriptor *sd, t_service_id SID = 0);
 		bool ParseServiceDescriptorPAT(t_service_id service_id);
 		bool PMTPing(unsigned short pid, unsigned short sid);
 

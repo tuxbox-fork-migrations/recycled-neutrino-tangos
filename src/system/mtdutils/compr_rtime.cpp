@@ -24,17 +24,18 @@
 
 /* _compress returns the compressed size, -1 if bigger */
 static int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out,
-		uint32_t *sourcelen, uint32_t *dstlen)
+	uint32_t *sourcelen, uint32_t *dstlen)
 {
 	short positions[256];
 	uint32_t outpos = 0;
-	uint32_t pos=0;
+	uint32_t pos = 0;
 
-	memset(positions,0,sizeof(positions));
+	memset(positions, 0, sizeof(positions));
 
-	while (pos < (*sourcelen) && outpos+2 <= (*dstlen)) {
+	while (pos < (*sourcelen) && outpos + 2 <= (*dstlen))
+	{
 		uint32_t backpos;
-		int runlen=0;
+		int runlen = 0;
 		unsigned char value;
 
 		value = data_in[pos];
@@ -42,17 +43,19 @@ static int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out
 		cpage_out[outpos++] = data_in[pos++];
 
 		backpos = positions[value];
-		positions[value]=pos;
+		positions[value] = pos;
 
 		while ((backpos < pos) && (pos < (*sourcelen)) &&
-				(data_in[pos]==data_in[backpos++]) && (runlen<255)) {
+			(data_in[pos] == data_in[backpos++]) && (runlen < 255))
+		{
 			pos++;
 			runlen++;
 		}
 		cpage_out[outpos++] = runlen;
 	}
 
-	if (outpos >= pos) {
+	if (outpos >= pos)
+	{
 		/* We failed */
 		return -1;
 	}
@@ -65,15 +68,16 @@ static int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out
 
 
 static int jffs2_rtime_decompress(unsigned char *data_in, unsigned char *cpage_out,
-		__attribute__((unused)) uint32_t srclen, uint32_t destlen)
+	__attribute__((unused)) uint32_t srclen, uint32_t destlen)
 {
 	short positions[256];
 	uint32_t outpos = 0;
-	int pos=0;
+	int pos = 0;
 
-	memset(positions,0,sizeof(positions));
+	memset(positions, 0, sizeof(positions));
 
-	while (outpos<destlen) {
+	while (outpos < destlen)
+	{
 		unsigned char value;
 		uint32_t backoffs;
 		uint32_t repeat;
@@ -83,16 +87,21 @@ static int jffs2_rtime_decompress(unsigned char *data_in, unsigned char *cpage_o
 		repeat = data_in[pos++];
 		backoffs = positions[value];
 
-		positions[value]=outpos;
-		if (repeat) {
-			if (backoffs + repeat >= outpos) {
-				while(repeat) {
+		positions[value] = outpos;
+		if (repeat)
+		{
+			if (backoffs + repeat >= outpos)
+			{
+				while (repeat)
+				{
 					cpage_out[outpos++] = cpage_out[backoffs++];
 					repeat--;
 				}
-			} else {
-				memcpy(&cpage_out[outpos],&cpage_out[backoffs],repeat);
-				outpos+=repeat;
+			}
+			else
+			{
+				memcpy(&cpage_out[outpos], &cpage_out[backoffs], repeat);
+				outpos += repeat;
 			}
 		}
 	}

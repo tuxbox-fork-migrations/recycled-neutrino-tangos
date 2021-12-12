@@ -105,7 +105,7 @@ struct rb_node
 	struct rb_node *rb_right;
 	struct rb_node *rb_left;
 } __attribute__((aligned(sizeof(long))));
-    /* The alignment might seem pointless, but allegedly CRIS needs it */
+/* The alignment might seem pointless, but allegedly CRIS needs it */
 
 struct rb_root
 {
@@ -138,12 +138,12 @@ static inline void rb_set_color(struct rb_node *rb, int color)
 
 #if __cplusplus < 201103
 #define container_of(ptr, type, member) ({                      \
-        const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
-        (type *)( (char *)__mptr - offsetof(type,member) );})
+		const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+		(type *)( (char *)__mptr - offsetof(type,member) );})
 #else
 #define container_of(ptr, type, member) ({                      \
-        const __typeof__( ((type *)0)->member ) *__mptr = (ptr);    \
-        (type *)( (char *)__mptr - offsetof(type,member) );})
+		const __typeof__( ((type *)0)->member ) *__mptr = (ptr);    \
+		(type *)( (char *)__mptr - offsetof(type,member) );})
 #endif
 
 #define	rb_entry(ptr, type, member) container_of(ptr, type, member)
@@ -163,12 +163,12 @@ extern struct rb_node *rb_last(struct rb_root *);
 
 /* Fast replacement of a single node without remove/rebalance/add/rebalance */
 extern void rb_replace_node(struct rb_node *victim, struct rb_node *new_,
-			    struct rb_root *root);
+	struct rb_root *root);
 
-static inline void rb_link_node(struct rb_node * node, struct rb_node * parent,
-				struct rb_node ** rb_link)
+static inline void rb_link_node(struct rb_node *node, struct rb_node *parent,
+	struct rb_node **rb_link)
 {
-	node->rb_parent_color = (unsigned long )parent;
+	node->rb_parent_color = (unsigned long)parent;
 	node->rb_left = node->rb_right = NULL;
 
 	*rb_link = node;

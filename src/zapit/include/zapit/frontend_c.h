@@ -64,15 +64,15 @@
 #if 0
 static inline fe_modulation_t dvbs_get_modulation(fe_code_rate_t fec)
 {
-	if((fec < FEC_S2_QPSK_1_2) || (fec < FEC_S2_8PSK_1_2))
+	if ((fec < FEC_S2_QPSK_1_2) || (fec < FEC_S2_8PSK_1_2))
 		return QPSK;
-	else 
+	else
 		return PSK_8;
 }
 
 static inline fe_delivery_system_t dvbs_get_delsys(fe_code_rate_t fec)
 {
-	if(fec < FEC_S2_QPSK_1_2)
+	if (fec < FEC_S2_QPSK_1_2)
 		return SYS_DVBS;
 	else
 		return SYS_DVBS2;
@@ -81,7 +81,7 @@ static inline fe_delivery_system_t dvbs_get_delsys(fe_code_rate_t fec)
 
 static inline fe_rolloff_t dvbs_get_rolloff(fe_delivery_system_t delsys)
 {
-	if(delsys == SYS_DVBS2)
+	if (delsys == SYS_DVBS2)
 		return ROLLOFF_25;
 	else
 		return ROLLOFF_35;
@@ -90,12 +90,13 @@ static inline fe_rolloff_t dvbs_get_rolloff(fe_delivery_system_t delsys)
 class CFEManager;
 
 class CFrontend;
-typedef std::vector<CFrontend*> fe_linkmap_t;
+typedef std::vector<CFrontend *> fe_linkmap_t;
 
 class CFrontend
 {
 	public:
-		typedef enum {
+		typedef enum
+		{
 			FE_MODE_UNUSED,
 			FE_MODE_INDEPENDENT,
 			FE_MODE_MASTER,
@@ -210,7 +211,7 @@ class CFrontend
 		uint16_t			getSignalStrength(void) const;
 		fe_status_t			getStatus(void) const;
 		uint32_t			getUncorrectedBlocks(void) const;
-		void				getDelSys(int f, int m, const char * &fec, const char * &sys, const char * &mod);
+		void				getDelSys(int f, int m, const char*&fec, const char*&sys, const char*&mod);
 		void				forceDelSys(int i);
 		void				getFEInfo(void);
 
@@ -229,14 +230,14 @@ class CFrontend
 			repeatUsals = _repeatUsals;
 		};
 		void				configRotor(int _motorRotationSpeed, bool _highVoltage)
-							{ config.motorRotationSpeed = _motorRotationSpeed; config.highVoltage = _highVoltage; };
+		{ config.motorRotationSpeed = _motorRotationSpeed; config.highVoltage = _highVoltage; };
 
-		frontend_config_t&		getConfig() { return config; };
+		frontend_config_t		&getConfig() { return config; };
 		void				setConfig(frontend_config_t cfg) { setDiseqcType((diseqc_t) cfg.diseqcType); config = cfg; };
 
 		int				setParameters(transponder *TP, bool nowait = 0);
-		int				tuneFrequency (FrontendParameters * feparams, bool nowait = false);
-		const transponder*		getParameters(void) const { return &currentTransponder; };
+		int				tuneFrequency(FrontendParameters *feparams, bool nowait = false);
+		const transponder		*getParameters(void) const { return &currentTransponder; };
 		void				setCurrentSatellitePosition(int32_t satellitePosition) {currentSatellitePosition = satellitePosition; }
 		void				setRotorSatellitePosition(int32_t satellitePosition) {rotorSatellitePosition = satellitePosition; }
 
@@ -249,7 +250,7 @@ class CFrontend
 		t_channel_id			getChannelID(void) { return channel_id; }
 		void				setChannelID(t_channel_id ID) { channel_id = ID; }
 
-		fe_code_rate_t 			getCFEC ();
+		fe_code_rate_t 			getCFEC();
 		transponder_id_t		getTsidOnid() { return currentTransponder.getTransponderId(); }
 		bool				sameTsidOnid(transponder_id_t tpid)
 		{
@@ -261,7 +262,7 @@ class CFrontend
 			if (!usecount)
 				currentTransponder.setTransponderId(newid);
 		}
-		uint32_t 			getRate () const;
+		uint32_t 			getRate() const;
 
 		void				Lock();
 		void				Unlock();
@@ -276,10 +277,10 @@ class CFrontend
 		void setLnbOffsets(int32_t _lnbOffsetLow, int32_t _lnbOffsetHigh, int32_t _lnbSwitch);
 		struct dvb_frontend_event getEvent(void);
 		bool				Locked() { return usecount; };
-		satellite_map_t &		getSatellites() { return satellites; }
+		satellite_map_t 		&getSatellites() { return satellites; }
 		void				setSatellites(satellite_map_t satmap) { satellites = satmap; }
 		int				getNumber() { return fenumber; };
-		static void			getDelSys(delivery_system_t delsys, int f, int m, const char * &fec, const char * &sys, const char * &mod);
+		static void			getDelSys(delivery_system_t delsys, int f, int m, const char*&fec, const char*&sys, const char*&mod);
 		fe_work_mode_t			getMode() { return femode; }
 		void				setMode(int mode) {femode = (fe_work_mode_t) mode; }
 		int				getMaster() { return masterkey; }
@@ -305,11 +306,11 @@ class CFrontend
 		uint32_t			getSupportedDeliverySystems(void) const;
 		static uint32_t			getXMLDeliverySystem(delivery_system_t delsys);
 		static delivery_system_t	getZapitDeliverySystem(uint32_t);
-		static void getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsys, fe_modulation_t &mod, fe_code_rate_t & fec);
+		static void getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t &delsys, fe_modulation_t &mod, fe_code_rate_t &fec);
 		static fe_delivery_system_t	getFEDeliverySystem(delivery_system_t Delsys);
 		static uint32_t			getFEBandwidth(fe_bandwidth_t bandwidth);
-		const char*			getName(void) const { return info.name; }
-private:
+		const char			*getName(void) const { return info.name; }
+	private:
 		// DEPRECATED
 		fe_type_t			getType() { return info.type; }
 		const struct dvb_frontend_info *getInfo(void) const			{ return &info; };

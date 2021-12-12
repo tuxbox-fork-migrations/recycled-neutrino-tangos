@@ -42,17 +42,17 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		std::string cur_statusText;
 		int h_height;
 
-		CProgressBar* getProgressItem();
+		CProgressBar *getProgressItem();
 		void initStatus(const unsigned int prog, const unsigned int max, const std::string &statusText, CProgressBar *pBar);
 		void fitItems();
 
 	protected:
 		size_t global_max, internal_max;
 
-		void Init(	sigc::signal<void, size_t, size_t, std::string> *statusSignal,
-				sigc::signal<void, size_t, size_t, std::string> *localSignal,
-				sigc::signal<void, size_t, size_t, std::string> *globalSignal,
-				sigc::signal<void, size_t> *globalSet);
+		void Init(sigc::signal<void, size_t, size_t, std::string> *statusSignal,
+			sigc::signal<void, size_t, size_t, std::string> *localSignal,
+			sigc::signal<void, size_t, size_t, std::string> *globalSignal,
+			sigc::signal<void, size_t> *globalSet);
 
 	public:
 		/**CProgressWindow Constructor
@@ -69,30 +69,30 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* 		current changing global values.
 		*/
 		CProgressWindow(CComponentsForm *parent = NULL,
-				const int &dx = PW_MIN_WIDTH,
-				const int &dy = PW_MIN_HEIGHT,
-				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
-				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
+			const int &dx = PW_MIN_WIDTH,
+			const int &dy = PW_MIN_HEIGHT,
+			sigc::signal<void, size_t, size_t, std::string> *localSignal = NULL,
+			sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
 
 		/**CProgressWindowA Constructor
 		* @see		For common arguments and examples, see related constructor(s)\n
 		* 		For general parameters see basic class CProgressWindow!
 		*/
 		CProgressWindow(const neutrino_locale_t title,
-				const int &dx = PW_MIN_WIDTH,
-				const int &dy = PW_MIN_HEIGHT,
-				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
-				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
+			const int &dx = PW_MIN_WIDTH,
+			const int &dy = PW_MIN_HEIGHT,
+			sigc::signal<void, size_t, size_t, std::string> *localSignal = NULL,
+			sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
 
 		/**CProgressWindow Constructor
 		* @see		For common arguments and examples, see related constructor(s)\n
 		* 		For general parameters see basic class CProgressWindow!
 		*/
 		CProgressWindow(const std::string &title,
-				const int &dx = PW_MIN_WIDTH,
-				const int &dy = PW_MIN_HEIGHT,
-				sigc::signal<void,size_t, size_t, std::string> *localSignal = NULL,
-				sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
+			const int &dx = PW_MIN_WIDTH,
+			const int &dy = PW_MIN_HEIGHT,
+			sigc::signal<void, size_t, size_t, std::string> *localSignal = NULL,
+			sigc::signal<void, size_t, size_t, std::string> *globalSignal = NULL);
 
 		/**Sets titel of window
 		* @param[in]	title
@@ -104,7 +104,7 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* @param[in]	title
 		* 	@li 	expects type std::string as window title
 		*/
-		void setTitle(const std::string & title);
+		void setTitle(const std::string &title);
 
 		/**
 		* Remove window from screen, restores background.
@@ -119,7 +119,7 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* 	@li 	optional: without effect
 		* @return	int = menu_return::RETURN_REPAINT
 		*/
-		virtual int exec( CMenuTarget* parent, const std::string & actionKey );
+		virtual int exec(CMenuTarget *parent, const std::string &actionKey);
 
 		/**
 		* Sets current local progressbar value and show progress in window.
@@ -161,14 +161,14 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		* @param[in]	global_Max
 		* 	@li 	expects type size_t
 		*/
-		void setGlobalMax(const size_t& global_Max){global_max = global_Max;}
+		void setGlobalMax(const size_t &global_Max) {global_max = global_Max;}
 
 		/**
 		* Sets current progress value and show progress in window.
 		* @param[in]	text
 		* 	@li 	expects type std::string, describes current status text
 		*/
-		void showStatusMessageUTF(const std::string & text); // UTF-8
+		void showStatusMessageUTF(const std::string &text);  // UTF-8
 
 		/**
 		* Paint window
@@ -192,28 +192,28 @@ class CProgressWindowA : public CProgressWindow
 		* 	@li 	optional: expects pointer of type sigc::signal<void, size_t>, defines an optional signal container for global values.
 		*/
 		CProgressWindowA(const neutrino_locale_t title,
-				const int &dx = PW_MIN_WIDTH,
-				const int &dy = PW_MIN_HEIGHT,
-				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
-				sigc::signal<void, size_t> *globalSet = NULL)
-					: CProgressWindow(title, dx, dy, NULL, NULL)
-					{
-						Init(status_Signal, NULL, NULL, globalSet);
-					};
+			const int &dx = PW_MIN_WIDTH,
+			const int &dy = PW_MIN_HEIGHT,
+			sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
+			sigc::signal<void, size_t> *globalSet = NULL)
+			: CProgressWindow(title, dx, dy, NULL, NULL)
+		{
+			Init(status_Signal, NULL, NULL, globalSet);
+		};
 
 		/**CProgressWindowA Constructor
 		* @see		For common arguments and examples, see related constructor(s)!
 		* 		For general parameters see basic class CProgressWindow!
 		*/
 		CProgressWindowA(const std::string &title,
-				const int &dx = PW_MIN_WIDTH,
-				const int &dy = PW_MIN_HEIGHT,
-				sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
-				sigc::signal<void, size_t> *globalSet = NULL)
-					: CProgressWindow(title, dx, dy, NULL, NULL)
-					{
-						Init(status_Signal, NULL, NULL, globalSet);
-					};
+			const int &dx = PW_MIN_WIDTH,
+			const int &dy = PW_MIN_HEIGHT,
+			sigc::signal<void, size_t, size_t, std::string> *status_Signal = NULL,
+			sigc::signal<void, size_t> *globalSet = NULL)
+			: CProgressWindow(title, dx, dy, NULL, NULL)
+		{
+			Init(status_Signal, NULL, NULL, globalSet);
+		};
 };
 
 class CProgressSignals : public sigc::trackable

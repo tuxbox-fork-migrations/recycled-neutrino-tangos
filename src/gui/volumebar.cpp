@@ -92,14 +92,14 @@ void CVolumeBar::initVolumeBarSize()
 
 	//scale
 	vb_pbw 		= CFrameBuffer::getInstance()->scale2Res(200);
-	vb_pbh 		= height-2*vb_item_offset;
+	vb_pbh 		= height - 2 * vb_item_offset;
 
 	//result for width
-	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset + corner_rad/2;
+	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4 * vb_item_offset + corner_rad / 2;
 
 	//adapt x-pos
 	vb_pbx 		= vb_item_offset + vb_icon_w + vb_item_offset;
-	vb_icon_x 	= vb_pbx/2 - vb_icon_w/2 + vb_item_offset;
+	vb_icon_x 	= vb_pbx / 2 - vb_icon_w / 2 + vb_item_offset;
 	vb_digit_x	= vb_pbx + vb_pbw + vb_item_offset;
 
 	// mute icon
@@ -112,19 +112,21 @@ void CVolumeBar::initVolumeBarSize()
 		mute_corrY = (height - mute_dy) / 2;
 	cvh->setMuteIconCorrY(mute_corrY);
 
-	vb_pby 		= height/2-vb_pbh/2;
+	vb_pby 		= height / 2 - vb_pbh / 2;
 }
 
 //init current position of form
 void CVolumeBar::initVolumeBarPosition()
 {
-	CNeutrinoApp* neutrino = CNeutrinoApp::getInstance();
+	CNeutrinoApp *neutrino = CNeutrinoApp::getInstance();
 
 	switch (g_settings.volume_pos)
 	{
-		case VOLUMEBAR_POS_TOP_RIGHT:{
+		case VOLUMEBAR_POS_TOP_RIGHT:
+		{
 			int x_corr 	= 0;
-			if ((neutrino->getMode() != NeutrinoModes::mode_avinput) && (neutrino->getMode() != NeutrinoModes::mode_audio) && (neutrino->getMode() != NeutrinoModes::mode_pic)) {
+			if ((neutrino->getMode() != NeutrinoModes::mode_avinput) && (neutrino->getMode() != NeutrinoModes::mode_audio) && (neutrino->getMode() != NeutrinoModes::mode_pic))
+			{
 				if ((neutrino->isMuted()) && (!g_settings.mode_clock))
 					x_corr = mute_dx + h_spacer;
 				if (CNeutrinoApp::getInstance()->getChannellistIsVisible() == true)
@@ -147,15 +149,15 @@ void CVolumeBar::initVolumeBarPosition()
 			y = (sh + frameBuffer->getScreenY()) - height - v_spacer;
 			break;
 		case VOLUMEBAR_POS_TOP_CENTER:
-			x = ((sw - width) / 2) + x - h_spacer/2;
+			x = ((sw - width) / 2) + x - h_spacer / 2;
 			break;
 		case VOLUMEBAR_POS_BOTTOM_CENTER:
-			x = ((sw - width) / 2) + x - h_spacer/2;
+			x = ((sw - width) / 2) + x - h_spacer / 2;
 			y = (sh + frameBuffer->getScreenY()) - height - v_spacer;
 			break;
 		case VOLUMEBAR_POS_HIGHER_CENTER:
-			x = ((sw - width) / 2) + x - h_spacer/2;
-			y = (sh + frameBuffer->getScreenY()) - sh/10;
+			x = ((sw - width) / 2) + x - h_spacer / 2;
+			y = (sh + frameBuffer->getScreenY()) - sh / 10;
 			break;
 	}
 }
@@ -176,7 +178,8 @@ void CVolumeBar::initVolumeBarItems()
 //init current icon object
 void CVolumeBar::initVolumeBarIcon()
 {
-	if (!vb_icon){
+	if (!vb_icon)
+	{
 		vb_icon = new CComponentsPicture(vb_icon_x, CC_CENTERED, vb_icon_w, height, NEUTRINO_ICON_VOLUME);
 		//add icon to container
 		addCCItem(vb_icon);
@@ -190,7 +193,8 @@ void CVolumeBar::initVolumeBarIcon()
 //create new scale
 void CVolumeBar::initVolumeBarScale()
 {
-	if (!vb_pb){
+	if (!vb_pb)
+	{
 		vb_pb = new CProgressBar();
 		//add progressbar to container
 		addCCItem(vb_pb);
@@ -206,7 +210,7 @@ void CVolumeBar::initVolumeBarScale()
 void CVolumeBar::initVolumeBarDigitValue()
 {
 	vb_digit->kill(col_body);
-	vb_digit->setText(*vb_vol ,vb_digit_mode, *(CVolumeHelper::getInstance()->vb_font));
+	vb_digit->setText(*vb_vol, vb_digit_mode, *(CVolumeHelper::getInstance()->vb_font));
 }
 
 //create digit
@@ -234,7 +238,8 @@ void CVolumeBar::repaintVolScale()
 {
 	paintVolScale();
 
-	if (g_settings.volume_digits) {
+	if (g_settings.volume_digits)
+	{
 		initVolumeBarDigitValue();
 		paintVolumeBarDigit();
 	}
@@ -280,17 +285,19 @@ CVolumeHelper::CVolumeHelper()
 
 void CVolumeHelper::resetFont()
 {
-	if (vb_font){
+	if (vb_font)
+	{
 		vb_font		= NULL;
 		dprintf(DEBUG_INFO, "\033[33m[CVolumeHelper][%s - %d] reset vb font \033[0m\n", __func__, __LINE__);
 	}
-	if (clock_font){
+	if (clock_font)
+	{
 		clock_font	= NULL;
 		dprintf(DEBUG_INFO, "\033[33m[CVolumeHelper][%s - %d] reset clock font \033[0m\n", __func__, __LINE__);
 	}
 }
 
-void CVolumeHelper::Init(Font* font)
+void CVolumeHelper::Init(Font *font)
 {
 
 	x  = frameBuffer->getScreenX() + h_spacer;
@@ -303,9 +310,10 @@ void CVolumeHelper::Init(Font* font)
 	initInfoClock(font);
 }
 
-void CVolumeHelper::initInfoClock(Font* font)
+void CVolumeHelper::initInfoClock(Font *font)
 {
-	if (font == NULL) {
+	if (font == NULL)
+	{
 		int dx = 0;
 		int dy = g_settings.infoClockFontSize;
 		clock_font = *CNeutrinoFonts::getInstance()->getDynFont(dx, dy, g_settings.infoClockSeconds ? "%H:%M:%S" : "%H:%M");
@@ -319,28 +327,30 @@ void CVolumeHelper::initInfoClock(Font* font)
 	int t2       = (clock_font)->getRenderWidth(":");
 	clock_dy     = digit_h + (int)((float)digit_offset * 1.3);
 	if (g_settings.infoClockSeconds)
-		clock_dx     = t1*7 + t2*2;
+		clock_dx     = t1 * 7 + t2 * 2;
 	else
-		clock_dx     = t1*5 + t2*1;
+		clock_dx     = t1 * 5 + t2 * 1;
 	clock_ax     = sw - clock_dx;
 	clock_ay     = y;
 	vol_ay       = y;
 	mute_corrY   = 0;
 
-	if (g_settings.mode_clock) {
+	if (g_settings.mode_clock)
+	{
 		if (mute_dy > clock_dy)
 			clock_ay += (mute_dy - clock_dy) / 2;
 		else
 			mute_corrY = (clock_dy - mute_dy) / 2;
 	}
-	else {
+	else
+	{
 		if (mute_dy > vol_height)
 			vol_ay += (mute_dy - vol_height) / 2;
 		else
 			mute_corrY = (vol_height - mute_dy) / 2;
 	}
 
-	time_dx = t1*7 + t2*2;
+	time_dx = t1 * 7 + t2 * 2;
 	time_ax = frameBuffer->getScreenX() + h_spacer;
 }
 
@@ -363,7 +373,8 @@ void CVolumeHelper::initVolBarSize()
 	g_settings.volume_size	= max(g_settings.volume_size, icon_height);
 	vol_height		= CFrameBuffer::getInstance()->scale2Res(g_settings.volume_size);
 
-	if (g_settings.volume_digits) {
+	if (g_settings.volume_digits)
+	{
 		CNeutrinoFonts *cnf = CNeutrinoFonts::getInstance();
 		cnf->setFontUseDigitHeight(true);
 		int tmp_h	= vol_height;
@@ -382,15 +393,15 @@ int CVolumeHelper::getInfoClockX()
 		return clock_ax;
 }
 
-void CVolumeHelper::refresh(Font* font)
+void CVolumeHelper::refresh(Font *font)
 {
 	Init(font);
 }
 
-CVolumeHelper* CVolumeHelper::getInstance()
+CVolumeHelper *CVolumeHelper::getInstance()
 {
-	static CVolumeHelper* Helper = NULL;
-	if(!Helper)
+	static CVolumeHelper *Helper = NULL;
+	if (!Helper)
 		Helper = new CVolumeHelper();
 	return Helper;
 }

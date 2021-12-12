@@ -37,18 +37,18 @@ class CCECSetup : public CMenuTarget, CChangeObserver
 {
 	private:
 		CMenuOptionChooser 	*cec1, *cec2, *cec3;
-				
+
 		int width;
 
 		int showMenu();
- 		
 
-	public:	
+
+	public:
 		CCECSetup();
 		~CCECSetup();
 		void setCECSettings();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-		virtual bool changeNotify(const neutrino_locale_t OptionName, void * data);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
+		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data);
 };
 
 

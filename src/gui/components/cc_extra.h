@@ -74,21 +74,21 @@
 *		@li driver/framebuffer.h
 *		@li driver/colorgradient.h
 */
-bool paintBoxRel(	const int& x,
-			const int& y,
-			const int& dx,
-			const int& dy,
-			const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
-			const int& radius = 0,
-			const int& corner_type = CORNER_NONE,
-			const int& gradient_mode = CC_COLGRAD_OFF,
-			const int& gradient_sec_col = COL_MENUCONTENT_PLUS_0,
-			const int& gradient_direction = CFrameBuffer::gradientVertical,
-			const int& gradient_intensity = CColorGradient::normal,
-			const int& w_frame = 0,
-			const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
-			int shadow_mode = CC_SHADOW_OFF,
-			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
+bool paintBoxRel(const int &x,
+	const int &y,
+	const int &dx,
+	const int &dy,
+	const fb_pixel_t &color_body = COL_MENUCONTENT_PLUS_0,
+	const int &radius = 0,
+	const int &corner_type = CORNER_NONE,
+	const int &gradient_mode = CC_COLGRAD_OFF,
+	const int &gradient_sec_col = COL_MENUCONTENT_PLUS_0,
+	const int &gradient_direction = CFrameBuffer::gradientVertical,
+	const int &gradient_intensity = CColorGradient::normal,
+	const int &w_frame = 0,
+	const fb_pixel_t &color_frame = COL_FRAME_PLUS_0,
+	int shadow_mode = CC_SHADOW_OFF,
+	const fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0);
 
 /** 	Paint a box on screen.
 *	@param[in] x 				position
@@ -121,17 +121,17 @@ bool paintBoxRel(	const int& x,
 *		@li driver/framebuffer.h
 *		@li driver/colorgradient.h
 */
-bool paintBoxRel0(	const int& x,
-			const int& y,
-			const int& dx,
-			const int& dy,
-			const fb_pixel_t& color_body,
-			const int& radius = 0,
-			const int& corner_type = CORNER_NONE,
-			const int& w_frame = 0,
-			const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
-			int shadow_mode = CC_SHADOW_OFF,
-			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
+bool paintBoxRel0(const int &x,
+	const int &y,
+	const int &dx,
+	const int &dy,
+	const fb_pixel_t &color_body,
+	const int &radius = 0,
+	const int &corner_type = CORNER_NONE,
+	const int &w_frame = 0,
+	const fb_pixel_t &color_frame = COL_FRAME_PLUS_0,
+	int shadow_mode = CC_SHADOW_OFF,
+	const fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0);
 
 /** 	Paint a text box on screen.
 *	@param[in] std::string& 		text
@@ -188,25 +188,25 @@ bool paintBoxRel0(	const int& x,
 *		@li driver/framebuffer.h
 *		@li driver/colorgradient.h
 */
-bool paintTextBoxRel(	const std::string& text,
-			const int& x,
-			const int& y,
-			const int& dx,
-			const int& dy = 0,
-			Font *font = NULL,
-			const int& mode = CTextBox::AUTO_WIDTH,
-			const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
-			const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
-			const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
-			const int& radius = 0,
-			const int& corner_type = CORNER_NONE,
-			const int& gradient_mode = CC_COLGRAD_OFF,
-			const int& gradient_sec_col = COL_MENUCONTENT_PLUS_0,
-			const int& gradient_direction = CFrameBuffer::gradientVertical,
-			const int& gradient_intensity = CColorGradient::normal,
-			const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
-			int shadow_mode = CC_SHADOW_OFF,
-			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
+bool paintTextBoxRel(const std::string &text,
+	const int &x,
+	const int &y,
+	const int &dx,
+	const int &dy = 0,
+	Font *font = NULL,
+	const int &mode = CTextBox::AUTO_WIDTH,
+	const int &font_style = CComponentsText::FONT_STYLE_REGULAR,
+	const fb_pixel_t &color_text = COL_MENUCONTENT_TEXT,
+	const fb_pixel_t &color_body = COL_MENUCONTENT_PLUS_0,
+	const int &radius = 0,
+	const int &corner_type = CORNER_NONE,
+	const int &gradient_mode = CC_COLGRAD_OFF,
+	const int &gradient_sec_col = COL_MENUCONTENT_PLUS_0,
+	const int &gradient_direction = CFrameBuffer::gradientVertical,
+	const int &gradient_intensity = CColorGradient::normal,
+	const fb_pixel_t &color_frame = COL_FRAME_PLUS_0,
+	int shadow_mode = CC_SHADOW_OFF,
+	const fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0);
 
 /** 	Paints an image on screen with defined position. If no dimensions are defined, this method will try to paint an image as icon without any scale.\n
 *	If an dimension is defined it will be try to scale the image.\n
@@ -263,18 +263,18 @@ bool paintTextBoxRel(	const std::string& text,
 *		@li driver/framebuffer.h
 *		@li driver/colorgradient.h
 */
-bool paintImage(	const std::string& Image,
-			const int& x,
-			const int& y,
-			const int& dx = 0,
-			const int& dy = 0,
-			const int& transparent = CFrameBuffer::TM_EMPTY,
-			const fb_pixel_t& color_body = 0,
-			const int& radius = 0,
-			const int& corner_type = CORNER_NONE,
-			const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
-			int shadow_mode = CC_SHADOW_OFF,
-			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
+bool paintImage(const std::string &Image,
+	const int &x,
+	const int &y,
+	const int &dx = 0,
+	const int &dy = 0,
+	const int &transparent = CFrameBuffer::TM_EMPTY,
+	const fb_pixel_t &color_body = 0,
+	const int &radius = 0,
+	const int &corner_type = CORNER_NONE,
+	const fb_pixel_t &color_frame = COL_FRAME_PLUS_0,
+	int shadow_mode = CC_SHADOW_OFF,
+	const fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0);
 
 /**	Paints a box with icon and optional text as content on screen with defined position and dimensions.\n
  *	If no dimensions are defined, this method will try to paint the box without any scale.\n
@@ -298,15 +298,15 @@ bool paintImage(	const std::string& Image,
  *	@see
  *		@li paintImage()
  */
-bool paintIcon (	const std::string& filename,
-			const int& x,
-			const int& y,
-			const int& dx,
-			const int& dy,
-			const std::string& text = std::string(),
-			const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
-			const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
-			const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT);
+bool paintIcon(const std::string &filename,
+	const int &x,
+	const int &y,
+	const int &dx,
+	const int &dy,
+	const std::string &text = std::string(),
+	const int &font_style = CComponentsText::FONT_STYLE_REGULAR,
+	const fb_pixel_t &color_body = COL_MENUCONTENT_PLUS_0,
+	const fb_pixel_t &color_text = COL_MENUCONTENT_TEXT);
 
 /**	Overloaded version of paintIcon() without dimension parameters Paints a box with icon and optional text as content on screen with defined position.\n
  *	If no dimensions are defined, this method will try to paint the box without any scale.\n
@@ -329,12 +329,12 @@ bool paintIcon (	const std::string& filename,
  *		@li paintImage()
  *		@li paintIcon()
  */
-bool paintIcon (	const std::string& filename,
-			const int& x,
-			const int& y,
-			const std::string& text = std::string(),
-			const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
-			const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
-			const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT);
+bool paintIcon(const std::string &filename,
+	const int &x,
+	const int &y,
+	const std::string &text = std::string(),
+	const int &font_style = CComponentsText::FONT_STYLE_REGULAR,
+	const fb_pixel_t &color_body = COL_MENUCONTENT_PLUS_0,
+	const fb_pixel_t &color_text = COL_MENUCONTENT_TEXT);
 
 #endif

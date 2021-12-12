@@ -50,7 +50,8 @@ int32_t YaFT_p::parse_color1(std::string &seq)
 
 	length = parm.argv[0].length();
 
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 3; i++)
+	{
 		value = hex2num(parm.argv[i]);
 		logging(DEBUG, "value:%d\n", value);
 
@@ -89,26 +90,39 @@ int32_t YaFT_p::parse_color2(std::string &seq)
 	length = seq.length();
 	memset(buf, '\0', BUFSIZE);
 
-	if (length == 3) {       /* rgb */
-		for (i = 0; i < 3; i++) {
+	if (length == 3)         /* rgb */
+	{
+		for (i = 0; i < 3; i++)
+		{
 			rgb[i] = 0xFF & hex2num(seq.substr(i, 1)) * 0xFF / 0x0F;
 		}
-	} else if (length == 6) {  /* rrggbb */
-		for (i = 0; i < 3; i++) { /* rrggbb */
+	}
+	else if (length == 6)      /* rrggbb */
+	{
+		for (i = 0; i < 3; i++)   /* rrggbb */
+		{
 			//strncpy(buf, seq + i * 2, 2);
 			rgb[i] = 0xFF & hex2num(seq.substr(i * 2, 2));
 		}
-	} else if (length == 9) {  /* rrrgggbbb */
-		for (i = 0; i < 3; i++) {
+	}
+	else if (length == 9)      /* rrrgggbbb */
+	{
+		for (i = 0; i < 3; i++)
+		{
 			//strncpy(buf, seq + i * 3, 3);
 			rgb[i] = 0xFF & hex2num(seq.substr(i * 3, 3)) * 0xFF / 0xFFF;
 		}
-	} else if (length == 12) { /* rrrrggggbbbb */
-		for (i = 0; i < 3; i++) {
+	}
+	else if (length == 12)     /* rrrrggggbbbb */
+	{
+		for (i = 0; i < 3; i++)
+		{
 			//strncpy(buf, seq + i * 4, 4);
 			rgb[i] = 0xFF & hex2num(seq.substr(i * 4, 4)) * 0xFF / 0xFFFF;
 		}
-	} else {
+	}
+	else
+	{
 		return -1;
 	}
 
@@ -159,19 +173,26 @@ void YaFT_p::set_palette(struct parm_t *pt)
 	if (index < 0 || index >= COLORS)
 		return;
 
-	if (argv[2].compare(0, 4, "rgb:") == 0) {
+	if (argv[2].compare(0, 4, "rgb:") == 0)
+	{
 		std::string tmp = argv[2].substr(4); /* skip "rgb:" */
-		if ((color = parse_color1(tmp)) != -1) {
+		if ((color = parse_color1(tmp)) != -1)
+		{
 			virtual_palette[index] = (uint32_t) color;
 			palette_modified = true;
 		}
-	} else if (argv[2][0] == '#') {
+	}
+	else if (argv[2][0] == '#')
+	{
 		std::string tmp = argv[2].substr(1); /* skip "#" */
-		if ((color = parse_color2(tmp)) != -1) {
+		if ((color = parse_color2(tmp)) != -1)
+		{
 			virtual_palette[index] = (uint32_t) color;
 			palette_modified = true;
 		}
-	} else if (argv[2][0] == '?') {
+	}
+	else if (argv[2][0] == '?')
+	{
 		for (i = 0; i < 3; i++)
 			rgb[i] = 0xFF & (virtual_palette[index] >> (8 * (2 - i)));
 
@@ -197,13 +218,17 @@ void YaFT_p::reset_palette(struct parm_t *pt)
 	int i, argc = pt->argc, c;
 	std::string *argv = pt->argv;
 
-	if (argc < 2) { /* reset all color palette */
+	if (argc < 2)   /* reset all color palette */
+	{
 		for (i = 0; i < COLORS; i++)
 			virtual_palette[i] = color_list[i];
 		palette_modified = true;
-	} else if (argc == 2) { /* reset color_palette[c] */
+	}
+	else if (argc == 2)     /* reset color_palette[c] */
+	{
 		c = dec2num(argv[1]);
-		if (0 <= c && c < COLORS) {
+		if (0 <= c && c < COLORS)
+		{
 			virtual_palette[c] = color_list[c];
 			palette_modified = true;
 		}

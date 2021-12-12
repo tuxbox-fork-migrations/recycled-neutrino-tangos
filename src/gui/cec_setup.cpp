@@ -62,7 +62,7 @@ CCECSetup::~CCECSetup()
 
 }
 
-int CCECSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
+int CCECSetup::exec(CMenuTarget *parent, const std::string &/*actionKey*/)
 {
 	printf("[neutrino] init cec setup...\n");
 	int   res = menu_return::RETURN_REPAINT;

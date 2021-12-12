@@ -34,7 +34,7 @@ class CLuaInstCCWindow : CCHeaderTypes
 	public:
 		CLuaInstCCWindow() {};
 		~CLuaInstCCWindow() {};
-		static CLuaInstCCWindow* getInstance();
+		static CLuaInstCCWindow *getInstance();
 		static void CCWindowRegister(lua_State *L);
 
 	private:
