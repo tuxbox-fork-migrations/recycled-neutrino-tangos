@@ -33,7 +33,8 @@
 #include <zapit/frontend_types.h>
 
 /* diseqc types */
-typedef enum {
+typedef enum
+{
 	NO_DISEQC,
 	MINI_DISEQC,
 	SMATV_REMOTE_TUNING,
@@ -51,13 +52,15 @@ typedef enum {
 } diseqc_t;
 
 /* video display formats (cf. video_displayformat_t in driver/dvb/include/linux/dvb/video.h): */
-typedef enum {
+typedef enum
+{
 	ZAPIT_VIDEO_PAN_SCAN,       /* use pan and scan format */
 	ZAPIT_VIDEO_LETTER_BOX,     /* use letterbox format */
 	ZAPIT_VIDEO_CENTER_CUT_OUT  /* use center cut out format */
 } video_display_format_t;
 
-typedef enum {
+typedef enum
+{
 	ST_RESERVED,
 	ST_DIGITAL_TELEVISION_SERVICE,
 	ST_DIGITAL_RADIO_SOUND_SERVICE,
@@ -89,11 +92,12 @@ typedef struct TP_parameter
 	FrontendParameters feparams;
 } TP_params;
 
-enum ChannelType {
-       CHANNEL_MPEG2   = 0,
-       CHANNEL_MPEG4   = 1,
-       CHANNEL_HEVC    = 6,
-       CHANNEL_CAVS    = 16
+enum ChannelType
+{
+	CHANNEL_MPEG2   = 0,
+	CHANNEL_MPEG4   = 1,
+	CHANNEL_HEVC    = 6,
+	CHANNEL_CAVS    = 16
 };
 
 #endif /* __zapittypes_h__ */

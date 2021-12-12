@@ -33,7 +33,7 @@
 #include <cnxtfb.h>
 #endif
 
-COSDFader::COSDFader(unsigned char & alpha)
+COSDFader::COSDFader(unsigned char &alpha)
 	: max_alpha(alpha)
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -49,7 +49,7 @@ COSDFader::~COSDFader()
 
 void COSDFader::StartFadeIn()
 {
-	if(!g_settings.widget_fade)
+	if (!g_settings.widget_fade)
 		return;
 
 	fadeIn = true;
@@ -61,20 +61,22 @@ void COSDFader::StartFadeIn()
 #if (HAVE_CST_HARDWARE && defined(BOXMODEL_CST_HD2))
 	usleep(60000);
 #endif
-	fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+	fadeTimer = g_RCInput->addTimer(FADE_TIME, false);
 }
 
 /* return true if fade out started */
 bool COSDFader::StartFadeOut()
 {
 	bool ret = false;
-	if ( fadeIn ) {
+	if (fadeIn)
+	{
 		g_RCInput->killTimer(fadeTimer);
 		fadeIn = false;
 	}
-	if ((!fadeOut) && g_settings.widget_fade) {
+	if ((!fadeOut) && g_settings.widget_fade)
+	{
 		fadeOut = true;
-		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+		fadeTimer = g_RCInput->addTimer(FADE_TIME, false);
 		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 		ret = true;
 	}
@@ -83,9 +85,10 @@ bool COSDFader::StartFadeOut()
 
 void COSDFader::StopFade()
 {
-	if ( fadeIn || fadeOut ) {
+	if (fadeIn || fadeOut)
+	{
 		g_RCInput->killTimer(fadeTimer);
-		usleep(FADE_TIME*10);
+		usleep(FADE_TIME * 10);
 
 		frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
 		fadeIn = fadeOut = false;
@@ -97,25 +100,32 @@ bool COSDFader::FadeDone()
 {
 	bool ret = false;
 
-	if (fadeOut) { // disappear
+	if (fadeOut)   // disappear
+	{
 		fadeValue += FADE_STEP;
-		if (fadeValue >= 100) {
+		if (fadeValue >= 100)
+		{
 			fadeValue = max_alpha;
-			g_RCInput->killTimer (fadeTimer);
+			g_RCInput->killTimer(fadeTimer);
 			ret = true;
-		} else
+		}
+		else
 			frameBuffer->setBlendLevel(fadeValue);
-	} else { // appears
+	}
+	else     // appears
+	{
 		fadeValue -= FADE_STEP;
-		if (fadeValue <= max_alpha) {
+		if (fadeValue <= max_alpha)
+		{
 			fadeValue = max_alpha;
-			g_RCInput->killTimer (fadeTimer);
+			g_RCInput->killTimer(fadeTimer);
 			fadeIn = false;
 			frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
 #if (HAVE_CST_HARDWARE && defined(BOXMODEL_CST_HD2))
 			usleep(60000);
 #endif
-		} else
+		}
+		else
 			frameBuffer->setBlendLevel(fadeValue);
 	}
 	return ret;

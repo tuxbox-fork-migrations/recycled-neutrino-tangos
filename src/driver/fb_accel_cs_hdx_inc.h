@@ -43,6 +43,6 @@
 #include <helpers_cs.h>
 #include <cnxtfb.h>
 
-extern cVideo * videoDecoder;
+extern cVideo *videoDecoder;
 
 #endif // FB_ACCEL_CS_HDX_INC_H

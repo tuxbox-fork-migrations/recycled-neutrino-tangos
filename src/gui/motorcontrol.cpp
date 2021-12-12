@@ -55,7 +55,8 @@ CMotorControl::CMotorControl(int tnum)
 {
 	printf("CMotorControl::CMotorControl: tuner %d\n", tnum);
 	frontend = CFEManager::getInstance()->getFE(tnum);
-	if(frontend == NULL) {
+	if (frontend == NULL)
+	{
 		printf("CMotorControl::CMotorControl: BUG, invalid tuner number %d, using first\n", tnum);
 		frontend = CFEManager::getInstance()->getFE(0);
 	}
@@ -93,7 +94,7 @@ void CMotorControl::Init(void)
 	rotor_swap = frontend->getRotorSwap();
 }
 
-int CMotorControl::exec(CMenuTarget* parent, const std::string &)
+int CMotorControl::exec(CMenuTarget *parent, const std::string &)
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
@@ -118,12 +119,12 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	CZapitClient::commandSetScanSatelliteList sat;
 
 	sat.position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satName);
-	strncpy(sat.satName, scansettings.satName.c_str(), sizeof(sat.satName)-1);
+	strncpy(sat.satName, scansettings.satName.c_str(), sizeof(sat.satName) - 1);
 	satList.push_back(sat);
 
-	satellite_map_t & satmap = frontend->getSatellites();
+	satellite_map_t &satmap = frontend->getSatellites();
 	sat_iterator_t sit = satmap.find(sat.position);
-	if(sit != satmap.end() && sit->second.motor_position)
+	if (sit != satmap.end() && sit->second.motor_position)
 		motorPosition = sit->second.motor_position;
 
 	origPosition = motorPosition;
@@ -154,21 +155,26 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 		showSNR();
 		//printf("SIG: %d SNR %d last %d\n", g_sig, g_snr, last_snr);
-		if(moving && (stepMode == STEP_MODE_AUTO)) {
-			if(last_snr < g_snr) {
+		if (moving && (stepMode == STEP_MODE_AUTO))
+		{
+			if (last_snr < g_snr)
+			{
 				wasgrow = 1;
 			}
 			//if((last_snr > g_snr) && last_snr > 37000)
-			if(wasgrow && (last_snr > g_snr) /* && last_snr > 50*/) {
+			if (wasgrow && (last_snr > g_snr) /* && last_snr > 50*/)
+			{
 				//printf("Must stop rotor!!!\n");
 				g_Zapit->sendMotorCommand(0xE0, 0x31, 0x60, 0, 0, 0);
 				moving = 0;
 				paintStatus();
 				last_snr = 0;
 				//g_Zapit->tune_TP(TP);
-			} else
+			}
+			else
 				last_snr = g_snr;
-		} else
+		}
+		else
 			wasgrow = 0;
 
 		if (msg == (neutrino_msg_t)g_settings.key_volumeup)
@@ -176,7 +182,8 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 		else if (msg == (neutrino_msg_t)g_settings.key_volumedown)
 			msg = CRCInput::RC_minus;
 
-		if (msg == CRCInput::RC_ok || msg == CRCInput::RC_0) {
+		if (msg == CRCInput::RC_ok || msg == CRCInput::RC_0)
+		{
 			printf("[motorcontrol] 0 key received... goto %s\n", installerMenue ? "userMenue" : "installerMenue");
 			if (installerMenue)
 				installerMenue = false;
@@ -185,81 +192,106 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 			paintMenu();
 			paintStatus();
 		}
-		else if (msg == CRCInput::RC_1 || msg == CRCInput::RC_left) {
+		else if (msg == CRCInput::RC_1 || msg == CRCInput::RC_left)
+		{
 			printf("[motorcontrol] left/1 key received... drive/Step motor west, stepMode: %d\n", stepMode);
 			motorStep(true);
 			paintStatus();
 			//g_Zapit->tune_TP(TP);
 		}
-		else if (msg == CRCInput::RC_red || msg == CRCInput::RC_2) {
+		else if (msg == CRCInput::RC_red || msg == CRCInput::RC_2)
+		{
 			printf("[motorcontrol] 2 key received... halt motor\n");
 			g_Zapit->sendMotorCommand(0xE0, 0x31, 0x60, 0, 0, 0);
 			moving = 0;
 			paintStatus();
 			//g_Zapit->tune_TP(TP);
 		}
-		else if (msg == CRCInput::RC_3 || msg == CRCInput::RC_right) {
+		else if (msg == CRCInput::RC_3 || msg == CRCInput::RC_right)
+		{
 			printf("[motorcontrol] right/3 key received... drive/Step motor east, stepMode: %d\n", stepMode);
 			motorStep(false);
 			paintStatus();
 			//g_Zapit->tune_TP(TP);
 		}
-		else if (msg == CRCInput::RC_4) {
-			if (installerMenue) {
+		else if (msg == CRCInput::RC_4)
+		{
+			if (installerMenue)
+			{
 				printf("[motorcontrol] 4 key received... set west (soft) limit\n");
-				if(rotor_swap) lim_cmd = 0x66;
-				else lim_cmd = 0x67;
+				if (rotor_swap)
+					lim_cmd = 0x66;
+				else
+					lim_cmd = 0x67;
 				g_Zapit->sendMotorCommand(0xE1, 0x31, lim_cmd, 0, 0, 0);
 				//g_Zapit->tune_TP(TP);
 			}
 		}
-		else if (msg == CRCInput::RC_5 || msg == CRCInput::RC_green) {
-			if (installerMenue) {
+		else if (msg == CRCInput::RC_5 || msg == CRCInput::RC_green)
+		{
+			if (installerMenue)
+			{
 				printf("[motorcontrol] 5 key received... disable (soft) limits\n");
 				g_Zapit->sendMotorCommand(0xE0, 0x31, 0x63, 0, 0, 0);
-			} else {
+			}
+			else
+			{
 				bool store = true;
 				printf("[motorcontrol] 5 key received... store present satellite number: %d\n", motorPosition);
-				if(motorPosition != origPosition) {
+				if (motorPosition != origPosition)
+				{
 					printf("[motorcontrol] position changed %d -> %d\n", origPosition, motorPosition);
-					for(sit = satmap.begin(); sit != satmap.end(); sit++) {
-						if(sit->second.motor_position == motorPosition)
+					for (sit = satmap.begin(); sit != satmap.end(); sit++)
+					{
+						if (sit->second.motor_position == motorPosition)
 							break;
 					}
-					if(sit != satmap.end()) {
+					if (sit != satmap.end())
+					{
 						std::string satname = CServiceManager::getInstance()->GetSatelliteName(sit->first);
 						printf("[motorcontrol] new positions configured for %s\n", satname.c_str());
 						std::string buf = g_Locale->getText(LOCALE_MOTORCONTROL_OVERRIDE);
 						buf += " ";
 						buf += satname;
 						buf += " ?";
-						store = (ShowMsg(LOCALE_MESSAGEBOX_INFO, buf,CMsgBox::mbrNo,CMsgBox::mbNo|CMsgBox::mbYes) == CMsgBox::mbrYes);
+						store = (ShowMsg(LOCALE_MESSAGEBOX_INFO, buf, CMsgBox::mbrNo, CMsgBox::mbNo | CMsgBox::mbYes) == CMsgBox::mbrYes);
 					}
 				}
-				if(store)
+				if (store)
 					g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6A, 1, motorPosition, 0);
 			}
 		}
-		else if (msg == CRCInput::RC_6) {
-			if (installerMenue) {
+		else if (msg == CRCInput::RC_6)
+		{
+			if (installerMenue)
+			{
 				printf("[motorcontrol] 6 key received... set east (soft) limit\n");
-				if(rotor_swap) lim_cmd = 0x67;
-				else lim_cmd = 0x66;
+				if (rotor_swap)
+					lim_cmd = 0x67;
+				else
+					lim_cmd = 0x66;
 				g_Zapit->sendMotorCommand(0xE1, 0x31, lim_cmd, 0, 0, 0);
 				//g_Zapit->tune_TP(TP);
-			} else {
-				if (stepSize < 0x7F) stepSize++;
+			}
+			else
+			{
+				if (stepSize < 0x7F)
+					stepSize++;
 				printf("[motorcontrol] 6 key received... increase Step size: %d\n", stepSize);
 				paintStatus();
 			}
 		}
-		else if (msg == CRCInput::RC_7 || msg == CRCInput::RC_yellow) {
-			if (installerMenue) {
+		else if (msg == CRCInput::RC_7 || msg == CRCInput::RC_yellow)
+		{
+			if (installerMenue)
+			{
 				printf("[motorcontrol] 7 key received... goto reference position\n");
 				g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6B, 1, 0, 0);
 				satellitePosition = 0;
 				paintStatus();
-			} else {
+			}
+			else
+			{
 				printf("[motorcontrol] 7 key received... goto satellite number: %d\n", motorPosition);
 				g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6B, 1, motorPosition, 0);
 				satellitePosition = 0;
@@ -267,34 +299,45 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 			}
 			//g_Zapit->tune_TP(TP);
 		}
-		else if (msg == CRCInput::RC_8) {
-			if (installerMenue) {
+		else if (msg == CRCInput::RC_8)
+		{
+			if (installerMenue)
+			{
 				printf("[motorcontrol] 8 key received... enable (soft) limits\n");
 				g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6A, 1, 0, 0);
 			}
 		}
-		else if (msg == CRCInput::RC_9) {
-			if (installerMenue) {
+		else if (msg == CRCInput::RC_9)
+		{
+			if (installerMenue)
+			{
 				printf("[motorcontrol] 9 key received... (re)-calculate positions\n");
 				g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6F, 1, 0, 0);
-			} else {
-				if (stepSize > 1) stepSize--;
+			}
+			else
+			{
+				if (stepSize > 1)
+					stepSize--;
 				printf("[motorcontrol] 9 key received... decrease Step size: %d\n", stepSize);
 				paintStatus();
 			}
 		}
-		else if (msg == CRCInput::RC_plus || msg == CRCInput::RC_up) {
+		else if (msg == CRCInput::RC_plus || msg == CRCInput::RC_up)
+		{
 			printf("[motorcontrol] up key received... increase satellite position: %d\n", ++motorPosition);
 			satellitePosition = 0;
 			paintStatus();
 		}
-		else if (msg == CRCInput::RC_minus || msg == CRCInput::RC_down) {
-			if (motorPosition > 1) motorPosition--;
+		else if (msg == CRCInput::RC_minus || msg == CRCInput::RC_down)
+		{
+			if (motorPosition > 1)
+				motorPosition--;
 			printf("[motorcontrol] down key received... decrease satellite position: %d\n", motorPosition);
 			satellitePosition = 0;
 			paintStatus();
 		}
-		else if (msg == CRCInput::RC_blue) {
+		else if (msg == CRCInput::RC_blue)
+		{
 			if (++stepMode > 3)
 				stepMode = 0;
 			if (stepMode == STEP_MODE_OFF)
@@ -303,18 +346,21 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 			printf("[motorcontrol] blue key received... toggle stepmode on/off: %d\n", stepMode);
 			paintStatus();
 		}
-		else if (msg == CRCInput::RC_info || msg == CRCInput::RC_help) {
+		else if (msg == CRCInput::RC_info || msg == CRCInput::RC_help)
+		{
 			network = "waiting for NIT...";
 			paintStatus();
 			readNetwork();
 			paintStatus();
 		}
-		else if (msg == CRCInput::RC_setup) {
+		else if (msg == CRCInput::RC_setup)
+		{
 			retval = menu_return::RETURN_EXIT_ALL;
 		}
-		else {
+		else
+		{
 			if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
-				delete[] (unsigned char*) data;
+				delete[](unsigned char *) data;
 		}
 		frameBuffer->blit();
 	}
@@ -330,15 +376,22 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 void CMotorControl::motorStep(bool west)
 {
 	int cmd;
-	if (west) {
-		if(rotor_swap) cmd = 0x68;
-		else cmd = 0x69;
-	} else {
-		if(rotor_swap) cmd = 0x69;
-		else cmd = 0x68;
+	if (west)
+	{
+		if (rotor_swap)
+			cmd = 0x68;
+		else
+			cmd = 0x69;
+	}
+	else
+	{
+		if (rotor_swap)
+			cmd = 0x69;
+		else
+			cmd = 0x68;
 	}
 	printf("[motorcontrol] motorStep: %s\n", west ? "West" : "East");
-	switch(stepMode)
+	switch (stepMode)
 	{
 		case STEP_MODE_ON:
 			g_Zapit->sendMotorCommand(0xE0, 0x31, cmd, 1, (-1 * stepSize), 0);
@@ -353,7 +406,7 @@ void CMotorControl::motorStep(bool west)
 		case STEP_MODE_AUTO:
 			moving = 1;
 			paintStatus();
-			/* fall through */
+		/* fall through */
 		default:
 			/* what is STEP_MODE_OFF supposed to do? */
 			g_Zapit->sendMotorCommand(0xE0, 0x31, cmd, 1, 40, 0);
@@ -418,10 +471,10 @@ void CMotorControl::paintStatus()
 
 	paintLine(xpos1, &ypos, width1, g_Locale->getText(LOCALE_MOTORCONTROL_MOTOR_POS));
 	sprintf(buf1, "%d", motorPosition);
-	paintLine(xpos2, ypos, width2 , buf1);
+	paintLine(xpos2, ypos, width2, buf1);
 
 	paintLine(xpos1, &ypos, width1, g_Locale->getText(LOCALE_MOTORCONTROL_MOVEMENT));
-	switch(stepMode)
+	switch (stepMode)
 	{
 		case STEP_MODE_ON:
 			strcpy(buf1, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_MODE));
@@ -429,7 +482,7 @@ void CMotorControl::paintStatus()
 			break;
 		case STEP_MODE_AUTO:
 			strcpy(buf1, g_Locale->getText(LOCALE_MOTORCONTROL_DRIVE_MODE_AUTO));
-			if(moving)
+			if (moving)
 				strcpy(buf2, g_Locale->getText(LOCALE_MOTORCONTROL_STOP_MOVING));
 			else
 				strcpy(buf2, g_Locale->getText(LOCALE_MOTORCONTROL_STOP_STOPPED));
@@ -478,7 +531,7 @@ void CMotorControl::paintMenu()
 #if 1
 	int width1 = width - 10;
 	paintLine(xpos1, &ypos, width1, "(0/OK)");
-	if(installerMenue)
+	if (installerMenue)
 		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_USER_MENU));
 	else
 		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_INSTALL_MENU));
@@ -530,24 +583,24 @@ void CMotorControl::paintMenu()
 	paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_NETWORK));
 #else
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_0,
-			installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_USER_MENU) : g_Locale->getText(LOCALE_MOTORCONTROL_INSTALL_MENU));
+		installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_USER_MENU) : g_Locale->getText(LOCALE_MOTORCONTROL_INSTALL_MENU));
 
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_1, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_WEST));
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_2, g_Locale->getText(LOCALE_MOTORCONTROL_HALT));
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_3, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_EAST));
 
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_4,
-			installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_WEST_LIMIT) : g_Locale->getText(LOCALE_MOTORCONTROL_NOTDEF));
+		installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_WEST_LIMIT) : g_Locale->getText(LOCALE_MOTORCONTROL_NOTDEF));
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_5,
-			installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_DISABLE_LIMIT) : g_Locale->getText(LOCALE_MOTORCONTROL_STORE));
+		installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_DISABLE_LIMIT) : g_Locale->getText(LOCALE_MOTORCONTROL_STORE));
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_6,
-			installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_EAST_LIMIT) : g_Locale->getText(LOCALE_MOTORCONTROL_STEP_INCREASE));
+		installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_EAST_LIMIT) : g_Locale->getText(LOCALE_MOTORCONTROL_STEP_INCREASE));
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_7,
-			installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_REF_POSITION) : g_Locale->getText(LOCALE_MOTORCONTROL_GOTO));
+		installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_REF_POSITION) : g_Locale->getText(LOCALE_MOTORCONTROL_GOTO));
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_8,
-			installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_ENABLE_LIMIT) : g_Locale->getText(LOCALE_MOTORCONTROL_NOTDEF));
+		installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_ENABLE_LIMIT) : g_Locale->getText(LOCALE_MOTORCONTROL_NOTDEF));
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_9,
-			installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_CALC_POSITIONS) : g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DECREASE));
+		installerMenue ? g_Locale->getText(LOCALE_MOTORCONTROL_CALC_POSITIONS) : g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DECREASE));
 
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_UP, g_Locale->getText(LOCALE_MOTORCONTROL_POS_INCREASE));
 	paintLine(xpos1, xpos2, &ypos, width2, NEUTRINO_ICON_BUTTON_DOWN, g_Locale->getText(LOCALE_MOTORCONTROL_POS_DECREASE));
@@ -560,13 +613,15 @@ void CMotorControl::paintMenu()
 void CMotorControl::startSatFind(void)
 {
 #if 0
-	if (satfindpid != -1) {
+	if (satfindpid != -1)
+	{
 		kill(satfindpid, SIGKILL);
 		waitpid(satfindpid, 0, 0);
 		satfindpid = -1;
 	}
 
-	switch ((satfindpid = fork())) {
+	switch ((satfindpid = fork()))
+	{
 		case -1:
 			printf("[motorcontrol] fork");
 			break;
@@ -582,7 +637,8 @@ void CMotorControl::startSatFind(void)
 void CMotorControl::stopSatFind(void)
 {
 #if 0
-	if (satfindpid != -1) {
+	if (satfindpid != -1)
+	{
 		printf("[motorcontrol] killing satfind...\n");
 		kill(satfindpid, SIGKILL);
 		waitpid(satfindpid, 0, 0);
@@ -591,12 +647,13 @@ void CMotorControl::stopSatFind(void)
 #endif
 }
 
-void CMotorControl::showSNR ()
+void CMotorControl::showSNR()
 {
-	if (signalbox == NULL){
+	if (signalbox == NULL)
+	{
 		int xpos1 = x + 10;
 		//signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), m_font->getHeight(), frontend, false);
-		signalbox = new CSignalBox(xpos1, y + height - (mheight*2*3)/2 - 5, width - 2*(xpos1-x), (m_font->getHeight()*2*3)/2, frontend, true);
+		signalbox = new CSignalBox(xpos1, y + height - (mheight * 2 * 3) / 2 - 5, width - 2 * (xpos1 - x), (m_font->getHeight() * 2 * 3) / 2, frontend, true);
 		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
 		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
 		signalbox->doPaintBg(true);
@@ -617,6 +674,6 @@ void CMotorControl::readNetwork()
 		network = "unknown";
 
 	char net[100];
-	snprintf(net, sizeof(net), "%03d.%d, %s", abs((int)pos)/10, abs((int)pos)%10, network.c_str());
+	snprintf(net, sizeof(net), "%03d.%d, %s", abs((int)pos) / 10, abs((int)pos) % 10, network.c_str());
 	network = net;
 }

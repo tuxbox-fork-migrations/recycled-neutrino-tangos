@@ -90,7 +90,7 @@ int CQuadPiPSetup::exec(CMenuTarget *parent, const std::string &/*actionKey*/)
 /*shows the QuadPiP setup menue*/
 int CQuadPiPSetup::showQuadPiPSetup()
 {
-	CMenuWidget *quadpipsetup = new CMenuWidget(LOCALE_QUADPIP, NEUTRINO_ICON_SETTINGS, (int) w_max (35, 15), MN_WIDGET_ID_QUADPIP);
+	CMenuWidget *quadpipsetup = new CMenuWidget(LOCALE_QUADPIP, NEUTRINO_ICON_SETTINGS, (int) w_max(35, 15), MN_WIDGET_ID_QUADPIP);
 
 	// menu head
 	quadpipsetup->addItem(GenericMenuSeparator);
@@ -143,13 +143,13 @@ bool CQuadPiPSetupNotifier::changeNotify(const neutrino_locale_t, void */*Data*/
 			}
 			if (i >= 1 && g_settings.quadpip_channel_id_window[i] != 0)
 			{
-				CZapit::getInstance()->StartPip(g_settings.quadpip_channel_id_window[i], i-1);
-				g_Zapit->zapTo_pip(g_settings.quadpip_channel_id_window[i], i-1);
-				pipAudioDemux[i-1]->Start();
-				pipAudioDecoder[i-1]->Start();
+				CZapit::getInstance()->StartPip(g_settings.quadpip_channel_id_window[i], i - 1);
+				g_Zapit->zapTo_pip(g_settings.quadpip_channel_id_window[i], i - 1);
+				pipAudioDemux[i - 1]->Start();
+				pipAudioDecoder[i - 1]->Start();
 				usleep(50);			// delay for audio start/stop for audio later at window selection
-				pipAudioDemux[i-1]->Stop();
-				pipAudioDecoder[i-1]->Stop();
+				pipAudioDemux[i - 1]->Stop();
+				pipAudioDecoder[i - 1]->Stop();
 
 				if (i == 1)
 					pipVideoDecoder[i - 1]->Pig(fb_w, 0, fb_w, fb_h, CFrameBuffer::getInstance()->getScreenWidth(true), CFrameBuffer::getInstance()->getScreenHeight(true));
@@ -289,7 +289,7 @@ int CQuadPiPSetupSelectChannelWidget::InitZapitChannelHelper()
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++)
 	{
 		CMenuWidget *mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS);
-		CMenuForwarder * chan_item = NULL;
+		CMenuForwarder *chan_item = NULL;
 		toDelete.push_back(mwtv);
 		mwtv->addIntroItems();
 		ZapitChannelList channels;

@@ -43,7 +43,7 @@ typedef std::map <t_satellite_position, transponder_list_t> sat_transponder_map_
 typedef std::map<t_channel_id, CZapitChannel> channel_map_t;
 typedef channel_map_t::iterator channel_map_iterator_t;
 typedef std::pair<t_channel_id, CZapitChannel> channel_pair_t;
-typedef std::pair<channel_map_iterator_t,bool> channel_insert_res_t;
+typedef std::pair<channel_map_iterator_t, bool> channel_insert_res_t;
 
 struct provider_replace
 {
@@ -96,28 +96,28 @@ class CServiceManager
 
 		bool LoadScanXml(delivery_system_t delsys);
 
-		void WriteSatHeader(FILE * fd, sat_config_t &config);
-		void WriteCurrentService(FILE * fd, bool &satfound, bool &tpdone,
-				bool &updated, char * satstr, transponder &tp, CZapitChannel &channel, const char * action);
+		void WriteSatHeader(FILE *fd, sat_config_t &config);
+		void WriteCurrentService(FILE *fd, bool &satfound, bool &tpdone,
+			bool &updated, char *satstr, transponder &tp, CZapitChannel &channel, const char *action);
 
-		static CServiceManager * manager;
+		static CServiceManager *manager;
 		CServiceManager();
 
 	public:
 		~CServiceManager();
-		static CServiceManager * getInstance();
+		static CServiceManager *getInstance();
 
-		static void CopyFile(const char * from, const char * to);
+		static void CopyFile(const char *from, const char *to);
 
-		bool InitSatPosition(t_satellite_position position, const char * name = NULL, bool force = false, delivery_system_t delsys = DVB_S, uint16_t nid = 0);
+		bool InitSatPosition(t_satellite_position position, const char *name = NULL, bool force = false, delivery_system_t delsys = DVB_S, uint16_t nid = 0);
 		bool LoadServices(bool only_current);
 		void SaveServices(bool tocopy, bool if_changed = false, bool no_deleted = false);
 		bool SaveCurrentServices(transponder_id_t tpid);
 		bool CopyCurrentServices(transponder_id_t tpid);
 
-		bool AddChannel(CZapitChannel * &channel);
-		bool AddCurrentChannel(CZapitChannel * &channel);
-		bool AddNVODChannel(CZapitChannel * &channel);
+		bool AddChannel(CZapitChannel*&channel);
+		bool AddCurrentChannel(CZapitChannel*&channel);
+		bool AddNVODChannel(CZapitChannel*&channel);
 
 		void ResetChannelNumbers(bool bouquets = true, bool numbers = false);
 		void RemoveChannel(const t_channel_id channel_id);
@@ -126,19 +126,19 @@ class CServiceManager
 		void RemoveCurrentChannels();
 		void RemoveNVODChannels();
 
-		CZapitChannel* FindChannel(const t_channel_id channel_id, bool * current_is_nvod = NULL);
-		CZapitChannel* FindChannelByName(std::string name);
-		CZapitChannel* FindChannelByPattern(std::string pattern); //NI
-		CZapitChannel* FindCurrentChannel(const t_channel_id channel_id);
-		CZapitChannel* FindChannel48(const t_channel_id channel_id);
-		CZapitChannel* FindChannelFuzzy(const t_channel_id channel_id,
-						const t_satellite_position pos, const freq_id_t freq);
+		CZapitChannel *FindChannel(const t_channel_id channel_id, bool *current_is_nvod = NULL);
+		CZapitChannel *FindChannelByName(std::string name);
+		CZapitChannel *FindChannelByPattern(std::string pattern); //NI
+		CZapitChannel *FindCurrentChannel(const t_channel_id channel_id);
+		CZapitChannel *FindChannel48(const t_channel_id channel_id);
+		CZapitChannel *FindChannelFuzzy(const t_channel_id channel_id,
+			const t_satellite_position pos, const freq_id_t freq);
 
-		CZapitChannel * GetCurrentChannel(void);
+		CZapitChannel *GetCurrentChannel(void);
 
 		std::string GetServiceName(t_channel_id channel_id);
 
-		tallchans* GetAllChannels(){ return &allchans; };
+		tallchans *GetAllChannels() { return &allchans; };
 		bool GetAllRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 		bool GetAllTvChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 		bool GetAllHDChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
@@ -154,19 +154,20 @@ class CServiceManager
 		std::string GetSatelliteName(t_satellite_position position)
 		{
 			sat_iterator_t it = satellitePositions.find(position);
-			if(it != satellitePositions.end())
+			if (it != satellitePositions.end())
 				return it->second.name;
 			return "";
 		}
 		t_satellite_position GetSatellitePosition(std::string name)
 		{
-			for(sat_iterator_t sit = satellitePositions.begin(); sit != satellitePositions.end(); ++sit) {
-				if(name == sit->second.name)
+			for (sat_iterator_t sit = satellitePositions.begin(); sit != satellitePositions.end(); ++sit)
+			{
+				if (name == sit->second.name)
 					return sit->second.position;
 			}
 			return 0;
 		}
-		satellite_map_t & SatelliteList() { return satellitePositions; }
+		satellite_map_t &SatelliteList() { return satellitePositions; }
 		xmlDocPtr ScanXml();
 
 		bool LoadProviderMap();
@@ -179,8 +180,8 @@ class CServiceManager
 		void UpdateSatTransponders(t_satellite_position satellitePosition);
 
 		bool GetTransponder(transponder_id_t tid, transponder &t);
-		transponder_list_t & GetTransponders() { return transponders; }
-		transponder_list_t & GetSatelliteTransponders(t_satellite_position position) { return satelliteTransponders[position]; }
+		transponder_list_t &GetTransponders() { return transponders; }
+		transponder_list_t &GetSatelliteTransponders(t_satellite_position position) { return satelliteTransponders[position]; }
 		void KeepNumbers(bool enable) { keep_numbers = enable; };
 		void SetCIFilter(void);
 };

@@ -28,31 +28,32 @@
 
 class CDVBString
 {
- private:
-	enum t_encoding {
-		UNKNOWN        = 0x00,
-		ISO_8859_5     = 0x01,
-		ISO_8859_6     = 0x02,
-		ISO_8859_7     = 0x03,
-		ISO_8859_8     = 0x04,
-		ISO_8859_9     = 0x05,
-		ISO_6937       = 0x20
-	};
+	private:
+		enum t_encoding
+		{
+			UNKNOWN        = 0x00,
+			ISO_8859_5     = 0x01,
+			ISO_8859_6     = 0x02,
+			ISO_8859_7     = 0x03,
+			ISO_8859_8     = 0x04,
+			ISO_8859_9     = 0x05,
+			ISO_6937       = 0x20
+		};
 
-	t_encoding encoding;
+		t_encoding encoding;
 
-	std::string content;
+		std::string content;
 
-	unsigned int add_character(const unsigned char character, const unsigned char next_character);
-	
- public:
-	CDVBString(const char * the_content, const int size);
+		unsigned int add_character(const unsigned char character, const unsigned char next_character);
 
-	bool operator==(const CDVBString s);
+	public:
+		CDVBString(const char *the_content, const int size);
 
-	bool operator!=(const CDVBString s);
+		bool operator==(const CDVBString s);
 
-	std::string getContent();
+		bool operator!=(const CDVBString s);
+
+		std::string getContent();
 };
 
 #endif /* __dvbstring_h__ */

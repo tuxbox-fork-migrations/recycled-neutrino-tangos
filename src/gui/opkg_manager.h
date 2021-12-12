@@ -57,8 +57,8 @@ class COPKGManager : public CMenuTarget
 		//filter
 		std::vector<std::string> v_bad_pattern;
 
-		std::map<std::string,pkg> pkg_map;
-		std::vector<pkg*> pkg_vec;
+		std::map<std::string, pkg> pkg_map;
+		std::vector<pkg *> pkg_vec;
 
 		CMenuWidget *menu;
 		CMenuForwarder *upgrade_forwarder;
@@ -74,11 +74,11 @@ class COPKGManager : public CMenuTarget
 		{
 			std::string	id;
 			int		num;
-		}om_error_struct_t;
+		} om_error_struct_t;
 		//error types
 		enum
 		{
-			OM_UNKNOWN_ERR 		=-1,
+			OM_UNKNOWN_ERR 		= -1,
 			OM_SUCCESS		= 0,
 			OM_UNSATISFIED_DEPS_ERR = 5,
 			OM_DOWNLOAD_ERR		= 11,
@@ -89,24 +89,25 @@ class COPKGManager : public CMenuTarget
 		om_error_data_t *err_list;
 		void OM_ERRORS()
 		{
-			static om_error_data_t errlist[] = { 	{ "Cannot satisfy the following dependencies"	, OM_UNSATISFIED_DEPS_ERR	}, 
-								{ "No space left on device"			, OM_OUT_OF_SPACE_ERR 		},
-								{ "The following packages conflict"		, OM_CONFLICT_ERR		},
-								{ "Only have"					, OM_OUT_OF_SPACE_ERR 		},
-								{ "prerm script for package"			, OM_PREREM_SCRIPT_ERR		},
-							} ;
+			static om_error_data_t errlist[] = { 	{ "Cannot satisfy the following dependencies"	, OM_UNSATISFIED_DEPS_ERR	},
+				{ "No space left on device"			, OM_OUT_OF_SPACE_ERR 		},
+				{ "The following packages conflict"		, OM_CONFLICT_ERR		},
+				{ "Only have"					, OM_OUT_OF_SPACE_ERR 		},
+				{ "prerm script for package"			, OM_PREREM_SCRIPT_ERR		},
+			} ;
 			err_list = errlist;
 		};
-		void showErr(int* res);
+		void showErr(int *res);
 
-		int execCmd(const char* cmdstr, int verbose_mode = 0);
-		int execCmd(std::string cmdstr, int verbose_mode = 0) {
+		int execCmd(const char *cmdstr, int verbose_mode = 0);
+		int execCmd(std::string cmdstr, int verbose_mode = 0)
+		{
 			return execCmd(cmdstr.c_str(), verbose_mode);
 		};
 		void getPkgData(const int pkg_content_id);
-		std::string getBlankPkgName(const std::string& line);
-		bool isInstalled(const std::string& pkg_name);
-		bool isUpgradable(const std::string& pkg_name);
+		std::string getBlankPkgName(const std::string &line);
+		bool isInstalled(const std::string &pkg_name);
+		bool isUpgradable(const std::string &pkg_name);
 
 		/*!
 		* Gets an info from opkg command info or status from a package via keywords as std::string
@@ -116,18 +117,18 @@ class COPKGManager : public CMenuTarget
 		* These kewords are to find in the control package inside of the opkg package file and the package list.
 		* 3rd parameter sets the sub command status or info. For more details, take a look to the opkg commands via command line.
 		*/
-		std::string getPkgInfo(const std::string& pkg_name, const std::string& pkg_key = std::string(), bool current_status = false);
+		std::string getPkgInfo(const std::string &pkg_name, const std::string &pkg_key = std::string(), bool current_status = false);
 
 		//Does the same like getPkgInfo(), but only for status
-		std::string getPkgStatus(const std::string& pkg_name, const std::string& pkg_key){return getPkgInfo(pkg_name, pkg_key, true);}
+		std::string getPkgStatus(const std::string &pkg_name, const std::string &pkg_key) {return getPkgInfo(pkg_name, pkg_key, true);}
 
-		std::string getKeyInfo(const std::string& input, const std::string& pkg_info_key, const std::string& delimiters);
+		std::string getKeyInfo(const std::string &input, const std::string &pkg_info_key, const std::string &delimiters);
 		int showMenu();
 		void showMenuConfigFeed(CMenuWidget *feed_menu);
 		void updateMenu();
 		void refreshMenu();
 
-		//!Returns a vector with possible filter entries from OPKG_BAD_PATTERN_LIST_FILE 
+		//!Returns a vector with possible filter entries from OPKG_BAD_PATTERN_LIST_FILE
 		static std::vector<std::string> getBadPackagePatternList();
 		/*!
 		* Returns true if found a ''bad'' package, Parameter: package name as std::string by rev
@@ -145,14 +146,15 @@ class COPKGManager : public CMenuTarget
 		*/
 		bool badpackage(std::string &s);
 
-		void showError(const char* local_msg, char* err_msg = NULL, const std::string& additional_text = std::string());
+		void showError(const char *local_msg, char *err_msg = NULL, const std::string &additional_text = std::string());
 		int doUpdate();
-		void handleShellOutput(std::string* cur_line, int* res, bool* ok);
+		void handleShellOutput(std::string *cur_line, int *res, bool *ok);
 
 		std::string getInfoDir();
-		std::string getPkgDescription(std::string pkgName, std::string pkgDesc="");
+		std::string getPkgDescription(std::string pkgName, std::string pkgDesc = "");
 
-		struct pkg {
+		struct pkg
+		{
 			std::string name;
 			std::string version;
 			std::string desc;
@@ -167,10 +169,10 @@ class COPKGManager : public CMenuTarget
 		COPKGManager();
 		~COPKGManager();
 
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		static bool hasOpkgSupport();
-		bool checkUpdates(const std::string & package_name = std::string(), bool show_progress = true);
-		bool installPackage(const std::string& pkg_name, std::string options = std::string(), bool force_configure = false);
-		bool checkSize(const std::string& pkg_name);
+		bool checkUpdates(const std::string &package_name = std::string(), bool show_progress = true);
+		bool installPackage(const std::string &pkg_name, std::string options = std::string(), bool force_configure = false);
+		bool checkSize(const std::string &pkg_name);
 };
 #endif

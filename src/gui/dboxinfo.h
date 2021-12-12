@@ -48,7 +48,7 @@ class CDBoxInfoWidget : public CMenuTarget
 		int y;
 		int width;
 		int height;
-		int hheight,mheight; // head/menu font height
+		int hheight, mheight; // head/menu font height
 		int fontWidth;
 		int sizeWidth; // width of mem / disk sizes
 		int percWidth;
@@ -65,7 +65,7 @@ class CDBoxInfoWidget : public CMenuTarget
 		~CDBoxInfoWidget();
 
 		void hide();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 
 };
 

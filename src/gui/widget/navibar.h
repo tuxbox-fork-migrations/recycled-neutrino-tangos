@@ -74,15 +74,15 @@ class CNaviBar : public CComponentsFrmChain
 		*
 		* 	@see	class CComponentsFrmChain()
 		*/
-		CNaviBar(	const int &x_pos,
-				const int &y_pos,
-				const int &dx,
-				const int &dy,
-				CComponentsForm *parent = NULL,
-				int shadow_mode = CC_SHADOW_OFF,
-				fb_pixel_t &color_frame = COL_FRAME_PLUS_0,
-				fb_pixel_t &color_body = COL_MENUFOOT_PLUS_0,
-				fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0);
+		CNaviBar(const int &x_pos,
+			const int &y_pos,
+			const int &dx,
+			const int &dy,
+			CComponentsForm *parent = NULL,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t &color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t &color_body = COL_MENUFOOT_PLUS_0,
+			fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0);
 
 		//~CNaviBar(); //is inherited
 

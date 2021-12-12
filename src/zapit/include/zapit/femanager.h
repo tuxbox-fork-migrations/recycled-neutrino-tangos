@@ -48,15 +48,16 @@
 
 #define FECONFIGFILE      ZAPITDIR "/frontend.conf"
 
-typedef std::map<unsigned short, CFrontend*> fe_map_t;
+typedef std::map<unsigned short, CFrontend *> fe_map_t;
 typedef fe_map_t::iterator fe_map_iterator_t;
 
-typedef std::map<CFrontend*, t_channel_id> fe_channel_map_t;
+typedef std::map<CFrontend *, t_channel_id> fe_channel_map_t;
 typedef fe_channel_map_t::iterator fe_channel_map_iterator_t;
 
 typedef std::set<fe_type_t> fe_type_list_t;
 
-typedef struct common_fe_config {
+typedef struct common_fe_config
+{
 	double gotoXXLatitude, gotoXXLongitude;
 	int gotoXXLaDirection, gotoXXLoDirection;
 	int repeatUsals;
@@ -80,7 +81,8 @@ class CFeDmx
 class CFEManager
 {
 	public:
-		typedef enum {
+		typedef enum
+		{
 			FE_MODE_SINGLE,
 			FE_MODE_LOOP,
 			FE_MODE_TWIN,
@@ -102,17 +104,17 @@ class CFEManager
 
 		std::vector<CFeDmx>	dmap;
 
-		CFrontend *		livefe;
+		CFrontend 		*livefe;
 
-		uint32_t	getConfigValue(CFrontend * fe, const char * name, uint32_t defval);
-		void		setConfigValue(CFrontend * fe, const char * name, uint32_t val);
-		void		setSatelliteConfig(CFrontend * fe, sat_config_t &satconfig);
-		bool		getSatelliteConfig(CFrontend * fe, sat_config_t &satconfig);
+		uint32_t	getConfigValue(CFrontend *fe, const char *name, uint32_t defval);
+		void		setConfigValue(CFrontend *fe, const char *name, uint32_t val);
+		void		setSatelliteConfig(CFrontend *fe, sat_config_t &satconfig);
+		bool		getSatelliteConfig(CFrontend *fe, sat_config_t &satconfig);
 
-		bool		loopCanTune(CFrontend * fe, CZapitChannel * channel);
-		void		copySettings(CFrontend * from, CFrontend * to);
+		bool		loopCanTune(CFrontend *fe, CZapitChannel *channel);
+		void		copySettings(CFrontend *from, CFrontend *to);
 
-		static CFEManager * manager;
+		static CFEManager *manager;
 		CFEManager();
 	public:
 		static CFEManager *getInstance();
@@ -124,30 +126,30 @@ class CFEManager
 		void		Open();
 		void		Open(int _fe);
 
-		CFrontend *	getFE(int index = 0);
-		CFrontend *	getLiveFE() { return livefe; };
-		void		setLiveFE(CFrontend * fe);
+		CFrontend 	*getFE(int index = 0);
+		CFrontend 	*getLiveFE() { return livefe; };
+		void		setLiveFE(CFrontend *fe);
 
-		CFrontend *	allocateFE(CZapitChannel * channel, bool forrecord = false);
+		CFrontend 	*allocateFE(CZapitChannel *channel, bool forrecord = false);
 
 		fe_mode_t	getMode() { return mode; };
 
-		CFrontend *	getFrontend(CZapitChannel * channel);
+		CFrontend 	*getFrontend(CZapitChannel *channel);
 		int		getFrontendCount() { return femap.size(); };
 		int		getEnabledCount();
 
-		CFrontend *	getScanFrontend(t_satellite_position satellitePosition);
-		bool		canTune(CZapitChannel * channel);
+		CFrontend 	*getScanFrontend(t_satellite_position satellitePosition);
+		bool		canTune(CZapitChannel *channel);
 
 		bool		configExist() { return config_exist; };
 		bool		loadSettings();
 		void		saveSettings(bool write = true);
 
-		bool		lockFrontend(CFrontend * fe, CZapitChannel * channel = NULL);
-		bool		unlockFrontend(CFrontend * fe, bool unlock_demux = false);
+		bool		lockFrontend(CFrontend *fe, CZapitChannel *channel = NULL);
+		bool		unlockFrontend(CFrontend *fe, bool unlock_demux = false);
 		bool		haveFreeFrontend();
 		void		linkFrontends(bool init = true);
-		void		copySettings(CFrontend * fe);
+		void		copySettings(CFrontend *fe);
 		int		getDemux(transponder_id_t id, int feNum);
 		bool		lockDemux(int i, transponder_id_t id);
 		void		unlockDemux(int i);

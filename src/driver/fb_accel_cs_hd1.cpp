@@ -90,7 +90,8 @@ void CFbAccelCSHD1::add_gxa_sync_marker(void)
 void CFbAccelCSHD1::waitForIdle(const char *func)
 {
 	unsigned int cfg, count = 0;
-	do {
+	do
+	{
 		cfg = *(volatile unsigned int *)(gxa_base + GXA_CMD_REG);
 		cfg >>= 24;	/* the token is stored in bits 31...24 */
 		if (cfg == _mark)
@@ -99,10 +100,11 @@ void CFbAccelCSHD1::waitForIdle(const char *func)
 		   so use sched_yield to at least give other threads a chance to run */
 		sched_yield();
 		//fprintf(stderr, "%s: read  %02x, expected %02x\n", __FUNCTION__, cfg, _mark);
-	} while(++count < 8192); /* don't deadlock here if there is an error */
+	}
+	while (++count < 8192);  /* don't deadlock here if there is an error */
 
 	if (count > 2048) /* more than 2000 are unlikely, even for large BMP6 blits */
-		fprintf(stderr, LOGTAG "waitForIdle: count is big (%d) [%s]!\n", count, func?func:"");
+		fprintf(stderr, LOGTAG "waitForIdle: count is big (%d) [%s]!\n", count, func ? func : "");
 }
 
 CFbAccelCSHD1::CFbAccelCSHD1()
@@ -110,11 +112,12 @@ CFbAccelCSHD1::CFbAccelCSHD1()
 	fb_name = "Coolstream HD1 framebuffer";
 }
 
-void CFbAccelCSHD1::init(const char * const)
+void CFbAccelCSHD1::init(const char *const)
 {
-fprintf(stderr, ">FBACCEL::INIT\n");
+	fprintf(stderr, ">FBACCEL::INIT\n");
 	CFrameBuffer::init();
-	if (lfb == NULL) {
+	if (lfb == NULL)
+	{
 		printf(LOGTAG "CFrameBuffer::init() failed.\n");
 		return; /* too bad... */
 	}
@@ -126,20 +129,22 @@ fprintf(stderr, ">FBACCEL::INIT\n");
 
 	/* Open /dev/mem for HW-register access */
 	devmem_fd = open("/dev/mem", O_RDWR | O_SYNC | O_CLOEXEC);
-	if (devmem_fd < 0) {
+	if (devmem_fd < 0)
+	{
 		perror("CFbAccel open /dev/mem");
 		goto error;
 	}
 
 	/* mmap the GXA's base address */
-	gxa_base = (volatile unsigned char*)mmap(0, 0x00040000, PROT_READ|PROT_WRITE, MAP_SHARED, devmem_fd, 0xE0600000);
-	if (gxa_base == (void *)-1) {
+	gxa_base = (volatile unsigned char *)mmap(0, 0x00040000, PROT_READ | PROT_WRITE, MAP_SHARED, devmem_fd, 0xE0600000);
+	if (gxa_base == (void *) -1)
+	{
 		perror("CFbAccel mmap /dev/mem");
 		goto error;
 	}
 
 	setupGXA();
- error:
+error:
 	/* TODO: what to do here? does this really happen? */
 	;
 };
@@ -164,7 +169,7 @@ void CFbAccelCSHD1::paintRect(const int x, const int y, const int dx, const int 
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	unsigned int cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_CMD_NOT_ALPHA |
-			   GXA_SRC_BMP_SEL(6) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2);
+		GXA_SRC_BMP_SEL(6) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2);
 
 	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int)col); /* setup the drawing color */
 	_write_gxa(gxa_base, GXA_BMP6_TYPE_REG, (3 << 16) | (1 << 27)); /* 3 == 32bpp, 1<<27 == fill */
@@ -203,8 +208,9 @@ void CFbAccelCSHD1::paintBoxRel(const int x, const int y, const int dx, const in
 	if (!getActive())
 		return;
 
-	if (dx == 0 || dy == 0) {
-		dprintf(DEBUG_DEBUG, "[CFbAccelCSHD1] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx, y+dy);
+	if (dx == 0 || dy == 0)
+	{
+		dprintf(DEBUG_DEBUG, "[CFbAccelCSHD1] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x + dx, y + dy);
 		return;
 	}
 	if (radius < 0)
@@ -218,14 +224,17 @@ void CFbAccelCSHD1::paintBoxRel(const int x, const int y, const int dx, const in
 	unsigned int cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(7) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
 
-	if (type && radius) {
+	if (type && radius)
+	{
 		setCornerFlags(type);
 		radius = limitRadius(dx, dy, radius);
 
 		int line = 0;
-		while (line < dy) {
+		while (line < dy)
+		{
 			int ofl, ofr;
-			if (calcCorners(NULL, &ofl, &ofr, dy, line, radius, type)) {
+			if (calcCorners(NULL, &ofl, &ofr, dy, line, radius, type))
+			{
 				int rect_height_mult = ((type & CORNER_TOP) && (type & CORNER_BOTTOM)) ? 2 : 1;
 				_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
 				_write_gxa(gxa_base, cmd, GXA_POINT(x, y + line));               /* destination x/y */
@@ -234,22 +243,28 @@ void CFbAccelCSHD1::paintBoxRel(const int x, const int y, const int dx, const in
 				continue;
 			}
 
-			if (dx-ofr-ofl < 1) {
-				if (dx-ofr-ofl == 0){
-					dprintf(DEBUG_INFO, "[CFbAccelCSHD1] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x+dx-ofr-ofl, y+line);
-				}else{
+			if (dx - ofr - ofl < 1)
+			{
+				if (dx - ofr - ofl == 0)
+				{
+					dprintf(DEBUG_INFO, "[CFbAccelCSHD1] [%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __func__, __LINE__, radius, x, y, x + dx - ofr - ofl, y + line);
+				}
+				else
+				{
 					dprintf(DEBUG_INFO, "[CFbAccelCSHD1] [%s - %04d]: Calculated width: %d\n                      (radius %d, dx %d, offsetLeft %d, offsetRight %d).\n                      Width can not be less than 0, abort.\n",
-						__func__, __LINE__, dx-ofr-ofl, radius, dx, ofl, ofr);
+						__func__, __LINE__, dx - ofr - ofl, radius, dx, ofl, ofr);
 				}
 				line++;
 				continue;
 			}
 			_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
 			_write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));               /* destination x/y */
-			_write_gxa(gxa_base, cmd, GXA_POINT(dx-ofl-ofr,   1));                      /* width/height */
+			_write_gxa(gxa_base, cmd, GXA_POINT(dx - ofl - ofr,   1));                  /* width/height */
 			line++;
 		}
-	} else {
+	}
+	else
+	{
 		_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
 		_write_gxa(gxa_base, cmd, GXA_POINT(x,  y));   /* destination x/y */
 		_write_gxa(gxa_base, cmd, GXA_POINT(dx, dy));  /* width/height */
@@ -273,7 +288,8 @@ void CFbAccelCSHD1::fbCopyArea(uint32_t width, uint32_t height, uint32_t dst_x, 
 
 	int mode = CS_FBCOPY_FB2FB;
 	uint32_t src_y_ = src_y;
-	if (src_y >= yRes) {
+	if (src_y >= yRes)
+	{
 		mode = CS_FBCOPY_BB2FB;
 		src_y_ -= yRes;
 	}
@@ -291,18 +307,23 @@ void CFbAccelCSHD1::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint3
 	fb_pixel_t *fbb = (fb_pixel_t *)fbbuff;
 
 	/* we could probably also copy around in the visible part of the framebuffer... */
-	if (fbbuff >= backbuffer && (fbb + width * height) < lfb + available / sizeof(fb_pixel_t)) {
+	if (fbbuff >= backbuffer && (fbb + width * height) < lfb + available / sizeof(fb_pixel_t))
+	{
 		addr = _read_gxa(gxa_base, GXA_BMP2_ADDR_REG);
 		addr += (fbb - lfb) * sizeof(fb_pixel_t);
 		bb = yRes;
-	} else {
+	}
+	else
+	{
 		void *uKva = cs_phys_addr(fbbuff);
 		addr = (uint32_t)uKva;
 	}
 
-	if (addr != 0) {
+	if (addr != 0)
+	{
 		//printf(LOGTAG "%s(0x%x+%d, %u %u %u %u %u %u %d)\n", __func__, addr, bb, width, height, xoff, yoff, xp, yp, transp);
-		if (xp >= xc || yp >= yc) {
+		if (xp >= xc || yp >= yc)
+		{
 			printf(LOGTAG "%s: invalid parameters, xc: %u <= xp: %u or yc: %u <= yp: %u\n", __func__, xc, xp, yc, yp);
 			return;
 		}
@@ -319,20 +340,21 @@ void CFbAccelCSHD1::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint3
 		return;
 	}
 	printf(LOGTAG "%s(%p+%d, %u %u %u %u %u %u %d) swrender fallback\n",
-			__func__, fbbuff, bb, width, height, xoff, yoff, xp, yp, transp);
+		__func__, fbbuff, bb, width, height, xoff, yoff, xp, yp, transp);
 	CFrameBuffer::blit2FB(fbbuff, width, height, xoff, yoff, xp, yp, transp);
 }
 
-void CFbAccelCSHD1::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
+void CFbAccelCSHD1::blitBox2FB(const fb_pixel_t *boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff)
 {
-	if(width <1 || height <1 || !boxBuf )
+	if (width < 1 || height < 1 || !boxBuf)
 		return;
 
 	uint32_t xc = (width > xRes) ? (uint32_t)xRes : width;
 	uint32_t yc = (height > yRes) ? (uint32_t)yRes : height;
 
-	void* uKva = cs_phys_addr((void*)boxBuf);
-	if(uKva != NULL) {
+	void *uKva = cs_phys_addr((void *)boxBuf);
+	if (uKva != NULL)
+	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 		u32 cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
 		_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | width);
@@ -375,7 +397,7 @@ void CFbAccelCSHD1::setOsdResolutions()
 
 int CFbAccelCSHD1::setMode(unsigned int, unsigned int, unsigned int)
 {
-	if (!available&&!active)
+	if (!available && !active)
 		return -1;
 
 	if (osd_resolutions.empty())
@@ -383,7 +405,8 @@ int CFbAccelCSHD1::setMode(unsigned int, unsigned int, unsigned int)
 
 	fb_fix_screeninfo _fix;
 
-	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix) < 0) {
+	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix) < 0)
+	{
 		perror("FBIOGET_FSCREENINFO");
 		return -1;
 	}
@@ -410,7 +433,7 @@ int CFbAccelCSHD1::setMode(unsigned int, unsigned int, unsigned int)
 	return 0; /* dont fail because of this */
 }
 
-fb_pixel_t * CFbAccelCSHD1::getBackBufferPointer() const
+fb_pixel_t *CFbAccelCSHD1::getBackBufferPointer() const
 {
 	return backbuffer;
 }

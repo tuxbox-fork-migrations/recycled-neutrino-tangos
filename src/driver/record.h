@@ -54,17 +54,18 @@ class CZapitChannel;
 //FIXME
 enum record_error_msg_t
 {
-        RECORD_OK			=  0,
-        RECORD_BUSY			= -1,
-        RECORD_INVALID_DIRECTORY	= -2,
-        RECORD_INVALID_CHANNEL		= -3,
-        RECORD_FAILURE			= -4
+	RECORD_OK			=  0,
+	RECORD_BUSY			= -1,
+	RECORD_INVALID_DIRECTORY	= -2,
+	RECORD_INVALID_CHANNEL		= -3,
+	RECORD_FAILURE			= -4
 };
 
 class CRecordInstance
 {
 	protected:
-		typedef struct {
+		typedef struct
+		{
 			uint32_t apid;
 			unsigned int index;//FIXME not used ?
 			bool ac3;
@@ -91,22 +92,22 @@ class CRecordInstance
 		char		filename[FILENAMEBUFFERSIZE];
 		std::string	rec_stop_msg;
 
-		CMovieInfo *	cMovieInfo;
-		MI_MOVIE_INFO *	recMovieInfo;
-		cRecord *	record;
+		CMovieInfo 	*cMovieInfo;
+		MI_MOVIE_INFO 	*recMovieInfo;
+		cRecord 	*record;
 
-		virtual void GetPids(CZapitChannel * channel);
-		virtual void FillMovieInfo(CZapitChannel * channel, APIDList & apid_list);
-		record_error_msg_t Start(CZapitChannel * channel);
+		virtual void GetPids(CZapitChannel *channel);
+		virtual void FillMovieInfo(CZapitChannel *channel, APIDList &apid_list);
+		record_error_msg_t Start(CZapitChannel *channel);
 		void ProcessAPIDnames();
-		void FilterPids(APIDList & apid_list);
-		record_error_msg_t MakeFileName(CZapitChannel * channel);
+		void FilterPids(APIDList &apid_list);
+		record_error_msg_t MakeFileName(CZapitChannel *channel);
 		bool SaveXml();
 		void WaitRecMsg(time_t StartTime, time_t WaitTime);
-		void MakeExtFileName(CZapitChannel * channel, std::string &FilenameTemplate);
+		void MakeExtFileName(CZapitChannel *channel, std::string &FilenameTemplate);
 		void StringReplace(std::string &str, const std::string search, const std::string rstr);
 	public:
-		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
+		CRecordInstance(const CTimerd::RecordingInfo *const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
 		virtual ~CRecordInstance();
 
 		virtual record_error_msg_t Record();
@@ -117,19 +118,19 @@ class CRecordInstance
 		int GetRecordingId(void) { return recording_id; };
 		t_channel_id GetChannelId(void) { return channel_id; };
 		std::string GetEpgTitle(void) { return epgTitle; };
-		MI_MOVIE_INFO * GetMovieInfo(void) { return recMovieInfo; };
-		void GetRecordString(std::string& str, std::string &dur);
-		const char * GetFileName() { return filename; };
+		MI_MOVIE_INFO *GetMovieInfo(void) { return recMovieInfo; };
+		void GetRecordString(std::string &str, std::string &dur);
+		const char *GetFileName() { return filename; };
 		bool Timeshift() { return autoshift; };
 		int tshift_mode;
-		void SetStopMessage(const char* text) {rec_stop_msg = text;} ;
+		void SetStopMessage(const char *text) {rec_stop_msg = text;} ;
 		int  GetStatus();
 
-		CFrontend *	frontend;
+		CFrontend 	*frontend;
 };
 
-typedef std::pair<int, CRecordInstance*> recmap_pair_t;
-typedef std::map<int, CRecordInstance*> recmap_t;
+typedef std::pair<int, CRecordInstance *> recmap_pair_t;
+typedef std::map<int, CRecordInstance *> recmap_t;
 typedef recmap_t::iterator recmap_iterator_t;
 
 typedef std::list<CTimerd::RecordingInfo *> nextmap_t;
@@ -138,7 +139,7 @@ typedef nextmap_t::iterator nextmap_iterator_t;
 class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 {
 	private:
-		static CRecordManager *  manager;
+		static CRecordManager   *manager;
 
 		recmap_t	recmap;
 		nextmap_t	nextmap;
@@ -159,14 +160,14 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		OpenThreads::Mutex mutex;
 		static OpenThreads::Mutex sm;
 
-		bool CutBackNeutrino(const t_channel_id channel_id, CFrontend * &frontend);
+		bool CutBackNeutrino(const t_channel_id channel_id, CFrontend*&frontend);
 		void RestoreNeutrino(void);
 		void StartNextRecording();
 		void StopPostProcess();
-		void StopInstance(CRecordInstance * inst, bool remove_event = true);
-		CRecordInstance * FindInstance(t_channel_id);
-		CRecordInstance * FindInstanceID(int recid);
-		CRecordInstance * FindTimeshift();
+		void StopInstance(CRecordInstance *inst, bool remove_event = true);
+		CRecordInstance *FindInstance(t_channel_id);
+		CRecordInstance *FindInstanceID(int recid);
+		CRecordInstance *FindTimeshift();
 
 	public:
 		enum record_modes_t
@@ -176,34 +177,34 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 			RECMODE_TSHIFT = 2,
 			RECMODE_REC_TSHIFT = 3
 		};
-		
+
 		CRecordManager();
 		~CRecordManager();
 
-		static CRecordManager * getInstance();
+		static CRecordManager *getInstance();
 
-		bool Record(const CTimerd::RecordingInfo * const eventinfo, const char * dir = NULL, bool timeshift = false);
-		bool Record(const t_channel_id channel_id, const char * dir = NULL, bool timeshift = false);
-		bool Stop(const t_channel_id channel_id); 
-		bool Stop(const CTimerd::RecordingStopInfo * recinfo); 
-		bool IsRecording(const CTimerd::RecordingStopInfo * recinfo);
+		bool Record(const CTimerd::RecordingInfo *const eventinfo, const char *dir = NULL, bool timeshift = false);
+		bool Record(const t_channel_id channel_id, const char *dir = NULL, bool timeshift = false);
+		bool Stop(const t_channel_id channel_id);
+		bool Stop(const CTimerd::RecordingStopInfo *recinfo);
+		bool IsRecording(const CTimerd::RecordingStopInfo *recinfo);
 		bool Update(const t_channel_id channel_id);
 		bool ShowMenu(void);
 		bool AskToStop(const t_channel_id channel_id, const int recid = 0);
-		int  exec(CMenuTarget* parent, const std::string & actionKey);
+		int  exec(CMenuTarget *parent, const std::string &actionKey);
 		bool StartAutoRecord();
 		bool StopAutoRecord(bool lock = true);
 		void StopAutoTimer();
 		bool CheckRecordingId_if_Timeshift(int recid);
-		recmap_t GetRecordMap()const{return recmap;}
+		recmap_t GetRecordMap()const {return recmap;}
 
-		MI_MOVIE_INFO * GetMovieInfo(const t_channel_id channel_id, bool timeshift = true);
+		MI_MOVIE_INFO *GetMovieInfo(const t_channel_id channel_id, bool timeshift = true);
 		const std::string GetFileName(const t_channel_id channel_id, bool timeshift = true);
 
 		bool RunStartScript(void);
 		bool RunStopScript(void);
 
-		void Config(const bool stopsectionsd, const bool stream_vtxt_pid, const bool stream_pmt_pid, bool stream_subtitle_pids )
+		void Config(const bool stopsectionsd, const bool stream_vtxt_pid, const bool stream_pmt_pid, bool stream_subtitle_pids)
 		{
 			StopSectionsd		= stopsectionsd;
 			StreamVTxtPid		= stream_vtxt_pid;
@@ -221,8 +222,8 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		int GetRecordCount() { return recmap.size(); };
 		recmap_t GetRecordMap() { return recmap; };
 		void StartTimeshift();
-		int GetRecordMode(const t_channel_id channel_id=0);
-		CRecordInstance* getRecordInstance(std::string file);
+		int GetRecordMode(const t_channel_id channel_id = 0);
+		CRecordInstance *getRecordInstance(std::string file);
 		// old code
 #if 0
 		bool MountDirectory(const char *recordingDir);
@@ -245,20 +246,20 @@ class CStreamRec : public CRecordInstance, OpenThreads::Thread
 		time_t time_started;
 		int  stream_index;
 
-		void GetPids(CZapitChannel * channel);
-		void FillMovieInfo(CZapitChannel * channel, APIDList & apid_list);
+		void GetPids(CZapitChannel *channel);
+		void FillMovieInfo(CZapitChannel *channel, APIDList &apid_list);
 		bool Start();
 
 		void Close();
-		bool Open(CZapitChannel * channel);
+		bool Open(CZapitChannel *channel);
 		void run();
 		void WriteHeader(uint32_t duration);
 	public:
-		CStreamRec(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
+		CStreamRec(const CTimerd::RecordingInfo *const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
 		~CStreamRec();
 		record_error_msg_t Record();
 		bool Stop(bool remove_event = true);
-		static int Interrupt(void * data);
+		static int Interrupt(void *data);
 };
 #endif
 

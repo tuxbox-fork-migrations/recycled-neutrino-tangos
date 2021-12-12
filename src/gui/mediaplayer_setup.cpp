@@ -61,7 +61,7 @@ CMediaPlayerSetup::~CMediaPlayerSetup()
 {
 }
 
-int CMediaPlayerSetup::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
+int CMediaPlayerSetup::exec(CMenuTarget *parent, const std::string & /*actionKey*/)
 {
 	dprintf(DEBUG_DEBUG, "init mediaplayer setup menu\n");
 	int   res = menu_return::RETURN_REPAINT;
@@ -71,14 +71,14 @@ int CMediaPlayerSetup::exec(CMenuTarget* parent, const std::string & /*actionKey
 
 
 	res = showMediaPlayerSetup();
-	
+
 	return res;
 }
 
 /*shows media setup menue entries*/
 int CMediaPlayerSetup::showMediaPlayerSetup()
 {
-	CMenuWidget* mediaSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
+	CMenuWidget *mediaSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	mediaSetup->setSelected(selected);
 
 	// intros
@@ -115,7 +115,7 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 	mc->setHint("", LOCALE_MENU_HINT_MOVIEPLAYER_DISPLAY_PLAYTIME);
 	mediaSetup->addItem(mc);
 
-	int res = mediaSetup->exec (NULL, "");
+	int res = mediaSetup->exec(NULL, "");
 	selected = mediaSetup->getSelected();
 	delete mediaSetup;
 	return res;

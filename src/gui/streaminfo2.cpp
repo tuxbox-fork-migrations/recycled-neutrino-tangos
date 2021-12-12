@@ -185,9 +185,9 @@ void CStreamInfo2::analyzeStream(AVFormatContext *avfc, unsigned int idx)
 		m["codec"] = m["codec"].erase(0, pos + 2);
 
 #if (LIBAVFORMAT_VERSION_MAJOR > 57) || ((LIBAVFORMAT_VERSION_MAJOR == 57) && (LIBAVFORMAT_VERSION_MINOR > 32))
-	std::string codecType = av_get_media_type_string(st->codecpar->codec_type) ? av_get_media_type_string(st->codecpar->codec_type):"unknown";
+	std::string codecType = av_get_media_type_string(st->codecpar->codec_type) ? av_get_media_type_string(st->codecpar->codec_type) : "unknown";
 #else
-	std::string codecType = av_get_media_type_string(st->codec->codec_type) ? av_get_media_type_string(st->codec->codec_type):"unknown";
+	std::string codecType = av_get_media_type_string(st->codec->codec_type) ? av_get_media_type_string(st->codec->codec_type) : "unknown";
 #endif
 	m["codec_type"] = codecType;
 	m["codec_type"][0] ^= 'a' ^ 'A';
@@ -203,13 +203,13 @@ void CStreamInfo2::analyzeStream(AVFormatContext *avfc, unsigned int idx)
 		AVRational display_aspect_ratio;
 		av_reduce(&display_aspect_ratio.num, &display_aspect_ratio.den,
 #if (LIBAVFORMAT_VERSION_MAJOR > 57) || ((LIBAVFORMAT_VERSION_MAJOR == 57) && (LIBAVFORMAT_VERSION_MINOR > 32))
-			  st->codecpar->width * st->sample_aspect_ratio.num,
-			  st->codecpar->height * st->sample_aspect_ratio.den,
+			st->codecpar->width * st->sample_aspect_ratio.num,
+			st->codecpar->height * st->sample_aspect_ratio.den,
 #else
-			  st->codec->width * st->sample_aspect_ratio.num,
-			  st->codec->height * st->sample_aspect_ratio.den,
+			st->codec->width * st->sample_aspect_ratio.num,
+			st->codec->height * st->sample_aspect_ratio.den,
 #endif
-			  1024 * 1024);
+			1024 * 1024);
 		snprintf(buf, sizeof(buf), "%d:%d", st->sample_aspect_ratio.num, st->sample_aspect_ratio.den);
 		m["sar"] = buf;
 		snprintf(buf, sizeof(buf), "%d:%d", display_aspect_ratio.num, display_aspect_ratio.den);
@@ -363,7 +363,7 @@ void CStreamInfo2::probeStreams()
 
 		avfc->pb = avioc;
 		avfc->flags |= AVFMT_FLAG_CUSTOM_IO;
-		avfc->probesize = probebuf_size/2;
+		avfc->probesize = probebuf_size / 2;
 
 		if (!avformat_open_input(&avfc, "", NULL, NULL))
 		{
@@ -426,7 +426,7 @@ int CStreamInfo2::doSignalStrengthLoop()
 	char tmp_str[150];
 	int delay_counter = 0;
 	const int delay = 15;
-	int sw = 2*g_FixedFont[font_info]->getRenderWidth(".") + 8*g_FixedFont[font_info]->getMaxDigitWidth();
+	int sw = 2 * g_FixedFont[font_info]->getRenderWidth(".") + 8 * g_FixedFont[font_info]->getMaxDigitWidth();
 	maxb = minb = lastb = tmp_rate = 0;
 	bool repaint_bitrate = true;
 	ts_setup();
@@ -477,7 +477,7 @@ int CStreamInfo2::doSignalStrengthLoop()
 					g_FixedFont[font_info]->RenderString(dx1, average_bitrate_pos, spaceoffset, tmp_str, COL_MENUCONTENT_TEXT);
 
 					snprintf(tmp_str, sizeof(tmp_str), " (%s)", g_Locale->getText(LOCALE_STREAMINFO_AVERAGE_BITRATE));
-					g_FixedFont[font_info]->RenderString(dx1 + spaceoffset + sw , average_bitrate_pos, box_width - spaceoffset - sw, tmp_str, COL_MENUCONTENT_TEXT);
+					g_FixedFont[font_info]->RenderString(dx1 + spaceoffset + sw, average_bitrate_pos, box_width - spaceoffset - sw, tmp_str, COL_MENUCONTENT_TEXT);
 					repaint_bitrate = false;
 				}
 
@@ -544,7 +544,7 @@ int CStreamInfo2::doSignalStrengthLoop()
 		}
 		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
 		{
-			g_RCInput->postMsg (msg, 0);
+			g_RCInput->postMsg(msg, 0);
 			res = menu_return::RETURN_EXIT_ALL;
 			break;
 		}
@@ -599,7 +599,7 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	frameBuffer->paintBoxRel(sigBox_x, sigBox_y, sigBox_w, sigBox_h, COL_BLACK);
 
 	sig_text_y = _y + h + OFFSET_INNER_MID;
-	sig_text_w = w/5;
+	sig_text_w = w / 5;
 
 	int y1 = sig_text_y + sheight;
 	int fw = g_FixedFont[font_small]->getWidth();
@@ -609,29 +609,29 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 
 	if (!mp)
 	{
-		sig_text_ber_x = _x + sig_text_w*col;
+		sig_text_ber_x = _x + sig_text_w * col;
 		SignalRenderHead("BER [%]", sig_text_ber_x, y1, COL_RED);
 		col++;
 
-		sig_text_snr_x = _x + sig_text_w*col;
+		sig_text_snr_x = _x + sig_text_w * col;
 		SignalRenderHead("SNR [%]", sig_text_snr_x, y1, COL_LIGHT_BLUE);
 		col++;
 
-		sig_text_sig_x = _x + sig_text_w*col;
+		sig_text_sig_x = _x + sig_text_w * col;
 		SignalRenderHead("SIG [%]", sig_text_sig_x, y1, COL_GREEN);
 		col++;
 	}
 	else
 		col = 4;
 
-	sig_text_rate_x = _x + sig_text_w*col;
+	sig_text_rate_x = _x + sig_text_w * col;
 	SignalRenderHead("BR [kbps]", sig_text_rate_x, y1, COL_YELLOW);
 
 	y1 += OFFSET_INNER_SMALL;
 
-	g_FixedFont[font_small]->RenderString(_x, y1 + (sheight*1), fw*3, "max", COL_MENUCONTENT_TEXT);
-	g_FixedFont[font_small]->RenderString(_x, y1 + (sheight*2), fw*3, "now", COL_MENUCONTENT_TEXT);
-	g_FixedFont[font_small]->RenderString(_x, y1 + (sheight*3), fw*3, "min", COL_MENUCONTENT_TEXT);
+	g_FixedFont[font_small]->RenderString(_x, y1 + (sheight * 1), fw * 3, "max", COL_MENUCONTENT_TEXT);
+	g_FixedFont[font_small]->RenderString(_x, y1 + (sheight * 2), fw * 3, "now", COL_MENUCONTENT_TEXT);
+	g_FixedFont[font_small]->RenderString(_x, y1 + (sheight * 3), fw * 3, "min", COL_MENUCONTENT_TEXT);
 
 	sigBox_pos = 0;
 
@@ -643,7 +643,7 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 {
 	int x_now = sigBox_pos;
-	int yt = sig_text_y + OFFSET_INNER_SMALL + (sheight*2);
+	int yt = sig_text_y + OFFSET_INNER_SMALL + (sheight * 2);
 	int yd;
 	static int old_x = 0, old_y = 0;
 	sigBox_pos++;
@@ -734,7 +734,7 @@ void CStreamInfo2::SignalRenderHead(std::string head, int _x, int _y, fb_pixel_t
 {
 	frameBuffer->paintBoxRel(_x, _y - sheight, sig_text_w, sheight, COL_MENUCONTENT_PLUS_0);
 	int tw = g_FixedFont[font_small]->getRenderWidth(head);
-	g_FixedFont[font_small]->RenderString(_x + (sig_text_w - tw)/2, _y, tw, head, color);
+	g_FixedFont[font_small]->RenderString(_x + (sig_text_w - tw) / 2, _y, tw, head, color);
 }
 
 void CStreamInfo2::SignalRenderStr(unsigned int value, int _x, int _y)
@@ -742,7 +742,7 @@ void CStreamInfo2::SignalRenderStr(unsigned int value, int _x, int _y)
 	frameBuffer->paintBoxRel(_x, _y - sheight, sig_text_w, sheight, COL_MENUCONTENT_PLUS_0);
 	std::string val = std::to_string(value);
 	int tw = g_FixedFont[font_small]->getRenderWidth(val);
-	g_FixedFont[font_small]->RenderString(_x + (sig_text_w - tw)/2, _y, tw, val, COL_MENUCONTENT_TEXT);
+	g_FixedFont[font_small]->RenderString(_x + (sig_text_w - tw) / 2, _y, tw, val, COL_MENUCONTENT_TEXT);
 }
 
 void CStreamInfo2::paint(int /*mode*/)
@@ -768,7 +768,7 @@ void CStreamInfo2::paint(int /*mode*/)
 		g_FixedFont[font_head]->RenderString(xpos, ypos + hheight, width, head_string, COL_MENUHEAD_TEXT);
 
 		if (pip == NULL)
-			pip = new CComponentsPIP(width - width/3 - OFFSET_INNER_MID, ypos, 33);
+			pip = new CComponentsPIP(width - width / 3 - OFFSET_INNER_MID, ypos, 33);
 		pip->paint(CC_SAVE_SCREEN_NO);
 
 		paint_signal_fe_box(pip->getXPos(), pip->getYPos() + pip->getHeight() + OFFSET_INNER_MID, pip->getWidth(), pip->getHeight());
@@ -786,7 +786,7 @@ void CStreamInfo2::paint(int /*mode*/)
 		signalbox = NULL;
 
 		// large signal graph
-		paint_signal_fe_box(x, y, width, height - OFFSET_INNER_SMALL - 4*iheight);
+		paint_signal_fe_box(x, y, width, height - OFFSET_INNER_SMALL - 4 * iheight);
 	}
 }
 
@@ -812,7 +812,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	int xres = 0, yres = 0, aspectRatio = 0, framerate = -1, i = 0;
 	// paint labels
 	int ypos1 = ypos;
-	box_width = width/3*2 - 2*OFFSET_INNER_MID - xpos;
+	box_width = width / 3 * 2 - 2 * OFFSET_INNER_MID - xpos;
 
 	yypos = ypos;
 	if (box_h > 0)
@@ -933,8 +933,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	}
 	int _mode = CNeutrinoApp::getInstance()->getMode();
 	if ((has_vpid ||
-		(is_webchan && _mode == NeutrinoModes::mode_webtv) ||
-		_mode == NeutrinoModes::mode_ts) &&
+			(is_webchan && _mode == NeutrinoModes::mode_webtv) ||
+			_mode == NeutrinoModes::mode_ts) &&
 		!(videoDecoder->getBlank()))
 	{
 		videoDecoder->getPictureInfo(xres, yres, framerate);
@@ -1089,28 +1089,28 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		char e2filename2[255];
 		e2filename2[0] = '\0';
 
-		CZapitChannel * cc = NULL;
+		CZapitChannel *cc = NULL;
 		if (channel->getChannelID() & 0xFFFFFFFFFFFFULL)
 			if (CNeutrinoApp::getInstance()->channelList)
 				cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel->getChannelID());
 
 		if (cc)
 		{
-		//create E2 filename1
+			//create E2 filename1
 			snprintf(e2filename1, sizeof(e2filename1), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
-			    (u_int) cc->getServiceType(true),
-			    (u_int) channel->getChannelID() & 0xFFFF,
-			    (u_int) (channel->getChannelID() >> 32) & 0xFFFF,
-			    (u_int) (channel->getChannelID() >> 16) & 0xFFFF,
-			    (u_int) cc->getSatellitePosition());
+				(u_int) cc->getServiceType(true),
+				(u_int) channel->getChannelID() & 0xFFFF,
+				(u_int)(channel->getChannelID() >> 32) & 0xFFFF,
+				(u_int)(channel->getChannelID() >> 16) & 0xFFFF,
+				(u_int) cc->getSatellitePosition());
 
-		//create E2 filename2
+			//create E2 filename2
 			snprintf(e2filename2, sizeof(e2filename2), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
-			    (u_int) 1,
-			    (u_int) channel->getChannelID() & 0xFFFF,
-			    (u_int) (channel->getChannelID() >> 32) & 0xFFFF,
-			    (u_int) (channel->getChannelID() >> 16) & 0xFFFF,
-			    (u_int) cc->getSatellitePosition());
+				(u_int) 1,
+				(u_int) channel->getChannelID() & 0xFFFF,
+				(u_int)(channel->getChannelID() >> 32) & 0xFFFF,
+				(u_int)(channel->getChannelID() >> 16) & 0xFFFF,
+				(u_int) cc->getSatellitePosition());
 		}
 
 		r.key = "E2 Logo 1";
@@ -1119,7 +1119,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		r.val = buf;
 		v.push_back(r);
 
-		if ((std::string) e2filename1 != (std::string) e2filename2) {
+		if ((std::string) e2filename1 != (std::string) e2filename2)
+		{
 			r.key = "E2 Logo 2";
 			r.key += ": ";
 			snprintf(buf, sizeof(buf), "%s.png", e2filename2);
@@ -1252,7 +1253,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 	if (box_h2 > 0)
 		frameBuffer->paintBoxRel(0, ypos, box_width, box_h2, COL_MENUCONTENT_PLUS_0);
 
-	std::string casys[NUM_CAIDS] = {"Irdeto:", "Betacrypt:", "Seca:", "Viaccess:", "Nagra:", "Conax: ", "Cryptoworks:", "Videoguard:", "Biss:", "DreCrypt:", "PowerVU:", "Tandberg:","Verimatrix:"};
+	std::string casys[NUM_CAIDS] = {"Irdeto:", "Betacrypt:", "Seca:", "Viaccess:", "Nagra:", "Conax: ", "Cryptoworks:", "Videoguard:", "Biss:", "DreCrypt:", "PowerVU:", "Tandberg:", "Verimatrix:"};
 	bool caids[NUM_CAIDS];
 	char tmp[100];
 
@@ -1537,7 +1538,7 @@ bool CStreamInfo2::update_rate()
 		d_tim_ms = 1; // ignore usecs
 
 	abit_s = ((b_total * 8000ULL) + ((uint64_t) d_tim_ms / 2ULL))
-		 / (uint64_t) d_tim_ms;
+		/ (uint64_t) d_tim_ms;
 
 	last_tv.tv_sec = tv.tv_sec;
 	last_tv.tv_usec = tv.tv_usec;
@@ -1565,13 +1566,13 @@ int CStreamInfo2::ts_close()
 
 void CStreamInfo2::showSNR()
 {
-	int _h = 2*iheight;
+	int _h = 2 * iheight;
 	//int _y = sig_text_y + 4*sheight + 3*OFFSET_INNER_SMALL;
 	int _y = y + height - OFFSET_INNER_MID - _h;
 
 	if (signalbox == NULL)
 	{
-		signalbox = new CSignalBox(width - width/3 - OFFSET_INNER_MID, _y, pip->getWidth(), _h, frontend);
+		signalbox = new CSignalBox(width - width / 3 - OFFSET_INNER_MID, _y, pip->getWidth(), _h, frontend);
 		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
 		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
 		signalbox->doPaintBg(true);

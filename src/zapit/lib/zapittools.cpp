@@ -24,63 +24,65 @@
 #include <zapit/client/zapittools.h>
 #include <string.h>
 
-namespace ZapitTools {
+namespace ZapitTools
+{
 
-	std::string UTF8_to_Latin1(const char * s)
+std::string UTF8_to_Latin1(const char *s)
+{
+	std::string r;
+
+	while ((*s) != 0)
 	{
-		std::string r;
-
-		while ((*s) != 0)
+		if (((*s) & 0xf0) == 0xf0)      /* skip (can't be encoded in Latin1) */
 		{
-			if (((*s) & 0xf0) == 0xf0)      /* skip (can't be encoded in Latin1) */
-			{
-				s++;
-				if ((*s) == 0)
-					return r;
-				s++;
-				if ((*s) == 0)
-					return r;
-				s++;
-				if ((*s) == 0)
-					return r;
-			}
-			else if (((*s) & 0xe0) == 0xe0) /* skip (can't be encoded in Latin1) */
-			{
-				s++;
-				if ((*s) == 0)
-					return r;
-				s++;
-				if ((*s) == 0)
-					return r;
-			}
-			else if (((*s) & 0xc0) == 0xc0)
-			{
-				char c = (((*s) & 3) << 6);
-				s++;
-				if ((*s) == 0)
-					return r;
-				r += (c | ((*s) & 0x3f));
-			}
-			else r += *s;
 			s++;
+			if ((*s) == 0)
+				return r;
+			s++;
+			if ((*s) == 0)
+				return r;
+			s++;
+			if ((*s) == 0)
+				return r;
 		}
-		return r;
-	}
-
-	std::string UTF8_to_Latin1(const std::string &s)
-	{
-		return UTF8_to_Latin1(s.c_str());
-	}
-
-	std::string UTF8_to_UTF8XML(const char * s)
-	{
-		std::string r;
-
-		while ((*s) != 0)
+		else if (((*s) & 0xe0) == 0xe0) /* skip (can't be encoded in Latin1) */
 		{
-			/* cf. http://www.w3.org/TR/xhtml1/dtds.html */
-			switch (*s)
-			{
+			s++;
+			if ((*s) == 0)
+				return r;
+			s++;
+			if ((*s) == 0)
+				return r;
+		}
+		else if (((*s) & 0xc0) == 0xc0)
+		{
+			char c = (((*s) & 3) << 6);
+			s++;
+			if ((*s) == 0)
+				return r;
+			r += (c | ((*s) & 0x3f));
+		}
+		else
+			r += *s;
+		s++;
+	}
+	return r;
+}
+
+std::string UTF8_to_Latin1(const std::string &s)
+{
+	return UTF8_to_Latin1(s.c_str());
+}
+
+std::string UTF8_to_UTF8XML(const char *s)
+{
+	std::string r;
+
+	while ((*s) != 0)
+	{
+		/* cf. http://www.w3.org/TR/xhtml1/dtds.html */
+		switch (*s)
+		{
 			case '<':
 				r += "&lt;";
 				break;
@@ -97,56 +99,59 @@ namespace ZapitTools {
 				r += "&apos;";
 				break;
 			case 0x0a:
-				r +="&#x0a;";
+				r += "&#x0a;";
 				break;
 			case 0x0d:
-				r +="&#x0d;";
+				r += "&#x0d;";
 				break;
 
 			default:
 				r += *s;
-			}
-			s++;
 		}
-		return r;
+		s++;
 	}
+	return r;
+}
 
-	std::string Latin1_to_UTF8(const char * s)
+std::string Latin1_to_UTF8(const char *s)
+{
+	std::string r;
+
+	while ((*s) != 0)
 	{
-		std::string r;
+		unsigned char c = *s;
 
-		while((*s) != 0)
+		if (c < 0x80)
+			r += c;
+		else
 		{
-			unsigned char c = *s;
-
-			if (c < 0x80)
-				r += c;
-			else
-			{
-				unsigned char d = 0xc0 | (c >> 6);
-				r += d;
-				d = 0x80 | (c & 0x3f);
-				r += d;
-			}
-
-			s++;
+			unsigned char d = 0xc0 | (c >> 6);
+			r += d;
+			d = 0x80 | (c & 0x3f);
+			r += d;
 		}
-		return r;
+
+		s++;
 	}
-	std::string Latin1_to_UTF8(const std::string & s)
+	return r;
+}
+std::string Latin1_to_UTF8(const std::string &s)
+{
+	return Latin1_to_UTF8(s.c_str());
+}
+
+void replace_char(char *p_act)
+{
+	const char repchars[] = "/ \"%&-\t`'~<>!,:;?^$\\=*#@|";
+	do
 	{
-		return Latin1_to_UTF8(s.c_str());
+		p_act +=  strcspn(p_act, repchars);
+		if (*p_act)
+		{
+			*p_act++ = '_';
+		}
 	}
-	
-	void replace_char(char * p_act)
-	{
-		const char repchars[]="/ \"%&-\t`'~<>!,:;?^$\\=*#@|";
-		do {
-			p_act +=  strcspn(p_act, repchars );
-			if (*p_act) {
-				*p_act++ = '_';
-			}
-		} while (*p_act);
-	}
+	while (*p_act);
+}
 
 }

@@ -23,7 +23,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the 
+	along with this program; if not, write to the
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 	Boston, MA  02110-1301, USA.
 
@@ -50,7 +50,7 @@ CParentalSetup::~CParentalSetup()
 
 }
 
-int CParentalSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
+int CParentalSetup::exec(CMenuTarget *parent, const std::string &/*actionKey*/)
 {
 	dprintf(DEBUG_DEBUG, "init parental setup\n");
 	int   res = menu_return::RETURN_REPAINT;
@@ -73,12 +73,12 @@ int CParentalSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 
 const CMenuOptionChooser::keyval PARENTALLOCK_PROMPT_OPTIONS[PARENTALLOCK_PROMPT_OPTION_COUNT] =
 {
-	{ PARENTALLOCK_PROMPT_NEVER         , LOCALE_PARENTALLOCK_NEVER          },
+	{ PARENTALLOCK_PROMPT_NEVER, LOCALE_PARENTALLOCK_NEVER          },
 #if 0
-	{ PARENTALLOCK_PROMPT_ONSTART       , LOCALE_PARENTALLOCK_ONSTART        },
+	{ PARENTALLOCK_PROMPT_ONSTART, LOCALE_PARENTALLOCK_ONSTART        },
 #endif
 	{ PARENTALLOCK_PROMPT_CHANGETOLOCKED, LOCALE_PARENTALLOCK_CHANGETOLOCKED },
-	{ PARENTALLOCK_PROMPT_ONSIGNAL      , LOCALE_PARENTALLOCK_ONSIGNAL       }
+	{ PARENTALLOCK_PROMPT_ONSIGNAL, LOCALE_PARENTALLOCK_ONSIGNAL       }
 };
 
 #define PARENTALLOCK_LOCKAGE_OPTION_COUNT 3
@@ -100,15 +100,15 @@ extern bool parentallocked;
 int CParentalSetup::showParentalSetup()
 {
 	//menue init
-	CMenuWidget* plock = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_LOCK, width, MN_WIDGET_ID_PLOCKSETUP);
+	CMenuWidget *plock = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_LOCK, width, MN_WIDGET_ID_PLOCKSETUP);
 
 	// intros with sub head
 	plock->addIntroItems(LOCALE_PARENTALLOCK_PARENTALLOCK);
 
-	CMenuForwarder * mf;
+	CMenuForwarder *mf;
 
-	CMenuOptionChooser * mc;
-	mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT , &g_settings.parentallock_prompt , PARENTALLOCK_PROMPT_OPTIONS, PARENTALLOCK_PROMPT_OPTION_COUNT , !parentallocked);
+	CMenuOptionChooser *mc;
+	mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT, &g_settings.parentallock_prompt, PARENTALLOCK_PROMPT_OPTIONS, PARENTALLOCK_PROMPT_OPTION_COUNT, !parentallocked);
 	mc->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_PROMPT);
 	plock->addItem(mc);
 

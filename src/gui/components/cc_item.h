@@ -1,5 +1,5 @@
 /*
-	Based up Neutrino-GUI - Tuxbox-Project 
+	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
@@ -62,17 +62,17 @@ class CComponentsItem : public CComponents
 		void paintInit(const bool &do_save_bg);
 
 		///add "this" current item to parent
-		void initParent(CComponentsForm* parent);
+		void initParent(CComponentsForm *parent);
 
 
 	public:
 		CComponentsItem(CComponentsForm *parent = NULL);
-		virtual ~CComponentsItem(){};
+		virtual ~CComponentsItem() {};
 
 		///sets pointer to the form object in which this item is embedded.
-		void setParent(CComponentsForm *parent){cc_parent = parent;};
+		void setParent(CComponentsForm *parent) {cc_parent = parent;};
 		///returns pointer to the form object in which this item is embedded.
-		CComponentsForm* getParent() const {return cc_parent;};
+		CComponentsForm *getParent() const {return cc_parent;};
 		///property: returns true if item is added to a form
 		bool isAdded();
 		///indicates wether item has focus
@@ -99,56 +99,56 @@ class CComponentsItem : public CComponents
 		 * 	gui/color.h
 		 * 	driver/framebuffer.h
 		*/
-		void kill(const fb_pixel_t& bg_color = COL_BACKGROUND_PLUS_0, bool ignore_parent = false, const int& fblayer_type = ~CC_FBDATA_TYPES);
+		void kill(const fb_pixel_t &bg_color = COL_BACKGROUND_PLUS_0, bool ignore_parent = false, const int &fblayer_type = ~CC_FBDATA_TYPES);
 
 		///syncronizes item colors with current color settings if required, NOTE: overwrites internal values!
 		void syncSysColors();
-		
+
 		///set select mode
 		void setSelected(bool selected,
-					const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
-					const fb_pixel_t& frame_col = COL_FRAME_PLUS_0,
-					const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
-					const fb_pixel_t& body_col = COL_MENUCONTENT_PLUS_0,
-					const int& frame_w = 3,
-					const int& sel_frame_w = 3);
+			const fb_pixel_t &sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
+			const fb_pixel_t &frame_col = COL_FRAME_PLUS_0,
+			const fb_pixel_t &sel_body_col = COL_MENUCONTENT_PLUS_0,
+			const fb_pixel_t &body_col = COL_MENUCONTENT_PLUS_0,
+			const int &frame_w = 3,
+			const int &sel_frame_w = 3);
 		///set enable mode, see also cc_item_enabled
-		void setEnable(bool enabled){cc_item_enabled = enabled;};
-		
+		void setEnable(bool enabled) {cc_item_enabled = enabled;};
+
 		///get select mode, see also setSelected() above
-		bool isSelected(){return cc_item_selected;};
+		bool isSelected() {return cc_item_selected;};
 		///get enable mode, see also setEnable() above
-		bool isEnabled(){return cc_item_enabled;};
+		bool isEnabled() {return cc_item_enabled;};
 
 		///get current index of item, see also attribut cc_item_index
 		int getIndex() const {return cc_item_index;};
 		///set an index to item, see also attribut cc_item_index.
 		///To generate an index, use genIndex()
-		void setIndex(const int& index){cc_item_index = index;};
+		void setIndex(const int &index) {cc_item_index = index;};
 
 		///sets page location of current item, parameter as uint8_t, see: cc_page_number
-		void setPageNumber(const uint8_t& on_page_number){cc_page_number = on_page_number;};
+		void setPageNumber(const uint8_t &on_page_number) {cc_page_number = on_page_number;};
 		///returns current number of page location of current item, see: cc_page_number
 		uint8_t getPageNumber() const;
 
 		///set screen x-position, parameter as int
-		void setXPos(const int& xpos);
+		void setXPos(const int &xpos);
 		///set screen y-position, parameter as int
-		void setYPos(const int& ypos);
+		void setYPos(const int &ypos);
 
 		///set screen x-position, parameter as uint8_t, percent x value related to current width of parent form or screen
-		void setXPosP(const uint8_t& xpos_percent);
+		void setXPosP(const uint8_t &xpos_percent);
 		///set screen y-position, parameter as uint8_t, percent y value related to current height of parent form or screen
-		void setYPosP(const uint8_t& ypos_percent);
+		void setYPosP(const uint8_t &ypos_percent);
 		///set x and y position as percent value related to current parent form or screen dimensions at once
-		void setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_percent);
+		void setPosP(const uint8_t &xpos_percent, const uint8_t &ypos_percent);
 
 		///sets real x position on screen. Use this, if item is added to a parent form
-		void setRealXPos(const int& xr){cc_xr = xr;}
+		void setRealXPos(const int &xr) {cc_xr = xr;}
 		///sets real y position on screen. Use this, if item is added to a parent form
-		void setRealYPos(const int& yr){cc_yr = yr;}
+		void setRealYPos(const int &yr) {cc_yr = yr;}
 		///sets real x and y position on screen at once. Use this, if item is added to a parent form
-		void setRealPos(const int& xr, const int& yr){cc_xr = xr; cc_yr = yr;}
+		void setRealPos(const int &xr, const int &yr) {cc_xr = xr; cc_yr = yr;}
 		///get real x-position on screen. Use this, if item contains own render methods and item is bound to a form
 		int getRealXPos() const {return cc_parent ? cc_xr : x;}
 		///get real y-position on screen. Use this, if item contains own render methods and item is bound to a form
@@ -158,9 +158,9 @@ class CComponentsItem : public CComponents
 		void setCenterPos(int along_mode = CC_ALONG_X | CC_ALONG_Y);
 
 		///set item height, parameter as uint8_t, as percent value related to current height of parent form or screen
-		void setHeightP(const uint8_t& h_percent);
+		void setHeightP(const uint8_t &h_percent);
 		///set item width, parameter as uint8_t, as percent value related to current width of parent form or screen
-		void setWidthP(const uint8_t& w_percent);
+		void setWidthP(const uint8_t &w_percent);
 };
 
 #endif

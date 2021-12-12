@@ -36,10 +36,10 @@
 
 class CZapitMessages
 {
- public:
-	static const char ACTVERSION = 7;
+	public:
+		static const char ACTVERSION = 7;
 
-	enum commands
+		enum commands
 		{
 			CMD_SHUTDOWN		           =  1,
 
@@ -156,233 +156,233 @@ class CZapitMessages
 			CMD_LOCKRC				   = 116
 		};
 
-	struct commandBoolean
-	{
-		bool truefalse;
-		commandBoolean():truefalse(false){}
-	};
+		struct commandBoolean
+		{
+			bool truefalse;
+			commandBoolean(): truefalse(false) {}
+		};
 
-	struct commandInt
-	{
-		int val;
-		commandInt():val(0){}
-	};
+		struct commandInt
+		{
+			int val;
+			commandInt(): val(0) {}
+		};
 
-	struct commandVolume
-	{
-		unsigned int left;
-		unsigned int right;
-		commandVolume():left(0),right(0){}
-	};
+		struct commandVolume
+		{
+			unsigned int left;
+			unsigned int right;
+			commandVolume(): left(0), right(0) {}
+		};
 
-	struct commandSetRecordMode
-	{
-		bool activate;
-		commandSetRecordMode():activate(false){}
-	};
+		struct commandSetRecordMode
+		{
+			bool activate;
+			commandSetRecordMode(): activate(false) {}
+		};
 
-	struct commandZapto
-	{
-		unsigned int bouquet;
-		unsigned int channel;
-		commandZapto():bouquet(0),channel(0){}
-	};
+		struct commandZapto
+		{
+			unsigned int bouquet;
+			unsigned int channel;
+			commandZapto(): bouquet(0), channel(0) {}
+		};
 
-	struct commandZaptoChannelNr
-	{
-		unsigned int channel;
-		commandZaptoChannelNr():channel(0){}
-	};
+		struct commandZaptoChannelNr
+		{
+			unsigned int channel;
+			commandZaptoChannelNr(): channel(0) {}
+		};
 
-	struct commandZaptoServiceID
-	{
-		t_channel_id channel_id;
-		bool record;
-		bool pip;
-		int pip_dev;
-		bool epg;
-		commandZaptoServiceID():channel_id(0), record(false), pip(false), pip_dev(0), epg(false){}
-	};
-	struct commandZaptoEpg
-	{
-		t_channel_id channel_id;
-		bool standby;
-		commandZaptoEpg():channel_id(0),standby(false){}
-	};
+		struct commandZaptoServiceID
+		{
+			t_channel_id channel_id;
+			bool record;
+			bool pip;
+			int pip_dev;
+			bool epg;
+			commandZaptoServiceID(): channel_id(0), record(false), pip(false), pip_dev(0), epg(false) {}
+		};
+		struct commandZaptoEpg
+		{
+			t_channel_id channel_id;
+			bool standby;
+			commandZaptoEpg(): channel_id(0), standby(false) {}
+		};
 
-	struct commandSetAudioChannel
-	{
-		unsigned int channel;
-		commandSetAudioChannel():channel(0){}
-	};
+		struct commandSetAudioChannel
+		{
+			unsigned int channel;
+			commandSetAudioChannel(): channel(0) {}
+		};
 
-	struct commandGetBouquets
-	{
-		bool emptyBouquetsToo;
-		CZapitClient::channelsMode mode;
-		commandGetBouquets():emptyBouquetsToo(0){}
-	};
+		struct commandGetBouquets
+		{
+			bool emptyBouquetsToo;
+			CZapitClient::channelsMode mode;
+			commandGetBouquets(): emptyBouquetsToo(0) {}
+		};
 
-	struct commandSetMode
-	{
-		CZapitClient::channelsMode mode;
-	};
+		struct commandSetMode
+		{
+			CZapitClient::channelsMode mode;
+		};
 
-	struct commandGetBouquetChannels
-	{
-		unsigned int               bouquet;
-		CZapitClient::channelsMode mode;
-	};
+		struct commandGetBouquetChannels
+		{
+			unsigned int               bouquet;
+			CZapitClient::channelsMode mode;
+		};
 
-	struct commandGetChannels
-	{
-		CZapitClient::channelsMode  mode;
-		CZapitClient::channelsOrder order;
-	};
+		struct commandGetChannels
+		{
+			CZapitClient::channelsMode  mode;
+			CZapitClient::channelsOrder order;
+		};
 
-	struct commandExistsChannelInBouquet
-	{
-		unsigned int bouquet;
-		t_channel_id channel_id;
-		commandExistsChannelInBouquet():bouquet(0),channel_id(0){}
-	};
-
-
-	struct commandAddChannelToBouquet
-	{
-		unsigned int bouquet;
-		t_channel_id channel_id;
-		commandAddChannelToBouquet():bouquet(0),channel_id(0){}
-	};
-
-	struct commandRemoveChannelFromBouquet
-	{
-		unsigned int bouquet;
-		t_channel_id channel_id;
-		commandRemoveChannelFromBouquet():bouquet(0),channel_id(0){}
-	};
-
-	struct commandDeleteBouquet
-	{
-		unsigned int bouquet;
-		commandDeleteBouquet():bouquet(0){}
-	};
-
-	struct commandRenameBouquet
-	{
-		unsigned int bouquet;
-		commandRenameBouquet():bouquet(0){}
-	};
-
-	struct commandMoveBouquet
-	{
-		unsigned int bouquet;
-		unsigned int newPos;
-		commandMoveBouquet():bouquet(0),newPos(0){}
-	};
-
-	struct commandStartScan
-	{
-		unsigned int satelliteMask;
-		commandStartScan():satelliteMask(0){}
-	};
-
-	struct commandBouquetState
-	{
-		unsigned int bouquet;
-		bool	     state;
-		commandBouquetState():bouquet(0),state(false){}
-	};
-
-	struct commandMoveChannel
-	{
-		unsigned int               bouquet;
-		unsigned int               oldPos;
-		unsigned int               newPos;
-		CZapitClient::channelsMode mode;
-		commandMoveChannel():bouquet(0),oldPos(0),newPos(0){}
-	};
+		struct commandExistsChannelInBouquet
+		{
+			unsigned int bouquet;
+			t_channel_id channel_id;
+			commandExistsChannelInBouquet(): bouquet(0), channel_id(0) {}
+		};
 
 
+		struct commandAddChannelToBouquet
+		{
+			unsigned int bouquet;
+			t_channel_id channel_id;
+			commandAddChannelToBouquet(): bouquet(0), channel_id(0) {}
+		};
+
+		struct commandRemoveChannelFromBouquet
+		{
+			unsigned int bouquet;
+			t_channel_id channel_id;
+			commandRemoveChannelFromBouquet(): bouquet(0), channel_id(0) {}
+		};
+
+		struct commandDeleteBouquet
+		{
+			unsigned int bouquet;
+			commandDeleteBouquet(): bouquet(0) {}
+		};
+
+		struct commandRenameBouquet
+		{
+			unsigned int bouquet;
+			commandRenameBouquet(): bouquet(0) {}
+		};
+
+		struct commandMoveBouquet
+		{
+			unsigned int bouquet;
+			unsigned int newPos;
+			commandMoveBouquet(): bouquet(0), newPos(0) {}
+		};
+
+		struct commandStartScan
+		{
+			unsigned int satelliteMask;
+			commandStartScan(): satelliteMask(0) {}
+		};
+
+		struct commandBouquetState
+		{
+			unsigned int bouquet;
+			bool	     state;
+			commandBouquetState(): bouquet(0), state(false) {}
+		};
+
+		struct commandMoveChannel
+		{
+			unsigned int               bouquet;
+			unsigned int               oldPos;
+			unsigned int               newPos;
+			CZapitClient::channelsMode mode;
+			commandMoveChannel(): bouquet(0), oldPos(0), newPos(0) {}
+		};
 
 
-	struct responseGeneralTrueFalse
-	{
-		bool status;
-		responseGeneralTrueFalse():status(false){}
-	};
 
-	struct responseGeneralInteger
-	{
-		int number;
-		responseGeneralInteger():number(0){}
-	};
 
-	struct responseGetChannelName
-	{
-		char name[CHANNEL_NAME_SIZE];
-	};
+		struct responseGeneralTrueFalse
+		{
+			bool status;
+			responseGeneralTrueFalse(): status(false) {}
+		};
 
-	struct responseGetRecordModeState
-	{
-		bool activated;
-		responseGetRecordModeState():activated(false){}
-	};
+		struct responseGeneralInteger
+		{
+			int number;
+			responseGeneralInteger(): number(0) {}
+		};
 
-	struct responseGetMode
-	{
-		CZapitClient::channelsMode  mode;
-	};
+		struct responseGetChannelName
+		{
+			char name[CHANNEL_NAME_SIZE];
+		};
 
-	struct responseGetPlaybackState
-	{
-		bool activated;
-		responseGetPlaybackState():activated(false){}
-	};
+		struct responseGetRecordModeState
+		{
+			bool activated;
+			responseGetRecordModeState(): activated(false) {}
+		};
 
-	struct responseGetCurrentServiceID
-	{
-		t_channel_id channel_id;
-		responseGetCurrentServiceID():channel_id(0){}
-	};
+		struct responseGetMode
+		{
+			CZapitClient::channelsMode  mode;
+		};
 
-	struct responseZapComplete
-	{
-		unsigned int zapStatus;
-		responseZapComplete():zapStatus(0){}
-	};
+		struct responseGetPlaybackState
+		{
+			bool activated;
+			responseGetPlaybackState(): activated(false) {}
+		};
 
-	struct responseCmd
-	{
-		unsigned char cmd;
-		responseCmd():cmd(0){}
-	};
+		struct responseGetCurrentServiceID
+		{
+			t_channel_id channel_id;
+			responseGetCurrentServiceID(): channel_id(0) {}
+		};
 
-	struct responseIsScanReady
-	{
-		bool scanReady;
-		unsigned int satellite;
-		unsigned int processed_transponder;
-		unsigned int transponder;
-		unsigned int services;
-		responseIsScanReady():scanReady(false),satellite(0),processed_transponder(0),transponder(0),services(0){}
-	};
+		struct responseZapComplete
+		{
+			unsigned int zapStatus;
+			responseZapComplete(): zapStatus(0) {}
+		};
 
-	struct responseDeliverySystem
-	{
-		delivery_system_t system;
-	};
+		struct responseCmd
+		{
+			unsigned char cmd;
+			responseCmd(): cmd(0) {}
+		};
 
-	struct commandMotor
-	{
-		uint8_t cmdtype;
-		uint8_t cmd;
-		uint8_t address;
-		uint8_t num_parameters;
-		uint8_t param1;
-		uint8_t param2;
-		commandMotor():cmdtype(0),cmd(0),address(0),num_parameters(0),param1(0),param2(0){}
-	};
+		struct responseIsScanReady
+		{
+			bool scanReady;
+			unsigned int satellite;
+			unsigned int processed_transponder;
+			unsigned int transponder;
+			unsigned int services;
+			responseIsScanReady(): scanReady(false), satellite(0), processed_transponder(0), transponder(0), services(0) {}
+		};
+
+		struct responseDeliverySystem
+		{
+			delivery_system_t system;
+		};
+
+		struct commandMotor
+		{
+			uint8_t cmdtype;
+			uint8_t cmd;
+			uint8_t address;
+			uint8_t num_parameters;
+			uint8_t param1;
+			uint8_t param2;
+			commandMotor(): cmdtype(0), cmd(0), address(0), num_parameters(0), param1(0), param2(0) {}
+		};
 
 
 };

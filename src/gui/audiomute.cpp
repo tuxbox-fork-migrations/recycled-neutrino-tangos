@@ -40,7 +40,7 @@
 
 #include <system/helpers.h>
 
-CAudioMute::CAudioMute():CComponentsPicture(0, 0, NEUTRINO_ICON_MUTED)
+CAudioMute::CAudioMute(): CComponentsPicture(0, 0, NEUTRINO_ICON_MUTED)
 {
 	y_old			= -1;
 	do_paint_mute_icon	= true;
@@ -48,17 +48,17 @@ CAudioMute::CAudioMute():CComponentsPicture(0, 0, NEUTRINO_ICON_MUTED)
 	CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
 }
 
-CAudioMute* CAudioMute::getInstance()
+CAudioMute *CAudioMute::getInstance()
 {
-	static CAudioMute* Mute = NULL;
-	if(!Mute)
+	static CAudioMute *Mute = NULL;
+	if (!Mute)
 		Mute = new CAudioMute();
 	return Mute;
 }
 
 void CAudioMute::AudioMute(int newValue, bool isEvent)
 {
-	CNeutrinoApp* neutrino = CNeutrinoApp::getInstance();
+	CNeutrinoApp *neutrino = CNeutrinoApp::getInstance();
 	bool doInit = newValue != (int) neutrino->isMuted();
 
 	CVFD::getInstance()->setMuted(newValue);
@@ -68,10 +68,10 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 		hdmi_cec::getInstance()->toggle_mute();
 	else
 #endif
-	if (g_settings.volume_external)
-		exec_controlscript((newValue) ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT);
-	else
-		g_Zapit->muteAudio(newValue);
+		if (g_settings.volume_external)
+			exec_controlscript((newValue) ? MUTE_ON_SCRIPT : MUTE_OFF_SCRIPT);
+		else
+			g_Zapit->muteAudio(newValue);
 
 	if (isEvent && (neutrino->getMode() != NeutrinoModes::mode_avinput) && (neutrino->getMode() != NeutrinoModes::mode_pic))
 	{
@@ -79,7 +79,8 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 			CVolumeHelper::getInstance()->refresh();
 
 		CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
-		if ((y_old != y)) {
+		if ((y_old != y))
+		{
 			if (do_paint_mute_icon)
 			{
 				frameBuffer->fbNoCheck(true);
@@ -94,21 +95,26 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 		 * display with ClearDisplay() by itself before paint,
 		 * so we don't do this here.
 		*/
-		if (!CInfoClock::getInstance()->isBlocked()){
+		if (!CInfoClock::getInstance()->isBlocked())
+		{
 			CInfoClock::getInstance()->ClearDisplay();
 		}
 
 		frameBuffer->fbNoCheck(true);
-		if (newValue) {
-			if (do_paint_mute_icon){
+		if (newValue)
+		{
+			if (do_paint_mute_icon)
+			{
 				this->paint();
 				if (!CInfoClock::getInstance()->isBlocked()) //paint clock before it's running but if no blocked, this avoids delay
 					CInfoClock::getInstance()->paint();
 			}
 			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1, x, y, width, height);
 		}
-		else {
-			if (!CInfoClock::getInstance()->isBlocked()){
+		else
+		{
+			if (!CInfoClock::getInstance()->isBlocked())
+			{
 				CInfoClock::getInstance()->ClearDisplay();
 				this->kill();
 			}
@@ -127,13 +133,15 @@ void CAudioMute::enableMuteIcon(bool enable)
 	CNeutrinoApp *neutrino = CNeutrinoApp::getInstance();
 	CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
 	frameBuffer->fbNoCheck(true);
-	if (enable) {
+	if (enable)
+	{
 		frameBuffer->doPaintMuteIcon(true);
 		if (!do_paint_mute_icon && neutrino->isMuted())
 			this->paint();
 		do_paint_mute_icon = true;
 	}
-	else {
+	else
+	{
 		if (do_paint_mute_icon && !neutrino->isMuted())
 			this->kill();
 		frameBuffer->doPaintMuteIcon(false);

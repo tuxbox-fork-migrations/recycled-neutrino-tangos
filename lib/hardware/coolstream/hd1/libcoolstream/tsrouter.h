@@ -15,7 +15,8 @@
 #define HSDP_SAT_PORT			4
 #define HSDP_CAB_PORT			5
 
-typedef struct _tsrouter_hsdp_config {
+typedef struct _tsrouter_hsdp_config
+{
 	u8 port;
 	u32 port_ctrl;
 	u32 pkt_ctrl;
@@ -25,7 +26,8 @@ typedef struct _tsrouter_hsdp_config {
 	/* more ? */
 } tsrouter_hsdp_config_t;
 
-typedef struct _tsrouter_tsp_config {
+typedef struct _tsrouter_tsp_config
+{
 	u8 port;
 	u32 port_ctrl;
 	u32 mux;

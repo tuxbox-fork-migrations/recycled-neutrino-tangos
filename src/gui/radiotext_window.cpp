@@ -46,7 +46,7 @@
 
 using namespace std;
 
-CRadioTextGUI::CRadioTextGUI() : CComponentsWindow(0, 0, CFrameBuffer::getInstance()->getScreenWidth() - 2*OFFSET_INNER_MID, 0, "")
+CRadioTextGUI::CRadioTextGUI() : CComponentsWindow(0, 0, CFrameBuffer::getInstance()->getScreenWidth() - 2 * OFFSET_INNER_MID, 0, "")
 {
 	Init();
 }
@@ -71,7 +71,7 @@ void CRadioTextGUI::Init()
 
 	font1 = g_Font[SNeutrinoSettings::FONT_TYPE_WINDOW_RADIOTEXT_TITLE];
 	font2 = g_Font[SNeutrinoSettings::FONT_TYPE_WINDOW_RADIOTEXT_DESC];
-	height = (MAX_DESC_LINES * font1->getHeight()) + (ccw_head->getHeight() + 2*OFFSET_INNER_MID);
+	height = (MAX_DESC_LINES * font1->getHeight()) + (ccw_head->getHeight() + 2 * OFFSET_INNER_MID);
 	shadow = CC_SHADOW_ON;
 	ccw_show_footer = false;
 	shadow_force = true;
@@ -124,17 +124,18 @@ bool CRadioTextGUI::GetData()
 {
 	if (g_Radiotext == NULL)
 		return false;
-	
+
 // 	if (showButtonBar)
 // 		infoViewerBB->showIcon_RadioText(g_Radiotext->haveRadiotext()); ///callback???
-// 
+//
 	std::mutex mutex;
 	std::lock_guard<std::mutex> lg(mutex);
 	char stext[3][100];
 
 	// cleanup lines on changed channel and clean up cached lines
 	channel_id_pair.first = CZapit::getInstance()->GetCurrentChannelID();
-	if (channel_id_pair.first != channel_id_pair.second){
+	if (channel_id_pair.first != channel_id_pair.second)
+	{
 		clearLines();
 		channel_id_pair.second = CZapit::getInstance()->GetCurrentChannelID();
 	}
@@ -161,7 +162,7 @@ bool CRadioTextGUI::GetData()
 			{
 				if (lines || g_Radiotext->RT_PTY != 0)
 				{
-					snprintf(stext[0], sizeof(stext[0]),g_Radiotext->RT_PTY == 0 ? "%s %s" : "%s (%s)", tr("Radiotext"), g_Radiotext->RT_PTY == 0 ? g_Radiotext->RDS_PTYN : g_Radiotext->ptynr2string(g_Radiotext->RT_PTY));
+					snprintf(stext[0], sizeof(stext[0]), g_Radiotext->RT_PTY == 0 ? "%s %s" : "%s (%s)", tr("Radiotext"), g_Radiotext->RT_PTY == 0 ? g_Radiotext->RDS_PTYN : g_Radiotext->ptynr2string(g_Radiotext->RT_PTY));
 					if (!isDubLine(v_lines_title, stext[0]))
 						addLine(v_lines_title, stext[0]);
 				}
@@ -171,7 +172,7 @@ bool CRadioTextGUI::GetData()
 			{
 				// RT-Text roundloop
 				int index = (g_Radiotext->RT_Index == 0) ? g_Radiotext->S_RtOsdRows - 1 : g_Radiotext->RT_Index - 1;
-				
+
 				if (g_Radiotext->S_RtOsdLoop == 1) // ...description lines, latest bottom
 				{
 					for (int i = index + 1; i < g_Radiotext->S_RtOsdRows; i++)
@@ -191,7 +192,7 @@ bool CRadioTextGUI::GetData()
 				else // ...title line(s), latest top
 				{
 					for (int i = index; i >= 0; i--)
-					{	
+					{
 						if (!string(g_Radiotext->RT_Text[i]).empty())
 							if (!isDubLine(v_lines_desc, g_Radiotext->RT_Text[i]))
 								addLine(v_lines_desc, g_Radiotext->RT_Text[i]);
@@ -221,7 +222,7 @@ bool CRadioTextGUI::GetData()
 }
 
 
-bool CRadioTextGUI::isDubLine(vector<string>& vec, const string& to_compare_str)
+bool CRadioTextGUI::isDubLine(vector<string> &vec, const string &to_compare_str)
 {
 	for (size_t i = 0; i < vec.size(); i++)
 		if (vec.at(i) == to_compare_str)
@@ -230,7 +231,7 @@ bool CRadioTextGUI::isDubLine(vector<string>& vec, const string& to_compare_str)
 	return false;
 }
 
-void CRadioTextGUI::addLine(std::vector<std::string>& vec, std::string str)
+void CRadioTextGUI::addLine(std::vector<std::string> &vec, std::string str)
 {
 	vec.push_back(iso_8859_1_to_utf8(str));
 }
@@ -261,12 +262,12 @@ void CRadioTextGUI::InitInfoItems()
 	//get and checkup required informations
 	if ((!GetData() && !hasLines()) || !cc_allow_paint)
 		return;
-	
+
 	//define size and position
 	int x_info = OFFSET_INNER_MID;
 	int y_info = OFFSET_INNER_MID;
 	int h_info = font1->getHeight(); //default height
-	int w_info = width-2*x_info;
+	int w_info = width - 2 * x_info;
 
 	//init text items
 	if (ccw_body->empty())
@@ -274,7 +275,7 @@ void CRadioTextGUI::InitInfoItems()
 		// add required text objects
 		for (int i = 0; i < MAX_DESC_LINES; i++)
 		{
-			static CComponentsTextTransp* item = NULL;
+			static CComponentsTextTransp *item = NULL;
 			item = new CComponentsTextTransp(NULL, OFFSET_INNER_MID, y_info, w_info, h_info, "");
 			item->setItemName("desc" + std::to_string(i));
 			addWindowItem(item);
@@ -285,7 +286,7 @@ void CRadioTextGUI::InitInfoItems()
 	// fill text items with text
 	if (!v_lines_desc.empty())
 	{
-		reverse(v_lines_desc.begin(),v_lines_desc.end()); // we need synchron order
+		reverse(v_lines_desc.begin(), v_lines_desc.end()); // we need synchron order
 		for (size_t i = 0; i < v_lines_desc.size(); i++)
 		{
 			if (i < MAX_DESC_LINES) // use only required entries
@@ -299,15 +300,15 @@ void CRadioTextGUI::InitInfoItems()
 							string s_tmp = v_lines_desc.at(i);
 							if (i > 0)
 							{
-								if (s_tmp == v_lines_desc.at(i-1))
+								if (s_tmp == v_lines_desc.at(i - 1))
 									s_tmp = "";
 							}
 							dprintf(DEBUG_INFO, "\033[36m[CRadioTextGUI] %s - %d: set line: %d text:  %s\033[0m\n", __func__, __LINE__, (int)i, s_tmp.c_str());
-							static CComponentsTextTransp* item = NULL;
-							item = static_cast<CComponentsTextTransp*> (ccw_body->getCCItem(i));
-							item->setText(	s_tmp,
-									CTextBox::AUTO_HIGH | CTextBox::TOP | CTextBox::AUTO_LINEBREAK_NO_BREAKCHARS,
-									item->getItemName() == "desc0" ? font1 : font2);
+							static CComponentsTextTransp *item = NULL;
+							item = static_cast<CComponentsTextTransp *>(ccw_body->getCCItem(i));
+							item->setText(s_tmp,
+								CTextBox::AUTO_HIGH | CTextBox::TOP | CTextBox::AUTO_LINEBREAK_NO_BREAKCHARS,
+								item->getItemName() == "desc0" ? font1 : font2);
 						}
 						catch (const std::exception &e)
 						{
@@ -318,7 +319,7 @@ void CRadioTextGUI::InitInfoItems()
 				}
 			}
 		}
-		reverse(v_lines_desc.begin(),v_lines_desc.end()); // restore origin order
+		reverse(v_lines_desc.begin(), v_lines_desc.end()); // restore origin order
 	}
 }
 
@@ -338,7 +339,8 @@ void CRadioTextGUI::paint(const bool &do_save_bg)
 	if (g_settings.radiotext_enable)
 		g_Radiotext->RT_MsgShow = true;
 #endif
-	if (ccw_body->isPainted()){
+	if (ccw_body->isPainted())
+	{
 		ccw_body->hideCCItems();
 	}
 
@@ -347,7 +349,7 @@ void CRadioTextGUI::paint(const bool &do_save_bg)
 	for (size_t i = 0; i < v_lines_title.size(); i++)
 		dprintf(DEBUG_NORMAL, "\033[32m[CRadioTextGUI] %s - %d: Title: %s\033[0m\n", __func__, __LINE__, v_lines_title[i].c_str());
 
-	size_t n = v_lines_desc.size()-1;
+	size_t n = v_lines_desc.size() - 1;
 	for (int i = n; i > -1; i--)
 		dprintf(DEBUG_NORMAL, "\033[32m[CRadioTextGUI] %s - %d: Description line:  %s\033[0m\n", __func__, __LINE__, v_lines_desc[i].c_str());
 #endif
@@ -364,7 +366,7 @@ void CRadioTextGUI::paint(const bool &do_save_bg)
 	CComponentsWindow::paint(do_save_bg);
 }
 
-void CRadioTextGUI::kill(const fb_pixel_t& bg_color, const int& corner_radius, const int& fblayer_type)
+void CRadioTextGUI::kill(const fb_pixel_t &bg_color, const int &corner_radius, const int &fblayer_type)
 {
 	int cr = getCornerRadius() != corner_radius ? corner_radius : getCornerRadius();
 	CComponentsWindow::kill(bg_color, cr, fblayer_type);

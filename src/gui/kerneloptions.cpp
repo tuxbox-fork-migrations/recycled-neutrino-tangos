@@ -32,7 +32,8 @@
 #include <gui/kerneloptions.h>
 
 #define ONOFF_OPTION_COUNT 2
-static const CMenuOptionChooser::keyval ONOFF_OPTIONS[ONOFF_OPTION_COUNT] = {
+static const CMenuOptionChooser::keyval ONOFF_OPTIONS[ONOFF_OPTION_COUNT] =
+{
 	{0, LOCALE_OPTIONS_OFF},
 	{1, LOCALE_OPTIONS_ON}
 };
@@ -44,7 +45,8 @@ CKernelOptions::CKernelOptions()
 
 void CKernelOptions::loadModule(int i)
 {
-	for (unsigned int j = 0; j < modules[i].moduleList.size(); j++) {
+	for (unsigned int j = 0; j < modules[i].moduleList.size(); j++)
+	{
 		if (modules[i].moduleList[j].second.empty())
 		{
 			//printf(" %s\n", ("command: insmod " + modules[i].moduleList[j].first).c_str());
@@ -69,13 +71,17 @@ void CKernelOptions::updateStatus(void)
 	for (unsigned int i = 0; i < modules.size(); i++)
 		modules[i].installed = false;
 	FILE *f = fopen("/proc/modules", "r");
-	if (f) {
+	if (f)
+	{
 		char buf[200];
-		while (fgets(buf, sizeof(buf), f)) {
+		while (fgets(buf, sizeof(buf), f))
+		{
 			char name[sizeof(buf)];
 			if (1 == sscanf(buf, "%s", name))
-				for (unsigned int i = 0; i < modules.size(); i++) {
-					if (name == modules[i].moduleList.back().first) {
+				for (unsigned int i = 0; i < modules.size(); i++)
+				{
+					if (name == modules[i].moduleList.back().first)
+					{
 						modules[i].installed = true;
 						break;
 					}
@@ -84,34 +90,38 @@ void CKernelOptions::updateStatus(void)
 		fclose(f);
 	}
 	for (unsigned int i = 0; i < modules.size(); i++)
-		if (modules[i].mc) {
+		if (modules[i].mc)
+		{
 			modules[i].mc->setMarked(modules[i].installed);
-		neutrino_locale_t l;
-		if (modules[i].active)
-			l = modules[i].
-				installed ? LOCALE_KERNELOPTIONS_HINT_ENABLED_LOADED : LOCALE_KERNELOPTIONS_HINT_ENABLED_NOT_LOADED;
-		else
-			l = modules[i].
-		installed ? LOCALE_KERNELOPTIONS_HINT_DISABLED_LOADED : LOCALE_KERNELOPTIONS_HINT_DISABLED_NOT_LOADED;
-		modules[i].mc->setHint("", l);
+			neutrino_locale_t l;
+			if (modules[i].active)
+				l = modules[i].
+					installed ? LOCALE_KERNELOPTIONS_HINT_ENABLED_LOADED : LOCALE_KERNELOPTIONS_HINT_ENABLED_NOT_LOADED;
+			else
+				l = modules[i].
+					installed ? LOCALE_KERNELOPTIONS_HINT_DISABLED_LOADED : LOCALE_KERNELOPTIONS_HINT_DISABLED_NOT_LOADED;
+			modules[i].mc->setHint("", l);
 		}
 }
 
-int CKernelOptions::exec(CMenuTarget * parent, const std::string & actionKey)
+int CKernelOptions::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
 
-	if (actionKey == "reset") {
+	if (actionKey == "reset")
+	{
 		for (unsigned int i = 0; i < modules.size(); i++)
 			modules[i].active = modules[i].active_orig;
 		updateStatus();
 		return res;
 	}
 
-	if (actionKey == "apply" || actionKey == "change") {
+	if (actionKey == "apply" || actionKey == "change")
+	{
 		bool needs_save = false;
 		for (unsigned int i = 0; i < modules.size(); i++)
-			if (modules[i].active != modules[i].active_orig) {
+			if (modules[i].active != modules[i].active_orig)
+			{
 				needs_save = true;
 				if (modules[i].active)
 					loadModule(i);
@@ -150,8 +160,10 @@ bool CKernelOptions::Enable(std::string name, bool active)
 {
 	load();
 	for (unsigned int i = 0; i < modules.size(); i++)
-		if (name == modules[i].moduleList.back().first) {
-			if (modules[i].active != active) {
+		if (name == modules[i].moduleList.back().first)
+		{
+			if (modules[i].active != active)
+			{
 				modules[i].active = active;
 				exec(NULL, "change");
 			}
@@ -173,9 +185,11 @@ void CKernelOptions::load()
 	// module module(arguments) module # description
 	//
 
-	if (f) {
+	if (f)
+	{
 		char buf[200];
-		while (fgets(buf, sizeof(buf), f)) {
+		while (fgets(buf, sizeof(buf), f))
+		{
 			if (buf[0] == '#')
 				continue;
 			char *comment = strchr(buf, '#');
@@ -194,8 +208,10 @@ void CKernelOptions::load()
 				*nl = 0;
 			m.comment = std::string(comment);
 			char *b = buf;
-			while (*b) {
-				if (*b == ' ' || *b == '\t') {
+			while (*b)
+			{
+				if (*b == ' ' || *b == '\t')
+				{
 					b++;
 					continue;
 				}
@@ -203,46 +219,56 @@ void CKernelOptions::load()
 				std::string mod;
 				char *e = b;
 				char *a = NULL;
-				while (*e && ((a && *e != ')') || (!a && *e != ' ' && *e != '\t'))) {
+				while (*e && ((a && *e != ')') || (!a && *e != ' ' && *e != '\t')))
+				{
 					if (*e == '(')
 						a = e;
 					e++;
 				}
-				if (a && *e == ')') {
+				if (a && *e == ')')
+				{
 					*a++ = 0;
 					*e++ = 0;
 					args = std::string(a);
 					*a = 0;
 					mod = std::string(b);
 					b = e;
-				} else if (*e) {
+				}
+				else if (*e)
+				{
 					*e++ = 0;
 					mod = std::string(b);
 					b = e;
-				} else {
+				}
+				else
+				{
 					mod = std::string(b);
 					b = e;
+				}
+				m.moduleList.push_back(make_pair(mod, args));
 			}
-			m.moduleList.push_back(make_pair(mod, args));
+			m.mc = NULL;
+			if (m.moduleList.size() > 0)
+				modules.push_back(m);
 		}
-		m.mc = NULL;
-		if (m.moduleList.size() > 0)
-			modules.push_back(m);
-	}
-	fclose(f);
+		fclose(f);
 	}
 
 	f = fopen("/etc/modules.extra", "r");
-	if (f) {
+	if (f)
+	{
 		char buf[200];
-		while (fgets(buf, sizeof(buf), f)) {
+		while (fgets(buf, sizeof(buf), f))
+		{
 			char *t = strchr(buf, '#');
 			if (t)
 				*t = 0;
 			char name[200];
-			if (1 == sscanf(buf, "%s", name)) {
+			if (1 == sscanf(buf, "%s", name))
+			{
 				for (unsigned int i = 0; i < modules.size(); i++)
-					if (modules[i].moduleList.back().first == name) {
+					if (modules[i].moduleList.back().first == name)
+					{
 						modules[i].active = modules[i].active_orig = 1;
 						break;
 					}
@@ -255,10 +281,13 @@ void CKernelOptions::load()
 void CKernelOptions::save()
 {
 	FILE *f = fopen("/etc/modules.extra", "w");
-	if (f) {
+	if (f)
+	{
 		chmod("/etc/modules.extra", 0644);
-		for (unsigned int i = 0; i < modules.size(); i++) {
-			if (modules[i].active) {
+		for (unsigned int i = 0; i < modules.size(); i++)
+		{
+			if (modules[i].active)
+			{
 				for (unsigned int j = 0; j < modules[i].moduleList.size(); j++)
 					if (modules[i].moduleList[j].second.length())
 						fprintf(f, "%s %s\n", modules[i].moduleList[j].first.c_str(), modules[i].moduleList[j].second.c_str());
@@ -271,12 +300,13 @@ void CKernelOptions::save()
 }
 
 #define KernelOptionsButtonCount 2
-static const struct button_label KernelOptionsButtons[KernelOptionsButtonCount] = {
+static const struct button_label KernelOptionsButtons[KernelOptionsButtonCount] =
+{
 	{NEUTRINO_ICON_BUTTON_RED, LOCALE_KERNELOPTIONS_RESET},
 	{NEUTRINO_ICON_BUTTON_GREEN, LOCALE_KERNELOPTIONS_APPLY}
 };
 
-bool CKernelOptions::changeNotify(const neutrino_locale_t /*OptionName */ , void * /*Data */ )
+bool CKernelOptions::changeNotify(const neutrino_locale_t /*OptionName */, void * /*Data */)
 {
 	updateStatus();
 	return true;
@@ -292,9 +322,10 @@ int CKernelOptions::Settings()
 
 	load();
 
-	for (unsigned int i = 0; i < modules.size(); i++) {
+	for (unsigned int i = 0; i < modules.size(); i++)
+	{
 		modules[i].mc = new CMenuOptionChooser(modules[i].comment.c_str(), &modules[i].active,
-				ONOFF_OPTIONS, ONOFF_OPTION_COUNT, true, this);
+			ONOFF_OPTIONS, ONOFF_OPTION_COUNT, true, this);
 		menu->addItem(modules[i].mc);
 	}
 

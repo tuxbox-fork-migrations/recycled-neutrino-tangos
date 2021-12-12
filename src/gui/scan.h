@@ -51,7 +51,7 @@ class CScanTs : public CMenuTarget
 		int fw;
 		int xpos1; //x position for first column
 		int xpos2; //x position for second column
-		int radar; 
+		int radar;
 		int xpos_radar;
 		int ypos_radar;
 		int ypos_cur_satellite;
@@ -69,8 +69,8 @@ class CScanTs : public CMenuTarget
 		bool canceled;
 
 		void paint(bool fortest = false);
-		void paintLineLocale(int x, int * y, int width, const neutrino_locale_t l);
-		void paintLine(int x, int y, int width, const char * const txt);
+		void paintLineLocale(int x, int *y, int width, const neutrino_locale_t l);
+		void paintLine(int x, int y, int width, const char *const txt);
 		void paintRadar(void);
 		neutrino_msg_t handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data);
 		int greater_xpos(int xpos, const neutrino_locale_t txt);
@@ -85,6 +85,6 @@ class CScanTs : public CMenuTarget
 		CScanTs(delivery_system_t DelSys);
 		~CScanTs();
 		void hide();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 #endif

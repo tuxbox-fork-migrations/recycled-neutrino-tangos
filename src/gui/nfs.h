@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	NFS Mount/Umount GUI by Zwen
-	
+
 	Homepage: http://dbox.cyberphoria.org/
 
 	Kommentar:
@@ -41,30 +41,30 @@
 class CNFSMountGui : public CMenuTarget
 {
 
- private:
-	int menu();
-	int menuEntry(int nr);
+	private:
+		int menu();
+		int menuEntry(int nr);
 
-	std::string       m_entry[NETWORK_NFS_NR_OF_ENTRIES];
-	std::string       ISO_8859_1_entry[NETWORK_NFS_NR_OF_ENTRIES];
+		std::string       m_entry[NETWORK_NFS_NR_OF_ENTRIES];
+		std::string       ISO_8859_1_entry[NETWORK_NFS_NR_OF_ENTRIES];
 
-	std::string getEntryString(int i);
+		std::string getEntryString(int i);
 
-	CMenuWidget *mountMenuWPtr;
-	int menu_offset;
+		CMenuWidget *mountMenuWPtr;
+		int menu_offset;
 
-	CMenuForwarder* mountMenuEntry[NETWORK_NFS_NR_OF_ENTRIES];
+		CMenuForwarder *mountMenuEntry[NETWORK_NFS_NR_OF_ENTRIES];
 
-	CFSMounter::FS_Support m_nfs_sup;
-	CFSMounter::FS_Support m_cifs_sup;
-	CFSMounter::FS_Support m_lufs_sup;
-	
- protected:
-	int width;
+		CFSMounter::FS_Support m_nfs_sup;
+		CFSMounter::FS_Support m_cifs_sup;
+		CFSMounter::FS_Support m_lufs_sup;
 
- public:
-	CNFSMountGui();
-	int exec(CMenuTarget* parent, const std::string & actionKey);
+	protected:
+		int width;
+
+	public:
+		CNFSMountGui();
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 class CNFSUmountGui : public CNFSMountGui
@@ -74,23 +74,23 @@ class CNFSUmountGui : public CNFSMountGui
 		int menu();
 
 	public:
-		CNFSUmountGui(){};
-		~CNFSUmountGui(){};
-		int  exec(CMenuTarget* parent, const std::string & actionKey);
+		CNFSUmountGui() {};
+		~CNFSUmountGui() {};
+		int  exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 class CNFSSmallMenu : public CNFSMountGui
 {
 	private:
 
-   public:
-		CNFSSmallMenu(){};
-		~CNFSSmallMenu(){};
-		int exec( CMenuTarget* parent, const std::string & actionKey );
+	public:
+		CNFSSmallMenu() {};
+		~CNFSSmallMenu() {};
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
-const char * mntRes2Str(CFSMounter::MountRes res);
-const char * mntRes2Str(CFSMounter::UMountRes res);
+const char *mntRes2Str(CFSMounter::MountRes res);
+const char *mntRes2Str(CFSMounter::UMountRes res);
 
 
 #endif

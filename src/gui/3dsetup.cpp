@@ -78,41 +78,47 @@ C3DSetup::~C3DSetup()
 {
 	threeDMap.clear();
 	for (int i = 0; i < THREE_D_OPTIONS_COUNT; i++)
-		if(tdl[i].cmf)
+		if (tdl[i].cmf)
 			delete tdl[i].cmf;
 }
 
-int C3DSetup::exec(CMenuTarget* parent, const std::string &actionKey)
+int C3DSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	int   res = menu_return::RETURN_REPAINT;
 	fb_pixel_t *pixbuf = NULL;
 
-	for (int i = 0; i < THREE_D_OPTIONS_COUNT; i++) {
-		if (actionKey == tdl[i].actionKey) {
+	for (int i = 0; i < THREE_D_OPTIONS_COUNT; i++)
+	{
+		if (actionKey == tdl[i].actionKey)
+		{
 			frameBuffer->set3DMode(tdl[i].mode);
 			for (int j = 0; j < THREE_D_OPTIONS_COUNT; j++)
-				tdl[j].cmf->setOption(g_Locale->getText((i == j) ? LOCALE_OPTIONS_ON: LOCALE_OPTIONS_OFF));
+				tdl[j].cmf->setOption(g_Locale->getText((i == j) ? LOCALE_OPTIONS_ON : LOCALE_OPTIONS_OFF));
 			return res;
 		}
 	}
 
-	if (actionKey == "save") {
+	if (actionKey == "save")
+	{
 		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT));
 		hintBox.paint();
 		load();
-		if (frameBuffer->get3DMode() == CFrameBuffer::Mode3D_off) {
+		if (frameBuffer->get3DMode() == CFrameBuffer::Mode3D_off)
+		{
 			std::map<t_channel_id, CFrameBuffer::Mode3D>::iterator i;
 			i = threeDMap.find(CZapit::getInstance()->GetCurrentChannelID());
 			if (i != threeDMap.end())
 				threeDMap.erase(i);
-		} else
+		}
+		else
 			threeDMap[CZapit::getInstance()->GetCurrentChannelID()] = frameBuffer->get3DMode();
 		save();
 		sleep(1);
 		hintBox.hide();
 		return res;
 	}
-	if (actionKey == "zapped") {
+	if (actionKey == "zapped")
+	{
 		load();
 		std::map<t_channel_id, CFrameBuffer::Mode3D>::iterator i;
 		i = threeDMap.find(CZapit::getInstance()->GetCurrentChannelID());
@@ -125,16 +131,18 @@ int C3DSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	if (parent)
 		parent->hide();
-	else {
+	else
+	{
 		pixbuf = new fb_pixel_t[dx * dy];
 		if (pixbuf)
-			frameBuffer->SaveScreen (x, y, dx, dy, pixbuf);
+			frameBuffer->SaveScreen(x, y, dx, dy, pixbuf);
 	}
 
 	res = show3DSetup();
 
-	if (pixbuf) {
-		frameBuffer->RestoreScreen (x, y, dx, dy, pixbuf);
+	if (pixbuf)
+	{
+		frameBuffer->RestoreScreen(x, y, dx, dy, pixbuf);
 		frameBuffer->blit();
 		delete[]pixbuf;
 	}
@@ -145,13 +153,16 @@ void C3DSetup::load()
 {
 	threeDMap.clear();
 	FILE *f = fopen(THREE_D_CONFIG_FILE, "r");
-	if (f) {
+	if (f)
+	{
 		char s[80];
-		while (fgets(s, sizeof(s), f)) {
+		while (fgets(s, sizeof(s), f))
+		{
 			t_channel_id chan;
 			long long unsigned int _chan;
 			int mode;
-			if (2 == sscanf(s, "%llx %d", &_chan, &mode)) {
+			if (2 == sscanf(s, "%llx %d", &_chan, &mode))
+			{
 				chan = _chan;
 				threeDMap[chan] = (CFrameBuffer::Mode3D) mode;
 			}
@@ -164,8 +175,10 @@ void C3DSetup::save()
 {
 	std::map<t_channel_id, CFrameBuffer::Mode3D>::iterator i;
 	FILE *f = fopen(THREE_D_CONFIG_FILE, "w");
-	if (f) {
-		for (i = threeDMap.begin(); i != threeDMap.end(); i++) {
+	if (f)
+	{
+		for (i = threeDMap.begin(); i != threeDMap.end(); i++)
+		{
 			fprintf(f, "%llx %d\n", (long long unsigned int) i->first, (int) i->second);
 		}
 		fflush(f);
@@ -176,7 +189,7 @@ void C3DSetup::save()
 
 int C3DSetup::show3DSetup()
 {
-	CMenuWidget* m = new CMenuWidget(LOCALE_THREE_D_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
+	CMenuWidget *m = new CMenuWidget(LOCALE_THREE_D_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 
 	CFrameBuffer::Mode3D mode3d = frameBuffer->get3DMode();
 
@@ -186,7 +199,8 @@ int C3DSetup::show3DSetup()
 
 	int shortcut = 1;
 
-	for (int i = 0; i < THREE_D_OPTIONS_COUNT; i++) {
+	for (int i = 0; i < THREE_D_OPTIONS_COUNT; i++)
+	{
 		tdl[i].cmf = new CMenuForwarder(THREE_D_OPTIONS[i].value, true, g_Locale->getText((mode3d == i) ? LOCALE_OPTIONS_ON : LOCALE_OPTIONS_OFF),
 			this, tdl[i].actionKey.c_str(), CRCInput::convertDigitToKey(shortcut++));
 		m->addItem(tdl[i].cmf, selected == i);
@@ -195,9 +209,9 @@ int C3DSetup::show3DSetup()
 	m->addItem(GenericMenuSeparatorLine);
 	m->addItem(new CMenuForwarder(LOCALE_THREE_D_SAVE, true, NULL, this, "save", CRCInput::RC_red));
 
-	int res = m->exec (NULL, "");
+	int res = m->exec(NULL, "");
 
-	m->hide ();
+	m->hide();
 	selected = m->getSelected();
 	delete m;
 	for (int i = 0; i < THREE_D_OPTIONS_COUNT; i++)

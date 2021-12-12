@@ -22,7 +22,8 @@
 #ifndef _FASTSCAN_H_
 #define _FASTSCAN_H_
 
-typedef enum fs_operator {
+typedef enum fs_operator
+{
 	OPERATOR_CD_SD,
 	OPERATOR_CD_HD,
 	OPERATOR_TVV_SD,
@@ -49,13 +50,15 @@ typedef enum fs_operator {
 
 #define FAST_TUNE_TPS		2
 
-typedef struct fast_scan_operator {
+typedef struct fast_scan_operator
+{
 	int id;
 	unsigned short pid;
-	char * name;
+	char *name;
 } fast_scan_operator_t;
 
-typedef struct fast_scan_type {
+typedef struct fast_scan_type
+{
 	fs_operator_t op;
 	int type;
 } fast_scan_type_t;

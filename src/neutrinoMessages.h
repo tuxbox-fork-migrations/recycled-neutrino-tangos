@@ -48,7 +48,8 @@ struct messages_return
 	};
 };
 
-struct NeutrinoMessages {
+struct NeutrinoMessages
+{
 	enum
 	{
 		SHOW_EPG		=	CRCInput::RC_Messages + 1,
@@ -104,11 +105,11 @@ struct NeutrinoMessages {
 		EVT_SCAN_FAILED                          = CRCInput::RC_Events + 29,
 		EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS = CRCInput::RC_Events + 30,
 
- 		EVT_SCAN_FOUND_RADIO_CHAN                = CRCInput::RC_Events + 32,
- 		EVT_SCAN_FOUND_DATA_CHAN                 = CRCInput::RC_Events + 33,
- 		EVT_SCAN_FOUND_TV_CHAN                   = CRCInput::RC_Events + 34,
- 		EVT_ZAP_MOTOR                            = CRCInput::RC_Events + 37,
- 		/* sectionsd */
+		EVT_SCAN_FOUND_RADIO_CHAN                = CRCInput::RC_Events + 32,
+		EVT_SCAN_FOUND_DATA_CHAN                 = CRCInput::RC_Events + 33,
+		EVT_SCAN_FOUND_TV_CHAN                   = CRCInput::RC_Events + 34,
+		EVT_ZAP_MOTOR                            = CRCInput::RC_Events + 37,
+		/* sectionsd */
 		EVT_SERVICES_UPD                         = CRCInput::RC_Events + 38,
 		EVT_SI_FINISHED                          = CRCInput::RC_Events + 39,
 
@@ -147,7 +148,7 @@ struct NeutrinoMessages {
 		EVT_NEXTPROGRAM                          = CRCInput::RC_WithData +  9, /* data: (t_channel_id *) */
 
 		/* zapit */
- 		EVT_SCAN_FOUND_A_CHAN                    = CRCInput::RC_WithData + 10,
+		EVT_SCAN_FOUND_A_CHAN                    = CRCInput::RC_WithData + 10,
 		EVT_SCAN_PROVIDER                        = CRCInput::RC_WithData + 11,
 		EVT_SCAN_SATELLITE                       = CRCInput::RC_WithData + 12,
 		EVT_SCAN_SERVICENAME                     = CRCInput::RC_WithData + 13,
@@ -172,7 +173,7 @@ struct NeutrinoMessages {
 		EVT_HOTPLUG                              = CRCInput::RC_WithData + 26, /* data: char */
 		EVT_FORMAT_DRIVE                         = CRCInput::RC_WithData + 27, /* data: char */
 		EVT_WEBTV_ZAP_COMPLETE                   = CRCInput::RC_WithData + 28,  /* data: (t_channel_id *) */
- 		EVT_SCAN_REPORT_FREQUENCYP               = CRCInput::RC_WithData + 29
+		EVT_SCAN_REPORT_FREQUENCYP               = CRCInput::RC_WithData + 29
 	};
 };
 

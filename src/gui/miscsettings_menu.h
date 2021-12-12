@@ -39,21 +39,21 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 {
 	private:
 		CFanControlNotifier *fanNotifier;
-		CCpuFreqNotifier * cpuNotifier;
-		CSectionsdConfigNotifier* sectionsdConfigNotifier;
+		CCpuFreqNotifier *cpuNotifier;
+		CSectionsdConfigNotifier *sectionsdConfigNotifier;
 		//COnOffNotifier* miscNotifier;
-		CMenuOptionChooser * epg_save;
-		CMenuOptionChooser * epg_save_standby;
-		CMenuOptionChooser * epg_save_frequently;
-		CMenuOptionChooser * epg_read;
-		CMenuOptionChooser * epg_read_frequently;
-		CMenuOptionChooser * epg_scan;
-		CMenuOptionChooser * weather_onoff;
-		CMenuOptionChooser * tmdb_onoff;
-		CMenuOptionChooser * omdb_onoff;
-		CMenuOptionChooser * shoutcast_onoff;
-		CMenuForwarder * epg_dir;
-		CMenuForwarder * epg_read_now;
+		CMenuOptionChooser *epg_save;
+		CMenuOptionChooser *epg_save_standby;
+		CMenuOptionChooser *epg_save_frequently;
+		CMenuOptionChooser *epg_read;
+		CMenuOptionChooser *epg_read_frequently;
+		CMenuOptionChooser *epg_scan;
+		CMenuOptionChooser *weather_onoff;
+		CMenuOptionChooser *tmdb_onoff;
+		CMenuOptionChooser *omdb_onoff;
+		CMenuOptionChooser *shoutcast_onoff;
+		CMenuForwarder *epg_dir;
+		CMenuForwarder *epg_read_now;
 		int width;
 		std::string epg_cache;
 		std::string epg_extendedcache;
@@ -79,7 +79,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 	public:
 		CMiscMenue();
 		~CMiscMenue();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 };
 

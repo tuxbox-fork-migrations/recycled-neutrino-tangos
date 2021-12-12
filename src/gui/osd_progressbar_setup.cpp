@@ -19,7 +19,7 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin Street, Fifth Floor, 
+	Foundation, Inc., 51 Franklin Street, Fifth Floor,
 	Boston, MA  02110-1301, USA.
 
 */
@@ -79,11 +79,12 @@ bool CProgressbarSetup::changeNotify(const neutrino_locale_t /* OptionName */, v
 	return true; // repaint
 }
 
-int CProgressbarSetup::exec(CMenuTarget* parent, const std::string &actionKey)
+int CProgressbarSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	printf("[neutrino] init progressbar menu setup...\n");
 
-	if (actionKey == "reset") {
+	if (actionKey == "reset")
+	{
 		g_settings.theme.progressbar_timescale_red = 0;
 		g_settings.theme.progressbar_timescale_green = 100;
 		g_settings.theme.progressbar_timescale_yellow = 70;
@@ -105,7 +106,7 @@ int CProgressbarSetup::showMenu()
 
 	// general progress bar design
 	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_LONG,
-			&g_settings.theme.progressbar_design, PROGRESSBAR_COLOR_OPTIONS + 1, PROGRESSBAR_COLOR_OPTION_COUNT - 1, true, this);
+		&g_settings.theme.progressbar_design, PROGRESSBAR_COLOR_OPTIONS + 1, PROGRESSBAR_COLOR_OPTION_COUNT - 1, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
 	m.addItem(mc);
 
@@ -149,7 +150,7 @@ int CProgressbarSetup::showMenu()
 	mb->getScale()->setType(CProgressBar::PB_TIMESCALE);
 	m.addItem(mb);
 
-	CMenuForwarder* mf = new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "reset", CRCInput::RC_red);
+	CMenuForwarder *mf = new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "reset", CRCInput::RC_red);
 	mf->setHint("", LOCALE_OPTIONS_HINT_DEFAULT);
 	m.addItem(mf);
 

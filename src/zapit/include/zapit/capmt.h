@@ -46,7 +46,7 @@ class CCam : public CBasicClient
 	private:
 		virtual unsigned char getVersion(void) const;
 		virtual const char *getSocketName(void) const;
-		int camask; 
+		int camask;
 		int *demuxes;
 		int source_demux;
 		uint8_t cabuf[2048];
@@ -64,11 +64,11 @@ class CCam : public CBasicClient
 		};
 		CCam();
 		virtual ~CCam();
-		bool sendMessage(const char * const data, const size_t length, bool update = false);
-		bool makeCaPmt(CZapitChannel * channel, bool add_private, uint8_t list = CAPMT_ONLY, const CaIdVector &caids = CaIdVector());
+		bool sendMessage(const char *const data, const size_t length, bool update = false);
+		bool makeCaPmt(CZapitChannel *channel, bool add_private, uint8_t list = CAPMT_ONLY, const CaIdVector &caids = CaIdVector());
 		bool setCaPmt(bool update = false);
 #if ! HAVE_CST_HARDWARE
-		bool sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type, unsigned char scrambled = 0, casys_map_t camap = std::set<int>(), int mode = 0 , bool enable = false);
+		bool sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type, unsigned char scrambled = 0, casys_map_t camap = std::set<int>(), int mode = 0, bool enable = false);
 #else
 		bool sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen, uint8_t type);
 #endif
@@ -79,13 +79,14 @@ class CCam : public CBasicClient
 		void setSource(int demux) { source_demux = demux; }
 };
 
-typedef std::map<t_channel_id, CCam*> cammap_t;
+typedef std::map<t_channel_id, CCam *> cammap_t;
 typedef cammap_t::iterator cammap_iterator_t;
 
 class CCamManager
 {
 	public:
-		enum runmode {
+		enum runmode
+		{
 			PLAY,
 			RECORD,
 			STREAM,
@@ -96,14 +97,14 @@ class CCamManager
 		OpenThreads::Mutex	mutex;
 		int			tunerno;
 		bool			filter_channels;
-		static CCamManager *	manager;
+		static CCamManager 	*manager;
 		bool SetMode(t_channel_id id, enum runmode mode, bool enable, bool force_update = false);
 		void StopCam(t_channel_id id, CCam *cam);
 
 	public:
 		CCamManager();
 		~CCamManager();
-		static CCamManager * getInstance(void);
+		static CCamManager *getInstance(void);
 		bool Start(t_channel_id id, enum runmode mode, bool force_update = false) { return SetMode(id, mode, true, force_update); };
 		bool Stop(t_channel_id id, enum runmode mode) { return SetMode(id, mode, false); };
 		void SetCITuner(int tuner);

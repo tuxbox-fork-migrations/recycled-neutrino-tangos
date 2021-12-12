@@ -81,11 +81,12 @@ CFbAccelSTi::CFbAccelSTi()
 	fb_name = "STx7xxx framebuffer";
 }
 
-void CFbAccelSTi::init(const char * const)
+void CFbAccelSTi::init(const char *const)
 {
 	blit_thread = false;
 	CFrameBuffer::init();
-	if (lfb == NULL) {
+	if (lfb == NULL)
+	{
 		printf(LOGTAG "CFrameBuffer::init() failed.\n");
 		return; /* too bad... */
 	}
@@ -94,14 +95,15 @@ void CFbAccelSTi::init(const char * const)
 	memset(lfb, 0, available);
 
 	lbb = lfb;	/* the memory area to draw to... */
-	if (available < 12*1024*1024)
+	if (available < 12 * 1024 * 1024)
 	{
 		/* for old installations that did not upgrade their module config
 		 * it will still work good enough to display the message below */
 		fprintf(stderr, "[neutrino] WARNING: not enough framebuffer memory available!\n");
 		fprintf(stderr, "[neutrino]          I need at least 12MB.\n");
 		FILE *f = fopen("/tmp/infobar.txt", "w");
-		if (f) {
+		if (f)
+		{
 			fprintf(f, "NOT ENOUGH FRAMEBUFFER MEMORY!");
 			fclose(f);
 		}
@@ -140,7 +142,7 @@ void CFbAccelSTi::init(const char * const)
 		return;
 	}
 
-	backbuffer = (fb_pixel_t *)mmap(0, bpa_data.mem_size, PROT_WRITE|PROT_READ, MAP_SHARED, bpafd, 0);
+	backbuffer = (fb_pixel_t *)mmap(0, bpa_data.mem_size, PROT_WRITE | PROT_READ, MAP_SHARED, bpafd, 0);
 	if (backbuffer == MAP_FAILED)
 	{
 		fprintf(stderr, "[neutrino] FB: cannot map from bpamem: %m\n");
@@ -190,24 +192,27 @@ void CFbAccelSTi::paintRect(const int x, const int y, const int dx, const int dy
 		return;
 
 	// The STM blitter introduces considerable overhead probably not worth for single lines. --martii
-	if (dx == 1) {
+	if (dx == 1)
+	{
 		waitForIdle();
 		fb_pixel_t *fbs = getFrameBufferPointer() + (DEFAULT_XRES * y) + x;
 		fb_pixel_t *fbe = fbs + DEFAULT_XRES * dy;
-		while (fbs < fbe) {
+		while (fbs < fbe)
+		{
 			*fbs = col;
 			fbs += DEFAULT_XRES;
 		}
-		mark(x , y, x + 1, y + dy);
+		mark(x, y, x + 1, y + dy);
 		return;
 	}
-	if (dy == 1) {
+	if (dy == 1)
+	{
 		waitForIdle();
 		fb_pixel_t *fbs = getFrameBufferPointer() + (DEFAULT_XRES * y) + x;
 		fb_pixel_t *fbe = fbs + dx;
 		while (fbs < fbe)
 			*fbs++ = col;
-		mark(x , y, x + dx, y + 1);
+		mark(x, y, x + dx, y + 1);
 		return;
 	}
 
@@ -217,7 +222,8 @@ void CFbAccelSTi::paintRect(const int x, const int y, const int dx, const int dy
 	int xx = x;
 	int yy = y;
 	/* maybe we should just return instead of fixing this up... */
-	if (x < 0) {
+	if (x < 0)
+	{
 		fprintf(stderr, "[neutrino] fb::%s: x < 0 (%d)\n", __func__, x);
 		width += x;
 		if (width <= 0)
@@ -225,7 +231,8 @@ void CFbAccelSTi::paintRect(const int x, const int y, const int dx, const int dy
 		xx = 0;
 	}
 
-	if (y < 0) {
+	if (y < 0)
+	{
 		fprintf(stderr, "[neutrino] fb::%s: y < 0 (%d)\n", __func__, y);
 		height += y;
 		if (height <= 0)
@@ -236,16 +243,20 @@ void CFbAccelSTi::paintRect(const int x, const int y, const int dx, const int dy
 	int right = xx + width;
 	int bottom = yy + height;
 
-	if (right > (int)xRes) {
-		if (xx >= (int)xRes) {
+	if (right > (int)xRes)
+	{
+		if (xx >= (int)xRes)
+		{
 			fprintf(stderr, "[neutrino] fb::%s: x >= xRes (%d > %d)\n", __func__, xx, xRes);
 			return;
 		}
 		fprintf(stderr, "[neutrino] fb::%s: x+w > xRes! (%d+%d > %d)\n", __func__, xx, width, xRes);
 		right = xRes;
 	}
-	if (bottom > (int)yRes) {
-		if (yy >= (int)yRes) {
+	if (bottom > (int)yRes)
+	{
+		if (yy >= (int)yRes)
+		{
 			fprintf(stderr, "[neutrino] fb::%s: y >= yRes (%d > %d)\n", __func__, yy, yRes);
 			return;
 		}
@@ -273,8 +284,8 @@ void CFbAccelSTi::paintRect(const int x, const int y, const int dx, const int dy
 
 	mark(xx, yy, bltData.dst_right, bltData.dst_bottom);
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	if (ioctl(fd, STMFBIO_BLT, &bltData ) < 0)
-		fprintf(stderr, "blitRect FBIO_BLIT: %m x:%d y:%d w:%d h:%d s:%d\n", xx,yy,width,height,stride);
+	if (ioctl(fd, STMFBIO_BLT, &bltData) < 0)
+		fprintf(stderr, "blitRect FBIO_BLIT: %m x:%d y:%d w:%d h:%d s:%d\n", xx, yy, width, height, stride);
 	blit();
 }
 
@@ -298,7 +309,7 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 		tmpbuff = fbbuff;
 	unsigned long ulFlags = 0;
 	if (!transp) /* transp == false (default): use transparency from source alphachannel */
-		ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA|BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
+		ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA | BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
 
 	STMFBIO_BLT_EXTERN_DATA blt_data;
 	memset(&blt_data, 0, sizeof(STMFBIO_BLT_EXTERN_DATA));
@@ -331,13 +342,14 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 	// icons are so small that they will still be in cache
 	msync(backbuffer, backbuf_sz, MS_SYNC);
 
-	if (ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0) {
+	if (ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
+	{
 		perror(LOGTAG "blit2FB STMFBIO_BLT_EXTERN");
 		fprintf(stderr, "fbbuff %p tmp %p back %p width %u height %u xoff %u yoff %u xp %u yp %u dw %d dh %d\n",
-				fbbuff, tmpbuff, backbuffer, width, height, xoff, yoff, xp, yp, dw, dh);
+			fbbuff, tmpbuff, backbuffer, width, height, xoff, yoff, xp, yp, dw, dh);
 		fprintf(stderr, "left: %d top: %d right: %d bottom: %d off: %ld pitch: %ld mem: %ld\n",
-				blt_data.src_left, blt_data.src_top, blt_data.src_right, blt_data.src_bottom,
-				blt_data.srcOffset, blt_data.srcPitch, blt_data.srcMemSize);
+			blt_data.src_left, blt_data.src_top, blt_data.src_right, blt_data.src_bottom,
+			blt_data.srcOffset, blt_data.srcPitch, blt_data.srcMemSize);
 	}
 	return;
 }
@@ -351,7 +363,8 @@ void CFbAccelSTi::run()
 	blit_pending = false;
 	blit_thread = true;
 	set_threadname("stifb::autoblit");
-	while (blit_thread) {
+	while (blit_thread)
+	{
 		blit_mutex.lock();
 		blit_cond.wait(&blit_mutex, blit_pending ? BLIT_INTERVAL_MIN : BLIT_INTERVAL_MAX);
 		blit_mutex.unlock();
@@ -382,9 +395,10 @@ void CFbAccelSTi::blit()
 	 * Safest would be "blit_mutex.timedlock(timeout)", but that does not
 	 * exist... */
 	int status = blit_mutex.trylock();
-	if (status) {
+	if (status)
+	{
 		printf(LOGTAG "::blit trylock failed: %d (%s)\n", status,
-				(status > 0) ? strerror(status) : strerror(errno));
+			(status > 0) ? strerror(status) : strerror(errno));
 		return;
 	}
 #else
@@ -449,8 +463,8 @@ void CFbAccelSTi::_blit()
 		bltData.src_bottom = yRes;
 	}
 
-	double xFactor = (double)s.xres/(double)xRes;
-	double yFactor = (double)s.yres/(double)yRes;
+	double xFactor = (double)s.xres / (double)xRes;
+	double yFactor = (double)s.yres / (double)yRes;
 
 	int desXa = xFactor * bltData.src_left;
 	int desYa = yFactor * bltData.src_top;
@@ -480,12 +494,12 @@ void CFbAccelSTi::_blit()
 		printf(LOGTAG "blit: values out of range desXb:%d desYb:%d\n",
 			bltData.dst_right, bltData.dst_bottom);
 
-	if(ioctl(fd, STMFBIO_SYNC_BLITTER) < 0)
+	if (ioctl(fd, STMFBIO_SYNC_BLITTER) < 0)
 		perror(LOGTAG "blit ioctl STMFBIO_SYNC_BLITTER 1");
 	msync(lbb, xRes * 4 * yRes, MS_SYNC);
-	if (ioctl(fd, STMFBIO_BLT, &bltData ) < 0)
+	if (ioctl(fd, STMFBIO_BLT, &bltData) < 0)
 		perror(LOGTAG "STMFBIO_BLT");
-	if(ioctl(fd, STMFBIO_SYNC_BLITTER) < 0)
+	if (ioctl(fd, STMFBIO_SYNC_BLITTER) < 0)
 		perror(LOGTAG "blit ioctl STMFBIO_SYNC_BLITTER 2");
 
 #ifdef PARTIAL_BLIT
@@ -503,13 +517,15 @@ void CFbAccelSTi::mark(int xs, int ys, int xe, int ye)
 		to_blit.xs = xs;
 	if (ys < to_blit.ys)
 		to_blit.ys = ys;
-	if (xe > to_blit.xe) {
+	if (xe > to_blit.xe)
+	{
 		if (xe >= (int)xRes)
 			to_blit.xe = xRes - 1;
 		else
 			to_blit.xe = xe;
 	}
-	if (ye > to_blit.ye) {
+	if (ye > to_blit.ye)
+	{
 		if (ye >= (int)xRes)
 			to_blit.ye = yRes - 1;
 		else
@@ -521,7 +537,8 @@ void CFbAccelSTi::mark(int xs, int ys, int xe, int ye)
 	fb_var_screeninfo s;
 	if (ioctl(fd, FBIOGET_VSCREENINFO, &s) == -1)
 		perror("CFbAccel <FBIOGET_VSCREENINFO>");
-	if ((xe > s.xres) || (ye > s.yres)) {
+	if ((xe > s.xres) || (ye > s.yres))
+	{
 		fprintf(stderr, LOGTAG "mark: values out of range xe:%d ye:%d\n", xe, ye);
 		int *kill = NULL;
 		*kill = 1; /* oh my */
@@ -589,8 +606,8 @@ void CFbAccelSTi::paintPixel(const int x, const int y, const fb_pixel_t col)
  * and everything else is identical to fb_generic code */
 void CFbAccelSTi::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 {
-	int dx = abs (xa - xb);
-	int dy = abs (ya - yb);
+	int dx = abs(xa - xb);
+	int dy = abs(ya - yb);
 	if (dy == 0) /* horizontal line */
 	{
 		/* paintRect actually is 1 pixel short to the right,
@@ -612,7 +629,7 @@ void CFbAccelSTi::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col
 	{
 		int p = 2 * dy - dx;
 		int twoDy = 2 * dy;
-		int twoDyDx = 2 * (dy-dx);
+		int twoDyDx = 2 * (dy - dx);
 
 		if (xa > xb)
 		{
@@ -648,7 +665,7 @@ void CFbAccelSTi::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col
 	{
 		int p = 2 * dx - dy;
 		int twoDx = 2 * dx;
-		int twoDxDy = 2 * (dx-dy);
+		int twoDxDy = 2 * (dx - dy);
 
 		if (ya > yb)
 		{

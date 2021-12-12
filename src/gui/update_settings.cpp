@@ -77,7 +77,7 @@ const CMenuOptionChooser::keyval SOFTUPDATE_NAME_MODE2_OPTIONS[SOFTUPDATE_NAME_M
 };
 #endif
 
-int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
+int CUpdateSettings::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init software-update settings\n");
 	int   res = menu_return::RETURN_REPAINT;
@@ -85,15 +85,17 @@ int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 	if (parent)
 		parent->hide();
 
-	if(actionKey == "update_dir") {
+	if (actionKey == "update_dir")
+	{
 		const char *action_str = "update";
-		if(chooserDir(g_settings.update_dir, true, action_str, true))
+		if (chooserDir(g_settings.update_dir, true, action_str, true))
 			printf("[neutrino] new %s dir %s\n", action_str, g_settings.update_dir.c_str());
 
 		return res;
 	}
 #ifndef USE_SMS_INPUT
-	else if(actionKey == "select_url_config_file"){
+	else if (actionKey == "select_url_config_file")
+	{
 		CFileBrowser 	fileBrowser;
 		CFileFilter 	fileFilter;
 
@@ -114,14 +116,14 @@ int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 /* init options for software update */
 int CUpdateSettings::initMenu()
 {
-	COnOffNotifier* OnOffNotifier = new COnOffNotifier(0);
+	COnOffNotifier *OnOffNotifier = new COnOffNotifier(0);
 
 	CMenuWidget w_upsettings(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE_SETTINGS);
 	w_upsettings.addIntroItems(LOCALE_FLASHUPDATE_SETTINGS);
 
-	CMenuForwarder * fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, true, g_settings.softupdate_url_file, this, "select_url_config_file", CRCInput::RC_green);
+	CMenuForwarder *fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, true, g_settings.softupdate_url_file, this, "select_url_config_file", CRCInput::RC_green);
 //	fw_url->setHint("", LOCALE_MENU_HINT_XXX);
-	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir , this, "update_dir", CRCInput::RC_red);
+	CMenuForwarder *fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir, this, "update_dir", CRCInput::RC_red);
 //	fw_update_dir->setHint("", LOCALE_MENU_HINT_XXX);
 #if ENABLE_EXTUPDATE
 	CMenuOptionChooser *name_backup = new CMenuOptionChooser(LOCALE_FLASHUPDATE_NAMEMODE2, &g_settings.softupdate_name_mode_backup, SOFTUPDATE_NAME_MODE2_OPTIONS, SOFTUPDATE_NAME_MODE2_OPTION_COUNT, true);
@@ -162,7 +164,7 @@ int CUpdateSettings::initMenu()
 	w_upsettings.addItem(apply_kernel);
 #endif
 
-	int res = w_upsettings.exec (NULL, "");
+	int res = w_upsettings.exec(NULL, "");
 	delete OnOffNotifier;
 
 	return res;

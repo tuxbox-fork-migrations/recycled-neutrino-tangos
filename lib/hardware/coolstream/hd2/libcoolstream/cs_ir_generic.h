@@ -15,7 +15,8 @@
 #define CS_IR_MAX_KEY_MAP_SIZE	0x10000
 
 /* Possible handled IR protocols */
-typedef enum {
+typedef enum
+{
 	IR_PROTOCOL_UNKNOWN	= 0x00000,
 	IR_PROTOCOL_RMAP	= 0x00001,   /* Ruwido rMAP */
 	IR_PROTOCOL_RMAP_E	= 0x00002,   /* Ruwido rMAP with extension for MNC Ltd sp. z o.o. */
@@ -39,7 +40,8 @@ typedef enum {
 } ir_protocol_t;
 
 /* FP key mode */
-typedef enum {
+typedef enum
+{
 	FP_MODE_KEYS_DISABLED	= 0,
 	FP_MODE_KEYS_ENABLED 	= 1
 } fp_mode_t;

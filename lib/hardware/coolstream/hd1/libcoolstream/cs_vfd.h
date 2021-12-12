@@ -1,15 +1,16 @@
 /*
  *  Driver for the Samsung HCR-13SS22 VF-Display connected to the Conexant
  *  CX2450x (Nevis) SoC via Coolstream VFD-Controller - public definititons.
- *	
+ *
  *  Copyright (C) 2008 Coolstream International Limited
  */
 
 #ifndef __CS_VFD__
 #define __CS_VFD__
 
-typedef enum {
-	/* for all frontpanels with VFD or OLED */ 
+typedef enum
+{
+	/* for all frontpanels with VFD or OLED */
 	VFD_ICON_NONE		= 0x00000000,
 	VFD_ICON_BAR8		= 0x00000004,
 	VFD_ICON_BAR7		= 0x00000008,
@@ -53,17 +54,18 @@ typedef enum {
 
 typedef enum
 {
-    VFD_FLAG_NONE		= 0x00,
-    VFD_FLAG_SCROLL_ON		= 0x01,	/* switch scrolling on */
-    VFD_FLAG_SCROLL_LTR		= 0x02,	/* scroll from left to right instead of default right to left direction (i.e. for arabic text) */
-    VFD_FLAG_SCROLL_SIO		= 0x04,	/* start/stop scrolling with empty screen (scroll in/out) */
-    VFD_FLAG_SCROLL_DELAY	= 0x08,	/* delayed scroll start */
-    VFD_FLAG_ALIGN_LEFT		= 0x10,	/* align the text in display from the left (default) */
-    VFD_FLAG_ALIGN_RIGHT	= 0x20,	/* align the text in display from the right (arabic) */
-    VFD_FLAG_UPDATE_SCROLL_POS	= 0x40	/* update the current position for scrolling */
+	VFD_FLAG_NONE		= 0x00,
+	VFD_FLAG_SCROLL_ON		= 0x01,	/* switch scrolling on */
+	VFD_FLAG_SCROLL_LTR		= 0x02,	/* scroll from left to right instead of default right to left direction (i.e. for arabic text) */
+	VFD_FLAG_SCROLL_SIO		= 0x04,	/* start/stop scrolling with empty screen (scroll in/out) */
+	VFD_FLAG_SCROLL_DELAY	= 0x08,	/* delayed scroll start */
+	VFD_FLAG_ALIGN_LEFT		= 0x10,	/* align the text in display from the left (default) */
+	VFD_FLAG_ALIGN_RIGHT	= 0x20,	/* align the text in display from the right (arabic) */
+	VFD_FLAG_UPDATE_SCROLL_POS	= 0x40	/* update the current position for scrolling */
 } vfd_flag;
 
-typedef struct {
+typedef struct
+{
 	unsigned char		brightness;
 	unsigned char		flags;
 	unsigned char		current_hour;
@@ -72,7 +74,8 @@ typedef struct {
 	unsigned char		timer_minutes_lo;
 } standby_data_t;
 
-typedef enum {
+typedef enum
+{
 	VFD_LED_1_ON		= 0x81,
 	VFD_LED_2_ON		= 0x82,
 	VFD_LED_3_ON		= 0x83,
@@ -81,13 +84,15 @@ typedef enum {
 	VFD_LED_3_OFF		= 0x03
 } vfd_led_ctrl_t;
 
-typedef struct {
+typedef struct
+{
 	unsigned char		source;
 	unsigned char		time_minutes_hi;
 	unsigned char		time_minutes_lo;
 } wakeup_data_t;
 
-typedef enum {
+typedef enum
+{
 	WAKEUP_SOURCE_TIMER	= 0x01,
 	WAKEUP_SOURCE_BUTTON	= 0x02,
 	WAKEUP_SOURCE_REMOTE	= 0x04,
@@ -95,7 +100,8 @@ typedef enum {
 	WAKEUP_SOURCE_POWER	= 0xFF
 } wakeup_source;
 
-typedef struct {
+typedef struct
+{
 	unsigned short		addr;
 	unsigned short		cmd;
 } standbycmd_data_t;

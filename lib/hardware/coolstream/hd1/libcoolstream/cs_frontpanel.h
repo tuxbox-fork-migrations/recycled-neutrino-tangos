@@ -10,7 +10,8 @@
 #define CS_FP_DISPLAY_DEVICE_NAME	"cs_display"
 #define CS_FP_DISPLAY_DEVICE_MAJOR	238
 
-typedef enum {
+typedef enum
+{
 	/* for all frontpanels with */
 	FP_ICON_NONE		= 0x00000000,
 	FP_ICON_BAR8		= 0x00000004,
@@ -53,7 +54,8 @@ typedef enum {
 	FP_ICON_DTS		= 0x08000002
 } fp_icon;
 
-typedef enum {
+typedef enum
+{
 	FP_FLAG_NONE			= 0x00,
 	FP_FLAG_SCROLL_ON		= 0x01,	/* switch scrolling on */
 	FP_FLAG_SCROLL_LTR		= 0x02,	/* scroll from left to right instead of default right to left direction (i.e. for arabic text) */
@@ -64,7 +66,8 @@ typedef enum {
 	FP_FLAG_UPDATE_SCROLL_POS	= 0x40	/* update the current position for scrolling */
 } fp_flag;
 
-typedef struct {
+typedef struct
+{
 	unsigned char		brightness;
 	unsigned char		flags;
 	unsigned char		current_hour;
@@ -73,7 +76,8 @@ typedef struct {
 	unsigned char		timer_minutes_lo;
 } fp_standby_data_t;
 
-typedef enum {
+typedef enum
+{
 	FP_LED_1_ON		= 0x81,
 	FP_LED_2_ON		= 0x82,
 	FP_LED_3_ON		= 0x83,
@@ -82,13 +86,15 @@ typedef enum {
 	FP_LED_3_OFF		= 0x03
 } fp_led_ctrl_t;
 
-typedef struct {
+typedef struct
+{
 	unsigned char		source;
 	unsigned char		time_minutes_hi;
 	unsigned char		time_minutes_lo;
 } fp_wakeup_data_t;
 
-typedef enum {
+typedef enum
+{
 	FP_WAKEUP_SOURCE_TIMER	= 0x01,
 	FP_WAKEUP_SOURCE_BUTTON	= 0x02,
 	FP_WAKEUP_SOURCE_REMOTE	= 0x04,
@@ -96,7 +102,8 @@ typedef enum {
 	FP_WAKEUP_SOURCE_POWER	= 0xFF
 } fp_wakeup_source;
 
-typedef struct {
+typedef struct
+{
 	unsigned short		addr;
 	unsigned short		cmd;
 } fp_standby_cmd_data_t;

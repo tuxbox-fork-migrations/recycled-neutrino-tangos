@@ -93,15 +93,18 @@
 /* These can go once we've made sure we've caught all uses without
    byteswapping */
 
-typedef struct {
+typedef struct
+{
 	uint32_t v32;
 } __attribute__((packed))  jint32_t;
 
-typedef struct {
+typedef struct
+{
 	uint32_t m;
 } __attribute__((packed))  jmode_t;
 
-typedef struct {
+typedef struct
+{
 	uint16_t v16;
 } __attribute__((packed)) jint16_t;
 
@@ -164,7 +167,8 @@ struct jffs2_raw_inode
 	uint8_t data[0];
 } __attribute__((packed));
 
-struct jffs2_raw_xattr {
+struct jffs2_raw_xattr
+{
 	jint16_t magic;
 	jint16_t nodetype;	/* = JFFS2_NODETYPE_XATTR */
 	jint32_t totlen;

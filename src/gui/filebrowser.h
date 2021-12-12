@@ -62,81 +62,81 @@ class CFrameBuffer;
  */
 class SMSKeyInput
 {
-	// time since last input
-	timeval m_oldKeyTime;
+		// time since last input
+		timeval m_oldKeyTime;
 
-	// last key input
-	unsigned char m_oldKey;
+		// last key input
+		unsigned char m_oldKey;
 
-	// keypresses within this period are taken as a sequence
-	int m_timeout;
-public:
-	SMSKeyInput();
+		// keypresses within this period are taken as a sequence
+		int m_timeout;
+	public:
+		SMSKeyInput();
 
-	/**
-	 * Returns the SMS char calculated with respect to the new input.
-	 * @param msg the current RC input
-	 * @return the calculated SMS char
-	 */
-	unsigned char handleMsg(const neutrino_msg_t msg);
+		/**
+		 * Returns the SMS char calculated with respect to the new input.
+		 * @param msg the current RC input
+		 * @return the calculated SMS char
+		 */
+		unsigned char handleMsg(const neutrino_msg_t msg);
 
-	/**
-	 * Resets the key history which is needed for proper calculation
-	 * of the SMS char by #handleMsg(neutrino_msg_t)
-	 */
-	void resetOldKey();
+		/**
+		 * Resets the key history which is needed for proper calculation
+		 * of the SMS char by #handleMsg(neutrino_msg_t)
+		 */
+		void resetOldKey();
 
-	/**
-	 * @return the last key calculated by #handleMsg(neutrino_msg_t)
-	 */
-	unsigned char getOldKey() const;
-#if 0	
-	/**
-	 * Returns time of last key push.
-	 * resolution: usecs
-	 */
-	const timeval* getOldKeyTime() const;
+		/**
+		 * @return the last key calculated by #handleMsg(neutrino_msg_t)
+		 */
+		unsigned char getOldKey() const;
+#if 0
+		/**
+		 * Returns time of last key push.
+		 * resolution: usecs
+		 */
+		const timeval *getOldKeyTime() const;
 
-	/**
-	 * Returns time of last key push.
-	 * resolution: seconds
-	 */
-	time_t getOldKeyTimeSec() const;
+		/**
+		 * Returns time of last key push.
+		 * resolution: seconds
+		 */
+		time_t getOldKeyTimeSec() const;
 
-	int getTimeout() const;
+		int getTimeout() const;
 #endif
-	/**
-	 * Sets the timeout.
-	 * @param timeout keypresses within this period are taken as a
-	 * sequence. unit: msecs
-	 */
-	void setTimeout(int timeout);
+		/**
+		 * Sets the timeout.
+		 * @param timeout keypresses within this period are taken as a
+		 * sequence. unit: msecs
+		 */
+		void setTimeout(int timeout);
 };
 //------------------------------------------------------------------------
 
 
 class CFileFilter
 {
-	std::vector<std::string> Filter;
-public:
-	void addFilter(const std::string & filter){Filter.push_back(filter);};
-	bool matchFilter(const std::string & name)
-	{
-		int ext_pos = 0;
-		ext_pos = name.rfind('.');
-		if( ext_pos > 0)
+		std::vector<std::string> Filter;
+	public:
+		void addFilter(const std::string &filter) {Filter.push_back(filter);};
+		bool matchFilter(const std::string &name)
 		{
-			std::string extension;
-			extension = name.substr(ext_pos + 1, name.length() - ext_pos);
-			for(unsigned int i = 0; i < Filter.size();i++)
-				if(strcasecmp(Filter[i].c_str(),extension.c_str()) == 0)
-					return true;
-		}
-		return false;
-	};
-	void Clear(void) { Filter.clear();};
-	size_t size(void) { return Filter.size();};
-	std::string getFilter(int i) { return Filter.at(i);};
+			int ext_pos = 0;
+			ext_pos = name.rfind('.');
+			if (ext_pos > 0)
+			{
+				std::string extension;
+				extension = name.substr(ext_pos + 1, name.length() - ext_pos);
+				for (unsigned int i = 0; i < Filter.size(); i++)
+					if (strcasecmp(Filter[i].c_str(), extension.c_str()) == 0)
+						return true;
+			}
+			return false;
+		};
+		void Clear(void) { Filter.clear();};
+		size_t size(void) { return Filter.size();};
+		std::string getFilter(int i) { return Filter.at(i);};
 };
 //------------------------------------------------------------------------
 
@@ -151,12 +151,12 @@ class CFileBrowser
 		Font *fnt_foot;
 
 		CFileList		selected_filelist;
-		bool			readDir(const std::string & dirname, CFileList* flist);
-		bool			readDir_std(const std::string & dirname, CFileList* flist);
+		bool			readDir(const std::string &dirname, CFileList *flist);
+		bool			readDir_std(const std::string &dirname, CFileList *flist);
 #ifdef ENABLE_INTERNETRADIO
-		bool			readDir_sc(const std::string & dirname, CFileList* flist);
+		bool			readDir_sc(const std::string &dirname, CFileList *flist);
 #endif
-		void			addRecursiveDir(CFileList * re_filelist, std::string path, bool bRootCall, CProgressWindow * progress = NULL);
+		void			addRecursiveDir(CFileList *re_filelist, std::string path, bool bRootCall, CProgressWindow *progress = NULL);
 		void SMSInput(const neutrino_msg_t msg);
 
 		unsigned int		selected;
@@ -186,7 +186,7 @@ class CFileBrowser
 		void paintHead();
 		int  paintFoot(bool show = true);
 		void paintSMSKey();
-		void recursiveDelete(const char* file);
+		void recursiveDelete(const char *file);
 		bool playlistmode;
 
 	protected:
@@ -196,7 +196,8 @@ class CFileBrowser
 	public:
 		CFileList		filelist;
 
-		typedef enum {
+		typedef enum
+		{
 			ModeFile,
 			ModeSC
 		} tFileBrowserMode;
@@ -206,7 +207,7 @@ class CFileBrowser
 		/**
 		 * @param selection select the specified entry, ignored if selection == -1
 		 */
-		void ChangeDir(const std::string & filename, int selection = -1);
+		void ChangeDir(const std::string &filename, int selection = -1);
 		void hide();
 
 		std::string		Path;
@@ -214,25 +215,25 @@ class CFileBrowser
 		bool			Dirs_Selectable;
 		bool			Dir_Mode;
 		bool                    Hide_records;
-		CFileFilter *	Filter;
+		CFileFilter 	*Filter;
 
 		CFileBrowser();
-		CFileBrowser(const char * const _base, const tFileBrowserMode mode = ModeFile);
+		CFileBrowser(const char *const _base, const tFileBrowserMode mode = ModeFile);
 		~CFileBrowser();
 
-		bool		exec(const char * const dirname);
-		bool		playlist_manager(CFileList &playlist,unsigned int playing);
+		bool		exec(const char *const dirname);
+		bool		playlist_manager(CFileList &playlist, unsigned int playing);
 		CFile		*getSelectedFile();
-		
-		inline const CFileList & getSelectedFiles(void) const
-			{
-				return selected_filelist;
-			}
 
-		inline const std::string & getCurrentDir(void) const
-			{
-				return Path;
-			}
+		inline const CFileList &getSelectedFiles(void) const
+		{
+			return selected_filelist;
+		}
+
+		inline const std::string &getCurrentDir(void) const
+		{
+			return Path;
+		}
 		int  getMenuRet() { return menu_ret; }
 		static bool checkBD(CFile &file);
 

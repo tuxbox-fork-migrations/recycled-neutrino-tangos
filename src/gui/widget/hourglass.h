@@ -78,17 +78,17 @@ class CHourGlass : public CComponentsShapeSquare
 
 		 * 	@see	class CComponentsShapeSquare()
 		 */
-		CHourGlass(	const int x_pos,
-				const int y_pos,
-				const int w = 48,
-				const int h = 48,
-				const std::string &image_basename = "hourglass",
-				const int64_t &interval = HG_AUTO_PAINT_INTERVAL,
-				CComponentsForm *parent = NULL,
-				int shadow_mode = CC_SHADOW_OFF,
-				fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-				fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-				fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		CHourGlass(const int x_pos,
+			const int y_pos,
+			const int w = 48,
+			const int h = 48,
+			const std::string &image_basename = "hourglass",
+			const int64_t &interval = HG_AUTO_PAINT_INTERVAL,
+			CComponentsForm *parent = NULL,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		virtual ~CHourGlass();
 
@@ -118,20 +118,20 @@ class CHourGlassProc : public CHourGlass
 		 *
 		 * 	@see	class CComponentsShapeSquare(), CHourGlass()
 		 */
-		CHourGlassProc(	const int x_pos,
-				const int y_pos,
-				const sigc::slot<void> &Slot,
-				const int w = 48,
-				const int h = 48,
-				const std::string &image_basename = "hourglass",
-				const int64_t &interval = HG_AUTO_PAINT_INTERVAL,
-				CComponentsForm *parent = NULL,
-				int shadow_mode = CC_SHADOW_OFF,
-				fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-				fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
-				fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		CHourGlassProc(const int x_pos,
+			const int y_pos,
+			const sigc::slot<void> &Slot,
+			const int w = 48,
+			const int h = 48,
+			const std::string &image_basename = "hourglass",
+			const int64_t &interval = HG_AUTO_PAINT_INTERVAL,
+			CComponentsForm *parent = NULL,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
-		virtual ~CHourGlassProc(){};
+		virtual ~CHourGlassProc() {};
 
 		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 

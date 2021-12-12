@@ -33,29 +33,29 @@ class CComponentsIconForm : public CComponentsFrmChain
 
 	protected:
 		void initMaxHeight(int *pheight);
-		void initVarIconForm(	const int &x_pos,
-					const int &y_pos,
-					const int &w,
-					const int &h,
-					const std::vector<std::string> &v_icon_names,
-					CComponentsForm *parent,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		void initVarIconForm(const int &x_pos,
+			const int &y_pos,
+			const int &w,
+			const int &h,
+			const std::vector<std::string> &v_icon_names,
+			CComponentsForm *parent,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 	public:
 		CComponentsIconForm(CComponentsForm *parent = NULL);
-		CComponentsIconForm(	const int &x_pos,
-					const int &y_pos,
-					const int &w,
-					const int &h,
-					const std::vector<std::string> &v_icon_names  = std::vector<std::string>(),
-					CComponentsForm *parent = NULL,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		CComponentsIconForm(const int &x_pos,
+			const int &y_pos,
+			const int &w,
+			const int &h,
+			const std::vector<std::string> &v_icon_names  = std::vector<std::string>(),
+			CComponentsForm *parent = NULL,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		virtual ~CComponentsIconForm() {};
 

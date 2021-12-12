@@ -30,10 +30,10 @@ COsdHelpers::~COsdHelpers()
 {
 }
 
-COsdHelpers* COsdHelpers::getInstance()
+COsdHelpers *COsdHelpers::getInstance()
 {
-	static COsdHelpers* osdh = NULL;
-	if(!osdh)
+	static COsdHelpers *osdh = NULL;
+	if (!osdh)
 		osdh = new COsdHelpers();
 
 	return osdh;
@@ -49,21 +49,23 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 
-	if (automode) {
+	if (automode)
+	{
 		if (g_settings.video_Mode == VIDEO_STD_AUTO)
 			modeNew = OSDMODE_1080;
 		else
 			modeNew = g_settings_osd_resolution_save;
 	}
-	else {
+	else
+	{
 		modeNew = mode;
 	}
 
 	int videoSystem = getVideoSystem();
 
 	if ((g_settings.video_Mode == VIDEO_STD_AUTO) &&
-	    (g_settings.enabled_auto_modes[videoSystem] == 1) &&
-	    (!isVideoSystem1080(videoSystem)))
+		(g_settings.enabled_auto_modes[videoSystem] == 1) &&
+		(!isVideoSystem1080(videoSystem)))
 		modeNew = OSDMODE_720;
 
 //	if (!isVideoSystem1080(videoSystem))
@@ -73,35 +75,39 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 	resetOsd = (modeNew != getOsdResolution()) ? true : false;
 #if 1
 	printf(">>>>>[%s:%d] osd mode: %s => %s, automode: %s, forceOsdReset: %s\n", __func__, __LINE__,
-		(g_settings.osd_resolution == OSDMODE_720)?"OSDMODE_720":"OSDMODE_1080",
-		(modeNew == OSDMODE_720)?"OSDMODE_720":"OSDMODE_1080",
-		(automode)?"true":"false",
-		(forceOsdReset)?"true":"false");
+		(g_settings.osd_resolution == OSDMODE_720) ? "OSDMODE_720" : "OSDMODE_1080",
+		(modeNew == OSDMODE_720) ? "OSDMODE_720" : "OSDMODE_1080",
+		(automode) ? "true" : "false",
+		(forceOsdReset) ? "true" : "false");
 #endif
 	if (forceOsdReset)
 		resetOsd = true;
 
-	if (frameBuffer->fullHdAvailable()) {
+	if (frameBuffer->fullHdAvailable())
+	{
 		if (frameBuffer->osd_resolutions.empty())
 			return;
 
 		bool ivVisible = false;
-		if (g_InfoViewer && g_InfoViewer->is_visible) {
+		if (g_InfoViewer && g_InfoViewer->is_visible)
+		{
 			g_InfoViewer->killTitle();
 			ivVisible = true;
 		}
 
 		int switchFB = frameBuffer->setMode(frameBuffer->osd_resolutions[idx].xRes,
-						    frameBuffer->osd_resolutions[idx].yRes,
-						    frameBuffer->osd_resolutions[idx].bpp);
+				frameBuffer->osd_resolutions[idx].yRes,
+				frameBuffer->osd_resolutions[idx].bpp);
 
-		if (switchFB == 0) {
+		if (switchFB == 0)
+		{
 //printf("\n>>>>>[%s:%d] New res: %dx%dx%d\n \n", __func__, __LINE__, resW, resH, bpp);
 			g_settings.osd_resolution = modeNew;
 			if (InfoClock)
 				InfoClock->StopInfoClock(true);
 			frameBuffer->Clear();
-			if (resetOsd) {
+			if (resetOsd)
+			{
 				CNeutrinoApp::getInstance()->setScreenSettings();
 				CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT);
 				CVolumeHelper::getInstance()->refresh();
@@ -115,11 +121,13 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 			if (InfoClock)
 				InfoClock->enableInfoClock();
 		}
-		if (g_InfoViewer) {
+		if (g_InfoViewer)
+		{
 			g_InfoViewer->ResetModules();
 			g_InfoViewer->start();
 		}
-		if (ivVisible) {
+		if (ivVisible)
+		{
 			CNeutrinoApp::getInstance()->StopSubtitles();
 #if ENABLE_TANGOS
 			g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannel(), true, 0);
@@ -128,7 +136,8 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 #endif
 			CNeutrinoApp::getInstance()->StartSubtitles();
 		}
-		if (g_RadiotextWin) {
+		if (g_RadiotextWin)
+		{
 			delete g_RadiotextWin;
 			g_RadiotextWin = new CRadioTextGUI();
 			g_RadiotextWin->allowPaint(false);
@@ -145,27 +154,27 @@ void COsdHelpers::changeOsdResolution(uint32_t, bool, bool)
 int COsdHelpers::isVideoSystem1080(int res)
 {
 	if ((res == VIDEO_STD_1080I60) ||
-	    (res == VIDEO_STD_1080I50) ||
-	    (res == VIDEO_STD_1080P30) ||
-	    (res == VIDEO_STD_1080P24) ||
-	    (res == VIDEO_STD_1080P25))
+		(res == VIDEO_STD_1080I50) ||
+		(res == VIDEO_STD_1080P30) ||
+		(res == VIDEO_STD_1080P24) ||
+		(res == VIDEO_STD_1080P25))
 		return true;
 
 #ifdef BOXMODEL_CST_HD2
 	if ((res == VIDEO_STD_1080P50) ||
-	    (res == VIDEO_STD_1080P60) ||
-	    (res == VIDEO_STD_1080P2397) ||
-	    (res == VIDEO_STD_1080P2997))
+		(res == VIDEO_STD_1080P60) ||
+		(res == VIDEO_STD_1080P2397) ||
+		(res == VIDEO_STD_1080P2997))
 		return true;
 #endif
 
 #if HAVE_ARM_HARDWARE
 	if ((res == VIDEO_STD_1080P50) ||
-	    (res == VIDEO_STD_1080P60) ||
-	    (res == VIDEO_STD_2160P24) ||
-	    (res == VIDEO_STD_2160P25) ||
-	    (res == VIDEO_STD_2160P30) ||
-	    (res == VIDEO_STD_2160P50))
+		(res == VIDEO_STD_1080P60) ||
+		(res == VIDEO_STD_2160P24) ||
+		(res == VIDEO_STD_2160P25) ||
+		(res == VIDEO_STD_2160P30) ||
+		(res == VIDEO_STD_2160P50))
 		return true;
 #endif
 
@@ -190,7 +199,8 @@ uint32_t COsdHelpers::getOsdResolution()
 		return 0;
 
 	uint32_t yRes = frameBuffer->getScreenHeight(true);
-	for (size_t i = 0; i < frameBuffer->osd_resolutions.size(); i++) {
+	for (size_t i = 0; i < frameBuffer->osd_resolutions.size(); i++)
+	{
 		if (frameBuffer->osd_resolutions[i].yRes == yRes)
 			return frameBuffer->osd_resolutions[i].mode;
 	}
@@ -215,11 +225,11 @@ int COsdHelpers::setVideoSystem(int newSystem, bool remember/* = true*/)
 	ioctl(fd, FBIOGET_VSCREENINFO, &var);
 	ioctl(fd, FBIOGET_FSCREENINFO, &fix);
 	printf(">>>>>[%s - %s:%d] before SetVideoSystem:\n"
-				"                var.xres        : %4d, var.yres    : %4d, var.yres_virtual: %4d\n"
-				"                fix.line_length : %4d, fix.smem_len: %d Byte\n",
-				__path_file__, __func__, __LINE__,
-				var.xres, var.yres, var.yres_virtual,
-				fix.line_length, fix.smem_len);
+		"                var.xres        : %4d, var.yres    : %4d, var.yres_virtual: %4d\n"
+		"                fix.line_length : %4d, fix.smem_len: %d Byte\n",
+		__path_file__, __func__, __LINE__,
+		var.xres, var.yres, var.yres_virtual,
+		fix.line_length, fix.smem_len);
 #endif
 
 	int ret = videoDecoder->SetVideoSystem(newSystem, remember);
@@ -228,11 +238,11 @@ int COsdHelpers::setVideoSystem(int newSystem, bool remember/* = true*/)
 	ioctl(fd, FBIOGET_VSCREENINFO, &var);
 	ioctl(fd, FBIOGET_FSCREENINFO, &fix);
 	printf(">>>>>[%s - %s:%d] after SetVideoSystem:\n"
-				"                var.xres        : %4d, var.yres    : %4d, var.yres_virtual: %4d\n"
-				"                fix.line_length : %4d, fix.smem_len: %d Byte\n",
-				__path_file__, __func__, __LINE__,
-				var.xres, var.yres, var.yres_virtual,
-				fix.line_length, fix.smem_len);
+		"                var.xres        : %4d, var.yres    : %4d, var.yres_virtual: %4d\n"
+		"                fix.line_length : %4d, fix.smem_len: %d Byte\n",
+		__path_file__, __func__, __LINE__,
+		var.xres, var.yres, var.yres_virtual,
+		fix.line_length, fix.smem_len);
 #endif
 
 	return ret;

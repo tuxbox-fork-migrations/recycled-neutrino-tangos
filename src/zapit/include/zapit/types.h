@@ -57,7 +57,8 @@ extern "C" {
 
 static inline t_channel_id create_channel_id(t_service_id service_id, t_original_network_id original_network_id, t_transport_stream_id transport_stream_id, const char *url = NULL)
 {
-	if (url) {
+	if (url)
+	{
 		t_channel_id cid;
 		unsigned char md5[16];
 		md5_buffer(url, strlen(url), md5);
@@ -68,15 +69,17 @@ static inline t_channel_id create_channel_id(t_service_id service_id, t_original
 }
 #define CREATE_CHANNEL_ID create_channel_id
 
-static inline t_channel_id create_channel_id64(t_service_id service_id, t_original_network_id original_network_id, t_transport_stream_id transport_stream_id, t_satellite_position satellitePosition, freq_id_t freq, const char *url = NULL) {
-	if (url) {
+static inline t_channel_id create_channel_id64(t_service_id service_id, t_original_network_id original_network_id, t_transport_stream_id transport_stream_id, t_satellite_position satellitePosition, freq_id_t freq, const char *url = NULL)
+{
+	if (url)
+	{
 		t_channel_id cid;
 		unsigned char md5[16];
 		md5_buffer(url, strlen(url), md5);
 		memcpy(&cid, md5, sizeof(cid));
 		return cid | 0xFFFFFFFF00000000;
 	}
-	return ((uint64_t)(satellitePosition+freq*4) << 48) | ((uint64_t) transport_stream_id << 32) | ((uint64_t)original_network_id << 16) | (uint64_t)service_id;
+	return ((uint64_t)(satellitePosition + freq * 4) << 48) | ((uint64_t) transport_stream_id << 32) | ((uint64_t)original_network_id << 16) | (uint64_t)service_id;
 }
 #define CREATE_CHANNEL_ID64 create_channel_id64(service_id, original_network_id, transport_stream_id, satellitePosition, freq)
 
@@ -100,10 +103,10 @@ static inline bool IS_WEBCHAN(t_channel_id cid)
 typedef uint64_t transponder_id_t;
 #if 0
 #define CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition,original_network_id,transport_stream_id) \
- ( ((uint64_t)freq << 48) |  ((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 32) | ((uint64_t)transport_stream_id << 16) | (uint64_t)original_network_id)
+	( ((uint64_t)freq << 48) |  ((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 32) | ((uint64_t)transport_stream_id << 16) | (uint64_t)original_network_id)
 #endif
 #define CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id) \
- ( ((uint64_t)freq << 48) |  ((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 32) | ((uint64_t)transport_stream_id << 16) | (uint64_t)original_network_id)
+	( ((uint64_t)freq << 48) |  ((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 32) | ((uint64_t)transport_stream_id << 16) | (uint64_t)original_network_id)
 
 #define GET_TRANSPORT_STREAM_ID_FROM_CHANNEL_ID(channel_id) ((t_transport_stream_id)((channel_id) >> 32))
 #define GET_ORIGINAL_NETWORK_ID_FROM_CHANNEL_ID(channel_id) ((t_original_network_id)((channel_id) >> 16))

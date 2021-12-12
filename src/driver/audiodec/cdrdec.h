@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2004 thegoodguy
-	
+
 	cdr audio decoder
 	Homepage: http://www.dbox2.info/
 
@@ -33,10 +33,10 @@
 
 class CCdrDec : public CWavDec
 {
- public:
-	static CCdrDec* getInstance();
- protected:
-	virtual bool SetMetaData(FILE* in, CAudioMetaData* m);
+	public:
+		static CCdrDec *getInstance();
+	protected:
+		virtual bool SetMetaData(FILE *in, CAudioMetaData *m);
 };
 
 #endif

@@ -26,7 +26,8 @@
 
 /* slot interface types and info */
 
-typedef struct ca_slot_info {
+typedef struct ca_slot_info
+{
 	int num;               /* slot number */
 
 	int type;              /* CA interface this slot supports */
@@ -44,7 +45,8 @@ typedef struct ca_slot_info {
 
 /* descrambler types and info */
 
-typedef struct ca_descr_info {
+typedef struct ca_descr_info
+{
 	unsigned int num;          /* number of available descramblers (keys) */
 	unsigned int type;         /* type of supported scrambling system */
 #define CA_ECD           1
@@ -52,7 +54,8 @@ typedef struct ca_descr_info {
 #define CA_DSS           4
 } ca_descr_info_t;
 
-typedef struct ca_caps {
+typedef struct ca_caps
+{
 	unsigned int slot_num;     /* total number of CA card and module slots */
 	unsigned int slot_type;    /* OR of all supported types */
 	unsigned int descr_num;    /* total number of descrambler slots (keys) */
@@ -60,20 +63,23 @@ typedef struct ca_caps {
 } ca_caps_t;
 
 /* a message to/from a CI-CAM */
-typedef struct ca_msg {
+typedef struct ca_msg
+{
 	unsigned int index;
 	unsigned int type;
 	unsigned int length;
 	unsigned char msg[256];
 } ca_msg_t;
 
-typedef struct ca_descr {
+typedef struct ca_descr
+{
 	unsigned int index;
 	unsigned int parity;	/* 0 == even, 1 == odd */
 	unsigned char cw[8];
 } ca_descr_t;
 
-typedef struct ca_pid {
+typedef struct ca_pid
+{
 	unsigned int pid;
 	int index;		/* -1 == disable*/
 } ca_pid_t;

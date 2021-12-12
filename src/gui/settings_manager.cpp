@@ -59,7 +59,7 @@ CSettingsManager::~CSettingsManager()
 {
 }
 
-int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
+int CSettingsManager::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] actionKey = [%s]\n", __func__, __LINE__, actionKey.c_str());
 	int   res = menu_return::RETURN_REPAINT;
@@ -70,7 +70,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 	CFileBrowser fileBrowser;
 	CFileFilter fileFilter;
 
-	if(actionKey == "loadconfig")
+	if (actionKey == "loadconfig")
 	{
 		fileFilter.addFilter("conf");
 		fileBrowser.Filter = &fileFilter;
@@ -88,7 +88,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
-	else if(actionKey == "saveconfig")
+	else if (actionKey == "saveconfig")
 	{
 		char msgtxt[1024];
 		snprintf(msgtxt, sizeof(msgtxt), g_Locale->getText(LOCALE_SETTINGS_BACKUP_DIR), g_settings.backup_dir.c_str());
@@ -106,7 +106,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 
 		std::string fname = "neutrino_" + getBackupSuffix() + ".conf";
-		CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname, 45);
+		CKeyboardInput *sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname, 45);
 		sms->exec(NULL, "");
 		delete sms;
 
@@ -117,7 +117,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return res;
 	}
-	else if(actionKey == "backup")
+	else if (actionKey == "backup")
 	{
 		char msgtxt[1024];
 		snprintf(msgtxt, sizeof(msgtxt), g_Locale->getText(LOCALE_SETTINGS_BACKUP_DIR), g_settings.backup_dir.c_str());
@@ -136,9 +136,9 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		struct statfs s;
 		int ret = ::statfs(g_settings.backup_dir.c_str(), &s);
-		if(ret == 0 /*&& s.f_type != 0x72b6L*/) /*jffs2*/
+		if (ret == 0 /*&& s.f_type != 0x72b6L*/) /*jffs2*/
 		{
-			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SETTINGS_BACKUP));
+			CHintBox *hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SETTINGS_BACKUP));
 			hintBox->paint();
 
 			const char backup_sh[] = TARGET_PREFIX "/bin/backup.sh";
@@ -150,11 +150,11 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			delete hintBox;
 		}
 		else
-			ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_ERROR);
+			ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_ERROR);
 
 		return res;
 	}
-	else if(actionKey == "restore")
+	else if (actionKey == "restore")
 	{
 		fileFilter.addFilter("tar");
 		fileFilter.addFilter("gz");
@@ -163,7 +163,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		{
 			g_settings.backup_dir = fileBrowser.getCurrentDir();
 			int result = ShowMsg(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
-			if(result == CMsgBox::mbrYes)
+			if (result == CMsgBox::mbrYes)
 			{
 				const char restore_sh[] = TARGET_PREFIX "/bin/restore.sh";
 				std::string restore_file = fileBrowser.getSelectedFile()->Name;
@@ -184,11 +184,11 @@ int CSettingsManager::showMenu_wizard()
 {
 	printf("[neutrino] CSettingsManager call %s...\n", __FUNCTION__);
 
-	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SETTINGS_MNGR);
+	CMenuWidget *mset = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SETTINGS_MNGR);
 	mset->setWizardMode(is_wizard);
 	mset->addIntroItems(LOCALE_MAINSETTINGS_MANAGE);
 
-	CMenuForwarder * mf;
+	CMenuForwarder *mf;
 
 	mf = new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig", CRCInput::RC_red);
 	mf->setHint(NEUTRINO_ICON_HINT_LOAD, LOCALE_MENU_HINT_LOAD);
@@ -207,12 +207,12 @@ int CSettingsManager::showMenu()
 {
 	printf("[neutrino] CSettingsManager call %s...\n", __FUNCTION__);
 
-	CDataResetNotifier * resetNotifier = new CDataResetNotifier();
+	CDataResetNotifier *resetNotifier = new CDataResetNotifier();
 
-	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SETTINGS_MNGR);
+	CMenuWidget *mset = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SETTINGS_MNGR);
 	mset->addIntroItems(LOCALE_MAINSETTINGS_MANAGE);
 
-	CMenuForwarder * mf;
+	CMenuForwarder *mf;
 	mf = new CMenuForwarder(LOCALE_RESET_SETTINGS, true, NULL, resetNotifier, "settings");
 	mf->setHint(NEUTRINO_ICON_HINT_RESET, LOCALE_MENU_HINT_RESET);
 	mset->addItem(mf);

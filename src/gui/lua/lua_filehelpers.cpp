@@ -34,9 +34,9 @@
 #include "luainstance.h"
 #include "lua_filehelpers.h"
 
-CLuaInstFileHelpers* CLuaInstFileHelpers::getInstance()
+CLuaInstFileHelpers *CLuaInstFileHelpers::getInstance()
 {
-	static CLuaInstFileHelpers* LuaInstFileHelpers = NULL;
+	static CLuaInstFileHelpers *LuaInstFileHelpers = NULL;
 
 	if (!LuaInstFileHelpers)
 		LuaInstFileHelpers = new CLuaInstFileHelpers();
@@ -50,7 +50,8 @@ CLuaFileHelpers *CLuaInstFileHelpers::FileHelpersCheckData(lua_State *L, int n)
 
 void CLuaInstFileHelpers::LuaFileHelpersRegister(lua_State *L)
 {
-	luaL_Reg meth[] = {
+	luaL_Reg meth[] =
+	{
 		{ "new",        CLuaInstFileHelpers::FileHelpersNew      },
 		{ "cp",         CLuaInstFileHelpers::FileHelpersCp       },
 		{ "chmod",      CLuaInstFileHelpers::FileHelpersChmod    },
@@ -83,18 +84,21 @@ int CLuaInstFileHelpers::FileHelpersNew(lua_State *L)
 int CLuaInstFileHelpers::FileHelpersCp(lua_State *L)
 {
 	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	int numargs = lua_gettop(L) - 1;
 	int min_numargs = 2;
-	if (numargs < min_numargs) {
+	if (numargs < min_numargs)
+	{
 		printf("luascript cp: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
 		lua_pushboolean(L, false);
 		return 1;
 	}
 
-	if (!lua_isstring(L, 2) || !lua_isstring(L, 3)) {
-		printf("%s: argument 1 or 2 is not a string.\n",__func__);
+	if (!lua_isstring(L, 2) || !lua_isstring(L, 3))
+	{
+		printf("%s: argument 1 or 2 is not a string.\n", __func__);
 		lua_pushboolean(L, false);
 		return 1;
 	}
@@ -102,9 +106,11 @@ int CLuaInstFileHelpers::FileHelpersCp(lua_State *L)
 	const char *to = luaL_checkstring(L, 3);
 
 	const char *flags = "";
-	if (numargs > min_numargs){
-		if (!lua_isstring(L, 4)) {
-			printf("%s: argument 3 is not a string.\n",__func__);
+	if (numargs > min_numargs)
+	{
+		if (!lua_isstring(L, 4))
+		{
+			printf("%s: argument 3 is not a string.\n", __func__);
 			lua_pushboolean(L, false);
 			return 1;
 		}
@@ -114,14 +120,15 @@ int CLuaInstFileHelpers::FileHelpersCp(lua_State *L)
 	CFileHelpers fh;
 	fh.setConsoleQuiet(true);
 	ret = fh.cp(from, to, flags);
-	if (ret == false) {
+	if (ret == false)
+	{
 		helpersDebugInfo di;
 		fh.readDebugInfo(&di);
 		lua_Debug ar;
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
 		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
-		       ar.short_src, ar.currentline, di.msg.c_str(), di.file.c_str(), di.line);
+			ar.short_src, ar.currentline, di.msg.c_str(), di.file.c_str(), di.line);
 	}
 
 	lua_pushboolean(L, ret);
@@ -131,17 +138,20 @@ int CLuaInstFileHelpers::FileHelpersCp(lua_State *L)
 int CLuaInstFileHelpers::FileHelpersChmod(lua_State *L)
 {
 	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	int numargs = lua_gettop(L) - 1;
 	int min_numargs = 2;
-	if (numargs < min_numargs) {
+	if (numargs < min_numargs)
+	{
 		printf("luascript chmod: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
 		lua_pushboolean(L, false);
 		return 1;
 	}
-	if (!lua_isstring(L, 2)) {
-		printf("%s: argument 1 is not a string.\n",__func__);
+	if (!lua_isstring(L, 2))
+	{
+		printf("%s: argument 1 is not a string.\n", __func__);
 		lua_pushboolean(L, false);
 		return 1;
 	}
@@ -154,14 +164,15 @@ int CLuaInstFileHelpers::FileHelpersChmod(lua_State *L)
 	//printf("\n##### [%s:%d] str: %s, okt: %o \n \n", __func__, __LINE__, mode_s.c_str(), (int)mode);
 
 	bool ret = true;
-	if (chmod(file, mode) != 0) {
+	if (chmod(file, mode) != 0)
+	{
 		ret = false;
 		lua_Debug ar;
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
-		const char* s = strerror(errno);
+		const char *s = strerror(errno);
 		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
-		       ar.short_src, ar.currentline, s, __path_file__, __LINE__);
+			ar.short_src, ar.currentline, s, __path_file__, __LINE__);
 	}
 
 	lua_pushboolean(L, ret);
@@ -171,17 +182,20 @@ int CLuaInstFileHelpers::FileHelpersChmod(lua_State *L)
 int CLuaInstFileHelpers::FileHelpersTouch(lua_State *L)
 {
 	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	int numargs = lua_gettop(L) - 1;
 	int min_numargs = 1;
-	if (numargs < min_numargs) {
+	if (numargs < min_numargs)
+	{
 		printf("luascript touch: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
 		lua_pushboolean(L, false);
 		return 1;
 	}
-	if (!lua_isstring(L, 2)) {
-		printf("%s: argument 1 is not a string.\n",__func__);
+	if (!lua_isstring(L, 2))
+	{
+		printf("%s: argument 1 is not a string.\n", __func__);
 		lua_pushboolean(L, false);
 		return 1;
 	}
@@ -190,20 +204,23 @@ int CLuaInstFileHelpers::FileHelpersTouch(lua_State *L)
 	bool ret = true;
 	lua_Debug ar;
 
-	if (!file_exists(file)) {
+	if (!file_exists(file))
+	{
 		FILE *f = fopen(file, "w");
-		if (f == NULL) {
+		if (f == NULL)
+		{
 			ret = false;
 			lua_getstack(L, 1, &ar);
 			lua_getinfo(L, "Sl", &ar);
-			const char* s = strerror(errno);
+			const char *s = strerror(errno);
 			printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
-			       ar.short_src, ar.currentline, s, __path_file__, __LINE__);
+				ar.short_src, ar.currentline, s, __path_file__, __LINE__);
 			lua_pushboolean(L, ret);
 			return 1;
 		}
 		fclose(f);
-		if (numargs == min_numargs) {
+		if (numargs == min_numargs)
+		{
 			lua_pushboolean(L, ret);
 			return 1;
 		}
@@ -220,13 +237,14 @@ int CLuaInstFileHelpers::FileHelpersTouch(lua_State *L)
 	utimbuf utb;
 	utb.actime  = modTime;
 	utb.modtime = modTime;
-	if (utime(file, &utb) != 0) {
+	if (utime(file, &utb) != 0)
+	{
 		ret = false;
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
-		const char* s = strerror(errno);
+		const char *s = strerror(errno);
 		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
-		       ar.short_src, ar.currentline, s, __path_file__, __LINE__);
+			ar.short_src, ar.currentline, s, __path_file__, __LINE__);
 	}
 
 	lua_pushboolean(L, ret);
@@ -236,34 +254,38 @@ int CLuaInstFileHelpers::FileHelpersTouch(lua_State *L)
 int CLuaInstFileHelpers::FileHelpersRmdir(lua_State *L)
 {
 	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	int numargs = lua_gettop(L) - 1;
 	int min_numargs = 1;
-	if (numargs < min_numargs) {
+	if (numargs < min_numargs)
+	{
 		printf("luascript rmdir: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
 		lua_pushboolean(L, false);
 		return 1;
 	}
-	if (!lua_isstring(L, 2)) {
-		printf("%s: argument 1 is not a string.\n",__func__);
+	if (!lua_isstring(L, 2))
+	{
+		printf("%s: argument 1 is not a string.\n", __func__);
 		lua_pushboolean(L, false);
 		return 1;
 	}
 	const char *dir = luaL_checkstring(L, 2);
 
 	bool ret = false;
-	CFileHelpers* fh = CFileHelpers::getInstance();
+	CFileHelpers *fh = CFileHelpers::getInstance();
 	fh->setConsoleQuiet(true);
 	ret = fh->removeDir(dir);
-	if (ret == false) {
+	if (ret == false)
+	{
 		helpersDebugInfo di;
 		fh->readDebugInfo(&di);
 		lua_Debug ar;
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
 		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
-		       ar.short_src, ar.currentline, di.msg.c_str(), di.file.c_str(), di.line);
+			ar.short_src, ar.currentline, di.msg.c_str(), di.file.c_str(), di.line);
 	}
 
 	lua_pushboolean(L, ret);
@@ -273,24 +295,28 @@ int CLuaInstFileHelpers::FileHelpersRmdir(lua_State *L)
 int CLuaInstFileHelpers::FileHelpersMkdir(lua_State *L)
 {
 	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	int numargs = lua_gettop(L) - 1;
 	int min_numargs = 1;
-	if (numargs < min_numargs) {
+	if (numargs < min_numargs)
+	{
 		printf("luascript mkdir: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
 		lua_pushboolean(L, false);
 		return 1;
 	}
-	if (!lua_isstring(L, 2)) {
-		printf("%s: argument 1 is not a string.\n",__func__);
+	if (!lua_isstring(L, 2))
+	{
+		printf("%s: argument 1 is not a string.\n", __func__);
 		lua_pushboolean(L, false);
 		return 1;
 	}
 	const char *dir = luaL_checkstring(L, 2);
 
 	mode_t mode = 0755;
-	if (numargs > min_numargs) {
+	if (numargs > min_numargs)
+	{
 		int mode_i = luaL_checkint(L, 3);
 		/* Hack for convert lua number to octal */
 		std::string mode_s = itoa(mode_i, 10);
@@ -299,17 +325,18 @@ int CLuaInstFileHelpers::FileHelpersMkdir(lua_State *L)
 	}
 
 	bool ret = false;
-	CFileHelpers* fh = CFileHelpers::getInstance();
+	CFileHelpers *fh = CFileHelpers::getInstance();
 	fh->setConsoleQuiet(true);
 	ret = fh->createDir(dir, mode);
-	if (ret == false) {
+	if (ret == false)
+	{
 		helpersDebugInfo di;
 		fh->readDebugInfo(&di);
 		lua_Debug ar;
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
 		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
-		       ar.short_src, ar.currentline, di.msg.c_str(), di.file.c_str(), di.line);
+			ar.short_src, ar.currentline, di.msg.c_str(), di.file.c_str(), di.line);
 	}
 
 	lua_pushboolean(L, ret);
@@ -319,17 +346,20 @@ int CLuaInstFileHelpers::FileHelpersMkdir(lua_State *L)
 int CLuaInstFileHelpers::FileHelpersReadlink(lua_State *L)
 {
 	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	int numargs = lua_gettop(L) - 1;
 	int min_numargs = 1;
-	if (numargs < min_numargs) {
+	if (numargs < min_numargs)
+	{
 		printf("luascript readlink: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
 		lua_pushnil(L);
 		return 1;
 	}
-	if (!lua_isstring(L, 2)) {
-		printf("%s: argument 1 is not a string.\n",__func__);
+	if (!lua_isstring(L, 2))
+	{
+		printf("%s: argument 1 is not a string.\n", __func__);
 		lua_pushboolean(L, false);
 		return 1;
 	}
@@ -337,13 +367,14 @@ int CLuaInstFileHelpers::FileHelpersReadlink(lua_State *L)
 
 	char buf[PATH_MAX];
 	memset(buf, '\0', sizeof(buf));
-	if (readlink(link, buf, sizeof(buf)-1) == -1) {
+	if (readlink(link, buf, sizeof(buf) - 1) == -1)
+	{
 		lua_Debug ar;
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
-		const char* s = strerror(errno);
+		const char *s = strerror(errno);
 		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
-		       ar.short_src, ar.currentline, s, __path_file__, __LINE__);
+			ar.short_src, ar.currentline, s, __path_file__, __LINE__);
 
 		lua_pushnil(L);
 		return 1;
@@ -356,17 +387,20 @@ int CLuaInstFileHelpers::FileHelpersReadlink(lua_State *L)
 int CLuaInstFileHelpers::FileHelpersLn(lua_State *L)
 {
 	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	int numargs = lua_gettop(L) - 1;
 	int min_numargs = 2;
-	if (numargs < min_numargs) {
+	if (numargs < min_numargs)
+	{
 		printf("luascript ln: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
 		lua_pushboolean(L, false);
 		return 1;
 	}
-	if (!lua_isstring(L, 2) || !lua_isstring(L, 3)) {
-		printf("%s: argument 1 or 2 is not a string.\n",__func__);
+	if (!lua_isstring(L, 2) || !lua_isstring(L, 3))
+	{
+		printf("%s: argument 1 or 2 is not a string.\n", __func__);
 		lua_pushboolean(L, false);
 		return 1;
 	}
@@ -374,9 +408,11 @@ int CLuaInstFileHelpers::FileHelpersLn(lua_State *L)
 	const char *link = luaL_checkstring(L, 3);
 
 	const char *flags = "";
-	if (numargs > min_numargs){
-		if (!lua_isstring(L, 4)) {
-		printf("%s: argument 3 is not a string.\n",__func__);
+	if (numargs > min_numargs)
+	{
+		if (!lua_isstring(L, 4))
+		{
+			printf("%s: argument 3 is not a string.\n", __func__);
 			lua_pushboolean(L, false);
 			return 1;
 		}
@@ -386,21 +422,26 @@ int CLuaInstFileHelpers::FileHelpersLn(lua_State *L)
 	bool force  = (strchr(flags, 'f') != NULL);
 	lua_Debug ar;
 
-	if (!symlnk) {
+	if (!symlnk)
+	{
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
-		const char* s = "Currently only supports symlinks.";
+		const char *s = "Currently only supports symlinks.";
 		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
-		       ar.short_src, ar.currentline, s, __path_file__, __LINE__);
+			ar.short_src, ar.currentline, s, __path_file__, __LINE__);
 		lua_pushboolean(L, false);
 		return 1;
 	}
 
 	bool ret = true;
-	if (symlink(src, link) != 0) {
-		if (force && (errno == EEXIST)) {
-			if (unlink(link) == 0) {
-				if (symlink(src, link) == 0) {
+	if (symlink(src, link) != 0)
+	{
+		if (force && (errno == EEXIST))
+		{
+			if (unlink(link) == 0)
+			{
+				if (symlink(src, link) == 0)
+				{
 					lua_pushboolean(L, ret);
 					return 1;
 				}
@@ -409,9 +450,9 @@ int CLuaInstFileHelpers::FileHelpersLn(lua_State *L)
 		ret = false;
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
-		const char* s = strerror(errno);
+		const char *s = strerror(errno);
 		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
-		       ar.short_src, ar.currentline, s, __path_file__, __LINE__);
+			ar.short_src, ar.currentline, s, __path_file__, __LINE__);
 
 	}
 
@@ -422,18 +463,21 @@ int CLuaInstFileHelpers::FileHelpersLn(lua_State *L)
 int CLuaInstFileHelpers::FileHelpersExist(lua_State *L)
 {
 	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	int numargs = lua_gettop(L) - 1;
 	int min_numargs = 2;
-	if (numargs < min_numargs) {
+	if (numargs < min_numargs)
+	{
 		printf("luascript exist: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
 		lua_pushnil(L);
 		return 1;
 	}
 
-	if (!lua_isstring(L, 2) || !lua_isstring(L, 3)) {
-		printf("%s: argument 1 or 2 is not a string.\n",__func__);
+	if (!lua_isstring(L, 2) || !lua_isstring(L, 3))
+	{
+		printf("%s: argument 1 or 2 is not a string.\n", __func__);
 		lua_pushboolean(L, false);
 		return 1;
 	}
@@ -445,26 +489,32 @@ int CLuaInstFileHelpers::FileHelpersExist(lua_State *L)
 	const char *file = luaL_checkstring(L, 2);
 	const char *flag = luaL_checkstring(L, 3);
 
-	if (file_exists(file)) {
+	if (file_exists(file))
+	{
 		struct stat FileInfo;
-		if (lstat(file, &FileInfo) == -1) {
+		if (lstat(file, &FileInfo) == -1)
+		{
 			err = true;
 			errLine = __LINE__;
 			errMsg = (std::string)strerror(errno);
 		}
-		else if (strchr(flag, 'f') != NULL) {
+		else if (strchr(flag, 'f') != NULL)
+		{
 			if (S_ISREG(FileInfo.st_mode))
 				ret = true;
 		}
-		else if (strchr(flag, 'l') != NULL) {
+		else if (strchr(flag, 'l') != NULL)
+		{
 			if (S_ISLNK(FileInfo.st_mode))
 				ret = true;
 		}
-		else if (strchr(flag, 'd') != NULL) {
+		else if (strchr(flag, 'd') != NULL)
+		{
 			if (S_ISDIR(FileInfo.st_mode))
 				ret = true;
 		}
-		else {
+		else
+		{
 			err = true;
 			errLine = __LINE__;
 			errMsg = (strlen(flag) == 0) ? "no" : "unknown";
@@ -472,12 +522,13 @@ int CLuaInstFileHelpers::FileHelpersExist(lua_State *L)
 		}
 	}
 
-	if (err) {
+	if (err)
+	{
 		lua_Debug ar;
 		lua_getstack(L, 1, &ar);
 		lua_getinfo(L, "Sl", &ar);
 		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
-		       ar.short_src, ar.currentline, errMsg.c_str(), __path_file__, errLine);
+			ar.short_src, ar.currentline, errMsg.c_str(), __path_file__, errLine);
 		lua_pushnil(L);
 		return 1;
 	}
@@ -490,7 +541,8 @@ int CLuaInstFileHelpers::FileHelpersExist(lua_State *L)
 int CLuaInstFileHelpers::FileHelpersDelete(lua_State *L)
 {
 	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 	delete D;
 	return 0;
 }

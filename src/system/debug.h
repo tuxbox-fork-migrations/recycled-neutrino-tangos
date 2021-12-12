@@ -37,7 +37,7 @@ enum
 };
 
 
-void setDebugLevel( int level );
+void setDebugLevel(int level);
 
 #define dprintf(debuglevel, fmt, args...) \
 	do { \

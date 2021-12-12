@@ -85,18 +85,18 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		 * @param[in] color_select	optional, expects type fb_pixel_t, default COL_SCROLLBAR_ACTIVE_PLUS_0
 		 * @param[in] color_passive	optional, expects type fb_pixel_t, default COL_SCROLLBAR_PASSIVE_PLUS_0
 		*/
-		CComponentsScrollBar(	const int &x_pos,
-					const int &y_pos,
-					const int &w 		= SCROLLBAR_WIDTH,
-					const int &h 		= 0,
-					const int &count 	= 1,
-					CComponentsForm *parent = NULL,
-					int shadow_mode 	= CC_SHADOW_OFF,
-					fb_pixel_t color_frame 	= COL_SCROLLBAR_PLUS_0,
-					fb_pixel_t color_body 	= COL_SCROLLBAR_PLUS_0,
-					fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
-					fb_pixel_t color_select = COL_SCROLLBAR_ACTIVE_PLUS_0,
-					fb_pixel_t color_passive = COL_SCROLLBAR_PASSIVE_PLUS_0);
+		CComponentsScrollBar(const int &x_pos,
+			const int &y_pos,
+			const int &w 		= SCROLLBAR_WIDTH,
+			const int &h 		= 0,
+			const int &count 	= 1,
+			CComponentsForm *parent = NULL,
+			int shadow_mode 	= CC_SHADOW_OFF,
+			fb_pixel_t color_frame 	= COL_SCROLLBAR_PLUS_0,
+			fb_pixel_t color_body 	= COL_SCROLLBAR_PLUS_0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
+			fb_pixel_t color_select = COL_SCROLLBAR_ACTIVE_PLUS_0,
+			fb_pixel_t color_passive = COL_SCROLLBAR_PASSIVE_PLUS_0);
 // 		~CComponentsScrollBar(); //inherited from CComponentsForm
 
 		/**Set current page number
@@ -147,36 +147,36 @@ class CComponentsScrollBar : public CComponentsFrmChain
 
 void getScrollBarData(int *total_pages, int *current_page, int total_items, int items_per_page, int selected_item);
 
-		/**Small and easy to apply scrollbar paint methode without expilcit object declaration
-		* @return 			void
-		*
-		* @param[in] x_pos		expects type int, x position on screen
-		* @param[in] x_pos		expects type int, y position on screen modes are:
-		* @param[in] w			expects type int, width of scrollbar object
-		* @param[in] h			expects type int, height of scrollbar object
-		* @param[in] count		expects type int, count of pages, default 1
-		* @param[in] current_num	expects type int, current selected page, default 0
-		*
-		* usual paraemters:
-		* @param[in] parent		optional, expects type pointer to a parent CComponentsForm object, default NULL
-		* @param[in] shadow_mode	optional, expects type int defined by shadow mode enums, default CC_SHADOW_OFF
-		* @param[in] color_frame	optional, expects type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
-		* @param[in] color_body		optional, expects type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
-		* @param[in] color_shadow	optional, expects type fb_pixel_t, default COL_SHADOW_PLUS_0
-		* @param[in] color_select	optional, expects type fb_pixel_t, default COL_SCROLLBAR_ACTIVE_PLUS_0
-		* @param[in] color_passive	optional, expects type fb_pixel_t, default COL_SCROLLBAR_PASSIVE_PLUS_0
-		*/
-void paintScrollBar(	const int &x_pos,
-			const int &y_pos,
-			const int &w,
-			const int &h,
-			const int &count,
-			const int &current_num,
-			int shadow_mode 	= CC_SHADOW_OFF,
-			fb_pixel_t color_frame 	= COL_SCROLLBAR_PLUS_0,
-			fb_pixel_t color_body 	= COL_SCROLLBAR_PLUS_0,
-			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
-			fb_pixel_t color_select = COL_SCROLLBAR_ACTIVE_PLUS_0,
-			fb_pixel_t color_passive = COL_SCROLLBAR_PASSIVE_PLUS_0);
+/**Small and easy to apply scrollbar paint methode without expilcit object declaration
+* @return 			void
+*
+* @param[in] x_pos		expects type int, x position on screen
+* @param[in] x_pos		expects type int, y position on screen modes are:
+* @param[in] w			expects type int, width of scrollbar object
+* @param[in] h			expects type int, height of scrollbar object
+* @param[in] count		expects type int, count of pages, default 1
+* @param[in] current_num	expects type int, current selected page, default 0
+*
+* usual paraemters:
+* @param[in] parent		optional, expects type pointer to a parent CComponentsForm object, default NULL
+* @param[in] shadow_mode	optional, expects type int defined by shadow mode enums, default CC_SHADOW_OFF
+* @param[in] color_frame	optional, expects type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
+* @param[in] color_body		optional, expects type fb_pixel_t, default COL_SCROLLBAR_PLUS_0
+* @param[in] color_shadow	optional, expects type fb_pixel_t, default COL_SHADOW_PLUS_0
+* @param[in] color_select	optional, expects type fb_pixel_t, default COL_SCROLLBAR_ACTIVE_PLUS_0
+* @param[in] color_passive	optional, expects type fb_pixel_t, default COL_SCROLLBAR_PASSIVE_PLUS_0
+*/
+void paintScrollBar(const int &x_pos,
+	const int &y_pos,
+	const int &w,
+	const int &h,
+	const int &count,
+	const int &current_num,
+	int shadow_mode 	= CC_SHADOW_OFF,
+	fb_pixel_t color_frame 	= COL_SCROLLBAR_PLUS_0,
+	fb_pixel_t color_body 	= COL_SCROLLBAR_PLUS_0,
+	fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
+	fb_pixel_t color_select = COL_SCROLLBAR_ACTIVE_PLUS_0,
+	fb_pixel_t color_passive = COL_SCROLLBAR_PASSIVE_PLUS_0);
 
 #endif

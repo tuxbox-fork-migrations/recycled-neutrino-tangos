@@ -1,6 +1,6 @@
 /*
 	$port: themes.h,v 1.6 2010/06/01 19:58:38 tuxbox-cvs Exp $
-	
+
 	Neutrino-GUI  -   DBoxII-Project
 
 	License: GPL
@@ -55,9 +55,9 @@ class CGLCDThemes : public CMenuTarget, CColorSetupNotifier, public sigc::tracka
 
 	public:
 		CGLCDThemes();
-		static CGLCDThemes* getInstance();
+		static CGLCDThemes *getInstance();
 		void setupDefaultColors();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		void setTheme(CConfigFile &configfile);
 		void getTheme(CConfigFile &configfile);
 };

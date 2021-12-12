@@ -42,8 +42,8 @@
 class CNetworkSetup : public CMenuTarget, CChangeObserver
 {
 	private:
- 		CNetworkConfig  *networkConfig;
-						
+		CNetworkConfig  *networkConfig;
+
 		int width;
 		int is_wizard;
 
@@ -71,8 +71,8 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 
 		CGenericMenuActivate dhcpDisable;
 
-		CSectionsdConfigNotifier* sectionsdConfigNotifier;
-			
+		CSectionsdConfigNotifier *sectionsdConfigNotifier;
+
 		void restoreNetworkSettings();
 		void prepareSettings();
 		void readNetworkSettings();
@@ -89,10 +89,10 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		bool checkStringSettings();
 		bool checkForIP();
 		bool settingsChanged();
-		const char * mypinghost(std::string &host);
+		const char *mypinghost(std::string &host);
 		void setBroadcast(void);
-				
-	public:	
+
+	public:
 		enum NETWORK_DHCP_MODE
 		{
 			NETWORK_DHCP_OFF =  0, //static
@@ -110,16 +110,16 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 			NETWORK_NTP_OFF =  0,
 			NETWORK_NTP_ON  =  1
 		};
-		
+
 		CNetworkSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 		~CNetworkSetup();
-		
-		static CNetworkSetup* getInstance();
-		
+
+		static CNetworkSetup *getInstance();
+
 		void setWizardMode(int mode) {is_wizard = mode;};
-		
-		int exec(CMenuTarget* parent, const std::string & actionKey);
- 		virtual bool changeNotify(const neutrino_locale_t, void * Data);
+
+		int exec(CMenuTarget *parent, const std::string &actionKey);
+		virtual bool changeNotify(const neutrino_locale_t, void *Data);
 		void showCurrentNetworkSettings();
 		void testNetworkSettings();
 };

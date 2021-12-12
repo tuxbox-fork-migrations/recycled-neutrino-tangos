@@ -50,7 +50,7 @@ static void *lzo_compress_buf;
  *
  */
 static int jffs2_lzo_cmpr(unsigned char *data_in, unsigned char *cpage_out,
-			  uint32_t *sourcelen, uint32_t *dstlen)
+	uint32_t *sourcelen, uint32_t *dstlen)
 {
 	lzo_uint compress_size;
 	int ret;
@@ -70,12 +70,12 @@ static int jffs2_lzo_cmpr(unsigned char *data_in, unsigned char *cpage_out,
 }
 
 static int jffs2_lzo_decompress(unsigned char *data_in, unsigned char *cpage_out,
-				 uint32_t srclen, uint32_t destlen)
+	uint32_t srclen, uint32_t destlen)
 {
 	int ret;
 	lzo_uint dl;
 
-	ret = lzo1x_decompress_safe(data_in,srclen,cpage_out,&dl,NULL);
+	ret = lzo1x_decompress_safe(data_in, srclen, cpage_out, &dl, NULL);
 
 	if (ret != LZO_E_OK || dl != destlen)
 		return -1;
@@ -83,7 +83,8 @@ static int jffs2_lzo_decompress(unsigned char *data_in, unsigned char *cpage_out
 	return 0;
 }
 
-static struct jffs2_compressor jffs2_lzo_comp = {
+static struct jffs2_compressor jffs2_lzo_comp =
+{
 	.priority = JFFS2_LZO_PRIORITY,
 	.name = "lzo",
 	.compr = JFFS2_COMPR_LZO,
@@ -102,13 +103,15 @@ int jffs2_lzo_init(void)
 
 	/* Worse case LZO compression size from their FAQ */
 	lzo_compress_buf = malloc(page_size + (page_size / 16) + 64 + 3);
-	if (!lzo_compress_buf) {
+	if (!lzo_compress_buf)
+	{
 		free(lzo_mem);
 		return -1;
 	}
 
 	ret = jffs2_register_compressor(&jffs2_lzo_comp);
-	if (ret < 0) {
+	if (ret < 0)
+	{
 		free(lzo_compress_buf);
 		free(lzo_mem);
 	}

@@ -55,7 +55,8 @@ static void sig_handler(int signo)
 
 	int wstatus;
 	int ret = waitpid(childpid, &wstatus, 0);
-	if (ret < 0) {
+	if (ret < 0)
+	{
 		int e = errno;
 		logging(NORMAL, "wait for child %d returned %m\n", childpid);
 		if (e == ECHILD)
@@ -69,7 +70,7 @@ static void sig_handler(int signo)
 	child_alive = false;
 }
 
-static const char * const *yaft_argv;
+static const char *const *yaft_argv;
 static pid_t fork_and_exec(int *master, int lines, int cols)
 {
 	struct winsize ws;
@@ -82,11 +83,12 @@ static pid_t fork_and_exec(int *master, int lines, int cols)
 
 	pid_t pid;
 	pid = forkpty(master, NULL, NULL, &ws);
-	if (pid == 0) { /* child */
+	if (pid == 0)   /* child */
+	{
 		for (int i = 3; i < getdtablesize(); i++)
 			close(i);
 		setenv("TERM", term_name, 1);
-		execvp(yaft_argv[0], (char * const *)yaft_argv);
+		execvp(yaft_argv[0], (char *const *)yaft_argv);
 		/* never reach here */
 		exit(EXIT_FAILURE);
 	}
@@ -104,7 +106,7 @@ static int check_fds(fd_set *fds, struct timeval *tv, int input, int master)
 	return select(master + 1, fds, NULL, NULL, tv);
 }
 
-YaFT::YaFT(const char * const *argv, int *Res, bool Paint, sigc::signal<void, std::string*, int*, bool*>func)
+YaFT::YaFT(const char *const *argv, int *Res, bool Paint, sigc::signal<void, std::string *, int *, bool *>func)
 {
 	paint = Paint;
 	yaft_argv = argv;
@@ -141,7 +143,8 @@ int YaFT::run(void)
 	sigaction(SIGCHLD, &sigact, &oldact);
 
 	/* fork and exec shell */
-	if ((childpid = fork_and_exec(&term->fd, term->lines, term->cols)) < 0) {
+	if ((childpid = fork_and_exec(&term->fd, term->lines, term->cols)) < 0)
+	{
 		logging(NORMAL, "forkpty failed\n");
 		goto exec_failed;
 	}
@@ -151,31 +154,38 @@ int YaFT::run(void)
 	fcntl(term->fd, F_SETFL, flags | O_NONBLOCK);
 # if 0
 	fprintf(stderr, "forked child %d, command: '", childpid);
-	const char * const *p = yaft_argv;
-	while (*p) {
+	const char *const *p = yaft_argv;
+	while (*p)
+	{
 		fprintf(stderr, "%s ", *p);
 		p++;
 	}
 	fprintf(stderr, "'\n");
 #endif
 	/* main loop */
-	while (child_alive) {
-		if (need_redraw) {
+	while (child_alive)
+	{
+		if (need_redraw)
+		{
 			need_redraw = false;
 			term->refresh();
 		}
 		if (check_fds(&fds, &tv, STDIN_FILENO, term->fd) == -1)
 			continue;
 #if 0
-		if (FD_ISSET(STDIN_FILENO, &fds)) {
+		if (FD_ISSET(STDIN_FILENO, &fds))
+		{
 			if ((size = read(STDIN_FILENO, buf, BUFSIZE)) > 0)
 				ewrite(term.fd, buf, size);
 		}
 #endif
-		if (FD_ISSET(term->fd, &fds)) {
-			while ((size = read(term->fd, buf, BUFSIZE)) > 0) {
+		if (FD_ISSET(term->fd, &fds))
+		{
+			while ((size = read(term->fd, buf, BUFSIZE)) > 0)
+			{
 				term->parse(buf, size);
-				while (term->txt.size() > 1) {
+				while (term->txt.size() > 1)
+				{
 					std::string s = term->txt.front();
 					OnShellOutputLoop(&s, res, &ok);
 #if 0
@@ -202,7 +212,8 @@ int YaFT::run(void)
 	}
 	term->refresh();
 	/* get the last partial line if there was no newline. The loop should only ever run once... */
-	while (!term->txt.empty()) {
+	while (!term->txt.empty())
+	{
 		std::string s = term->txt.front();
 		OnShellOutputLoop(&s, res, &ok);
 		term->txt.pop();

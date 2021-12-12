@@ -167,7 +167,7 @@ static void set_lua_variables(lua_State *L)
 		{ "prog3",		CRCInput::RC_prog3 },
 		{ "prog4",		CRCInput::RC_prog4 },
 #endif
-		{ "timeout",		(lua_Integer)CRCInput::RC_timeout },
+		{ "timeout",	(lua_Integer)CRCInput::RC_timeout },
 		/* to check if it is in our range */
 		{ "MaxRC",		CRCInput::RC_MaxRC },
 		{ NULL, 0 }
@@ -176,28 +176,28 @@ static void set_lua_variables(lua_State *L)
 	/* list of colors, exported e.g. as COL['INFOBAR_SHADOW'] */
 	static table_key_u colorlist[] =
 	{
-		{ "WHITE",			(lua_Unsigned)(COL_WHITE) },
-		{ "BLACK",			(lua_Unsigned)(COL_BLACK) },
-		{ "DARK_RED",			(lua_Unsigned)(COL_DARK_RED) },
-		{ "RED",			(lua_Unsigned)(COL_RED) },
-		{ "LIGHT_RED",			(lua_Unsigned)(COL_LIGHT_RED) },
-		{ "DARK_GREEN",			(lua_Unsigned)(COL_DARK_GREEN) },
-		{ "GREEN",			(lua_Unsigned)(COL_GREEN) },
-		{ "LIGHT_GREEN",		(lua_Unsigned)(COL_LIGHT_GREEN) },
-		{ "DARK_YELLOW",		(lua_Unsigned)(COL_DARK_YELLOW) },
-		{ "YELLOW",			(lua_Unsigned)(COL_YELLOW) },
-		{ "LIGHT_YELLOW",		(lua_Unsigned)(COL_LIGHT_YELLOW) },
-		{ "DARK_BLUE",			(lua_Unsigned)(COL_DARK_BLUE) },
-		{ "BLUE",			(lua_Unsigned)(COL_BLUE) },
-		{ "LIGHT_BLUE",			(lua_Unsigned)(COL_LIGHT_BLUE) },
-		{ "DARK_GRAY",			(lua_Unsigned)(COL_DARK_GRAY) },
-		{ "GRAY",			(lua_Unsigned)(COL_GRAY) },
-		{ "LIGHT_GRAY",			(lua_Unsigned)(COL_LIGHT_GRAY) },
+		{ "WHITE",	(lua_Unsigned)(COL_WHITE) },
+		{ "BLACK",	(lua_Unsigned)(COL_BLACK) },
+		{ "DARK_RED",	(lua_Unsigned)(COL_DARK_RED) },
+		{ "RED",	(lua_Unsigned)(COL_RED) },
+		{ "LIGHT_RED",	(lua_Unsigned)(COL_LIGHT_RED) },
+		{ "DARK_GREEN",	(lua_Unsigned)(COL_DARK_GREEN) },
+		{ "GREEN",	(lua_Unsigned)(COL_GREEN) },
+		{ "LIGHT_GREEN",	(lua_Unsigned)(COL_LIGHT_GREEN) },
+		{ "DARK_YELLOW",	(lua_Unsigned)(COL_DARK_YELLOW) },
+		{ "YELLOW",	(lua_Unsigned)(COL_YELLOW) },
+		{ "LIGHT_YELLOW",	(lua_Unsigned)(COL_LIGHT_YELLOW) },
+		{ "DARK_BLUE",	(lua_Unsigned)(COL_DARK_BLUE) },
+		{ "BLUE",	(lua_Unsigned)(COL_BLUE) },
+		{ "LIGHT_BLUE",	(lua_Unsigned)(COL_LIGHT_BLUE) },
+		{ "DARK_GRAY",	(lua_Unsigned)(COL_DARK_GRAY) },
+		{ "GRAY",	(lua_Unsigned)(COL_GRAY) },
+		{ "LIGHT_GRAY",	(lua_Unsigned)(COL_LIGHT_GRAY) },
 
 		{ "COLORED_EVENTS_CHANNELLIST",	MAGIC_COLOR | (COL_COLORED_EVENTS_CHANNELLIST) },
 		{ "COLORED_EVENTS_INFOBAR",	MAGIC_COLOR | (COL_COLORED_EVENTS_INFOBAR) },
 		{ "SHADOW",			MAGIC_COLOR | (COL_SHADOW) },
-/* obsolete */	{ "INFOBAR_SHADOW",		MAGIC_COLOR | (COL_SHADOW) }, // just here to stay backward compatible
+		/* obsolete */	{ "INFOBAR_SHADOW",		MAGIC_COLOR | (COL_SHADOW) }, // just here to stay backward compatible
 		{ "INFOBAR",			MAGIC_COLOR | (COL_INFOBAR) },
 		{ "MENUHEAD",			MAGIC_COLOR | (COL_MENUHEAD) },
 		{ "MENUCONTENT",		MAGIC_COLOR | (COL_MENUCONTENT) },
@@ -213,44 +213,44 @@ static void set_lua_variables(lua_State *L)
 		{ "PROGRESSBAR_PASSIVE",	MAGIC_COLOR | (COL_PROGRESSBAR_PASSIVE_PLUS_0) },
 		{ "BACKGROUND",			MAGIC_COLOR | (COL_BACKGROUND) },
 
-		{ "COLORED_EVENTS_TEXT",		(lua_Unsigned)(COL_COLORED_EVENTS_TEXT) },
-		{ "INFOBAR_TEXT",			(lua_Unsigned)(COL_INFOBAR_TEXT) },
-/* obsolete */	{ "INFOBAR_SHADOW_TEXT",		(lua_Unsigned)(COL_MENUFOOT_TEXT) }, // just here to stay backward compatible
-		{ "MENUHEAD_TEXT",			(lua_Unsigned)(COL_MENUHEAD_TEXT) },
-		{ "MENUCONTENT_TEXT",			(lua_Unsigned)(COL_MENUCONTENT_TEXT) },
-		{ "MENUCONTENT_TEXT_PLUS_1",		(lua_Unsigned)(COL_MENUCONTENT_TEXT_PLUS_1) },
-		{ "MENUCONTENT_TEXT_PLUS_2",		(lua_Unsigned)(COL_MENUCONTENT_TEXT_PLUS_2) },
-		{ "MENUCONTENT_TEXT_PLUS_3",		(lua_Unsigned)(COL_MENUCONTENT_TEXT_PLUS_3) },
-		{ "MENUCONTENTDARK_TEXT",		(lua_Unsigned)(COL_MENUCONTENTDARK_TEXT) },
+		{ "COLORED_EVENTS_TEXT",	(lua_Unsigned)(COL_COLORED_EVENTS_TEXT) },
+		{ "INFOBAR_TEXT",	(lua_Unsigned)(COL_INFOBAR_TEXT) },
+		/* obsolete */	{ "INFOBAR_SHADOW_TEXT",	(lua_Unsigned)(COL_MENUFOOT_TEXT) },  // just here to stay backward compatible
+		{ "MENUHEAD_TEXT",	(lua_Unsigned)(COL_MENUHEAD_TEXT) },
+		{ "MENUCONTENT_TEXT",	(lua_Unsigned)(COL_MENUCONTENT_TEXT) },
+		{ "MENUCONTENT_TEXT_PLUS_1",	(lua_Unsigned)(COL_MENUCONTENT_TEXT_PLUS_1) },
+		{ "MENUCONTENT_TEXT_PLUS_2",	(lua_Unsigned)(COL_MENUCONTENT_TEXT_PLUS_2) },
+		{ "MENUCONTENT_TEXT_PLUS_3",	(lua_Unsigned)(COL_MENUCONTENT_TEXT_PLUS_3) },
+		{ "MENUCONTENTDARK_TEXT",	(lua_Unsigned)(COL_MENUCONTENTDARK_TEXT) },
 		{ "MENUCONTENTDARK_TEXT_PLUS_1",	(lua_Unsigned)(COL_MENUCONTENTDARK_TEXT_PLUS_1) },
 		{ "MENUCONTENTDARK_TEXT_PLUS_2",	(lua_Unsigned)(COL_MENUCONTENTDARK_TEXT_PLUS_2) },
-		{ "MENUCONTENTSELECTED_TEXT",		(lua_Unsigned)(COL_MENUCONTENTSELECTED_TEXT) },
+		{ "MENUCONTENTSELECTED_TEXT",	(lua_Unsigned)(COL_MENUCONTENTSELECTED_TEXT) },
 		{ "MENUCONTENTSELECTED_TEXT_PLUS_1",	(lua_Unsigned)(COL_MENUCONTENTSELECTED_TEXT_PLUS_1) },
 		{ "MENUCONTENTSELECTED_TEXT_PLUS_2",	(lua_Unsigned)(COL_MENUCONTENTSELECTED_TEXT_PLUS_2) },
-		{ "MENUCONTENTINACTIVE_TEXT",		(lua_Unsigned)(COL_MENUCONTENTINACTIVE_TEXT) },
-		{ "MENUFOOT_TEXT",			(lua_Unsigned)(COL_MENUFOOT_TEXT) },
-		{ "SHADOW_PLUS_0",			(lua_Unsigned)(COL_SHADOW_PLUS_0) },
-		{ "MENUHEAD_PLUS_0",			(lua_Unsigned)(COL_MENUHEAD_PLUS_0) },
-		{ "MENUCONTENT_PLUS_0",			(lua_Unsigned)(COL_MENUCONTENT_PLUS_0) },
-		{ "MENUCONTENT_PLUS_1",			(lua_Unsigned)(COL_MENUCONTENT_PLUS_1) },
-		{ "MENUCONTENT_PLUS_2",			(lua_Unsigned)(COL_MENUCONTENT_PLUS_2) },
-		{ "MENUCONTENT_PLUS_3",			(lua_Unsigned)(COL_MENUCONTENT_PLUS_3) },
-		{ "MENUCONTENT_PLUS_4",			(lua_Unsigned)(COL_MENUCONTENT_PLUS_4) },
-		{ "MENUCONTENT_PLUS_5",			(lua_Unsigned)(COL_MENUCONTENT_PLUS_5) },
-		{ "MENUCONTENT_PLUS_6",			(lua_Unsigned)(COL_MENUCONTENT_PLUS_6) },
-		{ "MENUCONTENT_PLUS_7",			(lua_Unsigned)(COL_MENUCONTENT_PLUS_7) },
-		{ "MENUCONTENTDARK_PLUS_0",		(lua_Unsigned)(COL_MENUCONTENTDARK_PLUS_0) },
-		{ "MENUCONTENTDARK_PLUS_2",		(lua_Unsigned)(COL_MENUCONTENTDARK_PLUS_2) },
-		{ "MENUCONTENTSELECTED_PLUS_0",		(lua_Unsigned)(COL_MENUCONTENTSELECTED_PLUS_0) },
-		{ "MENUCONTENTSELECTED_PLUS_2",		(lua_Unsigned)(COL_MENUCONTENTSELECTED_PLUS_2) },
+		{ "MENUCONTENTINACTIVE_TEXT",	(lua_Unsigned)(COL_MENUCONTENTINACTIVE_TEXT) },
+		{ "MENUFOOT_TEXT",	(lua_Unsigned)(COL_MENUFOOT_TEXT) },
+		{ "SHADOW_PLUS_0",	(lua_Unsigned)(COL_SHADOW_PLUS_0) },
+		{ "MENUHEAD_PLUS_0",	(lua_Unsigned)(COL_MENUHEAD_PLUS_0) },
+		{ "MENUCONTENT_PLUS_0",	(lua_Unsigned)(COL_MENUCONTENT_PLUS_0) },
+		{ "MENUCONTENT_PLUS_1",	(lua_Unsigned)(COL_MENUCONTENT_PLUS_1) },
+		{ "MENUCONTENT_PLUS_2",	(lua_Unsigned)(COL_MENUCONTENT_PLUS_2) },
+		{ "MENUCONTENT_PLUS_3",	(lua_Unsigned)(COL_MENUCONTENT_PLUS_3) },
+		{ "MENUCONTENT_PLUS_4",	(lua_Unsigned)(COL_MENUCONTENT_PLUS_4) },
+		{ "MENUCONTENT_PLUS_5",	(lua_Unsigned)(COL_MENUCONTENT_PLUS_5) },
+		{ "MENUCONTENT_PLUS_6",	(lua_Unsigned)(COL_MENUCONTENT_PLUS_6) },
+		{ "MENUCONTENT_PLUS_7",	(lua_Unsigned)(COL_MENUCONTENT_PLUS_7) },
+		{ "MENUCONTENTDARK_PLUS_0",	(lua_Unsigned)(COL_MENUCONTENTDARK_PLUS_0) },
+		{ "MENUCONTENTDARK_PLUS_2",	(lua_Unsigned)(COL_MENUCONTENTDARK_PLUS_2) },
+		{ "MENUCONTENTSELECTED_PLUS_0",	(lua_Unsigned)(COL_MENUCONTENTSELECTED_PLUS_0) },
+		{ "MENUCONTENTSELECTED_PLUS_2",	(lua_Unsigned)(COL_MENUCONTENTSELECTED_PLUS_2) },
 		{ "MENUCONTENTINACTIVE_PLUS_0"	,	(lua_Unsigned)(COL_MENUCONTENTINACTIVE_PLUS_0) },
-		{ "MENUFOOT_PLUS_0",			(lua_Unsigned)(COL_MENUFOOT_PLUS_0) },
-		{ "FRAME_PLUS_0",			(lua_Unsigned)(COL_FRAME_PLUS_0) },
-		{ "SCROLLBAR_PLUS_0",			(lua_Unsigned)(COL_SCROLLBAR_PLUS_0) },
-		{ "SCROLLBAR_ACTIVE_PLUS_0",		(lua_Unsigned)(COL_SCROLLBAR_ACTIVE_PLUS_0) },
-		{ "SCROLLBAR_PASSIVE_PLUS_0",		(lua_Unsigned)(COL_SCROLLBAR_PASSIVE_PLUS_0) },
-		{ "PROGRESSBAR_ACTIVE_PLUS_0",		(lua_Unsigned)(COL_PROGRESSBAR_ACTIVE_PLUS_0) },
-		{ "PROGRESSBAR_PASSIVE_PLUS_0",		(lua_Unsigned)(COL_PROGRESSBAR_PASSIVE_PLUS_0) },
+		{ "MENUFOOT_PLUS_0",	(lua_Unsigned)(COL_MENUFOOT_PLUS_0) },
+		{ "FRAME_PLUS_0",	(lua_Unsigned)(COL_FRAME_PLUS_0) },
+		{ "SCROLLBAR_PLUS_0",	(lua_Unsigned)(COL_SCROLLBAR_PLUS_0) },
+		{ "SCROLLBAR_ACTIVE_PLUS_0",	(lua_Unsigned)(COL_SCROLLBAR_ACTIVE_PLUS_0) },
+		{ "SCROLLBAR_PASSIVE_PLUS_0",	(lua_Unsigned)(COL_SCROLLBAR_PASSIVE_PLUS_0) },
+		{ "PROGRESSBAR_ACTIVE_PLUS_0",	(lua_Unsigned)(COL_PROGRESSBAR_ACTIVE_PLUS_0) },
+		{ "PROGRESSBAR_PASSIVE_PLUS_0",	(lua_Unsigned)(COL_PROGRESSBAR_PASSIVE_PLUS_0) },
 		{ NULL, 0 }
 	};
 
@@ -362,10 +362,10 @@ static void set_lua_variables(lua_State *L)
 
 	table_key ccomponents[] =
 	{
-		{ "SHADOW_OFF",		(lua_Integer)CC_SHADOW_OFF },
-		{ "SHADOW_ON",		(lua_Integer)CC_SHADOW_ON },
-/*		{ "SHADOW_RIGHT",	(lua_Integer)CC_SHADOW_RIGHT },*/
-/*		{ "SHADOW_BOTTOM",	(lua_Integer)CC_SHADOW_BOTTOM },*/
+		{ "SHADOW_OFF",	(lua_Integer)CC_SHADOW_OFF },
+		{ "SHADOW_ON",	(lua_Integer)CC_SHADOW_ON },
+		/*		{ "SHADOW_RIGHT",	(lua_Integer)CC_SHADOW_RIGHT },*/
+		/*		{ "SHADOW_BOTTOM",	(lua_Integer)CC_SHADOW_BOTTOM },*/
 		{ "SAVE_SCREEN_YES",	(lua_Integer)CC_SAVE_SCREEN_YES },
 		{ "SAVE_SCREEN_NO",	(lua_Integer)CC_SAVE_SCREEN_NO },
 		{ NULL, 0 }
@@ -374,36 +374,36 @@ static void set_lua_variables(lua_State *L)
 	table_key dynfont[] =
 	{
 		{ "STYLE_REGULAR",	(lua_Integer)CNeutrinoFonts::FONT_STYLE_REGULAR },
-		{ "STYLE_BOLD",		(lua_Integer)CNeutrinoFonts::FONT_STYLE_BOLD },
+		{ "STYLE_BOLD",	(lua_Integer)CNeutrinoFonts::FONT_STYLE_BOLD },
 		{ "STYLE_ITALIC",	(lua_Integer)CNeutrinoFonts::FONT_STYLE_ITALIC },
-		{ "MAX",		(lua_Integer)CNeutrinoFonts::DYNFONTEXT_MAX },
+		{ "MAX",	(lua_Integer)CNeutrinoFonts::DYNFONTEXT_MAX },
 		{ "MAXIMUM_FONTS",	(lua_Integer)CLuaInstance::DYNFONT_MAXIMUM_FONTS },
-		{ "TO_WIDE",		(lua_Integer)CLuaInstance::DYNFONT_TOO_WIDE }, // just here to stay backward compatible
-		{ "TOO_WIDE",		(lua_Integer)CLuaInstance::DYNFONT_TOO_WIDE },
-		{ "TOO_HIGH",		(lua_Integer)CLuaInstance::DYNFONT_TOO_HIGH },
+		{ "TO_WIDE",	(lua_Integer)CLuaInstance::DYNFONT_TOO_WIDE },  // just here to stay backward compatible
+		{ "TOO_WIDE",	(lua_Integer)CLuaInstance::DYNFONT_TOO_WIDE },
+		{ "TOO_HIGH",	(lua_Integer)CLuaInstance::DYNFONT_TOO_HIGH },
 		{ NULL, 0 }
 	};
 
 	table_key curl_status[] =
 	{
-		{ "OK",			(lua_Integer)CLuaInstCurl::LUA_CURL_OK },
-		{ "ERR_HANDLE",		(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_HANDLE },
-		{ "ERR_NO_URL",		(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_NO_URL },
+		{ "OK",	(lua_Integer)CLuaInstCurl::LUA_CURL_OK },
+		{ "ERR_HANDLE",	(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_HANDLE },
+		{ "ERR_NO_URL",	(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_NO_URL },
 		{ "ERR_CREATE_FILE",	(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_CREATE_FILE },
-		{ "ERR_CURL",		(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_CURL },
+		{ "ERR_CURL",	(lua_Integer)CLuaInstCurl::LUA_CURL_ERR_CURL },
 		{ NULL, 0 }
 	};
 
 	table_key neutrino_mode[] =
 	{
 		{ "UNKNOWN",	(lua_Integer)NeutrinoModes::mode_unknown },
-		{ "TV",		(lua_Integer)NeutrinoModes::mode_tv },
+		{ "TV",	(lua_Integer)NeutrinoModes::mode_tv },
 		{ "RADIO",	(lua_Integer)NeutrinoModes::mode_radio },
 		{ "AVINPUT",	(lua_Integer)NeutrinoModes::mode_avinput },
 		{ "STANDBY",	(lua_Integer)NeutrinoModes::mode_standby },
 		{ "AUDIO",	(lua_Integer)NeutrinoModes::mode_audio },
 		{ "PIC",	(lua_Integer)NeutrinoModes::mode_pic },
-		{ "TS",		(lua_Integer)NeutrinoModes::mode_ts },
+		{ "TS",	(lua_Integer)NeutrinoModes::mode_ts },
 		{ "OFF",	(lua_Integer)NeutrinoModes::mode_off },
 		{ "WEBTV",	(lua_Integer)NeutrinoModes::mode_webtv },
 		{ "WEBRADIO",	(lua_Integer)NeutrinoModes::mode_webradio },

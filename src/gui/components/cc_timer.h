@@ -74,7 +74,7 @@ class CComponentsTimer : public sigc::trackable
 		* @see
 		* 	setTimerInterval();
 		*/
-		CComponentsTimer(const int64_t& interval = 1000);
+		CComponentsTimer(const int64_t &interval = 1000);
 
 		virtual ~CComponentsTimer();
 
@@ -94,7 +94,7 @@ class CComponentsTimer : public sigc::trackable
 		* @see
 		* 	stopTimer()
 		*/
-		void cancelTimerThread(){stopThread();}
+		void cancelTimerThread() {stopThread();}
 
 		/**get current timer status
 		* @return
@@ -114,14 +114,14 @@ class CComponentsTimer : public sigc::trackable
 		* @see
 		* 	tm_interval
 		*/
-		void setTimerInterval(const int64_t& interval);
+		void setTimerInterval(const int64_t &interval);
 
 		/**set thread name
 		* @param[in] thread name
 		* @return
 		* 	void
 		*/
-		void setThreadName(const std::string& n) { tm_thread_name = tn = n; }
+		void setThreadName(const std::string &n) { tm_thread_name = tn = n; }
 
 		/**Provides a signal handler to receive any function or methode.
 		* Use this in your class where ever you need time controled actions.

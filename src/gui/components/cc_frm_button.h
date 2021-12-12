@@ -1,5 +1,5 @@
 /*
-	Based up Neutrino-GUI - Tuxbox-Project 
+	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
@@ -53,14 +53,14 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		CComponentsLabel *cc_btn_text_obj;
 
 		///initialize all required attributes and objects
-		void initVarButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const std::string& caption,
-					const std::string& icon_name,
-					CComponentsForm* parent,
-					bool selected,
-					bool enabled,
-					int shadow_mode,
-					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
+		void initVarButton(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const std::string &caption,
+			const std::string &icon_name,
+			CComponentsForm *parent,
+			bool selected,
+			bool enabled,
+			int shadow_mode,
+			fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
 
 		///property: button text as string, see also setCaption() and getCaptionString()
 		std::string cc_btn_text;
@@ -80,7 +80,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		///property: text color
 		fb_pixel_t cc_btn_text_col, cc_btn_text_disable_col, cc_btn_text_std_col, cc_btn_text_sel_col;
 		///object: text font
-		Font* cc_btn_font;
+		Font *cc_btn_font;
 		///object: dynamic font object handler
 		CNeutrinoFonts 	*cc_btn_dy_font;
 
@@ -94,51 +94,51 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 
 	public:
 		///basic constructor for button object with most needed params, no button icon is definied here
-		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const std::string& caption,
-					const std::string& icon_name = "",
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		CComponentsButton(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const std::string &caption,
+			const std::string &icon_name = "",
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
-		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const neutrino_locale_t& caption_locale,
-					const std::string& icon_name = "",
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		CComponentsButton(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const neutrino_locale_t &caption_locale,
+			const std::string &icon_name = "",
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
-		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const neutrino_locale_t& caption_locale,
-					const char* icon_name = NULL,
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		CComponentsButton(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const neutrino_locale_t &caption_locale,
+			const char *icon_name = NULL,
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
-		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const std::string& caption,
-					const char* icon_name = NULL,
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
+		CComponentsButton(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const std::string &caption,
+			const char *icon_name = NULL,
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
-		virtual ~CComponentsButton(){};
+		virtual ~CComponentsButton() {};
 
 		///set text color
 		void setButtonTextColor(const fb_pixel_t &caption_color, const fb_pixel_t &sel_caption_color = COL_BUTTON_TEXT_ENABLED, const fb_pixel_t &dis_caption_color = COL_BUTTON_TEXT_DISABLED)
-					{
-						cc_btn_text_std_col 	= caption_color;
-						cc_btn_text_sel_col 	= sel_caption_color;
-						cc_btn_text_disable_col = dis_caption_color;
-					};
+		{
+			cc_btn_text_std_col 	= caption_color;
+			cc_btn_text_sel_col 	= sel_caption_color;
+			cc_btn_text_disable_col = dis_caption_color;
+		};
 
 		/**Member to modify background behavior of embeded caption object.
 		* @param[in]  mode
@@ -155,29 +155,30 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 			if (cc_txt_save_screen == mode)
 				return;
 			cc_txt_save_screen = mode;
-			for(size_t i=0; i<v_cc_items.size(); i++){
+			for (size_t i = 0; i < v_cc_items.size(); i++)
+			{
 				if (v_cc_items[i]->getItemType() == CC_ITEMTYPE_LABEL)
-					static_cast<CComponentsLabel*>(v_cc_items[i])->enableTboxSaveScreen(cc_txt_save_screen);
+					static_cast<CComponentsLabel *>(v_cc_items[i])->enableTboxSaveScreen(cc_txt_save_screen);
 			}
 		};
 
 		///set caption: parameter as string
-		void setCaption(const std::string& text);
+		void setCaption(const std::string &text);
 		///set caption: parameter as locale
 		void setCaption(const neutrino_locale_t locale_text);
 
 		///get caption, type as std::string
-		std::string getCaptionString(){return cc_btn_text;};
+		std::string getCaptionString() {return cc_btn_text;};
 		///get loacalized caption id, type = neutrino_locale_t
-		neutrino_locale_t getCaptionLocale(){return cc_btn_text_locale;}
+		neutrino_locale_t getCaptionLocale() {return cc_btn_text_locale;}
 		///get font type of caption, type as Font*
-		Font* getButtonFont(){return cc_btn_font;}
+		Font *getButtonFont() {return cc_btn_font;}
 
 		///property: set font for label caption, parameter as font object, value NULL causes usaage of dynamic font
-		void setButtonFont(Font* font){cc_btn_font = font; initCCBtnItems();};
+		void setButtonFont(Font *font) {cc_btn_font = font; initCCBtnItems();};
 
 		///reinitialize items
-		void Refresh(){initCCBtnItems();};
+		void Refresh() {initCCBtnItems();};
 
 		///paint button object
 		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
@@ -191,7 +192,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		* 		use setButtonDirectKeys().
 		* @see		setButtonDirectKeys(), driver/rcinput.h for possible values
 		*/
-		void setButtonDirectKey(const neutrino_msg_t& msg){cc_directKeys.clear(); cc_directKeys.push_back(msg);}
+		void setButtonDirectKey(const neutrino_msg_t &msg) {cc_directKeys.clear(); cc_directKeys.push_back(msg);}
 
 		/**
 		* Assigns a container with any event msg values to button object
@@ -202,7 +203,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		* 		use setButtonDirectKey().
 		* @see		driver/rcinput.h for possible values
 		*/
-		void setButtonDirectKeys(const std::vector<neutrino_msg_t> &v_directKeys){cc_directKeys = v_directKeys;}
+		void setButtonDirectKeys(const std::vector<neutrino_msg_t> &v_directKeys) {cc_directKeys = v_directKeys;}
 
 		/**
 		* Returns current primary event msg value of button object.
@@ -214,13 +215,17 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		* 		If required use getKeySize() to get current count of avalable keys.
 		* @see		bool hasButtonDirectKey(), size_t getKeySize(), driver/rcinput.h for possible values
 		*/
-		neutrino_msg_t getButtonDirectKey(const size_t& id = 0)
+		neutrino_msg_t getButtonDirectKey(const size_t &id = 0)
 		{
-			for (size_t i= 0; i< cc_directKeys.size(); i++){
-				if (i == 0){
+			for (size_t i = 0; i < cc_directKeys.size(); i++)
+			{
+				if (i == 0)
+				{
 					if (cc_directKeys[i] != RC_NOKEY)
 						return cc_directKeys[i];
-				}else{
+				}
+				else
+				{
 					if (cc_directKeys[i] == id)
 						return cc_directKeys[i];
 				}
@@ -232,7 +237,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		 * Remove all defined direct keys.
 		 * @return	void
 		 */
-		void clearButtonDirectKeys(){cc_directKeys.clear();}
+		void clearButtonDirectKeys() {cc_directKeys.clear();}
 
 		/**
 		 * Returns count of existant direct keys of cc_directKeys container.
@@ -248,26 +253,26 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		* 	@li 	expects type neutrino_msg_t as filter for searched message
 		* @see		neutrino_msg_t getButtonDirectKey(), driver/rcinput.h for possible values
 		*/
-		bool hasButtonDirectKey(const neutrino_msg_t& msg)
+		bool hasButtonDirectKey(const neutrino_msg_t &msg)
 		{
-			for (size_t i= 0; i< cc_directKeys.size(); i++)
+			for (size_t i = 0; i < cc_directKeys.size(); i++)
 				if (cc_directKeys[i] == msg)
 					return true;
 			return false;
 		}
 
 		///assigns an return value to button object, parameter1 as int
-		void setButtonResult(const int& result_value){cc_btn_result = result_value;}
+		void setButtonResult(const int &result_value) {cc_btn_result = result_value;}
 		///returns current result value of button object
-		int getButtonResult(){return cc_btn_result;}
+		int getButtonResult() {return cc_btn_result;}
 
-		///assigns an alias value to button object, parameter1 as int, e.g. previous known as mbYes, mbNo... from message boxes 
-		void setButtonAlias(const int& alias_value){cc_btn_alias = alias_value;}
+		///assigns an alias value to button object, parameter1 as int, e.g. previous known as mbYes, mbNo... from message boxes
+		void setButtonAlias(const int &alias_value) {cc_btn_alias = alias_value;}
 		///returns an alias value from button object, see also cc_btn_alias
-		int getButtonAlias(){return cc_btn_alias;}
+		int getButtonAlias() {return cc_btn_alias;}
 
 		///assigns icon to button object, parameter1 as std::string
-		void setButtonIcon(const std::string& icon);
+		void setButtonIcon(const std::string &icon);
 
 		///signal on pressed key/button
 		sigc::signal<void> OnPressedButton;
@@ -280,26 +285,26 @@ Shows a button box with caption and prepared red icon.
 class CComponentsButtonRed : public CComponentsButton
 {
 	public:
-		CComponentsButtonRed(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const std::string& caption,
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
+		CComponentsButtonRed(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const std::string &caption,
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+			: CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_RED;
 			cc_item_type.name 	= "cc_base_red_button";
 		};
-		CComponentsButtonRed(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const neutrino_locale_t& caption_locale,
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
+		CComponentsButtonRed(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const neutrino_locale_t &caption_locale,
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+			: CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_RED;
 			cc_item_type.name 	= "cc_base_localized_red_button";
@@ -313,27 +318,27 @@ Shows a button box with caption and prepared green icon.
 class CComponentsButtonGreen : public CComponentsButton
 {
 	public:
-		CComponentsButtonGreen(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const std::string& caption,
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
+		CComponentsButtonGreen(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const std::string &caption,
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+			: CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_GREEN;
 			cc_item_type.name 	= "cc_base_green_button";
 
 		};
-		CComponentsButtonGreen(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const neutrino_locale_t& caption_locale,
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
+		CComponentsButtonGreen(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const neutrino_locale_t &caption_locale,
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+			: CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_GREEN;
 			cc_item_type.name 	= "cc_base_localized_green_button";
@@ -347,26 +352,26 @@ Shows a button box with caption and prepared yellow icon.
 class CComponentsButtonYellow : public CComponentsButton
 {
 	public:
-		CComponentsButtonYellow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const std::string& caption,
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
+		CComponentsButtonYellow(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const std::string &caption,
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+			: CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_YELLOW;
 			cc_item_type.name 	= "cc_base_yellow_button";
 		};
-		CComponentsButtonYellow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const neutrino_locale_t& caption_locale,
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
+		CComponentsButtonYellow(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const neutrino_locale_t &caption_locale,
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+			: CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type.id		= CC_ITEMTYPE_BUTTON_YELLOW;
 			cc_item_type.name 	= "cc_base_localized_yellow_button";
@@ -380,26 +385,26 @@ Shows a button box with caption and prepared blue icon.
 class CComponentsButtonBlue : public CComponentsButton
 {
 	public:
-		CComponentsButtonBlue(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const std::string& caption,
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
+		CComponentsButtonBlue(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const std::string &caption,
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+			: CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type.id		= CC_ITEMTYPE_BUTTON_BLUE;
 			cc_item_type.name 	= "cc_base_blue_button";
 		};
-		CComponentsButtonBlue(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const neutrino_locale_t& caption_locale,
-					CComponentsForm *parent = NULL,
-					bool selected = false,
-					bool enabled = true,
-					int shadow_mode = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
+		CComponentsButtonBlue(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			const neutrino_locale_t &caption_locale,
+			CComponentsForm *parent = NULL,
+			bool selected = false,
+			bool enabled = true,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0, fb_pixel_t color_body = COL_BUTTON_BODY, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0)
+			: CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, shadow_mode, color_frame, color_body, color_shadow)
 		{
 			cc_item_type.id 	= CC_ITEMTYPE_BUTTON_BLUE;
 			cc_item_type.name 	= "cc_base_localized_blue_button";

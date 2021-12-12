@@ -51,20 +51,21 @@
 
 #include <system/debug.h>
 #include <hardware/video.h>
-extern cVideo * videoDecoder;
+extern cVideo *videoDecoder;
 
 
 CMediaPlayerMenu::CMediaPlayerMenu()
 {
 	width = 40;
-	
+
 }
 
-CMediaPlayerMenu* CMediaPlayerMenu::getInstance()
+CMediaPlayerMenu *CMediaPlayerMenu::getInstance()
 {
-	static CMediaPlayerMenu* mpm = NULL;
+	static CMediaPlayerMenu *mpm = NULL;
 
-	if(!mpm) {
+	if (!mpm)
+	{
 		mpm = new CMediaPlayerMenu();
 		printf("[neutrino] mediaplayer menu instance created\n");
 	}
@@ -75,46 +76,46 @@ CMediaPlayerMenu::~CMediaPlayerMenu()
 {
 }
 
-int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
+int CMediaPlayerMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	if (parent)
 		parent->hide();
-	
+
 	if (actionKey == "moviebrowser")
 	{
 		CInfoClock::getInstance()->enableInfoClock(false);
 		int mode = CNeutrinoApp::getInstance()->getMode();
-		if( mode == NeutrinoModes::mode_radio )
+		if (mode == NeutrinoModes::mode_radio)
 			CFrameBuffer::getInstance()->stopFrame();
 		int res = CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
-		if( mode == NeutrinoModes::mode_radio )
+		if (mode == NeutrinoModes::mode_radio)
 			CFrameBuffer::getInstance()->showFrame("radiomode.jpg");
 		CInfoClock::getInstance()->enableInfoClock(true);
 		return res;
 	}
-	
+
 	int res = initMenuMedia();
-	
+
 	return res;
 }
 
 //show selectable mediaplayer items
 int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
-{	
+{
 	CPersonalizeGui *personalize = p;
 	CMenuWidget *multimedia_menu = m;
-	
+
 	bool show = (personalize == NULL || multimedia_menu == NULL);
 
 	if (personalize == NULL)
-		 personalize = new CPersonalizeGui();
-	
+		personalize = new CPersonalizeGui();
+
 	if (multimedia_menu == NULL)
-		 multimedia_menu = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA);
+		multimedia_menu = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA);
 
 	personalize->addWidget(multimedia_menu);
 	personalize->addIntroItems(multimedia_menu);
-	
+
 	bool enabled = !CMoviePlayerGui::getInstance().Playing();
 
 #if 0
@@ -168,24 +169,24 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 
 #ifdef ENABLE_GUI_MOUNT
 	if (g_settings.personalize[SNeutrinoSettings::P_MPLAYER_GUI_MOUNT])
-		personalize->addSeparator(*multimedia_menu, LOCALE_NETWORKMENU_MOUNT, true); 
+		personalize->addSeparator(*multimedia_menu, LOCALE_NETWORKMENU_MOUNT, true);
 
-	CMenuForwarder * mf_mount = new CMenuForwarder(LOCALE_NFS_MOUNT , true, NULL, new CNFSMountGui(), NULL);
+	CMenuForwarder *mf_mount = new CMenuForwarder(LOCALE_NFS_MOUNT, true, NULL, new CNFSMountGui(), NULL);
 	mf_mount->setHint("", LOCALE_MENU_HINT_NET_NFS_MOUNT);
 	personalize->addItem(multimedia_menu, mf_mount, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_GUI_MOUNT]);
 
-	CMenuForwarder * mf_umount = new CMenuForwarder(LOCALE_NFS_UMOUNT, true, NULL, new CNFSUmountGui(), NULL);
+	CMenuForwarder *mf_umount = new CMenuForwarder(LOCALE_NFS_UMOUNT, true, NULL, new CNFSUmountGui(), NULL);
 	mf_umount->setHint("", LOCALE_MENU_HINT_NET_NFS_UMOUNT);
 	personalize->addItem(multimedia_menu, mf_umount, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_GUI_MOUNT]);
 #endif
 
 	int res = menu_return::RETURN_NONE;
-	
+
 	if (show)
 	{
- 		//adding personalized items
+		//adding personalized items
 		personalize->addPersonalizedItems();
-		
+
 		//add PLUGIN_INTEGRATION_MULTIMEDIA plugins
 		unsigned int nextShortcut = (unsigned int)multimedia_menu->getNextShortcut();
 		multimedia_menu->integratePlugins(PLUGIN_INTEGRATION_MULTIMEDIA, nextShortcut, enabled);

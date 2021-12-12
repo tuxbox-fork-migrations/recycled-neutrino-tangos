@@ -223,8 +223,8 @@ class CRCInput
 			RC_back		= KEY_BACK,	    /* /include/linux/input.h: #define KEY_BACK			158   */
 			RC_home		= KEY_HOME,	    /* /include/linux/input.h: #define KEY_HOME			102   */
 			RC_setup	= KEY_MENU,	    /* /include/linux/input.h: #define KEY_SETUP		141   */
-			RC_topleft	= KEY_TOPLEFT,	
-			RC_topright	= KEY_TOPRIGHT,	
+			RC_topleft	= KEY_TOPLEFT,
+			RC_topright	= KEY_TOPRIGHT,
 			RC_page_up	= KEY_PAGEUP,	    /* /include/linux/input.h: #define KEY_PAGEUP		104   */
 			RC_page_down	= KEY_PAGEDOWN,	    /* /include/linux/input.h: #define KEY_PAGEDOWN		109   */
 			RC_ok		= KEY_OK,	    /* /include/linux/input.h: #define KEY_OK			0x160 */ /* in patched input.h */
@@ -340,11 +340,11 @@ class CRCInput
 		static const char *getUnicodeValue(const neutrino_msg_t key);
 		uint32_t *setAllowRepeat(uint32_t *);
 
-		static const char * getSpecialKeyName(const unsigned int key);
+		static const char *getSpecialKeyName(const unsigned int key);
 		static const char *getKeyNameC(const unsigned int key);
 		static std::string getKeyName(const unsigned int key);
 
-		int addTimer(uint64_t Interval, bool oneshot= true, bool correct_time= true );
+		int addTimer(uint64_t Interval, bool oneshot = true, bool correct_time = true);
 		int addTimer(struct timeval Timeout);
 		int addTimer(const time_t *Timeout);
 
@@ -353,14 +353,14 @@ class CRCInput
 		static int64_t calcTimeoutEnd_MS(const int timeout_in_milliseconds);
 		static int64_t calcTimeoutEnd(const int timeout_in_seconds);
 
-		void getMsgAbsoluteTimeout(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t *TimeoutEnd, bool bAllowRepeatLR= false);
-		void getMsg(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);        //get message, timeout in 1/10 secs :)
-		void getMsg_ms(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);     //get message, timeout in milisecs :)
-		void getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t Timeout, bool bAllowRepeatLR= false);//get message, timeout in microsecs :)
+		void getMsgAbsoluteTimeout(neutrino_msg_t *msg, neutrino_msg_data_t *data, uint64_t *TimeoutEnd, bool bAllowRepeatLR = false);
+		void getMsg(neutrino_msg_t *msg, neutrino_msg_data_t *data, int Timeout, bool bAllowRepeatLR = false);         //get message, timeout in 1/10 secs :)
+		void getMsg_ms(neutrino_msg_t *msg, neutrino_msg_data_t *data, int Timeout, bool bAllowRepeatLR = false);      //get message, timeout in milisecs :)
+		void getMsg_us(neutrino_msg_t *msg, neutrino_msg_data_t *data, uint64_t Timeout, bool bAllowRepeatLR = false); //get message, timeout in microsecs :)
 		void postMsg(const neutrino_msg_t msg, const neutrino_msg_data_t data, const bool Priority = true);            // push message back into buffer
 		void clearRCMsg();
 
-		int messageLoop( bool anyKeyCancels = false, int timeout= -1 );
+		int messageLoop(bool anyKeyCancels = false, int timeout = -1);
 
 		void setLongPressAny(bool b) { longPressAny = b; };
 		void setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms);

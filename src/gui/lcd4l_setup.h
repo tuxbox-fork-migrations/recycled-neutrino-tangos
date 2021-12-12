@@ -45,7 +45,7 @@ class CLCD4lSetup : public CMenuTarget, CChangeObserver
 		int showTypeSetup();
 
 	public:
-		static CLCD4lSetup* getInstance();
+		static CLCD4lSetup *getInstance();
 		CLCD4lSetup();
 		~CLCD4lSetup();
 		int exec(CMenuTarget *parent, const std::string &actionkey);

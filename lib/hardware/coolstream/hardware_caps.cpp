@@ -49,59 +49,60 @@ hw_caps_t *get_hwcaps(void)
 	strcpy(caps.startup_file, "");
 	strcpy(caps.boxvendor, "Coolstream");
 	strcpy(caps.boxarch, "Nevis");
-	switch (rev) {
-	case 6:
-	case 7: // Black Stallion Edition
-		strcpy(caps.boxname, "HD1");
-		strcpy(caps.boxarch, "Nevis");
-		caps.force_tuner_2G = 1;
-		break;
-	case 8:
-		strcpy(caps.boxname, "Neo"); // see dirty part of hw_caps in neutrino.cpp
-		strcpy(caps.boxarch, "Nevis");
-		caps.force_tuner_2G = 1;
-		break;
-	case 9:
-		strcpy(caps.boxname, "Tank");
-		strcpy(caps.boxarch, "Apollo");
-		break;
-	case 10:
-		strcpy(caps.boxname, "Zee");
-		caps.force_tuner_2G = 1;
-		break;
-	case 11:
-		if (chip == CS_CHIP_SHINER)
-		{
-			strcpy(caps.boxname, "Trinity");
-			strcpy(caps.boxarch, "Shiner");
-		}
-		else
-		{
-			strcpy(caps.boxname, "Trinity V2");
+	switch (rev)
+	{
+		case 6:
+		case 7: // Black Stallion Edition
+			strcpy(caps.boxname, "HD1");
+			strcpy(caps.boxarch, "Nevis");
+			caps.force_tuner_2G = 1;
+			break;
+		case 8:
+			strcpy(caps.boxname, "Neo"); // see dirty part of hw_caps in neutrino.cpp
+			strcpy(caps.boxarch, "Nevis");
+			caps.force_tuner_2G = 1;
+			break;
+		case 9:
+			strcpy(caps.boxname, "Tank");
+			strcpy(caps.boxarch, "Apollo");
+			break;
+		case 10:
+			strcpy(caps.boxname, "Zee");
+			caps.force_tuner_2G = 1;
+			break;
+		case 11:
+			if (chip == CS_CHIP_SHINER)
+			{
+				strcpy(caps.boxname, "Trinity");
+				strcpy(caps.boxarch, "Shiner");
+			}
+			else
+			{
+				strcpy(caps.boxname, "Trinity V2");
+				strcpy(caps.boxarch, "Kronos");
+			}
+			caps.display_can_set_brightness = 0;
+			caps.display_has_statusline = 0;
+			break;
+		case 12:
+			strcpy(caps.boxname, "Zee2");
 			strcpy(caps.boxarch, "Kronos");
-		}
-		caps.display_can_set_brightness = 0;
-		caps.display_has_statusline = 0;
-		break;
-	case 12:
-		strcpy(caps.boxname, "Zee2");
-		strcpy(caps.boxarch, "Kronos");
-		break;
-	case 13:
-		strcpy(caps.boxname, "Link");
-		strcpy(caps.boxarch, "Kronos");
-		caps.display_has_statusline = 0;
-		break;
-	case 14:
-		strcpy(caps.boxname, "Trinity Duo");
-		strcpy(caps.boxarch, "Kronos");
-		caps.display_can_set_brightness = 0;
-		caps.display_has_statusline = 0;
-		break;
-	default:
-		strcpy(caps.boxname, "UNKNOWN_BOX");
-		strcpy(caps.boxarch, "Unknown");
-		fprintf(stderr, "[%s] unhandled box revision %d\n", __func__, rev);
+			break;
+		case 13:
+			strcpy(caps.boxname, "Link");
+			strcpy(caps.boxarch, "Kronos");
+			caps.display_has_statusline = 0;
+			break;
+		case 14:
+			strcpy(caps.boxname, "Trinity Duo");
+			strcpy(caps.boxarch, "Kronos");
+			caps.display_can_set_brightness = 0;
+			caps.display_has_statusline = 0;
+			break;
+		default:
+			strcpy(caps.boxname, "UNKNOWN_BOX");
+			strcpy(caps.boxarch, "Unknown");
+			fprintf(stderr, "[%s] unhandled box revision %d\n", __func__, rev);
 	}
 
 	initialized = 1;

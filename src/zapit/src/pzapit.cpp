@@ -28,7 +28,7 @@
 
 #include <zapit/client/zapitclient.h>
 
-int usage (const char * basename)
+int usage(const char *basename)
 {
 	std::cout << "Usage:" << std::endl
 		<< basename << " <options>" << std::endl
@@ -83,7 +83,7 @@ int usage (const char * basename)
 	return -1;
 }
 
-int main (int argc, char** argv)
+int main(int argc, char **argv)
 {
 	int i;
 	uint32_t  j;
@@ -105,7 +105,7 @@ int main (int argc, char** argv)
 	int m43 = -1;
 	int vf = -1;
 	int lockrc = -1;
-	const char * channelName = NULL;
+	const char *channelName = NULL;
 
 	bool playback = false;
 	bool recordmode = false;
@@ -538,7 +538,7 @@ int main (int argc, char** argv)
 
 	if (aspectratio)
 	{
-		if(arat >= 0)
+		if (arat >= 0)
 			zapit.setAspectRatio(arat);
 		else
 		{
@@ -554,7 +554,7 @@ int main (int argc, char** argv)
 		/* hack for mix-up letterbox / panscan */
 		m43 = (m43 == 0 || m43 == 1) ? !m43 : m43;
 #endif
-		if(m43 >= 0)
+		if (m43 >= 0)
 			zapit.setMode43(m43);
 		else
 		{
@@ -562,7 +562,7 @@ int main (int argc, char** argv)
 #if HAVE_ARM_HARDWARE
 			m43 = (m43 == 0 || m43 == 1) ? !m43 : m43;
 #endif
-			printf("%d\n",m43);
+			printf("%d\n", m43);
 		}
 		return 0;
 	}
@@ -586,7 +586,7 @@ int main (int argc, char** argv)
 		zapit.getScanSatelliteList(satelliteList);
 
 		std::vector<CZapitClient::responseGetSatelliteList>::const_iterator rI;
-		for ( ii = 0, rI = satelliteList.begin(); rI != satelliteList.end(); ii++, rI++)
+		for (ii = 0, rI = satelliteList.begin(); rI != satelliteList.end(); ii++, rI++)
 			printf("%" PRId64 " : %s %d\n", ii, rI->satName, rI->satPosition);
 		//std::cout << (1 << ii) << ": " << rI->satName << std::endl;
 
@@ -630,7 +630,7 @@ int main (int argc, char** argv)
 
 		while (zapit.isScanReady(satellite, processed_transponder, transponder, services) == false)
 		{
-			std::cout << "satellite: " << satellite << ", transponder: " << processed_transponder <<", of: " << transponder << ", services: " << services << std::endl;
+			std::cout << "satellite: " << satellite << ", transponder: " << processed_transponder << ", of: " << transponder << ", services: " << services << std::endl;
 			sleep(1);
 		}
 
@@ -682,7 +682,7 @@ int main (int argc, char** argv)
 		printf("Zapping to: %" PRIx64 " (%s) ", zapsid, (zapit.getChannelName(zapsid)).c_str());
 		tmp = zapit.zapTo_serviceID(zapsid);
 		if (!tmp)
-		  printf("failed");
+			printf("failed");
 		printf("\n");
 		return tmp;
 	}
@@ -745,7 +745,7 @@ int main (int argc, char** argv)
 				std::vector<CZapitClient::responseGetBouquetChannels>::const_iterator ch_resp;
 				for (ch_resp = channels.begin(), channel = 1; ch_resp != channels.end(); ch_resp++, ++channel)
 					//std::cout << channel << ": " << ch_resp->name << ": " << ch_resp->channel_id<< std::endl;
-					printf("%3u: %s (%04x)\n", channel, ch_resp->name, (short) (ch_resp->channel_id &0xFFFF));
+					printf("%3u: %s (%04x)\n", channel, ch_resp->name, (short)(ch_resp->channel_id & 0xFFFF));
 				return 0;
 			}
 		}
@@ -758,8 +758,8 @@ int main (int argc, char** argv)
 		}
 
 channel_found:
-		zapit.zapTo(channels[channel-1].nr);
-		std::cout << "zapped to " << channels[channel-1].name << std::endl;
+		zapit.zapTo(channels[channel - 1].nr);
+		std::cout << "zapped to " << channels[channel - 1].name << std::endl;
 	}
 
 	if (!quiet)

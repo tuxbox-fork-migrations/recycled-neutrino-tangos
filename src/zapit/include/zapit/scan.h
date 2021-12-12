@@ -35,19 +35,21 @@
 #include "bouquets.h"
 #include <OpenThreads/Thread>
 
-extern CBouquetManager* scanBouquetManager;
+extern CBouquetManager *scanBouquetManager;
 
 class CServiceScan : public OpenThreads::Thread
 {
 	public:
-		typedef enum scan_type {
+		typedef enum scan_type
+		{
 			SCAN_PROVIDER,
 			SCAN_TRANSPONDER
 #if ENABLE_FASTSCAN
 			, SCAN_FAST
 #endif
 		} scan_type_t;
-		typedef enum scan_flags {
+		typedef enum scan_flags
+		{
 			SCAN_NIT		= 0x01,
 			SCAN_BAT		= 0x02,
 			SCAN_FTA		= 0x04,
@@ -67,7 +69,7 @@ class CServiceScan : public OpenThreads::Thread
 		bool abort_scan;
 		scan_type_t scan_mode;
 		int flags;
-		void * scan_arg;
+		void *scan_arg;
 		bool satHaveChannels;
 
 		uint32_t fake_tid, fake_nid;
@@ -114,25 +116,25 @@ class CServiceScan : public OpenThreads::Thread
 		void InitFastscanLnb(int id);
 		bool FastscanTune(int id);
 		bool ReadFst(unsigned short pid, unsigned short operator_id, bool one_section = false);
-		bool ParseFst(unsigned short pid, fast_scan_operator_t * op);
+		bool ParseFst(unsigned short pid, fast_scan_operator_t *op);
 		bool ParseFnt(unsigned short pid, unsigned short operator_id);
-		void process_logical_service_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
-		void process_service_list_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
-		void process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, t_satellite_position * satellitePosition);
+		void process_logical_service_descriptor(const unsigned char *const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
+		void process_service_list_descriptor(const unsigned char *const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
+		void process_satellite_delivery_system_descriptor(const unsigned char *const buffer, FrontendParameters *feparams, t_satellite_position *satellitePosition);
 		bool ScanFast();
 		void ReportFastScan(FrontendParameters &feparams, t_satellite_position satellitePosition);
 #endif
 		void run();
 
-		CFrontend * frontend;
-		static CServiceScan * scan;
+		CFrontend *frontend;
+		static CServiceScan *scan;
 		CServiceScan();
 
 	public:
 		~CServiceScan();
-		static CServiceScan * getInstance();
+		static CServiceScan *getInstance();
 
-		bool Start(scan_type_t mode, void * arg);
+		bool Start(scan_type_t mode, void *arg);
 		bool Stop();
 
 		bool AddTransponder(transponder_id_t TsidOnid, FrontendParameters *feparams, bool fromnit = false);
@@ -144,10 +146,10 @@ class CServiceScan : public OpenThreads::Thread
 		bool Aborted() { return abort_scan; };
 
 		bool SetFrontend(t_satellite_position satellitePosition);
-		CFrontend * GetFrontend() { return frontend; };
+		CFrontend *GetFrontend() { return frontend; };
 
-		uint32_t & FoundTransponders() { return found_transponders; };
-		uint32_t & FoundChannels() { return found_channels; };
+		uint32_t &FoundTransponders() { return found_transponders; };
+		uint32_t &FoundChannels() { return found_channels; };
 		void SetCableNID(unsigned short nid) { cable_nid = nid; }
 		bool isFtaOnly() { return flags & SCAN_FTA; }
 		int GetFlags() { return flags; }

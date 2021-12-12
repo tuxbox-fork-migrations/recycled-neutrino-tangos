@@ -36,10 +36,10 @@ typedef enum
 {
 	DMX_OUT_DECODER, /* Streaming directly to decoder. */
 	DMX_OUT_TAP,     /* Output going to a memory buffer */
-			 /* (to be retrieved via the read command).*/
+	/* (to be retrieved via the read command).*/
 	DMX_OUT_TS_TAP,  /* Output multiplexed into a new TS  */
-			 /* (to be retrieved by reading from the */
-			 /* logical DVR device).                 */
+	/* (to be retrieved by reading from the */
+	/* logical DVR device).                 */
 	DMX_OUT_TSDEMUX_TAP /* Like TS_TAP but retrieved from the DMX device */
 } dmx_output_t;
 
@@ -240,12 +240,14 @@ struct dmx_pes_filter_params
 	__u32          flags;
 };
 
-typedef struct dmx_caps {
+typedef struct dmx_caps
+{
 	__u32 caps;
 	int num_decoders;
 } dmx_caps_t;
 
-typedef enum {
+typedef enum
+{
 	DMX_SOURCE_FRONT0 = 0,
 	DMX_SOURCE_FRONT1,
 	DMX_SOURCE_FRONT2,
@@ -308,7 +310,8 @@ typedef enum {
 #endif
 } dmx_source_t;
 
-struct dmx_stc {
+struct dmx_stc
+{
 	unsigned int num;	/* input : which STC? 0..N */
 	unsigned int base;	/* output: divisor for stc to get 90 kHz clock */
 	__u64 stc;		/* output: stc in 'base'*90 kHz units */

@@ -31,21 +31,21 @@
 
 class CRCLock: public CMenuTarget
 {
-private:
-	bool locked;
-	CComponentsPicture *lockIcon;
+	private:
+		bool locked;
+		CComponentsPicture *lockIcon;
 
-	void lockRC();
+		void lockRC();
 
-public:
-	CRCLock();
-	~CRCLock();
-	static CRCLock* getInstance();
+	public:
+		CRCLock();
+		~CRCLock();
+		static CRCLock *getInstance();
 
-	static const std::string NO_USER_INPUT;
+		static const std::string NO_USER_INPUT;
 
-	int isLocked() { return locked; }
-	int exec(CMenuTarget* parent, const std::string & actionKey);
+		int isLocked() { return locked; }
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 #endif

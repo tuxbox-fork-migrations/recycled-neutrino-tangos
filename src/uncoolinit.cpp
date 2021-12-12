@@ -25,7 +25,7 @@
 cVideo *v = NULL;
 cDemux *d = NULL;
 
-int main (int argc, char **argv)
+int main(int argc, char **argv)
 {
 	struct timespec s, e;
 	clock_gettime(CLOCK_MONOTONIC, &s);
@@ -39,7 +39,8 @@ int main (int argc, char **argv)
 	v = new cVideo(VIDEO_STD_1080I50, d->getChannel(), d->getBuffer());
 
 	/* should we slow down booting even more by showing a picture? */
-	if (argc > 1) {
+	if (argc > 1)
+	{
 		v->ShowPicture(argv[1]);
 		if (argc > 2)
 			sleep(atoi(argv[2]));
@@ -52,6 +53,6 @@ int main (int argc, char **argv)
 	cs_api_exit();
 	clock_gettime(CLOCK_MONOTONIC, &e);
 	printf("uncoolinit ends, took %lld ms\n",
-		(e.tv_sec*1000 + e.tv_nsec/1000000LL) - (s.tv_sec*1000 + s.tv_nsec/1000000LL));
+		(e.tv_sec * 1000 + e.tv_nsec / 1000000LL) - (s.tv_sec * 1000 + s.tv_nsec / 1000000LL));
 	return 0;
 }

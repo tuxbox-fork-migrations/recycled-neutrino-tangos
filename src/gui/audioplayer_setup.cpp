@@ -62,7 +62,7 @@ CAudioPlayerSetup::~CAudioPlayerSetup()
 
 }
 
-int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
+int CAudioPlayerSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init audioplayer setup\n");
 	int   res = menu_return::RETURN_REPAINT;
@@ -71,19 +71,19 @@ int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		parent->hide();
 
 
-	if(actionKey == "audioplayerdir")
+	if (actionKey == "audioplayerdir")
 	{
 		CFileBrowser b;
-		b.Dir_Mode=true;
+		b.Dir_Mode = true;
 		if (b.exec(g_settings.network_nfs_audioplayerdir.c_str()))
 			g_settings.network_nfs_audioplayerdir = b.getSelectedFile()->Name;
 		return res;
 	}
 
-	if(actionKey == "streamripperdir")
+	if (actionKey == "streamripperdir")
 	{
 		CFileBrowser b;
-		b.Dir_Mode=true;
+		b.Dir_Mode = true;
 		if (b.exec(g_settings.network_nfs_streamripperdir.c_str()))
 			g_settings.network_nfs_streamripperdir = b.getSelectedFile()->Name;
 		return res;
@@ -106,10 +106,10 @@ const CMenuOptionChooser::keyval AUDIOPLAYER_DISPLAY_ORDER_OPTIONS[AUDIOPLAYER_D
 /*shows the audio setup menue*/
 int CAudioPlayerSetup::showAudioPlayerSetup()
 {
-	CMenuOptionChooser * mc;
-	CMenuForwarder * mf;
+	CMenuOptionChooser *mc;
+	CMenuForwarder *mf;
 
-	CMenuWidget* audioplayerSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_AUDIOSETUP);
+	CMenuWidget *audioplayerSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_AUDIOSETUP);
 
 	audioplayerSetup->addIntroItems(LOCALE_AUDIOPLAYER_INTERNETRADIO_NAME);
 
@@ -122,11 +122,11 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_FOLLOW);
 	audioplayerSetup->addItem(mc);
 
-	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_SELECT_TITLE_BY_NAME, &g_settings.audioplayer_select_title_by_name, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true );
+	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_SELECT_TITLE_BY_NAME, &g_settings.audioplayer_select_title_by_name, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_TITLE);
 	audioplayerSetup->addItem(mc);
 
-	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_REPEAT_ON, &g_settings.audioplayer_repeat_on, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true );
+	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_REPEAT_ON, &g_settings.audioplayer_repeat_on, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_REPEAT);
 	audioplayerSetup->addItem(mc);
 
@@ -138,12 +138,12 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_COVER_AS_SCREENSAVER);
 	audioplayerSetup->addItem(mc);
 
-	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_HIGHPRIO, &g_settings.audioplayer_highprio, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true );
+	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_HIGHPRIO, &g_settings.audioplayer_highprio, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_HIGHPRIO);
 	audioplayerSetup->addItem(mc);
 #if 0
 	if (CVFD::getInstance()->has_lcd) //FIXME
-		audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_SPECTRUM     , &g_settings.spectrum    , MESSAGEBOX_NO_YES_OPTIONS      , MESSAGEBOX_NO_YES_OPTION_COUNT      , true ));
+		audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_SPECTRUM, &g_settings.spectrum, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true));
 #endif
 	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_DEFDIR, true, g_settings.network_nfs_audioplayerdir, this, "audioplayerdir");
 	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_DEFDIR);
@@ -164,7 +164,7 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_STREAMRIPPER_DIR);
 	audioplayerSetup->addItem(mf);
 
-	int res = audioplayerSetup->exec (NULL, "");
+	int res = audioplayerSetup->exec(NULL, "");
 	delete audioplayerSetup;
 	return res;
 }

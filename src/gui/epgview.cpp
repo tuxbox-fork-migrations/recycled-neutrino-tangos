@@ -58,14 +58,17 @@
 #include <eitd/sectionsd.h>
 #include <timerdclient/timerdclient.h>
 
-extern CPictureViewer * g_PicViewer;
+extern CPictureViewer *g_PicViewer;
 
 #define ICON_LARGE_WIDTH 26
 
-int findItem(std::string strItem, std::vector<std::string> & vecItems) {
-	for (std::vector<std::string>::size_type nCnt = 0; nCnt < vecItems.size(); nCnt++) {
+int findItem(std::string strItem, std::vector<std::string> &vecItems)
+{
+	for (std::vector<std::string>::size_type nCnt = 0; nCnt < vecItems.size(); nCnt++)
+	{
 		std::string strThisItem = vecItems[nCnt];
-		if (strItem == strThisItem) {
+		if (strItem == strThisItem)
+		{
 			return nCnt;
 		}
 	}
@@ -79,40 +82,51 @@ int findItem(std::string strItem, std::vector<std::string> & vecItems) {
 //   Year of production -> Produktionsjahr
 //   Director           -> Regisseur
 //   Guests             -> Gäste
-void reformatExtendedEvents(std::string strItem, std::string strLabel, bool bUseRange, CEPGData & epgdata) {
-	std::vector<std::string> & vecDescriptions = epgdata.itemDescriptions;
-	std::vector<std::string> & vecItems = epgdata.items;
+void reformatExtendedEvents(std::string strItem, std::string strLabel, bool bUseRange, CEPGData &epgdata)
+{
+	std::vector<std::string> &vecDescriptions = epgdata.itemDescriptions;
+	std::vector<std::string> &vecItems = epgdata.items;
 	// Merge multiple events into 1 (Actor1-)
-	if (bUseRange) {
+	if (bUseRange)
+	{
 		bool bHasItems = false;
 		char index[3];
 		// Maximum of 10 items should suffice
-		for (int nItem = 1; nItem < 11; nItem++) {
+		for (int nItem = 1; nItem < 11; nItem++)
+		{
 			sprintf(index, "%d", nItem);
 			// Look for matching items
 			int nPos = findItem(std::string(strItem) + std::string(index), vecDescriptions);
-			if (-1 != nPos) {
+			if (-1 != nPos)
+			{
 				std::string item = std::string(vecItems[nPos]);
 				vecDescriptions.erase(vecDescriptions.begin() + nPos);
 				vecItems.erase(vecItems.begin() + nPos);
-				if (false == bHasItems) {
+				if (false == bHasItems)
+				{
 					// First item added, so create new label item
 					vecDescriptions.push_back(strLabel);
 					vecItems.push_back(item + ", ");
 					bHasItems = true;
-				} else {
+				}
+				else
+				{
 					vecItems.back().append(item).append(", ");
 				}
 			}
 		}
 		// Remove superfluous ", "
-		if (bHasItems) {
+		if (bHasItems)
+		{
 			vecItems.back().resize(vecItems.back().length() - 2);
 		}
-	} else {	// Single string event (e.g. Director)
+	}
+	else  	// Single string event (e.g. Director)
+	{
 		// Look for matching items
 		int nPos = findItem(strItem, vecDescriptions);
-		if (-1 != nPos) {
+		if (-1 != nPos)
+		{
 			vecDescriptions[nPos] = strLabel;
 		}
 	}
@@ -149,11 +163,11 @@ void CEpgData::start()
 	font_title   = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	topheight    = font_title->getHeight();
 	topboxheight = topheight + 6;
-	botboxheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight() + 2*OFFSET_INNER_MIN;
+	botboxheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight() + 2 * OFFSET_INNER_MIN;
 	// not really a CComponentsFooter but let's take its height
 	CComponentsFooter footer;
 	buttonheight = footer.getHeight();
-	oy-=buttonheight/2;
+	oy -= buttonheight / 2;
 	/* this is the text box height - and the height of the scroll bar */
 	sb = oy - topboxheight - botboxheight - buttonheight;
 	/* button box is handled separately (why?) */
@@ -166,21 +180,21 @@ void CEpgData::start()
 	sy = getScreenStartY(oy + buttonheight); /* button box is handled separately (why?) */
 }
 
-void CEpgData::addTextToArray(const std::string & text, int screening) // UTF-8
+void CEpgData::addTextToArray(const std::string &text, int screening)  // UTF-8
 {
 	//printf("line: >%s<\n", text.c_str() );
-	if (text==" ")
+	if (text == " ")
 	{
 		emptyLineCount ++;
-		if (emptyLineCount<2)
+		if (emptyLineCount < 2)
 		{
-			epgText.push_back(epg_pair(text,screening));
+			epgText.push_back(epg_pair(text, screening));
 		}
 	}
 	else
 	{
 		emptyLineCount = 0;
-		epgText.push_back(epg_pair(text,screening));
+		epgText.push_back(epg_pair(text, screening));
 	}
 }
 
@@ -190,42 +204,45 @@ void CEpgData::processTextToArray(std::string text, int screening, bool has_cove
 	std::string	aktWord = "";
 	int	aktWidth = 0;
 	text += ' ';
-	char* text_= (char*) text.c_str();
+	char *text_ = (char *) text.c_str();
 
-	while (*text_!=0)
+	while (*text_ != 0)
 	{
-		if ( (*text_==' ') || (*text_=='\n') || (*text_=='-') || (*text_=='.') )
+		if ((*text_ == ' ') || (*text_ == '\n') || (*text_ == '-') || (*text_ == '.'))
 		{
 			// Houdini: if there is a newline (especially in the Premiere Portal EPGs) do not forget to add aktWord to aktLine
 			// after width check, if width check failes do newline, add aktWord to next line
 			// and "reinsert" i.e. reloop for the \n
-			if (*text_!='\n')
+			if (*text_ != '\n')
 				aktWord += *text_;
 
 			// check the wordwidth - add to this line if size ok
 			int aktWordWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(aktWord);
-			if ((aktWordWidth+aktWidth)<(ox - 2*OFFSET_INNER_MID - SCROLLBAR_WIDTH - (has_cover ? ((ox/4)+OFFSET_INNER_MID) : 0)))
-			{//space ok, add
+			if ((aktWordWidth + aktWidth) < (ox - 2 * OFFSET_INNER_MID - SCROLLBAR_WIDTH - (has_cover ? ((ox / 4) + OFFSET_INNER_MID) : 0)))
+			{
+				//space ok, add
 				aktWidth += aktWordWidth;
 				aktLine += aktWord;
 
-				if (*text_=='\n')
-				{	//enter-handler
-					addTextToArray( aktLine, screening );
+				if (*text_ == '\n')
+				{
+					//enter-handler
+					addTextToArray(aktLine, screening);
 					aktLine = "";
-					aktWidth= 0;
+					aktWidth = 0;
 				}
 				aktWord = "";
 			}
 			else
-			{//new line needed
-				addTextToArray( aktLine, screening);
+			{
+				//new line needed
+				addTextToArray(aktLine, screening);
 				aktLine = aktWord;
 				aktWidth = aktWordWidth;
 				aktWord = "";
 				// Houdini: in this case where we skipped \n and space is too low, exec newline and rescan \n
 				// otherwise next word comes direct after aktLine
-				if (*text_=='\n')
+				if (*text_ == '\n')
 					continue;
 			}
 		}
@@ -236,15 +253,15 @@ void CEpgData::processTextToArray(std::string text, int screening, bool has_cove
 		text_++;
 	}
 	//add the rest
-	addTextToArray( aktLine + aktWord, screening );
+	addTextToArray(aktLine + aktWord, screening);
 }
 
 void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 {
-	Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2];
+	Font *font = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2];
 	std::string cover = tmdb->getCover();
-	int cover_max_width = ox/4; //25%
-	int cover_max_height = sb-(2*OFFSET_INNER_MID);
+	int cover_max_width = ox / 4; //25%
+	int cover_max_height = sb - (2 * OFFSET_INNER_MID);
 	int cover_width = 0;
 	int cover_height = 0;
 	int cover_offset = 0;
@@ -263,25 +280,28 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	}
 
 	int textSize = epgText.size();
-	int y=ypos;
+	int y = ypos;
 	const char tok = ' ';
 	int offset = 0, count = 0;
 	int max_mon_w = 0, max_wday_w = 0;
 	int digi = font->getRenderWidth("29..");
 
-	for(int i = 0; i < 12;i++){
+	for (int i = 0; i < 12; i++)
+	{
 		max_mon_w = std::max(max_mon_w, font->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getMonth(i))) + " "));
-		if(i > 6)
+		if (i > 6)
 			continue;
 		max_wday_w = std::max(max_wday_w, font->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getWeekday(i))) + " "));
 	}
 	int offs = fullClear ? 0 : cover_offset;
-	frameBuffer->paintBoxRel(sx+offs, y, ox-SCROLLBAR_WIDTH-offs, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
+	frameBuffer->paintBoxRel(sx + offs, y, ox - SCROLLBAR_WIDTH - offs, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 
-	if (has_cover) {
-		if (!g_PicViewer->DisplayImage(cover ,sx+OFFSET_INNER_MID ,y+OFFSET_INNER_MID, cover_width, cover_height, CFrameBuffer::TM_NONE)) {
+	if (has_cover)
+	{
+		if (!g_PicViewer->DisplayImage(cover, sx + OFFSET_INNER_MID, y + OFFSET_INNER_MID, cover_width, cover_height, CFrameBuffer::TM_NONE))
+		{
 			cover_offset = 0;
-			frameBuffer->paintBoxRel(sx, y, ox-SCROLLBAR_WIDTH, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
+			frameBuffer->paintBoxRel(sx, y, ox - SCROLLBAR_WIDTH, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 		}
 	}
 
@@ -303,23 +323,26 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			stars = imdb_stars / max_stars; // recalculate stars value for starbar
 
 		//create and paint ranking banner
-		CEPGRateBanner rate_bar(sx+OFFSET_INNER_MID+cover_offset, y+OFFSET_INNER_MID, (size_t)stars, (size_t)max_stars, provider_logo);
+		CEPGRateBanner rate_bar(sx + OFFSET_INNER_MID + cover_offset, y + OFFSET_INNER_MID, (size_t)stars, (size_t)max_stars, provider_logo);
 		rate_bar.paint();
 
 		if (imdb_active) //TODO: unify imdb and tmdb
-			paintTextBoxRel(imdb_rating, sx + 2*OFFSET_INNER_MID + cover_offset + rate_bar.getWidth(), y + OFFSET_INNER_MID + rate_bar.getHeight()/2 - font->getHeight()/2, 0, rate_bar.getHeight(), font );
+			paintTextBoxRel(imdb_rating, sx + 2 * OFFSET_INNER_MID + cover_offset + rate_bar.getWidth(), y + OFFSET_INNER_MID + rate_bar.getHeight() / 2 - font->getHeight() / 2, 0, rate_bar.getHeight(), font);
 
-		medlinecount = (sb - rate_bar.getHeight() - 2*OFFSET_INNER_MID) / medlineheight;
+		medlinecount = (sb - rate_bar.getHeight() - 2 * OFFSET_INNER_MID) / medlineheight;
 		y = rate_bar.getYPos() + rate_bar.getHeight();
 	}
 
 	for (int i = startPos; i < textSize && i < startPos + medlinecount; i++, y += medlineheight)
 	{
-		if(epgText[i].second){ // screening
+		if (epgText[i].second) // screening
+		{
 			std::string::size_type pos1 = epgText[i].first.find_first_not_of(tok, 0);
 			std::string::size_type pos2 = epgText[i].first.find_first_of(tok, pos1);
-			while( pos2 != std::string::npos || pos1 != std::string::npos ){
-				switch(count){
+			while (pos2 != std::string::npos || pos1 != std::string::npos)
+			{
+				switch (count)
+				{
 					case 1:
 						offset += max_wday_w;
 						break;
@@ -330,7 +353,7 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 						offset += digi;
 						break;
 				}
-				font->RenderString(sx+OFFSET_INNER_MID+offset, y+medlineheight, ox - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - offset, epgText[i].first.substr(pos1, pos2 - pos1), (epgText[i].second==2)? COL_MENUCONTENTINACTIVE_TEXT: COL_MENUCONTENT_TEXT);
+				font->RenderString(sx + OFFSET_INNER_MID + offset, y + medlineheight, ox - SCROLLBAR_WIDTH - 2 * OFFSET_INNER_MID - offset, epgText[i].first.substr(pos1, pos2 - pos1), (epgText[i].second == 2) ? COL_MENUCONTENTINACTIVE_TEXT : COL_MENUCONTENT_TEXT);
 				count++;
 				pos1 = epgText[i].first.find_first_not_of(tok, pos2);
 				pos2 = epgText[i].first.find_first_of(tok, pos1);
@@ -338,8 +361,9 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			offset = 0;
 			count = 0;
 		}
-		else{ // epgtext
-			g_Font[( i< info1_lines ) ?SNeutrinoSettings::FONT_TYPE_EPG_INFO1:SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+OFFSET_INNER_MID+cover_offset, y+medlineheight, ox - SCROLLBAR_WIDTH - 2*OFFSET_INNER_MID - cover_offset, epgText[i].first, COL_MENUCONTENT_TEXT);
+		else  // epgtext
+		{
+			g_Font[(i < info1_lines) ? SNeutrinoSettings::FONT_TYPE_EPG_INFO1 : SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx + OFFSET_INNER_MID + cover_offset, y + medlineheight, ox - SCROLLBAR_WIDTH - 2 * OFFSET_INNER_MID - cover_offset, epgText[i].first, COL_MENUCONTENT_TEXT);
 		}
 	}
 
@@ -477,7 +501,7 @@ const unsigned char genre_sub_classes[10] =
 	GENRE_DOCUS_MAGAZINES_COUNT,
 	GENRE_TRAVEL_HOBBIES_COUNT
 };
-const neutrino_locale_t * genre_sub_classes_list[10] =
+const neutrino_locale_t *genre_sub_classes_list[10] =
 {
 	genre_movie,
 	genre_news,
@@ -491,7 +515,7 @@ const neutrino_locale_t * genre_sub_classes_list[10] =
 	genre_travel_hobbies
 };
 
-const char * GetGenre(const unsigned char contentClassification) // UTF-8
+const char *GetGenre(const unsigned char contentClassification)  // UTF-8
 {
 	neutrino_locale_t res;
 
@@ -510,15 +534,16 @@ const char * GetGenre(const unsigned char contentClassification) // UTF-8
 	return g_Locale->getText(res);
 }
 
-static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
+static bool sortByDateTime(const CChannelEvent &a, const CChannelEvent &b)
 {
-	return a.startTime< b.startTime;
+	return a.startTime < b.startTime;
 }
 bool CEpgData::isCurrentEPG(const t_channel_id channel_id)
 {
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	if(( epg_done!= -1 ) && live_channel_id == channel_id){
-			return true;
+	if ((epg_done != -1) && live_channel_id == channel_id)
+	{
+		return true;
 	}
 	return false;
 }
@@ -555,7 +580,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 	epgData.epg_times.dauer = mp_movie_info->length * 60; // we need the seconds
 
 	extMovieInfo.clear();
-	if ( !mp_movie_info->productionCountry.empty() || mp_movie_info->productionDate != 0)
+	if (!mp_movie_info->productionCountry.empty() || mp_movie_info->productionDate != 0)
 	{
 		extMovieInfo += mp_movie_info->productionCountry;
 		extMovieInfo += " ";
@@ -678,7 +703,7 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 	//printf("[%s:%d] epg_done: %d\n", __func__, __LINE__, epg_done);
 
 	res = show(mp_movie_info->epgId >> 16, 0, 0, doLoop, false, true);
-	if(!epgTextSwitch.empty())
+	if (!epgTextSwitch.empty())
 	{
 		mp_movie_info->epgInfo2 = epgTextSwitch;
 		CMovieInfo m_movieInfo;
@@ -688,21 +713,21 @@ int CEpgData::show_mp(MI_MOVIE_INFO *mi, int mp_position, int mp_duration, bool 
 	return res;
 }
 
-int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_startzeit, bool doLoop, bool callFromfollowlist, bool mp_info )
+int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t *a_startzeit, bool doLoop, bool callFromfollowlist, bool mp_info)
 {
 	int res = menu_return::RETURN_REPAINT;
 	static uint64_t id = 0;
 	static time_t startzeit = 0;
 	call_fromfollowlist = callFromfollowlist;
 	if (a_startzeit)
-		startzeit=*a_startzeit;
-	id=a_id;
+		startzeit = *a_startzeit;
+	id = a_id;
 
 	tmdb_active = false;
 	stars = 0;
 
 	t_channel_id epg_id = channel_id;
-	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	CZapitChannel *channel = CServiceManager::getInstance()->FindChannel(channel_id);
 	if (channel)
 		epg_id = channel->getEpgID();
 	if (!mp_info)
@@ -713,7 +738,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		extMovieInfo.clear();
 	if (doLoop)
 	{
-		if (!bigFonts && g_settings.bigFonts) {
+		if (!bigFonts && g_settings.bigFonts)
+		{
 			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIGFONT_FACTOR));
 			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
 		}
@@ -721,7 +747,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		start();
 		CEitManager::getInstance()->getEventsServiceKey(epg_id, evtlist);
 		// Houdini added for Private Premiere EPG start sorted by start date/time 2005-08-15
-		sort(evtlist.begin(),evtlist.end(),sortByDateTime);
+		sort(evtlist.begin(), evtlist.end(), sortByDateTime);
 	}
 
 	if (epgData.title.empty()) /* no epg info found */
@@ -749,31 +775,38 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	// 21.07.2005 - rainerk
 	// Only show info1 if it's not included in info2!
 	std::string strEpisode = "";	// Episode title in case info1 gets stripped
-	if (!epgData.info1.empty()) {
+	if (!epgData.info1.empty())
+	{
 		bool bHide = false;
-		if (false == epgData.info2.empty()) {
+		if (false == epgData.info2.empty())
+		{
 			// Look for the first . in info1, usually this is the title of an episode.
 			std::string::size_type nPosDot = epgData.info1.find('.');
-			if (std::string::npos != nPosDot) {
+			if (std::string::npos != nPosDot)
+			{
 				nPosDot += 2; // Skip dot and first blank
 				/*      Houdini: changed for safty reason (crashes with some events at WDR regional)
 				                        if (nPosDot < epgData.info2.length()) {   // Make sure we don't overrun the buffer
 				*/
-				if (nPosDot < epgData.info2.length() && nPosDot < epgData.info1.length()) {   // Make sure we don't overrun the buffer
+				if (nPosDot < epgData.info2.length() && nPosDot < epgData.info1.length())     // Make sure we don't overrun the buffer
+				{
 
 					// Check if the stuff after the dot equals the beginning of info2
-					if (0 == epgData.info2.find(epgData.info1.substr(nPosDot, epgData.info1.length() - nPosDot))) {
+					if (0 == epgData.info2.find(epgData.info1.substr(nPosDot, epgData.info1.length() - nPosDot)))
+					{
 						strEpisode = epgData.info1.substr(0, nPosDot) + "\n";
 						bHide = true;
 					}
 				}
 			}
 			// Compare strings normally if not positively found to be equal before
-			if (false == bHide && 0 == epgData.info2.find(epgData.info1)) {
+			if (false == bHide && 0 == epgData.info2.find(epgData.info1))
+			{
 				bHide = true;
 			}
 		}
-		if (false == bHide) {
+		if (false == bHide)
+		{
 			processTextToArray(epgData.info1);
 		}
 	}
@@ -791,11 +824,13 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	// 21.07.2005 - rainerk
 	// Show extended information
-	if ( !epgData.itemDescriptions.empty() && !epgData.items.empty()) {
+	if (!epgData.itemDescriptions.empty() && !epgData.items.empty())
+	{
 		char line[256];
 		std::vector<std::string>::iterator description;
 		std::vector<std::string>::iterator item;
-		for (description = epgData.itemDescriptions.begin(), item = epgData.items.begin(); description != epgData.itemDescriptions.end(), item != epgData.items.end(); ++description, ++item) {
+		for (description = epgData.itemDescriptions.begin(), item = epgData.items.begin(); description != epgData.itemDescriptions.end(), item != epgData.items.end(); ++description, ++item)
+		{
 			sprintf(line, "%s: %s", (*(description)).c_str(), (*(item)).c_str());
 			processTextToArray(line);
 		}
@@ -819,7 +854,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		// Show audio information
 		std::string audioInfo = "";
 		CSectionsdClient::ComponentTagList tags;
-		bool hasComponentTags = CEitManager::getInstance()->getComponentTagsUniqueKey( epgData.eventID, tags);
+		bool hasComponentTags = CEitManager::getInstance()->getComponentTagsUniqueKey(epgData.eventID, tags);
 		if (hasComponentTags)
 		{
 			for (unsigned int i = 0; i < tags.size(); i++)
@@ -828,7 +863,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 			if (!audioInfo.empty())
 			{
-				audioInfo.erase(audioInfo.size()-2);
+				audioInfo.erase(audioInfo.size() - 2);
 				processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_AUDIO)) + ": " + audioInfo); // UTF-8
 			}
 		}
@@ -847,7 +882,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	// -- display more screenings on the same channel
 	// -- 2002-05-03 rasc
 	has_follow_screenings = false;
-	if (!mp_info && hasFollowScreenings(channel_id, epgData.title)) {
+	if (!mp_info && hasFollowScreenings(channel_id, epgData.title))
+	{
 		processTextToArray(""); // UTF-8
 		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS)) + ':'); // UTF-8
 		FollowScreenings(channel_id, epgData.title);
@@ -861,7 +897,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 #if 0
 	/* neat for debugging duplicate event issues etc. */
 	char *epgid;
-	if (asprintf(&epgid, "EPG ID:%04X.%02X", (int)((epgData.eventID)&0x0FFFF), epgData.table_id) >= 0)
+	if (asprintf(&epgid, "EPG ID:%04X.%02X", (int)((epgData.eventID) & 0x0FFFF), epgData.table_id) >= 0)
 	{
 		processTextToArray(""); // UTF-8
 		processTextToArray(epgid);
@@ -903,9 +939,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	// small bottom box with left/right navigation
 	if (!Bottombox)
-		Bottombox = new CNaviBar(sx, sy+oy-botboxheight, ox, botboxheight);
+		Bottombox = new CNaviBar(sx, sy + oy - botboxheight, ox, botboxheight);
 
-	if (!mp_info){
+	if (!mp_info)
+	{
 		std::string fromto = epg_start + " - " + epg_end;
 		time_t epg_start_time = epgData.epg_times.startzeit;
 		GetPrevNextEPGData(epgData.eventID, &epg_start_time);
@@ -923,7 +960,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	frameBuffer->blit();
 
-	if ( doLoop )
+	if (doLoop)
 	{
 		neutrino_msg_t      msg = 0;
 		neutrino_msg_data_t data = 0;
@@ -938,438 +975,471 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 		while (loop)
 		{
-			g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
-			if ( msg <= CRCInput::RC_MaxRC )
+			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
+			if (msg <= CRCInput::RC_MaxRC)
 				timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 			scrollCount = medlinecount;
 
-			switch ( msg )
+			switch (msg)
 			{
-			case NeutrinoMessages::EVT_TIMER:
-				if (data == fader.GetFadeTimer()) {
-					if (fader.FadeDone())
-						loop = false;
-				}
-				else
-					CNeutrinoApp::getInstance()->handleMsg(msg, data);
-
-				if (!mp_info)
-				{
-					if (data == g_InfoViewer->getUpdateTimer())
+				case NeutrinoMessages::EVT_TIMER:
+					if (data == fader.GetFadeTimer())
 					{
-						GetEPGData(channel_id, id, &startzeit, false);
+						if (fader.FadeDone())
+							loop = false;
+					}
+					else
+						CNeutrinoApp::getInstance()->handleMsg(msg, data);
+
+					if (!mp_info)
+					{
+						if (data == g_InfoViewer->getUpdateTimer())
+						{
+							GetEPGData(channel_id, id, &startzeit, false);
+							showProgressBar();
+						}
+					}
+					else if (epg_done != -1)
+					{
+						CMoviePlayerGui::getInstance().UpdatePosition();
+						int mp_position = CMoviePlayerGui::getInstance().GetPosition();
+						int mp_duration = CMoviePlayerGui::getInstance().GetDuration();
+
+						// this calculation is taken from timeosd.cpp
+						epg_done = (mp_duration && mp_duration > 100) ? (mp_position * 100 / mp_duration) : -1;
+						if (epg_done > 100)
+							epg_done = 100;
+						//printf("[%s:%d] epg_done: %d\n", __func__, __LINE__, epg_done);
+
 						showProgressBar();
 					}
-				}
-				else if (epg_done != -1)
-				{
-					CMoviePlayerGui::getInstance().UpdatePosition();
-					int mp_position = CMoviePlayerGui::getInstance().GetPosition();
-					int mp_duration = CMoviePlayerGui::getInstance().GetDuration();
-
-					// this calculation is taken from timeosd.cpp
-					epg_done = (mp_duration && mp_duration > 100) ? (mp_position * 100 / mp_duration) : -1;
-					if (epg_done > 100)
-						epg_done = 100;
-					//printf("[%s:%d] epg_done: %d\n", __func__, __LINE__, epg_done);
-
-					showProgressBar();
-				}
-				break;
-			case NeutrinoMessages::EVT_CURRENTNEXT_EPG:
-				if (/*!id && */ (*(t_channel_id *) data) == (channel_id & 0xFFFFFFFFFFFFULL)) {
-					show(channel_id,0,NULL,false);
-					showPos=0;
-				}
-				CNeutrinoApp::getInstance()->handleMsg(msg, data);
-				break;
-			case CRCInput::RC_left:
-				if(imdb_active)
-					imdb_active = false;
-
-				if ((prev_id != 0) && !call_fromfollowlist && !mp_info)
-				{
-					toph = topboxheight;
-					show(channel_id, prev_id, &prev_zeit, false);
-					showPos=0;
-				}
-				break;
-			case CRCInput::RC_right:
-				if(imdb_active)
-					imdb_active = false;
-
-				if ((next_id != 0) && !call_fromfollowlist && !mp_info)
-				{
-					toph = topboxheight;
-					show(channel_id, next_id, &next_zeit, false);
-					showPos=0;
-				}
-				break;
-			case CRCInput::RC_down:
-				if (showPos+scrollCount<textCount)
-				{
-					showPos += scrollCount;
-					showText(showPos, sy + toph, tmdb_active || (imdb_active && imdb->gotPoster()), false);
-				}
-				break;
-			case CRCInput::RC_up:
-				if (showPos > 0) {
-					showPos -= scrollCount;
-					if (showPos < 0)
-						showPos = 0;
-					showText(showPos, sy + toph, tmdb_active || (imdb_active && imdb->gotPoster()), false);
-				}
-				break;
-			case CRCInput::RC_page_up:
-				if(isCurrentEPG(channel_id)){
-					int zapBackPeriod = g_settings.adzap_zapBackPeriod / 60;
-					if (zapBackPeriod < 120)
-						zapBackPeriod++;
-					if (zapBackPeriod > 120)
-						zapBackPeriod = 120;
-					g_settings.adzap_zapBackPeriod = zapBackPeriod * 60;
-					showTimerEventBar(true, true);
-				}
-				break;
-			case CRCInput::RC_page_down:
-				if(isCurrentEPG(channel_id)){
-					int zapBackPeriod = g_settings.adzap_zapBackPeriod / 60;
-					if (zapBackPeriod > 1)
-						zapBackPeriod--;
-					if (zapBackPeriod < 1)
-						zapBackPeriod = 1;
-					g_settings.adzap_zapBackPeriod = zapBackPeriod * 60;
-					showTimerEventBar(true, true);
-				}
-				break;
-			case CRCInput::RC_red:
-				if (mp_info)
-				{
-					epgTextSwitchClear = false;
-					loop = false;
 					break;
-				}
-				else if (!g_settings.minimode)
-				{
-					std::string recDir;
-					//CTimerdClient timerdclient;
-					if (g_Timerd->isTimerdAvailable())
+				case NeutrinoMessages::EVT_CURRENTNEXT_EPG:
+					if (/*!id && */ (*(t_channel_id *) data) == (channel_id & 0xFFFFFFFFFFFFULL))
 					{
-						bool doRecord = true;
-						time_t epg_start_time = epgData.epg_times.startzeit;
-						recDir = g_settings.network_nfs_recordingdir;
-						if (g_settings.recording_choose_direct_rec_dir == 2) {
-							CFileBrowser b;
-							b.Dir_Mode=true;
-							hide();
-							if (b.exec(g_settings.network_nfs_recordingdir.c_str())) {
-								recDir = b.getSelectedFile()->Name;
-							} else
-								doRecord = false;
-							if (!bigFonts && g_settings.bigFonts) {
-								g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIGFONT_FACTOR));
-								g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
-							}
-							bigFonts = g_settings.bigFonts;
-							show(channel_id,epgData.eventID,&epg_start_time,false);
-							showPos=0;
-						}
-						else if (g_settings.recording_choose_direct_rec_dir == 1)
+						show(channel_id, 0, NULL, false);
+						showPos = 0;
+					}
+					CNeutrinoApp::getInstance()->handleMsg(msg, data);
+					break;
+				case CRCInput::RC_left:
+					if (imdb_active)
+						imdb_active = false;
+
+					if ((prev_id != 0) && !call_fromfollowlist && !mp_info)
+					{
+						toph = topboxheight;
+						show(channel_id, prev_id, &prev_zeit, false);
+						showPos = 0;
+					}
+					break;
+				case CRCInput::RC_right:
+					if (imdb_active)
+						imdb_active = false;
+
+					if ((next_id != 0) && !call_fromfollowlist && !mp_info)
+					{
+						toph = topboxheight;
+						show(channel_id, next_id, &next_zeit, false);
+						showPos = 0;
+					}
+					break;
+				case CRCInput::RC_down:
+					if (showPos + scrollCount < textCount)
+					{
+						showPos += scrollCount;
+						showText(showPos, sy + toph, tmdb_active || (imdb_active && imdb->gotPoster()), false);
+					}
+					break;
+				case CRCInput::RC_up:
+					if (showPos > 0)
+					{
+						showPos -= scrollCount;
+						if (showPos < 0)
+							showPos = 0;
+						showText(showPos, sy + toph, tmdb_active || (imdb_active && imdb->gotPoster()), false);
+					}
+					break;
+				case CRCInput::RC_page_up:
+					if (isCurrentEPG(channel_id))
+					{
+						int zapBackPeriod = g_settings.adzap_zapBackPeriod / 60;
+						if (zapBackPeriod < 120)
+							zapBackPeriod++;
+						if (zapBackPeriod > 120)
+							zapBackPeriod = 120;
+						g_settings.adzap_zapBackPeriod = zapBackPeriod * 60;
+						showTimerEventBar(true, true);
+					}
+					break;
+				case CRCInput::RC_page_down:
+					if (isCurrentEPG(channel_id))
+					{
+						int zapBackPeriod = g_settings.adzap_zapBackPeriod / 60;
+						if (zapBackPeriod > 1)
+							zapBackPeriod--;
+						if (zapBackPeriod < 1)
+							zapBackPeriod = 1;
+						g_settings.adzap_zapBackPeriod = zapBackPeriod * 60;
+						showTimerEventBar(true, true);
+					}
+					break;
+				case CRCInput::RC_red:
+					if (mp_info)
+					{
+						epgTextSwitchClear = false;
+						loop = false;
+						break;
+					}
+					else if (!g_settings.minimode)
+					{
+						std::string recDir;
+						//CTimerdClient timerdclient;
+						if (g_Timerd->isTimerdAvailable())
 						{
-							int lid = -1;
-							CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&lid,NULL,g_settings.network_nfs_recordingdir.c_str());
-							if (recDirs.hasItem())
+							bool doRecord = true;
+							time_t epg_start_time = epgData.epg_times.startzeit;
+							recDir = g_settings.network_nfs_recordingdir;
+							if (g_settings.recording_choose_direct_rec_dir == 2)
 							{
+								CFileBrowser b;
+								b.Dir_Mode = true;
 								hide();
-								recDirs.exec(NULL,"");
-								if (!bigFonts && g_settings.bigFonts) {
+								if (b.exec(g_settings.network_nfs_recordingdir.c_str()))
+								{
+									recDir = b.getSelectedFile()->Name;
+								}
+								else
+									doRecord = false;
+								if (!bigFonts && g_settings.bigFonts)
+								{
 									g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIGFONT_FACTOR));
 									g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
 								}
 								bigFonts = g_settings.bigFonts;
-								show(channel_id,epgData.eventID,&epg_start_time,false);
-								showPos=0;
-								timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
-							} else
-							{
-								printf("no network devices available\n");
+								show(channel_id, epgData.eventID, &epg_start_time, false);
+								showPos = 0;
 							}
-							if (lid != -1)
-								recDir = g_settings.network_nfs[lid].local_dir;
-						}
-						if (doRecord && g_settings.recording_already_found_check)
-						{
-							CHintBox loadBox(LOCALE_RECORDING_ALREADY_FOUND_CHECK, LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES);
-							loadBox.paint();
-							CMovieBrowser moviebrowser;
-							const char *rec_title = epgData.title.c_str();
-							bool already_found = moviebrowser.gotMovie(rec_title);
-							loadBox.hide();
-							if (already_found)
+							else if (g_settings.recording_choose_direct_rec_dir == 1)
 							{
-								printf("already found in moviebrowser: %s\n", rec_title);
-								char message[1024];
-								snprintf(message, sizeof(message)-1, g_Locale->getText(LOCALE_RECORDING_ALREADY_FOUND), rec_title);
-								doRecord = (ShowMsg(LOCALE_RECORDING_ALREADY_FOUND_CHECK, message, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes);
-							}
-						}
-						if (doRecord && !call_fromfollowlist)
-						{
-							CFollowScreenings m(channel_id,
-								epgData.epg_times.startzeit,
-								epgData.epg_times.startzeit + epgData.epg_times.dauer,
-								epgData.title, epgData.eventID, TIMERD_APIDS_CONF, true, recDir, &evtlist);
-							m.exec(NULL, "");
-							timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
-						}
-						else if (doRecord)
-						{
-							if (g_Timerd->addRecordTimerEvent(channel_id,
-											  epgData.epg_times.startzeit,
-											  epgData.epg_times.startzeit + epgData.epg_times.dauer,
-											  epgData.eventID, epgData.epg_times.startzeit,
-											  epgData.epg_times.startzeit - (ANNOUNCETIME + 120 ),
-											  TIMERD_APIDS_CONF, true, epgData.epg_times.startzeit - (ANNOUNCETIME + 120) > time(NULL), recDir, false) == -1)
-							{
-								if (askUserOnTimerConflict(epgData.epg_times.startzeit - (ANNOUNCETIME + 120),
-											   epgData.epg_times.startzeit + epgData.epg_times.dauer))
+								int lid = -1;
+								CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR, NEUTRINO_ICON_SETTINGS, &lid, NULL, g_settings.network_nfs_recordingdir.c_str());
+								if (recDirs.hasItem())
 								{
-									g_Timerd->addRecordTimerEvent(channel_id,
-												      epgData.epg_times.startzeit,
-												      epgData.epg_times.startzeit + epgData.epg_times.dauer,
-												      epgData.eventID, epgData.epg_times.startzeit,
-												      epgData.epg_times.startzeit - (ANNOUNCETIME + 120 ),
-												      TIMERD_APIDS_CONF, true, epgData.epg_times.startzeit - (ANNOUNCETIME + 120) > time(NULL), recDir, true);
+									hide();
+									recDirs.exec(NULL, "");
+									if (!bigFonts && g_settings.bigFonts)
+									{
+										g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIGFONT_FACTOR));
+										g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
+									}
+									bigFonts = g_settings.bigFonts;
+									show(channel_id, epgData.eventID, &epg_start_time, false);
+									showPos = 0;
+									timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+								}
+								else
+								{
+									printf("no network devices available\n");
+								}
+								if (lid != -1)
+									recDir = g_settings.network_nfs[lid].local_dir;
+							}
+							if (doRecord && g_settings.recording_already_found_check)
+							{
+								CHintBox loadBox(LOCALE_RECORDING_ALREADY_FOUND_CHECK, LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES);
+								loadBox.paint();
+								CMovieBrowser moviebrowser;
+								const char *rec_title = epgData.title.c_str();
+								bool already_found = moviebrowser.gotMovie(rec_title);
+								loadBox.hide();
+								if (already_found)
+								{
+									printf("already found in moviebrowser: %s\n", rec_title);
+									char message[1024];
+									snprintf(message, sizeof(message) - 1, g_Locale->getText(LOCALE_RECORDING_ALREADY_FOUND), rec_title);
+									doRecord = (ShowMsg(LOCALE_RECORDING_ALREADY_FOUND_CHECK, message, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes);
+								}
+							}
+							if (doRecord && !call_fromfollowlist)
+							{
+								CFollowScreenings m(channel_id,
+									epgData.epg_times.startzeit,
+									epgData.epg_times.startzeit + epgData.epg_times.dauer,
+									epgData.title, epgData.eventID, TIMERD_APIDS_CONF, true, recDir, &evtlist);
+								m.exec(NULL, "");
+								timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+							}
+							else if (doRecord)
+							{
+								if (g_Timerd->addRecordTimerEvent(channel_id,
+										epgData.epg_times.startzeit,
+										epgData.epg_times.startzeit + epgData.epg_times.dauer,
+										epgData.eventID, epgData.epg_times.startzeit,
+										epgData.epg_times.startzeit - (ANNOUNCETIME + 120),
+										TIMERD_APIDS_CONF, true, epgData.epg_times.startzeit - (ANNOUNCETIME + 120) > time(NULL), recDir, false) == -1)
+								{
+									if (askUserOnTimerConflict(epgData.epg_times.startzeit - (ANNOUNCETIME + 120),
+											epgData.epg_times.startzeit + epgData.epg_times.dauer))
+									{
+										g_Timerd->addRecordTimerEvent(channel_id,
+											epgData.epg_times.startzeit,
+											epgData.epg_times.startzeit + epgData.epg_times.dauer,
+											epgData.eventID, epgData.epg_times.startzeit,
+											epgData.epg_times.startzeit - (ANNOUNCETIME + 120),
+											TIMERD_APIDS_CONF, true, epgData.epg_times.startzeit - (ANNOUNCETIME + 120) > time(NULL), recDir, true);
+										ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
+										timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+									}
+								}
+								else
+								{
 									ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
 									timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 								}
-							} else {
-								ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
-								timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 							}
 						}
+						else
+							printf("timerd not available\n");
 					}
-					else
-						printf("timerd not available\n");
-				}
-				break;
-			case CRCInput::RC_info:
-			{
-				if (imdb_active) {
-					imdb_active = false;
-					showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
-					epgText = epgText_saved;
-					textCount = epgText.size();
-				}
-				if (g_settings.tmdb_enabled)
+					break;
+				case CRCInput::RC_info:
 				{
-					showPos = 0;
-					if (!tmdb_active) {
-						tmdb->setTitle(epgData.title);
-						if ((tmdb->getResults() > 0) && (!tmdb->getDescription().empty())) {
-							epgText_saved = epgText;
-							epgText.clear();
-							tmdb_active = !tmdb_active;
-
-							epgTextSwitch = tmdb->getDescription();
-							if (!tmdb->getCast().empty())
-								epgTextSwitch += "\n\n"+(std::string)g_Locale->getText(LOCALE_EPGEXTENDED_ACTORS)+":\n"+ tmdb->getCast()+"\n";
-
-							processTextToArray(tmdb->CreateEPGText(), 0, tmdb->hasCover());
-							textCount = epgText.size();
-							stars = tmdb->getStars();
-							showText(showPos, sy + toph, tmdb_active || (imdb_active && imdb->gotPoster()));
-						} else {
-							ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NODETAILED, CMsgBox::mbrOk , CMsgBox::mbrOk);
-						}
-					} else {
+					if (imdb_active)
+					{
+						imdb_active = false;
+						showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
 						epgText = epgText_saved;
 						textCount = epgText.size();
-						tmdb_active = !tmdb_active;
-						stars=0;
-						showText(showPos, sy + toph);
 					}
-				}
-				break;
-			}
-			case CRCInput::RC_green:
-			{
-				if (tmdb_active) {
-					tmdb_active = false;
-					epgText = epgText_saved;
-					textCount = epgText.size();
-					stars=0;
-				}
-				if (!imdb_active)
-				{
-					//show IMDb info
-					imdb_active = true;
-					showIMDb(true); //show splashscreen only
-					imdb->getIMDb(epgData.title);
-					showIMDb();
-					showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
-					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
-				}
-				else if (imdb_active && imdb->gotPoster())
-				{
-					imdb_active = false;
-					CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_IMDB_INFO_SAVE);
-					hintBox->paint();
-
-					std::string picname;
-					if (mp_info)
+					if (g_settings.tmdb_enabled)
 					{
-						size_t _pos;
-						if ((_pos = movie_filename.rfind(".")) != std::string::npos)
-							picname = movie_filename.substr(0, _pos) + ".jpg";
+						showPos = 0;
+						if (!tmdb_active)
+						{
+							tmdb->setTitle(epgData.title);
+							if ((tmdb->getResults() > 0) && (!tmdb->getDescription().empty()))
+							{
+								epgText_saved = epgText;
+								epgText.clear();
+								tmdb_active = !tmdb_active;
+
+								epgTextSwitch = tmdb->getDescription();
+								if (!tmdb->getCast().empty())
+									epgTextSwitch += "\n\n" + (std::string)g_Locale->getText(LOCALE_EPGEXTENDED_ACTORS) + ":\n" + tmdb->getCast() + "\n";
+
+								processTextToArray(tmdb->CreateEPGText(), 0, tmdb->hasCover());
+								textCount = epgText.size();
+								stars = tmdb->getStars();
+								showText(showPos, sy + toph, tmdb_active || (imdb_active && imdb->gotPoster()));
+							}
+							else
+							{
+								ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NODETAILED, CMsgBox::mbrOk, CMsgBox::mbrOk);
+							}
+						}
+						else
+						{
+							epgText = epgText_saved;
+							textCount = epgText.size();
+							tmdb_active = !tmdb_active;
+							stars = 0;
+							showText(showPos, sy + toph);
+						}
 					}
-					else
-						picname = imdb->getFilename(channel, epgData.eventID);
-
-					CFileHelpers fh;
-					if (!fh.copyFile(imdb->posterfile.c_str(), picname.c_str(), 0644))
-						perror( "IMDb: error copy file" );
-
-					sleep(2);
-					hintBox->hide();
-					showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
+					break;
 				}
-				break;
-			}
-			case CRCInput::RC_yellow:
-			{
-				if (!mp_info)
+				case CRCInput::RC_green:
 				{
-					if (isCurrentEPG(channel_id))
+					if (tmdb_active)
 					{
-						CAdZapMenu::getInstance()->exec(NULL, "enable");
-						loop = false;
-
-						std::string tmp_msg;
-						tmp_msg  = g_Locale->getText(LOCALE_WORD_IN);
-						tmp_msg += " ";
-						tmp_msg += std::to_string(g_settings.adzap_zapBackPeriod / 60);
-						tmp_msg += " ";
-						tmp_msg += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
-
-						if (g_settings.adzap_zapOnActivation == SNeutrinoSettings::ADZAP_ZAP_OFF)
-							ShowMsg(LOCALE_ADZAP, tmp_msg, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
+						tmdb_active = false;
+						epgText = epgText_saved;
+						textCount = epgText.size();
+						stars = 0;
 					}
-					//CTimerdClient timerdclient;
-					else if (g_Timerd->isTimerdAvailable())
+					if (!imdb_active)
 					{
-						g_Timerd->addZaptoTimerEvent(channel_id,
-							     epgData.epg_times.startzeit - (g_settings.zapto_pre_time * 60),
-							     epgData.epg_times.startzeit - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
-							     epgData.eventID, epgData.epg_times.startzeit, 0);
-						ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
-
+						//show IMDb info
+						imdb_active = true;
+						showIMDb(true); //show splashscreen only
+						imdb->getIMDb(epgData.title);
+						showIMDb();
+						showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
 						timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 					}
-					else
-						printf("timerd not available\n");
-				}
-				break;
-			}
-			case CRCInput::RC_blue:
-			{	
-				if(imdb_active)
-					imdb_active = false;
+					else if (imdb_active && imdb->gotPoster())
+					{
+						imdb_active = false;
+						CHintBox *hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_IMDB_INFO_SAVE);
+						hintBox->paint();
 
-				if(!followlist.empty() && !call_fromfollowlist){
-					hide();
-					time_t tmp_sZeit  = epgData.epg_times.startzeit;
-					uint64_t  tmp_eID = epgData.eventID;
-
-					CEventList *ee = new CEventList;
-					res = ee->exec(channel_id, g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS_SHORT),"","",followlist); // UTF-8
-					delete ee;
-					if (res == menu_return::RETURN_EXIT_ALL)
-						loop = false;
-					else {
-						if (!bigFonts && g_settings.bigFonts) {
-							g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIGFONT_FACTOR));
-							g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
+						std::string picname;
+						if (mp_info)
+						{
+							size_t _pos;
+							if ((_pos = movie_filename.rfind(".")) != std::string::npos)
+								picname = movie_filename.substr(0, _pos) + ".jpg";
 						}
-						bigFonts = g_settings.bigFonts;
-						show(channel_id,tmp_eID,&tmp_sZeit,false);
-						showPos=0;
+						else
+							picname = imdb->getFilename(channel, epgData.eventID);
+
+						CFileHelpers fh;
+						if (!fh.copyFile(imdb->posterfile.c_str(), picname.c_str(), 0644))
+							perror("IMDb: error copy file");
+
+						sleep(2);
+						hintBox->hide();
+						showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
 					}
+					break;
 				}
-				break;
-			}
+				case CRCInput::RC_yellow:
+				{
+					if (!mp_info)
+					{
+						if (isCurrentEPG(channel_id))
+						{
+							CAdZapMenu::getInstance()->exec(NULL, "enable");
+							loop = false;
+
+							std::string tmp_msg;
+							tmp_msg  = g_Locale->getText(LOCALE_WORD_IN);
+							tmp_msg += " ";
+							tmp_msg += std::to_string(g_settings.adzap_zapBackPeriod / 60);
+							tmp_msg += " ";
+							tmp_msg += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+
+							if (g_settings.adzap_zapOnActivation == SNeutrinoSettings::ADZAP_ZAP_OFF)
+								ShowMsg(LOCALE_ADZAP, tmp_msg, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
+						}
+						//CTimerdClient timerdclient;
+						else if (g_Timerd->isTimerdAvailable())
+						{
+							g_Timerd->addZaptoTimerEvent(channel_id,
+								epgData.epg_times.startzeit - (g_settings.zapto_pre_time * 60),
+								epgData.epg_times.startzeit - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
+								epgData.eventID, epgData.epg_times.startzeit, 0);
+							ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
+
+							timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+						}
+						else
+							printf("timerd not available\n");
+					}
+					break;
+				}
+				case CRCInput::RC_blue:
+				{
+					if (imdb_active)
+						imdb_active = false;
+
+					if (!followlist.empty() && !call_fromfollowlist)
+					{
+						hide();
+						time_t tmp_sZeit  = epgData.epg_times.startzeit;
+						uint64_t  tmp_eID = epgData.eventID;
+
+						CEventList *ee = new CEventList;
+						res = ee->exec(channel_id, g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS_SHORT), "", "", followlist); // UTF-8
+						delete ee;
+						if (res == menu_return::RETURN_EXIT_ALL)
+							loop = false;
+						else
+						{
+							if (!bigFonts && g_settings.bigFonts)
+							{
+								g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIGFONT_FACTOR));
+								g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
+							}
+							bigFonts = g_settings.bigFonts;
+							show(channel_id, tmp_eID, &tmp_sZeit, false);
+							showPos = 0;
+						}
+					}
+					break;
+				}
 #if 0
-			case CRCInput::RC_help:
-				bigFonts = bigFonts ? false : true;
-				ResetModules();
-				frameBuffer->paintBackgroundBoxRel(sx, sy, ox, oy);
-				tmdb_active = false; // reset tmdb
-				imdb_active = false; // reset imdb
-				showTimerEventBar (false);
+				case CRCInput::RC_help:
+					bigFonts = bigFonts ? false : true;
+					ResetModules();
+					frameBuffer->paintBackgroundBoxRel(sx, sy, ox, oy);
+					tmdb_active = false; // reset tmdb
+					imdb_active = false; // reset imdb
+					showTimerEventBar(false);
 //				textypos = sy;
 //printf("bigFonts %d\n", bigFonts);
-				if (bigFonts)
-				{
-					g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIGFONT_FACTOR));
-					g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
-				} else
-				{
-					g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() / BIGFONT_FACTOR));
-					g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() / BIGFONT_FACTOR));
-				}
-				g_settings.bigFonts = bigFonts;
-				start();
-				if (mp_info)
-					show(mp_movie_info->epgId >> 16, 0, 0, false, false, true);
-				else
-					show(channel_id, id, &startzeit, false, call_fromfollowlist);
-				showPos=0;
-				break;
+					if (bigFonts)
+					{
+						g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIGFONT_FACTOR));
+						g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIGFONT_FACTOR));
+					}
+					else
+					{
+						g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() / BIGFONT_FACTOR));
+						g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() / BIGFONT_FACTOR));
+					}
+					g_settings.bigFonts = bigFonts;
+					start();
+					if (mp_info)
+						show(mp_movie_info->epgId >> 16, 0, 0, false, false, true);
+					else
+						show(channel_id, id, &startzeit, false, call_fromfollowlist);
+					showPos = 0;
+					break;
 #else
-			case CRCInput::RC_help:
+				case CRCInput::RC_help:
 #endif
-			case CRCInput::RC_ok:
-			case CRCInput::RC_timeout:
-				if(fader.StartFadeOut()) {
-					timeoutEnd = CRCInput::calcTimeoutEnd(1);
-					msg = 0;
-				} else
-					loop = false;
-				break;
-			default:
-				if (msg == CRCInput::RC_home) {
-					if(fader.StartFadeOut()) {
+				case CRCInput::RC_ok:
+				case CRCInput::RC_timeout:
+					if (fader.StartFadeOut())
+					{
 						timeoutEnd = CRCInput::calcTimeoutEnd(1);
 						msg = 0;
-					} else
-						loop = false;
-				}
-				else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
-					if (!call_fromfollowlist) {
-						g_RCInput->postMsg (msg, 0);
-						loop = false;
 					}
-				}
-				else if (msg == NeutrinoMessages::EVT_SERVICESCHANGED || msg == NeutrinoMessages::EVT_BOUQUETSCHANGED) {
-					g_RCInput->postMsg(msg, data);
-					loop = false;
-					res = menu_return::RETURN_EXIT_ALL;
-				}
-				else
-				{
-					if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
+					else
+						loop = false;
+					break;
+				default:
+					if (msg == CRCInput::RC_home)
 					{
+						if (fader.StartFadeOut())
+						{
+							timeoutEnd = CRCInput::calcTimeoutEnd(1);
+							msg = 0;
+						}
+						else
+							loop = false;
+					}
+					else if (CNeutrinoApp::getInstance()->listModeKey(msg))
+					{
+						if (!call_fromfollowlist)
+						{
+							g_RCInput->postMsg(msg, 0);
+							loop = false;
+						}
+					}
+					else if (msg == NeutrinoMessages::EVT_SERVICESCHANGED || msg == NeutrinoMessages::EVT_BOUQUETSCHANGED)
+					{
+						g_RCInput->postMsg(msg, data);
 						loop = false;
 						res = menu_return::RETURN_EXIT_ALL;
 					}
-				}
+					else
+					{
+						if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
+						{
+							loop = false;
+							res = menu_return::RETURN_EXIT_ALL;
+						}
+					}
 			}
 			frameBuffer->blit();
 		}
 		hide();
 		fader.StopFade();
-		if(epgTextSwitchClear)
+		if (epgTextSwitchClear)
 			epgTextSwitch.clear();
 	}
 	return res;
@@ -1378,7 +1448,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 void CEpgData::hide()
 {
 	// 2004-09-10 rasc  (bugfix, scale large font settings back to normal)
-	if (bigFonts) {
+	if (bigFonts)
+	{
 		bigFonts = false;
 		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() / BIGFONT_FACTOR));
 		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() / BIGFONT_FACTOR));
@@ -1388,7 +1459,7 @@ void CEpgData::hide()
 
 	frameBuffer->paintBackgroundBoxRel(sx, sy, ox, oy);
 	frameBuffer->blit();
-	showTimerEventBar (false);
+	showTimerEventBar(false);
 
 	// imdb
 	imdb_active = false;
@@ -1399,23 +1470,24 @@ void CEpgData::hide()
 	tmdb->cleanup();
 }
 
-void CEpgData::GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* startzeit, bool clear )
+void CEpgData::GetEPGData(const t_channel_id channel_id, uint64_t id, time_t *startzeit, bool clear)
 {
-	if(clear)
+	if (clear)
 		epgText.clear();
 	emptyLineCount = 0;
 	epgData.title.clear();
 
 	bool res;
-	if ( id!= 0 )
+	if (id != 0)
 		res = CEitManager::getInstance()->getEPGid(id, *startzeit, &epgData);
 	else
-		res = CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData );
+		res = CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData);
 
-	if ( res )
+	if (res)
 	{
 		// If we have items, merge and localize them (e.g. actor1, actor2, ... -> Actors)
-		if (false == epgData.itemDescriptions.empty()) {
+		if (false == epgData.itemDescriptions.empty())
+		{
 			reformatExtendedEvents("Year of production", g_Locale->getText(LOCALE_EPGEXTENDED_YEAR_OF_PRODUCTION), false, epgData);
 			reformatExtendedEvents("Original title", g_Locale->getText(LOCALE_EPGEXTENDED_ORIGINAL_TITLE), false, epgData);
 			reformatExtendedEvents("Director", g_Locale->getText(LOCALE_EPGEXTENDED_DIRECTOR), false, epgData);
@@ -1427,50 +1499,50 @@ void CEpgData::GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* st
 		time_t epg_start_time = epgData.epg_times.startzeit;
 		struct tm *pStartZeit = localtime(&epg_start_time);
 		tmp_curent_zeit = (epgData.epg_times).startzeit;
-		char temp[20]={0};
-		strftime( temp, sizeof(temp),"%d.%m.%Y", pStartZeit);
+		char temp[20] = {0};
+		strftime(temp, sizeof(temp), "%d.%m.%Y", pStartZeit);
 		epg_date = g_Locale->getText(CLocaleManager::getWeekday(pStartZeit));
 		epg_date += ", ";
 		epg_date += temp;
-		strftime( temp, sizeof(temp), "%H:%M", pStartZeit);
-		epg_start= temp;
+		strftime(temp, sizeof(temp), "%H:%M", pStartZeit);
+		epg_start = temp;
 
-		long int uiEndTime((epgData.epg_times).startzeit+ (epgData.epg_times).dauer);
-		struct tm *pEndeZeit = localtime((time_t*)&uiEndTime);
-		strftime( temp, sizeof(temp), "%H:%M", pEndeZeit);
-		epg_end= temp;
+		long int uiEndTime((epgData.epg_times).startzeit + (epgData.epg_times).dauer);
+		struct tm *pEndeZeit = localtime((time_t *)&uiEndTime);
+		strftime(temp, sizeof(temp), "%H:%M", pEndeZeit);
+		epg_end = temp;
 
-		epg_done= -1;
-		if (( time(NULL)- (epgData.epg_times).startzeit )>= 0 )
+		epg_done = -1;
+		if ((time(NULL) - (epgData.epg_times).startzeit) >= 0)
 		{
 			unsigned nProcentagePassed = ((time(NULL) - (epgData.epg_times).startzeit) * 100 / (epgData.epg_times).dauer);
-			if (nProcentagePassed<= 100)
-				epg_done= nProcentagePassed;
+			if (nProcentagePassed <= 100)
+				epg_done = nProcentagePassed;
 		}
 	}
 //printf("GetEPGData:: items %d descriptions %d\n", epgData.items.size(), epgData.itemDescriptions.size());
 }
 
-void CEpgData::GetPrevNextEPGData( uint64_t id, time_t* startzeit )
+void CEpgData::GetPrevNextEPGData(uint64_t id, time_t *startzeit)
 {
-	prev_id= 0;
-	next_id= 0;
+	prev_id = 0;
+	next_id = 0;
 	unsigned int i;
 
-	for ( i= 0; i< evtlist.size(); i++ )
+	for (i = 0; i < evtlist.size(); i++)
 	{
 		//printf("%d %llx/%llx - %x %x\n", i, evtlist[i].eventID, id, evtlist[i].startTime, *startzeit);
-		if ( ( evtlist[i].eventID == id ) && ( evtlist[i].startTime == *startzeit ) )
+		if ((evtlist[i].eventID == id) && (evtlist[i].startTime == *startzeit))
 		{
-			if ( i > 0 )
+			if (i > 0)
 			{
-				prev_id= evtlist[i- 1].eventID;
-				prev_zeit= evtlist[i- 1].startTime;
+				prev_id = evtlist[i - 1].eventID;
+				prev_zeit = evtlist[i - 1].startTime;
 			}
-			if ( i < ( evtlist.size()- 1 ) )
+			if (i < (evtlist.size() - 1))
 			{
-				next_id= evtlist[i+ 1].eventID;
-				next_zeit= evtlist[i+ 1].startTime;
+				next_id = evtlist[i + 1].eventID;
+				next_zeit = evtlist[i + 1].startTime;
 			}
 			break;
 		}
@@ -1488,7 +1560,7 @@ void CEpgData::GetPrevNextEPGData( uint64_t id, time_t* startzeit )
 bool CEpgData::hasFollowScreenings(const t_channel_id /*channel_id*/, const std::string &title)
 {
 	CChannelEventList::iterator e;
-	if(!followlist.empty())
+	if (!followlist.empty())
 		followlist.clear();
 	for (e = evtlist.begin(); e != evtlist.end(); ++e)
 	{
@@ -1503,11 +1575,11 @@ bool CEpgData::hasFollowScreenings(const t_channel_id /*channel_id*/, const std:
 	return !followlist.empty();
 }
 
-int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::string & /*title*/)
+int CEpgData::FollowScreenings(const t_channel_id /*channel_id*/, const std::string & /*title*/)
 {
 	CChannelEventList::iterator e;
 	struct  tm		*tmStartZeit;
-	std::string		screening_dates,screening_nodual;
+	std::string		screening_dates, screening_nodual;
 	int			count = 0;
 	int 			flag = 1;
 
@@ -1527,10 +1599,11 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 		else
 			flag = 1;
 
-		if (screening_dates != screening_nodual) {
-			screening_nodual=screening_dates;
+		if (screening_dates != screening_nodual)
+		{
+			screening_nodual = screening_dates;
 
-			processTextToArray(screening_dates, flag ); // UTF-8
+			processTextToArray(screening_dates, flag);  // UTF-8
 		}
 	}
 	return count;
@@ -1538,11 +1611,12 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 
 void CEpgData::showProgressBar()
 {
-	int w = ox/10;
-	int x = sx + (ox - w)/2;
-	int h = botboxheight - 2*OFFSET_INNER_SMALL;
-	int y = sy + oy - botboxheight + (botboxheight - h)/2;
-	if (!pb){
+	int w = ox / 10;
+	int x = sx + (ox - w) / 2;
+	int h = botboxheight - 2 * OFFSET_INNER_SMALL;
+	int y = sy + oy - botboxheight + (botboxheight - h) / 2;
+	if (!pb)
+	{
 		pb = new CProgressBar(x, y, w, h);
 		pb->setType(CProgressBar::PB_TIMESCALE);
 	}
@@ -1551,7 +1625,9 @@ void CEpgData::showProgressBar()
 	{
 		pb->setValues(epg_done, 100);
 		pb->paint(true);
-	}else{
+	}
+	else
+	{
 		pb->hide();
 	}
 }
@@ -1576,7 +1652,7 @@ struct button_label EpgButtons[][5] =
 	}
 };
 
-void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
+void CEpgData::showTimerEventBar(bool pshow, bool adzap, bool mp_info)
 {
 	int x, y, w, h;
 
@@ -1649,17 +1725,17 @@ int CEpgData::showIMDb(bool splash)
 {
 	fontIMDb = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1];
 
-	frameBuffer->paintBoxRel(sx, sy+toph, ox /*- 15*/, sb, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(sx, sy + toph, ox /*- 15*/, sb, COL_MENUCONTENT_PLUS_0);
 	if (splash)
 	{
-		fontIMDb->RenderString(sx+OFFSET_INNER_MID, sy+toph+medlineheight, ox-OFFSET_INNER_MID, "IMDb: Daten werden geladen ...", COL_MENUCONTENT_TEXT, 0, true);
+		fontIMDb->RenderString(sx + OFFSET_INNER_MID, sy + toph + medlineheight, ox - OFFSET_INNER_MID, "IMDb: Daten werden geladen ...", COL_MENUCONTENT_TEXT, 0, true);
 		return 0;
 	}
 
 	//title
 	std::string title = imdb->getIMDbElement("Title");
 
-	if(((title.find(imdb->search_error)) != std::string::npos))
+	if (((title.find(imdb->search_error)) != std::string::npos))
 		return 1;
 
 	// clear epg array
@@ -1726,13 +1802,16 @@ int CEpgData::showIMDb(bool splash)
 
 void CEpgData::ResetModules()
 {
-	if (header){
+	if (header)
+	{
 		delete header; header = NULL;
 	}
-	if (Bottombox){
+	if (Bottombox)
+	{
 		delete Bottombox; Bottombox = NULL;
 	}
-	if (pb){
+	if (pb)
+	{
 		delete pb; pb = NULL;
 	}
 }
@@ -1740,7 +1819,7 @@ void CEpgData::ResetModules()
 //  -- EPG Data Viewer Menu Handler Class
 //  -- to be used for calls from Menu
 
-int CEPGDataHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
+int CEPGDataHandler::exec(CMenuTarget *parent, const std::string &/*actionkey*/)
 {
 	int res = menu_return::RETURN_EXIT_ALL;
 

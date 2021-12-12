@@ -30,14 +30,14 @@ CCButtonSelect::CCButtonSelect()
 	btn_container = NULL;
 }
 
-CComponentsFrmChain* CCButtonSelect::getButtonChainObject()
+CComponentsFrmChain *CCButtonSelect::getButtonChainObject()
 {
 	return btn_container;
 }
 
-CComponentsButton* CCButtonSelect::getSelectedButtonObject()
+CComponentsButton *CCButtonSelect::getSelectedButtonObject()
 {
-	CComponentsButton* ret = static_cast<CComponentsButton*>(btn_container->getSelectedItemObject());
+	CComponentsButton *ret = static_cast<CComponentsButton *>(btn_container->getSelectedItemObject());
 	return ret;
 }
 
@@ -48,26 +48,30 @@ int CCButtonSelect::getSelectedButton()
 	return -1;
 }
 
-void CCButtonSelect::SetSelectedButton( size_t item_id,
-					const fb_pixel_t& sel_fr_col,
-					const fb_pixel_t& fr_col,
-					const fb_pixel_t& sel_bg_col,
-					const fb_pixel_t& bg_col,
-					const fb_pixel_t& text_col,
-					const fb_pixel_t& sel_text_col,
-					const int& frame_width,
-					const int& sel_frame_width)
+void CCButtonSelect::SetSelectedButton(size_t item_id,
+	const fb_pixel_t &sel_fr_col,
+	const fb_pixel_t &fr_col,
+	const fb_pixel_t &sel_bg_col,
+	const fb_pixel_t &bg_col,
+	const fb_pixel_t &text_col,
+	const fb_pixel_t &sel_text_col,
+	const int &frame_width,
+	const int &sel_frame_width)
 {
 	CComponentsButton *btn = NULL;
-	if (btn_container){
-		for (size_t i= 0; i< btn_container->size(); i++){
+	if (btn_container)
+	{
+		for (size_t i = 0; i < btn_container->size(); i++)
+		{
 			CComponentsItem *item = btn_container->getCCItem(i);
-			if (item->getItemType() >= CC_ITEMTYPE_BUTTON && item->getItemType() <= CC_ITEMTYPE_BUTTON_BLUE){
-				btn = static_cast<CComponentsButton*>(item);
+			if (item->getItemType() >= CC_ITEMTYPE_BUTTON && item->getItemType() <= CC_ITEMTYPE_BUTTON_BLUE)
+			{
+				btn = static_cast<CComponentsButton *>(item);
 				btn->setButtonTextColor(text_col, sel_text_col);
 			}
 		}
-		if (!btn){
+		if (!btn)
+		{
 			dprintf(DEBUG_NORMAL, "\033[31m[CCButtonSelect]\t[%s - %d], ERROR: btn_container size = %d, no button object available...\033[0m\n", __func__, __LINE__, (int)btn_container->size());
 			return;
 		}
@@ -77,13 +81,13 @@ void CCButtonSelect::SetSelectedButton( size_t item_id,
 	}
 }
 
-void CCButtonSelect::setSelectedButton( size_t item_id,
-					const fb_pixel_t& sel_fr_col,
-					const fb_pixel_t& fr_col,
-					const fb_pixel_t& sel_bg_col,
-					const fb_pixel_t& bg_col,
-					const int& frame_width,
-					const int& sel_frame_width)
+void CCButtonSelect::setSelectedButton(size_t item_id,
+	const fb_pixel_t &sel_fr_col,
+	const fb_pixel_t &fr_col,
+	const fb_pixel_t &sel_bg_col,
+	const fb_pixel_t &bg_col,
+	const int &frame_width,
+	const int &sel_frame_width)
 {
 	fb_pixel_t sel_col = fr_col;
 	if (btn_container->size() > 1)

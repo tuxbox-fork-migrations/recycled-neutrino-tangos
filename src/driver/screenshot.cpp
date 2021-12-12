@@ -53,7 +53,7 @@ CScreenShot::CScreenShot(const std::string &fname, screenshot_format_t fmt)
 	filename = fname;
 	xres = 0;
 	yres = 0;
-	get_osd = ((g_settings.screenshot_mode == 0 ) || (g_settings.screenshot_mode == 2));
+	get_osd = ((g_settings.screenshot_mode == 0) || (g_settings.screenshot_mode == 2));
 	get_video = ((g_settings.screenshot_mode == 1) || (g_settings.screenshot_mode == 2));
 	scale_to_osd = ((g_settings.screenshot_mode == 2) && (g_settings.screenshot_scale == 0));
 }
@@ -71,7 +71,8 @@ bool CScreenShot::Start(const std::string custom_cmd)
 
 	cmd += " ";
 
-	if (!custom_cmd.empty()) {
+	if (!custom_cmd.empty())
+	{
 		cmd += custom_cmd;
 		cmd += " ";
 	}
@@ -85,7 +86,8 @@ bool CScreenShot::Start(const std::string custom_cmd)
 		get = "";
 	cmd += get;
 
-	switch (format) {
+	switch (format)
+	{
 		default:
 		case FORMAT_PNG:
 			cmd += "-p ";
@@ -110,9 +112,9 @@ bool CScreenShot::Start(const std::string custom_cmd)
 	return true;
 }
 
-/* 
+/*
  * create filename member from channel name and its current EPG data,
- * with added date and time including msecs and suffix for selected format 
+ * with added date and time including msecs and suffix for selected format
  */
 void CScreenShot::MakeFileName(const t_channel_id channel_id)
 {
@@ -125,42 +127,48 @@ void CScreenShot::MakeFileName(const t_channel_id channel_id)
 	pos = strlen(fname);
 
 	channel_name = CServiceManager::getInstance()->GetServiceName(channel_id);
-	if (!(channel_name.empty())) {
+	if (!(channel_name.empty()))
+	{
 		strcpy(&(fname[pos]), UTF8_TO_FILESYSTEM_ENCODING(channel_name.c_str()));
 		ZapitTools::replace_char(&fname[pos]);
 		strcat(fname, "_");
 	}
 	pos = strlen(fname);
 
-	if(CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData)) {
+	if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData))
+	{
 		CShortEPGData epgdata;
-		if(CEitManager::getInstance()->getEPGidShort(epgData.eventID, &epgdata)) {
-			if (!(epgdata.title.empty())) {
+		if (CEitManager::getInstance()->getEPGidShort(epgData.eventID, &epgdata))
+		{
+			if (!(epgdata.title.empty()))
+			{
 				strcpy(&(fname[pos]), epgdata.title.c_str());
 				ZapitTools::replace_char(&fname[pos]);
 			}
 		}
 	}
-	if (g_settings.screenshot_cover != 1) {
-	pos = strlen(fname);
+	if (g_settings.screenshot_cover != 1)
+	{
+		pos = strlen(fname);
 
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	strftime(&(fname[pos]), sizeof(fname) - pos - 1, "_%Y%m%d_%H%M%S", localtime(&tv.tv_sec));
-	pos = strlen(fname);
-	snprintf(&(fname[pos]), sizeof(fname) - pos - 1, "_%03d", (int) tv.tv_usec/1000);
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		strftime(&(fname[pos]), sizeof(fname) - pos - 1, "_%Y%m%d_%H%M%S", localtime(&tv.tv_sec));
+		pos = strlen(fname);
+		snprintf(&(fname[pos]), sizeof(fname) - pos - 1, "_%03d", (int) tv.tv_usec / 1000);
 	}
 
-	switch (format) {
-	default:
-		printf("CScreenShot::MakeFileName unsupported format %d, using png\n", format);
+	switch (format)
+	{
+		default:
+			printf("CScreenShot::MakeFileName unsupported format %d, using png\n", format);
 		/* fall through */
-	case FORMAT_PNG:
-		strcat(fname, ".png");
-		break;
-	case FORMAT_JPG:
-		strcat(fname, ".jpg");
-		break;
+		case FORMAT_PNG:
+			strcat(fname, ".png");
+			break;
+		case FORMAT_JPG:
+			strcat(fname, ".jpg");
+			break;
 	}
 	printf("CScreenShot::MakeFileName: [%s]\n", fname);
 	filename = std::string(fname);

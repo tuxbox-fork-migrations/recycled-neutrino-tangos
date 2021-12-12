@@ -36,7 +36,7 @@ typedef std::pair<int, int> pid_pair_t;
 typedef std::pair<t_channel_id, pid_pair_t> volume_pair_t;
 typedef std::multimap<t_channel_id, pid_pair_t> volume_map_t;
 typedef volume_map_t::iterator volume_map_iterator_t;
-typedef std::pair<volume_map_iterator_t,volume_map_iterator_t> volume_map_range_t;
+typedef std::pair<volume_map_iterator_t, volume_map_iterator_t> volume_map_range_t;
 
 /* complete zapit start thread-parameters in a struct */
 typedef struct ZAPIT_start_arg
@@ -56,12 +56,14 @@ typedef struct ZAPIT_start_arg
 	std::list<std::string> *webradio_xml;
 } Z_start_arg;
 
-enum {
+enum
+{
 	MODE_WEBTV = 0,
 	MODE_WEBRADIO
 };
 
-typedef struct Zapit_config {
+typedef struct Zapit_config
+{
 	int writeChannelsNames;
 	int makeRemainingChannelsBouquet;
 	int saveLastChannel;
@@ -108,7 +110,8 @@ class CZapitSdtMonitor : public OpenThreads::Thread
 class CZapit : public OpenThreads::Thread
 {
 	private:
-		enum {
+		enum
+		{
 			TV_MODE = 0x01,
 			RADIO_MODE = 0x02,
 			RECORD_MODE = 0x04
@@ -147,7 +150,7 @@ class CZapit : public OpenThreads::Thread
 		CEventServer *eventServer;
 		CBasicServer zapit_server;
 
-		CZapitChannel * current_channel;
+		CZapitChannel *current_channel;
 		t_channel_id live_channel_id;
 		t_channel_id pip_channel_id[3];
 		t_channel_id lock_channel_id;
@@ -156,8 +159,8 @@ class CZapit : public OpenThreads::Thread
 		TP_params TP;
 		fast_scan_type_t scant;
 
-		CFrontend * live_fe;
-		CFrontend * pip_fe[3];
+		CFrontend *live_fe;
+		CFrontend *pip_fe[3];
 
 		audio_map_t audio_map;
 		volume_map_t vol_map;
@@ -178,15 +181,15 @@ class CZapit : public OpenThreads::Thread
 		void SaveVolumeMap();
 		void SaveSettings(bool write_conf);
 		//void SaveChannelPids(CZapitChannel* channel);
-		void RestoreChannelPids(CZapitChannel* channel);
+		void RestoreChannelPids(CZapitChannel *channel);
 		//void ConfigFrontend();
 
-		bool TuneChannel(CFrontend *frontend, CZapitChannel * channel, bool &transponder_change, bool send_event = true);
-		bool ParsePatPmt(CZapitChannel * channel);
+		bool TuneChannel(CFrontend *frontend, CZapitChannel *channel, bool &transponder_change, bool send_event = true);
+		bool ParsePatPmt(CZapitChannel *channel);
 
 		bool send_data_count(int connfd, int data_count);
 		void sendAPIDs(int connfd);
-		void internalSendChannels(int connfd, ZapitChannelList* channels, const unsigned int first_channel_nr, bool nonames);
+		void internalSendChannels(int connfd, ZapitChannelList *channels, const unsigned int first_channel_nr, bool nonames);
 		void sendBouquets(int connfd, const bool emptyBouquetsToo, CZapitClient::channelsMode mode);
 		void sendBouquetChannels(int connfd, const unsigned int bouquet, const CZapitClient::channelsMode mode, bool nonames);
 		void sendChannels(int connfd, const CZapitClient::channelsMode mode, const CZapitClient::channelsOrder order);
@@ -218,20 +221,20 @@ class CZapit : public OpenThreads::Thread
 		CZapitSdtMonitor SdtMonitor;
 		void LoadAudioMap();
 		void LoadVolumeMap();
-		void SaveChannelPids(CZapitChannel* channel);
+		void SaveChannelPids(CZapitChannel *channel);
 		virtual void ConfigFrontend();
 		bool StopPlayBack(bool send_pmt, bool blank = true);
 		virtual void leaveStandby();
 
-		static CZapit * zapit;
+		static CZapit *zapit;
 		CZapit();
 	public:
 		~CZapit();
-		static CZapit * getInstance();
+		static CZapit *getInstance();
 		void ClearVolumeMap();
 
 		virtual void LoadSettings();
-		virtual bool Start(Z_start_arg* ZapStart_arg);
+		virtual bool Start(Z_start_arg *ZapStart_arg);
 		bool Stop();
 		bool ParseCommand(CBasicMessage::Header &rmsg, int connfd);
 		bool ZapIt(const t_channel_id channel_id, bool for_update = false, bool startplayback = true);
@@ -245,18 +248,18 @@ class CZapit : public OpenThreads::Thread
 
 		bool PrepareChannels();
 		bool StartScan(int scan_mode);
-		bool StartScanTP(TP_params * TPparams);
+		bool StartScanTP(TP_params *TPparams);
 #ifdef ENABLE_FASTSCAN
 		bool StartFastScan(int scan_mode, int opid);
 #endif
 
 		void addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_id);
-		void SetConfig(Zapit_config * Cfg);
+		void SetConfig(Zapit_config *Cfg);
 		void GetConfig(Zapit_config &Cfg);
 
-		virtual void SendEvent(const unsigned int eventID, const void* eventbody = NULL, const unsigned int eventbodysize = 0);
+		virtual void SendEvent(const unsigned int eventID, const void *eventbody = NULL, const unsigned int eventbodysize = 0);
 
-		audio_map_set_t * GetSavedPids(const t_channel_id channel_id);
+		audio_map_set_t *GetSavedPids(const t_channel_id channel_id);
 
 		/* inlines */
 		void Abort() { abort_zapit = 1; };
@@ -269,15 +272,15 @@ class CZapit : public OpenThreads::Thread
 
 		void GetAudioMode(int &mode) { mode = audio_mode; }
 
-		CZapitChannel * GetCurrentChannel() { return current_channel; };
+		CZapitChannel *GetCurrentChannel() { return current_channel; };
 		t_channel_id GetCurrentChannelID() { return live_channel_id; };
 		t_channel_id GetPipChannelID(int pip = 0) { return pip_channel_id[pip]; };
 		t_channel_id GetLastTVChannel() { return lastChannelTV; }
 		t_channel_id GetLastRADIOChannel() { return lastChannelRadio; }
 		void SetCurrentChannelID(const t_channel_id channel_id) { live_channel_id = channel_id; };
-		void SetLiveFrontend(CFrontend * fe) { if(fe) live_fe = fe; }
-		CFrontend * GetLiveFrontend() { return live_fe; };
-		CFrontend * GetPipFrontend(int pip = 0) { return pip_fe[pip]; };
+		void SetLiveFrontend(CFrontend *fe) { if (fe) live_fe = fe; }
+		CFrontend *GetLiveFrontend() { return live_fe; };
+		CFrontend *GetPipFrontend(int pip = 0) { return pip_fe[pip]; };
 
 		int GetPidVolume(t_channel_id channel_id, int pid, bool ac3 = false);
 		void SetPidVolume(t_channel_id channel_id, int pid, int percent);

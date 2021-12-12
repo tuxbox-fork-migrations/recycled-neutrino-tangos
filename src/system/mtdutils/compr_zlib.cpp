@@ -57,7 +57,7 @@ Q: Is 12 bytes sufficient?
 #define STREAM_END_SPACE 12
 
 static int jffs2_zlib_compress(unsigned char *data_in, unsigned char *cpage_out,
-		uint32_t *sourcelen, uint32_t *dstlen)
+	uint32_t *sourcelen, uint32_t *dstlen)
 {
 	z_stream strm;
 	int ret;
@@ -68,7 +68,8 @@ static int jffs2_zlib_compress(unsigned char *data_in, unsigned char *cpage_out,
 	strm.zalloc = NULL;
 	strm.zfree = NULL;
 
-	if (Z_OK != deflateInit(&strm, 3)) {
+	if (Z_OK != deflateInit(&strm, 3))
+	{
 		return -1;
 	}
 	strm.next_in = data_in;
@@ -77,15 +78,17 @@ static int jffs2_zlib_compress(unsigned char *data_in, unsigned char *cpage_out,
 	strm.next_out = cpage_out;
 	strm.total_out = 0;
 
-	while (strm.total_out < *dstlen - STREAM_END_SPACE && strm.total_in < *sourcelen) {
+	while (strm.total_out < *dstlen - STREAM_END_SPACE && strm.total_in < *sourcelen)
+	{
 		strm.avail_out = *dstlen - (strm.total_out + STREAM_END_SPACE);
 #if __cplusplus < 201103
-		strm.avail_in = min((unsigned)(*sourcelen-strm.total_in), strm.avail_out);
+		strm.avail_in = min((unsigned)(*sourcelen - strm.total_in), strm.avail_out);
 #else
-		strm.avail_in = std::min((unsigned)(*sourcelen-strm.total_in), strm.avail_out);
+		strm.avail_in = std::min((unsigned)(*sourcelen - strm.total_in), strm.avail_out);
 #endif
 		ret = deflate(&strm, Z_PARTIAL_FLUSH);
-		if (ret != Z_OK) {
+		if (ret != Z_OK)
+		{
 			deflateEnd(&strm);
 			return -1;
 		}
@@ -93,7 +96,8 @@ static int jffs2_zlib_compress(unsigned char *data_in, unsigned char *cpage_out,
 	strm.avail_out += STREAM_END_SPACE;
 	strm.avail_in = 0;
 	ret = deflate(&strm, Z_FINISH);
-	if (ret != Z_STREAM_END) {
+	if (ret != Z_STREAM_END)
+	{
 		deflateEnd(&strm);
 		return -1;
 	}
@@ -109,7 +113,7 @@ static int jffs2_zlib_compress(unsigned char *data_in, unsigned char *cpage_out,
 }
 
 static int jffs2_zlib_decompress(unsigned char *data_in, unsigned char *cpage_out,
-		uint32_t srclen, uint32_t destlen)
+	uint32_t srclen, uint32_t destlen)
 {
 	z_stream strm;
 	int ret;
@@ -117,7 +121,8 @@ static int jffs2_zlib_decompress(unsigned char *data_in, unsigned char *cpage_ou
 	strm.zalloc = NULL;
 	strm.zfree = NULL;
 
-	if (Z_OK != inflateInit(&strm)) {
+	if (Z_OK != inflateInit(&strm))
+	{
 		return 1;
 	}
 	strm.next_in = data_in;
@@ -128,7 +133,7 @@ static int jffs2_zlib_decompress(unsigned char *data_in, unsigned char *cpage_ou
 	strm.avail_out = destlen;
 	strm.total_out = 0;
 
-	while((ret = inflate(&strm, Z_FINISH)) == Z_OK)
+	while ((ret = inflate(&strm, Z_FINISH)) == Z_OK)
 		;
 
 	inflateEnd(&strm);

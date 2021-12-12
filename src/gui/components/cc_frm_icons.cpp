@@ -39,30 +39,30 @@ CComponentsIconForm::CComponentsIconForm(CComponentsForm *parent)
 	initVarIconForm(1, 1, 0, 0, vector<string>(), parent);
 }
 
-CComponentsIconForm::CComponentsIconForm(	const int &x_pos,
-						const int &y_pos,
-						const int &w,
-						const int &h,
-						const std::vector<std::string> &v_icon_names,
-						CComponentsForm *parent,
-						int shadow_mode,
-						fb_pixel_t color_frame,
-						fb_pixel_t color_body,
-						fb_pixel_t color_shadow)
+CComponentsIconForm::CComponentsIconForm(const int &x_pos,
+	const int &y_pos,
+	const int &w,
+	const int &h,
+	const std::vector<std::string> &v_icon_names,
+	CComponentsForm *parent,
+	int shadow_mode,
+	fb_pixel_t color_frame,
+	fb_pixel_t color_body,
+	fb_pixel_t color_shadow)
 {
 	initVarIconForm(x_pos, y_pos, w, h, v_icon_names, parent, shadow_mode, color_frame, color_body, color_shadow);
 }
 
-void CComponentsIconForm::initVarIconForm(	const int &x_pos,
-						const int &y_pos,
-						const int &w,
-						const int &h,
-						const std::vector<std::string> &v_icon_names,
-						CComponentsForm *parent,
-						int shadow_mode,
-						fb_pixel_t color_frame,
-						fb_pixel_t color_body,
-						fb_pixel_t color_shadow)
+void CComponentsIconForm::initVarIconForm(const int &x_pos,
+	const int &y_pos,
+	const int &w,
+	const int &h,
+	const std::vector<std::string> &v_icon_names,
+	CComponentsForm *parent,
+	int shadow_mode,
+	fb_pixel_t color_frame,
+	fb_pixel_t color_body,
+	fb_pixel_t color_shadow)
 {
 	cc_item_type.id 	= CC_ITEMTYPE_FRM_ICONFORM;
 	cc_item_type.name 	= "cc_icon_container";

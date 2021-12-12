@@ -10,47 +10,54 @@
 
 /* Block Control Information */
 
-struct nftl_bci {
+struct nftl_bci
+{
 	unsigned char ECCSig[6];
 	uint8_t Status;
 	uint8_t Status1;
-}__attribute__((packed));
+} __attribute__((packed));
 
 /* Unit Control Information */
 
-struct nftl_uci0 {
+struct nftl_uci0
+{
 	uint16_t VirtUnitNum;
 	uint16_t ReplUnitNum;
 	uint16_t SpareVirtUnitNum;
 	uint16_t SpareReplUnitNum;
 } __attribute__((packed));
 
-struct nftl_uci1 {
+struct nftl_uci1
+{
 	uint32_t WearInfo;
 	uint16_t EraseMark;
 	uint16_t EraseMark1;
 } __attribute__((packed));
 
-struct nftl_uci2 {
-        uint16_t FoldMark;
-        uint16_t FoldMark1;
+struct nftl_uci2
+{
+	uint16_t FoldMark;
+	uint16_t FoldMark1;
 	uint32_t unused;
 } __attribute__((packed));
 
-union nftl_uci {
+union nftl_uci
+{
 	struct nftl_uci0 a;
 	struct nftl_uci1 b;
 	struct nftl_uci2 c;
 };
 
-struct nftl_oob {
+struct nftl_oob
+{
 	struct nftl_bci b;
 	union nftl_uci u;
 };
 
 /* NFTL Media Header */
 
-struct NFTLMediaHeader {
+struct NFTLMediaHeader
+{
 	char DataOrgID[6];
 	uint16_t NumEraseUnits;
 	uint16_t FirstPhysicalEUN;

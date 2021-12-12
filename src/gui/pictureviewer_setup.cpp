@@ -61,7 +61,7 @@ CPictureViewerSetup::~CPictureViewerSetup()
 
 }
 
-int CPictureViewerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
+int CPictureViewerSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init pctureviwer setup\n");
 	int   res = menu_return::RETURN_REPAINT;
@@ -70,10 +70,10 @@ int CPictureViewerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		parent->hide();
 
 
-	if(actionKey == "picturedir")
+	if (actionKey == "picturedir")
 	{
 		CFileBrowser b;
-		b.Dir_Mode=true;
+		b.Dir_Mode = true;
 		if (b.exec(g_settings.network_nfs_picturedir.c_str()))
 			g_settings.network_nfs_picturedir = b.getSelectedFile()->Name;
 		return res;
@@ -88,19 +88,19 @@ int CPictureViewerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 const CMenuOptionChooser::keyval PICTUREVIEWER_SCALING_OPTIONS[PICTUREVIEWER_SCALING_OPTION_COUNT] =
 {
 	{ CPictureViewer::SIMPLE, LOCALE_PICTUREVIEWER_RESIZE_SIMPLE        },
-	{ CPictureViewer::COLOR , LOCALE_PICTUREVIEWER_RESIZE_COLOR_AVERAGE },
-	{ CPictureViewer::NONE  , LOCALE_PICTUREVIEWER_RESIZE_NONE          }
+	{ CPictureViewer::COLOR, LOCALE_PICTUREVIEWER_RESIZE_COLOR_AVERAGE },
+	{ CPictureViewer::NONE, LOCALE_PICTUREVIEWER_RESIZE_NONE          }
 };
 
 /*shows the picviewer setup menue*/
 int CPictureViewerSetup::showPictureViewerSetup()
 {
-	CMenuWidget* picviewsetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_PVIEWERSETUP);
+	CMenuWidget *picviewsetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_PVIEWERSETUP);
 
 	// intros: back ande save
 	picviewsetup->addIntroItems(LOCALE_PICTUREVIEWER_HEAD);
 
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_PICTUREVIEWER_SCALING, &g_settings.picviewer_scaling, PICTUREVIEWER_SCALING_OPTIONS, PICTUREVIEWER_SCALING_OPTION_COUNT, true);
+	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_PICTUREVIEWER_SCALING, &g_settings.picviewer_scaling, PICTUREVIEWER_SCALING_OPTIONS, PICTUREVIEWER_SCALING_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_PICTUREVIEWER_SCALING);
 	picviewsetup->addItem(mc);
 

@@ -18,7 +18,7 @@
  * This Plugin display an background image while the vdr is switcht to radio channels.
  *
  * $Id: radiotools.h,v 1.1 2009/08/07 07:22:31 rhabarber1848 Exp $
- 
+
 */
 
 #ifndef __RADIO_TOOLS_H
@@ -30,7 +30,8 @@ unsigned short crc16_ccitt(unsigned char *daten, int len, bool skipfirst);
 
 char *rtrim(char *text);
 
-class cTimeMs {
+class cTimeMs
+{
 	private:
 		uint64_t begin;
 

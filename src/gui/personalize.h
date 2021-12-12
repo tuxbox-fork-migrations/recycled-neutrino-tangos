@@ -5,7 +5,7 @@
 
         Copyright (C) 2007 Speed2206
         and some other guys
-        
+
         Reworked by dbt (Thilo Graf)
         Copyright (C) 2010, 2011 dbt
 
@@ -14,10 +14,10 @@
         This is the customization menu, as originally showcased in
         Oxygen. It is a more advanced version of the 'user levels'
         patch currently available.
-        
+
         The reworked version >1.24 works more dynamicly with input objects
         and their parameters and it's more code reduced. It's also independent
-        from #ifdefs of items. 
+        from #ifdefs of items.
         The personalize-object collects all incomming forwarder item objects.
         These will be handled here and will be shown after evaluation.
 
@@ -43,7 +43,7 @@
 	NOTE for ignorant distributors:
 	It's not allowed to distribute any compiled parts of this code, if you don't accept the terms of GPL.
 	Please read it and understand it right!
-	This means for you: Hold it, if not, leave it! You could face legal action! 
+	This means for you: Hold it, if not, leave it! You could face legal action!
 	Otherwise ask the copyright owners, anything else would be theft!
 */
 
@@ -61,17 +61,17 @@
 #include <system/setting_helpers.h>
 
 class CPlugins;
-extern CPlugins       * g_Plugins;    /* neutrino.cpp */
+extern CPlugins        *g_Plugins;    /* neutrino.cpp */
 
 //helper class to enable/disable some items in usermenu setup
 class CUserMenuNotifier : public CChangeObserver
 {
 	private:
 
-		CMenuItem* toDisable[USERMENU_ITEMS_COUNT];
+		CMenuItem *toDisable[USERMENU_ITEMS_COUNT];
 
 	public:
-		CUserMenuNotifier( CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*);
+		CUserMenuNotifier(CMenuItem *, CMenuItem *, CMenuItem *, CMenuItem *);
 
 		bool changeNotify(const neutrino_locale_t = NONEXISTANT_LOCALE, void *data = NULL);
 };
@@ -80,9 +80,9 @@ class CUserMenuNotifier : public CChangeObserver
 class CPinSetupNotifier : public CChangeObserver
 {
 	private:
-		CMenuItem* toDisable;
+		CMenuItem *toDisable;
 	public:
-		CPinSetupNotifier( CMenuItem*);
+		CPinSetupNotifier(CMenuItem *);
 		bool changeNotify(const neutrino_locale_t = NONEXISTANT_LOCALE, void *data = NULL);
 };
 
@@ -99,38 +99,38 @@ typedef struct settings_int_t
 {
 	int old_val;
 	int *p_val;
-}settings_int_struct_t;
+} settings_int_struct_t;
 
 typedef struct menu_item_t
 {
 	CMenuWidget *widget;
-	CMenuItem* menuItem;
+	CMenuItem *menuItem;
 	bool default_selected;
 	neutrino_locale_t locale_name;
-	int* personalize_mode;
+	int *personalize_mode;
 	int item_mode;
 	CMenuItem *observer_Item;
 	int condition;
-}menu_item_struct_t;
+} menu_item_struct_t;
 
 typedef struct observ_menu_item_t
 {
 	CMenuWidget *widget;
 	neutrino_locale_t observer_locale;
 	neutrino_locale_t to_observ_locale;
-}observ_menu_item_struct_t;
+} observ_menu_item_struct_t;
 
 typedef struct raw_item_t
 {
-	CMenuItem* menuItem;
+	CMenuItem *menuItem;
 	bool default_selected;
-	int* personalize_mode;
+	int *personalize_mode;
 	int item_mode;
-}raw_item_struct_t;
+} raw_item_struct_t;
 
 typedef struct personalize_settings_t
 {
-	const char* personalize_settings_name;
+	const char *personalize_settings_name;
 	int personalize_default_val;
 } personalize_settings_struct_t;
 
@@ -138,13 +138,13 @@ typedef struct personalize_settings_t
 class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINProtection
 {
 	protected:
-		virtual CMenuTarget* getParent() { return( NULL);};
+		virtual CMenuTarget *getParent() { return (NULL);};
 
 	private:
 		CUserMenuNotifier *user_menu_notifier;
 		CPinSetupNotifier *pin_setup_notifier;
-		CMenuWidget* tmpW;
-		CMenuWidget* uMenu;
+		CMenuWidget *tmpW;
+		CMenuWidget *uMenu;
 
 		int width, widget_count, shortcut, options_count;
 		bool show_usermenu, show_pin_setup;
@@ -164,23 +164,23 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		std::vector<observ_menu_item_t> v_observ;
 
 		int 	ShowPersonalizationMenu();
-		int 	ShowMenuOptions(const int& menu);
+		int 	ShowMenuOptions(const int &menu);
 		void 	ShowHelpPersonalize();
-		void 	ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget * &pin_widget);
+		void 	ShowPinSetup(CMenuWidget *p_widget, CPINChangeWidget*&pin_widget);
 		void 	ShowUserMenu();
-		void 	ShowPluginMenu(CMenuWidget* p_widget, std::string da[], int ia[]);
+		void 	ShowPluginMenu(CMenuWidget *p_widget, std::string da[], int ia[]);
 		void 	SaveAndExit();
 		void	ApplySettings();
 
 		bool	hasPinItems();
 
-		neutrino_msg_t	getShortcut(const int & shortcut_num, neutrino_msg_t alternate_rc_key = CRCInput::RC_nokey);
+		neutrino_msg_t	getShortcut(const int &shortcut_num, neutrino_msg_t alternate_rc_key = CRCInput::RC_nokey);
 		void 	addObservedItem(CMenuWidget *widget, CMenuItem *observer_Item, CMenuItem *to_observ_Item);
-		bool 	changeNotify(const neutrino_locale_t locale= NONEXISTANT_LOCALE, void *data = NULL);
-		bool 	isObserver(CMenuWidget* widget, CMenuItem * item);
-	public:	
+		bool 	changeNotify(const neutrino_locale_t locale = NONEXISTANT_LOCALE, void *data = NULL);
+		bool 	isObserver(CMenuWidget *widget, CMenuItem *item);
+	public:
 		//general options for personalized items
-		enum PERSONALIZE_MODE 
+		enum PERSONALIZE_MODE
 		{
 			PERSONALIZE_MODE_NOTVISIBLE =  0,
 			PERSONALIZE_MODE_VISIBLE  =  1,
@@ -190,7 +190,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		};
 
 		//options for personalized items with pin protection
-		enum PERSONALIZE_PROTECT_MODE 
+		enum PERSONALIZE_PROTECT_MODE
 		{
 			PERSONALIZE_PROTECT_MODE_NOT_PROTECTED =  0,
 			PERSONALIZE_PROTECT_MODE_PIN_PROTECTED  =  2,
@@ -199,7 +199,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		};
 
 		//options for show_epg_feat options
-		enum PERSONALIZE_ACTIVE_MODE 
+		enum PERSONALIZE_ACTIVE_MODE
 		{
 			PERSONALIZE_ACTIVE_MODE_DISABLED =  0,
 			PERSONALIZE_ACTIVE_MODE_ENABLED  =  1,
@@ -208,7 +208,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		};
 
 		//internal display modes for items in personalize settings menue
-		enum PERSONALIZE_ITEM_MODE 
+		enum PERSONALIZE_ITEM_MODE
 		{
 			PERSONALIZE_SHOW_NO =  0,
 			PERSONALIZE_SHOW_AS_ITEM_OPTION  =  1,
@@ -217,7 +217,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		};
 
 		//options for features key
-		enum PERSONALIZE_FEAT_KEY 
+		enum PERSONALIZE_FEAT_KEY
 		{
 			PERSONALIZE_FEAT_KEY_RED,
 			PERSONALIZE_FEAT_KEY_GREEN,
@@ -231,34 +231,34 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		CPersonalizeGui();
 		~CPersonalizeGui();
 
-		int 	exec(CMenuTarget* parent, const std::string & actionKey);
+		int 	exec(CMenuTarget *parent, const std::string &actionKey);
 
-		CMenuWidget& getWidget(const int& id);
+		CMenuWidget &getWidget(const int &id);
 
 		void 	addWidget(CMenuWidget *widget);
-		void 	addWidgets(const struct mn_widget_t * const widget, const int& widget_count);
+		void 	addWidgets(const struct mn_widget_t *const widget, const int &widget_count);
 		int 	getWidgetCount() {return widget_count;};
 		int 	getWidgetId(CMenuWidget *widget);
 		int	getItemsCount(CMenuWidget *widget);
-		int	getItemsCount(const int& widget_id);
-		void	setShortcut(const int& short_cut = 1) {shortcut = short_cut;};
-		void 	addItem(CMenuWidget *widget, CMenuItem *menu_Item, const int *personalize_mode = NULL, const bool defaultselected = false, const int& item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION, CMenuItem *observer_Item = NULL, const menu_item_disable_cond_t& disable_condition = DCOND_MODE_NONE );
-		void 	addItem(const int& widget_id, CMenuItem *menu_Item, const int *personalize_mode = NULL, const bool defaultselected = false, const int& item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION, CMenuItem *observer_Item = NULL, const menu_item_disable_cond_t& disable_condition = DCOND_MODE_NONE );
+		int	getItemsCount(const int &widget_id);
+		void	setShortcut(const int &short_cut = 1) {shortcut = short_cut;};
+		void 	addItem(CMenuWidget *widget, CMenuItem *menu_Item, const int *personalize_mode = NULL, const bool defaultselected = false, const int &item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION, CMenuItem *observer_Item = NULL, const menu_item_disable_cond_t &disable_condition = DCOND_MODE_NONE);
+		void 	addItem(const int &widget_id, CMenuItem *menu_Item, const int *personalize_mode = NULL, const bool defaultselected = false, const int &item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION, CMenuItem *observer_Item = NULL, const menu_item_disable_cond_t &disable_condition = DCOND_MODE_NONE);
 		void	addIntroItems(CMenuWidget *widget);
-		void	addIntroItems(const int& widget_id);
-		void 	addSeparator(CMenuWidget &menu, const neutrino_locale_t locale_text = NONEXISTANT_LOCALE, const int& item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION);
-		void 	addSeparator(const int& widget_id, const neutrino_locale_t locale_text = NONEXISTANT_LOCALE, const int& item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION);
+		void	addIntroItems(const int &widget_id);
+		void 	addSeparator(CMenuWidget &menu, const neutrino_locale_t locale_text = NONEXISTANT_LOCALE, const int &item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION);
+		void 	addSeparator(const int &widget_id, const neutrino_locale_t locale_text = NONEXISTANT_LOCALE, const int &item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION);
 		void 	addPersonalizedItems();
-		void	enableUsermenu(bool show = true){show_usermenu = show;};
-		void	enablePluginMenu(bool show = true){show_pluginmenu = show;};
-		void	enablePinSetup(bool show = true){show_pin_setup = show;};
+		void	enableUsermenu(bool show = true) {show_usermenu = show;};
+		void	enablePluginMenu(bool show = true) {show_pluginmenu = show;};
+		void	enablePinSetup(bool show = true) {show_pin_setup = show;};
 };
 
 typedef struct feat_keys_t
 {
 	neutrino_locale_t locale_name;
 	neutrino_msg_t key;
-}feat_keys_struct_t;
+} feat_keys_struct_t;
 
 const struct feat_keys_t feat_key[CPersonalizeGui::PERSONALIZE_FEAT_KEY_MAX] =
 {

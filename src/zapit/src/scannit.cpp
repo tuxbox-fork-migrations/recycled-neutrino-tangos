@@ -47,7 +47,8 @@ CNit::CNit(t_satellite_position spos, freq_id_t frq, unsigned short pnid, int dn
 CNit::~CNit()
 {
 	NetworkInformationSectionIterator sit;
-	for (sit = sections.begin(); sit != sections.end(); ++sit) {
+	for (sit = sections.begin(); sit != sections.end(); ++sit)
+	{
 		delete *(sit);
 	}
 }
@@ -67,7 +68,7 @@ bool CNit::Stop()
 void CNit::run()
 {
 	set_threadname("zap:nit");
-	if(Parse())
+	if (Parse())
 		printf("[scan] NIT finished.\n");
 	else
 		printf("[scan] NIT failed !\n");
@@ -80,12 +81,13 @@ bool CNit::Read()
 	int sectotal[2] = { -1, -1 };
 	int nit_index = 0;
 
-	for(int i = 0; i < 2; i++) {
+	for (int i = 0; i < 2; i++)
+	{
 		for (int j = 0; j < 255; j++)
-		secdone[i][j] = 0;
+			secdone[i][j] = 0;
 	}
 
-	cDemux * dmx = new cDemux(dmxnum);
+	cDemux *dmx = new cDemux(dmxnum);
 	dmx->Open(DMX_PSI_CHANNEL);
 
 	unsigned char buffer[NIT_SECTION_SIZE];
@@ -100,7 +102,8 @@ bool CNit::Read()
 	filter[0] = 0x40;
 	mask[0] = (nid != 0) ? 0xFE : 0xFF; // in case we have network ID we also want the 'other' tables
 
-	if (nid) { // filter for the network ID
+	if (nid)   // filter for the network ID
+	{
 		filter[1] = (nid >> 8) & 0xff;
 		filter[2] = (nid >> 0) & 0xff;
 		mask[1] = 0xff;
@@ -108,7 +111,8 @@ bool CNit::Read()
 		flen = 3;
 	}
 
-	if (!dmx->sectionFilter(0x10, filter, mask, flen)) {
+	if (!dmx->sectionFilter(0x10, filter, mask, flen))
+	{
 		delete dmx;
 #ifdef DEBUG_NIT
 		printf("[NIT] filter failed\n");
@@ -116,8 +120,10 @@ bool CNit::Read()
 		return false;
 	}
 
-	do {
-		if (dmx->Read(buffer, NIT_SECTION_SIZE) < 0) {
+	do
+	{
+		if (dmx->Read(buffer, NIT_SECTION_SIZE) < 0)
+		{
 			delete dmx;
 #ifdef DEBUG_NIT
 			printf("[NIT] read failed\n");
@@ -125,37 +131,41 @@ bool CNit::Read()
 			return false;
 		}
 
-		if (CServiceScan::getInstance()->Aborted()) {
+		if (CServiceScan::getInstance()->Aborted())
+		{
 			ret = false;
 			goto _return;
 		}
 
-		if ((buffer[0] != 0x40) && ((nid > 0) && (buffer[0] != 0x41))) {
-			// NIT actual or NIT other 
+		if ((buffer[0] != 0x40) && ((nid > 0) && (buffer[0] != 0x41)))
+		{
+			// NIT actual or NIT other
 			printf("[NIT] ******************************************* Bogus section received: 0x%x\n", buffer[0]);
 			ret = false;
 			goto _return;
 		}
 
-		nit_index = buffer[0] & 1; 
+		nit_index = buffer[0] & 1;
 
 		unsigned char secnum = buffer[6];
 #ifdef DEBUG_NIT
 		printf("[NIT] section %X last %X -> %s\n", secnum, buffer[7], secdone[nit_index][secnum] ? "skip" : "use");
 #endif
-		if(secdone[nit_index][secnum]) { // mark sec XX done
+		if (secdone[nit_index][secnum])  // mark sec XX done
+		{
 			secdone[nit_index][secnum]++;
-			if(secdone[nit_index][secnum] >= 5)
+			if (secdone[nit_index][secnum] >= 5)
 				break;
 			continue;
 		}
 		secdone[nit_index][secnum] = 1;
 		sectotal[nit_index]++;
 
-		NetworkInformationSection * nit = new NetworkInformationSection(buffer);
+		NetworkInformationSection *nit = new NetworkInformationSection(buffer);
 		sections.push_back(nit);
 
-	} while(sectotal[nit_index] < buffer[7]);
+	}
+	while (sectotal[nit_index] < buffer[7]);
 _return:
 	dmx->Stop();
 	delete dmx;
@@ -166,81 +176,87 @@ bool CNit::Parse()
 {
 	printf("[scan] trying to parse NIT\n");
 
-	if(!Read())
+	if (!Read())
 		return false;
 
 	NetworkInformationSectionIterator sit;
-	for (sit = sections.begin(); sit != sections.end(); ++sit) {
-		NetworkInformationSection * nit = *sit;
+	for (sit = sections.begin(); sit != sections.end(); ++sit)
+	{
+		NetworkInformationSection *nit = *sit;
 
 		if (CServiceScan::getInstance()->Aborted())
 			return false;
 
-		const DescriptorList * dlist = nit->getDescriptors();
+		const DescriptorList *dlist = nit->getDescriptors();
 		DescriptorConstIterator dit;
 #ifdef DEBUG_NIT
 		printf("NIT: section %d, %d descriptors\n", nit->getSectionNumber(), dlist->size());
 #endif
 		unsigned int pdsd = 0;
-		for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
-			Descriptor * d = *dit;
-			switch(d->getTag()) {
+		for (dit = dlist->begin(); dit != dlist->end(); ++dit)
+		{
+			Descriptor *d = *dit;
+			switch (d->getTag())
+			{
 				case NETWORK_NAME_DESCRIPTOR:
-					{
-						NetworkNameDescriptor * nd = (NetworkNameDescriptor *) d;
-						networkName = stringDVBUTF8(nd->getNetworkName());
+				{
+					NetworkNameDescriptor *nd = (NetworkNameDescriptor *) d;
+					networkName = stringDVBUTF8(nd->getNetworkName());
 #ifdef DEBUG_NIT
-						printf("NIT: network name [%s]\n", networkName.c_str());
+					printf("NIT: network name [%s]\n", networkName.c_str());
 #endif
-					}
-					break;
+				}
+				break;
 				case LINKAGE_DESCRIPTOR:
-					{
+				{
 #ifdef DEBUG_NIT
-						LinkageDescriptor * ld = (LinkageDescriptor*) d;
-						printf("NIT: linkage, tsid %04x onid %04x sid %04x type %02x\n", ld->getTransportStreamId(),
-								ld->getOriginalNetworkId(), ld->getServiceId(), ld->getLinkageType());
+					LinkageDescriptor *ld = (LinkageDescriptor *) d;
+					printf("NIT: linkage, tsid %04x onid %04x sid %04x type %02x\n", ld->getTransportStreamId(),
+						ld->getOriginalNetworkId(), ld->getServiceId(), ld->getLinkageType());
 #endif
-					}
-					break;
+				}
+				break;
 				case PRIVATE_DATA_SPECIFIER_DESCRIPTOR:
-					{
-						PrivateDataSpecifierDescriptor * pd = (PrivateDataSpecifierDescriptor *)d;
-						pdsd = pd->getPrivateDataSpecifier();
+				{
+					PrivateDataSpecifierDescriptor *pd = (PrivateDataSpecifierDescriptor *)d;
+					pdsd = pd->getPrivateDataSpecifier();
 #ifdef DEBUG_NIT
-						printf("NIT: private data specifier %08x\n", pdsd);
+					printf("NIT: private data specifier %08x\n", pdsd);
 #endif
-					}
-					break;
+				}
+				break;
 				default:
-					{
+				{
 #ifdef DEBUG_NIT_UNUSED
-						printf("NIT: descriptor %02x len %d: ", d->getTag(), d->getLength());
+					printf("NIT: descriptor %02x len %d: ", d->getTag(), d->getLength());
 #if 0
-						uint8_t len = 2+d->getLength();
-						uint8_t buf[len];
-						d->writeToBuffer(buf);
-						for(uint8_t i = 0; i < len; i++)
-							printf("%02x ", buf[i]);
+					uint8_t len = 2 + d->getLength();
+					uint8_t buf[len];
+					d->writeToBuffer(buf);
+					for (uint8_t i = 0; i < len; i++)
+						printf("%02x ", buf[i]);
 #endif
-						printf("\n");
+					printf("\n");
 #endif
-					}
-					break;
+				}
+				break;
 			}
 		}
 		const TransportStreamInfoList *tslist = nit->getTsInfo();
-		for(TransportStreamInfoConstIterator tit = tslist->begin(); tit != tslist->end(); ++tit) {
-			TransportStreamInfo * tsinfo = *tit;
+		for (TransportStreamInfoConstIterator tit = tslist->begin(); tit != tslist->end(); ++tit)
+		{
+			TransportStreamInfo *tsinfo = *tit;
 			dlist = tsinfo->getDescriptors();
 #ifdef DEBUG_NIT
 			printf("NIT: tsid %04x onid %04x %d descriptors\n", tsinfo->getTransportStreamId(),
-					tsinfo->getOriginalNetworkId(), dlist->size());
+				tsinfo->getOriginalNetworkId(), dlist->size());
 #endif
 			//DescriptorConstIterator dit;
-			for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
-				Descriptor * d = *dit;
-				switch(d->getTag()) {
+			for (dit = dlist->begin(); dit != dlist->end(); ++dit)
+			{
+				Descriptor *d = *dit;
+				switch (d->getTag())
+				{
 					case SATELLITE_DELIVERY_SYSTEM_DESCRIPTOR:
 						ParseSatelliteDescriptor((SatelliteDeliverySystemDescriptor *)d, tsinfo);
 						break;
@@ -261,37 +277,37 @@ bool CNit::Parse()
 						ParseServiceList((ServiceListDescriptor *) d, tsinfo);
 						break;
 
-                                        case PRIVATE_DATA_SPECIFIER_DESCRIPTOR:
-                                                {
-                                                        PrivateDataSpecifierDescriptor * pd = (PrivateDataSpecifierDescriptor *)d;
-                                                        pdsd = pd->getPrivateDataSpecifier();
+					case PRIVATE_DATA_SPECIFIER_DESCRIPTOR:
+					{
+						PrivateDataSpecifierDescriptor *pd = (PrivateDataSpecifierDescriptor *)d;
+						pdsd = pd->getPrivateDataSpecifier();
 #ifdef DEBUG_NIT
-                                                        printf("NIT: private data specifier %08x\n", pdsd);
+						printf("NIT: private data specifier %08x\n", pdsd);
 #endif
-                                                }
-                                                break;
+					}
+					break;
 
 					case LOGICAL_CHANNEL_DESCRIPTOR:
-						if(pdsd == 0x00000028)
+						if (pdsd == 0x00000028)
 							ParseLogicalChannels((LogicalChannelDescriptor *) d, tsinfo);
 						break;
 					case HD_SIMULCAST_LOGICAL_CHANNEL_DESCRIPTOR:
-						if(pdsd == 0x00000028)
+						if (pdsd == 0x00000028)
 							ParseLogicalChannels((LogicalChannelDescriptor *) d, tsinfo, true);
 						break;
 					default:
-						{
+					{
 #ifdef DEBUG_NIT_UNUSED
-							printf("NIT: descriptor %02x: ", d->getTag());
-							uint8_t len = 2+d->getLength();
-							uint8_t buf[len];
-							d->writeToBuffer(buf);
-							for(uint8_t i = 0; i < len; i++)
-								printf("%02x ", buf[i]);
-							printf("\n");
+						printf("NIT: descriptor %02x: ", d->getTag());
+						uint8_t len = 2 + d->getLength();
+						uint8_t buf[len];
+						d->writeToBuffer(buf);
+						for (uint8_t i = 0; i < len; i++)
+							printf("%02x ", buf[i]);
+						printf("\n");
 #endif
-						}
-						break;
+					}
+					break;
 				}
 			}
 		}
@@ -299,7 +315,7 @@ bool CNit::Parse()
 	return true;
 }
 
-bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, TransportStreamInfo * tsinfo)
+bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor *sd, TransportStreamInfo *tsinfo)
 {
 	if (!CServiceScan::getInstance()->GetFrontend()->hasSat())
 		return false;
@@ -320,9 +336,10 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	if (!orbitalPosition)
 		orbitalPosition = newSat;
 
-	if(satellitePosition != newSat) {
+	if (satellitePosition != newSat)
+	{
 		printf("NIT: different satellite position: our %d nit %d (%X)\n",
-				satellitePosition, newSat, sd->getOrbitalPosition());
+			satellitePosition, newSat, sd->getOrbitalPosition());
 		return false;
 	}
 
@@ -337,36 +354,38 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	feparams.pls_code = PLS_Default_Gold_Code;
 	feparams.pls_mode = PLS_Gold;
 
-	switch (modulation_system) {
-	case 0: // DVB-S
-		feparams.delsys = DVB_S;
-		// Hack for APSTAR 138E, 8PSK signalled but delsys set to DVB-S
-		if (modulation == 2)
+	switch (modulation_system)
+	{
+		case 0: // DVB-S
+			feparams.delsys = DVB_S;
+			// Hack for APSTAR 138E, 8PSK signalled but delsys set to DVB-S
+			if (modulation == 2)
+				feparams.delsys = DVB_S2;
+			break;
+		case 1: // DVB-S2
 			feparams.delsys = DVB_S2;
-		break;
-	case 1: // DVB-S2
-		feparams.delsys = DVB_S2;
-		break;
-	default:
+			break;
+		default:
 #ifdef DEBUG_NIT
-		printf("NIT: undefined modulation system %08x\n", modulation_system);
+			printf("NIT: undefined modulation system %08x\n", modulation_system);
 #endif
-		feparams.delsys = UNKNOWN_DS;
-		break;
+			feparams.delsys = UNKNOWN_DS;
+			break;
 	}
-	switch (modulation) {
-	case 0: // AUTO
-		feparams.modulation = QAM_AUTO;
-		break;
-	case 1: // QPSK
-		feparams.modulation = QPSK;
-		break;
-	case 2: // 8PSK
-		feparams.modulation = PSK_8;
-		break;
-	case 3: // QAM_16
-		feparams.modulation = QAM_16;
-		break;
+	switch (modulation)
+	{
+		case 0: // AUTO
+			feparams.modulation = QAM_AUTO;
+			break;
+		case 1: // QPSK
+			feparams.modulation = QPSK;
+			break;
+		case 2: // 8PSK
+			feparams.modulation = PSK_8;
+			break;
+		case 3: // QAM_16
+			feparams.modulation = QAM_16;
+			break;
 	}
 
 	feparams.inversion = INVERSION_AUTO;
@@ -379,7 +398,7 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	else
 		feparams.rolloff = ROLLOFF_35;
 
-	feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+	feparams.frequency = (int) 1000 * (int) round((double) feparams.frequency / (double) 1000);
 
 	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, false);
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
@@ -390,7 +409,7 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	return true;
 }
 
-bool CNit::ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStreamInfo * tsinfo)
+bool CNit::ParseCableDescriptor(CableDeliverySystemDescriptor *sd, TransportStreamInfo *tsinfo)
 {
 	if (!CServiceScan::getInstance()->GetFrontend()->hasCable())
 		return false;
@@ -408,7 +427,7 @@ bool CNit::ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStr
 	feparams.fec_inner	= CFrontend::getCodeRate(sd->getFecInner(), DVB_C);
 	feparams.modulation	= CFrontend::getModulation(sd->getModulation());
 
-	if(feparams.frequency > 1000*1000)
+	if (feparams.frequency > 1000 * 1000)
 		feparams.frequency /= 1000;
 
 	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, true);
@@ -419,7 +438,7 @@ bool CNit::ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStr
 	return true;
 }
 
-bool CNit::ParseTerrestrialDescriptor(TerrestrialDeliverySystemDescriptor * sd, TransportStreamInfo * tsinfo)
+bool CNit::ParseTerrestrialDescriptor(TerrestrialDeliverySystemDescriptor *sd, TransportStreamInfo *tsinfo)
 {
 	if (!CServiceScan::getInstance()->GetFrontend()->hasTerr())
 		return false;
@@ -437,17 +456,17 @@ bool CNit::ParseTerrestrialDescriptor(TerrestrialDeliverySystemDescriptor * sd, 
 	feparams.bandwidth		= CFrontend::getBandwidth(sd->getBandwidth());
 	feparams.hierarchy		= CFrontend::getHierarchy(sd->getHierarchyInformation());
 	feparams.transmission_mode	= CFrontend::getTransmissionMode(sd->getTransmissionMode());
-	if(feparams.frequency > 1000*1000)
+	if (feparams.frequency > 1000 * 1000)
 		feparams.frequency /= 1000;
 
-	freq_id_t freq = (freq_id_t) (feparams.frequency/(1000*1000));
+	freq_id_t freq = (freq_id_t)(feparams.frequency / (1000 * 1000));
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
 			freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
 
 	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, true);
 	return true;
 }
-bool CNit::ParseTerrestrial2Descriptor(T2DeliverySystemDescriptor * sd, TransportStreamInfo * tsinfo)
+bool CNit::ParseTerrestrial2Descriptor(T2DeliverySystemDescriptor *sd, TransportStreamInfo *tsinfo)
 {
 	if (!CServiceScan::getInstance()->GetFrontend()->hasTerr())
 		return false;
@@ -471,9 +490,9 @@ bool CNit::ParseTerrestrial2Descriptor(T2DeliverySystemDescriptor * sd, Transpor
 		for (T2FrequencyConstIterator T2freq = (*cell)->getCentreFrequencies()->begin(); T2freq != (*cell)->getCentreFrequencies()->end(); ++T2freq)
 		{
 			feparams.frequency = (*T2freq) * 10;
-			freq_id_t freq = (freq_id_t) (feparams.frequency/(1000*1000));
+			freq_id_t freq = (freq_id_t)(feparams.frequency / (1000 * 1000));
 			transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
-				freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
+					freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
 
 			CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, true);
 		}
@@ -481,12 +500,13 @@ bool CNit::ParseTerrestrial2Descriptor(T2DeliverySystemDescriptor * sd, Transpor
 	return true;
 }
 
-bool CNit::ParseServiceList(ServiceListDescriptor * sd, TransportStreamInfo * tsinfo)
+bool CNit::ParseServiceList(ServiceListDescriptor *sd, TransportStreamInfo *tsinfo)
 {
-	const ServiceListItemList * slist = sd->getServiceList();
+	const ServiceListItemList *slist = sd->getServiceList();
 	ServiceListItemConstIterator it;
-	for (it = slist->begin(); it != slist->end(); ++it) {
-		ServiceListItem * s = *it;
+	for (it = slist->begin(); it != slist->end(); ++it)
+	{
+		ServiceListItem *s = *it;
 		t_channel_id channel_id = CZapitChannel::makeChannelId(0, 0,
 				tsinfo->getTransportStreamId(), tsinfo->getOriginalNetworkId(), s->getServiceId());
 		CServiceScan::getInstance()->AddServiceType(channel_id, s->getServiceType());
@@ -494,14 +514,15 @@ bool CNit::ParseServiceList(ServiceListDescriptor * sd, TransportStreamInfo * ts
 	return true;
 }
 
-bool CNit::ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamInfo * tsinfo, bool hd)
+bool CNit::ParseLogicalChannels(LogicalChannelDescriptor *ld, TransportStreamInfo *tsinfo, bool hd)
 {
 	t_transport_stream_id transport_stream_id = tsinfo->getTransportStreamId();
 	t_original_network_id original_network_id = tsinfo->getOriginalNetworkId();
 
 	const LogicalChannelList &clist = *ld->getChannelList();
 	LogicalChannelListConstIterator it;
-	for (it = clist.begin(); it != clist.end(); ++it) { 
+	for (it = clist.begin(); it != clist.end(); ++it)
+	{
 		t_service_id service_id = (*it)->getServiceId();
 		int lcn = (*it)->getLogicalChannelNumber();
 		t_channel_id channel_id = CZapitChannel::makeChannelId(0, 0,
@@ -510,8 +531,9 @@ bool CNit::ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamIn
 #ifdef DEBUG_LCN
 		printf("NIT: logical channel tsid %04x onid %04x %012llx -> %d (%s, %d)\n", transport_stream_id, original_network_id, channel_id, lcn, hd ? "hd" : "sd", visible);
 #endif
-		if (visible && lcn) {
-			if(hd)
+		if (visible && lcn)
+		{
+			if (hd)
 				hd_logical_map[channel_id] = lcn;
 			else
 				logical_map[channel_id] = lcn;

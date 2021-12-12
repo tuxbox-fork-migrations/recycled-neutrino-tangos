@@ -38,15 +38,15 @@
 
 extern CTimeOSD *FileTimeOSD;
 
-CInfoClock::CInfoClock():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON)
+CInfoClock::CInfoClock(): CComponentsFrmClock(1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON)
 {
 	initCCLockItems();
 }
 
-CInfoClock* CInfoClock::getInstance()
+CInfoClock *CInfoClock::getInstance()
 {
-	static CInfoClock* InfoClock = NULL;
-	if(!InfoClock)
+	static CInfoClock *InfoClock = NULL;
+	if (!InfoClock)
 		InfoClock = new CInfoClock();
 	return InfoClock;
 }
@@ -60,11 +60,14 @@ void CInfoClock::initCCLockItems()
 	setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
 
 	//set text color
-	if (paint_bg){
+	if (paint_bg)
+	{
 		cl_col_text = COL_MENUCONTENT_TEXT;
 		setColorBody(COL_MENUCONTENT_PLUS_0);
-		enableShadow(CC_SHADOW_ON, OFFSET_SHADOW/2);
-	}else{
+		enableShadow(CC_SHADOW_ON, OFFSET_SHADOW / 2);
+	}
+	else
+	{
 		cl_col_text = COL_INFOCLOCK_TEXT;
 		setColorBody(COL_BACKGROUND_PLUS_0);
 		disableShadow();
@@ -80,7 +83,7 @@ void CInfoClock::initCCLockItems()
 	initClockFont(0, height);
 
 	// set corner radius depending on clock height
-	corner_rad = (g_settings.theme.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
+	corner_rad = (g_settings.theme.rounded_corners) ? std::max(height / 10, CORNER_RADIUS_SMALL) : 0;
 
 	CVolumeHelper::getInstance()->refresh(cl_font);
 	CVolumeHelper::getInstance()->getInfoClockDimensions(&x, &y, &width, &height);
@@ -122,28 +125,36 @@ bool CInfoClock::enableInfoClock(bool enable)
 	std::lock_guard<std::mutex> g(cl_mutex);
 
 	bool ret = false;
-	if (g_settings.mode_clock) {
-		if (enable) {
+	if (g_settings.mode_clock)
+	{
+		if (enable)
+		{
 			if (isBlocked()) //blocked
 				ret = StartInfoClock();
 		}
-		else {
+		else
+		{
 			if (!isBlocked()) //unblocked
 				ret = StopInfoClock();
 		}
 	}
 
-	if (!FileTimeOSD->getMpTimeForced()) {
-		if (enable) {
-			if (FileTimeOSD->getRestore()) {
+	if (!FileTimeOSD->getMpTimeForced())
+	{
+		if (enable)
+		{
+			if (FileTimeOSD->getRestore())
+			{
 				FileTimeOSD->setRestore(false);
 				FileTimeOSD->setMode(FileTimeOSD->getTmpMode());
 				FileTimeOSD->update(CMoviePlayerGui::getInstance().GetPosition(),
-						      CMoviePlayerGui::getInstance().GetDuration());
+					CMoviePlayerGui::getInstance().GetDuration());
 			}
 		}
-		else {
-			if (FileTimeOSD->getMode() != CTimeOSD::MODE_HIDE) {
+		else
+		{
+			if (FileTimeOSD->getMode() != CTimeOSD::MODE_HIDE)
+			{
 				FileTimeOSD->setTmpMode();
 				FileTimeOSD->setRestore(true);
 				if (FileTimeOSD->getRestore())
@@ -158,7 +169,7 @@ bool CInfoClock::enableInfoClock(bool enable)
 //switching clock on or off depends of current displayed or not
 void CInfoClock::switchClockOnOff()
 {
-	if(g_settings.mode_clock)
+	if (g_settings.mode_clock)
 		g_settings.mode_clock = false;
 	else
 		g_settings.mode_clock = true;

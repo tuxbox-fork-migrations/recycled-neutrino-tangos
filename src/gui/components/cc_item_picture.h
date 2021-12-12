@@ -306,8 +306,8 @@ class CComponentsPicture : public CComponentsForm
 		/**Enable/Disable paint caching for body and shadow
 		 * @see	       CCDraw::enablePaintCache(),  CCDraw::disablePaintCache()
 		*/
- 		void enablePaintCache(const bool &enable = true) {ccp->enablePaintCache(enable); enablePaintCache(enable);}
-		void disablePaintCache(){enablePaintCache(false);}
+		void enablePaintCache(const bool &enable = true) {ccp->enablePaintCache(enable); enablePaintCache(enable);}
+		void disablePaintCache() {enablePaintCache(false);}
 };
 
 #endif  //__CC_ITEM_PICTURE_V2_H__

@@ -31,7 +31,7 @@ class CLuaInstProgressWindow
 	public:
 		CLuaInstProgressWindow() {};
 		~CLuaInstProgressWindow() {};
-		static CLuaInstProgressWindow* getInstance();
+		static CLuaInstProgressWindow *getInstance();
 		static void ProgressWindowRegister(lua_State *L);
 
 	private:

@@ -96,8 +96,8 @@ bool CWeather::GetWeatherDetails()
 	if (!g_settings.weather_enabled)
 		return false;
 
-	std::string lat = coords.substr(0,coords.find_first_of(','));
-	std::string lon = coords.substr(coords.find_first_of(',')+1);
+	std::string lat = coords.substr(0, coords.find_first_of(','));
+	std::string lon = coords.substr(coords.find_first_of(',') + 1);
 
 	std::string data = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&units=metric&lang=de&exclude=minutely,hourly,flags,alerts&appid=" + key;
 	JSONCPP_STRING answer;
@@ -108,7 +108,7 @@ bool CWeather::GetWeatherDetails()
 	v_forecast.clear();
 
 	Json::CharReaderBuilder builder;
-	Json::CharReader * reader = builder.newCharReader();
+	Json::CharReader *reader = builder.newCharReader();
 	Json::Value DataValues;
 
 	answer.clear();
@@ -191,13 +191,13 @@ void CWeather::show(int x, int y)
 	ptmp->setColorBody(form->getColorBody());
 	form->addCCItem(ptmp);
 
-	CComponentsText *temp = new CComponentsText(ptmp->getWidth() + 2*RADIUS_MID, ptmp->getHeight()/2 + RADIUS_MID - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight()/2, 0, 0, getCurrentTemperature() + "°C", CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
+	CComponentsText *temp = new CComponentsText(ptmp->getWidth() + 2 * RADIUS_MID, ptmp->getHeight() / 2 + RADIUS_MID - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight() / 2, 0, 0, getCurrentTemperature() + "°C", CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
 	temp->doPaintBg(false);
 	temp->setTextColor(COL_INFOBAR_TEXT);
 	form->addCCItem(temp);
 
-	int height = std::max(ptmp->getHeight(),temp->getHeight());
-	form->setDimensionsAll(x, y, ptmp->getWidth() + temp->getWidth() + 2*RADIUS_MID, height + 2*RADIUS_MID);
+	int height = std::max(ptmp->getHeight(), temp->getHeight());
+	form->setDimensionsAll(x, y, ptmp->getWidth() + temp->getWidth() + 2 * RADIUS_MID, height + 2 * RADIUS_MID);
 	form->enableShadow();
 	form->paint();
 }

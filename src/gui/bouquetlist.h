@@ -45,9 +45,9 @@ class CFrameBuffer;
 
 typedef enum bouquetSwitchMode
 {
-    bsmBouquets,	// pressing OK shows list of all Bouquets
-    bsmChannels,	// pressing OK shows list of all channels of active bouquets
-    bsmAllChannels	// OK shows lsit of all channels
+	bsmBouquets,	// pressing OK shows list of all Bouquets
+	bsmChannels,	// pressing OK shows list of all channels of active bouquets
+	bsmAllChannels	// OK shows lsit of all channels
 } BouquetSwitchMode;
 
 class CBouquet
@@ -56,11 +56,11 @@ class CBouquet
 	public:
 		int				unique_key;
 		bool			bLocked;
-		CChannelList*	channelList;
-		CZapitBouquet * zapitBouquet;
+		CChannelList	*channelList;
+		CZapitBouquet *zapitBouquet;
 		t_satellite_position satellitePosition;
 
-		CBouquet(const int Unique_key, const char * const Name, const bool locked, bool vlist = false)
+		CBouquet(const int Unique_key, const char *const Name, const bool locked, bool vlist = false)
 		{
 			zapitBouquet = NULL;
 			unique_key = Unique_key;
@@ -107,21 +107,21 @@ class CBouquetList : public CListHelpers
 		void updateSelection(int newpos);
 
 	public:
-		CBouquetList(const char * const Name = NULL);
+		CBouquetList(const char *const Name = NULL);
 		~CBouquetList();
 
-		std::vector<CBouquet*>	Bouquets;
+		std::vector<CBouquet *>	Bouquets;
 
-		CBouquet* addBouquet(const char * const name, int BouquetKey=-1, bool locked=false );
-		CBouquet* addBouquet(CZapitBouquet * zapitBouquet);
-		void deleteBouquet(CBouquet* bouquet);
+		CBouquet *addBouquet(const char *const name, int BouquetKey = -1, bool locked = false);
+		CBouquet *addBouquet(CZapitBouquet *zapitBouquet);
+		void deleteBouquet(CBouquet *bouquet);
 		t_bouquet_id getActiveBouquetNumber();
 		int activateBouquet(int id, bool bShowChannelList);
 		int show(bool bShowChannelList = true);
 		int showChannelList(int nBouquet = -1);
 		//void adjustToChannel(int nChannelNr);
 		bool adjustToChannelID(t_channel_id channel_id);
-		int exec( bool bShowChannelList);
+		int exec(bool bShowChannelList);
 		bool hasChannelID(t_channel_id channel_id);
 };
 

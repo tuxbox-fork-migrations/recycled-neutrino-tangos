@@ -35,7 +35,7 @@ class cHddStat
 	private:
 		pthread_t thr;
 		std::string dir;
-		static void* Run(void *);
+		static void *Run(void *);
 		cHddStat();
 	public:
 		unsigned int period;

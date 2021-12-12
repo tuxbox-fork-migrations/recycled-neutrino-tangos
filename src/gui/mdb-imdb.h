@@ -30,46 +30,46 @@
 
 class CIMDB
 {
-public:
-	CIMDB();
-	~CIMDB();
-	static CIMDB* getInstance();
+	public:
+		CIMDB();
+		~CIMDB();
+		static CIMDB *getInstance();
 
-	std::string search_url;
-	std::string search_outfile;
-	std::string search_error;
-	std::string imdb_outfile;
-	std::string posterfile;
+		std::string search_url;
+		std::string search_outfile;
+		std::string search_error;
+		std::string imdb_outfile;
+		std::string posterfile;
 
-	int getIMDb(const std::string& epgTitle);
-	std::string getFilename(CZapitChannel * channel, uint64_t id);
-	void StringReplace(std::string &str, const std::string search, const std::string rstr);
-	void cleanup();
+		int getIMDb(const std::string &epgTitle);
+		std::string getFilename(CZapitChannel *channel, uint64_t id);
+		void StringReplace(std::string &str, const std::string search, const std::string rstr);
+		void cleanup();
 
-	void getIMDbData(std::string& txt);
+		void getIMDbData(std::string &txt);
 
-	bool gotPoster();
+		bool gotPoster();
 
-	bool checkIMDbElement(std::string element);
-	//FIXME: what if m[element] doesn't exist?
-	std::string getIMDbElement(std::string element)
-	{
-		return m[element];
-	};
+		bool checkIMDbElement(std::string element);
+		//FIXME: what if m[element] doesn't exist?
+		std::string getIMDbElement(std::string element)
+		{
+			return m[element];
+		};
 
-private:
-	int acc;
-	std::string imdb_url;
+	private:
+		int acc;
+		std::string imdb_url;
 
-	std::string googleIMDb(std::string s);
-	std::string utf82url(std::string s);
-	std::string parseString(std::string search1, std::string search2, std::string str);
-	std::string parseFile(std::string search1, std::string search2, const char* file, std::string firstline="", int line_offset=0);
-	std::map<std::string, std::string> m;
+		std::string googleIMDb(std::string s);
+		std::string utf82url(std::string s);
+		std::string parseString(std::string search1, std::string search2, std::string str);
+		std::string parseFile(std::string search1, std::string search2, const char *file, std::string firstline = "", int line_offset = 0);
+		std::map<std::string, std::string> m;
 
-	std::string getApiKey();
+		std::string getApiKey();
 
-	void	initMap(std::map<std::string, std::string>& my);
+		void	initMap(std::map<std::string, std::string> &my);
 };
 
 #endif

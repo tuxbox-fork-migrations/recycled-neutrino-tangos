@@ -21,7 +21,8 @@
 #ifndef _SAT_CONFIG_H_
 #define _SAT_CONFIG_H_
 
-typedef struct sat_config {
+typedef struct sat_config
+{
 	t_satellite_position position;
 	int diseqc;
 	int commited;
@@ -41,7 +42,8 @@ typedef struct sat_config {
 	delivery_system_t delsys;
 } sat_config_t;
 
-typedef enum diseqc_cmd_order {
+typedef enum diseqc_cmd_order
+{
 	UNCOMMITED_FIRST,
 	COMMITED_FIRST
 } diseqc_cmd_order_t;

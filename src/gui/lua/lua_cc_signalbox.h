@@ -35,7 +35,7 @@ class CLuaInstCCSignalbox
 	public:
 		CLuaInstCCSignalbox() {};
 		~CLuaInstCCSignalbox() {};
-		static CLuaInstCCSignalbox* getInstance();
+		static CLuaInstCCSignalbox *getInstance();
 		static void CCSignalBoxRegister(lua_State *L);
 
 	private:

@@ -73,15 +73,15 @@
 #else
 # include <netinet/ip.h>
 # include <netinet/ip_icmp.h>
-#endif /* defined(__linux__) */   
+#endif /* defined(__linux__) */
 
 //int send_ping( const char *host, struct sockaddr_in *taddr );
-//int recv_ping( struct sockaddr_in *taddr ); 
+//int recv_ping( struct sockaddr_in *taddr );
 
-int pinghost  (const std::string &hostname, std::string *ip = NULL);
-int pingthost (const std::string &hostname, int t );
-int tpinghost (const std::string &hostname );
-int tpingthost(const std::string &hostname, int t );
+int pinghost(const std::string &hostname, std::string *ip = NULL);
+int pingthost(const std::string &hostname, int t);
+int tpinghost(const std::string &hostname);
+int tpingthost(const std::string &hostname, int t);
 
 
 #endif/*PING_H*/

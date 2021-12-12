@@ -34,7 +34,7 @@ class CLuaInstCCHeader
 	public:
 		CLuaInstCCHeader() {};
 		~CLuaInstCCHeader() {};
-		static CLuaInstCCHeader* getInstance();
+		static CLuaInstCCHeader *getInstance();
 		static void CCHeaderRegister(lua_State *L);
 
 	private:

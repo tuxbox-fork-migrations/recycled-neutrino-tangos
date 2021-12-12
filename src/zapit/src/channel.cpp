@@ -30,7 +30,7 @@
 extern Zapit_config zapitCfg;
 
 
-CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq, const std::string script_name)
+CZapitChannel::CZapitChannel(const std::string &p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq, const std::string script_name)
 {
 	name = p_name;
 	service_id = p_sid;
@@ -46,7 +46,7 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 //printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
 }
 
-CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq, const std::string script_name)
+CZapitChannel::CZapitChannel(const std::string &p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq, const std::string script_name)
 {
 	name = p_name;
 	channel_id = p_channel_id;
@@ -62,7 +62,7 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_
 }
 
 // For WebTV/WebRadio ...
-CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid, const char* script_name, int mode)
+CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc, t_channel_id epgid, const char *script_name, int mode)
 {
 	if (!p_name || !p_url)
 		return;
@@ -149,15 +149,16 @@ unsigned short CZapitChannel::getAudioPid(unsigned char index)
 	return retval;
 }
 
-int CZapitChannel::addAudioChannel(const unsigned short pid, const CZapitAudioChannel::ZapitAudioChannelType audioChannelType, const std::string & description, const unsigned char componentTag)
+int CZapitChannel::addAudioChannel(const unsigned short pid, const CZapitAudioChannel::ZapitAudioChannelType audioChannelType, const std::string &description, const unsigned char componentTag)
 {
 	std::vector <CZapitAudioChannel *>::iterator aI;
 
 	for (aI = audioChannels.begin(); aI != audioChannels.end(); ++aI)
-		if ((* aI)->pid == pid) {
+		if ((* aI)->pid == pid)
+		{
 			(* aI)->description = description;
-                        (* aI)->audioChannelType = audioChannelType;
-                        (* aI)->componentTag = componentTag;
+			(* aI)->audioChannelType = audioChannelType;
+			(* aI)->componentTag = componentTag;
 			return -1;
 		}
 	CZapitAudioChannel *tmp = new CZapitAudioChannel();
@@ -173,7 +174,8 @@ void CZapitChannel::resetPids(void)
 {
 	std::vector<CZapitAudioChannel *>::iterator aI;
 
-	for (aI = audioChannels.begin(); aI != audioChannels.end(); ++aI) {
+	for (aI = audioChannels.begin(); aI != audioChannels.end(); ++aI)
+	{
 		delete *aI;
 	}
 
@@ -188,26 +190,28 @@ void CZapitChannel::resetPids(void)
 
 	/*privatePid = 0;*/
 	pidsFlag = false;
-        std::vector<CZapitAbsSub *>::iterator subI;
-        for (subI = channelSubs.begin(); subI != channelSubs.end(); ++subI){
-            delete *subI;
-        }
-        channelSubs.clear();
-        currentSub = 0;
+	std::vector<CZapitAbsSub *>::iterator subI;
+	for (subI = channelSubs.begin(); subI != channelSubs.end(); ++subI)
+	{
+		delete *subI;
+	}
+	channelSubs.clear();
+	currentSub = 0;
 }
 
 unsigned char CZapitChannel::getServiceType(bool real)
-{ 
-	if(real)
-		return serviceType; 
+{
+	if (real)
+		return serviceType;
 	else
 		return serviceType == ST_DIGITAL_RADIO_SOUND_SERVICE ?
-			ST_DIGITAL_RADIO_SOUND_SERVICE : ST_DIGITAL_TELEVISION_SERVICE;	
+			ST_DIGITAL_RADIO_SOUND_SERVICE : ST_DIGITAL_TELEVISION_SERVICE;
 }
 
 bool CZapitChannel::isUHD()
 {
-	switch(serviceType) {
+	switch (serviceType)
+	{
 		case 0x1f:
 			if (delsys == DVB_T2)
 				return false;
@@ -228,7 +232,8 @@ bool CZapitChannel::isUHD()
 
 bool CZapitChannel::isHD()
 {
-	switch(serviceType) {
+	switch (serviceType)
+	{
 		case 0x1f:
 			if (delsys == DVB_T2)
 				return true;
@@ -237,15 +242,17 @@ bool CZapitChannel::isHD()
 		case 0x11: case 0x19:
 //printf("[zapit] HD channel: %s type 0x%X\n", name.c_str(), serviceType);
 			return true;
-		case ST_DIGITAL_TELEVISION_SERVICE: {
-				  const char *temp = name.c_str();
-				  int len = name.size();
-				  if((len > 1) && temp[len-2] == 'H' && temp[len-1] == 'D') {
+		case ST_DIGITAL_TELEVISION_SERVICE:
+		{
+			const char *temp = name.c_str();
+			int len = name.size();
+			if ((len > 1) && temp[len - 2] == 'H' && temp[len - 1] == 'D')
+			{
 //printf("[zapit] HD channel: %s type 0x%X\n", name.c_str(), serviceType);
-					  return true;
-				  }
-				  return false;
-			  }
+				return true;
+			}
+			return false;
+		}
 		case ST_DIGITAL_RADIO_SOUND_SERVICE:
 			return false;
 		default:
@@ -256,21 +263,25 @@ bool CZapitChannel::isHD()
 
 void CZapitChannel::addTTXSubtitle(const unsigned int pid, const std::string langCode, const unsigned char magazine_number, const unsigned char page_number, const bool impaired)
 {
-	CZapitTTXSub* oldSub = 0;
-	CZapitTTXSub* tmpSub = 0;
+	CZapitTTXSub *oldSub = 0;
+	CZapitTTXSub *tmpSub = 0;
 	unsigned char mag_nr = magazine_number ? magazine_number : 8;
 
-printf("[subtitle] TTXSub: PID=0x%04x, lang=%3.3s, page=%1X%02X\n", pid, langCode.c_str(), mag_nr, page_number);
-	std::vector<CZapitAbsSub*>::iterator subI;
-	for (subI=channelSubs.begin(); subI!=channelSubs.end();++subI){
-		if ((*subI)->thisSubType==CZapitAbsSub::TTX){
-			tmpSub=reinterpret_cast<CZapitTTXSub*>(*subI);
-			if (tmpSub->ISO639_language_code == langCode) {
+	printf("[subtitle] TTXSub: PID=0x%04x, lang=%3.3s, page=%1X%02X\n", pid, langCode.c_str(), mag_nr, page_number);
+	std::vector<CZapitAbsSub *>::iterator subI;
+	for (subI = channelSubs.begin(); subI != channelSubs.end(); ++subI)
+	{
+		if ((*subI)->thisSubType == CZapitAbsSub::TTX)
+		{
+			tmpSub = reinterpret_cast<CZapitTTXSub *>(*subI);
+			if (tmpSub->ISO639_language_code == langCode)
+			{
 				oldSub = tmpSub;
-				if (tmpSub->pId==pid &&
-						tmpSub->teletext_magazine_number==mag_nr &&
-						tmpSub->teletext_page_number==page_number &&
-						tmpSub->hearingImpaired==impaired) {
+				if (tmpSub->pId == pid &&
+					tmpSub->teletext_magazine_number == mag_nr &&
+					tmpSub->teletext_page_number == page_number &&
+					tmpSub->hearingImpaired == impaired)
+				{
 					return;
 				}
 				break;
@@ -278,34 +289,41 @@ printf("[subtitle] TTXSub: PID=0x%04x, lang=%3.3s, page=%1X%02X\n", pid, langCod
 		}
 	}
 
-	if (oldSub) {
-		tmpSub=oldSub;
-	} else {
+	if (oldSub)
+	{
+		tmpSub = oldSub;
+	}
+	else
+	{
 		tmpSub = new CZapitTTXSub();
 		channelSubs.push_back(tmpSub);
 	}
-	tmpSub->pId=pid;
-	tmpSub->ISO639_language_code=langCode;
-	tmpSub->teletext_magazine_number=mag_nr;
-	tmpSub->teletext_page_number=page_number;
-	tmpSub->hearingImpaired=impaired;
+	tmpSub->pId = pid;
+	tmpSub->ISO639_language_code = langCode;
+	tmpSub->teletext_magazine_number = mag_nr;
+	tmpSub->teletext_page_number = page_number;
+	tmpSub->hearingImpaired = impaired;
 }
 
-void CZapitChannel::addDVBSubtitle(const unsigned int pid, const std::string langCode, const unsigned char subtitling_type, const unsigned short composition_page_id, const unsigned short ancillary_page_id)                                                                                                                                                                                 
+void CZapitChannel::addDVBSubtitle(const unsigned int pid, const std::string langCode, const unsigned char subtitling_type, const unsigned short composition_page_id, const unsigned short ancillary_page_id)
 {
-	CZapitDVBSub* oldSub = 0;
-	CZapitDVBSub* tmpSub = 0;
-	std::vector<CZapitAbsSub*>::iterator subI;
-printf("[subtitles] DVBSub: PID=0x%04x, lang=%3.3s, cpageid=%04x, apageid=%04x\n", pid, langCode.c_str(), composition_page_id, ancillary_page_id);
-	for (subI=channelSubs.begin(); subI!=channelSubs.end();++subI){
-		if ((*subI)->thisSubType==CZapitAbsSub::DVB){
-			tmpSub=reinterpret_cast<CZapitDVBSub*>(*subI);
-			if (tmpSub->ISO639_language_code==langCode) {
+	CZapitDVBSub *oldSub = 0;
+	CZapitDVBSub *tmpSub = 0;
+	std::vector<CZapitAbsSub *>::iterator subI;
+	printf("[subtitles] DVBSub: PID=0x%04x, lang=%3.3s, cpageid=%04x, apageid=%04x\n", pid, langCode.c_str(), composition_page_id, ancillary_page_id);
+	for (subI = channelSubs.begin(); subI != channelSubs.end(); ++subI)
+	{
+		if ((*subI)->thisSubType == CZapitAbsSub::DVB)
+		{
+			tmpSub = reinterpret_cast<CZapitDVBSub *>(*subI);
+			if (tmpSub->ISO639_language_code == langCode)
+			{
 				//oldSub = tmpSub;
-				if (tmpSub->pId==pid &&
-						tmpSub->subtitling_type==subtitling_type &&
-						tmpSub->composition_page_id==composition_page_id &&
-						tmpSub->ancillary_page_id==ancillary_page_id) {
+				if (tmpSub->pId == pid &&
+					tmpSub->subtitling_type == subtitling_type &&
+					tmpSub->composition_page_id == composition_page_id &&
+					tmpSub->ancillary_page_id == ancillary_page_id)
+				{
 
 					return;
 				}
@@ -315,85 +333,98 @@ printf("[subtitles] DVBSub: PID=0x%04x, lang=%3.3s, cpageid=%04x, apageid=%04x\n
 	}
 
 
-	if (oldSub) {
+	if (oldSub)
+	{
 		tmpSub = oldSub;
-	} else {
+	}
+	else
+	{
 		tmpSub = new CZapitDVBSub();
 		channelSubs.push_back(tmpSub);
 	}
 
-	tmpSub->pId=pid;
-	tmpSub->ISO639_language_code=langCode;
-	tmpSub->subtitling_type=subtitling_type;
-	tmpSub->composition_page_id=composition_page_id;
-	tmpSub->ancillary_page_id=ancillary_page_id;
+	tmpSub->pId = pid;
+	tmpSub->ISO639_language_code = langCode;
+	tmpSub->subtitling_type = subtitling_type;
+	tmpSub->composition_page_id = composition_page_id;
+	tmpSub->ancillary_page_id = ancillary_page_id;
 }
 
-CZapitAbsSub* CZapitChannel::getChannelSub(int index)
+CZapitAbsSub *CZapitChannel::getChannelSub(int index)
 {
-    CZapitAbsSub* retval = NULL;
+	CZapitAbsSub *retval = NULL;
 
-    if ((index < 0) && (currentSub < getSubtitleCount())){
-        retval = channelSubs[currentSub];
-    } else {
-        if ((index >= 0) && (index < (int)getSubtitleCount())) {
-            retval = channelSubs[index];
-        }
-    }
-    return retval;
+	if ((index < 0) && (currentSub < getSubtitleCount()))
+	{
+		retval = channelSubs[currentSub];
+	}
+	else
+	{
+		if ((index >= 0) && (index < (int)getSubtitleCount()))
+		{
+			retval = channelSubs[index];
+		}
+	}
+	return retval;
 }
-#if 0 
+#if 0
 //never used
 void CZapitChannel::setChannelSub(int subIdx)
 {
-    if (subIdx < (int)channelSubs.size()){
-        currentSub=subIdx;
-    }
+	if (subIdx < (int)channelSubs.size())
+	{
+		currentSub = subIdx;
+	}
 }
 
 int CZapitChannel::getChannelSubIndex(void)
 {
-    return currentSub < getSubtitleCount() ? currentSub : -1;
+	return currentSub < getSubtitleCount() ? currentSub : -1;
 }
 #endif
 #if 0
 void CZapitChannel::setCaPmt(CCaPmt *pCaPmt)
-{ 
-	if(caPmt)
+{
+	if (caPmt)
 		delete caPmt;
-	caPmt = pCaPmt; 
+	caPmt = pCaPmt;
 }
 #endif
 
-void CZapitChannel::setRawPmt(unsigned char * pmt, int len)
+void CZapitChannel::setRawPmt(unsigned char *pmt, int len)
 {
-	if(rawPmt)
+	if (rawPmt)
 		delete[] rawPmt;
 	rawPmt = pmt;
 	pmtLen = len;
 }
 
-void CZapitChannel::dumpServiceXml(FILE * fd, const char * action)
+void CZapitChannel::dumpServiceXml(FILE *fd, const char *action)
 {
-	if(action) {
+	if (action)
+	{
 		fprintf(fd, "\t\t\t<S action=\"%s\" i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n", action,
-				getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
-				getServiceType(), scrambled, number, flags);
+			getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
+			getServiceType(), scrambled, number, flags);
 
-	} else if(getPidsFlag()) {
+	}
+	else if (getPidsFlag())
+	{
 		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" v=\"%x\" a=\"%x\" p=\"%x\" pmt=\"%x\" tx=\"%x\" t=\"%x\" vt=\"%d\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n",
-				getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
-				getVideoPid(), getPreAudioPid(),
-				getPcrPid(), getPmtPid(), getTeletextPid(),
-				getServiceType(true), type, scrambled, number, flags);
-	} else {
+			getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
+			getVideoPid(), getPreAudioPid(),
+			getPcrPid(), getPmtPid(), getTeletextPid(),
+			getServiceType(true), type, scrambled, number, flags);
+	}
+	else
+	{
 		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n",
-				getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
-				getServiceType(true), scrambled, number, flags);
+			getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
+			getServiceType(true), scrambled, number, flags);
 	}
 }
 
-void CZapitChannel::dumpBouquetXml(FILE * fd, bool bUser)
+void CZapitChannel::dumpBouquetXml(FILE *fd, bool bUser)
 {
 	// TODO : gui->manage configuration: writeChannelsNames (if nessessary or wanted) in zapit.conf
 	// menu > installation > Servicesscan > under 'Bouquet' => "Write DVB-names in bouquets:" f.e. =>0=never 1=ubouquets 2=bouquets 3=both
@@ -403,24 +434,28 @@ void CZapitChannel::dumpBouquetXml(FILE * fd, bool bUser)
 
 	// references (mandatory)
 	if (url.empty())
-		fprintf(fd, " i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"",getServiceId(), getTransportStreamId(), getOriginalNetworkId(), getSatellitePosition(), getFreqId());
+		fprintf(fd, " i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"", getServiceId(), getTransportStreamId(), getOriginalNetworkId(), getSatellitePosition(), getFreqId());
 	else
-		fprintf(fd, " u=\"%s\"",convert_UTF8_To_UTF8_XML(url.c_str()).c_str());
+		fprintf(fd, " u=\"%s\"", convert_UTF8_To_UTF8_XML(url.c_str()).c_str());
 
 	// service names
-	if (bUser || !url.empty()) {
+	if (bUser || !url.empty())
+	{
 		if ((write_names & CBouquetManager::BWN_UBOUQUETS) == CBouquetManager::BWN_UBOUQUETS)
 			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
 	}
-	else {
+	else
+	{
 		if ((write_names & CBouquetManager::BWN_BOUQUETS) == CBouquetManager::BWN_BOUQUETS)
 			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
 	}
 
 	// usecase optional attributes
-	if (bUser && !uname.empty()) fprintf(fd, " un=\"%s\"", convert_UTF8_To_UTF8_XML(uname.c_str()).c_str());
+	if (bUser && !uname.empty())
+		fprintf(fd, " un=\"%s\"", convert_UTF8_To_UTF8_XML(uname.c_str()).c_str());
 	// TODO : be sure to save bouquets.xml after "l"L is changed only in ubouquets.xml (set dirty_bit ?)
-	if (bLocked!=DEFAULT_CH_LOCKED) fprintf(fd," l=\"%d\"", bLocked ? 1 : 0);
+	if (bLocked != DEFAULT_CH_LOCKED)
+		fprintf(fd, " l=\"%d\"", bLocked ? 1 : 0);
 
 	fprintf(fd, "/>\n");
 }

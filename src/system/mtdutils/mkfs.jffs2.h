@@ -35,7 +35,8 @@ class CMkfsJFFS2
 		typedef std::vector<std::string> v_devtable_t;
 
 	private:
-		enum {
+		enum
+		{
 			dev_sys		= 0,
 			dev_proc	= 1,
 			dev_tmp		= 2,
@@ -70,9 +71,9 @@ class CMkfsJFFS2
 		void classClear();
 		bool classInit();
 		struct filesystem_entry *recursive_add_host_directory(
-						struct filesystem_entry *parent, const char *targetpath,
-						const char *hostpath, bool skipSpezialFolders,
-						CProgressWindow *progress=NULL);
+			struct filesystem_entry *parent, const char *targetpath,
+			const char *hostpath, bool skipSpezialFolders,
+			CProgressWindow *progress = NULL);
 		bool parse_device_table(struct filesystem_entry *root, v_devtable_t *v_devtable);
 		bool interpret_table_entry(struct filesystem_entry *root, const char *line);
 		void create_target_filesystem(struct filesystem_entry *root);
@@ -88,12 +89,12 @@ class CMkfsJFFS2
 		void write_pipe(struct filesystem_entry *e);
 		void write_symlink(struct filesystem_entry *e);
 		unsigned int write_regular_file(struct filesystem_entry *e);
-		void paintProgressBar(bool finish=false);
-		void printProgressData(bool finish=false);
+		void paintProgressBar(bool finish = false);
+		void printProgressData(bool finish = false);
 		struct filesystem_entry *find_filesystem_entry(struct filesystem_entry *dir, char *fullname, uint32_t type);
 		struct filesystem_entry *add_host_filesystem_entry(const char *name,
-							const char *path, unsigned long uid, unsigned long gid,
-							unsigned long mode, dev_t rdev, struct filesystem_entry *parent);
+			const char *path, unsigned long uid, unsigned long gid,
+			unsigned long mode, dev_t rdev, struct filesystem_entry *parent);
 		void cleanup(struct filesystem_entry *dir);
 		char *xreadlink(const char *path);
 
@@ -101,16 +102,16 @@ class CMkfsJFFS2
 		CMkfsJFFS2();
 		~CMkfsJFFS2();
 
-		bool makeJffs2Image(std::string& path,
-				    std::string& imageName,
-				    int eraseBlockSize,
-				    int padFsSize,
-				    int addCleanmarkers,
-				    int targetEndian,
-				    bool skipSpezialFolders,
-				    bool useSumtool,
-				    CProgressWindow *progress=NULL,
-				    v_devtable_t *v_devtable=NULL);
+		bool makeJffs2Image(std::string &path,
+			std::string &imageName,
+			int eraseBlockSize,
+			int padFsSize,
+			int addCleanmarkers,
+			int targetEndian,
+			bool skipSpezialFolders,
+			bool useSumtool,
+			CProgressWindow *progress = NULL,
+			v_devtable_t *v_devtable = NULL);
 
 };
 

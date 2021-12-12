@@ -28,9 +28,9 @@
 
 #define PAT_SECTION_SIZE 1024
 
-typedef std::map<int,int> sidpmt_map_t;
+typedef std::map<int, int> sidpmt_map_t;
 typedef sidpmt_map_t::iterator sidpmt_map_iterator_t;
-typedef std::pair<int,int> sidpmt_map_pair_t;
+typedef std::pair<int, int> sidpmt_map_pair_t;
 
 class CPat
 {
@@ -45,9 +45,9 @@ class CPat
 		~CPat();
 		void Reset();
 		bool Parse();
-		t_transport_stream_id GetPatTransportStreamId(){ return ts_id;}
+		t_transport_stream_id GetPatTransportStreamId() { return ts_id;}
 		unsigned short GetPmtPid(t_service_id sid);
-		bool Parse(CZapitChannel * const channel);
+		bool Parse(CZapitChannel *const channel);
 		sidpmt_map_t &getSids() { return sidpmt; };
 };
 

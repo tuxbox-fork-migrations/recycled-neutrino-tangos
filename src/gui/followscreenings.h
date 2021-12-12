@@ -67,8 +67,9 @@ class CFollowScreenings : public CMenuTarget
 			FOLLOWSCREENINGS_ALWAYS	= 2
 		};
 
-                CFollowScreenings(const t_channel_id Channel_id, time_t Starttime, time_t Stoptime, const std::string &Title, uint64_t EpgID=0,
-			unsigned char Apids=TIMERD_APIDS_STD, bool Safety=false, std::string RecDir="", CChannelEventList *Evtlist=NULL, bool Notify = true) : CMenuTarget () {
+		CFollowScreenings(const t_channel_id Channel_id, time_t Starttime, time_t Stoptime, const std::string &Title, uint64_t EpgID = 0,
+			unsigned char Apids = TIMERD_APIDS_STD, bool Safety = false, std::string RecDir = "", CChannelEventList *Evtlist = NULL, bool Notify = true) : CMenuTarget()
+		{
 			this->channel_id = Channel_id;
 			this->starttime = Starttime;
 			this->stoptime = Stoptime;
@@ -82,7 +83,7 @@ class CFollowScreenings : public CMenuTarget
 		};
 		~CFollowScreenings();
 		CChannelEventList *getFollowScreenings(void);
-		int exec(CMenuTarget *parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		void show();
 };
 #endif

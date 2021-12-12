@@ -53,7 +53,7 @@ static char *mkpath(const char *path, const char *name)
 	size_t len1 = strlen(path);
 	size_t len2 = strlen(name);
 
-	n = (char*)xmalloc(len1 + len2 + 2);
+	n = (char *)xmalloc(len1 + len2 + 2);
 
 	memcpy(n, path, len1);
 	if (n[len1 - 1] != '/')
@@ -82,12 +82,14 @@ static int read_data(const char *file, void *buf, int buf_len)
 		return -1;
 
 	rd = read(fd, buf, buf_len);
-	if (rd == -1) {
+	if (rd == -1)
+	{
 		sys_errmsg("cannot read \"%s\"", file);
 		goto out_error;
 	}
 
-	if (rd == buf_len) {
+	if (rd == buf_len)
+	{
 		errmsg("contents of \"%s\" is too long", file);
 		errno = EINVAL;
 		goto out_error;
@@ -97,18 +99,21 @@ static int read_data(const char *file, void *buf, int buf_len)
 
 	/* Make sure all data is read */
 	tmp1 = read(fd, &tmp, 1);
-	if (tmp1 == 1) {
+	if (tmp1 == 1)
+	{
 		sys_errmsg("cannot read \"%s\"", file);
 		goto out_error;
 	}
-	if (tmp1) {
+	if (tmp1)
+	{
 		errmsg("file \"%s\" contains too much data (> %d bytes)",
-		       file, buf_len);
+			file, buf_len);
 		errno = EINVAL;
 		goto out_error;
 	}
 
-	if (close(fd)) {
+	if (close(fd))
+	{
 		sys_errmsg("close failed on \"%s\"", file);
 		return -1;
 	}
@@ -138,15 +143,17 @@ static int read_major(const char *file, int *major, int *minor)
 		return ret;
 
 	ret = sscanf(buf, "%d:%d\n", major, minor);
-	if (ret != 2) {
+	if (ret != 2)
+	{
 		errno = EINVAL;
 		return errmsg("\"%s\" does not have major:minor format", file);
 	}
 
-	if (*major < 0 || *minor < 0) {
+	if (*major < 0 || *minor < 0)
+	{
 		errno = EINVAL;
 		return errmsg("bad major:minor %d:%d in \"%s\"",
-			      *major, *minor, file);
+				*major, *minor, file);
 	}
 
 	return 0;
@@ -206,24 +213,28 @@ static int read_hex_ll(const char *file, long long *value)
 		return -1;
 
 	rd = read(fd, buf, sizeof(buf));
-	if (rd == -1) {
+	if (rd == -1)
+	{
 		sys_errmsg("cannot read \"%s\"", file);
 		goto out_error;
 	}
-	if (rd == sizeof(buf)) {
+	if (rd == sizeof(buf))
+	{
 		errmsg("contents of \"%s\" is too long", file);
 		errno = EINVAL;
 		goto out_error;
 	}
 	buf[rd] = '\0';
 
-	if (sscanf(buf, "%llx\n", value) != 1) {
+	if (sscanf(buf, "%llx\n", value) != 1)
+	{
 		errmsg("cannot read integer from \"%s\"\n", file);
 		errno = EINVAL;
 		goto out_error;
 	}
 
-	if (*value < 0) {
+	if (*value < 0)
+	{
 		errmsg("negative value %lld in \"%s\"", *value, file);
 		errno = EINVAL;
 		goto out_error;
@@ -258,23 +269,27 @@ static int read_pos_ll(const char *file, long long *value)
 		return -1;
 
 	rd = read(fd, buf, 50);
-	if (rd == -1) {
+	if (rd == -1)
+	{
 		sys_errmsg("cannot read \"%s\"", file);
 		goto out_error;
 	}
-	if (rd == 50) {
+	if (rd == 50)
+	{
 		errmsg("contents of \"%s\" is too long", file);
 		errno = EINVAL;
 		goto out_error;
 	}
 
-	if (sscanf(buf, "%lld\n", value) != 1) {
+	if (sscanf(buf, "%lld\n", value) != 1)
+	{
 		errmsg("cannot read integer from \"%s\"\n", file);
 		errno = EINVAL;
 		goto out_error;
 	}
 
-	if (*value < 0) {
+	if (*value < 0)
+	{
 		errmsg("negative value %lld in \"%s\"", *value, file);
 		errno = EINVAL;
 		goto out_error;
@@ -306,9 +321,10 @@ static int read_hex_int(const char *file, int *value)
 		return -1;
 
 	/* Make sure the value has correct range */
-	if (res > INT_MAX || res < INT_MIN) {
+	if (res > INT_MAX || res < INT_MIN)
+	{
 		errmsg("value %lld read from file \"%s\" is out of range",
-		       res, file);
+			res, file);
 		errno = EINVAL;
 		return -1;
 	}
@@ -333,9 +349,10 @@ static int read_pos_int(const char *file, int *value)
 		return -1;
 
 	/* Make sure the value is not too big */
-	if (res > INT_MAX) {
+	if (res > INT_MAX)
+	{
 		errmsg("value %lld read from file \"%s\" is out of range",
-		       res, file);
+			res, file);
 		errno = EINVAL;
 		return -1;
 	}
@@ -435,7 +452,8 @@ static int dev_node2num(struct libmtd *lib, const char *node, int *mtd_num)
 	if (stat(node, &st))
 		return sys_errmsg("cannot get information about \"%s\"", node);
 
-	if (!S_ISCHR(st.st_mode)) {
+	if (!S_ISCHR(st.st_mode))
+	{
 		errmsg("\"%s\" is not a character device", node);
 		errno = EINVAL;
 		return -1;
@@ -447,11 +465,13 @@ static int dev_node2num(struct libmtd *lib, const char *node, int *mtd_num)
 	if (mtd_get_info((libmtd_t *)lib, &info))
 		return -1;
 
-	for (i = info.lowest_mtd_num; i <= info.highest_mtd_num; i++) {
+	for (i = info.lowest_mtd_num; i <= info.highest_mtd_num; i++)
+	{
 		int mjr1, mnr1, ret;
 
 		ret = dev_get_major(lib, i, &mjr1, &mnr1);
-		if (ret) {
+		if (ret)
+		{
 			if (errno == ENOENT)
 				continue;
 			if (!errno)
@@ -459,7 +479,8 @@ static int dev_node2num(struct libmtd *lib, const char *node, int *mtd_num)
 			return -1;
 		}
 
-		if (mjr1 == mjr && mnr1 == mnr) {
+		if (mjr1 == mjr && mnr1 == mnr)
+		{
 			errno = 0;
 			*mtd_num = i;
 			return 0;
@@ -493,8 +514,10 @@ static int sysfs_is_supported(struct libmtd *lib)
 	char file[strlen(lib->mtd_name) + 10];
 
 	sysfs_mtd = opendir(lib->sysfs_mtd);
-	if (!sysfs_mtd) {
-		if (errno == ENOENT) {
+	if (!sysfs_mtd)
+	{
+		if (errno == ENOENT)
+		{
 			errno = 0;
 			return 0;
 		}
@@ -505,7 +528,8 @@ static int sysfs_is_supported(struct libmtd *lib)
 	 * First of all find an "mtdX" directory. This is needed because there
 	 * may be, for example, mtd1 but no mtd0.
 	 */
-	while (1) {
+	while (1)
+	{
 		int ret, mtd_num;
 		char tmp_buf[256];
 		struct dirent *dirent;
@@ -514,17 +538,19 @@ static int sysfs_is_supported(struct libmtd *lib)
 		if (!dirent)
 			break;
 
-		if (strlen(dirent->d_name) >= 255) {
+		if (strlen(dirent->d_name) >= 255)
+		{
 			errmsg("invalid entry in %s: \"%s\"",
-			       lib->sysfs_mtd, dirent->d_name);
+				lib->sysfs_mtd, dirent->d_name);
 			errno = EINVAL;
 			closedir(sysfs_mtd);
 			return -1;
 		}
 
 		ret = sscanf(dirent->d_name, MTD_NAME_PATT"%255s",
-			     &mtd_num, tmp_buf);
-		if (ret == 1) {
+				&mtd_num, tmp_buf);
+		if (ret == 1)
+		{
 			num = mtd_num;
 			break;
 		}
@@ -542,7 +568,8 @@ static int sysfs_is_supported(struct libmtd *lib)
 	if (fd == -1)
 		return 0;
 
-	if (close(fd)) {
+	if (close(fd))
+	{
 		sys_errmsg("close failed on \"%s\"", file);
 		return -1;
 	}
@@ -554,7 +581,7 @@ libmtd_t libmtd_open(void)
 {
 	struct libmtd *lib;
 
-	lib = reinterpret_cast<libmtd*>(xzalloc(sizeof(*lib)));
+	lib = reinterpret_cast<libmtd *>(xzalloc(sizeof(*lib)));
 
 	lib->offs64_ioctls = OFFS64_IOCTLS_UNKNOWN;
 
@@ -570,7 +597,8 @@ libmtd_t libmtd_open(void)
 	if (!lib->mtd_name)
 		goto out_error;
 
-	if (!sysfs_is_supported(lib)) {
+	if (!sysfs_is_supported(lib))
+	{
 		free(lib->mtd);
 		free(lib->sysfs_mtd);
 		free(lib->mtd_name);
@@ -641,13 +669,15 @@ void libmtd_close(libmtd_t desc)
 	free(lib);
 }
 
-int mtd_dev_present(libmtd_t desc, int mtd_num) {
+int mtd_dev_present(libmtd_t desc, int mtd_num)
+{
 	struct stat st;
 	struct libmtd *lib = (struct libmtd *)desc;
 
 	if (!lib->sysfs_supported)
 		return legacy_dev_present(mtd_num);
-	else {
+	else
+	{
 		char file[strlen(lib->mtd) + 10];
 
 		sprintf(file, lib->mtd, mtd_num);
@@ -673,8 +703,10 @@ int mtd_get_info(libmtd_t desc, struct mtd_info *info)
 	 * devices are present.
 	 */
 	sysfs_mtd = opendir(lib->sysfs_mtd);
-	if (!sysfs_mtd) {
-		if (errno == ENOENT) {
+	if (!sysfs_mtd)
+	{
+		if (errno == ENOENT)
+		{
 			errno = ENODEV;
 			return -1;
 		}
@@ -682,7 +714,8 @@ int mtd_get_info(libmtd_t desc, struct mtd_info *info)
 	}
 
 	info->lowest_mtd_num = INT_MAX;
-	while (1) {
+	while (1)
+	{
 		int mtd_num, ret;
 		char tmp_buf[256];
 
@@ -691,16 +724,18 @@ int mtd_get_info(libmtd_t desc, struct mtd_info *info)
 		if (!dirent)
 			break;
 
-		if (strlen(dirent->d_name) >= 255) {
+		if (strlen(dirent->d_name) >= 255)
+		{
 			errmsg("invalid entry in %s: \"%s\"",
-			       lib->sysfs_mtd, dirent->d_name);
+				lib->sysfs_mtd, dirent->d_name);
 			errno = EINVAL;
 			goto out_close;
 		}
 
 		ret = sscanf(dirent->d_name, MTD_NAME_PATT"%255s",
-			     &mtd_num, tmp_buf);
-		if (ret == 1) {
+				&mtd_num, tmp_buf);
+		if (ret == 1)
+		{
 			info->mtd_dev_cnt += 1;
 			if (mtd_num > info->highest_mtd_num)
 				info->highest_mtd_num = mtd_num;
@@ -709,7 +744,8 @@ int mtd_get_info(libmtd_t desc, struct mtd_info *info)
 		}
 	}
 
-	if (!dirent && errno) {
+	if (!dirent && errno)
+	{
 		sys_errmsg("readdir failed on \"%s\"", lib->sysfs_mtd);
 		goto out_close;
 	}
@@ -735,23 +771,25 @@ int mtd_get_dev_info1(libmtd_t desc, int mtd_num, struct mtd_dev_info *mtd)
 	memset(mtd, 0, sizeof(struct mtd_dev_info));
 	mtd->mtd_num = mtd_num;
 
-	if (!mtd_dev_present(desc, mtd_num)) {
+	if (!mtd_dev_present(desc, mtd_num))
+	{
 		errno = ENODEV;
 		return -1;
-	} else if (!lib->sysfs_supported)
+	}
+	else if (!lib->sysfs_supported)
 		return legacy_get_dev_info1(mtd_num, mtd);
 
 	if (dev_get_major(lib, mtd_num, &mtd->major, &mtd->minor))
 		return -1;
 
-	ret = dev_read_data(lib->mtd_name, mtd_num, (void*)&mtd->name,
-			    MTD_NAME_MAX + 1);
+	ret = dev_read_data(lib->mtd_name, mtd_num, (void *)&mtd->name,
+			MTD_NAME_MAX + 1);
 	if (ret < 0)
 		return -1;
 	((char *)mtd->name)[ret - 1] = '\0';
 
-	ret = dev_read_data(lib->mtd_type, mtd_num, (void*)&mtd->type_str,
-			    MTD_TYPE_MAX + 1);
+	ret = dev_read_data(lib->mtd_type, mtd_num, (void *)&mtd->type_str,
+			MTD_TYPE_MAX + 1);
 	if (ret < 0)
 		return -1;
 	((char *)mtd->type_str)[ret - 1] = '\0';
@@ -794,17 +832,18 @@ int mtd_get_dev_info(libmtd_t desc, const char *node, struct mtd_dev_info *mtd)
 }
 
 static inline int mtd_ioctl_error(const struct mtd_dev_info *mtd, int eb,
-				  const char *sreq)
+	const char *sreq)
 {
 	return sys_errmsg("%s ioctl failed for eraseblock %d (mtd%d)",
-			  sreq, eb, mtd->mtd_num);
+			sreq, eb, mtd->mtd_num);
 }
 
 static int mtd_valid_erase_block(const struct mtd_dev_info *mtd, int eb)
 {
-	if (eb < 0 || eb >= mtd->eb_cnt) {
+	if (eb < 0 || eb >= mtd->eb_cnt)
+	{
 		errmsg("bad eraseblock number %d, mtd%d has %d eraseblocks",
-		       eb, mtd->mtd_num, mtd->eb_cnt);
+			eb, mtd->mtd_num, mtd->eb_cnt);
 		errno = EINVAL;
 		return -1;
 	}
@@ -812,7 +851,7 @@ static int mtd_valid_erase_block(const struct mtd_dev_info *mtd, int eb)
 }
 
 static int mtd_xlock(const struct mtd_dev_info *mtd, int fd, int eb, int req,
-		     const char *sreq)
+	const char *sreq)
 {
 	int ret;
 	struct erase_info_user ei;
@@ -857,13 +896,14 @@ int mtd_erase(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb)
 	ei64.length = mtd->eb_size;
 
 	if (lib->offs64_ioctls == OFFS64_IOCTLS_SUPPORTED ||
-	    lib->offs64_ioctls == OFFS64_IOCTLS_UNKNOWN) {
+		lib->offs64_ioctls == OFFS64_IOCTLS_UNKNOWN)
+	{
 		ret = ioctl(fd, MEMERASE64, &ei64);
 		if (ret == 0)
 			return ret;
 
 		if (errno != ENOTTY ||
-		    lib->offs64_ioctls != OFFS64_IOCTLS_UNKNOWN)
+			lib->offs64_ioctls != OFFS64_IOCTLS_UNKNOWN)
 			return mtd_ioctl_error(mtd, eb, "MEMERASE64");
 
 		/*
@@ -874,9 +914,10 @@ int mtd_erase(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb)
 		lib->offs64_ioctls = OFFS64_IOCTLS_NOT_SUPPORTED;
 	}
 
-	if (ei64.start + ei64.length > 0xFFFFFFFF) {
+	if (ei64.start + ei64.length > 0xFFFFFFFF)
+	{
 		errmsg("this system can address only %u eraseblocks",
-		       0xFFFFFFFFU / mtd->eb_size);
+			0xFFFFFFFFU / mtd->eb_size);
 		errno = EINVAL;
 		return -1;
 	}
@@ -893,7 +934,8 @@ int mtd_regioninfo(int fd, int regidx, struct region_info_user *reginfo)
 {
 	int ret;
 
-	if (regidx < 0) {
+	if (regidx < 0)
+	{
 		errno = ENODEV;
 		return -1;
 	}
@@ -901,7 +943,7 @@ int mtd_regioninfo(int fd, int regidx, struct region_info_user *reginfo)
 	ret = ioctl(fd, MEMGETREGIONINFO, reginfo);
 	if (ret < 0)
 		return sys_errmsg("%s ioctl failed for erase region %d",
-			"MEMGETREGIONINFO", regidx);
+				"MEMGETREGIONINFO", regidx);
 
 	return 0;
 }
@@ -915,7 +957,8 @@ int mtd_is_locked(const struct mtd_dev_info *mtd, int fd, int eb)
 	ei.length = mtd->eb_size;
 
 	ret = ioctl(fd, MEMISLOCKED, &ei);
-	if (ret < 0) {
+	if (ret < 0)
+	{
 		if (errno != ENOTTY && errno != EOPNOTSUPP)
 			return mtd_ioctl_error(mtd, eb, "MEMISLOCKED");
 		else
@@ -957,7 +1000,8 @@ int mtd_torture(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb)
 
 	buf = xmalloc(mtd->eb_size);
 
-	for (i = 0; i < patt_count; i++) {
+	for (i = 0; i < patt_count; i++)
+	{
 		err = mtd_erase(desc, mtd, fd, eb);
 		if (err)
 			goto out;
@@ -968,7 +1012,8 @@ int mtd_torture(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb)
 			goto out;
 
 		err = check_pattern(buf, 0xFF, mtd->eb_size);
-		if (err == 0) {
+		if (err == 0)
+		{
 			errmsg("erased PEB %d, but a non-0xFF byte found", eb);
 			errno = EIO;
 			goto out;
@@ -987,7 +1032,8 @@ int mtd_torture(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb)
 			goto out;
 
 		err = check_pattern(buf, patterns[i], mtd->eb_size);
-		if (err == 0) {
+		if (err == 0)
+		{
 			errmsg("pattern %x checking failed for PEB %d",
 				patterns[i], eb);
 			errno = EIO;
@@ -1027,7 +1073,8 @@ int mtd_mark_bad(const struct mtd_dev_info *mtd, int fd, int eb)
 	int ret;
 	loff_t seek;
 
-	if (!mtd->bb_allowed) {
+	if (!mtd->bb_allowed)
+	{
 		errno = EINVAL;
 		return -1;
 	}
@@ -1044,7 +1091,7 @@ int mtd_mark_bad(const struct mtd_dev_info *mtd, int fd, int eb)
 }
 
 int mtd_read(const struct mtd_dev_info *mtd, int fd, int eb, int offs,
-	     void *buf, int len)
+	void *buf, int len)
 {
 	int ret, rd = 0;
 	off_t seek;
@@ -1053,9 +1100,10 @@ int mtd_read(const struct mtd_dev_info *mtd, int fd, int eb, int offs,
 	if (ret)
 		return ret;
 
-	if (offs < 0 || offs + len > mtd->eb_size) {
+	if (offs < 0 || offs + len > mtd->eb_size)
+	{
 		errmsg("bad offset %d or length %d, mtd%d eraseblock size is %d",
-		       offs, len, mtd->mtd_num, mtd->eb_size);
+			offs, len, mtd->mtd_num, mtd->eb_size);
 		errno = EINVAL;
 		return -1;
 	}
@@ -1064,13 +1112,14 @@ int mtd_read(const struct mtd_dev_info *mtd, int fd, int eb, int offs,
 	seek = (off_t)eb * mtd->eb_size + offs;
 	if (lseek(fd, seek, SEEK_SET) != seek)
 		return sys_errmsg("cannot seek mtd%d to offset %" PRIdoff_t,
-				  mtd->mtd_num, seek);
+				mtd->mtd_num, seek);
 
-	while (rd < len) {
+	while (rd < len)
+	{
 		ret = read(fd, buf, len);
 		if (ret < 0)
 			return sys_errmsg("cannot read %d bytes from mtd%d (eraseblock %d, offset %d)",
-					  len, mtd->mtd_num, eb, offs);
+					len, mtd->mtd_num, eb, offs);
 		rd += ret;
 	}
 
@@ -1078,7 +1127,8 @@ int mtd_read(const struct mtd_dev_info *mtd, int fd, int eb, int offs,
 }
 
 static int legacy_auto_oob_layout(const struct mtd_dev_info *mtd, int fd,
-				  int ooblen, void *oob) {
+	int ooblen, void *oob)
+{
 	struct nand_oobinfo old_oobinfo;
 	int start, len;
 	uint8_t *tmp_buf = NULL;
@@ -1087,27 +1137,31 @@ static int legacy_auto_oob_layout(const struct mtd_dev_info *mtd, int fd,
 	if (ioctl(fd, MEMGETOOBSEL, &old_oobinfo))
 		return sys_errmsg("MEMGETOOBSEL failed");
 
-	tmp_buf = (uint8_t*)malloc(ooblen);
+	tmp_buf = (uint8_t *)malloc(ooblen);
 	memcpy(tmp_buf, oob, ooblen);
 
 	/*
 	 * We use autoplacement and have the oobinfo with the autoplacement
 	 * information from the kernel available
 	 */
-	if (old_oobinfo.useecc == MTD_NANDECC_AUTOPLACE) {
+	if (old_oobinfo.useecc == MTD_NANDECC_AUTOPLACE)
+	{
 		int i, tags_pos = 0;
-		for (i = 0; old_oobinfo.oobfree[i][1]; i++) {
+		for (i = 0; old_oobinfo.oobfree[i][1]; i++)
+		{
 			/* Set the reserved bytes to 0xff */
 			start = old_oobinfo.oobfree[i][0];
 			len = old_oobinfo.oobfree[i][1];
-			memcpy(((char*)oob + start), tmp_buf + tags_pos, len);
+			memcpy(((char *)oob + start), tmp_buf + tags_pos, len);
 			tags_pos += len;
 		}
-	} else {
+	}
+	else
+	{
 		/* Set at least the ecc byte positions to 0xff */
 		start = old_oobinfo.eccbytes;
 		len = mtd->oob_size - start;
-		memcpy(((char*)oob + start), tmp_buf + start, len);
+		memcpy(((char *)oob + start), tmp_buf + start, len);
 	}
 	if (tmp_buf != NULL)
 		free(tmp_buf);
@@ -1116,8 +1170,8 @@ static int legacy_auto_oob_layout(const struct mtd_dev_info *mtd, int fd,
 }
 
 int mtd_write(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb,
-	      int offs, void *data, int len, void *oob, int ooblen,
-	      uint8_t mode)
+	int offs, void *data, int len, void *oob, int ooblen,
+	uint8_t mode)
 {
 	int ret;
 	off_t seek;
@@ -1127,21 +1181,24 @@ int mtd_write(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb,
 	if (ret)
 		return ret;
 
-	if (offs < 0 || offs + len > mtd->eb_size) {
+	if (offs < 0 || offs + len > mtd->eb_size)
+	{
 		errmsg("bad offset %d or length %d, mtd%d eraseblock size is %d",
-		       offs, len, mtd->mtd_num, mtd->eb_size);
+			offs, len, mtd->mtd_num, mtd->eb_size);
 		errno = EINVAL;
 		return -1;
 	}
-	if (offs % mtd->subpage_size) {
+	if (offs % mtd->subpage_size)
+	{
 		errmsg("write offset %d is not aligned to mtd%d min. I/O size %d",
-		       offs, mtd->mtd_num, mtd->subpage_size);
+			offs, mtd->mtd_num, mtd->subpage_size);
 		errno = EINVAL;
 		return -1;
 	}
-	if (len % mtd->subpage_size) {
+	if (len % mtd->subpage_size)
+	{
 		errmsg("write length %d is not aligned to mtd%d min. I/O size %d",
-		       len, mtd->mtd_num, mtd->subpage_size);
+			len, mtd->mtd_num, mtd->subpage_size);
 		errno = EINVAL;
 		return -1;
 	}
@@ -1149,7 +1206,8 @@ int mtd_write(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb,
 	/* Calculate seek address */
 	seek = (off_t)eb * mtd->eb_size + offs;
 
-	if (oob) {
+	if (oob)
+	{
 		ops.start = seek;
 		ops.len = len;
 		ops.ooblen = ooblen;
@@ -1170,7 +1228,8 @@ int mtd_write(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb,
 		if (mtd_write_oob(desc, mtd, fd, seek, ooblen, oob) < 0)
 			return sys_errmsg("cannot write to OOB");
 	}
-	if (data) {
+	if (data)
+	{
 		/* Seek to the beginning of the eraseblock */
 		if (lseek(fd, seek, SEEK_SET) != seek)
 			return sys_errmsg("cannot seek mtd%d to offset %" PRIdoff_t,
@@ -1178,16 +1237,16 @@ int mtd_write(libmtd_t desc, const struct mtd_dev_info *mtd, int fd, int eb,
 		ret = write(fd, data, len);
 		if (ret != len)
 			return sys_errmsg("cannot write %d bytes to mtd%d "
-					  "(eraseblock %d, offset %d)",
-					  len, mtd->mtd_num, eb, offs);
+					"(eraseblock %d, offset %d)",
+					len, mtd->mtd_num, eb, offs);
 	}
 
 	return 0;
 }
 
 int do_oob_op(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
-	      uint64_t start, uint64_t length, void *data, unsigned int cmd64,
-	      unsigned int cmd)
+	uint64_t start, uint64_t length, void *data, unsigned int cmd64,
+	unsigned int cmd)
 {
 	int ret, oob_offs;
 	struct mtd_oob_buf64 oob64;
@@ -1196,26 +1255,31 @@ int do_oob_op(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
 	const char *cmd64_str, *cmd_str;
 	struct libmtd *lib = (struct libmtd *)desc;
 
-	if (cmd64 ==  MEMREADOOB64) {
+	if (cmd64 ==  MEMREADOOB64)
+	{
 		cmd64_str = "MEMREADOOB64";
 		cmd_str   = "MEMREADOOB";
-	} else {
+	}
+	else
+	{
 		cmd64_str = "MEMWRITEOOB64";
 		cmd_str   = "MEMWRITEOOB";
 	}
 
 	max_offs = (unsigned long long)mtd->eb_cnt * mtd->eb_size;
-	if (start >= max_offs) {
+	if (start >= max_offs)
+	{
 		errmsg("bad page address %llu, mtd%d has %d eraseblocks (%llu bytes)",
-		       start, mtd->mtd_num, mtd->eb_cnt, max_offs);
+			start, mtd->mtd_num, mtd->eb_cnt, max_offs);
 		errno = EINVAL;
 		return -1;
 	}
 
 	oob_offs = start & (mtd->min_io_size - 1);
-	if (oob_offs + length > (unsigned int)mtd->oob_size || length == 0) {
+	if (oob_offs + length > (unsigned int)mtd->oob_size || length == 0)
+	{
 		errmsg("Cannot write %llu OOB bytes to address %llu (OOB offset %u) - mtd%d OOB size is only %d bytes",
-		       length, start, oob_offs, mtd->mtd_num,  mtd->oob_size);
+			length, start, oob_offs, mtd->mtd_num,  mtd->oob_size);
 		errno = EINVAL;
 		return -1;
 	}
@@ -1225,15 +1289,17 @@ int do_oob_op(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
 	oob64.usr_ptr = (uint64_t)(unsigned long)data;
 
 	if (lib->offs64_ioctls == OFFS64_IOCTLS_SUPPORTED ||
-	    lib->offs64_ioctls == OFFS64_IOCTLS_UNKNOWN) {
+		lib->offs64_ioctls == OFFS64_IOCTLS_UNKNOWN)
+	{
 		ret = ioctl(fd, cmd64, &oob64);
 		if (ret == 0)
 			return ret;
 
 		if (errno != ENOTTY ||
-		    lib->offs64_ioctls != OFFS64_IOCTLS_UNKNOWN) {
+			lib->offs64_ioctls != OFFS64_IOCTLS_UNKNOWN)
+		{
 			sys_errmsg("%s ioctl failed for mtd%d, offset %llu (eraseblock %llu)",
-				   cmd64_str, mtd->mtd_num, start, start / mtd->eb_size);
+				cmd64_str, mtd->mtd_num, start, start / mtd->eb_size);
 		}
 
 		/*
@@ -1244,40 +1310,41 @@ int do_oob_op(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
 		lib->offs64_ioctls = OFFS64_IOCTLS_NOT_SUPPORTED;
 	}
 
-	if (oob64.start > 0xFFFFFFFFULL) {
+	if (oob64.start > 0xFFFFFFFFULL)
+	{
 		errmsg("this system can address only up to address %lu",
-		       0xFFFFFFFFUL);
+			0xFFFFFFFFUL);
 		errno = EINVAL;
 		return -1;
 	}
 
 	oob.start = oob64.start;
 	oob.length = oob64.length;
-	oob.ptr = (unsigned char*)data;
+	oob.ptr = (unsigned char *)data;
 
 	ret = ioctl(fd, cmd, &oob);
 	if (ret < 0)
 		sys_errmsg("%s ioctl failed for mtd%d, offset %llu (eraseblock %llu)",
-			   cmd_str, mtd->mtd_num, start, start / mtd->eb_size);
+			cmd_str, mtd->mtd_num, start, start / mtd->eb_size);
 	return ret;
 }
 
 int mtd_read_oob(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
-		 uint64_t start, uint64_t length, void *data)
+	uint64_t start, uint64_t length, void *data)
 {
 	return do_oob_op(desc, mtd, fd, start, length, data,
-			 MEMREADOOB64, MEMREADOOB);
+			MEMREADOOB64, MEMREADOOB);
 }
 
 int mtd_write_oob(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
-		  uint64_t start, uint64_t length, void *data)
+	uint64_t start, uint64_t length, void *data)
 {
 	return do_oob_op(desc, mtd, fd, start, length, data,
-			 MEMWRITEOOB64, MEMWRITEOOB);
+			MEMWRITEOOB64, MEMWRITEOOB);
 }
 
 int mtd_write_img(const struct mtd_dev_info *mtd, int fd, int eb, int offs,
-		  const char *img_name)
+	const char *img_name)
 {
 	int tmp, ret, in_fd, len, written = 0;
 	off_t seek;
@@ -1288,15 +1355,17 @@ int mtd_write_img(const struct mtd_dev_info *mtd, int fd, int eb, int offs,
 	if (ret)
 		return ret;
 
-	if (offs < 0 || offs >= mtd->eb_size) {
+	if (offs < 0 || offs >= mtd->eb_size)
+	{
 		errmsg("bad offset %d, mtd%d eraseblock size is %d",
-		       offs, mtd->mtd_num, mtd->eb_size);
+			offs, mtd->mtd_num, mtd->eb_size);
 		errno = EINVAL;
 		return -1;
 	}
-	if (offs % mtd->subpage_size) {
+	if (offs % mtd->subpage_size)
+	{
 		errmsg("write offset %d is not aligned to mtd%d min. I/O size %d",
-		       offs, mtd->mtd_num, mtd->subpage_size);
+			offs, mtd->mtd_num, mtd->subpage_size);
 		errno = EINVAL;
 		return -1;
 	}
@@ -1305,55 +1374,64 @@ int mtd_write_img(const struct mtd_dev_info *mtd, int fd, int eb, int offs,
 	if (in_fd == -1)
 		return sys_errmsg("cannot open \"%s\"", img_name);
 
-	if (fstat(in_fd, &st)) {
+	if (fstat(in_fd, &st))
+	{
 		sys_errmsg("cannot stat %s", img_name);
 		goto out_close;
 	}
 
 	len = st.st_size;
-	if (len % mtd->subpage_size) {
+	if (len % mtd->subpage_size)
+	{
 		errmsg("size of \"%s\" is %d byte, which is not aligned to "
-		       "mtd%d min. I/O size %d", img_name, len, mtd->mtd_num,
-		       mtd->subpage_size);
+			"mtd%d min. I/O size %d", img_name, len, mtd->mtd_num,
+			mtd->subpage_size);
 		errno = EINVAL;
 		goto out_close;
 	}
 	tmp = (offs + len + mtd->eb_size - 1) / mtd->eb_size;
-	if (eb + tmp > mtd->eb_cnt) {
+	if (eb + tmp > mtd->eb_cnt)
+	{
 		errmsg("\"%s\" image size is %d bytes, mtd%d size is %d "
-		       "eraseblocks, the image does not fit if we write it "
-		       "starting from eraseblock %d, offset %d",
-		       img_name, len, mtd->mtd_num, mtd->eb_cnt, eb, offs);
+			"eraseblocks, the image does not fit if we write it "
+			"starting from eraseblock %d, offset %d",
+			img_name, len, mtd->mtd_num, mtd->eb_cnt, eb, offs);
 		errno = EINVAL;
 		goto out_close;
 	}
 
 	/* Seek to the beginning of the eraseblock */
 	seek = (off_t)eb * mtd->eb_size + offs;
-	if (lseek(fd, seek, SEEK_SET) != seek) {
+	if (lseek(fd, seek, SEEK_SET) != seek)
+	{
 		sys_errmsg("cannot seek mtd%d to offset %" PRIdoff_t,
-			    mtd->mtd_num, seek);
+			mtd->mtd_num, seek);
 		goto out_close;
 	}
 
-	buf = (char*)xmalloc(mtd->eb_size);
+	buf = (char *)xmalloc(mtd->eb_size);
 
-	while (written < len) {
+	while (written < len)
+	{
 		int rd = 0;
 
-		do {
+		do
+		{
 			ret = read(in_fd, buf, mtd->eb_size - offs - rd);
-			if (ret == -1) {
+			if (ret == -1)
+			{
 				sys_errmsg("cannot read \"%s\"", img_name);
 				goto out_free;
 			}
 			rd += ret;
-		} while (ret && rd < mtd->eb_size - offs);
+		}
+		while (ret && rd < mtd->eb_size - offs);
 
 		ret = write(fd, buf, rd);
-		if (ret != rd) {
+		if (ret != rd)
+		{
 			sys_errmsg("cannot write %d bytes to mtd%d (eraseblock %d, offset %d)",
-				   len, mtd->mtd_num, eb, offs);
+				len, mtd->mtd_num, eb, offs);
 			goto out_free;
 		}
 
@@ -1383,7 +1461,8 @@ int mtd_probe_node(libmtd_t desc, const char *node)
 	if (stat(node, &st))
 		return sys_errmsg("cannot get information about \"%s\"", node);
 
-	if (!S_ISCHR(st.st_mode)) {
+	if (!S_ISCHR(st.st_mode))
+	{
 		errmsg("\"%s\" is not a character device", node);
 		errno = EINVAL;
 		return -1;
@@ -1398,11 +1477,13 @@ int mtd_probe_node(libmtd_t desc, const char *node)
 	if (!lib->sysfs_supported)
 		return 0;
 
-	for (i = info.lowest_mtd_num; i <= info.highest_mtd_num; i++) {
+	for (i = info.lowest_mtd_num; i <= info.highest_mtd_num; i++)
+	{
 		int mjr1, mnr1, ret;
 
 		ret = dev_get_major(lib, i, &mjr1, &mnr1);
-		if (ret) {
+		if (ret)
+		{
 			if (errno == ENOENT)
 				continue;
 			if (!errno)

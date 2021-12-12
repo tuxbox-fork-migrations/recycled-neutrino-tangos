@@ -1,6 +1,6 @@
 /*
 	$port: themes.cpp,v 1.16 2010/09/05 21:27:44 tuxbox-cvs Exp $
-	
+
 	Neutrino-GUI  -   DBoxII-Project
 
 	License: GPL
@@ -56,44 +56,45 @@
 static 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 
 CGLCDThemes::CGLCDThemes()
-: themefile('\t')
+	: themefile('\t')
 {
 	width = 40;
 
 	hasThemeChanged = false;
 }
 
-CGLCDThemes* CGLCDThemes::getInstance()
+CGLCDThemes *CGLCDThemes::getInstance()
 {
-	static CGLCDThemes* th = NULL;
+	static CGLCDThemes *th = NULL;
 
-	if(!th) {
+	if (!th)
+	{
 		th = new CGLCDThemes();
 		dprintf(DEBUG_DEBUG, "CGLCDThemes Instance created\n");
 	}
 	return th;
 }
 
-int CGLCDThemes::exec(CMenuTarget* parent, const std::string & actionKey)
+int CGLCDThemes::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
 
-	if( !actionKey.empty() )
+	if (!actionKey.empty())
 	{
-		if (actionKey=="default_theme")
+		if (actionKey == "default_theme")
 		{
-			if(!applyDefaultTheme())
+			if (!applyDefaultTheme())
 				setupDefaultColors(); // fallback
 			changeNotify(NONEXISTANT_LOCALE, NULL);
 		}
 		else
 		{
 			std::string themeFile = actionKey;
-			if ( strstr(themeFile.c_str(), "{U}") != 0 ) 
+			if (strstr(themeFile.c_str(), "{U}") != 0)
 			{
 				themeFile.erase(0, 3);
 				readFile(((std::string)THEMESDIR_VAR + "/oled/" + themeFile + FILE_SUFFIX).c_str());
-			} 
+			}
 			else
 				readFile(((std::string)THEMESDIR + "/oled/" + themeFile + FILE_SUFFIX).c_str());
 			g_settings.glcd_theme_name = themeFile;
@@ -107,8 +108,8 @@ int CGLCDThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 	if (parent)
 		parent->hide();
 
-	if ( !hasThemeChanged )
-		rememberOldTheme( true );
+	if (!hasThemeChanged)
+		rememberOldTheme(true);
 
 	return Show();
 }
@@ -121,7 +122,7 @@ void CGLCDThemes::initThemesMenu(CMenuWidget &themes)
 	bool hasCVSThemes, hasUserThemes;
 	hasCVSThemes = hasUserThemes = false;
 	std::string userThemeFile = "";
-	CMenuForwarder* oj;
+	CMenuForwarder *oj;
 
 	// only to visualize if we have a migrated theme
 	if (g_settings.glcd_theme_name.empty() || g_settings.glcd_theme_name == MIGRATE_THEME_OLED_NAME)
@@ -130,34 +131,39 @@ void CGLCDThemes::initThemesMenu(CMenuWidget &themes)
 		themes.addItem(new CMenuForwarder(MIGRATE_THEME_OLED_NAME, false, "", this));
 	}
 
-	for(int p = 0;p < 2;p++)
+	for (int p = 0; p < 2; p++)
 	{
 		n = scandir(pfade[p], &themelist, 0, alphasort);
-		if(n < 0)
+		if (n < 0)
 			perror("loading glcd themes: scandir");
 		else
 		{
-			for(int count=0;count<n;count++)
+			for (int count = 0; count < n; count++)
 			{
 				char *file = themelist[count]->d_name;
 				char *pos = strstr(file, ".otheme");
-				if(pos != NULL)
+				if (pos != NULL)
 				{
-					if ( p == 0 && hasCVSThemes == false ) {
+					if (p == 0 && hasCVSThemes == false)
+					{
 						themes.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORTHEMEMENU_SELECT2));
 						hasCVSThemes = true;
-					} else if ( p == 1 && hasUserThemes == false ) {
+					}
+					else if (p == 1 && hasUserThemes == false)
+					{
 						themes.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORTHEMEMENU_SELECT1));
 						hasUserThemes = true;
 					}
 					*pos = '\0';
-					if ( p == 1 ) {
+					if (p == 1)
+					{
 						userThemeFile = "{U}" + (std::string)file;
 						oj = new CMenuForwarder(file, true, "", this, userThemeFile.c_str());
-					} else
+					}
+					else
 						oj = new CMenuForwarder(file, true, "", this, file);
 
-					themes.addItem( oj );
+					themes.addItem(oj);
 				}
 				free(themelist[count]);
 			}
@@ -177,46 +183,52 @@ int CGLCDThemes::Show()
 {
 	std::string file_name = "";
 
-	CMenuWidget themes (LOCALE_COLORMENU_MENUCOLORS, NEUTRINO_ICON_SETTINGS, width);
+	CMenuWidget themes(LOCALE_COLORMENU_MENUCOLORS, NEUTRINO_ICON_SETTINGS, width);
 	sigc::slot0<void> slot_repaint = sigc::mem_fun(themes, &CMenuWidget::hide); //we want to clean screen before repaint after changed Option
 	themes.OnBeforePaint.connect(slot_repaint);
-	
+
 	themes.addIntroItems(LOCALE_COLORTHEMEMENU_HEAD2);
-	
+
 	//set default theme
 	std::string default_theme = DEFAULT_OLED_THEME;
 	if (default_theme.empty())
 		default_theme = "Default";
-	CMenuForwarder* fw = new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, default_theme.c_str(), this, "default_theme", CRCInput::RC_red);
+	CMenuForwarder *fw = new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, default_theme.c_str(), this, "default_theme", CRCInput::RC_red);
 	themes.addItem(fw);
 	fw->setHint("", LOCALE_COLORTHEMEMENU_NEUTRINO_THEME_HINT);
-	
+
 	initThemesMenu(themes);
 
 	CKeyboardInput nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name);
-	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green);
+	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true, NULL, &nameInput, NULL, CRCInput::RC_green);
 
-	if (!CFileHelpers::createDir(THEMESDIR_VAR "/oled")) {
+	if (!CFileHelpers::createDir(THEMESDIR_VAR "/oled"))
+	{
 		printf("[neutrino glcd theme] error creating %s\n", THEMESDIR_VAR "/oled");
 	}
 
-	if (access(THEMESDIR_VAR "/oled", F_OK) == 0 ) {
+	if (access(THEMESDIR_VAR "/oled", F_OK) == 0)
+	{
 		themes.addItem(GenericMenuSeparatorLine);
 		themes.addItem(m1);
-	} else {
+	}
+	else
+	{
 		delete m1;
 		printf("[neutrino glcd theme] error accessing %s\n", THEMESDIR_VAR "/oled");
 	}
 
 	int res = themes.exec(NULL, "");
 
-	if (!file_name.empty()) {
+	if (!file_name.empty())
+	{
 		saveFile(((std::string)THEMESDIR_VAR + "/oled/" + file_name + FILE_SUFFIX).c_str());
 	}
 
-	if (hasThemeChanged) {
+	if (hasThemeChanged)
+	{
 		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_COLORTHEMEMENU_QUESTION, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_SETTINGS) != CMsgBox::mbrYes)
-			rememberOldTheme( false );
+			rememberOldTheme(false);
 		else
 			hasThemeChanged = false;
 	}
@@ -225,10 +237,13 @@ int CGLCDThemes::Show()
 
 void CGLCDThemes::rememberOldTheme(bool remember)
 {
-	if ( remember ) {
+	if (remember)
+	{
 		oldTheme = t;
 		oldTheme_name = g_settings.glcd_theme_name;
-	} else {
+	}
+	else
+	{
 		t = oldTheme;
 		g_settings.glcd_theme_name = oldTheme_name;
 
@@ -239,7 +254,7 @@ void CGLCDThemes::rememberOldTheme(bool remember)
 
 void CGLCDThemes::readFile(const char *themename)
 {
-	if(themefile.loadConfig(themename))
+	if (themefile.loadConfig(themename))
 	{
 		getTheme(themefile);
 
@@ -254,7 +269,8 @@ void CGLCDThemes::saveFile(const char *themename)
 {
 	setTheme(themefile);
 
-	if (themefile.getModifiedFlag()){
+	if (themefile.getModifiedFlag())
+	{
 		printf("[neutrino glcd theme] save theme into %s\n", themename);
 		if (!themefile.saveConfig(themename))
 			printf("[neutrino glcd theme] %s write error\n", themename);
@@ -267,7 +283,8 @@ bool CGLCDThemes::applyDefaultTheme()
 	if (g_settings.glcd_theme_name.empty())
 		g_settings.glcd_theme_name = "Default";
 	std::string default_theme = THEMESDIR "/oled/" + g_settings.glcd_theme_name + ".otheme";
-	if(themefile.loadConfig(default_theme)){
+	if (themefile.loadConfig(default_theme))
+	{
 		getTheme(themefile);
 		return true;
 	}
@@ -298,8 +315,8 @@ void CGLCDThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32("glcd_channel_y_position", t.glcd_channel_y_position);
 	configfile.setBool("glcd_logo", t.glcd_logo);
 	configfile.setInt32("glcd_logo_percent", t.glcd_logo_percent);
-    configfile.setInt32("glcd_logo_x_position", t.glcd_logo_x_position);
-    configfile.setInt32("glcd_logo_y_position", t.glcd_logo_y_position);
+	configfile.setInt32("glcd_logo_x_position", t.glcd_logo_x_position);
+	configfile.setInt32("glcd_logo_y_position", t.glcd_logo_y_position);
 	configfile.setInt32("glcd_epg_percent", t.glcd_epg_percent);
 	configfile.setInt32("glcd_epg_align", t.glcd_epg_align);
 	configfile.setInt32("glcd_epg_x_position", t.glcd_epg_x_position);
@@ -433,7 +450,8 @@ void CGLCDThemes::getTheme(CConfigFile &configfile)
 
 void CGLCDThemes::markSelectedTheme(CMenuWidget *w)
 {
-	for (int i = 0; i < w->getItemsCount(); i++){
+	for (int i = 0; i < w->getItemsCount(); i++)
+	{
 		w->getItem(i)->setInfoIconRight(NULL);
 		if (g_settings.glcd_theme_name == w->getItem(i)->getName())
 			w->getItem(i)->setInfoIconRight(NEUTRINO_ICON_MARKER_DIALOG_OK);

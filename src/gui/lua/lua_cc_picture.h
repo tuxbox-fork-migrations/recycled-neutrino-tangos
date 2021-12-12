@@ -36,7 +36,7 @@ class CLuaInstCCPicture
 	public:
 		CLuaInstCCPicture() {};
 		~CLuaInstCCPicture() {};
-		static CLuaInstCCPicture* getInstance();
+		static CLuaInstCCPicture *getInstance();
 		static void CCPictureRegister(lua_State *L);
 
 	private:

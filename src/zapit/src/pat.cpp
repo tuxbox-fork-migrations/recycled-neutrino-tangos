@@ -45,10 +45,10 @@ void CPat::Reset()
 bool CPat::Parse()
 {
 	//INFO("parsed: %s", parsed ? "yes" : "no");
-	if(parsed)
+	if (parsed)
 		return true;
 
-	cDemux * dmx = new cDemux(dmxnum);
+	cDemux *dmx = new cDemux(dmxnum);
 	dmx->Open(DMX_PSI_CHANNEL);
 
 	/* buffer for program association table */
@@ -68,7 +68,8 @@ bool CPat::Parse()
 	mask[0] = 0xFF;
 	mask[4] = 0xFF;
 
-	do {
+	do
+	{
 		/* set filter for program association section */
 		/* read section */
 		if ((!dmx->sectionFilter(0, filter, mask, 5)) || (dmx->Read(buffer, PAT_SECTION_SIZE) < 0))
@@ -80,13 +81,15 @@ bool CPat::Parse()
 		/* set Transport_Stream_ID from pat */
 		ts_id = ((buffer[3] << 8) | buffer[4]);
 		/* loop over service id / program map table pid pairs */
-		for (i = 8; i < (((buffer[1] & 0x0F) << 8) | buffer[2]) + 3 - crc_len; i += 4) {
+		for (i = 8; i < (((buffer[1] & 0x0F) << 8) | buffer[2]) + 3 - crc_len; i += 4)
+		{
 			/* store program map table pid */
-			int service_id	= ((buffer[i] << 8) | buffer[i+1]);
-			int pmt_pid	= (((buffer[i+2] & 0x1F) << 8) | buffer[i+3]);
-			sidpmt.insert(sidpmt_map_pair_t(service_id, pmt_pid)); 
+			int service_id	= ((buffer[i] << 8) | buffer[i + 1]);
+			int pmt_pid	= (((buffer[i + 2] & 0x1F) << 8) | buffer[i + 3]);
+			sidpmt.insert(sidpmt_map_pair_t(service_id, pmt_pid));
 		}
-	} while (filter[4]++ != buffer[7]);
+	}
+	while (filter[4]++ != buffer[7]);
 	parsed = true;
 	delete dmx;
 	return true;
@@ -96,20 +99,22 @@ unsigned short CPat::GetPmtPid(t_service_id sid)
 {
 	unsigned short pid = 0;
 
-	if(Parse()) {
+	if (Parse())
+	{
 		sidpmt_map_iterator_t it = sidpmt.find(sid);
-		if(it != sidpmt.end())
+		if (it != sidpmt.end())
 			pid = it->second;
 	}
-	if(!pid)
+	if (!pid)
 		printf("[pat] sid %04x not found\n", sid);
 	return pid;
 }
 
-bool CPat::Parse(CZapitChannel * const channel)
+bool CPat::Parse(CZapitChannel *const channel)
 {
 	unsigned short pid = GetPmtPid(channel->getServiceId());
-	if(pid > 0) {
+	if (pid > 0)
+	{
 		channel->setPmtPid(pid);
 		return true;
 	}

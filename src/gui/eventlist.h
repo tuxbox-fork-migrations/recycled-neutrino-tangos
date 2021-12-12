@@ -62,107 +62,107 @@ class CEventList : public CListHelpers
 		} SEARCH_LIST;
 
 	private:
-	int             m_search_epg_item;
-	std::string     m_search_keyword;
-	std::string     m_search_autokeyword;
-	int             m_search_list;
-	int    		m_search_genre;
-	int    		m_search_fsk;
-	t_channel_id    m_search_channel_id;
-	t_bouquet_id    m_search_bouquet_id;
-	bool m_showChannel;
-	int oldIndex;
-	t_event_id oldEventID;
+		int             m_search_epg_item;
+		std::string     m_search_keyword;
+		std::string     m_search_autokeyword;
+		int             m_search_list;
+		int    		m_search_genre;
+		int    		m_search_fsk;
+		t_channel_id    m_search_channel_id;
+		t_bouquet_id    m_search_bouquet_id;
+		bool m_showChannel;
+		int oldIndex;
+		t_event_id oldEventID;
 
-	bool findEvents(t_channel_id channel_id, std::string channelname);
+		bool findEvents(t_channel_id channel_id, std::string channelname);
 
-	CFrameBuffer	*frameBuffer;
-	CChannelEventList	evtlist;
-	CTimerd::TimerList timerlist;
-	void readEvents(const t_channel_id channel_id);
-	unsigned int	selected;
-	unsigned int	current_event;
-	unsigned int	liststart;
-	unsigned int	listmaxshow;
-	int		item_height;
-	int		largefont_height, smallfont_height;
-	int		header_height;
-	int		footer_height;
+		CFrameBuffer	*frameBuffer;
+		CChannelEventList	evtlist;
+		CTimerd::TimerList timerlist;
+		void readEvents(const t_channel_id channel_id);
+		unsigned int	selected;
+		unsigned int	current_event;
+		unsigned int	liststart;
+		unsigned int	listmaxshow;
+		int		item_height;
+		int		largefont_height, smallfont_height;
+		int		header_height;
+		int		footer_height;
 
-	std::string	search_head_name;
+		std::string	search_head_name;
 
-	int 		full_width, width, infozone_width;
-	int		navibar_height;
-	int 		height;
-	int 		x;
-	int 		y;
-	std::string	infozone_text;
-	bool		infozone_background;
-	int      	sort_mode;
-	t_event_id 	item_event_ID;
-	CComponentsText	*infozone;
-	CComponentsHeader *header;
-	CProgressBar 	*pb;
-	CNaviBar 	*navibar;
-	const char *	unit_short_minute;
+		int 		full_width, width, infozone_width;
+		int		navibar_height;
+		int 		height;
+		int 		x;
+		int 		y;
+		std::string	infozone_text;
+		bool		infozone_background;
+		int      	sort_mode;
+		t_event_id 	item_event_ID;
+		CComponentsText	*infozone;
+		CComponentsHeader *header;
+		CProgressBar 	*pb;
+		CNaviBar 	*navibar;
+		const char 	*unit_short_minute;
 
-	void paintItem(unsigned pos, t_channel_id channel_id = 0);
-	void paintDescription(int index);
-	void paint(t_channel_id channel_id = 0);
-	void paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev = "", std::string _channelname_next = "");
-	void paintNaviBar(std::string _channelname_prev, std::string _channelname_next);
-	void showProgressBar(int pos);
-	void hide();
-	void paintFoot(t_channel_id channel_id);
-	void getChannelNames(t_channel_id &channel_id, std::string &current_channel_name, std::string &prev_channel_name, std::string &next_channel_name, neutrino_msg_t msg);
+		void paintItem(unsigned pos, t_channel_id channel_id = 0);
+		void paintDescription(int index);
+		void paint(t_channel_id channel_id = 0);
+		void paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev = "", std::string _channelname_next = "");
+		void paintNaviBar(std::string _channelname_prev, std::string _channelname_next);
+		void showProgressBar(int pos);
+		void hide();
+		void paintFoot(t_channel_id channel_id);
+		void getChannelNames(t_channel_id &channel_id, std::string &current_channel_name, std::string &prev_channel_name, std::string &next_channel_name, neutrino_msg_t msg);
 
-	int timerPre;
-	int timerPost;
-	void UpdateTimerList(void);
-	bool HasTimerConflicts(time_t starttime, time_t duration, t_event_id * epg_ID);
-	bool showfollow;
-	CTimerd::CTimerEventTypes isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID = NULL);
-	
+		int timerPre;
+		int timerPost;
+		void UpdateTimerList(void);
+		bool HasTimerConflicts(time_t starttime, time_t duration, t_event_id *epg_ID);
+		bool showfollow;
+		CTimerd::CTimerEventTypes isScheduled(t_channel_id channel_id, CChannelEvent *event, int *tID = NULL);
+
 	public:
 		CEventList();
 		~CEventList();
-		int exec(const t_channel_id channel_id, const std::string& channelname, const std::string& prev = "", const std::string&  next = "", const CChannelEventList &followlist = CChannelEventList ()); // UTF-8
+		int exec(const t_channel_id channel_id, const std::string &channelname, const std::string &prev = "", const std::string  &next = "", const CChannelEventList &followlist = CChannelEventList());  // UTF-8
 		void ResetModules();
 };
 
 class CEventListHandler : public CMenuTarget
 {
 	public:
-		int exec(CMenuTarget* parent, const std::string &actionkey);
+		int exec(CMenuTarget *parent, const std::string &actionkey);
 };
 
 class CEventFinderMenu : public CMenuTarget, CChangeObserver
 {
-        private:
-		CMenuForwarder* m_search_channelname_mf;
-		int*           	m_event;
-		int*   	        m_search_epg_item;
-		int*   		m_search_genre;
-		int*		m_search_fsk;
-		std::string*    m_search_keyword;
-		int*   	        m_search_list;
+	private:
+		CMenuForwarder *m_search_channelname_mf;
+		int           	*m_event;
+		int   	        *m_search_epg_item;
+		int   		*m_search_genre;
+		int		*m_search_fsk;
+		std::string    *m_search_keyword;
+		int   	        *m_search_list;
 		std::string     m_search_channelname;
-		t_channel_id*   m_search_channel_id;
-		t_bouquet_id*   m_search_bouquet_id;
+		t_channel_id   *m_search_channel_id;
+		t_bouquet_id   *m_search_bouquet_id;
 		int 		width;
 		int 		selected;
 		int showMenu(void);
-        public:
-		CEventFinderMenu(int*		event,
-				int*		search_epg_item,
-				std::string*	search_keyword,
-				int*		search_list,
-				t_channel_id*	search_channel_id,
-				t_bouquet_id*	search_bouquet_id,
-				int*		search_genre,
-				int*		search_fsk);
+	public:
+		CEventFinderMenu(int		*event,
+			int		*search_epg_item,
+			std::string	*search_keyword,
+			int		*search_list,
+			t_channel_id	*search_channel_id,
+			t_bouquet_id	*search_bouquet_id,
+			int		*search_genre,
+			int		*search_fsk);
 
-                int exec( CMenuTarget* parent, const std::string &actionkey);
+		int exec(CMenuTarget *parent, const std::string &actionkey);
 		bool changeNotify(const neutrino_locale_t OptionName, void *);
 
 };

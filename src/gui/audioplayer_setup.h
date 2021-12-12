@@ -44,10 +44,10 @@ class CAudioPlayerSetup : public CMenuTarget
 		int showAudioPlayerSetup();
 
 
-	public:	
+	public:
 		CAudioPlayerSetup();
 		~CAudioPlayerSetup();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 

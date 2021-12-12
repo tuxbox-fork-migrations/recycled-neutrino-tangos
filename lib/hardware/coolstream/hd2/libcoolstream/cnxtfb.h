@@ -1,7 +1,7 @@
 #ifndef __CNXTFB_H__
 #define __CNXTFB_H__
 /****************************************************************************/
-/* $Id: 
+/* $Id:
  ****************************************************************************/
 #include <linux/fb.h>
 #include <linux/ioctl.h>
@@ -25,74 +25,75 @@ struct fb_info;
  */
 typedef struct _cnxtfb_handles
 {
-  void     *hImage;
-  void     *hVPP_SD;
-  void     *hTvEnc_SD;
-  void     *hVPP;
-  void     *hTvEnc;
-  void     *hImage_SD;
+	void     *hImage;
+	void     *hVPP_SD;
+	void     *hTvEnc_SD;
+	void     *hVPP;
+	void     *hTvEnc;
+	void     *hImage_SD;
 } cnxtfb_handles;
 
 typedef struct _cnxtfb_resolution
 {
-  u_int32_t uWidth;
-  u_int32_t uHeight;
+	u_int32_t uWidth;
+	u_int32_t uHeight;
 
 } cnxtfb_resolution;
 
 /* To use with ioctl FBIO_CHANGEOUTPUTFORMAT */
-typedef enum {
-    CNXTFB_VIDEO_STANDARD_ATSC_1080I = 0,
-    CNXTFB_VIDEO_STANDARD_NTSC_M,
-    CNXTFB_VIDEO_STANDARD_ATSC_480P,
-    CNXTFB_VIDEO_STANDARD_ATSC_720P,
-    CNXTFB_VIDEO_STANDARD_PAL_B_WEUR,
-    CNXTFB_VIDEO_STANDARD_SECAM_L,
-    CNXTFB_VIDEO_STANDARD_ATSC_576P,
-    CNXTFB_VIDEO_STANDARD_ATSC_720P_50HZ,
-    CNXTFB_VIDEO_STANDARD_ATSC_1080I_50HZ
+typedef enum
+{
+	CNXTFB_VIDEO_STANDARD_ATSC_1080I = 0,
+	CNXTFB_VIDEO_STANDARD_NTSC_M,
+	CNXTFB_VIDEO_STANDARD_ATSC_480P,
+	CNXTFB_VIDEO_STANDARD_ATSC_720P,
+	CNXTFB_VIDEO_STANDARD_PAL_B_WEUR,
+	CNXTFB_VIDEO_STANDARD_SECAM_L,
+	CNXTFB_VIDEO_STANDARD_ATSC_576P,
+	CNXTFB_VIDEO_STANDARD_ATSC_720P_50HZ,
+	CNXTFB_VIDEO_STANDARD_ATSC_1080I_50HZ
 } CNXTFB_VIDEO_STANDARD;
 
 typedef enum
 {
-   CNXTFB_BLEND_MODE_PER_PIXEL = 0,
-   CNXTFB_BLEND_MODE_UNIFORM_ALPHA,
-   /* Reordered for compatability .. */
-   CNXTFB_BLEND_MODE_ALPHA_MULTIPLIED,
+	CNXTFB_BLEND_MODE_PER_PIXEL = 0,
+	CNXTFB_BLEND_MODE_UNIFORM_ALPHA,
+	/* Reordered for compatability .. */
+	CNXTFB_BLEND_MODE_ALPHA_MULTIPLIED,
 } CNXTFB_BLEND_MODE;
 
 typedef enum
 {
-    CNXTFB_INVALID = -1,
-    CNXTFB_480I = 0,
-    CNXTFB_480P,
-    CNXTFB_576I,
-    CNXTFB_576P,
-    CNXTFB_720P,
-    CNXTFB_720P_50,
-    CNXTFB_1080I,
-    CNXTFB_1080I_50,
-    CNXTFB_1080P,
-    CNXTFB_1080P_50,
-    CNXTFB_1080P_24,
-    CNXTFB_1080P_25,
-    CNXTFB_1080P_30,
-    CNXTFB_1080P_2397,
-    CNXTFB_1080P_2997,
-    CNXTFB_DISPLAY_MODE_LAST = CNXTFB_1080P_2997,
+	CNXTFB_INVALID = -1,
+	CNXTFB_480I = 0,
+	CNXTFB_480P,
+	CNXTFB_576I,
+	CNXTFB_576P,
+	CNXTFB_720P,
+	CNXTFB_720P_50,
+	CNXTFB_1080I,
+	CNXTFB_1080I_50,
+	CNXTFB_1080P,
+	CNXTFB_1080P_50,
+	CNXTFB_1080P_24,
+	CNXTFB_1080P_25,
+	CNXTFB_1080P_30,
+	CNXTFB_1080P_2397,
+	CNXTFB_1080P_2997,
+	CNXTFB_DISPLAY_MODE_LAST = CNXTFB_1080P_2997,
 } cnxtfb_displaymode;
 
 typedef enum
 {
-   CNXTFB_TYPE_SD = 1, /* 1 << 0 */
-   CNXTFB_TYPE_HD = 2  /* 1 << 1 */
+	CNXTFB_TYPE_SD = 1, /* 1 << 0 */
+	CNXTFB_TYPE_HD = 2  /* 1 << 1 */
 } CNXTFB_FB_TYPE;
 
 typedef struct
 {
-   unsigned char Type; /* Bitmask of type CNXTFB_FB_TYPE */
-   cnxtfb_displaymode SDMode;
-   cnxtfb_displaymode HDMode;
+	unsigned char Type; /* Bitmask of type CNXTFB_FB_TYPE */
+	cnxtfb_displaymode SDMode;
+	cnxtfb_displaymode HDMode;
 } CNXTFB_OUTPUT_FORMAT_CHANGE;
 
 /*
@@ -100,85 +101,86 @@ typedef struct
  */
 typedef struct _cnxtfb_handle
 {
-  /* CNXT_IMAGE_HANDLE         hImage; */
-  void                        *hImage;
+	/* CNXT_IMAGE_HANDLE         hImage; */
+	void                        *hImage;
 } cnxtfb_handle;
 
 typedef enum
 {
-   CNXTFB_VSYNC_NOTIFICATION = 0x1000,
-   CNXTFB_BUF_REELASE_NOTIFICATION,
-   CNXTFB_DISPLAY_MODE_NOTIFICATION
-}cnxtfb_event;
+	CNXTFB_VSYNC_NOTIFICATION = 0x1000,
+	CNXTFB_BUF_REELASE_NOTIFICATION,
+	CNXTFB_DISPLAY_MODE_NOTIFICATION
+} cnxtfb_event;
 
 typedef struct
 {
-   unsigned char  uRed;
-   unsigned char  uGreen;
-   unsigned char  uBlue;
-   unsigned char  uAlpha;
+	unsigned char  uRed;
+	unsigned char  uGreen;
+	unsigned char  uBlue;
+	unsigned char  uAlpha;
 } CNXTFB_RGB_COLOR;
 
 typedef struct
 {
-   unsigned char  uY;
-   unsigned char  uCb;
-   unsigned char  uCr;
-   unsigned char  uAlpha;
+	unsigned char  uY;
+	unsigned char  uCb;
+	unsigned char  uCr;
+	unsigned char  uAlpha;
 } CNXTFB_YCC_COLOR;
 
 typedef enum
 {
-   CNXTFB_COLOR_RGB = 0,         /* RGB format */
-   CNXTFB_COLOR_YCC,             /* YCC format */
-   CNXTFB_COLOR_PAL_INDEX,       /* Palette index or u_int32 representation of color*/
-   CNXTFB_COLOR_TYPE_LAST = CNXTFB_COLOR_PAL_INDEX
+	CNXTFB_COLOR_RGB = 0,         /* RGB format */
+	CNXTFB_COLOR_YCC,             /* YCC format */
+	CNXTFB_COLOR_PAL_INDEX,       /* Palette index or u_int32 representation of color*/
+	CNXTFB_COLOR_TYPE_LAST = CNXTFB_COLOR_PAL_INDEX
 } CNXTFB_COLOR_TYPE;
 
 typedef union
 {
-   u_int32_t         uValue; /* Palette index or u_int32 representation of color */
-   CNXTFB_RGB_COLOR  RGB;
-   CNXTFB_YCC_COLOR  YCC;
+	u_int32_t         uValue; /* Palette index or u_int32 representation of color */
+	CNXTFB_RGB_COLOR  RGB;
+	CNXTFB_YCC_COLOR  YCC;
 } CNXTFB_COLOR_ENTRY;
 
 typedef enum
 {
-   CNXTFB_YCC_BASIC = 0,   /* Pure YCbCr for MPEG-1 decodes */
-   CNXTFB_YCC_SD_BT470,    /* ITU-R BT470-2 System M   */
-   CNXTFB_YCC_SD_BT470_BG, /* ITU-R BT470-2 System B/G */
-   CNXTFB_YCC_SMPTE_170M,  /* SMPTE 170M */
-   CNXTFB_YCC_SMPTE_240M,  /* SMPTE 240M */
-   CNXTFB_YCC_GEN_FILM,    /* Generic Film(Color filters using Illuminant C) */
-   CNXTFB_YCC_HD_BT709,
-   CNXTFB_RGB,
-   CNXTFB_COLOR_SPACE_LAST = CNXTFB_RGB
+	CNXTFB_YCC_BASIC = 0,   /* Pure YCbCr for MPEG-1 decodes */
+	CNXTFB_YCC_SD_BT470,    /* ITU-R BT470-2 System M   */
+	CNXTFB_YCC_SD_BT470_BG, /* ITU-R BT470-2 System B/G */
+	CNXTFB_YCC_SMPTE_170M,  /* SMPTE 170M */
+	CNXTFB_YCC_SMPTE_240M,  /* SMPTE 240M */
+	CNXTFB_YCC_GEN_FILM,    /* Generic Film(Color filters using Illuminant C) */
+	CNXTFB_YCC_HD_BT709,
+	CNXTFB_RGB,
+	CNXTFB_COLOR_SPACE_LAST = CNXTFB_RGB
 } CNXTFB_COLOR_SPACE;
 
 typedef struct
 {
-   CNXTFB_COLOR_SPACE     ColorSpace;
-   CNXTFB_COLOR_ENTRY     Color;
+	CNXTFB_COLOR_SPACE     ColorSpace;
+	CNXTFB_COLOR_ENTRY     Color;
 } CNXTFB_COLOR_SPEC;
 
 
 /* Enumeration for types of chroma key configurations. */
 typedef enum
 {
-   CNXTFB_REGION_CHROMAKEY_SRC,
-   CNXTFB_REGION_CHROMAKEY_DST
+	CNXTFB_REGION_CHROMAKEY_SRC,
+	CNXTFB_REGION_CHROMAKEY_DST
 } CNXTFB_REGION_CHROMAKEY_TYPE;
 
 typedef struct
 {
-   CNXTFB_COLOR_SPEC ColorKeyLower;
-   CNXTFB_COLOR_SPEC ColorKeyUpper;
+	CNXTFB_COLOR_SPEC ColorKeyLower;
+	CNXTFB_COLOR_SPEC ColorKeyUpper;
 } CNXTFB_REGION_CHROMAKEY_CFG;
 
-typedef struct _cnxtfb_chromakey_cfg{
-   bool                          bEnable;
-   CNXTFB_REGION_CHROMAKEY_TYPE  Type;
-   CNXTFB_REGION_CHROMAKEY_CFG   *pCfg;
+typedef struct _cnxtfb_chromakey_cfg
+{
+	bool                          bEnable;
+	CNXTFB_REGION_CHROMAKEY_TYPE  Type;
+	CNXTFB_REGION_CHROMAKEY_CFG   *pCfg;
 } cnxtfb_chromakey_cfg;
 
 typedef void (*cnxtfb_notify)(cnxtfb_event event, void *cookie);

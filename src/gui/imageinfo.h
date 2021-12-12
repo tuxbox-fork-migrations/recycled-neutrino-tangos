@@ -39,7 +39,7 @@ typedef struct image_info_t
 {
 	std::string caption;
 	std::string info_text;
-	
+
 } image_info_struct_t;
 
 class CImageInfo : public CMenuTarget
@@ -47,7 +47,7 @@ class CImageInfo : public CMenuTarget
 	private:
 		int item_offset; //distance between items and to boarder
 		std::string license_txt, policy_txt, build_info_txt;
-		Font* item_font;
+		Font *item_font;
 		int item_height;
 		int y_tmp;
 		std::vector<image_info_t> v_info;
@@ -58,7 +58,7 @@ class CImageInfo : public CMenuTarget
 		void InitMinitv();
 		void InitInfos();
 		void InitBuildInfos();
-		void InitInfoText(const std::string& text);
+		void InitInfoText(const std::string &text);
 		std::string getLicenseText();
 		std::string getPolicyText();
 		void ShowWindow();
@@ -79,8 +79,8 @@ class CImageInfo : public CMenuTarget
 		~CImageInfo();
 
 		void hide();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-		static std::string getManifest(const std::string& directory, const std::string& language, const std::string& manifest_type);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
+		static std::string getManifest(const std::string &directory, const std::string &language, const std::string &manifest_type);
 };
 
 #endif

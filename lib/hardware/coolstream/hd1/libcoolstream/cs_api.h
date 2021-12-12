@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-typedef void (*cs_messenger) (unsigned int msg, unsigned int data);
+typedef void (*cs_messenger)(unsigned int msg, unsigned int data);
 
 #define CS_CHIP_APOLLO			0x8490
 #define CS_CHIP_SHINER			0x8470
@@ -24,7 +24,8 @@ typedef void (*cs_messenger) (unsigned int msg, unsigned int data);
 #define CS_CHIP_KRONOS_IP		0x7530
 #define CS_CHIP_NEVIS			0x0000	/* workaround for nonexistant nevis chiptype */
 
-enum CS_LOG_MODULE {
+enum CS_LOG_MODULE
+{
 	CS_LOG_CI	= 0,
 	CS_LOG_HDMI_CEC,
 	CS_LOG_HDMI,
@@ -88,13 +89,13 @@ unsigned int cs_get_chip_type(void);
 // library version functions
 typedef struct cs_libversion_t
 {
-    int    vMajor;
-    int    vMinor;
-    int    vPatch;
-    char   vStr[16];
-    char   vGit[41];
-    char   vGitDescribe[64];
-    time_t vGitTime;
+	int    vMajor;
+	int    vMinor;
+	int    vPatch;
+	char   vStr[16];
+	char   vGit[41];
+	char   vGitDescribe[64];
+	time_t vGitTime;
 } cs_libversion_struct_t;
 
 void cs_get_lib_version(cs_libversion_t *ver);

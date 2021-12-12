@@ -48,10 +48,10 @@
 class CUrlConfigSetupNotifier : public CChangeObserver
 {
 	private:
-		CMenuItem* toDisable[2];
-		CMenuForwarder * updateItem;
+		CMenuItem *toDisable[2];
+		CMenuForwarder *updateItem;
 	public:
-		CUrlConfigSetupNotifier( CMenuItem*, CMenuItem*, CMenuForwarder *);
+		CUrlConfigSetupNotifier(CMenuItem *, CMenuItem *, CMenuForwarder *);
 		bool changeNotify(const neutrino_locale_t = NONEXISTANT_LOCALE, void *data = NULL);
 };
 
@@ -60,15 +60,15 @@ class CUpdateSettings : public CMenuTarget
 	private:
 		int width;
 		int initMenu();
-		
+
 #ifdef USE_SMS_INPUT
 		CStringInputSMS *input_url_file;
 #endif
-	
-	public:	
+
+	public:
 		CUpdateSettings();
 		~CUpdateSettings();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 #endif
