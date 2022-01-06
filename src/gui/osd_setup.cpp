@@ -1067,6 +1067,11 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	oj = new CMenuOptionChooser(LOCALE_EXTRA_HOURGLASS_POSITION, &g_settings.theme.hourglass_pos, OPTION_HOURGLASS_POSITION, OPTION_HOURGLASS_POSITION_COUNT, true, this);
 	oj->setHint("", LOCALE_MENU_HINT_HOURGLASS_POSITION);
 	menu_colors->addItem(oj);
+
+	// menu hints line (details_line)
+	oj = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS_LINE, &g_settings.theme.show_menu_hints_line, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	oj->setHint("", LOCALE_MENU_HINT_MENU_HINTS_LINE);
+	menu_colors->addItem(oj);
 }
 
 /* for font size setup */
@@ -1259,12 +1264,6 @@ void COsdSetup::showOsdMenusSetup(CMenuWidget *menu_menus)
 	show_menu_hints = g_settings.show_menu_hints;
 	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS, &show_menu_hints, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_MENU_HINTS);
-	submenu_menus->addItem(mc);
-
-	//NI menu hints line (details_line) should always be last entry here
-	show_menu_hints_line = g_settings.show_menu_hints_line;
-	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS_LINE, &show_menu_hints_line, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
-	mc->setHint("", LOCALE_MENU_HINT_MENU_HINTS_LINE);
 	submenu_menus->addItem(mc);
 }
 
@@ -1668,8 +1667,8 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 	//menu_hints_line
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SETTINGS_MENU_HINTS_LINE))
 	{
-		submenu_menus->hide();
-		g_settings.show_menu_hints_line = * (int*) data;
+		osd_menu->hide();
+		g_settings.theme.show_menu_hints_line = * (int*) data;
 		return true;
 	}
 #ifdef ENABLE_LCD4LINUX
