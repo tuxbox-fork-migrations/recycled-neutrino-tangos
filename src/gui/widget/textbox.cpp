@@ -197,7 +197,6 @@ void CTextBox::initVar(void)
 	m_renderMode		= 0;
 	m_utf8_encoded		= true;
 // 	max_width 		= 0;
-	m_blit			= true;
 }
 
 void CTextBox::initFramesAndTextArray()
@@ -534,8 +533,6 @@ void CTextBox::refreshScroll(void)
 	}
 	else
 		m_has_scrolled = false;
-	if (m_blit)
-		frameBuffer->blit();
 }
 
 //evaluate comparsion between old and current properties WITHOUT text contents, return true if found changes
@@ -791,10 +788,7 @@ void CTextBox::refresh(void)
 		return;
 
 	//Paint text
-	bool _m_blit = m_blit;
-	m_blit = false;
 	refreshScroll();
-	m_blit = _m_blit;
 	refreshText();
 	OnAfterRefresh();
 }
@@ -856,8 +850,6 @@ void CTextBox::hide (void)
 
 	if (m_nPaintBackground)
 		frameBuffer->paintBackgroundBoxRel(m_cFrame.iX, m_cFrame.iY, m_cFrame.iWidth, m_cFrame.iHeight);
-	if (m_blit)
-		frameBuffer->blit();
 
 	frameBuffer = NULL;
 }

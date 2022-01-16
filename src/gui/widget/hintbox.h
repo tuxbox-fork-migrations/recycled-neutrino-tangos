@@ -207,7 +207,7 @@ class CHintBox : public CComponentsWindow
 		/**
 		* hide caller
 		*/
-		void hide(){hideCCItems(); CCDraw::hide(); CFrameBuffer::getInstance()->blit();}
+		void hide(){hideCCItems(); CCDraw::hide();}
 
 		/**
 		* Defines timeout for message window.

@@ -109,7 +109,6 @@ void CBEChannelSelectWidget::paintItem(int pos)
 		else if (!Channels[current]->getUrl().empty())
 			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_STREAMING, x + width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - status_icon_width, ypos, item_height);
 	}
-	frameBuffer->blit();
 }
 
 void CBEChannelSelectWidget::paintItems()

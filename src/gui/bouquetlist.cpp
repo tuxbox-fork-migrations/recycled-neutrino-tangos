@@ -392,7 +392,7 @@ int CBouquetList::show(bool bShowChannelList)
 
 	for (unsigned int count = 0; count < sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]); count++)
 	{
-		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT]->getRenderWidth(g_Locale->getText(CBouquetListButtons[count].locale));
+		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(g_Locale->getText(CBouquetListButtons[count].locale));
 		w_max_text = std::max(w_max_text, w_text);
 		frameBuffer->getIconSize(CBouquetListButtons[count].button, &icol_w, &icol_h);
 		w_max_icon = std::max(w_max_icon, icol_w);
@@ -408,11 +408,11 @@ int CBouquetList::show(bool bShowChannelList)
 	   CComponententsFooter class.
 	*/
 	int numButtons = (sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]));
-	width  = numButtons*(w_max_icon + w_max_text + numButtons*OFFSET_INNER_MID);
+	width  = numButtons*(w_max_icon + w_max_text + 2*OFFSET_INNER_MID);
 	height = 16*item_height;
 
 	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	footer_height = header_height;
+	footer_height = std::max(h_max_icon, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()+2*OFFSET_INNER_MIN); //initial height value for buttonbar
 	listmaxshow = (height - header_height - footer_height)/item_height;
 	height      = header_height + footer_height + listmaxshow*item_height; // recalc height
 
@@ -716,9 +716,10 @@ void CBouquetList::paint()
 	// no buttons in favonly mode
 	int numButtons = (favonly) ? 0 : sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);
 
-	CComponentsFooter footer;
+	CComponentsFooter footer(x, y + height - footer_height, width, footer_height);
 	footer.enableShadow(CC_SHADOW_ON, -1, true);
-	footer.paintButtons(x, y + height - footer_height, width, footer_height, numButtons, CBouquetListButtons);
+	footer.paint(CC_SAVE_SCREEN_NO);
+	::paintButtons(x, y + height - footer_height, width, numButtons, CBouquetListButtons, width, footer_height);
 
 	if (!Bouquets.empty())
 	{

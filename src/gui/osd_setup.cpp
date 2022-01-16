@@ -583,6 +583,13 @@ const CMenuOptionChooser::keyval OPTIONS_CHANNELLOGO_POSITION[OPTIONS_CHANNELLOG
 	{ CCHeaderTypes::CC_LOGO_CENTER, LOCALE_SETTINGS_POS_DEFAULT_CENTER } 		// centered
 };
 
+#define OPTION_HOURGLASS_POSITION_COUNT 2
+const CMenuOptionChooser::keyval  OPTION_HOURGLASS_POSITION[OPTION_HOURGLASS_POSITION_COUNT]=
+{
+	{ 0 , LOCALE_HOURGLASS_POSITION_LEFT },
+	{ 1 , LOCALE_HOURGLASS_POSITION_RIGHT }
+};
+
 //show osd setup
 int COsdSetup::showOsdSetup()
 {
@@ -1057,6 +1064,16 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	oj->OnAfterChangeOption.connect(sigc::mem_fun(menu_colors, &CMenuWidget::hide));
 	oj->setHint("", LOCALE_MENU_HINT_ROUNDED_CORNERS);
 	menu_colors->addItem(oj);
+
+	// hourglass position
+	oj = new CMenuOptionChooser(LOCALE_EXTRA_HOURGLASS_POSITION, &g_settings.theme.hourglass_pos, OPTION_HOURGLASS_POSITION, OPTION_HOURGLASS_POSITION_COUNT, true, this);
+	oj->setHint("", LOCALE_MENU_HINT_HOURGLASS_POSITION);
+	menu_colors->addItem(oj);
+
+	// menu hints line (details_line)
+	oj = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS_LINE, &g_settings.theme.show_menu_hints_line, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	oj->setHint("", LOCALE_MENU_HINT_MENU_HINTS_LINE);
+	menu_colors->addItem(oj);
 }
 
 /* for font size setup */
@@ -1250,12 +1267,6 @@ void COsdSetup::showOsdMenusSetup(CMenuWidget *menu_menus)
 	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS, &show_menu_hints, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_MENU_HINTS);
 	submenu_menus->addItem(mc);
-
-	//NI menu hints line (details_line) should always be last entry here
-	show_menu_hints_line = g_settings.show_menu_hints_line;
-	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS_LINE, &show_menu_hints_line, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
-	mc->setHint("", LOCALE_MENU_HINT_MENU_HINTS_LINE);
-	submenu_menus->addItem(mc);
 }
 
 #define HDD_STATFS_OPTION_COUNT 3
@@ -1372,7 +1383,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->OnAfterChangeOption.connect(slot_ibar);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS);
 	menu_infobar->addItem(mc);
-#if 0
+#ifndef ENABLE_TANGOS
 	// CA system dotmatrix
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DOTMATRIX, &g_settings.infobar_casystem_dotmatrix, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.infobar_casystem_display < 2);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS_DOTMATRIX);
@@ -1386,13 +1397,13 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS_FRAME);
 	menu_infobar->addItem(mc);
 	casystemActivate.Add(mc);
-
+#if ENABLE_TANGOS
 	// ecm-Info
 	mc = new CMenuOptionChooser(LOCALE_ECMINFO_SHOW, &g_settings.show_ecm_pos, INFOVIEWER_ECMINFO_OPTIONS, INFOVIEWER_ECMINFO_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_ECMINFO);
 	menu_infobar->addItem(mc);
 	menu_infobar->addItem(GenericMenuSeparator);
-
+#endif
 	// flash/hdd statfs
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_SYSFS_HDD, &g_settings.infobar_show_sysfs_hdd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !(g_settings.infobar_casystem_display == 3));
 	mc->OnAfterChangeOption.connect(slot_ibar);
@@ -1658,8 +1669,8 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 	//menu_hints_line
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SETTINGS_MENU_HINTS_LINE))
 	{
-		submenu_menus->hide();
-		g_settings.show_menu_hints_line = * (int*) data;
+		osd_menu->hide();
+		g_settings.theme.show_menu_hints_line = * (int*) data;
 		return true;
 	}
 #ifdef ENABLE_LCD4LINUX

@@ -556,6 +556,7 @@ extra.fec_3_5_L 3/5L
 extra.fec_2_3_L 2/3L
 extra.fec_5_9_L 5/9L
 extra.fec_26_45_L 26/45L
+extra.hourglass_pos Spinner position
 extra.key_current_transponder Current transponder
 extra.key_format_mode Video format
 extra.key_help Help
@@ -1034,6 +1035,8 @@ hdd_umount Unmount
 hdd_umount_warn Unmount device
 hdd_umounted Device removed
 help_box_title Help
+hourglass_left Left
+hourglass_right Right
 imageinfo.api API:
 imageinfo.creator Creator:
 imageinfo.date Date:
@@ -1407,6 +1410,7 @@ menu.hint_hdd_statfs Specify when the recording directory fill level in infoview
 menu.hint_hdd_tools Initialize HDD, check filesystem
 menu.hint_head_back Change GUI title background color
 menu.hint_head_textcolor Change GUI window title text color
+menu.hint_hourglass_pos Change position of spinner icon
 menu.hint_imageinfo Information about installed software
 menu.hint_inact_timer Shutdown box after inactivity
 menu.hint_inactive_back Change inactive item background color
@@ -1818,6 +1822,7 @@ menu.hint_video_colorformat_hdmi Select color space for digital output (HDMI)
 menu.hint_video_contrast Change picture contrast
 menu.hint_video_dbdr MPEG2 enhancement filters
 menu.hint_video_format TV aspect ratio
+menu.hint_video_hdmi_colorimetry Selects the color profile for HDMI output
 menu.hint_video_mask Define a channel-specific border to hide unwanted screen content
 menu.hint_video_mixer_color This color will be used for the background if there is no signal available.
 menu.hint_video_mode HDMI output video mode
@@ -2867,6 +2872,11 @@ videomenu.hdmi_cec_volume CEC volume control
 videomenu.hdmi_cec_vol_audiosystem Audiosystem
 videomenu.hdmi_cec_vol_off Off
 videomenu.hdmi_cec_vol_tv TV
+videomenu.hdmi_colorimetry Color profile
+videomenu.hdmi_colorimetry_auto auto
+videomenu.hdmi_colorimetry_bt2020ncl BT 2020 NCL
+videomenu.hdmi_colorimetry_bt2020cl BT 2020 CL
+videomenu.hdmi_colorimetry_bt709 BT 709
 videomenu.hue Hue
 videomenu.letterbox Letterbox
 videomenu.masksetup Mask Setup
@@ -2888,7 +2898,6 @@ videomenu.screensetup Screen Setup
 videomenu.sdosd SD OSD
 videomenu.sharpness Sharpness
 videomenu.tv-scart Video
-videomenu.vcrsignal VCR Output Signal Type
 videomenu.videoformat Format
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9

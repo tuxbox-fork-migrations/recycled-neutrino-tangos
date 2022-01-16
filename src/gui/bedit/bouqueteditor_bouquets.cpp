@@ -133,7 +133,6 @@ void CBEBouquetWidget::paintItems()
 	int current_page;
 	getScrollBarData(&total_pages, &current_page, Bouquets->size(), items_count, selected);
 	paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, body_height, total_pages, current_page);
-	frameBuffer->blit();
 }
 
 void CBEBouquetWidget::paintHead()
@@ -156,7 +155,6 @@ void CBEBouquetWidget::paintFoot()
 	size_t numbuttons = sizeof(CBEBouquetWidgetButtons)/sizeof(CBEBouquetWidgetButtons[0]);
 
 	CBEGlobals::paintFoot(numbuttons, CBEBouquetWidgetButtons);
-	frameBuffer->blit();
 }
 
 void CBEBouquetWidget::updateSelection(unsigned int newpos)
@@ -380,7 +378,6 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		{
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
-		frameBuffer->blit();
 	}
 	hide();
 	ResetModules();

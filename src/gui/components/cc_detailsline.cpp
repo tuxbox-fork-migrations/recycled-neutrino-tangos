@@ -90,7 +90,7 @@ CComponentsDetailsLine::~CComponentsDetailsLine()
 //paint details line with current parameters
 void CComponentsDetailsLine::paint(const bool &do_save_bg)
 {
-	if (!g_settings.show_menu_hints_line) return;
+	if (!g_settings.theme.show_menu_hints_line) return;
 
 	hide();
 

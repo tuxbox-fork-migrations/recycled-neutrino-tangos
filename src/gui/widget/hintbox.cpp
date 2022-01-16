@@ -497,6 +497,8 @@ int ShowHintS(const char * const Text, int timeout, bool show_background)
 	int res = messages_return::none;
 	CHint hint(Text, show_background);
 	CHourGlass hg(CFrameBuffer::getInstance()->getScreenX() + OFFSET_INNER_MID, CFrameBuffer::getInstance()->getScreenY());
+	if (g_settings.theme.hourglass_pos)
+		hg.setXPos(CFrameBuffer::getInstance()->getScreenWidth() - hg.getWidth() - OFFSET_INNER_MID);
 	hint.setTimeOut(timeout, false);
 
 	hint.paint();
@@ -517,6 +519,8 @@ int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout
 
 	CHint hint(Text, show_background);
 	CHourGlass hg(CFrameBuffer::getInstance()->getScreenX() + OFFSET_INNER_MID, CFrameBuffer::getInstance()->getScreenY());
+	if (g_settings.theme.hourglass_pos)
+		hg.setXPos(CFrameBuffer::getInstance()->getScreenWidth() - hg.getWidth() - OFFSET_INNER_MID);
 	hint.setTimeOut(timeout, false);
 
 	hint.paint();
