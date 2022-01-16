@@ -35,28 +35,33 @@
 
 extern CPictureViewer *g_PicViewer;
 
-CCPictureBase::CCPictureBase(const int &x_pos,
-				const int &y_pos,
-				const int &w,
-				const int &h,
-				const std::string &image,
-				CComponentsForm *parent,
-				int shadow_mode,
-				fb_pixel_t color_frame,
-				fb_pixel_t color_background,
-				fb_pixel_t color_shadow,
-				const int &transparency_mode)
-				: CComponentsShapeSquare(x_pos, y_pos, w, h, NULL, shadow_mode, color_frame, color_background, color_shadow)
+// CCPicture
+
+CCPicture::CCPicture(const int &x_pos,
+	const int &y_pos,
+	const int &w,
+	const int &h,
+	const std::string &image,
+	CComponentsForm *parent,
+	int shadow_mode,
+	fb_pixel_t color_frame,
+	fb_pixel_t color_background,
+	fb_pixel_t color_shadow,
+	const int &transparency_mode)
+	: CComponentsShapeSquare(x_pos, y_pos, w, h, NULL, shadow_mode, color_frame, color_background, color_shadow)
 {
 	cc_item_type.id 	= CC_ITEMTYPE_PICTURE;
 	cc_item_type.name 	= image.empty() ? "cc_image_box" : image;
 	cc_bg_image_tr_mode	= transparency_mode;
 
+	// image and background are the same things in this object! Must be always enabled.
+	paint_bg	 	= true;
+
 	setPicture(image, w, h);
 	initParent(parent);
 }
 
-void CCPictureBase::setPicture(const std::string &name, const int &w, const int &h)
+void CCPicture::setPicture(const std::string &name, const int &w, const int &h)
 {
 	setBodyBGImageName(name, "", "");
 
@@ -66,7 +71,10 @@ void CCPictureBase::setPicture(const std::string &name, const int &w, const int 
 	int dy_tmp = dy_orig;
 
 	if (getBodyBGImage().empty())
+	{
+		dprintf(DEBUG_INFO, "[CCPicture] [%s - %d] no image defined or doesn't exists %s\n", __func__, __LINE__, name.c_str());
 		return;
+	}
 
 	g_PicViewer->getSize(getBodyBGImage().c_str(), &dx_orig, &dy_orig);
 
@@ -93,7 +101,7 @@ void CCPictureBase::setPicture(const std::string &name, const int &w, const int 
 	CCDraw::setHeight(dy_tmp);
 }
 
-void CCPictureBase::setPicture(const char *name, const int &w, const int &h)
+void CCPicture::setPicture(const char *name, const int &w, const int &h)
 {
 	std::string s_tmp = "";
 	if (name)
@@ -101,35 +109,38 @@ void CCPictureBase::setPicture(const char *name, const int &w, const int &h)
 	setPicture(s_tmp,  w, h);
 }
 
-void CCPictureBase::setWidth(const int &w, bool keep_aspect)
+void CCPicture::setWidth(const int &w, bool keep_aspect)
 {
 	setPicture(cc_bg_std_image, w, keep_aspect ? 0 : height);
 }
 
-void CCPictureBase::setHeight(const int &h, bool keep_aspect)
+void CCPicture::setHeight(const int &h, bool keep_aspect)
 {
 	setPicture(cc_bg_std_image, keep_aspect ? 0 : width, h);
 }
 
-void CCPictureBase::getRealSize(int *dx, int *dy)
+void CCPicture::getRealSize(int *dx, int *dy)
 {
 	*dx = dx_orig;
 	*dy = dy_orig;
 }
 
+
+// CComponentsChannelLogo
+
 CComponentsChannelLogo::CComponentsChannelLogo(const int &x_pos,
-						const int &y_pos,
-						const int &w,
-						const int &h,
-						const std::string &channelName,
-						const uint64_t &channelId,
-						CComponentsForm *parent,
-						int shadow_mode,
-						fb_pixel_t color_frame,
-						fb_pixel_t color_background,
-						fb_pixel_t color_shadow,
-						const int &transparency_mode)
-						: CCPictureBase(x_pos, y_pos, w, h, "", parent, shadow_mode, color_frame, color_background, color_shadow, transparency_mode)
+	const int &y_pos,
+	const int &w,
+	const int &h,
+	const std::string &channelName,
+	const uint64_t &channelId,
+	CComponentsForm *parent,
+	int shadow_mode,
+	fb_pixel_t color_frame,
+	fb_pixel_t color_background,
+	fb_pixel_t color_shadow,
+	const int &transparency_mode)
+	: CCPicture(x_pos, y_pos, w, h, "", parent, shadow_mode, color_frame, color_background, color_shadow, transparency_mode)
 {
 	cc_item_type.id 	= CC_ITEMTYPE_CHANNEL_LOGO;
 	cc_item_type.name 	= "cc_channel_logo_box";
@@ -143,6 +154,7 @@ void CComponentsChannelLogo::setChannel(const uint64_t &channelId, const std::st
 	std::string image = "";
 	channel_id = channelId;
 	channel_name = channelName;
+	has_logo = false;
 
 	//dimensions not required here, will be handled in member setPicture(), therefore here only dummy variables
 	int dmy_x, dmy_y;
@@ -154,12 +166,18 @@ void CComponentsChannelLogo::setChannel(const uint64_t &channelId, const std::st
 
 	//if logo or alternate image not available, set has_logo to false
 	has_logo = !image.empty();
-
-	//refresh object
-	setPicture(image, w, h);
+	if (!has_logo)
+	{
+		image = "blank";
+		setPicture(image, 0, 0);
+	}
+	else
+	{
+		setPicture(image, w, h);
+	}
 
 	//for sure, if no dimensions were detected set value of has_logo = false
-	if (width && height)
+	if (width && height && has_logo)
 		has_logo = true;
 }
 

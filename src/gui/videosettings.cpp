@@ -56,6 +56,7 @@
 #include <daemonc/remotecontrol.h>
 
 #include <system/debug.h>
+#include <system/helpers.h>
 
 #include <cs_api.h>
 #include <hardware/video.h>
@@ -87,7 +88,6 @@ CVideoSettings::CVideoSettings(int wizard_mode)
 	is_wizard = wizard_mode;
 
 	SyncControlerForwarder = NULL;
-	VcrVideoOutSignalOptionChooser = NULL;
 
 	width = 35;
 	selected = -1;
@@ -313,6 +313,15 @@ CMenuOptionChooser::keyval VIDEOMENU_ZAPPINGMODE_OPTIONS[VIDEOMENU_ZAPPINGMODE_O
 };
 #endif
 
+#define VIDEOMENU_HDMI_COLORIMETRY_OPTION_COUNT 4
+const CMenuOptionChooser::keyval VIDEOMENU_HDMI_COLORIMETRY_OPTIONS[VIDEOMENU_HDMI_COLORIMETRY_OPTION_COUNT] =
+{
+	{ HDMI_COLORIMETRY_AUTO, LOCALE_VIDEOMENU_HDMI_COLORIMETRY_AUTO },
+	{ HDMI_COLORIMETRY_BT2020NCL, LOCALE_VIDEOMENU_HDMI_COLORIMETRY_BT2020NCL },
+	{ HDMI_COLORIMETRY_BT2020CL, LOCALE_VIDEOMENU_HDMI_COLORIMETRY_BT2020CL },
+	{ HDMI_COLORIMETRY_BT709, LOCALE_VIDEOMENU_HDMI_COLORIMETRY_BT709 }
+};
+
 int CVideoSettings::showVideoSetup()
 {
 	//init
@@ -524,9 +533,17 @@ int CVideoSettings::showVideoSetup()
 #endif
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	CMenuOptionChooser * zm = new CMenuOptionChooser(LOCALE_VIDEOMENU_ZAPPINGMODE, &g_settings.zappingmode, VIDEOMENU_ZAPPINGMODE_OPTIONS, VIDEOMENU_ZAPPINGMODE_OPTION_COUNT, true, this, CRCInput::RC_yellow);
-	zm->setHint("", LOCALE_MENU_HINT_VIDEO_ZAPPINGMODE);
-	videosetup->addItem(zm);
+	if (file_exists("/proc/stb/video/zapmode")) {
+		CMenuOptionChooser * zm = new CMenuOptionChooser(LOCALE_VIDEOMENU_ZAPPINGMODE, &g_settings.zappingmode, VIDEOMENU_ZAPPINGMODE_OPTIONS, VIDEOMENU_ZAPPINGMODE_OPTION_COUNT, true, this, CRCInput::RC_yellow);
+		zm->setHint("", LOCALE_MENU_HINT_VIDEO_ZAPPINGMODE);
+		videosetup->addItem(zm);
+	}
+
+	if (file_exists("/proc/stb/video/hdmi_colorimetry")) {
+		CMenuOptionChooser *hm = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_COLORIMETRY, &g_settings.hdmi_colorimetry, VIDEOMENU_HDMI_COLORIMETRY_OPTIONS, VIDEOMENU_HDMI_COLORIMETRY_OPTION_COUNT, true, this, CRCInput::RC_blue);
+		hm->setHint("", LOCALE_MENU_HINT_VIDEO_HDMI_COLORIMETRY);
+		videosetup->addItem(hm);
+	}
 #endif
 
 	int res = videosetup->exec(NULL, "");
@@ -627,9 +644,6 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 	{
 		videoDecoder->SetDBDR(g_settings.video_dbdr);
 	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_VCRSIGNAL))
-	{
-	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_VIDEOFORMAT) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_43MODE))
 	{
@@ -684,6 +698,10 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_ZAPPINGMODE)) {
 		videoDecoder->SetControl(VIDEO_CONTROL_ZAPPING_MODE, g_settings.zappingmode);
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_COLORIMETRY))
+	{
+		videoDecoder->SetHDMIColorimetry((HDMI_COLORIMETRY) g_settings.hdmi_colorimetry);
 	}
 #endif
 	return false;

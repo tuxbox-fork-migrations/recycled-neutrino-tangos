@@ -2349,17 +2349,18 @@ void CStreamRec::run()
 		pkt.pts = av_rescale_q(pkt.pts, ifcx->streams[pkt.stream_index]->time_base, ofcx->streams[pkt.stream_index]->time_base);
 		pkt.dts = av_rescale_q(pkt.dts, ifcx->streams[pkt.stream_index]->time_base, ofcx->streams[pkt.stream_index]->time_base);
 
+
+		if (pkt.stream_index == stream_index) {
+			total += (double) 1000 * pkt.duration * av_q2d(ifcx->streams[stream_index]->time_base);
+			//printf("PKT: duration %d (%f) total %f (ifcx->duration %016llx\n", pkt.duration, duration, total, ifcx->duration);
+		}
+
 		av_write_frame(ofcx, &pkt);
 #if (LIBAVFORMAT_VERSION_MAJOR == 57 && LIBAVFORMAT_VERSION_MINOR == 25)
 		av_packet_unref(&pkt);
 #else
 		av_free_packet(&pkt);
 #endif
-
-		if (pkt.stream_index == stream_index) {
-			total += (double) 1000 * pkt.duration * av_q2d(ifcx->streams[stream_index]->time_base);
-			//printf("PKT: duration %d (%f) total %f (ifcx->duration %016llx\n", pkt.duration, duration, total, ifcx->duration);
-		}
 
 		if (now == 0)
 			WriteHeader(1000);

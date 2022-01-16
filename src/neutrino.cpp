@@ -394,7 +394,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.lcd4l_brightness_standby = configfile.getInt32("lcd4l_brightness_standby", 3);
 	g_settings.lcd4l_convert = configfile.getInt32("lcd4l_convert", 1);
 #endif
-	g_settings.show_menu_hints_line = configfile.getBool("show_menu_hints_line", false);
 
 	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 
@@ -474,7 +473,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	g_settings.zappingmode = configfile.getInt32( "zappingmode", 0);
+	g_settings.zappingmode = configfile.getInt32("zappingmode", 0);
+	g_settings.hdmi_colorimetry = configfile.getInt32("hdmi_colorimetry", 0);
 #endif
 
 	g_settings.cpufreq = configfile.getInt32("cpufreq", 0);
@@ -1431,7 +1431,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("lcd4l_brightness_standby", g_settings.lcd4l_brightness_standby);
 	configfile.setInt32("lcd4l_convert" , g_settings.lcd4l_convert);
 #endif
-	configfile.setBool("show_menu_hints_line" , g_settings.show_menu_hints_line);
 
 	//video
 	configfile.setInt32( "video_Mode", g_settings.video_Mode );
@@ -1489,6 +1488,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	configfile.setInt32( "zappingmode", g_settings.zappingmode);
+	configfile.setInt32( "hdmi_colorimetry", g_settings.hdmi_colorimetry);
 #endif
 
 	configfile.setInt32( "cpufreq", g_settings.cpufreq);
@@ -3022,6 +3022,7 @@ TIMER_START();
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	videoDecoder->SetControl(VIDEO_CONTROL_ZAPPING_MODE, g_settings.zappingmode);
+	videoDecoder->SetHDMIColorimetry((HDMI_COLORIMETRY) g_settings.hdmi_colorimetry);
 #endif
 
 TIMER_STOP("################################## after all ##################################");

@@ -250,7 +250,7 @@ void CInfoViewer::Init()
 		bbButtonInfo[i].x   = -1;
 	}
 
-	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + 5;
+	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + OFFSET_INNER_MID;
 	initBBOffset();
 
 	if ((g_settings.infobar_casystem_display < 2) && g_settings.skin.skinEnabled && !g_settings.skin.BbarEnabled)
@@ -288,16 +288,20 @@ void CInfoViewer::start ()
 	if (g_settings.skin.ReloadSkin)
 		CSkins().readSkinFile(g_settings.skinfiles);
 
+	// width of clock
 	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + OFFSET_INNER_MID;
 
+	// height of info box (header + body / channelname + 2 lines epg)
 	InfoHeightY = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight() * 9/8 +
 	              2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + OFFSET_INNER_LARGE + OFFSET_INNER_SMALL;
-
+	// width of channelnumber
 	ChanWidth = std::max(125, 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + OFFSET_INNER_MID);
 
-	ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight()/* * 9/8*/;
-	ChanHeight += g_SignalFont->getHeight()/2;
-	ChanHeight = std::max(75, ChanHeight);
+	ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
+	ChanHeight+= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2 + OFFSET_SHADOW;
+
+	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight() + OFFSET_INNER_MID;
+	initBBOffset();
 
 	BoxStartX = g_settings.skin.skinEnabled ? g_settings.skin.bgX : g_settings.screen_StartX + OFFSET_INNER_MID;
 	BoxEndX = g_settings.skin.skinEnabled ? (g_settings.skin.bgX + g_settings.skin.bgW) : g_settings.screen_EndX - OFFSET_INNER_MID;
@@ -337,6 +341,7 @@ void CInfoViewer::initClock()
 	clock->doPaintBg(false);
 
 	time_width = g_settings.infobar_analogclock && !g_settings.channellist_show_numbers ? 0 : clock->getWidth();
+	getIconInfo();
 }
 
 void CInfoViewer::showRecords()
@@ -2421,10 +2426,11 @@ void CInfoViewer::getButtonInfo()
 		}
 		bbButtonInfo[i].w = w;
 		bbButtonInfo[i].cx = std::min(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getRenderWidth(text),w);
-		bbButtonInfo[i].h = h;
 		bbButtonInfo[i].text = text;
 		bbButtonInfo[i].icon = icon;
 	}
+	BBarFontY = BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->getHeight()) / 2;
+
 	// Calculate position/size of buttons
 	minX = std::min(bbIconMinX, ChanInfoX + (((BoxEndX - ChanInfoX) * 75) / 100));
 	int MaxBr = (BoxEndX - OFFSET_INNER_MID) - (ChanInfoX + OFFSET_INNER_MID);
@@ -2506,7 +2512,8 @@ void CInfoViewer::showButtons(bool)
 				continue;
 			if (bbButtonInfo[i].x > 0)
 			{
-				frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
+				//frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
+				g_PicViewer->DisplayImage(frameBuffer->getIconPath(bbButtonInfo[i].icon), bbButtonInfo[i].x, BBarY + OFFSET_INNER_MIN, bbButtonInfo[i].w, InfoHeightY_Info - 2*OFFSET_INNER_MIN);
 
 				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]->RenderString(bbButtonInfo[i].x + (bbButtonInfo[i].w /2 - bbButtonInfo[i].cx /2), BBarFontY,
 				        bbButtonInfo[i].w, bbButtonInfo[i].text, COL_MENUFOOT_TEXT);
@@ -2533,7 +2540,7 @@ void CInfoViewer::showIcons(const int modus, const std::string & icon)
 		                       InfoHeightY_Info, 1, true, !g_settings.theme.infobar_gradient_top, COL_INFOBAR_BUTTONS_BACKGROUND);
 		else
 		frameBuffer->paintIcon(icon, bbIconInfo[modus].x - time_width, ChanNameY + (header_height - bbIconMaxH)/2,
-		                       InfoHeightY_Info, 1, true, !g_settings.theme.infobar_gradient_top, COL_INFOBAR_BUTTONS_BACKGROUND);
+		                       0, 1, true, !g_settings.theme.infobar_gradient_top, COL_INFOBAR_BUTTONS_BACKGROUND);
 	}
 }
 
@@ -2582,6 +2589,8 @@ void CInfoViewer::showIcon_Logo()
 
 void CInfoViewer::paintFoot(int w)
 {
+	initBBOffset();
+	BBarY = BoxEndY + bottom_bar_offset;
 	int width = (w == 0) ? BoxEndX - ChanInfoX : w;
 
 	if (foot == NULL)
@@ -2848,15 +2857,15 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 	static std::map<int, std::pair<int,const char*> > icon_map;
 	const int icon_number = 14;
 
-	static int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	static int icon_sizeW [icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	static bool init_flag = false;
+	int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	int icon_sizeW [icon_number] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	int icon_sizeH = 0, index = 0;
+	std::map<int, std::pair<int,const char*> >::const_iterator it;
 
+	static bool init_flag = false;
 	if (!init_flag)
 	{
 		init_flag = true;
-		int icon_sizeH = 0, index = 0;
-		std::map<int, std::pair<int,const char*> >::const_iterator it;
 
 		icon_map[0x0000] = std::make_pair(index++,"dec");
 		icon_map[0x0E00] = std::make_pair(index++,"powervu");
@@ -2872,21 +2881,22 @@ void CInfoViewer::paint_ca_icons(int caid, const char *icon, int &icon_space_off
 		icon_map[0x0D00] = std::make_pair(index++,"cw");
 		icon_map[0x0900] = std::make_pair(index++,"nds");
 		icon_map[0x5600] = std::make_pair(index  ,"vmx");
+	}
 
-		for (it=icon_map.begin(); it!=icon_map.end(); ++it)
-		{
-			snprintf(buf, sizeof(buf), "%s_%s", (*it).second.second, (*it).second.first==0 ? "card" : "white");
-			frameBuffer->getIconSize(buf, &icon_sizeW[(*it).second.first], &icon_sizeH);
-		}
+	for (it=icon_map.begin(); it!=icon_map.end(); ++it)
+	{
+		snprintf(buf, sizeof(buf), "%s_%s", (*it).second.second, (*it).second.first==0 ? "card" : "white");
+		frameBuffer->getIconSize(buf, &icon_sizeW[(*it).second.first], &icon_sizeH);
+	}
 
-		for (int j = 0; j < icon_number; j++)
+	for (int j = 0; j < icon_number; j++)
+	{
+		for (int i = j; i < icon_number; i++)
 		{
-			for (int i = j; i < icon_number; i++)
-			{
-				icon_offset[j] += icon_sizeW[i] + OFFSET_INNER_MIN;
-			}
+			icon_offset[j] += icon_sizeW[i] + OFFSET_INNER_MIN;
 		}
 	}
+
 	caid &= 0xFF00;
 
 	if (icon_offset[icon_map[caid].first] == 0)
