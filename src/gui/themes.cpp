@@ -414,6 +414,9 @@ void CThemes::setTheme(CConfigFile &configfile)
 
 	// hourglass position
 	configfile.setInt32("hourglass_pos", t.hourglass_pos);
+
+	// details line in menu and lists
+	configfile.setInt32("show_menu_hints_line", t.show_menu_hints_line);
 }
 
 void CThemes::getTheme(CConfigFile &configfile)
@@ -539,6 +542,9 @@ void CThemes::getTheme(CConfigFile &configfile)
 
 	// hourglass position
 	t.hourglass_pos = configfile.getInt32("hourglass_pos", 0);
+
+	// details line in menu and lists
+	t.show_menu_hints_line = configfile.getInt32("show_menu_hints_line", true);
 
 	if (g_settings.theme_name.empty())
 		applyDefaultTheme();

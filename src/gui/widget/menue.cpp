@@ -1553,6 +1553,9 @@ void CMenuWidget::initHeader()
 	header->setCaptionColor(COL_MENUHEAD_TEXT);
 	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 	header->enableGradientBgCleanUp(savescreen);
+	header->removeContextButtons();
+	if (!g_settings.show_menu_hints)
+		header->addContextButton(CComponentsHeader::CC_BTN_HELP);
 
 	if (!subhead_text.empty())
 		initSubHeader();
@@ -1606,7 +1609,7 @@ void CMenuWidget::setMenuPos(const int &menu_width)
 		case MENU_POS_TOP_LEFT:
 			y = offy + scr_y + OFFSET_INNER_MID;
 			x = offx + scr_x + OFFSET_INNER_MID;
-			x += g_settings.show_menu_hints_line ? DETAILSLINE_WIDTH : 0; //NI
+			x += g_settings.theme.show_menu_hints_line ? DETAILSLINE_WIDTH : 0; //NI
 			break;
 
 		case MENU_POS_TOP_RIGHT:
@@ -1617,7 +1620,7 @@ void CMenuWidget::setMenuPos(const int &menu_width)
 		case MENU_POS_BOTTOM_LEFT:
 			y = /*offy +*/ scr_y + scr_h - real_h - OFFSET_INNER_MID;
 			x = offx + scr_x + OFFSET_INNER_MID;
-			x += g_settings.show_menu_hints_line ? DETAILSLINE_WIDTH : 0; //NI
+			x += g_settings.theme.show_menu_hints_line ? DETAILSLINE_WIDTH : 0; //NI
 			break;
 
 		case MENU_POS_BOTTOM_RIGHT:

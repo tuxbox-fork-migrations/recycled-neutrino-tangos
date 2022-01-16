@@ -181,6 +181,8 @@ bool downloadUrl(std::string url, std::string file, const std::string userAgent 
 
 bool isDigitWord(std::string str);
 
+time_t GetBuildTime();
+
 int getActivePartition();
 
 std::string GetSpecialName(std::string NormalName);

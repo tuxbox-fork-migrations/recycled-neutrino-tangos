@@ -177,6 +177,7 @@ struct SNeutrinoTheme
 	int rounded_corners;
 	int message_frame_enable;
 	int hourglass_pos;
+	int show_menu_hints_line;
 };
 
 struct timer_remotebox_item
@@ -1064,9 +1065,6 @@ struct SNeutrinoSettings
 
 	int font_scaling_x;
 	int font_scaling_y;
-
-	// NI
-	int		show_menu_hints_line;
 
 	int		livestreamResolution;
 	std::string	livestreamScriptPath;

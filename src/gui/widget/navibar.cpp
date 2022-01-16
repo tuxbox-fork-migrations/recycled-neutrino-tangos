@@ -58,9 +58,12 @@ CNaviBar::CNaviBar(const int &x_pos,
 
 	nb_lpic = nb_rpic 	= NULL;
 	nb_lText = nb_rText 	= NULL;
-	nb_font			= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE];;
+	nb_font			= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE];
+	nb_topline		= NULL;
+	nb_bottomline		= NULL;
 	nb_lpic_enable = nb_rpic_enable = false;
 	nb_l_text = nb_r_text = string();
+	nb_bline_mode		= CNaviBar::NB_BLINE_TOP | CNaviBar::NB_BLINE_BOTTOM;
 
 	initCCItems();
 }
@@ -71,6 +74,23 @@ void CNaviBar::initCCItems()
 	int mid_width 	= width * 40 / 100; // 40%
 	int side_width 	= ((width - mid_width) / 2) - (2 * x_off);
 	int h_text 	= height;
+
+	int grad = g_settings.theme.menu_Separator_gradient_enable ? CC_COLGRAD_COL_DARK_LIGHT_DARK : CC_COLGRAD_OFF;
+
+	// small separator line on the top
+	if (nb_bline_mode & NB_BLINE_TOP)
+	{
+		if (!nb_topline)
+			nb_topline = new CComponentsShapeSquare(0, 0, width, FRAME_WIDTH_MIN, this, CC_SHADOW_OFF);
+		nb_topline->setColorBody(COL_FRAME);
+		nb_topline->setColBodyGradient(grad, CFrameBuffer::gradientHorizontal, COL_MENUCONTENT_PLUS_0, CColorGradient::light);
+	}
+	else
+	{
+		if (nb_topline)
+			removeCCItem(nb_topline);
+		nb_topline = NULL;
+	}
 
 	// init left arrow
 	if (!nb_lpic)
@@ -114,6 +134,21 @@ void CNaviBar::initCCItems()
 	}
 	nb_rText->setText(nb_r_text, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, nb_font);
 	nb_rText->setXPos(nb_rpic->getXPos() - x_off - nb_rText->getWidth());
+
+	// small separator line on the bottom
+	if (nb_bline_mode & NB_BLINE_BOTTOM)
+	{
+		if (!nb_bottomline)
+			nb_bottomline = new CComponentsShapeSquare(0, height - FRAME_WIDTH_MIN, width, FRAME_WIDTH_MIN, this, CC_SHADOW_OFF);
+		nb_bottomline->setColorBody(COL_FRAME);
+		nb_bottomline->setColBodyGradient(grad, CFrameBuffer::gradientHorizontal, COL_MENUCONTENT_PLUS_0, CColorGradient::light);
+	}
+	else
+	{
+		if (nb_bottomline)
+			removeCCItem(nb_bottomline);
+		nb_bottomline = NULL;
+	}
 }
 
 
