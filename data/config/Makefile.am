@@ -9,4 +9,5 @@ install_DATA = \
 	satellites.xml \
 	settingsupdate.conf \
 	terrestrial.xml \
-	tobackup.conf
+	tobackup.conf \
+	weather_locations.xml
