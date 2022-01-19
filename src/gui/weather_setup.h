@@ -39,17 +39,17 @@ class CWeatherSetup : public CMenuTarget, CChangeObserver
 
 		int width, selected;
 
-		CMenuOptionChooser * weather_onoff;
+		CMenuOptionChooser *weather_onoff;
 		std::string weather_api_key_short;
 
 		int showWeatherSetup();
 		int showSelectWeatherLocation();
 		void loadLocations(std::string filename);
 
-	public:	
+	public:
 		CWeatherSetup();
 		~CWeatherSetup();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 };
 
