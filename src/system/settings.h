@@ -1019,8 +1019,11 @@ struct SNeutrinoSettings
 	std::string weather_api_key;
 	int weather_enabled;
 	int weather_country;
-	std::string weather_location;
+
 	std::string weather_city;
+	std::string weather_location;
+	std::string weather_postcode;
+
 	std::string youtube_dev_id;
 	int youtube_enabled;
 	std::string tmdb_api_key;
