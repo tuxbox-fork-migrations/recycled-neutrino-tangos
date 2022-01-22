@@ -1073,7 +1073,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
 	g_settings.weather_city = configfile.getString("weather_city", WEATHER_DEFAULT_CITY);
 	g_settings.weather_location = configfile.getString("weather_location", WEATHER_DEFAULT_LOCATION);
-	g_settings.weather_postcode = configfile.getString("weather_postcode", WEATHER_DEFAULT_POSTCODE);
+	g_settings.weather_postalcode = configfile.getString("weather_postalcode", WEATHER_DEFAULT_POSTALCODE);
 
 	std::string tmdb_api_key = TMDB_DEV_KEY;
 #if ENABLE_TMDB_KEY_MANAGE
@@ -1895,7 +1895,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 #endif
 	configfile.setString( "weather_location", g_settings.weather_location );
 	configfile.setString( "weather_city", g_settings.weather_city );
-	configfile.setString( "weather_postcode", g_settings.weather_postcode);
+	configfile.setString( "weather_postalcode", g_settings.weather_postalcode);
 #ifndef TMDB_DEV_KEY
 	configfile.setString( "tmdb_api_key", g_settings.tmdb_api_key );
 	configfile.setInt32( "tmdb_enabled", g_settings.tmdb_enabled );
