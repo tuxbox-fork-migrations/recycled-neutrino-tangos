@@ -113,7 +113,7 @@ class CLCD4l : public OpenThreads::Thread
 		std::string	m_Info1;
 		std::string	m_Info2;
 		int		m_Progress;
-		char		m_Duration[24];
+		char		m_Duration[128];
 		std::string	m_Start;
 		std::string	m_End;
 
