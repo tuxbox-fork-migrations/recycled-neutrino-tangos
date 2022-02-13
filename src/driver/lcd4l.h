@@ -47,8 +47,10 @@ class CLCD4l : public OpenThreads::Thread
 			SAMSUNG800x480	= 1,
 			SAMSUNG800x600	= 2,
 			SAMSUNG1024x600	= 3,
+			PNG800x480		= 7,
+			PNG800x600		= 5,
+			PNG1024x600		= 8,
 			VUPLUS4K480x320	= 4,
-			PNG		= 5,
 			VUPLUS4K800x480 = 6
 		};
 
