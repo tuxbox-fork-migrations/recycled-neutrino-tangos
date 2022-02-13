@@ -133,7 +133,7 @@ static void lcd4linux(bool run)
 
 	if ((run == true) && !lcd4l_bin.empty())
 	{
-		if (g_settings.lcd4l_display_type == CLCD4l::PNG)
+		if ((g_settings.lcd4l_display_type == CLCD4l::PNG800x480) || (g_settings.lcd4l_display_type == CLCD4l::PNG800x600) || (g_settings.lcd4l_display_type == CLCD4l::PNG1024x600))
 		{
 			if (my_system(3, lcd4l_bin.c_str(), "-o", PNGFILE) != 0)
 				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, buf, PNGFILE);
@@ -804,59 +804,59 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		/* --- */
 
 		std::string Layout;
-		std::string Resolution;
+		std::string DisplayRes;
 		std::string Driver;
 		std::string DisplayType;
 		switch (g_settings.lcd4l_display_type) {
 			case PNG800x480:
 				DisplayType = "PNG800x480_";
 				Driver = "PNG";
-				Resolution = "800x480";
+				DisplayRes = "800x480";
 				break;
 			case PNG800x600:
 				DisplayType = "PNG800x600_";
 				Driver = "PNG";
-				Resolution = "800x600";
+				DisplayRes = "800x600";
 				break;
 			case PNG1024x600:
 				DisplayType = "PNG1024x600_";
 				Driver = "PNG";
-				Resolution = "1024x600";
+				DisplayRes = "1024x600";
 				break;
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
 			case VUPLUS4K480x320:
 				DisplayType = "VUPLUS4K_";
 				Driver = "VUPLUS4K";
-				Resolution = "480x320";
+				DisplayRes = "480x320";
 				break;
 #endif
 #if BOXMODEL_VUULTIMO4K
 			case VUPLUS4K800x480:
 				DisplayType = "VUPLUS4K_";
 				Driver = "VUPLUS4K";
-				Resolution = "800x480";
+				DisplayRes = "800x480";
 				break;
 #endif
 			case SAMSUNG800x480:
 				DisplayType = "Samsung800x480_";
 				Driver = "Samsung";
-				Resolution = "800x480";
+				DisplayRes = "800x480";
 				break;
 			case SAMSUNG800x600:
 				DisplayType = "Samsung800x600_";
 				Driver = "Samsung";
-				Resolution = "800x600";
+				DisplayRes = "800x600";
 				break;
 			case SAMSUNG1024x600:
 				DisplayType = "Samsung1024x600_";
 				Driver = "Samsung";
-				Resolution = "1024x600";
+				DisplayRes = "1024x600";
 				break;
 			case PEARL320x240:
 			default:
 				DisplayType = "Pearl_";
 				Driver = "Pearl";
-				Resolution = "320x240";
+				DisplayRes = "320x240";
 				break;
 		}
 
@@ -888,7 +888,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		}
 
 		Layout += "\n" + Driver;
-		Layout += "\n" + Resolution;
+		Layout += "\n" + DisplayRes;
 
 		if (m_Layout.compare(Layout))
 		{
