@@ -230,23 +230,10 @@ int CLCD4l::RemoveFile(const char *file)
 
 int CLCD4l::GetMaxBrightness()
 {
-	int max_brightness;
+	int max_brightness = 10;
 
-	switch (g_settings.lcd4l_display_type)
-	{
-		case SAMSUNG800x480:
-		case SAMSUNG800x600:
-		case SAMSUNG1024x600:
-		case VUPLUS4K480x320:
-		case VUPLUS4K800x480:
-		case PNG:
-			max_brightness = 10;
-			break;
-		case PEARL320x240:
-		default:
+	if (g_settings.lcd4l_display_type == PEARL320x240)
 			max_brightness = 7;
-			break;
-	}
 
 	return max_brightness;
 }
