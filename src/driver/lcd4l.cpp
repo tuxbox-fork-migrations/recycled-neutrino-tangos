@@ -804,34 +804,59 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		/* --- */
 
 		std::string Layout;
-
+		std::string Resolution;
+		std::string Driver;
 		std::string DisplayType;
 		switch (g_settings.lcd4l_display_type) {
-			case PNG:
-				DisplayType = "PNG_";
+			case PNG800x480:
+				DisplayType = "PNG800x480_";
+				Driver = "PNG";
+				Resolution = "800x480";
+				break;
+			case PNG800x600:
+				DisplayType = "PNG800x600_";
+				Driver = "PNG";
+				Resolution = "800x600";
+				break;
+			case PNG1024x600:
+				DisplayType = "PNG1024x600_";
+				Driver = "PNG";
+				Resolution = "1024x600";
 				break;
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
 			case VUPLUS4K480x320:
 				DisplayType = "VUPLUS4K_";
+				Driver = "VUPLUS4K";
+				Resolution = "480x320";
 				break;
 #endif
 #if BOXMODEL_VUULTIMO4K
 			case VUPLUS4K800x480:
 				DisplayType = "VUPLUS4K_";
+				Driver = "VUPLUS4K";
+				Resolution = "800x480";
 				break;
 #endif
 			case SAMSUNG800x480:
 				DisplayType = "Samsung800x480_";
+				Driver = "Samsung";
+				Resolution = "800x480";
 				break;
 			case SAMSUNG800x600:
 				DisplayType = "Samsung800x600_";
+				Driver = "Samsung";
+				Resolution = "800x600";
 				break;
 			case SAMSUNG1024x600:
 				DisplayType = "Samsung1024x600_";
+				Driver = "Samsung";
+				Resolution = "1024x600";
 				break;
 			case PEARL320x240:
 			default:
 				DisplayType = "Pearl_";
+				Driver = "Pearl";
+				Resolution = "320x240";
 				break;
 		}
 
@@ -861,6 +886,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		{
 			Layout += "_radio";
 		}
+
+		Layout += "\n" + Driver;
+		Layout += "\n" + Resolution;
 
 		if (m_Layout.compare(Layout))
 		{
