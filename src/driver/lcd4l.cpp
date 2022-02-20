@@ -787,112 +787,125 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			WriteFile(MODE_LOGO, std::to_string(ModeLogo));
 			m_ModeLogo = ModeLogo;
 		}
+	}
 
-		/* --- */
+	/* ----------------------------------------------------------------- */
+	std::string Layout;
+	std::string DisplayRes;
+	std::string DisplayDriver;
+	std::string DisplayMode;
+	std::string DisplayType;
 
-		std::string Layout;
-		std::string DisplayRes;
-		std::string DisplayDriver;
-		std::string DisplayMode;
-		std::string DisplayType;
-		switch (g_settings.lcd4l_display_type) {
-			case PNG800x480:
-				DisplayType = "PNG800x480_";
-				DisplayDriver = "PNG";
-				DisplayRes = "800x480";
-				break;
-			case PNG800x600:
-				DisplayType = "PNG800x600_";
-				DisplayDriver = "PNG";
-				DisplayRes = "800x600";
-				break;
-			case PNG1024x600:
-				DisplayType = "PNG1024x600_";
-				DisplayDriver = "PNG";
-				DisplayRes = "1024x600";
-				break;
+	switch (g_settings.lcd4l_display_type)
+	{
+		case PNG800x480:
+			DisplayType = "PNG800x480_";
+			DisplayDriver = "PNG";
+			DisplayRes = "800x480";
+			break;
+
+		case PNG800x600:
+			DisplayType = "PNG800x600_";
+			DisplayDriver = "PNG";
+			DisplayRes = "800x600";
+			break;
+
+		case PNG1024x600:
+			DisplayType = "PNG1024x600_";
+			DisplayDriver = "PNG";
+			DisplayRes = "1024x600";
+			break;
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
-			case VUPLUS4K480x320:
-				DisplayType = "VUPLUS4K_";
-				DisplayDriver = "VUPLUS4K";
-				DisplayRes = "480x320";
-				break;
+
+		case VUPLUS4K480x320:
+			DisplayType = "VUPLUS4K_";
+			DisplayDriver = "VUPLUS4K";
+			DisplayRes = "480x320";
+			break;
 #endif
 #if BOXMODEL_VUULTIMO4K
-			case VUPLUS4K800x480:
-				DisplayType = "VUPLUS4K_";
-				DisplayDriver = "VUPLUS4K";
-				DisplayRes = "800x480";
-				break;
+
+		case VUPLUS4K800x480:
+			DisplayType = "VUPLUS4K_";
+			DisplayDriver = "VUPLUS4K";
+			DisplayRes = "800x480";
+			break;
 #endif
-			case SAMSUNG800x480:
-				DisplayType = "Samsung800x480_";
-				DisplayDriver = "Samsung";
-				DisplayRes = "800x480";
-				break;
-			case SAMSUNG800x600:
-				DisplayType = "Samsung800x600_";
-				DisplayDriver = "Samsung";
-				DisplayRes = "800x600";
-				break;
-			case SAMSUNG1024x600:
-				DisplayType = "Samsung1024x600_";
-				DisplayDriver = "Samsung";
-				DisplayRes = "1024x600";
-				break;
-			case PEARL320x240:
-			default:
-				DisplayType = "Pearl_";
-				DisplayDriver = "Pearl";
-				DisplayRes = "320x240";
-				break;
-		}
 
-		switch (g_settings.lcd4l_skin)
-		{
-			case 4:
-				Layout = DisplayType + "user04";
-				DisplayMode = "user04";
-				break;
-			case 3:
-				Layout = DisplayType + "user03";
-				DisplayMode = "user03";
-				break;
-			case 2:
-				Layout = DisplayType + "user02";
-				DisplayMode = "user02";
-				break;
-			case 1:
-				Layout = DisplayType + "user01";
-				DisplayMode = "user01";
-				break;
-			default:
-				Layout = DisplayType + "standard";
-				DisplayMode = "standard";
-		}
+		case SAMSUNG800x480:
+			DisplayType = "Samsung800x480_";
+			DisplayDriver = "Samsung";
+			DisplayRes = "800x480";
+			break;
 
-		if (ModeStandby)
-		{
-			Layout += "_standby";
-			DisplayMode += "_standby";
-		}
-		else if ((g_settings.lcd4l_skin_radio) && (m_Mode == NeutrinoModes::mode_radio || m_Mode == NeutrinoModes::mode_webradio) && !ModeStandby)
-		{
-			Layout += "_radio";
-			DisplayMode += "_radio";
-		}
+		case SAMSUNG800x600:
+			DisplayType = "Samsung800x600_";
+			DisplayDriver = "Samsung";
+			DisplayRes = "800x600";
+			break;
 
-		Layout += "\n" + DisplayDriver;
-		Layout += "\n" + DisplayRes;
-		Layout += "\n" + DisplayMode;
+		case SAMSUNG1024x600:
+			DisplayType = "Samsung1024x600_";
+			DisplayDriver = "Samsung";
+			DisplayRes = "1024x600";
+			break;
 
-		if (m_Layout.compare(Layout))
-		{
-			WriteFile(LAYOUT, Layout);
-			m_Layout = Layout;
-			lcd4linux(false);
-			lcd4linux(true);
-		}
+		case PEARL320x240:
+		default:
+			DisplayType = "Pearl_";
+			DisplayDriver = "Pearl";
+			DisplayRes = "320x240";
+			break;
+	}
+
+	switch (g_settings.lcd4l_skin)
+	{
+		case 4:
+			Layout = DisplayType + "user04";
+			DisplayMode = "user04";
+			break;
+
+		case 3:
+			Layout = DisplayType + "user03";
+			DisplayMode = "user03";
+			break;
+
+		case 2:
+			Layout = DisplayType + "user02";
+			DisplayMode = "user02";
+			break;
+
+		case 1:
+			Layout = DisplayType + "user01";
+			DisplayMode = "user01";
+			break;
+
+		default:
+			Layout = DisplayType + "standard";
+			DisplayMode = "standard";
+	}
+
+	if (ModeStandby)
+	{
+		Layout += "_standby";
+		DisplayMode += "_standby";
+	}
+	else if ((g_settings.lcd4l_skin_radio) && (m_Mode == NeutrinoModes::mode_radio || m_Mode == NeutrinoModes::mode_webradio) && !ModeStandby)
+	{
+		Layout += "_radio";
+		DisplayMode += "_radio";
+	}
+
+	Layout += "\n" + DisplayDriver;
+	Layout += "\n" + DisplayRes;
+	Layout += "\n" + DisplayMode;
+
+	if (m_Layout.compare(Layout))
+	{
+		WriteFile(LAYOUT, Layout);
+		m_Layout = Layout;
+		lcd4linux(false);
+		lcd4linux(true);
 	}
 
 	/* ----------------------------------------------------------------- */
