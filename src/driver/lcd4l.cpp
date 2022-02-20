@@ -657,8 +657,6 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		int dummy;
 		int ModeLogo = 0;
 
-		int ModeStandby	= 0;
-
 		if (m_ModeChannel)
 		{
 			if (m_ModeChannel > 1)
@@ -756,7 +754,6 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		else if (parseID == NeutrinoModes::mode_standby)
 		{
 			Service = "STANDBY";
-			ModeStandby = 1;
 		}
 
 		/* --- */
@@ -885,12 +882,12 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			DisplayMode = "standard";
 	}
 
-	if (ModeStandby)
+	if (parseID == NeutrinoModes::mode_standby)
 	{
 		Layout += "_standby";
 		DisplayMode += "_standby";
 	}
-	else if ((g_settings.lcd4l_skin_radio) && (m_Mode == NeutrinoModes::mode_radio || m_Mode == NeutrinoModes::mode_webradio) && !ModeStandby)
+	else if ((g_settings.lcd4l_skin_radio) && (m_Mode == NeutrinoModes::mode_radio || m_Mode == NeutrinoModes::mode_webradio))
 	{
 		Layout += "_radio";
 		DisplayMode += "_radio";
