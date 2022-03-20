@@ -123,7 +123,7 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 
-	if (access(ICONSDIR "/qr.png", R_OK))
+	if (!access(ICONSDIR "/qr.png", R_OK))
 		frameBuffer->paintIcon(ICONSDIR "/qr.png", (cc_win->getWidth() - cc_tv->getWidth()) - item_offset - 135, item_font->getHeight() * 2.5);
 
 	bool fadeout = false;
