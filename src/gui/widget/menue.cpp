@@ -46,6 +46,9 @@
 #include <system/helpers.h>
 
 #include <cctype>
+#include <driver/pictureviewer/pictureviewer.h>
+
+extern CPictureViewer * g_PicViewer;
 
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
@@ -422,6 +425,20 @@ void CMenuItem::paintItemButton(const bool select_mode, int item_height, const c
                if (!active)
 			icon_name = NEUTRINO_ICON_BUTTON_DUMMY;
 
+	std::string fulliconname = frameBuffer->getIconPath(icon_name);
+
+	if (fulliconname.find(".svg") == (fulliconname.length() - 4))
+		{
+			int icon_x,icon_y;
+			g_PicViewer->getSize(fulliconname.c_str(), &icon_w, &icon_h);
+			float h_ratio = float(item_height)*100.0/(float)icon_h;
+			icon_w = int(h_ratio*(float)icon_w/100.0) - 2*OFFSET_INNER_SMALL;
+			icon_h = item_height - 2*OFFSET_INNER_SMALL;
+			icon_y = y + item_height/2 - icon_h/2;
+			icon_x = icon_space_mid - icon_w/2;
+			icon_painted = g_PicViewer->DisplayImage(fulliconname,icon_x,icon_y,icon_w,icon_h);
+	}
+	else {
 		frameBuffer->getIconSize(icon_name, &icon_w, &icon_h);
 
 		if (/*active  &&*/ icon_w>0 && icon_h>0 && icon_space_x >= icon_w)
@@ -438,6 +455,7 @@ void CMenuItem::paintItemButton(const bool select_mode, int item_height, const c
 					std::min(icon_y + icon_h - longpress_icon_h/2, y + item_height - longpress_icon_h));
 			}
 		}
+	}
 	}
 
 	//paint only number if no icon was painted and keyval is numeric
@@ -1339,7 +1357,9 @@ void CMenuWidget::calcSize()
 		if (items[i]->iconName /*&& !g_settings.menu_numbers_as_icons*/)
 		{
 			int w, h;
-			frameBuffer->getIconSize(items[i]->iconName, &w, &h);
+			std::string fulliconname = frameBuffer->getIconPath(items[i]->iconName);
+			if (!(fulliconname.find(".svg") == (fulliconname.length() - 4)))
+				frameBuffer->getIconSize(items[i]->iconName, &w, &h);
 			if (w > iconOffset)
 				iconOffset = w;
 		}
@@ -1739,7 +1759,7 @@ void CMenuWidget::paintHint(int pos)
 	info_box->setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
 	info_box->setTextColor(COL_MENUCONTENTDARK_TEXT);
 	info_box->enableShadow();
-	info_box->setPicture(item->hintIcon ? item->hintIcon : NEUTRINO_ICON_HINT_DEFAULT);
+	info_box->setPicture(item->hintIcon ? item->hintIcon : NEUTRINO_ICON_HINT_DEFAULT,-1,hint_height-2*OFFSET_INNER_MID);
 	info_box->enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_MENUFOOT_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);// COL_MENUFOOT_PLUS_0 is default footer color
 
 	//paint result
