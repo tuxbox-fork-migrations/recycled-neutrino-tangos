@@ -374,6 +374,7 @@ colorchooser.blue blue
 colorchooser.green green
 colorchooser.red red
 colormenu.background Background
+colormenu.channellist_description_text Text color for event description
 colormenu.clock_textcolor Digit color
 colormenu.fade Fade GUI
 colormenu.font Select GUI font
@@ -384,7 +385,7 @@ colormenu.osd_preset Screen preset
 colormenu.osd_resolution OSD resolution
 colormenu.progressbar_active Active part color
 colormenu.progressbar_passive Background
-colormenu.shadow_color Shadow Color
+colormenu.shadow_color Shadow color
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
 colormenu.timing Timeouts, display behavior
@@ -1176,8 +1177,8 @@ lcd4l_support LCD4Linux-Support
 lcd4l_support_auto automatic
 lcd4l_support_off off
 lcd4l_support_on on
-lcd4l_weather Weather in standby mode
-lcd_info_line show in infoline
+lcd4l_weather Weather data
+lcd_info_line Show in infoline
 lcd_info_line_channelname Channelname
 lcd_info_line_channelnumber Channelnumber
 lcd_info_line_clock Clock
@@ -1347,6 +1348,7 @@ menu.hint_clock_mode Switch clock on or off
 menu.hint_clock_seconds Show time format with seconds
 menu.hint_clock_size Set the size of the info clock
 menu.hint_clock_textcolor Configure digit colors
+menu.hint_color_channellist_description_text Change color for event descriptions in channellist
 menu.hint_color_gradient Switches color gradients for various menu items on/off
 menu.hint_color_gradient_direction Define direction of color gradient.
 menu.hint_color_gradient_separator_enable Disable/enable color gradient for menu separator lines
@@ -1512,7 +1514,7 @@ menu.hint_lcd4l_logodir Logo directory.\nFallback to default on invalid entry.
 menu.hint_lcd4l_skin Switch between modes
 menu.hint_lcd4l_skin_radio Switch the mode, when Radio-Mode is activated
 menu.hint_lcd4l_support Activate/deactivate LCD4Linux\nSupported displays: Pearl DPF, Samsung SPF, VUPLUS4K, PNG
-menu.hint_lcd4l_weather weather data in standby mode
+menu.hint_lcd4l_weather Shows weather data
 menu.hint_leds_blink Blinking LEDs in deep-standby
 menu.hint_leds_deepstandby LEDs state in deep-standby mode
 menu.hint_leds_record LEDs state when box recording
@@ -1844,6 +1846,7 @@ menu.hint_volume_size Select volume indicator height
 menu.hint_weather_api_key Type your OpenWeather API key. (https://openweathermap.org/appid) An empty input disables Weather support
 menu.hint_weather_enabled Enable or disable Weather support (OpenWeather)
 menu.hint_weather_location Select your weather location
+menu.hint_weather_postalcode Select your weather location by postal code
 menu.hint_webradio_setup WebRadio channels configured here will be available in the standard channel lists.
 menu.hint_webradio_xml_auto Auto-load all existing WebRadio files from %s/ and %s/
 menu.hint_webtv_setup WebTV channels configured here will be available in the standard channel lists.
@@ -2909,8 +2912,25 @@ videomenu.zappingmode_hold Hold screen
 videomenu.zappingmode_mutetilllock Black screen till locked
 videomenu.zappingmode_holdtilllock Hold screen till locked
 weather.api_key Weather API key (OpenWeather)
+weather.direction_e E
+weather.direction_ene ENE
+weather.direction_ese ESE
+weather.direction_n N
+weather.direction_ne NE
+weather.direction_nne NNE
+weather.direction_nnw NNW
+weather.direction_nw NW
+weather.direction_s S
+weather.direction_se SE
+weather.direction_sse SSE
+weather.direction_ssw SSW
+weather.direction_sw SW
+weather.direction_w W
+weather.direction_wnw WNW
+weather.direction_wsw WSW
 weather.enabled Weather support
 weather.location Weather location
+weather.postalcode Weather location by postal code
 webchannels.xml.add Add
 webchannels.xml.del Remove
 webchannels.xml.enter Enter

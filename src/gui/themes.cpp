@@ -394,6 +394,12 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "progressbar_passive_green", t.progressbar_passive_green );
 	configfile.setInt32( "progressbar_passive_blue", t.progressbar_passive_blue );
 
+	// channellist
+	configfile.setInt32("channellist_Description_Text_alpha", t.channellist_Description_Text_alpha);
+	configfile.setInt32("channellist_Description_Text_red", t.channellist_Description_Text_red);
+	configfile.setInt32("channellist_Description_Text_green", t.channellist_Description_Text_green);
+	configfile.setInt32("channellist_Description_Text_blue", t.channellist_Description_Text_blue);
+
 	// corners
 	configfile.setInt32( "rounded_corners", t.rounded_corners);
 
@@ -521,6 +527,12 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.progressbar_passive_red = configfile.getInt32( "progressbar_passive_red", 60 );
 	t.progressbar_passive_green = configfile.getInt32( "progressbar_passive_green", 60 );
 	t.progressbar_passive_blue = configfile.getInt32( "progressbar_passive_blue", 60 );
+
+	// channellist
+	t.channellist_Description_Text_alpha = configfile.getInt32("channellist_Description_Text_alpha", 0);
+	t.channellist_Description_Text_red = configfile.getInt32("channellist_Description_Text_red", 55);
+	t.channellist_Description_Text_green = configfile.getInt32("channellist_Description_Text_green", 70);
+	t.channellist_Description_Text_blue = configfile.getInt32("channellist_Description_Text_blue", 85);
 
 	// corners
 	t.rounded_corners = configfile.getInt32( "rounded_corners", 1);

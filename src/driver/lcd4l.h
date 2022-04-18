@@ -47,8 +47,10 @@ class CLCD4l : public OpenThreads::Thread
 			SAMSUNG800x480	= 1,
 			SAMSUNG800x600	= 2,
 			SAMSUNG1024x600	= 3,
+			PNG800x480		= 7,
+			PNG800x600		= 5,
+			PNG1024x600		= 8,
 			VUPLUS4K480x320	= 4,
-			PNG		= 5,
 			VUPLUS4K800x480 = 6
 		};
 
@@ -93,6 +95,9 @@ class CLCD4l : public OpenThreads::Thread
 		int		m_Radiotext;
 		std::string	m_DolbyDigital;
 		int		m_Tuner;
+		int		m_Tuner_sig;
+		int		m_Tuner_snr;
+		int		m_Tuner_ber;
 		int		m_Volume;
 		int		m_ModeRec;
 		int		m_ModeTshift;
@@ -110,7 +115,7 @@ class CLCD4l : public OpenThreads::Thread
 		std::string	m_Info1;
 		std::string	m_Info2;
 		int		m_Progress;
-		char		m_Duration[24];
+		char		m_Duration[128];
 		std::string	m_Start;
 		std::string	m_End;
 
