@@ -27,11 +27,11 @@
 #include <mymenu.h>
 
 #include <gui/widget/icons.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keyboard_input.h>
 
 #include <gui/weather.h>
-#include <gui/weather_locations.h>
 
 #include <driver/screen_max.h>
 
@@ -41,6 +41,10 @@ CWeatherSetup::CWeatherSetup()
 {
 	width = 40;
 	selected = -1;
+
+	locations.clear();
+	loadLocations(CONFIGDIR "/weather-favorites.xml");
+	loadLocations(WEATHERDIR "/weather-locations.xml");
 }
 
 CWeatherSetup::~CWeatherSetup()
@@ -57,7 +61,11 @@ int CWeatherSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 
 	if (actionKey == "select_location")
 	{
-		return showSelectWeatherLocation();
+		return selectLocation();
+	}
+	else if (actionKey == "find_location")
+	{
+		return findLocation();
 	}
 
 	res = showWeatherSetup();
@@ -70,7 +78,6 @@ int CWeatherSetup::showWeatherSetup()
 	CMenuWidget *ms_oservices = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ONLINESERVICES);
 	ms_oservices->addIntroItems(LOCALE_MISCSETTINGS_ONLINESERVICES);
 
-	// weather
 	weather_onoff = new CMenuOptionChooser(LOCALE_WEATHER_ENABLED, &g_settings.weather_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_weather_api_key());
 	weather_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_ENABLED);
 	ms_oservices->addItem(weather_onoff);
@@ -87,18 +94,32 @@ int CWeatherSetup::showWeatherSetup()
 	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
 	ms_oservices->addItem(mf_wl);
 
+	CMenuForwarder *mf_zip = new CMenuForwarder(LOCALE_WEATHER_POSTALCODE, g_settings.weather_enabled, g_settings.weather_postalcode, this, "find_location");
+	mf_zip->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_POSTALCODE);
+	ms_oservices->addItem(mf_zip);
+
 	int res = ms_oservices->exec(NULL, "");
 	selected = ms_oservices->getSelected();
 	delete ms_oservices;
 	return res;
 }
 
-int CWeatherSetup::showSelectWeatherLocation()
+int CWeatherSetup::selectLocation()
 {
 	int select = 0;
 	int res = 0;
 
-	if (WEATHER_LOCATION_OPTION_COUNT > 1)
+	if (locations.empty())
+	{
+		// TODO: localize hint
+		ShowHint("Warning", "Failed to load weather-favorites.xml or weather-locations.xml\nPlease press any key or wait some seconds! ...", 700, 10, NULL, NEUTRINO_ICON_HINT_IMAGEINFO, CComponentsHeader::CC_BTN_EXIT);
+		g_settings.weather_location = WEATHER_DEFAULT_LOCATION;
+		g_settings.weather_city = WEATHER_DEFAULT_CITY;
+		CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
+		return menu_return::RETURN_REPAINT;
+	}
+
+	if (locations.size() > 0)
 	{
 		CMenuWidget *m = new CMenuWidget(LOCALE_WEATHER_LOCATION, NEUTRINO_ICON_LANGUAGE);
 		CMenuSelectorTarget *selector = new CMenuSelectorTarget(&select);
@@ -106,10 +127,14 @@ int CWeatherSetup::showSelectWeatherLocation()
 		m->addItem(GenericMenuSeparator);
 
 		CMenuForwarder *mf;
-		for (size_t i = 0; i < WEATHER_LOCATION_OPTION_COUNT; i++)
+		for (size_t i = 0; i < locations.size(); i++)
 		{
-			mf = new CMenuForwarder(WEATHER_LOCATION_OPTIONS[i].key, true, NULL, selector, std::to_string(i).c_str());
-			mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, WEATHER_LOCATION_OPTIONS[i].value.c_str());
+			std::string hint = locations[i].country;
+			hint += ": ";
+			hint += locations[i].coords.c_str();
+
+			mf = new CMenuForwarder(locations[i].city, true, NULL, selector, std::to_string(i).c_str());
+			mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, hint);
 			m->addItem(mf);
 		}
 
@@ -121,13 +146,33 @@ int CWeatherSetup::showSelectWeatherLocation()
 
 		delete selector;
 	}
-	g_settings.weather_location = WEATHER_LOCATION_OPTIONS[select].value;
-	g_settings.weather_city = std::string(WEATHER_LOCATION_OPTIONS[select].key);
+
+	g_settings.weather_postalcode.clear();
+
+	g_settings.weather_location = locations[select].coords;
+	g_settings.weather_city = std::string(locations[select].city);
+
 	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
 	return res;
 }
 
-bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
+int CWeatherSetup::findLocation()
+{
+	int ret = menu_return::RETURN_REPAINT;
+
+	CStringInput zipcode(LOCALE_WEATHER_POSTALCODE, &g_settings.weather_postalcode, 5);
+	ret = zipcode.exec(NULL, "");
+	zipcode.hide();
+
+	if (CWeather::getInstance()->FindCoords(g_settings.weather_postalcode))
+	{
+		CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
+	}
+
+	return ret;
+}
+
+bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void */*data*/)
 {
 	int ret = menu_return::RETURN_NONE;
 
@@ -141,4 +186,37 @@ bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void * /*da
 		weather_onoff->setActive(CApiKey::check_weather_api_key());
 	}
 	return ret;
+}
+
+void CWeatherSetup::loadLocations(std::string filename)
+{
+	xmlDocPtr parser = parseXmlFile(filename.c_str());
+
+	if (parser == NULL)
+	{
+		dprintf(DEBUG_INFO, "failed to load %s\n", filename.c_str());
+		return;
+	}
+
+	xmlNodePtr l0 = xmlDocGetRootElement(parser);
+	xmlNodePtr l1 = xmlChildrenNode(l0);
+
+	if (l1)
+	{
+		while ((xmlGetNextOccurence(l1, "location")))
+		{
+			const char *country = xmlGetAttribute(l1, "country");
+			const char *city = xmlGetAttribute(l1, "city");
+			const char *latitude = xmlGetAttribute(l1, "latitude");
+			const char *longitude = xmlGetAttribute(l1, "longitude");
+			weather_loc loc;
+			loc.country = strdup(country);
+			loc.city = strdup(city);
+			loc.coords = std::string(latitude) + "," + std::string(longitude);
+			locations.push_back(loc);
+			l1 = xmlNextNode(l1);
+		}
+	}
+
+	xmlFreeDoc(parser);
 }

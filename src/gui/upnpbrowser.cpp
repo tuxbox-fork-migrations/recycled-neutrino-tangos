@@ -1363,100 +1363,95 @@ void CUpnpBrowserGui::paintItem2DetailsLine(int pos)
 
 void CUpnpBrowserGui::updateTimes(const bool force)
 {
-	<<< <<< < HEAD
 #if 0
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
 	{
-		== == == =
-			if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
+		bool updatePlayed = force;
+
+		if ((m_time_played != CAudioPlayer::getInstance()->getTimePlayed()))
 		{
->>> >>> > 9cdbf7089... upnpbrowser: change code format
-			bool updatePlayed = force;
-
-			if ((m_time_played != CAudioPlayer::getInstance()->getTimePlayed()))
-			{
-				m_time_played = CAudioPlayer::getInstance()->getTimePlayed();
-				updatePlayed = true;
-			}
-
-			//printf("updateTimes: force %d updatePlayed %d\n", force, updatePlayed);
-			char play_time[14];
-			snprintf(play_time, sizeof(play_time), "%ld:%02ld", m_time_played / 60, m_time_played % 60);
-
-			if (updatePlayed)
-			{
-				timebox.setText(play_time, CTextBox::CENTER);
-				timebox.paint0();
-			}
+			m_time_played = CAudioPlayer::getInstance()->getTimePlayed();
+			updatePlayed = true;
 		}
-#endif
-	}
 
-	void CUpnpBrowserGui::updateMode()
-	{
-#if 0
-		/* switch back to mode_upnp if audio has stopped automatically */
-		if ((CAudioPlayer::getInstance()->getState() == CBaseDec::STOP) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_audio))
+		//printf("updateTimes: force %d updatePlayed %d\n", force, updatePlayed);
+		char play_time[14];
+		snprintf(play_time, sizeof(play_time), "%ld:%02ld", m_time_played / 60, m_time_played % 60);
+
+		if (updatePlayed)
 		{
-			CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_upnp | NeutrinoModes::norezap);
+			timebox.setText(play_time, CTextBox::CENTER);
+			timebox.paint0();
 		}
-#endif
 	}
+#endif
+}
 
-	void CUpnpBrowserGui::playAudio(std::string name, int type)
-	{
+void CUpnpBrowserGui::updateMode()
+{
 #if 0
-		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_audio);
-
-		CAudiofile mp3(name, (CFile::FileType) type);
-		CAudioPlayer::getInstance()->play(&mp3, g_settings.audioplayer_highprio == 1);
-
-		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_upnp | NeutrinoMessages::norezap);
-#endif
-	}
-
-	void CUpnpBrowserGui::stopAudio()
+	/* switch back to mode_upnp if audio has stopped automatically */
+	if ((CAudioPlayer::getInstance()->getState() == CBaseDec::STOP) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_audio))
 	{
-#if 0
-		if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
-		{
-			CAudioPlayer::getInstance()->stop();
-		}
-		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_upnp | NeutrinoModes::norezap);
-#endif
-	}
-
-	void CUpnpBrowserGui::showPicture(std::string name)
-	{
-		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_pic);
-
-		g_PicViewer->SetScaling((CPictureViewer::ScalingMode) 1 /*g_settings.picviewer_scaling*/);
-		g_PicViewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
-
-		if (g_settings.video_Format == 3)
-			g_PicViewer->SetAspectRatio(16.0 / 9);
-		else
-			g_PicViewer->SetAspectRatio(4.0 / 3);
-
-		g_PicViewer->ShowImage(name, false);
-		m_frameBuffer->blit();
-		g_PicViewer->Cleanup();
-
 		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_upnp | NeutrinoModes::norezap);
 	}
+#endif
+}
 
-	void CUpnpBrowserGui::playVideo(std::string name, std::string url)
-	{
+void CUpnpBrowserGui::playAudio(std::string name, int type)
+{
 #if 0
-		stopAudio();
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_audio);
+
+	CAudiofile mp3(name, (CFile::FileType) type);
+	CAudioPlayer::getInstance()->play(&mp3, g_settings.audioplayer_highprio == 1);
+
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_upnp | NeutrinoMessages::norezap);
+#endif
+}
+
+void CUpnpBrowserGui::stopAudio()
+{
+#if 0
+	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
+	{
+		CAudioPlayer::getInstance()->stop();
+	}
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_upnp | NeutrinoModes::norezap);
+#endif
+}
+
+void CUpnpBrowserGui::showPicture(std::string name)
+{
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_pic);
+
+	g_PicViewer->SetScaling((CPictureViewer::ScalingMode) 1 /*g_settings.picviewer_scaling*/);
+	g_PicViewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
+
+	if (g_settings.video_Format == 3)
+		g_PicViewer->SetAspectRatio(16.0 / 9);
+	else
+		g_PicViewer->SetAspectRatio(4.0 / 3);
+
+	g_PicViewer->ShowImage(name, false);
+	m_frameBuffer->blit();
+	g_PicViewer->Cleanup();
+
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_upnp | NeutrinoModes::norezap);
+}
+
+void CUpnpBrowserGui::playVideo(std::string name, std::string url)
+{
+#if 0
+	stopAudio();
 #endif
 
-		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_ts);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_ts);
 
-		m_frameBuffer->stopFrame();
-		CMoviePlayerGui::getInstance().SetFile(name, url);
-		CMoviePlayerGui::getInstance().exec(NULL, "upnp");
-		video_key_msg = CMoviePlayerGui::getInstance().getKeyPressed();
+	m_frameBuffer->stopFrame();
+	CMoviePlayerGui::getInstance().SetFile(name, url);
+	CMoviePlayerGui::getInstance().exec(NULL, "upnp");
+	video_key_msg = CMoviePlayerGui::getInstance().getKeyPressed();
 
-		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_upnp | NeutrinoModes::norezap);
-	}
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_upnp | NeutrinoModes::norezap);
+}

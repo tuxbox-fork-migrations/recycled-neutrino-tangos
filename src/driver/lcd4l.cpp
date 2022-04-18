@@ -76,6 +76,9 @@ extern CPictureViewer *g_PicViewer;
 #define RADIOTEXT		LCD_DATADIR "radiotext"
 #define DOLBYDIGITAL		LCD_DATADIR "dolbydigital"
 #define TUNER			LCD_DATADIR "tuner"
+#define TUNER_SIG		LCD_DATADIR "tuner_sig"
+#define TUNER_SNR		LCD_DATADIR "tuner_snr"
+#define TUNER_BER		LCD_DATADIR "tuner_ber"
 #define VOLUME			LCD_DATADIR "volume"
 #define MODE_REC		LCD_DATADIR "mode_rec"
 #define MODE_REC_ICON		LCD_DATADIR "mode_rec_icon"
@@ -130,7 +133,7 @@ static void lcd4linux(bool run)
 
 	if ((run == true) && !lcd4l_bin.empty())
 	{
-		if (g_settings.lcd4l_display_type == CLCD4l::PNG)
+		if ((g_settings.lcd4l_display_type == CLCD4l::PNG800x480) || (g_settings.lcd4l_display_type == CLCD4l::PNG800x600) || (g_settings.lcd4l_display_type == CLCD4l::PNG1024x600))
 		{
 			if (my_system(3, lcd4l_bin.c_str(), "-o", PNGFILE) != 0)
 				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, buf, PNGFILE);
@@ -229,23 +232,10 @@ int CLCD4l::RemoveFile(const char *file)
 
 int CLCD4l::GetMaxBrightness()
 {
-	int max_brightness;
+	int max_brightness = 10;
 
-	switch (g_settings.lcd4l_display_type)
-	{
-		case SAMSUNG800x480:
-		case SAMSUNG800x600:
-		case SAMSUNG1024x600:
-		case VUPLUS4K480x320:
-		case VUPLUS4K800x480:
-		case PNG:
-			max_brightness = 10;
-			break;
-		case PEARL320x240:
-		default:
-			max_brightness = 7;
-			break;
-	}
+	if (g_settings.lcd4l_display_type == PEARL320x240)
+		max_brightness = 7;
 
 	return max_brightness;
 }
@@ -264,6 +254,9 @@ void CLCD4l::Init()
 	m_Radiotext	= -1;
 	m_DolbyDigital	= "n/a";
 	m_Tuner		= -1;
+	m_Tuner_sig	= -1;
+	m_Tuner_snr	= -1;
+	m_Tuner_ber	= -1;
 	m_Volume	= -1;
 	m_ModeRec	= -1;
 	m_ModeTshift	= -1;
@@ -522,12 +515,42 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	int Tuner = 1 + CFEManager::getInstance()->getLiveFE()->getNumber();
-
-	if (m_Tuner != Tuner)
+	CFrontend *frontend = CFEManager::getInstance()->getLiveFE();
+	if (frontend)
 	{
-		WriteFile(TUNER, std::to_string(Tuner));
-		m_Tuner = Tuner;
+		int Tuner = frontend->getNumber() + 1;
+
+		if (m_Tuner != Tuner)
+		{
+			WriteFile(TUNER, std::to_string(Tuner));
+			m_Tuner = Tuner;
+		}
+
+		unsigned int sig = frontend->getSignalStrength() & 0xFFFF;
+		int Tuner_sig = (sig & 0xFFFF) * 100 / 65535;
+
+		if (m_Tuner_sig != Tuner_sig)
+		{
+			WriteFile(TUNER_SIG, std::to_string(Tuner_sig));
+			m_Tuner_sig = Tuner_sig;
+		}
+
+		unsigned int snr = frontend->getSignalNoiseRatio() & 0xFFFF;
+		int Tuner_snr = (snr & 0xFFFF) * 100 / 65535;
+
+		if (m_Tuner_snr != Tuner_snr)
+		{
+			WriteFile(TUNER_SNR, std::to_string(Tuner_snr));
+			m_Tuner_snr = Tuner_snr;
+		}
+
+		int Tuner_ber = frontend->getBitErrorRate();
+
+		if (m_Tuner_ber != Tuner_ber)
+		{
+			WriteFile(TUNER_BER, std::to_string(Tuner_ber));
+			m_Tuner_ber = Tuner_ber;
+		}
 	}
 
 	/* ----------------------------------------------------------------- */
@@ -637,8 +660,6 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		int dummy;
 		int ModeLogo = 0;
 
-		int ModeStandby	= 0;
-
 		if (m_ModeChannel)
 		{
 			if (m_ModeChannel > 1)
@@ -736,7 +757,6 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		else if (parseID == NeutrinoModes::mode_standby)
 		{
 			Service = "STANDBY";
-			ModeStandby = 1;
 		}
 
 		/* --- */
@@ -767,76 +787,125 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			WriteFile(MODE_LOGO, std::to_string(ModeLogo));
 			m_ModeLogo = ModeLogo;
 		}
+	}
 
-		/* --- */
+	/* ----------------------------------------------------------------- */
+	std::string Layout;
+	std::string DisplayRes;
+	std::string DisplayDriver;
+	std::string DisplayMode;
+	std::string DisplayType;
 
-		std::string Layout;
+	switch (g_settings.lcd4l_display_type)
+	{
+		case PNG800x480:
+			DisplayType = "PNG800x480_";
+			DisplayDriver = "PNG";
+			DisplayRes = "800x480";
+			break;
 
-		std::string DisplayType;
-		switch (g_settings.lcd4l_display_type)
-		{
-			case PNG:
-				DisplayType = "PNG_";
-				break;
+		case PNG800x600:
+			DisplayType = "PNG800x600_";
+			DisplayDriver = "PNG";
+			DisplayRes = "800x600";
+			break;
+
+		case PNG1024x600:
+			DisplayType = "PNG1024x600_";
+			DisplayDriver = "PNG";
+			DisplayRes = "1024x600";
+			break;
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
-			case VUPLUS4K480x320:
-				DisplayType = "VUPLUS4K_";
-				break;
+
+		case VUPLUS4K480x320:
+			DisplayType = "VUPLUS4K_";
+			DisplayDriver = "VUPLUS4K";
+			DisplayRes = "480x320";
+			break;
 #endif
 #if BOXMODEL_VUULTIMO4K
-			case VUPLUS4K800x480:
-				DisplayType = "VUPLUS4K_";
-				break;
+
+		case VUPLUS4K800x480:
+			DisplayType = "VUPLUS4K_";
+			DisplayDriver = "VUPLUS4K";
+			DisplayRes = "800x480";
+			break;
 #endif
-			case SAMSUNG800x480:
-				DisplayType = "Samsung800x480_";
-				break;
-			case SAMSUNG800x600:
-				DisplayType = "Samsung800x600_";
-				break;
-			case SAMSUNG1024x600:
-				DisplayType = "Samsung1024x600_";
-				break;
-			case PEARL320x240:
-			default:
-				DisplayType = "Pearl_";
-				break;
-		}
 
-		switch (g_settings.lcd4l_skin)
-		{
-			case 4:
-				Layout = DisplayType + "user04";
-				break;
-			case 3:
-				Layout = DisplayType + "user03";
-				break;
-			case 2:
-				Layout = DisplayType + "user02";
-				break;
-			case 1:
-				Layout = DisplayType + "user01";
-				break;
-			default:
-				Layout = DisplayType + "standard";
-		}
+		case SAMSUNG800x480:
+			DisplayType = "Samsung800x480_";
+			DisplayDriver = "Samsung";
+			DisplayRes = "800x480";
+			break;
 
-		if (ModeStandby)
-		{
-			Layout += "_standby";
-		}
-		else if ((g_settings.lcd4l_skin_radio) && (m_Mode == NeutrinoModes::mode_radio || m_Mode == NeutrinoModes::mode_webradio))
-		{
-			Layout += "_radio";
-		}
+		case SAMSUNG800x600:
+			DisplayType = "Samsung800x600_";
+			DisplayDriver = "Samsung";
+			DisplayRes = "800x600";
+			break;
 
-		if (m_Layout.compare(Layout))
-		{
-			WriteFile(LAYOUT, Layout);
-			m_Layout = Layout;
-			lcd4linux(false);
-			lcd4linux(true);
-		}
+		case SAMSUNG1024x600:
+			DisplayType = "Samsung1024x600_";
+			DisplayDriver = "Samsung";
+			DisplayRes = "1024x600";
+			break;
+
+		case PEARL320x240:
+		default:
+			DisplayType = "Pearl_";
+			DisplayDriver = "Pearl";
+			DisplayRes = "320x240";
+			break;
+	}
+
+	switch (g_settings.lcd4l_skin)
+	{
+		case 4:
+			Layout = DisplayType + "user04";
+			DisplayMode = "user04";
+			break;
+
+		case 3:
+			Layout = DisplayType + "user03";
+			DisplayMode = "user03";
+			break;
+
+		case 2:
+			Layout = DisplayType + "user02";
+			DisplayMode = "user02";
+			break;
+
+		case 1:
+			Layout = DisplayType + "user01";
+			DisplayMode = "user01";
+			break;
+
+		default:
+			Layout = DisplayType + "standard";
+			DisplayMode = "standard";
+	}
+
+	if (parseID == NeutrinoModes::mode_standby)
+	{
+		Layout += "_standby";
+		DisplayMode += "_standby";
+	}
+	else if ((g_settings.lcd4l_skin_radio) && (m_Mode == NeutrinoModes::mode_radio || m_Mode == NeutrinoModes::mode_webradio))
+	{
+		Layout += "_radio";
+		DisplayMode += "_radio";
+	}
+
+	Layout += "\n" + DisplayDriver;
+	Layout += "\n" + DisplayRes;
+	Layout += "\n" + DisplayMode;
+
+	if (m_Layout.compare(Layout))
+	{
+		WriteFile(LAYOUT, Layout);
+		m_Layout = Layout;
+		lcd4linux(false);
+		lcd4linux(true);
 	}
 
 	/* ----------------------------------------------------------------- */
@@ -886,7 +955,11 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 					done = 0;
 					todo = cur_duration / 60;
 				}
-				snprintf(Duration, sizeof(Duration), "%d/%d", done, total);
+				snprintf(Duration, sizeof(Duration), "%d/%d\n%d\n%d\n%d",
+					done, total,
+					done,
+					todo,
+					total);
 			}
 
 			tm_struct = localtime(&cur_start_time);
@@ -927,11 +1000,17 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 			time_t total = meta.total_time;
 			time_t done = CAudioPlayer::getInstance()->getTimePlayed();
+			time_t todo = total - done;
 
 			if ((total > 0) && (done > 0))
 			{
 				Progress = 100 * done / total;
-				snprintf(Duration, sizeof(Duration), "%ld:%02ld/%ld:%02ld", done / 60, done % 60, total / 60, total % 60);
+
+				snprintf(Duration, sizeof(Duration), "%ld:%02ld/%ld:%02ld\n%ld:%02ld\n%ld:%02ld\n%ld:%02ld",
+					done / 60, done % 60, total / 60, total % 60,
+					done / 60, done % 60,
+					todo / 60, todo % 60,
+					total / 60, total % 60);
 			}
 		}
 
@@ -962,10 +1041,16 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (!ModeTshift)
 		{
+			Progress = CMoviePlayerGui::getInstance().file_prozent;
+
 			int total = CMoviePlayerGui::getInstance().GetDuration();
 			int done = CMoviePlayerGui::getInstance().GetPosition();
-			snprintf(Duration, sizeof(Duration), "%d/%d", done / (60 * 1000), total / (60 * 1000));
-			Progress = CMoviePlayerGui::getInstance().file_prozent;
+			int todo = total - done;
+			snprintf(Duration, sizeof(Duration), "%d/%d\n%d\n%d\n%d",
+				done / (60 * 1000), total / (60 * 1000),
+				done / (60 * 1000),
+				todo / (60 * 1000),
+				total / (60 * 1000));
 		}
 
 		time_t sTime = time(NULL);
@@ -1068,10 +1153,12 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		std::string wwind = CWeather::getInstance()->getCurrentWindSpeed();
 		wwind += "|" + CWeather::getInstance()->getCurrentWindBearing();
+		wwind += "|" + CWeather::getInstance()->getCurrentWindDirection();
 		for (int i = 1; i < forecast; i++) // 0 is current day
 		{
 			wwind += "\n" + CWeather::getInstance()->getForecastWindSpeed(i);
 			wwind += "|" + CWeather::getInstance()->getForecastWindBearing(i);
+			wwind += "|" + CWeather::getInstance()->getForecastWindDirection(i);
 		}
 		if (m_wwind.compare(wwind))
 		{
