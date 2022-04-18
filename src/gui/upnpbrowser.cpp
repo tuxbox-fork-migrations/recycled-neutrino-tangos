@@ -1363,13 +1363,9 @@ void CUpnpBrowserGui::paintItem2DetailsLine(int pos)
 
 void CUpnpBrowserGui::updateTimes(const bool force)
 {
-<<<<<<< HEAD
 #if 0
-	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP){
-=======
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
 	{
->>>>>>> 9cdbf7089... upnpbrowser: change code format
 		bool updatePlayed = force;
 
 		if ((m_time_played != CAudioPlayer::getInstance()->getTimePlayed()))

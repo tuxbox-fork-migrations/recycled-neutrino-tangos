@@ -316,36 +316,50 @@ int CMsgBox::exec()
 			if (msg == CRCInput::RC_right)
 				ccw_footer->setSelectedButton(selected+1);
 			else
-				ccw_footer->setSelectedButton(selected-1);
-			mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
-			selected = ccw_footer->getSelectedButton();
+				ccw_footer->SetSelectedButton(selected-1);
 
-			//***refresh buttons only if we have more than one button, this avoids unnecessary repaints with possible flicker effects***
-			if (ccw_footer->getButtonChainObject()->size()>1)
-				refreshFoot();
+			if (ccw_footer->getSelectedButtonObject())
+			{
+				mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
+				selected = ccw_footer->getSelectedButton();
 
-			//***refresh timeout on any pressed navi key! This resets current timeout end to initial value***
-			if (timeout > 0) {
-				if(timeout_pb)
-					timeout_pb->setValues(0, timeout);
-				timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+				//***refresh buttons only if we have more than one button, this avoids unnecessary repaints with possible flicker effects***
+				if (ccw_footer->getButtonChainObject()->size()>1)
+					refreshFoot();
+
+				//***refresh timeout on any pressed navi key! This resets current timeout end to initial value***
+				if (timeout > 0)
+				{
+					if(timeout_pb)
+						timeout_pb->setValues(0, timeout);
+					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+				}
+				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
 			}
-			dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
 		}
 
 		//***action buttons without preselection***
-		for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++){
+		for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++)
+		{
 			CComponentsButton* btn_action = static_cast<CComponentsButton*>(ccw_footer->getButtonChainObject()->getCCItem(i));
-			if (btn_action->hasButtonDirectKey(msg)){
-				result = (msg_result_t)btn_action->getButtonResult();
-				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
-				loop = false;
+			if (btn_action)
+			{
+				if (btn_action->hasButtonDirectKey(msg))
+				{
+					result = (msg_result_t)btn_action->getButtonResult();
+					dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
+					loop = false;
+				}
 			}
 		}
 		//***action button 'ok' handled with selected button and its predefined result***
-		if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button)){
-			result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
-			loop = false;
+		if (ccw_footer->getSelectedButtonObject())
+		{
+			if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button))
+			{
+				result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
+				loop = false;
+			}
 		}
 		//***action button 'home' with general cancel result***
 		else if (msg == CRCInput::RC_home){
