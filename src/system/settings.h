@@ -146,6 +146,11 @@ struct SNeutrinoTheme
 	unsigned char colored_events_green;
 	unsigned char colored_events_blue;
 
+	unsigned char channellist_Description_Text_alpha;
+	unsigned char channellist_Description_Text_red;
+	unsigned char channellist_Description_Text_green;
+	unsigned char channellist_Description_Text_blue;
+
 	int colored_events_channellist;
 	int colored_events_infobar;
 
@@ -1023,8 +1028,11 @@ struct SNeutrinoSettings
 	std::string weather_api_key;
 	int weather_enabled;
 	int weather_country;
-	std::string weather_location;
+
 	std::string weather_city;
+	std::string weather_location;
+	std::string weather_postalcode;
+
 	std::string youtube_dev_id;
 	int youtube_enabled;
 	std::string tmdb_api_key;

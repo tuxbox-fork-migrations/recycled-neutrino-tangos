@@ -28,7 +28,7 @@
 #endif
 
 #include "progresswindow.h"
-
+#include "hintbox.h"
 #include <global.h>
 #include <neutrino.h>
 
@@ -88,6 +88,8 @@ void CProgressWindow::Init(signal<void, size_t, size_t, string> *statusSignal,
 
 	internal_max = 0;
 
+	fr_thickness = g_settings.theme.message_frame_enable ? HINTBOX_DEFAULT_FRAME_WIDTH : 0;
+
 	showFooter(false);
 
 	//create status text object
@@ -125,7 +127,7 @@ CProgressBar *CProgressWindow::getProgressItem()
 		y_tmp += ccw_body->getCCItem(i)->getYPos() + ccw_body->getCCItem(i)->getHeight();
 		y_tmp += OFFSET_INNER_MID;
 	}
-	pBar->setDimensionsAll(OFFSET_INNER_MID, y_tmp, width - 2 * OFFSET_INNER_MID, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
+	pBar->setDimensionsAll(OFFSET_INNER_MID, y_tmp, width - 2 * OFFSET_INNER_MID - 2 * fr_thickness, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
 	pBar->setColorBody(col_body);
 	pBar->setActiveColor(COL_PROGRESSBAR_ACTIVE_PLUS_0);
 	pBar->setFrameThickness(FRAME_WIDTH_MIN);

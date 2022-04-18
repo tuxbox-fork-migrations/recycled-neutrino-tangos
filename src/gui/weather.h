@@ -80,6 +80,7 @@ class CWeather
 		std::string key;
 		bool GetWeatherDetails();
 		time_t last_time;
+		std::string getDirectionString(int degree);
 
 	public:
 		static CWeather *getInstance();
@@ -87,6 +88,7 @@ class CWeather
 		~CWeather();
 		bool checkUpdate(bool forceUpdate = false);
 		void setCoords(std::string new_coords, std::string new_city = "Unknown");
+		bool FindCoords(std::string postalcode, std::string country = "DE");
 
 		// globals
 		std::string getCity()
@@ -124,6 +126,10 @@ class CWeather
 		std::string getCurrentWindBearing()
 		{
 			return std::to_string(current.windBearing);
+		};
+		std::string getCurrentWindDirection()
+		{
+			return getDirectionString(current.windBearing);
 		};
 		std::string getCurrentIcon()
 		{
@@ -164,6 +170,12 @@ class CWeather
 			if (i > (int)v_forecast.size())
 				i = (int)v_forecast.size();
 			return std::to_string(v_forecast[i].windBearing);
+		};
+		std::string getForecastWindDirection(int i = 0)
+		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
+			return getDirectionString(v_forecast[i].windBearing);
 		};
 		std::string getForecastIcon(int i = 0)
 		{

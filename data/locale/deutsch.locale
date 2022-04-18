@@ -374,6 +374,7 @@ colorchooser.blue blau
 colorchooser.green grün
 colorchooser.red rot
 colormenu.background Hintergrundfarbe
+colormenu.channellist_description_text Textfarbe für Sendungsbeschreibungen
 colormenu.clock_textcolor Ziffernfarbe
 colormenu.fade Ein-/Ausblenden
 colormenu.font Verwendete Schriftart
@@ -382,7 +383,7 @@ colormenu.font_ttx Videotext-Schriftart
 colormenu.menucolors Themes
 colormenu.osd_preset Monitor Auswahl
 colormenu.osd_resolution OSD-Auflösung
-colormenu.progressbar_active Farbe des aktiven Teil
+colormenu.progressbar_active Farbe des aktiven Teils
 colormenu.progressbar_passive Hintergrundfarbe
 colormenu.shadow_color Schattenfarbe
 colormenu.textcolor Textfarbe
@@ -1176,7 +1177,7 @@ lcd4l_support LCD4Linux-Unterstützung
 lcd4l_support_auto automatisch
 lcd4l_support_off aus
 lcd4l_support_on ein
-lcd4l_weather Wetter im Standby-Modus
+lcd4l_weather Wetterdaten anzeigen
 lcd_info_line Zeige in Infozeile
 lcd_info_line_channelname Kanalname
 lcd_info_line_channelnumber Kanalnummer
@@ -1347,6 +1348,7 @@ menu.hint_clock_mode Schalten Sie die Uhr ein oder aus
 menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
 menu.hint_clock_size Stellen Sie die Größe der Uhr ein
 menu.hint_clock_textcolor Konfigurieren Sie die Farbe der Ziffern
+menu.hint_color_channellist_description_text Ändern Sie die Farbe für die Sendungsbeschreibungen in der Kanalliste
 menu.hint_color_gradient Schaltet Farbverläufe für verschiedene Menüelemente ein/aus
 menu.hint_color_gradient_direction Richtung des Farbverlaufs festlegen
 menu.hint_color_gradient_separator_enable Farbverlauf für Menü-Trennlinien aktivieren/deaktivieren
@@ -1512,7 +1514,7 @@ menu.hint_lcd4l_logodir Verzeichnis für Senderlogos\nBei ungültigem Eintrag Fa
 menu.hint_lcd4l_skin Auswahl der verfügbaren Darstellungsarten\nStandard, Benutzerdefiniert, etc.
 menu.hint_lcd4l_skin_radio Wechselt die Darstellungsart, wenn der Radio-Modus aktiviert wird
 menu.hint_lcd4l_support LCD4Linux aktivieren/deaktivieren\nUnterstützte Displays: Pearl DPF, Samsung DPF, VUPLUS4K, PNG
-menu.hint_lcd4l_weather Zeigt im Standby-Betrieb Wetterdaten auf dem Display an
+menu.hint_lcd4l_weather Zeigt Wetterdaten auf dem Display an
 menu.hint_leds_blink Die Power-LEDs blinken, wenn sich der Receiver im Deep-Standby befindet und ein Timer aktiv ist
 menu.hint_leds_deepstandby Definiert den Status der Power-LEDs im Deep-Standby
 menu.hint_leds_record Definiert, ob die Power-LEDs blinken sollen, wenn eine Aufnahme aktiv ist
@@ -1844,6 +1846,7 @@ menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_weather_api_key Geben Sie den OpenWeather API Schlüssel ein. (https://openweathermap.org/appid) Eine leere Eingabe schaltet die Wetter-Unterstützung aus
 menu.hint_weather_enabled Schaltet die Wetter-Unterstützung (OpenWeather) ein bzw. aus
 menu.hint_weather_location Wählen Sie eine Stadt in ihrer Nähe zur Anzeige der Wetterdaten aus
+menu.hint_weather_postalcode Geben Sie ihre Postleitzahl zur Anzeige der Wetterdaten an
 menu.hint_webradio_setup Hier konfigurierte WebRadio-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_webradio_xml_auto Lädt automatisch alle WebRadio-Dateien aus %s/ und %s/
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
@@ -2909,8 +2912,25 @@ videomenu.zappingmode_hold Standbild
 videomenu.zappingmode_mutetilllock Schwarzes Bild bis lock
 videomenu.zappingmode_holdtilllock Standbild bis lock
 weather.api_key Wetter API Schlüssel (OpenWeather)
+weather.direction_e O
+weather.direction_ene ONO
+weather.direction_ese OSO
+weather.direction_n N
+weather.direction_ne NO
+weather.direction_nne NNO
+weather.direction_nnw NNW
+weather.direction_nw NW
+weather.direction_s S
+weather.direction_se SO
+weather.direction_sse SSO
+weather.direction_ssw SSW
+weather.direction_sw SW
+weather.direction_w W
+weather.direction_wnw WNW
+weather.direction_wsw WSW
 weather.enabled Wetter-Unterstützung
 weather.location Wetter-Standort
+weather.postalcode Wetter-Standort per Postleitzahl
 webchannels.xml.add Hinzufügen
 webchannels.xml.del Entfernen
 webchannels.xml.enter Eintragen

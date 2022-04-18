@@ -11,6 +11,7 @@ SUBDIRS = \
 	policy \
 	scripts \
 	themes \
+	weather \
 	webradio \
 	webtv \
 	y-web \

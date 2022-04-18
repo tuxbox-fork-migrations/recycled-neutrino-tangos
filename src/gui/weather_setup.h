@@ -19,21 +19,37 @@
 #ifndef __weather_setup__
 #define __weather_setup__
 
+#define WEATHERDIR DATADIR "/neutrino/weather/"
+
+#define WEATHER_DEFAULT_CITY "Berlin"
+#define WEATHER_DEFAULT_LOCATION "52.52,13.40"
+#define WEATHER_DEFAULT_POSTALCODE "10178"
+
 #include <gui/widget/menue.h>
 
 #include <string>
+#include <vector>
 
 class CWeatherSetup : public CMenuTarget, CChangeObserver
 {
 	private:
+		struct weather_loc
+		{
+			char *country;
+			char *city;
+			std::string coords;
+		};
+		std::vector<weather_loc> locations;
+
 		int width, selected;
 
 		CMenuOptionChooser *weather_onoff;
 		std::string weather_api_key_short;
 
 		int showWeatherSetup();
-		int showSelectWeatherLocation();
-
+		int selectLocation();
+		int findLocation();
+		void loadLocations(std::string filename);
 
 	public:
 		CWeatherSetup();

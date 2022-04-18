@@ -442,6 +442,7 @@ data/themes/TangoCash/Makefile
 data/themes/TangoCash/icons/Makefile
 data/themes/TangoCash/icons/buttons/Makefile
 data/themes/TangoCash/icons/hourglass/Makefile
+data/weather/Makefile
 data/webradio/Makefile
 data/webtv/Makefile
 data/y-web/Makefile

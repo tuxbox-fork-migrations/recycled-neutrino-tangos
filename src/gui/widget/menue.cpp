@@ -46,6 +46,9 @@
 #include <system/helpers.h>
 
 #include <cctype>
+#include <driver/pictureviewer/pictureviewer.h>
+
+extern CPictureViewer *g_PicViewer;
 
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
@@ -83,7 +86,6 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char *const Ic
 	hint		= NONEXISTANT_LOCALE;
 	name		= NONEXISTANT_LOCALE;
 	nameString	= "";
-	desc		= NONEXISTANT_LOCALE;
 	descString	= "";
 	marked		= false;
 	inert		= false;
@@ -244,7 +246,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char *right_text,
 {
 	int item_height = height;
 	const char *left_text = getName();
-	const char *desc_text = getDescription();
+	std::string desc_text = getDescription();
 
 	if (select_mode)
 	{
@@ -298,7 +300,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char *right_text,
 	}
 
 	int desc_height = 0;
-	if (desc_text && *desc_text)
+	if (!desc_text.empty())
 		desc_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
 
 	if (*left_text)
@@ -341,7 +343,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char *right_text,
 			has_option_icon = false;
 		}
 	}
-	if (desc_text && *desc_text)
+	if (!desc_text.empty())
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->RenderString(name_start_x + OFFSET_INNER_MID, y + item_height, _dx - OFFSET_INNER_MID - (name_start_x - x), desc_text, item_color);
 }
 
@@ -436,21 +438,37 @@ void CMenuItem::paintItemButton(const bool select_mode, int item_height, const c
 		if (!active)
 			icon_name = NEUTRINO_ICON_BUTTON_DUMMY;
 
-		frameBuffer->getIconSize(icon_name, &icon_w, &icon_h);
+		std::string fulliconname = frameBuffer->getIconPath(icon_name);
 
-		if (/*active  &&*/ icon_w > 0 && icon_h > 0 && icon_space_x >= icon_w)
+		if (fulliconname.find(".svg") == (fulliconname.length() - 4))
 		{
-			int icon_x = icon_space_mid - icon_w / 2;
-			int icon_y = y + item_height / 2 - icon_h / 2;
-			icon_painted = frameBuffer->paintIcon(icon_name, icon_x, icon_y);
-			if (icon_painted && (directKey != CRCInput::RC_nokey) && (directKey & CRCInput::RC_Repeat))
+			int icon_x, icon_y;
+			g_PicViewer->getSize(fulliconname.c_str(), &icon_w, &icon_h);
+			float h_ratio = float(item_height) * 100.0 / (float)icon_h;
+			icon_w = int(h_ratio * (float)icon_w / 100.0) - 2 * OFFSET_INNER_SMALL;
+			icon_h = item_height - 2 * OFFSET_INNER_SMALL;
+			icon_y = y + item_height / 2 - icon_h / 2;
+			icon_x = icon_space_mid - icon_w / 2;
+			icon_painted = g_PicViewer->DisplayImage(fulliconname, icon_x, icon_y, icon_w, icon_h);
+		}
+		else
+		{
+			frameBuffer->getIconSize(icon_name, &icon_w, &icon_h);
+
+			if (/*active  &&*/ icon_w > 0 && icon_h > 0 && icon_space_x >= icon_w)
 			{
-				static int longpress_icon_w = 0, longpress_icon_h = 0;
-				if (!longpress_icon_w)
-					frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_LONGPRESS, &longpress_icon_w, &longpress_icon_h);
-				frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_LONGPRESS,
-					std::min(icon_x + icon_w - longpress_icon_w / 2, name_start_x - longpress_icon_w),
-					std::min(icon_y + icon_h - longpress_icon_h / 2, y + item_height - longpress_icon_h));
+				int icon_x = icon_space_mid - icon_w / 2;
+				int icon_y = y + item_height / 2 - icon_h / 2;
+				icon_painted = frameBuffer->paintIcon(icon_name, icon_x, icon_y);
+				if (icon_painted && (directKey != CRCInput::RC_nokey) && (directKey & CRCInput::RC_Repeat))
+				{
+					static int longpress_icon_w = 0, longpress_icon_h = 0;
+					if (!longpress_icon_w)
+						frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_LONGPRESS, &longpress_icon_w, &longpress_icon_h);
+					frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_LONGPRESS,
+						std::min(icon_x + icon_w - longpress_icon_w / 2, name_start_x - longpress_icon_w),
+						std::min(icon_y + icon_h - longpress_icon_h / 2, y + item_height - longpress_icon_h));
+				}
 			}
 		}
 	}
@@ -568,30 +586,28 @@ const char *CMenuItem::getName(void)
 	return nameString.c_str();
 }
 
-void CMenuItem::setDescription(const std::string &t)
+void CMenuItem::setDescription(const std::string &text)
 {
-	desc = NONEXISTANT_LOCALE;
-	descString = t;
+	descString = text;
 	getHeight();
 }
 
-void CMenuItem::setDescription(const neutrino_locale_t t)
+void CMenuItem::setDescription(const neutrino_locale_t locale_text)
 {
-	desc = t;
 	descString = "";
+	if (locale_text != NONEXISTANT_LOCALE)
+		descString = g_Locale->getText(locale_text);
 	getHeight();
 }
 
-const char *CMenuItem::getDescription(void)
+std::string CMenuItem::getDescription(void)
 {
-	if (desc != NONEXISTANT_LOCALE)
-		return g_Locale->getText(desc);
-	return descString.c_str();
+	return descString;
 }
 
 int CMenuItem::getDescriptionHeight(void)
 {
-	if (*getDescription())
+	if (!getDescription().empty())
 		return g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
 	return 0;
 }
@@ -1420,7 +1436,9 @@ void CMenuWidget::calcSize()
 		if (items[i]->iconName /*&& !g_settings.menu_numbers_as_icons*/)
 		{
 			int w, h;
-			frameBuffer->getIconSize(items[i]->iconName, &w, &h);
+			std::string fulliconname = frameBuffer->getIconPath(items[i]->iconName);
+			if (!(fulliconname.find(".svg") == (fulliconname.length() - 4)))
+				frameBuffer->getIconSize(items[i]->iconName, &w, &h);
 			if (w > iconOffset)
 				iconOffset = w;
 		}
@@ -1833,7 +1851,7 @@ void CMenuWidget::paintHint(int pos)
 	info_box->setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
 	info_box->setTextColor(COL_MENUCONTENTDARK_TEXT);
 	info_box->enableShadow();
-	info_box->setPicture(item->hintIcon ? item->hintIcon : NEUTRINO_ICON_HINT_DEFAULT);
+	info_box->setPicture(item->hintIcon ? item->hintIcon : NEUTRINO_ICON_HINT_DEFAULT, -1, hint_height - 2 * OFFSET_INNER_MID);
 	info_box->enableColBodyGradient(g_settings.theme.menu_Hint_gradient, COL_MENUFOOT_PLUS_0, g_settings.theme.menu_Hint_gradient_direction);// COL_MENUFOOT_PLUS_0 is default footer color
 
 	//paint result
@@ -2066,8 +2084,8 @@ int CMenuOptionNumberChooser::getWidth(void)
 
 	width += OFFSET_INNER_MID; /* min 10 pixels between option name and value. enough? */
 
-	const char *desc_text = getDescription();
-	if (*desc_text)
+	std::string desc_text = getDescription();
+	if (!desc_text.empty())
 		width = std::max(width, OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
 	return width;
 }
@@ -2368,8 +2386,8 @@ int CMenuOptionChooser::getWidth(void)
 	}
 
 	width += OFFSET_INNER_MID; /* min 10 pixels between option name and value. enough? */
-	const char *desc_text = getDescription();
-	if (*desc_text)
+	std::string desc_text = getDescription();
+	if (!desc_text.empty())
 		width = std::max(width, OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
 	return width;
 }
@@ -2583,8 +2601,8 @@ int CMenuForwarder::getWidth(void)
 	else if (bgcol)
 		tw += OFFSET_INNER_MID + CFrameBuffer::getInstance()->scale2Res(60);
 
-	const char *desc_text = getDescription();
-	if (*desc_text)
+	std::string desc_text = getDescription();
+	if (!desc_text.empty())
 		tw = std::max(tw, OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
 	return tw;
 }
