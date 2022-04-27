@@ -1544,14 +1544,10 @@ void CMovieBrowser::refreshDetailsLine(int pos)
 
 void CMovieBrowser::info_hdd_level(bool paint_hdd)
 {
-	if (g_settings.infobar_show_sysfs_hdd && paint_hdd) {
-		const short pbw = 100;
-		const short border = m_cBoxFrameTitleRel.iHeight/4;
-		CProgressBar pb(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - m_header->getContextBtnObject()->getWidth() - pbw - border - clock_off, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw, m_cBoxFrameTitleRel.iHeight/2);
-		pb.setType(CProgressBar::PB_REDRIGHT);
-		pb.setValues(cHddStat::getInstance()->getPercent(), 100);
-		pb.paint(false);
-	}
+	if (g_settings.infobar_show_sysfs_hdd && paint_hdd)
+		m_header->enableProgessBar(cHddStat::getInstance()->getPercent());
+	else
+		m_header->setProgessBar(cHddStat::getInstance()->getPercent());
 }
 
 void CMovieBrowser::refreshLCD(void)
