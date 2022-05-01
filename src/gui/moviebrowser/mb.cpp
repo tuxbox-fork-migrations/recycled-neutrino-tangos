@@ -3346,6 +3346,9 @@ void CMovieBrowser::changeBrowserHeight(CMenuForwarder* fw1, CMenuForwarder* fw2
 
 bool CMovieBrowser::showMenu(bool calledExternally)
 {
+	if (m_header && m_header->getClockObject())
+		m_header->disableClock();
+
 	/* first clear screen */
 	framebuffer->paintBackground();
 
@@ -3550,6 +3553,9 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 		delete notifier[i];
 
 	delete nfs;
+
+	if (m_header && m_header->getClockObject())
+		m_header->enableClock();
 
 	return(true);
 }
