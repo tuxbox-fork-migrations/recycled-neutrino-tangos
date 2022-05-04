@@ -848,14 +848,6 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	CMenuOptionChooser *oj;
 
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_EXTRA_ROUNDED_CORNERS));
-
-	// round corners
-	oj = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.theme.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
-	oj->OnAfterChangeOption.connect(sigc::mem_fun(menu_colors, &CMenuWidget::hide));
-	oj->setHint("", LOCALE_MENU_HINT_ROUNDED_CORNERS);
-	menu_colors->addItem(oj);
-
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUHEAD));
 
 
@@ -1011,6 +1003,10 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	// channellist
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_CHANNELS));
+	oj = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.theme.progressbar_design_channellist, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true, this);
+	oj->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
+	menu_colors->addItem(oj);
+
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_CHANNELLIST_DESCRIPTION_TEXT, true, NULL, chChannellistDescTextcolor );
 	mf->setHint("", LOCALE_MENU_HINT_COLOR_CHANNELLIST_DESCRIPTION_TEXT);
 	menu_colors->addItem(mf);
@@ -1048,6 +1044,23 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_ACTIVE);
 	menu_colors->addItem(mf);
 
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE| CMenuSeparator::STRING, LOCALE_MISCSETTINGS_INFOCLOCK));
+
+	// digit color
+	CColorChooser* cc = new CColorChooser(LOCALE_COLORMENU_CLOCK_TEXTCOLOR, &g_settings.theme.clock_Digit_red, &g_settings.theme.clock_Digit_green, &g_settings.theme.clock_Digit_blue,
+			NULL, colorSetupNotifier);
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_CLOCK_TEXTCOLOR, !g_settings.infoClockBackground, NULL, cc);
+	mf->setHint("", LOCALE_MENU_HINT_CLOCK_TEXTCOLOR);
+	menu_colors->addItem(mf);
+
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_EXTRA_ROUNDED_CORNERS));
+
+	// round corners
+	oj = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.theme.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
+	oj->OnAfterChangeOption.connect(sigc::mem_fun(menu_colors, &CMenuWidget::hide));
+	oj->setHint("", LOCALE_MENU_HINT_ROUNDED_CORNERS);
+	menu_colors->addItem(oj);
+
 	// shadow
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE| CMenuSeparator::STRING, LOCALE_COLORTHEMEMENU_MISC));
 
@@ -1064,12 +1077,6 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	// message frame
 	oj = new CMenuOptionChooser(LOCALE_MESSAGE_FRAME_ENABLE, &g_settings.theme.message_frame_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	oj->setHint("", LOCALE_MESSAGE_FRAME_ENABLE_HINT);
-	menu_colors->addItem(oj);
-
-	// round corners
-	oj = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.theme.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
-	oj->OnAfterChangeOption.connect(sigc::mem_fun(menu_colors, &CMenuWidget::hide));
-	oj->setHint("", LOCALE_MENU_HINT_ROUNDED_CORNERS);
 	menu_colors->addItem(oj);
 
 	// hourglass position
@@ -1481,11 +1488,6 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 	// show resolution icon
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_RES_ICON, &g_settings.channellist_show_res_icon, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_RES_ICON);
-	menu_chanlist->addItem(mc);
-
-	// extended channel list
-	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.theme.progressbar_design_channellist, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true, this);
-	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
 	menu_chanlist->addItem(mc);
 
 	// show infobox
