@@ -921,7 +921,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.eventlist_epgplus = configfile.getInt32("eventlist_epgplus", 1);
 	g_settings.channellist_displaymode = DISPLAY_MODE_NOW;
 	g_settings.channellist_descmode = false;
-	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
+	g_settings.channellist_epgtext_alignment	= configfile.getBool("channellist_epgtext_alignment"          , false);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 2);//default next Event
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat
@@ -1389,6 +1389,13 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		configfile.deleteKey("screen_StartY_lcd_0");
 		configfile.deleteKey("screen_StartY_lcd_1");
 	}
+	if (g_settings.version_pseudo < "20220506230000")
+	{
+		g_settings.channellist_epgtext_alignment = configfile.getBool("channellist_epgtext_align_right", false);
+		if (g_settings.channellist_epgtext_alignment == 1) // old bool
+			g_settings.channellist_epgtext_alignment = EPGTEXT_ALIGN_RIGHT_MIDDLE;
+		configfile.deleteKey("channellist_epgtext_align_right");
+	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
 	configfile.setString("version_pseudo", g_settings.version_pseudo);
@@ -1797,7 +1804,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("eventlist_additional", g_settings.eventlist_additional);
 	configfile.setInt32("eventlist_epgplus", g_settings.eventlist_epgplus);
 	configfile.setInt32("channellist_additional", g_settings.channellist_additional);
-	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
+	configfile.setBool("channellist_epgtext_alignment", g_settings.channellist_epgtext_alignment);
 	configfile.setInt32("channellist_foot", g_settings.channellist_foot);
 	configfile.setInt32("channellist_new_zap_mode", g_settings.channellist_new_zap_mode);
 	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);
