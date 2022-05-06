@@ -285,9 +285,11 @@ channellist.additional_on On
 channellist.additional_on_minitv On (with MiniTV)
 channellist.current_tp Current Transponder
 channellist.edit Edit
-channellist.epgtext_align_left Left
-channellist.epgtext_align_right Right
-channellist.extended Show Event Progress
+channellist.epgtext_align_left_bottom left bottom
+channellist.epgtext_align_left_middle left middle
+channellist.epgtext_align_right_bottom right bottom
+channellist.epgtext_align_right_middle right middle
+channellist.extended Show event progress
 channellist.favs Favorites
 channellist.foot Channel Information
 channellist.foot_freq Sat/Freq Info
@@ -1869,7 +1871,7 @@ messagebox.ok Ok
 messagebox.yes Yes
 miscsettings.channellist Channellist
 miscsettings.channellist_enablesdt Transponder background update
-miscsettings.channellist_epgtext_align Programtext Align
+miscsettings.channellist_epgtext_alignment Programtext alignment
 miscsettings.channellogos Channellogos
 miscsettings.colored_events Program colored
 miscsettings.colored_events_0 none
@@ -2638,8 +2640,10 @@ settings.noconffile No settings found.\nUsing defaults.
 settings.pos_bottom_center bottom center
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
-settings.pos_default_center center
+settings.pos_center center
 settings.pos_higher_center higher center
+settings.pos_left left
+settings.pos_right right
 settings.pos_top_center top center
 settings.pos_top_left top left
 settings.pos_top_right top right
