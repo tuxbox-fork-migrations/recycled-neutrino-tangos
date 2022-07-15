@@ -312,6 +312,17 @@ class CRCInput
 			RC_zoomin	= KEY_ZOOMIN,
 			RC_zoomout	= KEY_ZOOMOUT,
 
+			RC_f1		= KEY_F1,
+			RC_f2		= KEY_F2,
+			RC_f3		= KEY_F3,
+			RC_f4		= KEY_F4,
+			RC_f5		= KEY_F5,
+			RC_f6		= KEY_F6,
+			RC_f7		= KEY_F7,
+			RC_f8		= KEY_F8,
+			RC_f9		= KEY_F9,
+			RC_f10		= KEY_F10,
+
 			RC_timeout	= 0xFFFFFFFF,
 			RC_nokey	= RC_NOKEY
 		};
