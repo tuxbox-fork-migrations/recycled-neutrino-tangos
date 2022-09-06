@@ -123,6 +123,7 @@ CZapitChannel::~CZapitChannel(void)
 	//setCaPmt(NULL);
 	setRawPmt(NULL);
 	camap.clear();
+	capids.clear();
 }
 
 CZapitAudioChannel *CZapitChannel::getAudioChannel(unsigned char index)
