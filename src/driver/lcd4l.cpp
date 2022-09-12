@@ -228,6 +228,26 @@ int CLCD4l::RemoveFile(const char *file)
 	return ret;
 }
 
+int CLCD4l::CreateEventFile(std::string content, bool convert)
+{
+	return CreateFile(EVENT, content, convert);
+}
+
+int CLCD4l::RemoveEventFile()
+{
+	return RemoveFile(EVENT);
+}
+
+int CLCD4l::CreateMenuFile(std::string content, bool convert)
+{
+	return CreateFile(MENU, content, convert);
+}
+
+int CLCD4l::RemoveMenuFile()
+{
+	return RemoveFile(MENU);
+}
+
 int CLCD4l::GetMaxBrightness()
 {
 	int max_brightness = 10;
@@ -708,6 +728,11 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
 			Service = g_Locale->getText(LOCALE_MAINMENU_AVINPUTMODE);
 		}
+		else if (parseID == NeutrinoModes::mode_moviebrowser)
+		{
+			Logo = ICONSDIR "/" NEUTRINO_ICON_MOVIEPLAYER ICONSEXT;
+			Service = g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD);
+		}
 		else if (parseID == NeutrinoModes::mode_ts)
 		{
 			if (ModeTshift)
@@ -1017,6 +1042,10 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		snprintf(Start, sizeof(Start), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 	}
 #endif
+	else if (parseID == NeutrinoModes::mode_moviebrowser)
+	{
+		// do nothing; Event is processed in moviebrowser
+	}
 	else if (parseID == NeutrinoModes::mode_ts)
 	{
 		if (CMoviePlayerGui::getInstance().p_movie_info)
