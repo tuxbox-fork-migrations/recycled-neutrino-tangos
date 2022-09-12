@@ -61,6 +61,11 @@ class CLCD4l : public OpenThreads::Thread
 		int	CreateFile(const char *file, std::string content = "", bool convert = false);
 		int	RemoveFile(const char *file);
 
+		int	CreateEventFile(std::string content = "", bool convert = false);
+		int	RemoveEventFile();
+		int	CreateMenuFile(std::string content = "", bool convert = false);
+		int	RemoveMenuFile();
+
 		int	GetMaxBrightness();
 
 		void	ResetParseID() { m_ParseID = 0; }
