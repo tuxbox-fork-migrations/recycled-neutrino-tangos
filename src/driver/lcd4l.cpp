@@ -92,6 +92,8 @@ extern CPictureViewer *g_PicViewer;
 #define MODE_LOGO		LCD_DATADIR "mode_logo"
 #define LAYOUT			LCD_DATADIR "layout"
 
+#define MENU            LCD_DATADIR "menu"
+
 #define EVENT			LCD_DATADIR "event"
 #define INFO1			LCD_DATADIR "info1"
 #define INFO2			LCD_DATADIR "info2"
@@ -725,7 +727,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		}
 		else if (parseID == NeutrinoModes::mode_moviebrowser)
 		{
-			g_PicViewer->GetLogoName(0, "Moviebrowser", Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
+			g_PicViewer->GetLogoName(0, "Moviebrowser", Logo, &dummy, &dummy, true, true);
 			Service = g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD);
 		}
 		else if (parseID == NeutrinoModes::mode_ts)
@@ -764,7 +766,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 						Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
 					break;
 				default: /* show movieplayer-logo */
-					g_PicViewer->GetLogoName(0, "Movieplayer", Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
+					g_PicViewer->GetLogoName(0, "Movieplayer", Logo, &dummy, &dummy, true, true);
 			}
 		}
 		else if (parseID == NeutrinoModes::mode_upnp)
