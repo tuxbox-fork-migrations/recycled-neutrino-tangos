@@ -60,13 +60,54 @@ extern cVideo * videoDecoder;
 extern CPlugins *g_Plugins;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
 #if HAVE_CST_HARDWARE
+#ifndef RC_DEVICE
 #define RC_DEVICE "/dev/input/nevis_ir"
+#endif
+#ifndef RC_DEVICE_FALLBACK
+#define RC_DEVICE_FALLBACK "/dev/input/event0"
+#endif
+
 #elif BOXMODEL_H7
+#ifndef RC_DEVICE
 #define RC_DEVICE "/dev/input/event2"
+#endif
+#ifndef RC_DEVICE_FALLBACK
+#define RC_DEVICE_FALLBACK "/dev/input/event1"
+#endif
+
+#elif BOXMODEL_MULTIBOXSE
+#ifndef RC_DEVICE
+#define RC_DEVICE "/dev/input/event0"
+#endif
+#ifndef RC_DEVICE_FALLBACK
+#define RC_DEVICE_FALLBACK "/dev/input/event1"
+#endif
+
+#elif BOXMODEL_OSMIO4K
+#ifndef RC_DEVICE
+#define RC_DEVICE "/dev/input/event0"
+#endif
+#ifndef RC_DEVICE_FALLBACK
+#define RC_DEVICE_FALLBACK "/dev/input/event1"
+#endif
+
+#elif BOXMODEL_OSMIO4KPLUS
+#ifndef RC_DEVICE
+#define RC_DEVICE "/dev/input/event0"
+#endif
+#ifndef RC_DEVICE_FALLBACK
+#define RC_DEVICE_FALLBACK "/dev/input/event1"
+#endif
+
 #else
+#ifndef RC_DEVICE
 #define RC_DEVICE "/dev/input/event1"
 #endif
+#ifndef RC_DEVICE_FALLBACK
 #define RC_DEVICE_FALLBACK "/dev/input/event0"
+#endif
+
+#endif
 
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -973,17 +1014,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 		hh->SendError();
 		return;
 	}
-#if 0
-	unsigned int repeat = 1;
-	unsigned int delay = 250;
-	if (!hh->ParamList["delay"].empty())
-		delay = atoi(hh->ParamList["delay"].c_str());
-	if (!hh->ParamList["duration"].empty())
-		repeat = atoi(hh->ParamList["duration"].c_str()) * 1000 / delay;
-	if (!hh->ParamList["repeat"].empty())
-		repeat = atoi(hh->ParamList["repeat"].c_str());
-#endif
-#if 1
+
 	int evd = open(RC_DEVICE, O_RDWR);
 	if (evd < 0)
 		evd = open(RC_DEVICE_FALLBACK, O_RDWR);
@@ -1008,10 +1039,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 	}
 	rc_sync(evd);
 	close(evd);
-#else
-	/* 0 == KEY_PRESSED in rcinput.cpp */
-	g_RCInput->postMsg((neutrino_msg_t) sendcode, 0);
-#endif
+
 	hh->SendOk();
 }
 //-----------------------------------------------------------------------------
