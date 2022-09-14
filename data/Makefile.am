@@ -3,7 +3,6 @@ SUBDIRS = \
 	control \
 	fonts \
 	icons \
-	inetradio \
 	iso-codes \
 	license \
 	locale \
