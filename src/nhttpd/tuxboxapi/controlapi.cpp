@@ -67,7 +67,7 @@ extern CBouquetManager *g_bouquetManager;
 #define RC_DEVICE_FALLBACK "/dev/input/event0"
 #endif
 
-#elif BOXMODEL_H7
+#elif BOXMODEL_H7 || BOXMODEL_H9COMBO || BOXMODEL_H9
 #ifndef RC_DEVICE
 #define RC_DEVICE "/dev/input/event2"
 #endif
