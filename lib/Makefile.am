@@ -17,6 +17,11 @@ SUBDIRS += \
 	libupnpclient
 endif
 
+if ENABLE_WIFI
+SUBDIRS += \
+	libiw
+endif
+
 if BOXTYPE_CST
 SUBDIRS += \
 	hardware/coolstream

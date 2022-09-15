@@ -55,6 +55,10 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		std::string network_nameserver;
 		std::string network_gateway;
 		std::string network_hostname;
+#if ENABLE_WIFI
+		std::string network_ssid;
+		std::string network_key;
+#endif
 		std::string mac_addr;
 
 		int old_network_dhcp;
@@ -66,10 +70,15 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		std::string old_network_gateway;
 		std::string old_network_hostname;
 		std::string old_ifname;
+		std::string old_network_ssid;
+		std::string old_network_key;
 		std::string old_mac_addr;
 
 
 		CGenericMenuActivate dhcpDisable;
+#if ENABLE_WIFI
+		CGenericMenuActivate wlanEnable;
+#endif
 
 		CSectionsdConfigNotifier* sectionsdConfigNotifier;
 			
@@ -83,7 +92,9 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		int saveChangesDialog();
 		void applyNetworkSettings();
 		void saveNetworkSettings();
+#if ENABLE_WIFI
 		int showWlanList();
+#endif
 
 		bool checkIntSettings();
 		bool checkStringSettings();

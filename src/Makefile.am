@@ -153,6 +153,10 @@ if ENABLE_FRIBIDI
 neutrino_LDADD += -lfribidi
 endif
 
+if ENABLE_WIFI
+neutrino_LDADD += $(top_builddir)/lib/libiw/libiw.a
+endif
+
 if ENABLE_LUA
 neutrino_LDADD += @LUA_LIBS@
 endif

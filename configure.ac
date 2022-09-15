@@ -147,6 +147,15 @@ if test "$BOXTYPE" = "coolstream" ||
 	AC_DEFINE(SCREENSHOT, 1, [Define to 1 if the platform supports screenshots])
 fi
 
+AC_ARG_ENABLE(wifi,
+	AS_HELP_STRING([--enable-wifi], [enable WiFi support]),
+	,[enable_wifi=no])
+
+AM_CONDITIONAL(ENABLE_WIFI, test "$enable_wifi" = "yes")
+if test "$enable_wifi" = "yes"; then
+	AC_DEFINE(ENABLE_WIFI, 1, [include WiFi support])
+fi
+
 AC_ARG_ENABLE(graphlcd,
 	AS_HELP_STRING([--enable-graphlcd], [enable GraphLCD support]),
 	,[enable_graphlcd=no])
