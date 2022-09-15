@@ -100,6 +100,14 @@ if BOXMODEL_H7
 install_DATA += rc_zgemma_h7.png
 endif
 
+if BOXMODEL_H9COMBO
+install_DATA += rc_zgemma_h7.png
+endif
+
+if BOXMODEL_H9
+install_DATA += rc_zgemma_h7.png
+endif
+
 if BOXMODEL_BRE2ZE4K
 install_DATA += rc_wwio_bre2ze4k.png
 endif
@@ -134,6 +142,18 @@ endif
 if BOXMODEL_HD61
 install_DATA += rc_ax_hd51.png \
 		rc_mutant_hd51.png
+endif
+
+if BOXMODEL_SF8008
+install_DATA += rc_sf8008.png
+endif
+
+if BOXMODEL_SF8008M
+install_DATA += rc_sf8008.png
+endif
+
+if BOXMODEL_USTYM4KPRO
+install_DATA += rc_ustym4kpro.png
 endif
 
 # file manager

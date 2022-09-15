@@ -449,7 +449,7 @@ AC_ARG_WITH(boxtype,
 		generic|coolstream|armbox|mipsbox)
 			BOXTYPE="$withval"
 		;;
-		hd51|multibox|multiboxse|hd60|hd61|bre2ze4k|osmini4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k)
+		hd51|multibox|multiboxse|hd60|hd61|bre2ze4k|osmini4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|sf8008|sf8008m|ustym4kpro|h9combo|h9)
 			BOXTYPE="armbox"
 			BOXMODEL="$withval"
 		;;
@@ -465,7 +465,7 @@ AC_ARG_WITH(boxtype,
 
 AC_ARG_WITH(boxmodel,
 	AS_HELP_STRING([--with-boxmodel], [valid for coolstream: hd1, hd2])
-	AS_HELP_STRING([], [valid for armbox: hd51, multibox, multiboxse, hd60, hd61, bre2ze4k, osmini4k, osmio4k, osmio4kplus, h7, vusolo4k, vuduo4k, vuultimo4k, vuzero4k, vuuno4kse, vuuno4k])
+	AS_HELP_STRING([], [valid for armbox: hd51, multibox, multiboxse, hd60, hd61, bre2ze4k, osmini4k, osmio4k, osmio4kplus, h7, vusolo4k, vuduo4k, vuultimo4k, vuzero4k, vuuno4kse, vuuno4k, sf8008, sf8008m, ustym4kpro, h9combo. h9])
 	AS_HELP_STRING([], [valid for mipsbox: vuduo, vuduo2, gb800se, osnino, osninoplus, osninopro])
 	AS_HELP_STRING([], [valid for generic: raspi]),
 	[case "${withval}" in

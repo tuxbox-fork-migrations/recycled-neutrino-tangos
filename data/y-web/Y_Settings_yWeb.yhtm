@@ -53,6 +53,7 @@ function do_init(){
 		case "21":	// ax hd61
 		case "22":	// mutant hd60
 		case "23":	// mutant hd61
+		case "24":	// zgemma h9 combo
 			sel=(sel*1+val*1);
 			break;
 		default:
@@ -153,6 +154,8 @@ select {
 						<option value="21">AX | HD61</option>
 						<option value="22">Mutant | HD60</option>
 						<option value="23">Mutant | HD61</option>
+						<option value="24">Zgemma | H9COMBO</option>
+						<option value="25">Zgemma | H9</option>
 					</select>
 				</td>
 			</tr>
