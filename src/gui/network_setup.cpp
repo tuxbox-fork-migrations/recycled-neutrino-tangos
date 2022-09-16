@@ -40,6 +40,7 @@
 #include <gui/nfs.h>
 
 #include <gui/widget/icons.h>
+#include <gui/widget/menue_options.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 #include <gui/widget/keyboard_input.h>
@@ -814,28 +815,28 @@ int CNetworkSetup::showWlanList()
 	bool found = get_wlan_list(g_settings.ifname, networks);
 	hintBox.hide();
 	if (!found) {
-		ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_NETWORKMENU_SSID_SCAN_ERROR), CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
+		ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_NETWORKMENU_SSID_SCAN_ERROR), CMsgBox::mbrBack, CMsgBox::mbBack); // UTF-8
 		return res;
 	}
 
-	CMenuWidget wlist(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width);
+	CMenuWidget wlist(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width);
 	wlist.addIntroItems(LOCALE_NETWORKMENU_SSID_SCAN); //intros
 
-	char cnt[5];
+	char cnt[10];
 	int select = -1;
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	std::string option[networks.size()];
 	for (unsigned i = 0; i < networks.size(); ++i) {
 		sprintf(cnt, "%d", i);
-		
+
 		option[i] = networks[i].qual;
 		option[i] += ", ";
 		option[i] += networks[i].channel;
 
 		const char * icon = NULL;
 		if (networks[i].encrypted)
-			icon = NEUTRINO_ICON_LOCK;
+			icon = NEUTRINO_ICON_MARKER_LOCK;
 		CMenuForwarder * net = new CMenuForwarder(networks[i].ssid.c_str(), true, option[i], selector, cnt, CRCInput::RC_nokey, NULL, icon);
 		net->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 		wlist.addItem(net, networks[i].ssid == network_ssid);
@@ -843,7 +844,7 @@ int CNetworkSetup::showWlanList()
 	res = wlist.exec(NULL, "");
 	delete selector;
 
-	printf("CNetworkSetup::showWlanList: selected: %d\n", select);
+	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], selected: %d\n", __func__, __LINE__, select);
 	if (select >= 0) {
 		network_ssid = networks[select].ssid;
 	}
