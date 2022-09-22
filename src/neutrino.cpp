@@ -5138,19 +5138,13 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		hintBox.hide();
 #endif
 	}
-	else if (actionKey=="restarttuner") {
-		CHintBox * hintBox = new CHintBox(LOCALE_SERVICEMENU_RESTART_TUNER,
-			g_Locale->getText(LOCALE_SERVICEMENU_RESTARTING_TUNER));
-		hintBox->paint();
-
-		g_Zapit->setStandby(true);
-		sleep(2);
-		g_Zapit->setStandby(false);
-		sleep(2);
-		g_Zapit->Rezap();
-
-		hintBox->hide();
-		delete hintBox;
+	else if (actionKey=="restarttuner")
+	{
+		std::vector <hint_message_data_t> hints;
+		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), true),"Stopping tuner...", NONEXISTANT_LOCALE, 2, true, NEUTRINO_ICON_LOADER});
+		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), false), "Start tuner...", NONEXISTANT_LOCALE, 2, true, NEUTRINO_ICON_LOADER});
+		hints.push_back({sigc::hide_return(sigc::mem_fun(g_Zapit, &CZapitClient::Rezap)), "Rezap...", NONEXISTANT_LOCALE, 2, true, NEUTRINO_ICON_LOADER});
+		ShowHintS(hints);
 	}
 	else if (actionKey == "camd_reset")
 	{
