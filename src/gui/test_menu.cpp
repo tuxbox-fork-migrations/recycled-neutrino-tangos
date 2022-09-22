@@ -1051,8 +1051,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		delete hint;
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "short_hint_timed"){
-		ShowHintS("Info Test...", 3, true);
+	else if (actionKey == "short_hint_timed")
+	{
+		ShowHintS("Info Test with timeout and loader graphic...", 3, true,  NEUTRINO_ICON_LOADER);
 		return menu_return::RETURN_REPAINT;
 	}
 	else if (actionKey == "short_hint_timed_slot"){
@@ -1064,6 +1065,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		hint.text = "Info Test...";
 		hint.slot = sigc::mem_fun(*this, &CTestMenu::showRecords);
 		hint.timeout = 3;
+		hint.Picon = NULL;
 		ShowHintS(hint);
 		return menu_return::RETURN_REPAINT;
 	}
@@ -1283,6 +1285,7 @@ int CTestMenu::showTestMenu()
 	w_test.addKey(CRCInput::RC_red, this, "footer_key");
 	w_test.addKey(CRCInput::RC_green, this, "footer_key");
 	int res = w_test.exec(NULL, "");
+	w_hw->hide();
 	delete w_hw;
 	delete w_cc;
 	delete w_msg;
@@ -1400,7 +1403,7 @@ void CTestMenu::showMsgTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Info Message!", true, NULL, this, "msgbox_info"));
 	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "Short Hint"));
 	widget->addItem(new CMenuForwarder("Short hint!", true, NULL, this, "short_hint"));
-	widget->addItem(new CMenuForwarder("Short hint with timeout!", true, NULL, this, "short_hint_timed"));
+	widget->addItem(new CMenuForwarder("Short hint with timeout and visual loader!", true, NULL, this, "short_hint_timed"));
 	widget->addItem(new CMenuForwarder("Short hint with timeout and function!", true, NULL, this, "short_hint_timed_slot"));
 	widget->addItem(new CMenuForwarder("Short hint with struct arg!", true, NULL, this, "short_hint_struct"));
 }
