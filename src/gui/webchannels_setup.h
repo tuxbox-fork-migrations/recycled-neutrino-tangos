@@ -58,6 +58,7 @@ class CWebChannelsSetup : public CMenuTarget, CChangeObserver
 
 		void webchannels_auto();
 		bool webchannels_autodir(std::string directory);
+		void webchannels_init(CMenuWidget *m);
 };
 
 class CWebTVResolution : public CMenuTarget
