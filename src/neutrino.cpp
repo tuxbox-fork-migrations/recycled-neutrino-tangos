@@ -5061,7 +5061,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	else if (actionKey=="restart")
 	{
 		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
-		ShowHintS(LOCALE_MENU_HINT_SOFT_RESTART, sigc::bind(sigc::mem_fun(*this, &CNeutrinoApp::ExitRun), CNeutrinoApp::EXIT_RESTART), 1);
+		ShowHintS(LOCALE_MENU_HINT_SOFT_RESTART, sigc::bind(sigc::mem_fun(*this, &CNeutrinoApp::ExitRun), CNeutrinoApp::EXIT_RESTART), 1, true, NEUTRINO_ICON_LOADER);
 		returnval = menu_return::RETURN_NONE;
 	}
 	else if (actionKey=="clock_switch")
@@ -5106,7 +5106,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 #endif
 
 	else if (actionKey=="savesettings") {
-		ShowHintS(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT, sigc::bind(sigc::mem_fun(*this, &CNeutrinoApp::saveSetup), NEUTRINO_SETTINGS_FILE), 1);
+		ShowHintS(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT, sigc::bind(sigc::mem_fun(*this, &CNeutrinoApp::saveSetup), NEUTRINO_SETTINGS_FILE), 1, true, NEUTRINO_ICON_LOADER);
 
 #if 0
 		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT)); // UTF-8
@@ -5128,15 +5128,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		setupRecordingDevice();
 	}
 	else if (actionKey=="reloadplugins") {
-		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, sigc::mem_fun(g_Plugins, &CPlugins::loadPlugins),1);
-#if 0
-		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_GETPLUGINS_HINT));
-		hintBox.paint();
-
-		g_Plugins->loadPlugins();
-
-		hintBox.hide();
-#endif
+		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, sigc::mem_fun(g_Plugins, &CPlugins::loadPlugins), 1, true, NEUTRINO_ICON_LOADER);
 	}
 	else if (actionKey=="restarttuner")
 	{

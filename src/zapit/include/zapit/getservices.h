@@ -112,6 +112,7 @@ class CServiceManager
 		bool InitSatPosition(t_satellite_position position, const char * name = NULL, bool force = false, delivery_system_t delsys = DVB_S, uint16_t nid = 0);
 		bool LoadServices(bool only_current);
 		void SaveServices(bool tocopy, bool if_changed = false, bool no_deleted = false);
+		void SaveServicesReload() {SaveServices(true,true);};
 		bool SaveCurrentServices(transponder_id_t tpid);
 		bool CopyCurrentServices(transponder_id_t tpid);
 
