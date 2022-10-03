@@ -305,6 +305,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 {
 	std::set<CFrontend*> frontends;
 	CFrontend * frontend = NULL;
+	CFEManager::getInstance()->Open();
 
 	t_channel_id chid = channel->getChannelID();
 	if (CRecordManager::getInstance()->RecordingStatus(chid)) {
@@ -379,6 +380,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 	char cbuf[512];
 	char *bp;
 	send_raw = false;
+	pids.clear();
 
 	FILE * fp = fdopen(fd, "r+");
 	if (fp == NULL) {
@@ -428,7 +430,6 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 			channel = CServiceManager::getInstance()->FindChannel(tmpid);
 			chid = tmpid;
 			send_raw = false;
-			pids.clear(); // to catch and stream all pids later !
 		}
 	}
 	else
@@ -447,7 +448,6 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 				channel = tmp_channel;
 				chid = channel->getChannelID();
 				send_raw = true;
-				pids.clear(); // to catch and stream all pids later !
 			}
 		}
 	}
@@ -466,42 +466,100 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 		return false;
 	}
 
-	AddPids(fd, channel, pids, send_raw);
+	if (send_raw)
+		AddPidsRaw(channel, pids);
+	else
+		AddPids(fd, channel, pids);
 
 	return !pids.empty();
 }
 
-void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids, bool send_raw)
+void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids)
 {
-	// avoid compiler warning
-	(void) fd;
+	printf("CStreamManager::AddPids: no pids in url, using channel %" PRIx64 " pids\n", channel->getChannelID());
+	if (channel->getVideoPid())
+		pids.insert(channel->getVideoPid());
+	for (int i = 0; i <  channel->getAudioChannelCount(); i++)
+		pids.insert(channel->getAudioChannel(i)->pid);
 
-	if (pids.empty()) {
-		printf("CStreamManager::AddPids: searching channel %" PRIx64 " pids\n", channel->getChannelID());
-		if (channel->getVideoPid())
-		{
-			pids.insert(channel->getVideoPid());
-			printf("CStreamManager::AddPids: vpid 0x%04x \n", channel->getVideoPid());
-        }
-		for (int i = 0; i <  channel->getAudioChannelCount(); i++)
-		{
-			pids.insert(channel->getAudioChannel(i)->pid);
-			printf("CStreamManager::AddPids: apid 0x%04x \n", channel->getAudioChannel(i)->pid);
-		}
-		if (!channel->capids.empty() && send_raw)
-		{
-			for(casys_pids_iterator_t it = channel->capids.begin(); it != channel->capids.end(); ++it)
-			{
-			  pids.insert((*it)); //all ECM Pids
-			  printf("CStreamManager::AddPids: capid 0x%04x \n", (*it));
+	CGenPsi psi;
+	for (stream_pids_t::iterator it = pids.begin(); it != pids.end(); ++it) {
+		if (*it == channel->getVideoPid()) {
+			printf("CStreamManager::AddPids: genpsi vpid 0x%04x (%d)\n", *it, channel->type);
+			psi.addPid(*it, channel->type == CHANNEL_MPEG4 ? EN_TYPE_AVC : channel->type == CHANNEL_HEVC ? EN_TYPE_HEVC : EN_TYPE_VIDEO, 0);
+		} else {
+			for (int i = 0; i <  channel->getAudioChannelCount(); i++) {
+				if (*it == channel->getAudioChannel(i)->pid) {
+					CZapitAudioChannel::ZapitAudioChannelType atype = channel->getAudioChannel(i)->audioChannelType;
+					printf("CStreamManager::AddPids: genpsi apid 0x%04x (%d)\n", *it, atype);
+					if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
+						psi.addPid(*it, EN_TYPE_AUDIO_EAC3, 0, channel->getAudioChannel(i)->description.c_str());
+					} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
+						psi.addPid(*it, EN_TYPE_AUDIO_AAC, 0, channel->getAudioChannel(i)->description.c_str());
+					} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AACPLUS) {
+						psi.addPid(*it, EN_TYPE_AUDIO_AACP, 0, channel->getAudioChannel(i)->description.c_str());
+					} else {
+						psi.addPid(*it, EN_TYPE_AUDIO, (atype == CZapitAudioChannel::AC3), channel->getAudioChannel(i)->description.c_str());
+					}
+				}
 			}
 		}
-		pids.insert(0); //PAT
-		printf("CStreamManager::AddPids: PATpid 0x%04x \n", 0);
-		pids.insert(channel->getPmtPid()); //PMT
-		printf("CStreamManager::AddPids: PMTpid 0x%04x \n", channel->getPmtPid());
-		pids.insert(0x14); //TDT
-		printf("CStreamManager::AddPids: TDTpid 0x%04x \n", 0x14);
+	}
+	//add pcr pid
+	if (channel->getPcrPid() && (channel->getPcrPid() != channel->getVideoPid())) {
+		pids.insert(channel->getPcrPid());
+		psi.addPid(channel->getPcrPid(), EN_TYPE_PCR, 0);
+	}
+	//add teletext pid
+	if (g_settings.recording_stream_vtxt_pid && channel->getTeletextPid() != 0) {
+		pids.insert(channel->getTeletextPid());
+		psi.addPid(channel->getTeletextPid(), EN_TYPE_TELTEX, 0, channel->getTeletextLang());
+	}
+	//add dvb sub pid
+	if (g_settings.recording_stream_subtitle_pids) {
+		for (int i = 0 ; i < (int)channel->getSubtitleCount() ; ++i) {
+			CZapitAbsSub* s = channel->getChannelSub(i);
+			if (s->thisSubType == CZapitAbsSub::DVB) {
+				if (i>9)//max sub pids
+					break;
+
+				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
+				pids.insert(sd->pId);
+				psi.addPid(sd->pId, EN_TYPE_DVBSUB, 0, sd->ISO639_language_code.c_str());
+			}
+		}
+	}
+
+	psi.genpsi(fd);
+}
+
+void CStreamManager::AddPidsRaw(CZapitChannel *channel, stream_pids_t &pids)
+{
+	pids.insert(0); //PAT
+	printf("CStreamManager::AddPids: PATpid 0x%04x \n", 0);
+	pids.insert(channel->getPmtPid()); //PMT
+	printf("CStreamManager::AddPids: PMTpid 0x%04x \n", channel->getPmtPid());
+	pids.insert(0x14); //TDT
+	printf("CStreamManager::AddPids: TDTpid 0x%04x \n", 0x14);
+
+	printf("CStreamManager::AddPids: searching channel %" PRIx64 " pids\n", channel->getChannelID());
+	if (channel->getVideoPid())
+	{
+		pids.insert(channel->getVideoPid());
+		printf("CStreamManager::AddPids: vpid 0x%04x \n", channel->getVideoPid());
+	}
+	for (int i = 0; i <  channel->getAudioChannelCount(); i++)
+	{
+		pids.insert(channel->getAudioChannel(i)->pid);
+		printf("CStreamManager::AddPids: apid 0x%04x \n", channel->getAudioChannel(i)->pid);
+	}
+	if (!channel->capids.empty())
+	{
+		for(casys_pids_iterator_t it = channel->capids.begin(); it != channel->capids.end(); ++it)
+		{
+		  pids.insert((*it)); //all ECM Pids
+		  printf("CStreamManager::AddPids: capid 0x%04x \n", (*it));
+		}
 	}
 
 	//add pcr pid
@@ -624,11 +682,13 @@ void CStreamManager::run()
 						perror("CStreamManager::run(): accept");
 						continue;
 					}
-#if 0
-					if (!AddClient(connfd))
+
+					g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_START, 0);
+					if (!AddClient(connfd)) {
 						close(connfd);
-#endif
-					g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_START, connfd);
+						g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_STOP, 0);
+					}
+
 					poll_timeout = 1000;
 				} else {
 					if (pfd[i].revents & (POLLHUP | POLLRDHUP)) {
