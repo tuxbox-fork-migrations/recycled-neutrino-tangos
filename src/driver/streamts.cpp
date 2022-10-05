@@ -197,8 +197,10 @@ void CStreamInstance::run()
 	dmx->Start(true);
 
 	if (is_e2_stream)
+	{
 		if (g_settings.streaming_decryptmode)
 			CCamManager::getInstance()->Start(channel_id, CCamManager::STREAM);
+	}
 	else
 		CCamManager::getInstance()->Start(channel_id, CCamManager::STREAM);
 
@@ -216,8 +218,10 @@ void CStreamInstance::run()
 	}
 
 	if (is_e2_stream)
+	{
 		if (g_settings.streaming_decryptmode)
 			CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
+	}
 	else
 		CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
 
@@ -522,8 +526,8 @@ void CStreamManager::PreparePids(CZapitChannel *channel, stream_pids_t &pids, bo
 	{
 		for(casys_pids_iterator_t it = channel->capids.begin(); it != channel->capids.end(); ++it)
 		{
-		  pids.insert((*it)); //all ECM Pids
-		  printf("CStreamManager::PreparePids: capid 0x%04x \n", (*it));
+			pids.insert((*it)); //all ECM Pids
+			printf("CStreamManager::PreparePids: capid 0x%04x \n", (*it));
 		}
 	}
 
