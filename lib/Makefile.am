@@ -22,6 +22,11 @@ SUBDIRS += \
 	libiw
 endif
 
+if ENABLE_LCD
+SUBDIRS += \
+	liblcddisplay
+endif
+
 if BOXTYPE_CST
 SUBDIRS += \
 	hardware/coolstream

@@ -129,6 +129,11 @@ neutrino_LDADD = \
 	-ldl -lblkid \
 	-lz
 
+# LCD display
+if ENABLE_LCD
+neutrino_LDADD += $(top_builddir)/lib/liblcddisplay/liblcddisplay.a
+endif
+
 if ENABLE_WEBIF
 neutrino_LDADD += \
 	nhttpd/libnhttpd.a \
