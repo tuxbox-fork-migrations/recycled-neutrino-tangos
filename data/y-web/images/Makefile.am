@@ -120,6 +120,10 @@ install_DATA += rc_ax_hd51.png \
 		rc_mutant_hd51.png
 endif
 
+if BOXMODEL_E4HDULTRA
+install_DATA += e4hdultra.png
+endif
+
 if BOXMODEL_MULTIBOXSE
 install_DATA += rc_ax_hd51.png \
 		rc_mutant_hd51.png
