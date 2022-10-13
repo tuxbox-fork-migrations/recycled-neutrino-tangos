@@ -121,7 +121,7 @@ install_DATA += rc_ax_hd51.png \
 endif
 
 if BOXMODEL_E4HDULTRA
-install_DATA += e4hdultra.png
+install_DATA += rc_axas_e4hd.png
 endif
 
 if BOXMODEL_MULTIBOXSE
