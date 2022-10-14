@@ -29,7 +29,7 @@ AM_CPPFLAGS = \
 	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
 	@LUA_CFLAGS@ \
-	@HWLIB_CFLAGS@
+	@FILE_CFLAGS@
 
 if USE_PUGIXML
 PUGIXML_LIBS = -lpugixml
@@ -109,6 +109,9 @@ neutrino_LDADD = \
 	$(top_builddir)/lib/libmd5sum/libtuxbox-md5sum.a \
 	$(top_builddir)/lib/libtuxtxt/libtuxtxt.a \
 	$(top_builddir)/lib/libdvbsub/libdvbsub.a \
+	$(top_builddir)/lib/libdvbapi/libdvbapi.a \
+	$(top_builddir)/lib/libdvbci/libdvbci.a \
+	$(top_builddir)/lib/libeplayer3/libeplayer3.a \
 	$(top_builddir)/src/gui/widget/yaft/libneutrino_gui_terminal.a \
 	@CURL_LIBS@ \
 	@FREETYPE_LIBS@ \
@@ -127,7 +130,8 @@ neutrino_LDADD = \
 	-lOpenThreads \
 	-lrt -lpthread \
 	-ldl -lblkid \
-	-lz
+	-lz -lass
+
 
 # LCD display
 if ENABLE_LCD
@@ -171,57 +175,13 @@ neutrino_LDADD += \
 	$(top_builddir)/lib/libupnpclient/libtuxbox-upnpclient.a
 endif
 
-if BOXTYPE_CST
-neutrino_LDADD += \
-	$(top_builddir)/lib/hardware/coolstream/libhwcaps.a
-if ENABLE_LIBCOOLSTREAM_STATIC
-neutrino_LDADD += -lca-sc
-neutrino_LDADD += @LIBCOOLSTREAM_STATIC_DIR@/libcoolstream-mt.a
-else
-neutrino_LDADD += -lcoolstream-mt -lca-sc
-endif
-
-if BOXMODEL_CST_HD2
-neutrino_LDADD += -lca-ci -llnxtmvssUsr -llnxUKAL -llnxplatUsr -llnxtmasUsr -llnxdvbciUsr -llnxpvrUsr -llnxcssUsr -llnxnotifyqUsr -ltmpvrDataManager-cst -ltmpvrIndexStorage -llnxscsUsr
-else
-neutrino_LDADD += -lnxp
-endif
-
-if BOXMODEL_CST_HD2
-neutrino_LDADD += -liconv
-endif
-
-if BOXTYPE_ARMBOX
-neutrino_LDADD += -lass
-endif
-
-if BOXTYPE_MIPSBOX
-neutrino_LDADD += -lass
-endif
-
-bin_PROGRAMS += drivertool
-drivertool_SOURCES = drivertool.c
-bin_PROGRAMS += dt
-dt_SOURCES = dt.c
-bin_PROGRAMS += mdev_helper
-mdev_helper_SOURCES = mdev_helper.cpp
-endif
-
 if BOXMODEL_RASPI
 neutrino_LDADD += \
 	-L/opt/vc/lib/ -lbcm_host -lvcos -lvchiq_arm -lpthread -lrt
 endif
 
-if BOXTYPE_CST
-bin_PROGRAMS += shutdown_helper
-shutdown_helper_SOURCES = shutdown_helper.c
-endif
-
-if USE_STB_HAL
-neutrino_LDADD += \
-	-lstb-hal
-neutrino_LDFLAGS = \
-	$(STB_HAL_LIB)
+if ENABLE_CI
+neutrino_LDADD += -lcrypto -lssl
 endif
 
 neutrino_LDADD += \

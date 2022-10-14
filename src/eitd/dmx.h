@@ -30,7 +30,7 @@
 #include <vector>
 #include <config.h>
 
-#include <hardware/dmx.h>
+#include <libdvbapi/dmx.h>
 
 #include <zapit/types.h>
 #include <set>

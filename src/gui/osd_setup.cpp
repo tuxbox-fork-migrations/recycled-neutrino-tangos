@@ -67,9 +67,8 @@
 #include <system/debug.h>
 #include <system/helpers.h>
 #include <system/setting_helpers.h>
-#include "cs_api.h"
 
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"

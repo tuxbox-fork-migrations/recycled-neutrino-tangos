@@ -37,7 +37,7 @@
 #include <sstream>
 #include <driver/audioplay.h>
 #include <linux/soundcard.h>
-#include <hardware/audio.h>
+#include <libdvbapi/audio.h>
 
 #include "wavdec.h"
 

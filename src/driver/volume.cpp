@@ -32,8 +32,9 @@
 #include <gui/infoclock.h>
 #include <gui/keybind_setup.h>
 #include <system/debug.h>
-#include <hardware/audio.h>
-#include <hardware/video.h>
+#include <libdvbapi/audio.h>
+#include <libdvbapi/video.h>
+#include <libdvbapi/hdmi_cec.h>
 #include <system/settings.h>
 #include <system/helpers.h>
 #include <daemonc/remotecontrol.h>

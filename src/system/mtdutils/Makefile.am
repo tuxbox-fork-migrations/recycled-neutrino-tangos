@@ -16,7 +16,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/src/system/mtdutils/include \
 	@FREETYPE_CFLAGS@ \
-	@HWLIB_CFLAGS@
+	@FILE_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_system_mtdutils.a
 

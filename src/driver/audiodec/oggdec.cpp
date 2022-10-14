@@ -36,7 +36,7 @@
 #include <algorithm>
 #include <sstream>
 
-#include <hardware/audio.h>
+#include <libdvbapi/audio.h>
 
 #include "oggdec.h"
 

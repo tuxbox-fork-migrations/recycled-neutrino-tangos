@@ -47,7 +47,7 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <system/set_threadname.h>
 
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 extern cVideo * videoDecoder;
 
 static CComponentsFrmClock *scr_clock = NULL;

@@ -24,7 +24,7 @@
 #define __zapit_pat_h__
 
 #include <zapit/channel.h>
-#include <hardware/dmx.h>
+#include <libdvbapi/dmx.h>
 
 #define PAT_SECTION_SIZE 1024
 

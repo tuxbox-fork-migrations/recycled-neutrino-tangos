@@ -24,7 +24,7 @@
 #define __zapit_scan_ait_h__
 
 #include <OpenThreads/Thread>
-#include <hardware/dmx.h>
+#include <libdvbapi/dmx.h>
 
 #include <dvbsi++/application_information_section.h>
 #include <dvbsi++/application_name_descriptor.h>

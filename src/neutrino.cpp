@@ -126,11 +126,9 @@
 
 #include <system/set_threadname.h>
 
-#include <hardware/audio.h>
-#include <hardware/ca.h>
-#include <hardware/video.h>
-#include <cs_api.h>
-#include <pwrmngr.h>
+#include <libdvbapi/audio.h>
+#include <libdvbapi/video.h>
+#include <libdvbci/common_access.h>
 
 #include <system/debug.h>
 #include <system/fsmounter.h>
@@ -206,8 +204,6 @@ extern cDemux *pipVideoDemux[3];
 #endif
 extern cDemux *videoDemux;
 extern cAudio *audioDecoder;
-cPowerManager *powerManager;
-cCpuFreqManager * cpuFreq;
 
 void stop_daemons(bool stopall = true, bool for_flash = false);
 void stop_video(void);
@@ -253,9 +249,22 @@ CNeutrinoApp::CNeutrinoApp()
 : configfile('\t')
 {
 	standby_pressed_at.tv_sec = 0;
-#if USE_STB_HAL
-	/* this needs to happen before the framebuffer is set up */
-	hal_api_init();
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+	char buffer[64];
+	sprintf(buffer, "%x", 0);
+	proc_put("/proc/stb/fb/dst_top", buffer, strlen(buffer));
+	proc_put("/proc/stb/fb/dst_left", buffer, strlen(buffer));
+	sprintf(buffer, "%x", 576);
+	proc_put("/proc/stb/fb/dst_height", buffer, strlen(buffer));
+	sprintf(buffer, "%x", 720);
+	proc_put("/proc/stb/fb/dst_width", buffer, strlen(buffer));
+	sprintf(buffer, "%x", 1);
+	proc_put("/proc/stb/fb/dst_apply", buffer, strlen(buffer));
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+	sprintf(buffer, "%s", "enable");
+	proc_put("/proc/stb/frontend/fbc/fcc", buffer, strlen(buffer));
+	proc_put("/proc/stb/video/decodermode", "normal", strlen("normal"));
+#endif
 #endif
 
 	osd_resolution_tmp        = -1;
@@ -326,10 +335,8 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 	{"lcd_inverse"          , DEFAULT_LCD_INVERSE          },
 	{"lcd_show_volume"      , DEFAULT_LCD_SHOW_VOLUME      },
 	{"lcd_autodimm"         , DEFAULT_LCD_AUTODIMM         },
-	{"lcd_deepbrightness"   , DEFAULT_VFD_STANDBYBRIGHTNESS }
-#if USE_STB_HAL
-	,{ "lcd_epgmode"        , 0 /*DEFAULT_LCD_EPGMODE*/ }
-#endif
+	{"lcd_deepbrightness"   , DEFAULT_VFD_STANDBYBRIGHTNESS },
+	{ "lcd_epgmode"        , 0 /*DEFAULT_LCD_EPGMODE*/ }
 };
 
 static SNeutrinoSettings::usermenu_t usermenu_default[] = {
@@ -477,9 +484,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.hdmi_colorimetry = configfile.getInt32("hdmi_colorimetry", 0);
 #endif
 
-	g_settings.cpufreq = configfile.getInt32("cpufreq", 0);
-	g_settings.standby_cpufreq = configfile.getInt32("standby_cpufreq", 100);
-
 	// ci-settings
 	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
 	g_settings.ci_check_live = configfile.getInt32("ci_check_live", 0);
@@ -518,11 +522,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #endif
 	}
 
-
-#ifndef CPU_FREQ
-	g_settings.cpufreq = 0;
-	g_settings.standby_cpufreq = 50;
-#endif
 
 	g_settings.make_hd_list = configfile.getInt32("make_hd_list", 0);
 	g_settings.make_webtv_list = configfile.getInt32("make_webtv_list", 1);
@@ -1500,9 +1499,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "hdmi_colorimetry", g_settings.hdmi_colorimetry);
 #endif
 
-	configfile.setInt32( "cpufreq", g_settings.cpufreq);
-	configfile.setInt32( "standby_cpufreq", g_settings.standby_cpufreq);
-
 	// ci-settings
 	configfile.setInt32("ci_standby_reset", g_settings.ci_standby_reset);
 	configfile.setInt32("ci_check_live", g_settings.ci_check_live);
@@ -2343,7 +2339,6 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 /**************************************************************************************
 *          CNeutrinoApp -  run, the main runloop                                      *
 **************************************************************************************/
-extern int cnxt_debug;
 extern int sections_debug;
 extern int zapit_debug;
 
@@ -2373,9 +2368,6 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 			dprintf(DEBUG_NORMAL, "set debuglevel: %d\n", dl);
 			setDebugLevel(dl);
 			x++;
-		}
-		else if ((!strcmp(argv[x], "-xd"))) {
-			cnxt_debug = 1;
 		}
 		else if ((!strcmp(argv[x], "-sd"))) {
 			int dl = 2;
@@ -2696,11 +2688,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CmdParser(argc, argv);
 
 TIMER_START();
-	cs_api_init();
-	cs_register_messenger(CSSendMessage);
-#if defined(HAVE_CST_HARDWARE) && defined(ENABLE_CHANGE_OSD_RESOLUTION)
-	cs_new_auto_videosystem();
-#endif
+	cs_register_messenger(CSSendMessage); // what is this for ?
 
 	g_info.hw_caps = get_hwcaps();
 
@@ -2879,12 +2867,6 @@ TIMER_START();
 
 	bootstatus->showStatus(70);
 	bootstatus->paint();
-
-	powerManager = new cPowerManager;
-	powerManager->Open();
-
-	cpuFreq = new cCpuFreqManager();
-	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 
 	//fan speed
 	dprintf(DEBUG_NORMAL, "g_info.has_fan: %d\n", g_info.hw_caps->has_fan);
@@ -3634,8 +3616,6 @@ bool CNeutrinoApp::wakeupFromStandby(void)
 		CStreamManager::getInstance()->StreamStatus();
 
 	if ((mode == NeutrinoModes::mode_standby) && !alive) {
-		if (cpuFreq)
-			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		if(g_settings.ci_standby_reset) {
 			g_CamHandler->exec(NULL, "ca_ci_reset0");
 			g_CamHandler->exec(NULL, "ca_ci_reset1");
@@ -3662,8 +3642,6 @@ void CNeutrinoApp::standbyToStandby(void)
 		}
 		g_Zapit->setStandby(true);
 		g_Sectionsd->setPauseScanning(true);
-		if (cpuFreq)
-			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 	}
 }
 
@@ -4824,8 +4802,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		CEpgScan::getInstance()->Start(true);
 		bool alive = recordingstatus || CEpgScan::getInstance()->Running() ||
 			CStreamManager::getInstance()->StreamStatus();
-		if(!alive)
-			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 
 		//fan speed
 		if (g_info.hw_caps->has_fan)
@@ -4838,17 +4814,14 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		frameBuffer->setActive(false);
 
 		// Active standby on
-		powerManager->SetStandby(false, false);
 #if ENABLE_FASTSCAN
 		if (scansettings.fst_update)
 			fst_timer = g_RCInput->addTimer(30*1000*1000, true);
 #endif
 	} else {
 		// Active standby off
-		powerManager->SetStandby(false, false);
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->ShowText("resume");
-		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		videoDecoder->Standby(false);
 		CEpgScan::getInstance()->Stop();
 		CSectionsdClient::CurrentNextInfo dummy;
@@ -5335,20 +5308,6 @@ void stop_daemons(bool stopall, bool for_flash)
 		CVFD::getInstance()->setBacklight(g_settings.backlight_deepstandby);
 	}
 	if(stopall && !for_flash) {
-		if (cpuFreq) {
-			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
-			delete cpuFreq;
-		}
-
-		if (powerManager) {
-			/* if we were in standby, leave it otherwise, the next
-			   start of neutrino will fail in "_write_gxa" in
-			   framebuffer.cpp
-			   => this is needed because the drivers are crap :( */
-			powerManager->SetStandby(false, false);
-			powerManager->Close();
-			delete powerManager;
-		}
 		cs_deregister_messenger();
 	}
 
@@ -5367,7 +5326,6 @@ void stop_video()
 	delete videoDecoder;
 	delete videoDemux;
 	delete CFrameBuffer::getInstance();
-	cs_api_exit();
 }
 
 void sighandler (int signum)

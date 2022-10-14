@@ -24,7 +24,7 @@
 #define __zapit_scan_bat_h__
 
 #include <OpenThreads/Thread>
-#include <hardware/dmx.h>
+#include <libdvbapi/dmx.h>
 #include <dvbsi++/bouquet_association_section.h>
 #include <dvbsi++/service_list_descriptor.h>
 #include <dvbsi++/logical_channel_descriptor.h>

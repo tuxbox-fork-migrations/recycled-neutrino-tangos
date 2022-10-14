@@ -22,7 +22,7 @@
 
 #include <zapit/debug.h>
 #include <zapit/pat.h>
-#include <hardware/dmx.h>
+#include <libdvbapi/dmx.h>
 
 CPat::CPat(int dnum)
 {

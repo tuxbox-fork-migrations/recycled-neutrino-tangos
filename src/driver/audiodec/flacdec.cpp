@@ -39,7 +39,7 @@
 #include <algorithm>
 #include <sstream>
 
-#include <hardware/audio.h>
+#include <libdvbapi/audio.h>
 #include <driver/netfile.h>
 extern cAudio *audioDecoder;
 

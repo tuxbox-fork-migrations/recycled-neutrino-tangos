@@ -15,7 +15,7 @@
 #include <gui/osd_helpers.h>
 #include <gui/radiotext_window.h>
 
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 
 extern CInfoClock *InfoClock;
 extern CTimeOSD *FileTimeOSD;

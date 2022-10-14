@@ -85,7 +85,7 @@
 
 #include <system/helpers.h>
 #include <zapit/zapit.h>
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 
 #include <daemonc/remotecontrol.h>
 extern CRemoteControl * g_RemoteControl;	/* neutrino.cpp */

@@ -42,7 +42,6 @@
 #include <system/debug.h>
 #include <gui/color_custom.h>
 #include <system/helpers.h>
-#include <cs_api.h>
 
 #include <unistd.h>
 #include <sys/ioctl.h>

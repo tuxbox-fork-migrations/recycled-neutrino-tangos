@@ -32,7 +32,7 @@
 #include <neutrinoMessages.h>
 #include <driver/movieinfo.h>
 
-#include <hardware/record.h>
+#include <libdvbapi/record.h>
 
 #include <OpenThreads/Mutex>
 #include <OpenThreads/Thread>

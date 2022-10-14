@@ -58,8 +58,7 @@
 #include <system/debug.h>
 #include <system/helpers.h>
 
-#include <cs_api.h>
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #include "3dsetup.h"
 #include <zapit/zapit.h>
@@ -342,7 +341,7 @@ int CVideoSettings::showVideoSetup()
 	}
 
 	//analog options
-	unsigned int system_rev = cs_get_revision();
+	unsigned int system_rev = 1;
 	CMenuOptionChooser * vs_analg_ch = NULL;
 	CMenuOptionChooser * vs_scart_ch = NULL;
 	CMenuOptionChooser * vs_chinch_ch = NULL;
@@ -565,7 +564,7 @@ void CVideoSettings::initVideoSettings()
 #ifdef BOXMODEL_CST_HD2
 	changeNotify(LOCALE_VIDEOMENU_ANALOG_MODE, NULL);
 #else
-	unsigned int system_rev = cs_get_revision();
+	unsigned int system_rev = 1;
 	if (system_rev == 0x06) {
 		changeNotify(LOCALE_VIDEOMENU_ANALOG_MODE, NULL);
 	} else {

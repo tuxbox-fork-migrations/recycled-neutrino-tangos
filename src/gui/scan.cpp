@@ -55,7 +55,7 @@
 #include <zapit/scan.h>
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 
 extern cVideo * videoDecoder;
 

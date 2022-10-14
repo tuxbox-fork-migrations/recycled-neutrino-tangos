@@ -33,7 +33,6 @@
 #include <configfile.h>
 #include <system/configure_network.h>
 #include <system/helpers.h>
-#include <cs_api.h>
 #include <global.h>
 #include <neutrino.h>
 #include <gui/plugins.h>//for relodplugins
@@ -52,7 +51,7 @@ extern CPictureViewer *g_PicViewer;
 // nhttpd
 #include "neutrinoapi.h"
 #include "controlapi.h"
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 #include <zapit/femanager.h>
 
 extern cVideo * videoDecoder;

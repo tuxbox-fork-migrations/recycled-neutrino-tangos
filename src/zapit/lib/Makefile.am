@@ -1,7 +1,7 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 
 AM_CPPFLAGS += \
-	@HWLIB_CFLAGS@ \
+	@FILE_CFLAGS@ \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/zapit/include \

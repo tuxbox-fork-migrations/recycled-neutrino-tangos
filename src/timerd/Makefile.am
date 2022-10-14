@@ -1,7 +1,7 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 AM_CPPFLAGS += \
-	@HWLIB_CFLAGS@ \
+	@FILE_CFLAGS@ \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
@@ -10,8 +10,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/libeventserver \
-	-I$(top_srcdir)/lib/xmltree \
-	@HWLIB_CFLAGS@
+	-I$(top_srcdir)/lib/xmltree
 
 noinst_LIBRARIES = libtimerd.a
 

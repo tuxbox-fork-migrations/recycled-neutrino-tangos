@@ -77,10 +77,8 @@
 
 #include <fstream>
 
-#include <cs_api.h>
-
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 extern cVideo * videoDecoder;
 #endif
 

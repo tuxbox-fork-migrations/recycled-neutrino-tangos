@@ -25,8 +25,7 @@
 
 #include "widget/menue.h"
 #include "widget/hintbox.h"
-#include <mmi.h>
-#include <hardware/ca.h>
+#include <libdvbci/common_access.h>
 
 
 class CCAMMenuHandler : public CMenuTarget, public CChangeObserver

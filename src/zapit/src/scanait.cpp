@@ -20,7 +20,7 @@
 
 #include <zapit/debug.h>
 #include <zapit/getservices.h>
-#include <hardware/dmx.h>
+#include <libdvbapi/dmx.h>
 #include <zapit/scanait.h>
 #include <zapit/scan.h>
 #include <dvbsi++/descriptor_tag.h>

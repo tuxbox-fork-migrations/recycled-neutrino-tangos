@@ -5,7 +5,8 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src \
 	@AVFORMAT_CFLAGS@ \
 	@SIGC_CFLAGS@ \
-	@HWLIB_CFLAGS@
+	@FILE_CFLAGS@ \
+	-lass
 
 AM_CPPFLAGS += -fno-rtti -fno-exceptions
 

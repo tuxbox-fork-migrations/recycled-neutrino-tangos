@@ -58,7 +58,7 @@
 #include <zapit/femanager.h>
 #include <eitd/sectionsd.h>
 
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 
 #include <sectionsdclient/sectionsdclient.h>
 
