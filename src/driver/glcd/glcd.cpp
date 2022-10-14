@@ -34,7 +34,7 @@
 #include <driver/audioplay.h>
 #include <gui/movieplayer.h>
 #include <driver/pictureviewer/pictureviewer.h>
-#include <hardware_caps.h>
+#include <libdvbapi/hardware_caps.h>
 #include <eitd/sectionsd.h>
 #include <math.h>
 

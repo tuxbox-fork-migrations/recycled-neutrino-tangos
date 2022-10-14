@@ -56,13 +56,12 @@
 
 #include <system/debug.h>
 #include <system/helpers.h>
-#include <cs_api.h>
 
 
 CVfdSetup::CVfdSetup()
 {
 	width = 40;
-	vfd_enabled = (cs_get_revision() != 10) && (cs_get_revision() != 11);
+	vfd_enabled = true;
 }
 
 CVfdSetup::~CVfdSetup()
@@ -129,16 +128,6 @@ int CVfdSetup::showSetup()
 
 	CMenuForwarder * mf;
 
-	//led menu
-	if (cs_get_revision() > 7) // not HD1 and BSE
-	{
- 		CMenuWidget * ledMenu = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP_LED_SETUP);
-		showLedSetup(ledMenu);
-		mf = new CMenuDForwarder(LOCALE_LEDCONTROLER_MENU, true, NULL, ledMenu, NULL, CRCInput::RC_red);
-		mf->setHint("", LOCALE_MENU_HINT_POWER_LEDS);
-		vfds->addItem(mf);
-	}
-
 	if (g_info.hw_caps->display_can_set_brightness)
 	{
 		//vfd brightness menu
@@ -149,18 +138,6 @@ int CVfdSetup::showSetup()
 
 	if (CVFD::getInstance()->has_lcd)
 	{
-		if (cs_get_revision() == 9) // Tank only
-		{
-			//backlight menu
-			CMenuWidget * blMenu = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP_BACKLIGHT);
-			showBacklightSetup(blMenu);
-			mf = new CMenuDForwarder(LOCALE_LEDCONTROLER_BACKLIGHT, true, NULL, blMenu, NULL, CRCInput::RC_yellow);
-			mf->setHint("", LOCALE_MENU_HINT_BACKLIGHT);
-			vfds->addItem(mf);
-
-			vfds->addItem(GenericMenuSeparatorLine);
-		}
-
 		CMenuOptionChooser* oj;
 
 #if ENABLE_LCD

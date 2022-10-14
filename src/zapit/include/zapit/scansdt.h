@@ -24,7 +24,7 @@
 #define __zapit_scan_sdt_h__
 
 #include <zapit/pat.h>
-#include <hardware/dmx.h>
+#include <libdvbapi/dmx.h>
 #include <dvbsi++/service_description_section.h>
 #include <dvbsi++/service_descriptor.h>
 

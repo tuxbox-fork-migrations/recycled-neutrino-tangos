@@ -40,8 +40,7 @@
 #include <zapit/getservices.h>
 #include <eitd/sectionsd.h>
 
-#include <hardware/video.h>
-#include <cs_api.h>
+#include <libdvbapi/video.h>
 #include <driver/screenshot.h>
 #include <system/set_threadname.h>
 #include <system/helpers.h>

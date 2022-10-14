@@ -37,7 +37,7 @@
 #include <driver/fontrenderer.h>
 #include <neutrino.h>
 
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 
 #include "luainstance.h"
 #include "lua_cc_header.h"

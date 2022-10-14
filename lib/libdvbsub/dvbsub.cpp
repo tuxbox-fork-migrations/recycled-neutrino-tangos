@@ -10,7 +10,7 @@
 #include <cerrno>
 #include <map>
 
-#include <hardware/dmx.h>
+#include <libdvbapi/dmx.h>
 #include <driver/framebuffer.h>
 
 #include <poll.h>

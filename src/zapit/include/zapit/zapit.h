@@ -11,7 +11,7 @@
 #include <eventserver.h>
 #include <connection/basicserver.h>
 #include <xmltree/xmlinterface.h>
-#include <hardware/ca.h>
+#include <libdvbci/common_access.h>
 
 #include "client/zapitclient.h"
 

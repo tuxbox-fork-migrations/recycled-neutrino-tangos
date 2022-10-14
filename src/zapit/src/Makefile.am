@@ -13,7 +13,7 @@ AM_CPPFLAGS += \
 	@FREETYPE_CFLAGS@ \
 	@SIGC_CFLAGS@ \
 	@LUA_CFLAGS@ \
-	@HWLIB_CFLAGS@
+	@FILE_CFLAGS@
 
 noinst_LIBRARIES = libzapit.a
 

@@ -32,7 +32,7 @@
 #include <neutrino.h>
 #include "cc_item_tvpic.h"
 
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 
 extern cVideo * videoDecoder;
 

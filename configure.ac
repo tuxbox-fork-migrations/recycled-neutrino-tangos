@@ -336,6 +336,15 @@ if test "$enable_pip" = "yes"; then
 	AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])
 fi
 
+AC_ARG_ENABLE(ci,
+	AS_HELP_STRING(--enable-ci,enable ci support),
+	,[enable_ci=no])
+
+AM_CONDITIONAL(ENABLE_CI,test "$enable_ci" = "yes")
+if test "$enable_ci" = "yes"; then
+	AC_DEFINE(ENABLE_CI,1,[enable ci support])
+fi
+
 AC_ARG_ENABLE(testing,
 	AS_HELP_STRING([--enable-testing], [enable development code @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_TESTING, 1, [enable development code]))
@@ -346,59 +355,19 @@ AC_ARG_ENABLE(fribidi,
 	AC_DEFINE(ENABLE_FRIBIDI, 1, [enable fribidi support]))
 AM_CONDITIONAL(ENABLE_FRIBIDI, test "$enable_fribidi" = "yes")
 
-AC_ARG_WITH(stb-hal-includes,
-	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path for libstb-hal includes [[NONE]]]),
-	[STB_HAL_INC="$withval"],
-	[STB_HAL_INC=""])
-
-AC_ARG_WITH(stb-hal-build,
-	AS_HELP_STRING([--with-stb-hal-build=PATH], [path where libstb-hal is built [[NONE]]]),
-	[STB_HAL_LIB="-L$withval"],
-	[STB_HAL_LIB=""])
-
-if test "$BOXTYPE" != coolstream; then
-	AC_DEFINE(USE_STB_HAL, 1, [use libstb-hal])
-	if test "$STB_HAL_INC" = ""; then
-		AC_MSG_ERROR([need libstb-hal includes path with --with-stb-hal-includes=...])
-	fi
-	HWLIB_CFLAGS="-I$STB_HAL_INC"
-fi
-AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
-
-if test "$BOXTYPE" = "coolstream"; then
-	if test "$BOXMODEL" = "hd1"; then
-		if test -e ${srcdir}/lib/hardware/coolstream/hd1/libcoolstream/nevis_ir.h; then
-			AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H, 1, [Define to 1 if you have the <nevis_ir.h> header file.])
-		fi
-		HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd1/libcoolstream'
-	fi
-
-	if test "$BOXMODEL" = "hd2"; then
-		if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_ir_generic.h; then
-			AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H, 1, [Define to 1 if you have the <cs_ir_generic.h> header file.])
-		fi
-		if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_frontpanel.h; then
-			AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H, 1, [Define to 1 if you have the <cs_frontpanel.h> header file.])
-		fi
-		HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd2/libcoolstream'
-	fi
-
-	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/lib/hardware/coolstream'
-fi
-
 # hack, so that framebuffer.h does not need to be included everywhere...
 AC_DEFINE(fb_pixel_t, uint32_t, [hack, so that framebuffer.h does not need to be included everywhere...])
 
 # hack to define a short filename also for out-of-tree build
 if test `dirname $0` = `pwd` || test "$0" = ./configure; then
-	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__file__=__FILE__'
-	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__path_file__=__FILE__'
+	FILE_CFLAGS='-D__file__=__FILE__'
+	FILE_CFLAGS="$FILE_CFLAGS "'-D__path_file__=__FILE__'
 else
-	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__file__="\"$(subst $(srcdir)/,,$(abspath $<))\""'
-	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-D__path_file__="\"$(subst $(top_srcdir)/,,$(abspath $<))\""'
+	FILE_CFLAGS='-D__file__="\"$(subst $(srcdir)/,,$(abspath $<))\""'
+	FILE_CFLAGS="$FILE_CFLAGS "'-D__path_file__="\"$(subst $(top_srcdir)/,,$(abspath $<))\""'
 fi
 
-AC_SUBST(HWLIB_CFLAGS)
+AC_SUBST(FILE_CFLAGS)
 AC_SUBST(FREETYPE_CFLAGS)
 AC_SUBST(FREETYPE_LIBS)
 AC_SUBST(VORBISIDEC_CFLAGS)
@@ -486,11 +455,13 @@ data/y-web/styles/Makefile
 data/zapit/Makefile
 lib/Makefile
 lib/connection/Makefile
-lib/hardware/coolstream/Makefile
 lib/jsoncpp/Makefile
 lib/libconfigfile/Makefile
 lib/liblcddisplay/Makefile
+lib/libdvbapi/Makefile
+lib/libdvbci/Makefile
 lib/libdvbsub/Makefile
+lib/libeplayer3/Makefile
 lib/libeventserver/Makefile
 lib/libiw/Makefile
 lib/libmd5sum/Makefile

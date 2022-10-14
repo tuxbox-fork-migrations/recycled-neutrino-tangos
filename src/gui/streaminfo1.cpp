@@ -48,9 +48,9 @@
 #include <daemonc/remotecontrol.h>
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
-#include <hardware/video.h>
-#include <hardware/audio.h>
-#include <hardware/dmx.h>
+#include <libdvbapi/video.h>
+#include <libdvbapi/audio.h>
+#include <libdvbapi/dmx.h>
 #include <zapit/satconfig.h>
 #include <string>
 #include <system/helpers.h>

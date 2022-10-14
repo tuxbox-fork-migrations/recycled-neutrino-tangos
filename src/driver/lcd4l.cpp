@@ -53,7 +53,7 @@
 #include <gui/movieplayer.h>
 #include <gui/pictureviewer.h>
 #include <eitd/sectionsd.h>
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 #include <gui/weather.h>
 
 #include "lcd4l.h"

@@ -43,7 +43,7 @@
 #include <linux/dvb/frontend.h>
 #include <linux/dvb/version.h>
 
-#include <hardware_caps.h>
+#include <libdvbapi/hardware_caps.h>
 
 extern transponder_list_t transponders;
 extern int zapit_debug;

@@ -41,7 +41,7 @@
 #include <zapit/client/zapittools.h>
 #include <eitd/edvbstring.h> // UTF8
 
-#include <hardware_caps.h>
+#include <libdvbapi/hardware_caps.h>
 
 #include <string>
 #include <list>
@@ -395,8 +395,6 @@ struct SNeutrinoSettings
 	int hdmi_cec_volume;
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int enabled_auto_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
-	int cpufreq;
-	int standby_cpufreq;
 	int make_hd_list;
 	int make_webtv_list;
 	int make_webradio_list;
@@ -989,9 +987,7 @@ struct SNeutrinoSettings
 		LCD_SHOW_VOLUME        ,
 		LCD_AUTODIMM           ,
 		LCD_DEEPSTANDBY_BRIGHTNESS,
-#if USE_STB_HAL
 		LCD_EPGMODE            ,
-#endif
 		LCD_SETTING_COUNT
 	};
 	int lcd_setting[LCD_SETTING_COUNT];

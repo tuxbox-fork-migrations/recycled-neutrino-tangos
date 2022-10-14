@@ -10,7 +10,10 @@ SUBDIRS = \
 	jsoncpp \
 	libtuxtxt \
 	libdvbsub \
-	luaclient
+	luaclient \
+	libdvbapi \
+	libdvbci \
+	libeplayer3
 
 if ENABLE_UPNP
 SUBDIRS += \
@@ -27,7 +30,3 @@ SUBDIRS += \
 	liblcddisplay
 endif
 
-if BOXTYPE_CST
-SUBDIRS += \
-	hardware/coolstream
-endif

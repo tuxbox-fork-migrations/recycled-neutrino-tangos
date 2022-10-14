@@ -66,11 +66,9 @@
 #include <gui/plugins.h>
 #include <daemonc/remotecontrol.h>
 #include <xmlinterface.h>
-#include <hardware/audio.h>
-#include <hardware/video.h>
-#include <hardware/dmx.h>
-#include <cs_api.h>
-#include <pwrmngr.h>
+#include <libdvbapi/audio.h>
+#include <libdvbapi/video.h>
+#include <libdvbapi/dmx.h>
 #include <libdvbsub/dvbsub.h>
 #include <libtuxtxt/teletext.h>
 #include <zapit/satconfig.h>
@@ -830,13 +828,6 @@ bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void *)
 
 bool CCpuFreqNotifier::changeNotify(const neutrino_locale_t, void *data)
 {
-	extern cCpuFreqManager *cpuFreq;
-	int freq = * (int *) data;
-
-	printf("CCpuFreqNotifier: %d Mhz\n", freq);
-	freq *= 1000 * 1000;
-
-	cpuFreq->SetCpuFreq(freq);
 	return false;
 }
 

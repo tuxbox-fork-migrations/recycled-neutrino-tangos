@@ -40,8 +40,8 @@
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
 
-#include <hardware/audio.h>
-#include <hardware/video.h>
+#include <libdvbapi/audio.h>
+#include <libdvbapi/video.h>
 
 #include <system/debug.h>
 

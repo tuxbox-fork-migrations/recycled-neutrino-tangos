@@ -57,16 +57,10 @@
 #include <zapit/satconfig.h>
 #include <zapit/femanager.h>
 
-#if HAVE_CST_HARDWARE
-#include <record_cs.h>
-#include <playback_cs.h>
-#include <pwrmngr.h>
-#endif
-
-#include <hardware/audio.h>
-#include <hardware/ca.h>
-#include <hardware/dmx.h>
-#include <hardware/video.h>
+#include <libdvbapi/audio.h>
+#include <libdvbci/common_access.h>
+#include <libdvbapi/dmx.h>
+#include <libdvbapi/video.h>
 
 #include <driver/abstime.h>
 #include <driver/rcinput.h>

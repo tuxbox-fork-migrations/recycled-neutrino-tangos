@@ -29,7 +29,7 @@
 #include <zapit/channel.h>
 #include <dvbsi++/ca_program_map_section.h>
 
-#include <hardware/dmx.h>
+#include <libdvbapi/dmx.h>
 
 #define DEMUX_DECODE_0 1
 #define DEMUX_DECODE_1 2

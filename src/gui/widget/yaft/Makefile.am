@@ -14,7 +14,7 @@ AM_CPPFLAGS += \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@LUA_CFLAGS@ \
-	@HWLIB_CFLAGS@
+	@FILE_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_gui_terminal.a
 

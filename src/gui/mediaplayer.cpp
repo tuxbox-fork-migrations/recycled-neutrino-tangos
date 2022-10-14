@@ -50,7 +50,7 @@
 #include <driver/screen_max.h>
 
 #include <system/debug.h>
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 extern cVideo * videoDecoder;
 
 

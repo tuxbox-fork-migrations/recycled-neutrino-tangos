@@ -36,10 +36,7 @@
 #include <global.h>
 #include <gui/widget/menue.h>
 #include <zapit/client/zapittypes.h>
-#include <hardware/playback.h>
-#if HAVE_SH4_HARDWARE
-#include <hardware/audio.h>
-#endif
+#include <libdvbapi/playback.h>
 
 #include <string>
 

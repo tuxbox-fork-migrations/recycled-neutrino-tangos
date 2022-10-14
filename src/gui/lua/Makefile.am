@@ -18,7 +18,7 @@ AM_CPPFLAGS += \
 	@FREETYPE_CFLAGS@ \
 	@LUA_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
-	@HWLIB_CFLAGS@
+	@FILE_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_gui_lua.a
 

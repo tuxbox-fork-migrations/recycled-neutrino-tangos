@@ -55,7 +55,7 @@
 #include <poll.h>
 #include <vector>
 
-#include <hardware/video.h>
+#include <libdvbapi/video.h>
 extern cVideo * videoDecoder;
 
 #include "plugins.h"

@@ -38,7 +38,7 @@ AM_CPPFLAGS += \
 	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
 	@LUA_CFLAGS@ \
-	@HWLIB_CFLAGS@
+	@FILE_CFLAGS@
 
 noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a
 
