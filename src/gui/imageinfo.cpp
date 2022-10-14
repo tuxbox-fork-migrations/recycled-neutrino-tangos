@@ -321,8 +321,6 @@ void CImageInfo::InitInfoData()
 #ifdef PACKAGE_VERSION
 #if HAVE_ARM_HARDWARE
 	version_string = "ARM-Release : ";
-#elif HAVE_MIPS_HARDWARE
-	version_string = "MIPS-Release : ";
 #else
 	version_string = "Release : ";
 #endif

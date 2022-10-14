@@ -44,7 +44,7 @@ static bool usb_icon = false;
 static bool timer_icon = false;
 #endif
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 #define DISPLAY_DEV "/dev/dbox/oled0"
 #include <zapit/zapit.h>
 static bool usb_icon = false;
@@ -244,7 +244,7 @@ void CLCD::showServicename(std::string name, const int num, bool)
 		display_text[sizeof(display_text) - 1] = '\0';
 	}
 	upd_display = true;
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	wake_up();
 #endif
 }
@@ -280,7 +280,7 @@ void CLCD::showTime(bool force)
 		if (force || last_display || (switch_name_time_cnt == 0 && ((hour != t->tm_hour) || (minute != t->tm_min)))) {
 			hour = t->tm_hour;
 			minute = t->tm_min;
-#if !HAVE_ARM_HARDWARE && !HAVE_MIPS_HARDWARE
+#if !HAVE_ARM_HARDWARE
 			int ret = -1;
 #endif
 			if (
@@ -288,7 +288,7 @@ void CLCD::showTime(bool force)
 				|| g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM
 			)
 			{
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 				if (mode == MODE_STANDBY || (g_settings.lcd_info_line && mode == MODE_TVRADIO))
 #else
 				if (ret < 0 && servicename.empty() && servicenumber == -1)
@@ -369,14 +369,14 @@ void CLCD::showVolume(const char vol, const bool update)
 		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
 			SetIcons(SPARK_MUTE, 0);
 		sprintf(s, vol_fmt[type], volume);
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
 			sprintf(s,"%.*s", volume*g_info.hw_caps->display_xres/100, "================");
 #endif
 	}
 
 	ShowText(s);
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	wake_up();
 #endif
 	vol_active = true;
@@ -393,7 +393,7 @@ void CLCD::showMenuText(const int, const char *text, const int, const bool)
 	std::string tmp = text;
 	replace_umlauts(tmp);
 	ShowText(tmp.c_str());
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	wake_up();
 #endif
 }
@@ -405,7 +405,7 @@ void CLCD::showAudioTrack(const std::string &, const std::string & title, const 
 	std::string tmp = title;
 	replace_umlauts(tmp);
 	ShowText(tmp.c_str());
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	wake_up();
 #endif
 }
@@ -462,7 +462,7 @@ void CLCD::setMode(const MODES m, const char * const title)
 		showclock = true;
 		showTime();
 	}
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	if (m != MODE_SHUTDOWN && m != MODE_STANDBY)
 		wake_up();
 #endif
@@ -470,7 +470,7 @@ void CLCD::setMode(const MODES m, const char * const title)
 
 void CLCD::setBrightness(int dimm)
 {
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	std::string value = std::to_string(255/15*dimm);
 	if (access("/proc/stb/lcd/oled_brightness", F_OK) == 0)
 		proc_put("/proc/stb/lcd/oled_brightness", value.c_str(), value.length());
@@ -654,7 +654,7 @@ void CLCD::ShowDiskLevel()
 
 void CLCD::UpdateIcons()
 {
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	CZapitChannel * chan = CZapit::getInstance()->GetCurrentChannel();
 	if (chan)
 	{

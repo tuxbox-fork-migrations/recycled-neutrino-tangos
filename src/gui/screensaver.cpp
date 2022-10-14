@@ -193,9 +193,6 @@ void CScreenSaver::ScreenSaverPrg(CScreenSaver *scr)
 			scr->paint();
 
 			int corr = 1;
-#if HAVE_CST_HARDWARE //time offset
-			corr = 10;
-#endif
 			int t = 1000/corr * g_settings.screensaver_timeout; //sleep and exit handle
 			while (t > 0)
 			{
@@ -372,11 +369,7 @@ void CScreenSaver::paint()
 			scr_clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]);
 			scr_clock->enableSaveBg();
 			scr_clock->doPaintBg(false);
-#if HAVE_CST_HARDWARE
-			paintImage("blackscreen.jpg", 0, 0, m_frameBuffer->getScreenWidth(true), m_frameBuffer->getScreenHeight(true));
-#endif
 		}
-#if !HAVE_CST_HARDWARE
 #if 0 //example for callback
 		m_frameBuffer->OnFallbackShowFrame.connect(sigc::bind(sigc::mem_fun(CFrameBuffer::getInstance(),
 								&CFrameBuffer::paintBoxRel),
@@ -388,7 +381,6 @@ void CScreenSaver::paint()
 												  );
 #endif
 		m_frameBuffer->showFrame("blackscreen.jpg", CFrameBuffer::SHOW_FRAME_FALLBACK_MODE_CALLBACK | CFrameBuffer::SHOW_FRAME_FALLBACK_MODE_BLACKSCREEN);
-#endif
 
 		handleRadioText(g_settings.screensaver_mode_text);
 

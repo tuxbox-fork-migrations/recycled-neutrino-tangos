@@ -111,7 +111,7 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_SETTINGS);
 	softUpdate.addItem(mf);
 
-#if !HAVE_ARM_HARDWARE && !HAVE_MIPS_HARDWARE
+#if !HAVE_ARM_HARDWARE
 	softUpdate.addItem(GenericMenuSeparatorLine);
 
 	//expert-functions
@@ -123,14 +123,6 @@ int CSoftwareUpdate::showSoftwareUpdate()
 #endif
 
 	unsigned int nextShortcut = (unsigned int)softUpdate.getNextShortcut();
-
-#ifdef BOXMODEL_CST_HD2
-	softUpdate.addItem(GenericMenuSeparatorLine);
-
-	mf = new CMenuDForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(nextShortcut));
-	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CREATEIMAGE_MENU);
-	softUpdate.addItem(mf);
-#endif
 
 	// plugins with software manage integration
 	nextShortcut = (unsigned int)softUpdate.getNextShortcut();

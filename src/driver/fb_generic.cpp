@@ -127,22 +127,11 @@ CFrameBuffer* CFrameBuffer::getInstance()
 	static CFrameBuffer* frameBuffer = NULL;
 
 	if (!frameBuffer) {
-#if HAVE_CST_HARDWARE
-#ifdef BOXMODEL_CST_HD1
-		frameBuffer = new CFbAccelCSHD1();
-#endif
-#ifdef BOXMODEL_CST_HD2
-		frameBuffer = new CFbAccelCSHD2();
-#endif
-#endif
 #if HAVE_GENERIC_HARDWARE
 		frameBuffer = new CFbAccelGLFB();
 #endif
 #if HAVE_ARM_HARDWARE
 		frameBuffer = new CFbAccelARM();
-#endif
-#if HAVE_MIPS_HARDWARE
-		frameBuffer = new CFbAccelMIPS();
 #endif
 		if (!frameBuffer)
 			frameBuffer = new CFrameBuffer();
@@ -532,23 +521,8 @@ fb_pixel_t* CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, co
 	int w_align;
 	int offs_align;
 
-#ifdef BOXMODEL_CST_HD2
-	if (_dx%4 != 0) {
-		w_align = getWidth4FB_HW_ACC(x, _dx, true);
-		if (w_align < _dx)
-			_dx = w_align;
-		offs_align = w_align - _dx;
-		if ((x - offs_align) < 0)
-			offs_align = 0;
-	}
-	else {
-		w_align    = _dx;
-		offs_align = 0;
-	}
-#else
 	w_align    = _dx;
 	offs_align = 0;
-#endif
 
 	fb_pixel_t* boxBuf    = paintBoxRel2Buf(_dx, dy, w_align, offs_align, MASK, NULL, radius, type);
 	if (boxBuf == NULL) {
@@ -1599,13 +1573,8 @@ bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 	{
 		if (videoDecoder)
 		{
-#if HAVE_CST_HARDWARE //FIXME: inside libcs no return value available
-			videoDecoder->ShowPicture(picture.c_str());
-			ret = true;
-#else
 			if (videoDecoder->ShowPicture(picture.c_str()))
 				ret = true;
-#endif
 		}
 		else
 			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], no videoplayer instance available\n", __func__, __LINE__);

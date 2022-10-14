@@ -225,7 +225,7 @@ void CFrontend::getFEInfo(void)
 	deliverySystemMask = UNKNOWN_DS;
 	forcedSystemMask = ALL_CABLE|ALL_TERR|ALL_SAT;
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	std::ifstream in;
 	if (adapter == 0)
 		in.open("/proc/bus/nim_sockets");
@@ -252,7 +252,7 @@ void CFrontend::getFEInfo(void)
 		}
 	in.close();
 	}
-#endif // HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#endif // HAVE_ARM_HARDWARE
 
 #if (DVB_API_VERSION >= 5) && (DVB_API_VERSION_MINOR >= 5)
 	dtv_property prop[1];

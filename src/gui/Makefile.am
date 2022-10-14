@@ -91,6 +91,7 @@ libneutrino_gui_a_SOURCES = \
 	screensetup.cpp \
 	settings_manager.cpp \
 	sleeptimer.cpp \
+	streaminfo2.cpp \
 	subchannel_select.cpp \
 	themes.cpp \
 	timeosd.cpp \
@@ -128,11 +129,6 @@ libneutrino_gui_a_SOURCES += \
 	3dsetup.cpp
 endif
 
-if BOXTYPE_MIPSBOX
-libneutrino_gui_a_SOURCES += \
-	3dsetup.cpp
-endif
-
 if ENABLE_LCD4LINUX
 libneutrino_gui_a_SOURCES += \
 	lcd4l_setup.cpp
@@ -142,14 +138,6 @@ if ENABLE_GRAPHLCD
 libneutrino_gui_a_SOURCES += \
 	glcdsetup.cpp \
 	glcdthemes.cpp
-endif
-
-if BOXTYPE_CST
-libneutrino_gui_a_SOURCES += \
-	streaminfo1.cpp
-else
-libneutrino_gui_a_SOURCES += \
-	streaminfo2.cpp
 endif
 
 if ENABLE_EXTUPDATE

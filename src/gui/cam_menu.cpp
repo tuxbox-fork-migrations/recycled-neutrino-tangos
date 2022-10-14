@@ -178,29 +178,6 @@ int CCAMMenuHandler::doMainMenu()
 	cammenu->addItem(ci_mode);
 #endif
 
-#ifdef BOXMODEL_CST_HD2
-	int fecount = CFEManager::getInstance()->getFrontendCount();
-	char fename[fecount+1][255];
-
-	CMenuOptionChooser::keyval_ext feselect[fecount+1];
-	feselect[0].key = -1;
-	feselect[0].value = NONEXISTANT_LOCALE;
-	feselect[0].valname = g_Locale->getText(LOCALE_OPTIONS_OFF);
-	int select_count = 1;
-
-	for (int i = 0; i < fecount; i++) {
-		CFrontend * fe = CFEManager::getInstance()->getFE(i);
-		int num = fe->getNumber();
-		snprintf(fename[select_count], sizeof(fename[select_count]), "%d: %s", num+1, fe->getName());
-		feselect[select_count].key = num;
-		feselect[select_count].value = NONEXISTANT_LOCALE;
-		feselect[select_count].valname = fename[select_count];
-		select_count++;
-	}
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_CI_TUNER, &g_settings.ci_tuner, feselect, select_count, true, this);
-	cammenu->addItem(mc);
-#endif
-
 	cammenu->addItem( GenericMenuSeparatorLine );
 
 	CMenuWidget * tempMenu;
@@ -219,7 +196,7 @@ int CCAMMenuHandler::doMainMenu()
 			snprintf(tmp, sizeof(tmp), "ca_ci_reset%d", i);
 			cammenu->addItem(new CMenuForwarder(LOCALE_CI_RESET, true, NULL, this, tmp));
 			memset(name1,0,sizeof(name1));
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_CLOCK, &g_settings.ci_clock[i], CI_CLOCK_OPTIONS, CI_CLOCK_OPTION_COUNT, true, this));
 #else
 			cammenu->addItem(new CMenuOptionNumberChooser(LOCALE_CI_CLOCK, &g_settings.ci_clock[i], true, 6, 12, this));
