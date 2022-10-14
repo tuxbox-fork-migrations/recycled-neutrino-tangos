@@ -65,12 +65,6 @@ rcsim_SOURCES = rcsim.c rcsim.h
 
 AM_CPPFLAGS += -D_FILE_OFFSET_BITS=64
 
-if BOXMODEL_CST_HD2
-MTDUTILSLIBS = \
-	system/mtdutils/libneutrino_system_mtdutils.a \
-	system/mtdutils/lib/libneutrino_system_mtdutils_lib.a
-endif
-
 if ENABLE_LUA
 LUALIBS = \
 	gui/lua/libneutrino_gui_lua.a
@@ -173,11 +167,6 @@ endif
 if ENABLE_UPNP
 neutrino_LDADD += \
 	$(top_builddir)/lib/libupnpclient/libtuxbox-upnpclient.a
-endif
-
-if BOXMODEL_RASPI
-neutrino_LDADD += \
-	-L/opt/vc/lib/ -lbcm_host -lvcos -lvchiq_arm -lpthread -lrt
 endif
 
 if ENABLE_CI

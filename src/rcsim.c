@@ -40,10 +40,6 @@
 /* if you want use HAVE_XX_HARDWARE, better include config.h :-) */
 #include "config.h"
 
-#if defined (HAVE_CST_HARDWARE)
-#define EVENTDEV "/dev/input/input0"
-#else
-#endif
 #else
 /* dreambox and tripledragon do not use a "normal" input device, so we cannot
    (ab-)use the event repeating function of it. use the neutrino socket instead. */

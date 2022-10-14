@@ -64,7 +64,7 @@
 #include <driver/display.h>
 #include <driver/radiotext.h>
 #include <driver/scanepg.h>
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 #include "gui/3dsetup.h"
 #endif
 
@@ -249,7 +249,7 @@ CNeutrinoApp::CNeutrinoApp()
 : configfile('\t')
 {
 	standby_pressed_at.tv_sec = 0;
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	char buffer[64];
 	sprintf(buffer, "%x", 0);
 	proc_put("/proc/stb/fb/dst_top", buffer, strlen(buffer));
@@ -453,13 +453,13 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.srs_algo = configfile.getInt32( "srs_algo", 1);
 	g_settings.srs_ref_volume = configfile.getInt32( "srs_ref_volume", 40);
 	g_settings.srs_nmgr_enable = configfile.getInt32( "srs_nmgr_enable", 0);
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	g_settings.ac3_pass = configfile.getInt32( "ac3_pass", 0);
 	g_settings.dts_pass = configfile.getInt32( "dts_pass", 0);
 #else
 	g_settings.hdmi_dd = configfile.getInt32( "hdmi_dd", 0);
 	g_settings.spdif_dd = configfile.getInt32( "spdif_dd", 1);
-#endif // HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#endif // HAVE_ARM_HARDWARE
 	g_settings.analog_out = configfile.getInt32( "analog_out", 1);
 	g_settings.avsync = configfile.getInt32( "avsync", 1);
 	g_settings.clockrec = configfile.getInt32( "clockrec", 1);
@@ -479,7 +479,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.enabled_auto_modes[i] = configfile.getInt32(cfg_key, 1);
 	}
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	g_settings.zappingmode = configfile.getInt32("zappingmode", 0);
 	g_settings.hdmi_colorimetry = configfile.getInt32("hdmi_colorimetry", 0);
 #endif
@@ -511,7 +511,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		sprintf(cfg_key, "ci_pincode_%d", i);
 		g_settings.ci_pincode[i] = configfile.getString(cfg_key, "");
 		sprintf(cfg_key, "ci_clock_%d", i);
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 6);
 #else
 		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 9);
@@ -807,7 +807,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.recording_stream_subtitle_pids  = configfile.getBool("recordingmenu.stream_subtitle_pids", true);
 	g_settings.recording_stream_pmt_pid        = configfile.getBool("recordingmenu.stream_pmt_pid"      , false);
 	g_settings.recording_filename_template     = configfile.getString("recordingmenu.filename_template" , "%C_%T_%d_%t");
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	g_settings.recording_bufsize               = configfile.getInt32("recording_bufsize", 4);
 	g_settings.recording_bufsize_dmx           = configfile.getInt32("recording_bufsize_dmx", 2);
 #endif
@@ -862,12 +862,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	// webradio
 	g_settings.webradio_xml_auto = configfile.getInt32("webradio_xml_auto", 1);
 	g_settings.webradio_xml.clear();
-#ifndef BOXMODEL_CST_HD1
-	/*
-	   Coolstream's HD1 generation can't play audiostreams via movieplayer
-	   because of driver- or firmware-issues or so. Not sure.
-	   So let's avoid loading webradio_xml to get an empty webradio bouquet.
-	*/
+
 	int webradio_count = configfile.getInt32("webradio_xml_count", 0);
 	if (webradio_count) {
 		for (int i = 0; i < webradio_count; i++) {
@@ -885,7 +880,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		}
 	}
 	webchannelssetup.webradio_xml_auto();
-#endif
 
 	g_settings.xmltv_xml_auto.clear();
 	g_settings.xmltv_xml.clear();
@@ -1188,12 +1182,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		erg = 2;
 	}
 
-#ifdef BOXMODEL_CST_HD2
-	g_settings.brightness = configfile.getInt32("brightness", 0);
-	g_settings.contrast = configfile.getInt32("contrast", 0);
-	g_settings.saturation = configfile.getInt32("saturation", 0);
-	g_settings.enable_sd_osd = configfile.getInt32("enable_sd_osd", 1);
-#endif
 #ifdef ENABLE_PIP
 	g_settings.pip_x = configfile.getInt32("pip_x", 1110);
 	g_settings.pip_y = configfile.getInt32("pip_y", 50);
@@ -1474,7 +1462,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "srs_algo", g_settings.srs_algo);
 	configfile.setInt32( "srs_ref_volume", g_settings.srs_ref_volume);
 	configfile.setInt32( "srs_nmgr_enable", g_settings.srs_nmgr_enable);
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	configfile.setInt32( "ac3_pass", g_settings.ac3_pass);
 	configfile.setInt32( "dts_pass", g_settings.dts_pass);
 #else
@@ -1494,7 +1482,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		configfile.setInt32(cfg_key, g_settings.enabled_auto_modes[i]);
 	}
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	configfile.setInt32( "zappingmode", g_settings.zappingmode);
 	configfile.setInt32( "hdmi_colorimetry", g_settings.hdmi_colorimetry);
 #endif
@@ -1719,7 +1707,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool  ("recordingmenu.stream_subtitle_pids" , g_settings.recording_stream_subtitle_pids );
 	configfile.setBool  ("recordingmenu.stream_pmt_pid"       , g_settings.recording_stream_pmt_pid       );
 	configfile.setString("recordingmenu.filename_template"    , g_settings.recording_filename_template    );
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	configfile.setInt32 ("recording_bufsize"                  , g_settings.recording_bufsize);
 	configfile.setInt32 ("recording_bufsize_dmx"              , g_settings.recording_bufsize_dmx);
 #endif
@@ -1973,11 +1961,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("window_size", g_settings.window_size);
 	configfile.setInt32("window_width", g_settings.window_width);
 	configfile.setInt32("window_height", g_settings.window_height);
-#ifdef BOXMODEL_CST_HD2
-	configfile.setInt32("brightness", g_settings.brightness );
-	configfile.setInt32("contrast", g_settings.contrast );
-	configfile.setInt32("enable_sd_osd", g_settings.enable_sd_osd );
-#endif
+
 #ifdef ENABLE_PIP
 	configfile.setInt32("pip_x", g_settings.pip_x);
 	configfile.setInt32("pip_y", g_settings.pip_y);
@@ -2625,33 +2609,8 @@ void CNeutrinoApp::InitSectiondClient()
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_RELOAD_XMLTV, 222, NEUTRINO_UDS_NAME);
 }
 
-#if HAVE_CST_HARDWARE
-#include <cs_frontpanel.h>
-#endif
-
 void wake_up(bool &wakeup)
 {
-#if HAVE_CST_HARDWARE
-#ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
-#define FP_IOCTL_CLEAR_WAKEUP_TIMER 10
-#endif
-
-#define FP_IOCTL_SET_RTC         0x101
-#define FP_IOCTL_GET_RTC         0x102
-
-	int fd = open("/dev/display", O_RDONLY);
-	if (fd < 0) {
-		perror("/dev/display");
-	} else {
-		fp_wakeup_data_t wk;
-		memset(&wk, 0, sizeof(wk));
-		int ret = ioctl(fd, IOC_FP_GET_WAKEUP, &wk);
-		if(ret >= 0)
-			wakeup = ((wk.source == FP_WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
-		close(fd);
-	}
-#endif
-
 	/* prioritize proc filesystem */
 	if (access("/proc/stb/fp/was_timer_wakeup", F_OK) == 0)
 	{
@@ -2784,7 +2743,7 @@ TIMER_START();
 	// init audio settings
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
 	//audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	audioDecoder->SetHdmiDD(g_settings.ac3_pass ? true : false);
 	audioDecoder->SetSpdifDD(g_settings.dts_pass ? true : false);
 #else
@@ -2825,22 +2784,6 @@ TIMER_START();
 
 	bootstatus->showStatus(60);
 	bootstatus->paint();
-
-#if HAVE_CST_HARDWARE
-	// dirty part of hw_caps - specify some details after zapit start
-	if (strcmp(g_info.hw_caps->boxname, "HD1") == 0)
-	{
-		// only SAT-HD1 has fan
-		if (!CFEManager::getInstance()->getFE(0)->hasSat())
-			g_info.hw_caps->has_fan = 0;
-	}
-	if (strcmp(g_info.hw_caps->boxname, "Neo") == 0)
-	{
-		// detecting Neo Twin by counting frontends
-		if (CFEManager::getInstance()->getFrontendCount() > 1)
-			strcpy(g_info.hw_caps->boxname, "Neo Twin");
-	}
-#endif
 
 	//timer start
 	timer_wakeup = (timer_wakeup && g_settings.shutdown_timer_record_type);
@@ -3001,7 +2944,7 @@ TIMER_START();
 	cCA::GetInstance()->setCheckLiveSlot(g_settings.ci_check_live);
 	//InitZapper();
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	C3DSetup::getInstance()->exec(NULL, "zapped");
 #endif
 	SHTDCNT::getInstance()->init();
@@ -3014,7 +2957,7 @@ TIMER_START();
 
 	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	videoDecoder->SetControl(VIDEO_CONTROL_ZAPPING_MODE, g_settings.zappingmode);
 	videoDecoder->SetHDMIColorimetry((HDMI_COLORIMETRY) g_settings.hdmi_colorimetry);
 #endif
@@ -3147,7 +3090,7 @@ void CNeutrinoApp::RealRun()
 		if (msg <= CRCInput::RC_MaxRC)
 			CScreenSaver::getInstance()->resetIdleTime();
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 		if (mode == NeutrinoModes::mode_radio)
 #else
 		if (mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio)
@@ -3331,7 +3274,7 @@ void CNeutrinoApp::RealRun()
 				StartSubtitles();
 			}
 			else if (((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) && (g_settings.key_tvradio_mode == (int)CRCInput::RC_nokey)) {
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 				if (msg == CRCInput::RC_tv)
 				{
 					if (mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio)
@@ -3726,7 +3669,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			g_settings.audio_AnalogMode = 0;
 
 		CVFD::getInstance()->UpdateIcons();
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 		C3DSetup::getInstance()->exec(NULL, "zapped");
 #endif
 #ifdef ENABLE_GRAPHLCD
@@ -4066,7 +4009,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if (g_Radiotext)
 			g_Radiotext->setPid(0);
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 		if (!CRecordManager::getInstance()->GetRecordCount()) {
 			CVFD::getInstance()->ShowIcon(FP_ICON_CAM1, false);
 		}
@@ -4487,33 +4430,7 @@ void CNeutrinoApp::ExitRun(int exit_code)
 
 	int leds = 0;
 	int bright = 0;
-#if HAVE_CST_HARDWARE
-	if (exit_code == CNeutrinoApp::EXIT_SHUTDOWN)
-	{
-		leds = 0x40;
-		switch (g_settings.led_deep_mode)
-		{
-			case 0:
-				leds = 0x0; // leds off
-				break;
-			case 1:
-				leds = 0x60; // led1 on, led2 on
-				break;
-			case 2:
-				leds = 0x20; // led1 on, led2 off
-				break;
-			case 3:
-				leds = 0x40; // led1 off, led2 on
-				break;
-			default:
-				break;
-		}
-		if (leds && g_settings.led_blink && timer_minutes)
-			leds |= 0x80;
-	}
-	if (cs_get_revision() != 10)
-		bright = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
-#endif
+
 	if (exit_code == EXIT_SHUTDOWN)
 	{
 		if (timer_minutes)
@@ -5202,7 +5119,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			exit(CNeutrinoApp::EXIT_REBOOT); // should never be reached
 		}
 	}
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	else if (actionKey == "3dmode") {
 		C3DSetup::getInstance()->exec(parent, "");
 		return menu_return::RETURN_EXIT_ALL;
@@ -5880,14 +5797,6 @@ void CNeutrinoApp::Cleanup()
 
 	printf("cleanup CEitManager::getInstance()\n"); fflush(stdout);
 	delete CEitManager::getInstance();
-#if HAVE_CST_HARDWARE
-	/*
-	printf("cleanup CVFD::getInstance()\n"); fflush(stdout);
-	delete CVFD::getInstance();
-	*/
-
-	comp_malloc_stats(NULL);
-#endif
 #endif
 }
 

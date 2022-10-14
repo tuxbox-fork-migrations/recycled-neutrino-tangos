@@ -59,14 +59,10 @@
 #include <system/helpers.h>
 
 #include <libdvbapi/video.h>
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 #include "3dsetup.h"
 #include <zapit/zapit.h>
 #include "screensetup.h"
-#endif
-
-#ifdef BOXMODEL_CST_HD2
-#include <cnxtfb.h>
 #endif
 
 extern cVideo *videoDecoder;
@@ -120,9 +116,7 @@ int CVideoSettings::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 const CMenuOptionChooser::keyval VIDEOMENU_43MODE_OPTIONS[] =
 {
 	{ DISPLAY_AR_MODE_PANSCAN, LOCALE_VIDEOMENU_PANSCAN },
-#ifndef BOXMODEL_CST_HD2
 	{ DISPLAY_AR_MODE_PANSCAN2, LOCALE_VIDEOMENU_PANSCAN2 },
-#endif
 	{ DISPLAY_AR_MODE_LETTERBOX, LOCALE_VIDEOMENU_LETTERBOX },
 	{ DISPLAY_AR_MODE_NONE, LOCALE_VIDEOMENU_FULLSCREEN }
 	//{ 2, LOCALE_VIDEOMENU_AUTO } // whatever is this auto mode, it seems its totally broken
@@ -215,35 +209,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS[VID
  * key value of -1 means the mode is not available
  * TODO: instead of #ifdef select at run time
  */
-#if HAVE_CST_HARDWARE
-/* numbers corresponding to video.cpp from zapit */
-CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
-{
-	{ VIDEO_STD_SECAM,   NONEXISTANT_LOCALE, "SECAM"	},
-	{ VIDEO_STD_PAL,     NONEXISTANT_LOCALE, "PAL"		},
-	{ VIDEO_STD_576P,    NONEXISTANT_LOCALE, "576p"		},
-	{ VIDEO_STD_720P50,  NONEXISTANT_LOCALE, "720p 50Hz"	},
-	{ VIDEO_STD_1080I50, NONEXISTANT_LOCALE, "1080i 50Hz"	},
-#ifdef BOXMODEL_CST_HD2
-	{ VIDEO_STD_1080P50, NONEXISTANT_LOCALE, "1080p 50Hz"	},
-#else
-	{ -1,                NONEXISTANT_LOCALE, "1080p 50Hz"	},
-#endif
-	{ VIDEO_STD_1080P24, NONEXISTANT_LOCALE, "1080p 24Hz"	},
-	{ VIDEO_STD_1080P25, NONEXISTANT_LOCALE, "1080p 25Hz"	},
-	{ VIDEO_STD_NTSC,    NONEXISTANT_LOCALE, "NTSC"		},
-	{ VIDEO_STD_480P,    NONEXISTANT_LOCALE, "480p"		},
-	{ VIDEO_STD_720P60,  NONEXISTANT_LOCALE, "720p 60Hz"	},
-	{ VIDEO_STD_1080I60, NONEXISTANT_LOCALE, "1080i 60Hz"	},
-#ifdef BOXMODEL_CST_HD2
-	/* TODO: fix this crap */
-	{ VIDEO_STD_1080P60,   NONEXISTANT_LOCALE, "1080p 60Hz"	},
-	{ VIDEO_STD_1080P2397, NONEXISTANT_LOCALE, "1080p 23.97Hz"},
-	{ VIDEO_STD_1080P2997, NONEXISTANT_LOCALE, "1080p 29.97Hz"},
-#endif
-	{ VIDEO_STD_AUTO,    NONEXISTANT_LOCALE, "Auto"		}
-};
-#elif HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {
 	{ -1,                NONEXISTANT_LOCALE, "SECAM"	},
@@ -301,7 +267,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_DBDR_OPTIONS[VIDEOMENU_DBDR_OPTION_CO
 	{ 2, LOCALE_VIDEOMENU_DBDR_BOTH }
 };
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 #define VIDEOMENU_ZAPPINGMODE_OPTION_COUNT 4
 CMenuOptionChooser::keyval VIDEOMENU_ZAPPINGMODE_OPTIONS[VIDEOMENU_ZAPPINGMODE_OPTION_COUNT] =
 {
@@ -312,7 +278,7 @@ CMenuOptionChooser::keyval VIDEOMENU_ZAPPINGMODE_OPTIONS[VIDEOMENU_ZAPPINGMODE_O
 };
 #endif
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 #define VIDEOMENU_HDMI_COLORIMETRY_OPTION_COUNT 4
 const CMenuOptionChooser::keyval VIDEOMENU_HDMI_COLORIMETRY_OPTIONS[VIDEOMENU_HDMI_COLORIMETRY_OPTION_COUNT] =
 {
@@ -350,26 +316,7 @@ int CVideoSettings::showVideoSetup()
 	CMenuOptionChooser * vs_colorformat_analog = NULL;
 	CMenuOptionChooser * vs_colorformat_hdmi = NULL;
 
-	if (system_rev == 0x06)
-	{
-		vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1_OPTION_COUNT, true, this);
-		vs_analg_ch->setHint("", LOCALE_MENU_HINT_VIDEO_ANALOG_MODE);
-	}
-	else if (system_rev > 0x06)
-	{
-#if defined(BOXMODEL_CST_HD2) && defined(ANALOG_MODE)
-		vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD2_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD2_OPTION_COUNT, true, this);
-		vs_analg_ch->setHint("", LOCALE_MENU_HINT_VIDEO_ANALOG_MODE);
-#else
-		if(system_rev != 10) {
-			vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTION_COUNT, true, this);
-			vs_scart_ch->setHint("", LOCALE_MENU_HINT_VIDEO_SCART_MODE);
-		}
-		vs_chinch_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_CINCH, &g_settings.analog_mode2, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTION_COUNT, true, this);
-		vs_chinch_ch->setHint("", LOCALE_MENU_HINT_VIDEO_CINCH_MODE);
-#endif
-	}
-	else if (g_info.hw_caps->has_SCART)
+	if (g_info.hw_caps->has_SCART)
 	{
 		vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_TD_OPTIONS, VIDEOMENU_VIDEOSIGNAL_TD_OPTION_COUNT, true, this);
 	}
@@ -388,10 +335,7 @@ int CVideoSettings::showVideoSetup()
 
 	CMenuOptionChooser *vs_dbdropt_ch = NULL;
 	CMenuWidget videomodes(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
-#ifdef BOXMODEL_CST_HD2
-	CMenuForwarder * vs_automodes_fw = NULL;
-	CMenuWidget automodes(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
-#endif
+
 	CAutoModeNotifier anotify;
 	CMenuForwarder *vs_videomodes_fw = NULL;
 	//dbdr options
@@ -416,15 +360,6 @@ int CVideoSettings::showVideoSetup()
 		vs_videomodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES);
 	}
 
-#ifdef BOXMODEL_CST_HD2
-		automodes.addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES_AUTO);
-
-		for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT - 1; i++)
-			automodes.addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_auto_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &anotify));
-
-		vs_automodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES_AUTO, true, NULL, &automodes, NULL, CRCInput::RC_green);
-		vs_automodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES_AUTO);
-#endif
 	}
 
 	if (vs_colorformat_analog || vs_colorformat_hdmi) {
@@ -460,11 +395,8 @@ int CVideoSettings::showVideoSetup()
 		videosetup->addItem(vs_dbdropt_ch);	  //dbdr options
 	if (vs_videomodes_fw != NULL)
 		videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
-#ifdef BOXMODEL_CST_HD2
-	videosetup->addItem(vs_automodes_fw);	  //video auto modes submenue
-#endif
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	CMenuForwarder *mf;
 	CMenuOptionNumberChooser *mc;
 
@@ -474,7 +406,6 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(quadpip);
 #endif
 
-#if !HAVE_MIPS_HARDWARE
 	CPSISetup *psiSetup = CPSISetup::getInstance();
 
 	videosetup->addItem(GenericMenuSeparatorLine);
@@ -503,29 +434,13 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(mc);
 
 	videosetup->addItem(GenericMenuSeparatorLine);
-#endif
 
 	mf = new CMenuForwarder(LOCALE_THREE_D_SETTINGS, true, NULL, CNeutrinoApp::getInstance(), "3dmode", CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_VIDEO_THREE_D);
 	videosetup->addItem(mf);
 
 #endif
-#ifdef BOXMODEL_CST_HD2
-	/* values are from -128 to 127, but brightness really no sense after +/- 40. changeNotify multiply contrast and saturation to 3 */
-	CMenuOptionNumberChooser * bcont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_BRIGHTNESS, &g_settings.brightness, true, -42, 42, this);
-	bcont->setHint("", LOCALE_MENU_HINT_VIDEO_BRIGHTNESS);
-	CMenuOptionNumberChooser * ccont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_CONTRAST, &g_settings.contrast, true, -42, 42, this);
-	ccont->setHint("", LOCALE_MENU_HINT_VIDEO_CONTRAST);
-	CMenuOptionNumberChooser * scont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_SATURATION, &g_settings.saturation, true, -42, 42, this);
-	scont->setHint("", LOCALE_MENU_HINT_VIDEO_SATURATION);
-	videosetup->addItem(bcont);
-	videosetup->addItem(ccont);
-	videosetup->addItem(scont);
 
-	CMenuOptionChooser * sd = new CMenuOptionChooser(LOCALE_VIDEOMENU_SDOSD, &g_settings.enable_sd_osd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
-	sd->setHint("", LOCALE_MENU_HINT_VIDEO_SDOSD);
-	videosetup->addItem(sd);
-#endif
 #ifdef ENABLE_PIP
 	CPipSetup pip;
 	CMenuForwarder * pipsetup = new CMenuForwarder(LOCALE_VIDEOMENU_PIP, g_info.hw_caps->can_pip, NULL, &pip);
@@ -533,7 +448,7 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(pipsetup);
 #endif
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	if (file_exists("/proc/stb/video/zapmode")) {
 		CMenuOptionChooser * zm = new CMenuOptionChooser(LOCALE_VIDEOMENU_ZAPPINGMODE, &g_settings.zappingmode, VIDEOMENU_ZAPPINGMODE_OPTIONS, VIDEOMENU_ZAPPINGMODE_OPTION_COUNT, true, this, CRCInput::RC_yellow);
 		zm->setHint("", LOCALE_MENU_HINT_VIDEO_ZAPPINGMODE);
@@ -561,17 +476,10 @@ void CVideoSettings::initVideoSettings()
 	videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode1);
 	videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode2);
 #endif
-#ifdef BOXMODEL_CST_HD2
-	changeNotify(LOCALE_VIDEOMENU_ANALOG_MODE, NULL);
-#else
-	unsigned int system_rev = 1;
-	if (system_rev == 0x06) {
-		changeNotify(LOCALE_VIDEOMENU_ANALOG_MODE, NULL);
-	} else {
-		changeNotify(LOCALE_VIDEOMENU_SCART, NULL);
-		changeNotify(LOCALE_VIDEOMENU_CINCH, NULL);
-	}
-#endif
+
+	changeNotify(LOCALE_VIDEOMENU_SCART, NULL);
+	changeNotify(LOCALE_VIDEOMENU_CINCH, NULL);
+
 	//setupVideoSystem(false/*don't ask*/);// focus: CVideoSettings constructor do this already ?
 
 #if 0
@@ -587,12 +495,7 @@ void CVideoSettings::initVideoSettings()
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
 	CAutoModeNotifier anotify;
 	anotify.changeNotify(NONEXISTANT_LOCALE, 0);
-#ifdef BOXMODEL_CST_HD2
-	changeNotify(LOCALE_VIDEOMENU_BRIGHTNESS, NULL);
-	changeNotify(LOCALE_VIDEOMENU_CONTRAST, NULL);
-	changeNotify(LOCALE_VIDEOMENU_SATURATION, NULL);
-	changeNotify(LOCALE_VIDEOMENU_SDOSD, NULL);
-#endif
+
 #ifdef ENABLE_PIP
 	if (pipVideoDecoder[0] != NULL)
 		pipVideoDecoder[0]->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, g_settings.screen_width, g_settings.screen_height);
@@ -664,28 +567,6 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 		setupVideoSystem(true/*ask*/);
 		return true;
 	}
-#ifdef BOXMODEL_CST_HD2
-        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_BRIGHTNESS))
-	{
-		videoDecoder->SetControl(VIDEO_CONTROL_BRIGHTNESS, g_settings.brightness);
-	}
-        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_CONTRAST))
-	{
-		videoDecoder->SetControl(VIDEO_CONTROL_CONTRAST, g_settings.contrast*3);
-	}
-        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_SATURATION))
-	{
-		videoDecoder->SetControl(VIDEO_CONTROL_SATURATION, g_settings.saturation*3);
-	}
-        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_SDOSD))
-	{
-		int val = g_settings.enable_sd_osd;
-		printf("SD OSD enable: %d\n", val);
-		int fd = CFrameBuffer::getInstance()->getFileHandle();
-		if (ioctl(fd, FBIO_SCALE_SD_OSD, &val))
-			perror("FBIO_SCALE_SD_OSD");
-	}
-#endif
 #if 0
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_SHARPNESS))
 	{
@@ -696,7 +577,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 		videoDecoder->SetControl(VIDEO_CONTROL_HUE, val);
 	}
 #endif
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_ZAPPINGMODE)) {
 		videoDecoder->SetControl(VIDEO_CONTROL_ZAPPING_MODE, g_settings.zappingmode);
 	}

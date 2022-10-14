@@ -1362,7 +1362,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					now_pressed -= (t2.tv_usec + t2.tv_sec * 1000000ULL);
 				}
 				SHTDCNT::getInstance()->resetSleepTimer();
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 				if ((ev.code == 0 || ev.code == 1) && ev.value && firstKey)
 					continue;
 #endif
@@ -1822,7 +1822,7 @@ int CRCInput::translate(int code)
 			return RC_page_up;
 		case KEY_CHANNELDOWN:
 			return RC_page_down;
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 		case KEY_BACK:
 			return RC_home;
 		case KEY_SWITCHVIDEOMODE:
@@ -1859,15 +1859,6 @@ void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
 		std::string path = (*it).path;
 		if (path == "/tmp/neutrino.input")
 			continue; /* setting repeat rate does not work here */
-#ifdef BOXMODEL_CST_HD1
-		/* this is ugly, but the driver does not support anything advanced... */
-		if (path == "/dev/input/nevis_ir") {
-			d_printf("[rcinput:%s] %s(fd %d) using proprietary ioctl\n", __func__, path.c_str(), fd);
-			ioctl(fd, IOC_IR_SET_F_DELAY, start_ms);
-			ioctl(fd, IOC_IR_SET_X_DELAY, repeat_ms);
-			continue;
-		}
-#endif
 		d_printf("[rcinput:%s] %s(fd %d) writing EV_REP (%d->%d)\n",
 				__func__, path.c_str(), fd, start_ms, repeat_ms);
 		/* if we have a good input device, we don't need the private ioctl above */

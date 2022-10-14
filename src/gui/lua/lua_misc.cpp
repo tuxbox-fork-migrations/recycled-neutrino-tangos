@@ -281,13 +281,9 @@ int CLuaInstMisc::GetRevision(lua_State *L)
 	if (!D) return 0; */
 	unsigned int rev = 0;
 	std::string hw   = "";
-#if HAVE_CST_HARDWARE
-	hw = "Coolstream";
-#else
 	hw = g_info.hw_caps->boxvendor;
 	hw += "_";
 	hw += g_info.hw_caps->boxname;
-#endif
 	rev = 1;
 	lua_pushinteger(L, rev);
 	lua_pushstring(L, hw.c_str());

@@ -56,21 +56,6 @@ if ENABLE_GRAPHLCD
 SUBDIRS += glcd
 endif
 
-if BOXTYPE_CST
-libneutrino_driver_a_SOURCES += \
-	fb_generic.cpp \
-	fb_accel.cpp \
-	fb_accel_cs_hdx.cpp
-if BOXMODEL_CST_HD2
-libneutrino_driver_a_SOURCES += \
-	fb_accel_cs_hd2.cpp \
-	vfd.cpp
-else
-libneutrino_driver_a_SOURCES += \
-	fb_accel_cs_hd1.cpp \
-	vfd.cpp
-endif
-endif
 
 if BOXTYPE_GENERIC
 libneutrino_driver_a_SOURCES += \
@@ -94,14 +79,6 @@ libneutrino_driver_a_SOURCES += \
 	fb_accel_arm.cpp \
 	simple_display.cpp
 endif
-endif
-
-if BOXTYPE_MIPSBOX
-libneutrino_driver_a_SOURCES += \
-	fb_generic.cpp \
-	fb_accel.cpp \
-	fb_accel_mips.cpp \
-	simple_display.cpp
 endif
 
 libneutrino_driver_netfile_a_SOURCES = netfile.cpp

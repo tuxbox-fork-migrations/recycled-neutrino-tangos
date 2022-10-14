@@ -42,7 +42,7 @@
 #include <gui/plugins.h>
 #include <gui/sleeptimer.h>
 #include <gui/zapit_setup.h>
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 #include <gui/kerneloptions.h>
 #endif
 
@@ -344,7 +344,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	mf->setHint("", LOCALE_MENU_HINT_MISC_CPUFREQ);
 	misc_menue.addItem(mf);
 #endif /*CPU_FREQ*/
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	// kerneloptions
 	CKernelOptions kernelOptions;
 	mf = new CMenuForwarder(LOCALE_KERNELOPTIONS_HEAD, true, NULL, &kernelOptions, NULL, CRCInput::convertDigitToKey(shortcut++));
@@ -790,7 +790,7 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		}
 		videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 		videoDecoder->SetAudioDestination(g_settings.hdmi_cec_volume);
 #endif
 		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);

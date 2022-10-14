@@ -75,32 +75,6 @@ if test "$enable_omdb_key_manage" = "yes" ; then
 fi
 # omdb end
 
-# youtube
-AC_ARG_WITH(youtube-dev-key,
-	AS_HELP_STRING([--with-youtube-dev-key=KEY], [API dev key for YouTube streaming]),
-	[YT_DEV_KEY="$withval"],
-	[YT_DEV_KEY=""])
-AC_DEFINE_UNQUOTED([YT_DEV_KEY], ["$YT_DEV_KEY"], [API dev key for YouTube streaming])
-
-AC_ARG_ENABLE([youtube-key-manage],
-	AS_HELP_STRING([--enable-youtube-key-manage], [Enable manage YouTube dev key via gui @<:@default=yes@:>@]),
-	[enable_youtube_key_manage="$enableval"],
-	[enable_youtube_key_manage="yes"])
-
-if test "$enable_youtube_key_manage" = "yes" ; then
-	AC_DEFINE([ENABLE_YOUTUBE_KEY_MANAGE], 1, [Enable manage YouTube dev key via gui])
-fi
-
-AC_ARG_ENABLE([youtube-player],
-	AS_HELP_STRING([--enable-youtube-player], [Enable play and control youtube streams with moviebrowser @<:@default=yes@:>@]),
-	[enable_youtube_player="$enableval"],
-	[enable_youtube_player="yes"])
-
-if test "$enable_youtube_player" = "yes" ; then
-	AC_DEFINE([ENABLE_YOUTUBE_PLAYER], 1, [Enable play and control YouTube streams with moviebrowser])
-fi
-# youtube end
-
 # shoutcast
 AC_ARG_WITH(shoutcast-dev-key,
 	AS_HELP_STRING([--with-shoutcast-dev-key=KEY], [API dev key to get stream data lists from ShoutCast service]),
@@ -117,15 +91,6 @@ if test "$enable_shoutcast_key_manage" = "yes" ; then
 	AC_DEFINE([ENABLE_SHOUTCAST_KEY_MANAGE], 1, [Enable manage of api dev key to get stream data lists from ShoutCast service via gui])
 fi
 # shoutcast end
-
-AC_ARG_WITH(libcoolstream-static-dir,
-	AS_HELP_STRING([--with-libcoolstream-static-dir=PATH], [path for static libcoolstream [[NONE]]]),
-	[LIBCOOLSTREAM_STATIC_DIR="$withval"],
-	[LIBCOOLSTREAM_STATIC_DIR=""])
-
-AC_ARG_ENABLE(libcoolstream-static,
-	AS_HELP_STRING([--enable-libcoolstream-static], [libcoolstream static linked for testing @<:@default=no@:>@]))
-AM_CONDITIONAL(ENABLE_LIBCOOLSTREAM_STATIC, test "$enable_libcoolstream_static" = "yes")
 
 AC_ARG_ENABLE(reschange,
 	AS_HELP_STRING([--enable-reschange], [enable change the osd resolution @<:@default for hd2 and hd51@:>@]),
@@ -446,15 +411,11 @@ AC_DEFUN([TUXBOX_BOXTYPE], [
 AC_ARG_WITH(boxtype,
 	AS_HELP_STRING([--with-boxtype], [valid values: coolstream, generic, armbox, mipsbox]),
 	[case "${withval}" in
-		generic|coolstream|armbox|mipsbox)
+		generic|armbox)
 			BOXTYPE="$withval"
 		;;
 		hd51|multibox|multiboxse|hd60|hd61|bre2ze4k|osmini4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|sf8008|sf8008m|ustym4kpro|h9combo|h9)
 			BOXTYPE="armbox"
-			BOXMODEL="$withval"
-		;;
-		vuduo|vuduo2|gb800se|osnino|osninoplus|osninopro)
-			BOXTYPE="mipsbox"
 			BOXMODEL="$withval"
 		;;
 		*)
@@ -464,46 +425,10 @@ AC_ARG_WITH(boxtype,
 	[BOXTYPE="generic"])
 
 AC_ARG_WITH(boxmodel,
-	AS_HELP_STRING([--with-boxmodel], [valid for coolstream: hd1, hd2])
-	AS_HELP_STRING([], [valid for armbox: hd51, multibox, multiboxse, hd60, hd61, bre2ze4k, osmini4k, osmio4k, osmio4kplus, h7, vusolo4k, vuduo4k, vuultimo4k, vuzero4k, vuuno4kse, vuuno4k, sf8008, sf8008m, ustym4kpro, h9combo. h9])
-	AS_HELP_STRING([], [valid for mipsbox: vuduo, vuduo2, gb800se, osnino, osninoplus, osninopro])
-	AS_HELP_STRING([], [valid for generic: raspi]),
+	AS_HELP_STRING([--with-boxmodel], [valid for armbox: hd51, multibox, multiboxse, hd60, hd61, bre2ze4k, osmini4k, osmio4k, osmio4kplus, h7, vusolo4k, vuduo4k, vuultimo4k, vuzero4k, vuuno4kse, vuuno4k, sf8008, sf8008m, ustym4kpro, h9combo. h9])
 	[case "${withval}" in
-		hd1|hd2)
-			if test "$BOXTYPE" = "coolstream"; then
-				BOXMODEL="$withval"
-			else
-				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
-			fi
-		;;
-		nevis|apollo)
-			if test "$BOXTYPE" = "coolstream"; then
-				if test "$withval" = "nevis"; then
-					BOXMODEL="hd1"
-				fi
-				if test "$withval" = "apollo"; then
-					BOXMODEL="hd2"
-				fi
-			else
-				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
-			fi
-		;;
 		hd51|multibox|multiboxse|hd60|hd61|bre2ze4k|osmini4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|sf8008|sf8008m|ustym4kpro|h9combo|h9)
 			if test "$BOXTYPE" = "armbox"; then
-				BOXMODEL="$withval"
-			else
-				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
-			fi
-		;;
-		vuduo|vuduo2|gb800se|osnino|osninoplus|osninopro)
-			if test "$BOXTYPE" = "mipsbox"; then
-				BOXMODEL="$withval"
-			else
-				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
-			fi
-		;;
-		raspi)
-			if test "$BOXTYPE" = "generic"; then
 				BOXMODEL="$withval"
 			else
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
@@ -518,12 +443,7 @@ AC_SUBST(BOXTYPE)
 AC_SUBST(BOXMODEL)
 
 AM_CONDITIONAL(BOXTYPE_GENERIC, test "$BOXTYPE" = "generic")
-AM_CONDITIONAL(BOXTYPE_CST, test "$BOXTYPE" = "coolstream")
 AM_CONDITIONAL(BOXTYPE_ARMBOX, test "$BOXTYPE" = "armbox")
-AM_CONDITIONAL(BOXTYPE_MIPSBOX, test "$BOXTYPE" = "mipsbox")
-
-AM_CONDITIONAL(BOXMODEL_CST_HD1, test "$BOXMODEL" = "hd1")
-AM_CONDITIONAL(BOXMODEL_CST_HD2, test "$BOXMODEL" = "hd2")
 
 AM_CONDITIONAL(BOXMODEL_MULTIBOX, test "$BOXMODEL" = "multibox")
 AM_CONDITIONAL(BOXMODEL_MULTIBOXSE, test "$BOXMODEL" = "multiboxse")
@@ -545,43 +465,25 @@ AM_CONDITIONAL(BOXMODEL_VUUNO4KSE, test "$BOXMODEL" = "vuuno4kse")
 AM_CONDITIONAL(BOXMODEL_VUUNO4K, test "$BOXMODEL" = "vuuno4k")
 AM_CONDITIONAL(BOXMODEL_VUZERO4K, test "$BOXMODEL" = "vuzero4k")
 
-AM_CONDITIONAL(BOXMODEL_VUDUO, test "$BOXMODEL" = "vuduo")
-AM_CONDITIONAL(BOXMODEL_VUDUO2, test "$BOXMODEL" = "vuduo2")
-AM_CONDITIONAL(BOXMODEL_GB800SE, test "$BOXMODEL" = "gb800se")
-AM_CONDITIONAL(BOXMODEL_OSNINO, test "$BOXMODEL" = "osnino")
-AM_CONDITIONAL(BOXMODEL_OSNINOPLUS, test "$BOXMODEL" = "osninoplus")
-AM_CONDITIONAL(BOXMODEL_OSNINOPRO, test "$BOXMODEL" = "osninopro")
 AM_CONDITIONAL(BOXMODEL_SF8008, test "$BOXMODEL" = "sf8008")
 AM_CONDITIONAL(BOXMODEL_SF8008M, test "$BOXMODEL" = "sf8008m")
 AM_CONDITIONAL(BOXMODEL_USTYM4KPRO, test "$BOXMODEL" = "ustym4kpro")
 AM_CONDITIONAL(BOXMODEL_H9COMBO, test "$BOXMODEL" = "h9combo")
 AM_CONDITIONAL(BOXMODEL_H9, test "$BOXMODEL" = "h9")
 
-AM_CONDITIONAL(BOXMODEL_RASPI, test "$BOXMODEL" = "raspi")
-
-AM_CONDITIONAL(BOXMODEL_VUPLUS_ALL, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuzero4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k" -o "$BOXMODEL" = "vuduo")
+AM_CONDITIONAL(BOXMODEL_VUPLUS_ALL, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuzero4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k")
 AM_CONDITIONAL(BOXMODEL_VUPLUS_ARM, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuzero4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k")
-AM_CONDITIONAL(BOXMODEL_VUPLUS_MIPS, test "$BOXMODEL" = "vuduo" -o "$BOXMODEL" = "vuduo2")
 
 AM_CONDITIONAL(BOXMODEL_HISILICON, test "$BOXMODEL" = "hd60" -o "$BOXMODEL" = "hd61" -o "$BOXMODEL" = "multibox" -o "$BOXMODEL" = "multiboxse" -o "$BOXMODEL" = "sf8008" -o "$BOXMODEL" = "sf8008m" -o "$BOXMODEL" = "ustym4kpro" -o "$BOXMODEL" = "hmcombo")
 
-if test "$BOXTYPE" = "coolstream"; then
-	AC_DEFINE(HAVE_CST_HARDWARE, 1, [building for a coolstream])
-elif test "$BOXTYPE" = "generic"; then
+if test "$BOXTYPE" = "generic"; then
 	AC_DEFINE(HAVE_GENERIC_HARDWARE, 1, [building for a generic device like a standard PC])
 elif test "$BOXTYPE" = "armbox"; then
 	AC_DEFINE(HAVE_ARM_HARDWARE, 1, [building for an armbox])
-elif test "$BOXTYPE" = "mipsbox"; then
-	AC_DEFINE(HAVE_MIPS_HARDWARE, 1, [building for an mipsbox])
 fi
 
 # TODO: do we need more defines?
-if test "$BOXMODEL" = "hd1"; then
-	AC_DEFINE(BOXMODEL_CST_HD1, 1, [coolstream hd1/neo/neo2/zee])
-elif test "$BOXMODEL" = "hd2"; then
-	AC_DEFINE(BOXMODEL_CST_HD2, 1, [coolstream tank/trinity/trinity v2/trinity duo/zee2/link])
-	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable change the osd resolution])
-elif test "$BOXMODEL" = "multibox"; then
+if test "$BOXMODEL" = "multibox"; then
 	AC_DEFINE(BOXMODEL_MULTIBOX, 1, [multibox])
 elif test "$BOXMODEL" = "multiboxse"; then
 	AC_DEFINE(BOXMODEL_MULTIBOXSE, 1, [multiboxse])
@@ -595,10 +497,6 @@ elif test "$BOXMODEL" = "bre2ze4k"; then
 	AC_DEFINE(BOXMODEL_BRE2ZE4K, 1, [bre2ze4k])
 elif test "$BOXMODEL" = "h7"; then
 	AC_DEFINE(BOXMODEL_H7, 1, [h7])
-elif test "$BOXMODEL" = "vuduo"; then
-	AC_DEFINE(BOXMODEL_VUDUO, 1, [vuduo])
-elif test "$BOXMODEL" = "vuduo2"; then
-	AC_DEFINE(BOXMODEL_VUDUO2, 1, [vuduo2])
 elif test "$BOXMODEL" = "vusolo4k"; then
 	AC_DEFINE(BOXMODEL_VUSOLO4K, 1, [vusolo4k])
 elif test "$BOXMODEL" = "vuduo4k"; then
@@ -611,16 +509,6 @@ elif test "$BOXMODEL" = "vuuno4kse"; then
 	AC_DEFINE(BOXMODEL_VUUNO4KSE, 1, [vuuno4kse])
 elif test "$BOXMODEL" = "vuuno4k"; then
 	AC_DEFINE(BOXMODEL_VUUNO4K, 1, [vuuno4k])
-elif test "$BOXMODEL" = "gb800se"; then
-	AC_DEFINE(BOXMODEL_GB800SE, 1, [gb800se])
-elif test "$BOXMODEL" = "osnino"; then
-	AC_DEFINE(BOXMODEL_OSNINO, 1, [osnino])
-elif test "$BOXMODEL" = "osninoplus"; then
-	AC_DEFINE(BOXMODEL_OSNINOPLUS, 1, [osninoplus])
-elif test "$BOXMODEL" = "osninopro"; then
-	AC_DEFINE(BOXMODEL_OSNINOPRO, 1, [osninopro])
-elif test "$BOXMODEL" = "raspi"; then
-	AC_DEFINE(BOXMODEL_RASPI, 1, [raspberry pi])
 elif test "$BOXMODEL" = "osmini4k"; then
 	AC_DEFINE(BOXMODEL_OSMINI4K, 1, [osmini4k])
 elif test "$BOXMODEL" = "osmio4k"; then
@@ -641,7 +529,7 @@ fi
 
 # Support Boxmodel with OSD-Resolution
 case "$BOXMODEL" in
-	bre2ze4k|hd51|multibox|multiboxse|hd60|hd61|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|vuduo|vuduo2|h7|osmini4k|osmio4k|osmio4kplus|sf8008|sf8008m|ustym4kpro|h9combo|h9)
+	bre2ze4k|hd51|multibox|multiboxse|hd60|hd61|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|h7|osmini4k|osmio4k|osmio4kplus|sf8008|sf8008m|ustym4kpro|h9combo|h9)
 		AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable to change osd resolution])
 	;;
 esac
@@ -656,7 +544,7 @@ esac
 
 # all vuplus BOXMODELs
 case "$BOXMODEL" in
-	vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|vuduo|vuduo2)
+	vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k)
 		AC_DEFINE(BOXMODEL_VUPLUS_ALL, 1, [vuplus_all])
 	;;
 esac
@@ -665,13 +553,6 @@ esac
 case "$BOXMODEL" in
 	vusolo4k|vuduo4k|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k)
 		AC_DEFINE(BOXMODEL_VUPLUS_ARM, 1, [vuplus_arm])
-	;;
-esac
-
-# all vuplus mips BOXMODELs
-case "$BOXMODEL" in
-	vuduo|vuduo2)
-		AC_DEFINE(BOXMODEL_VUPLUS_MIPS, 1, [vuplus_mips])
 	;;
 esac
 

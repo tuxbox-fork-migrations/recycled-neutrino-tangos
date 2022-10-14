@@ -53,7 +53,7 @@ struct ca_descr_data
 #define CA_SET_DESCR_DATA _IOW('o', 137, struct ca_descr_data)
 #endif
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 
 static const char *descrambler_filename = "/dev/ciplus_ca0";
 
@@ -145,7 +145,7 @@ int descrambler_set_key(int index, int parity, unsigned char *data)
 int descrambler_set_pid(int index, int enable, int pid)
 {
 	struct ca_pid p;
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if HAVE_ARM_HARDWARE
 	unsigned int flags = 0x80;
 
 	if (index)

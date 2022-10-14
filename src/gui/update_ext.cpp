@@ -233,11 +233,8 @@ bool CExtUpdate::applySettings()
 	if (mtdFilename.empty())
 		return ErrorReset(0, "error system mtd not found");
 
-#ifdef BOXMODEL_CST_HD2
-	uint64_t mtdSize = 65536*1024; // FIXME hack, mtd size more than free RAM
-#else
 	uint64_t mtdSize = mtdInfo->getMTDSize(mtdFilename);
-#endif
+
 	uint64_t mtdEraseSize = mtdInfo->getMTDEraseSize(mtdFilename);
 	mtdNumber = mtdInfo->findMTDNumber(mtdFilename);
 

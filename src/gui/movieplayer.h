@@ -134,13 +134,8 @@ class CMoviePlayerGui : public CMenuTarget
 	int vpid;
 	int vtype;
 	std::string    language[REC_MAX_APIDS];
-#if HAVE_CST_HARDWARE
-	uint16_t apids[REC_MAX_APIDS];
-	unsigned short ac3flags[REC_MAX_APIDS];
-#else
 	int apids[REC_MAX_APIDS];
 	unsigned int ac3flags[REC_MAX_APIDS];
-#endif
 	int currentapid, currentac3;
 	repeat_mode_enum repeat_mode;
 

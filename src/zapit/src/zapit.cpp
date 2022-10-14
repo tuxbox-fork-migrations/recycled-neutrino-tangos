@@ -623,11 +623,6 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 		StopPip();
 #endif
 
-#ifdef BOXMODEL_CST_HD2
-	if (CCamManager::getInstance()->GetCITuner() < 0)
-		cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)live_fe->getNumber());
-#endif
-
 	if (current_channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) {
 		current_is_nvod = true;
 		return true;

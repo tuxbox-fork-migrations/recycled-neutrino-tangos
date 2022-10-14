@@ -20,10 +20,6 @@
 #include <global.h>
 #include <neutrino.h>
 
-#if HAVE_CST_HARDWARE
-#include <driver/vfd.h>
-#endif
-
 #include "int_fft.c"
 
 typedef signed short gint16;
