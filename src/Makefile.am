@@ -105,7 +105,6 @@ neutrino_LDADD = \
 	$(top_builddir)/lib/libdvbsub/libdvbsub.a \
 	$(top_builddir)/lib/libdvbapi/libdvbapi.a \
 	$(top_builddir)/lib/libdvbci/libdvbci.a \
-	$(top_builddir)/lib/libeplayer3/libeplayer3.a \
 	$(top_builddir)/src/gui/widget/yaft/libneutrino_gui_terminal.a \
 	@CURL_LIBS@ \
 	@FREETYPE_LIBS@ \
@@ -124,8 +123,13 @@ neutrino_LDADD = \
 	-lOpenThreads \
 	-lrt -lpthread \
 	-ldl -lblkid \
-	-lz -lass
+	-lz
 
+if !BOXTYPE_GENERIC
+neutrino_LDADD += \
+	$(top_builddir)/lib/libeplayer3/libeplayer3.a \
+	-lass
+endif
 
 # LCD display
 if ENABLE_LCD
