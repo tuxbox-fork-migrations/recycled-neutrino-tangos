@@ -37,7 +37,7 @@
 #include <gui/components/cc.h>
 #include <string>
 
-class Font;
+class CFont;
 class CFrameBuffer;
 class CDBoxInfoWidget : public CMenuTarget
 {
@@ -57,7 +57,7 @@ class CDBoxInfoWidget : public CMenuTarget
 
 		void paint();
 		CComponentsHeader *header;
-		Font *fm, *ft;
+		CFont *fm, *ft;
 
 	public:
 

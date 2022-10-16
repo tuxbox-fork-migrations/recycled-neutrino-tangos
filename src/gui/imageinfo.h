@@ -47,7 +47,7 @@ class CImageInfo : public CMenuTarget
 	private:
 		int item_offset; //distance between items and to boarder
 		std::string license_txt, policy_txt, build_info_txt;
-		Font* item_font;
+		CFont* item_font;
 		int item_height;
 		int y_tmp;
 		std::vector<image_info_t> v_info;

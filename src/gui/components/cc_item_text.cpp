@@ -44,7 +44,7 @@ CComponentsText::CComponentsText(	CComponentsForm *parent,
 					const int x_pos, const int y_pos, const int w, const int h,
 					std::string text,
 					const int mode,
-					Font* font_text,
+					CFont* font_text,
 					const int& font_style,
 					int shadow_mode,
 					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
@@ -55,7 +55,7 @@ CComponentsText::CComponentsText(	CComponentsForm *parent,
 CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
 					std::string text,
 					const int mode,
-					Font* font_text,
+					CFont* font_text,
 					const int& font_style,
 					CComponentsForm *parent,
 					int shadow_mode,
@@ -74,7 +74,7 @@ CComponentsText::~CComponentsText()
 void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w, const int h,
 					std::string text,
 					const int mode,
-					Font* font_text,
+					CFont* font_text,
 					const int& font_style,
 					CComponentsForm *parent,
 					int shadow_mode,
@@ -212,7 +212,7 @@ void CComponentsText::clearCCText()
 	}
 }
 
-bool CComponentsText::setText(const std::string& stext, const int mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
+bool CComponentsText::setText(const std::string& stext, const int mode, CFont* font_text, const fb_pixel_t& color_text, const int& style)
 {
 	if (ct_text != stext || ct_text_mode != mode || ct_font != font_text || ct_col_text != color_text || ct_text_style != style  ){
 		if (ct_text != stext){
@@ -235,18 +235,18 @@ bool CComponentsText::setText(const std::string& stext, const int mode, Font* fo
 	return false;
 }
 
-bool CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
+bool CComponentsText::setText(neutrino_locale_t locale_text, int mode, CFont* font_text, const fb_pixel_t& color_text, const int& style)
 {
 	string stext = g_Locale->getText(locale_text);
 	return setText(stext, mode, font_text, color_text, style);
 }
 
-bool CComponentsText::setText(const char* ctext, const int mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
+bool CComponentsText::setText(const char* ctext, const int mode, CFont* font_text, const fb_pixel_t& color_text, const int& style)
 {
 	return setText((string)ctext, mode, font_text, color_text, style);
 }
 
-bool CComponentsText::setText(const int digit, const int mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
+bool CComponentsText::setText(const int digit, const int mode, CFont* font_text, const fb_pixel_t& color_text, const int& style)
 {
 	string s_digit = iToString(digit);
 	return setText(s_digit, mode, font_text, color_text, style);
@@ -273,7 +273,7 @@ string CComponentsText::getTextFromFile(const string& path_to_textfile)
 }
 
 //set text lines directly from a file, returns true on succsess
-bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
+bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int mode, CFont* font_text, const fb_pixel_t& color_text, const int& style)
 {
 	string txt = getTextFromFile(path_to_textfile);
 
@@ -405,7 +405,7 @@ void CComponentsText::setTextColor(const fb_pixel_t& color_text)
 	}
 }
 
-void CComponentsText::setTextFont(Font* font_text)
+void CComponentsText::setTextFont(CFont* font_text)
 {
 	ct_font = font_text;
 }
@@ -432,7 +432,7 @@ string  CComponentsText::getText()
 	return ct_text;
 }
 
-Font* CComponentsText::getFont()
+CFont* CComponentsText::getFont()
 {
 	return ct_font;
 }

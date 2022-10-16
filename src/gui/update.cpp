@@ -95,11 +95,10 @@ extern int allow_flash;
 
 #define LIST_OF_UPDATES_LOCAL_FILENAME "update.list"
 
-#if HAVE_ARM_HARDWARE
 #define FILEBROWSER_UPDATE_FILTER      "tgz"
 #define MTD_OF_WHOLE_IMAGE              999
 #define MTD_DEVICE_OF_UPDATE_PART       "/dev/mtd999"
-#endif
+
 int pinghost  (const std::string &hostname, std::string *ip = NULL);
 
 CFlashUpdate::CFlashUpdate()

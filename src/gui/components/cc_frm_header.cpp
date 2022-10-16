@@ -212,7 +212,7 @@ void CComponentsHeader::setCaption(neutrino_locale_t caption_locale, const cc_ti
 	setCaption(string(g_Locale->getText(caption_locale)), align_mode, text_color);
 }
 
-void CComponentsHeader::setCaptionFont(Font* font)
+void CComponentsHeader::setCaptionFont(CFont* font)
 {
 	cch_font = font;
 }

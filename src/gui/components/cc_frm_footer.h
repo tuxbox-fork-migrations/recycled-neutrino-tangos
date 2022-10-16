@@ -68,7 +68,7 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		int ccf_button_container_y;
 
 		///property: set font for label caption, see also setButtonFont()
-		Font* ccf_btn_font;
+		CFont* ccf_btn_font;
 
 		///init default fonts for size modes
 		virtual void initDefaultFonts();
@@ -136,7 +136,7 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		void setButtonText(const uint& btn_id, const std::string& text);
 
 		///property: set font for label caption, parameter as font object, value NULL causes usage of dynamic font
-		void setButtonFont(Font* font){ccf_btn_font = font;};
+		void setButtonFont(CFont* font){ccf_btn_font = font;};
 
 		///this is a nearly methode similar with the older button handler find in gui/widget/buttons.h, some parameters are different, but require minimalized input
 		///this member sets some basic parameters and will paint concurrently on execute, explicit call of paint() is not required
@@ -148,7 +148,7 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 					const struct button_label * const content,
 					const int& label_width = 0,
 					const int& context_buttons = 0,
-					Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT],
+					CFont* font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT],
 					const bool &do_save_bg = CC_SAVE_SCREEN_NO
 				);
 

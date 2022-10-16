@@ -80,7 +80,7 @@ static EpgPlus::SizeSetting sizeSettingTable[] =
 static bool bigfont = false;
 static int current_bouquet;
 
-Font *EpgPlus::Header::font = NULL;
+CFont *EpgPlus::Header::font = NULL;
 
 EpgPlus::Header::Header(CFrameBuffer * pframeBuffer __attribute__((unused)), int px, int py, int pwidth)
 {
@@ -130,7 +130,7 @@ int EpgPlus::Header::getUsedHeight()
 	return font->getHeight();
 }
 
-Font *EpgPlus::TimeLine::font = NULL;
+CFont *EpgPlus::TimeLine::font = NULL;
 int EpgPlus::TimeLine::separationLineThickness = 0;
 
 EpgPlus::TimeLine::TimeLine(CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int pstartX, int pdurationX)
@@ -295,7 +295,7 @@ int EpgPlus::TimeLine::getUsedHeight()
 	return 2*font->getHeight() + separationLineThickness;
 }
 
-Font *EpgPlus::ChannelEventEntry::font = NULL;
+CFont *EpgPlus::ChannelEventEntry::font = NULL;
 int EpgPlus::ChannelEventEntry::separationLineThickness = 0;
 
 EpgPlus::ChannelEventEntry::ChannelEventEntry(const CChannelEvent * pchannelEvent, CFrameBuffer * pframeBuffer, TimeLine * ptimeLine, Footer * pfooter, int px, int py, int pwidth)
@@ -378,7 +378,7 @@ int EpgPlus::ChannelEventEntry::getUsedHeight()
 	return font->getHeight() + separationLineThickness;
 }
 
-Font *EpgPlus::ChannelEntry::font = NULL;
+CFont *EpgPlus::ChannelEntry::font = NULL;
 int EpgPlus::ChannelEntry::separationLineThickness = 0;
 
 EpgPlus::ChannelEntry::ChannelEntry(const CZapitChannel * pchannel, int pindex, CFrameBuffer * pframeBuffer, Footer * pfooter, CBouquetList * pbouquetList, int px, int py, int pwidth)
@@ -549,9 +549,9 @@ int EpgPlus::ChannelEntry::getUsedHeight()
 	return font->getHeight() + separationLineThickness;
 }
 
-Font *EpgPlus::Footer::fontBouquetChannelName = NULL;
-Font *EpgPlus::Footer::fontEventDescription = NULL;
-Font *EpgPlus::Footer::fontEventInfo1 = NULL;
+CFont *EpgPlus::Footer::fontBouquetChannelName = NULL;
+CFont *EpgPlus::Footer::fontEventDescription = NULL;
+CFont *EpgPlus::Footer::fontEventInfo1 = NULL;
 
 EpgPlus::Footer::Footer(CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int pbuttonHeight)
 {

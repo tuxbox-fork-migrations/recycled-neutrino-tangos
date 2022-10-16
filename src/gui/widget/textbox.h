@@ -64,7 +64,7 @@
 #define TRACE  printf
 #define TRACE_1 printf
 
-class Font;
+class CFont;
 class CBox
 {
 	public:
@@ -152,7 +152,7 @@ class CTextBox : public sigc::trackable
 		bool m_SaveScreen;
 		bool m_utf8_encoded;
 
-		Font* m_pcFontText;
+		CFont* m_pcFontText;
 		int m_nFontTextHeight;
 		CFBWindow::color_t m_textBackgroundColor;
 		fb_pixel_t m_textColor;
@@ -170,7 +170,7 @@ class CTextBox : public sigc::trackable
 		CTextBox();
 		CTextBox(	const char * text);
 		CTextBox(	const char * text, 
-					Font* font_text,
+					CFont* font_text,
 					const int pmode,
 					const CBox* position,
 					CFBWindow::color_t textBackgroundColor = COL_MENUCONTENT_PLUS_0);
@@ -189,7 +189,7 @@ class CTextBox : public sigc::trackable
 		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
 		void	setBackGroundRadius(const int radius, const int type = CORNER_ALL){m_nBgRadius = radius; m_nBgRadiusType = type;};
 		void    setTextBorderWidth(int Hborder, int Vborder);
-		void	setTextFont(Font* font_text);
+		void	setTextFont(CFont* font_text);
 		void	setTextMode(const int text_mode){m_nMode = text_mode;};
 		void	setTextRenderModeFullBG(const bool& mode);
 		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};
@@ -234,7 +234,7 @@ class CTextBox : public sigc::trackable
 		* 	@return	width of largest line as int
 		* 	@see	getMaxLineWidth(void)
 		*/
-		static int	getMaxLineWidth(const std::string& text, Font* font);
+		static int	getMaxLineWidth(const std::string& text, CFont* font);
 
 		/**
 		* Returns internal defined largest line width of an existant CTextBox instance.

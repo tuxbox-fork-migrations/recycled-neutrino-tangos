@@ -496,7 +496,7 @@ void CImageInfo::InitInfoText(const std::string& text)
 	int w_body = winbody->getWidth();
 
 	//add a caption for info contents
-	Font * caption_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+	CFont * caption_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
 	int caption_height = caption_font->getHeight();
 	y_tmp = max(y_tmp, cc_tv->getYPos()+cc_tv->getHeight());
 	if (cc_sub_caption == NULL)

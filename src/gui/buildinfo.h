@@ -50,7 +50,7 @@ class CBuildInfo :  public CMenuTarget, public CComponentsWindow
 {
 	private:
 		std::vector<build_info_t> v_info;
-		Font* font;
+		CFont* font;
 		void initVarBuildInfo();
 		void InitInfoItems();
 		void Scroll(bool scrollDown);
@@ -75,7 +75,7 @@ class CBuildInfo :  public CMenuTarget, public CComponentsWindow
 		CBuildInfo(bool show = false);
 
 		///assigns text Font type
-		void setFontType(Font* font_text);
+		void setFontType(CFont* font_text);
 		build_info_t getInfo(const info_type_id_t& type_id);
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);

@@ -140,7 +140,7 @@ void CColorChooser::setColor()
 	int w_col_num = preview_w - 2 * border_off;
 	int h_col_num = font->getHeight();
 
-	Font *dfont = *CNeutrinoFonts::getInstance()->getDynFont(w_col_num, h_col_num, col_num);
+	CFont *dfont = *CNeutrinoFonts::getInstance()->getDynFont(w_col_num, h_col_num, col_num);
 
 	int x_col_num = preview_x + preview_w / 2 - dfont->getRenderWidth(col_num) / 2;
 	printf("[CColorChooser] selected color = hex [%s] dec [%d]\n", col_num, col);

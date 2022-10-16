@@ -297,7 +297,7 @@ void CNeutrinoFonts::refreshDynFont(int dx, int dy, std::string text, int style,
 
 	if (dyn_font->font != NULL)
 		delete dyn_font->font;
-	Font *dynFont	= g_dynFontRenderer->getFont(fontDescr.name.c_str(), dynFontStyle[style].c_str(), dynSize);
+	CFont *dynFont	= g_dynFontRenderer->getFont(fontDescr.name.c_str(), dynFontStyle[style].c_str(), dynSize);
 	dyn_font->font = dynFont;
 	dyn_font->size = dynSize;
 	if (dyn_font->size != dynSize){
@@ -307,7 +307,7 @@ void CNeutrinoFonts::refreshDynFont(int dx, int dy, std::string text, int style,
 	}
 }
 
-int CNeutrinoFonts::getFontHeight(Font* fnt)
+int CNeutrinoFonts::getFontHeight(CFont* fnt)
 {
 	if (useDigitOffset)
 		return fnt->getDigitHeight() + (fnt->getDigitOffset() * 18) / 10;
@@ -331,7 +331,7 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 			}
 		}
 	}
-	Font *dynFont	= NULL;
+	CFont *dynFont	= NULL;
 	bool dynFlag	= false;
 	while (1) {
 		if (dynFont)
@@ -405,11 +405,11 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
    text = "100";	//max. text to display
 			//CNeutrinoFonts::FONT_STYLE_REGULAR = normal font style
 			//CNeutrinoFonts::FONT_ID_VOLBAR     = exclusive font for Volume bar (defined in src/driver/neutrinofonts.h)
-   Font** font = CNeutrinoFonts::getInstance()->getDynFont(dx, dy, text, CNeutrinoFonts::FONT_STYLE_REGULAR, CNeutrinoFonts::FONT_ID_VOLBAR);
+   CFont** font = CNeutrinoFonts::getInstance()->getDynFont(dx, dy, text, CNeutrinoFonts::FONT_STYLE_REGULAR, CNeutrinoFonts::FONT_ID_VOLBAR);
    (*font)->RenderString(...)
 
 */
-Font **CNeutrinoFonts::getDynFont(int &dx, int &dy, std::string text/*=""*/, int style/*=FONT_STYLE_REGULAR*/, int share/*=FONT_ID_SHARE*/)
+CFont **CNeutrinoFonts::getDynFont(int &dx, int &dy, std::string text/*=""*/, int style/*=FONT_STYLE_REGULAR*/, int share/*=FONT_ID_SHARE*/)
 {
 	if (share > FONT_ID_SHARE)
 		return getDynFontWithID(dx, dy, text, style, share);
@@ -417,7 +417,7 @@ Font **CNeutrinoFonts::getDynFont(int &dx, int &dy, std::string text/*=""*/, int
 		return getDynFontShare(dx, dy, text, style);
 }
 
-Font **CNeutrinoFonts::getDynFontWithID(int &dx, int &dy, std::string text, int style, unsigned int f_id)
+CFont **CNeutrinoFonts::getDynFontWithID(int &dx, int &dy, std::string text, int style, unsigned int f_id)
 {
 	if ((dx <= 0) && (dy <= 0))
 		return NULL;
@@ -427,8 +427,8 @@ Font **CNeutrinoFonts::getDynFontWithID(int &dx, int &dy, std::string text, int 
 		SetupDynamicFonts();
 
 	int dynSize = getDynFontSize(dx, dy, text, style);
-	Font *dynFont = NULL;
-	Font **ret = NULL;
+	CFont *dynFont = NULL;
+	CFont **ret = NULL;
 
 	if (f_id < v_dyn_fonts.size()) {
 		if ((v_dyn_fonts[f_id].size == dynSize) && (v_dyn_fonts[f_id].font != NULL)) {
@@ -484,7 +484,7 @@ void CNeutrinoFonts::deleteDynFontExtAll()
 	}
 }
 
-Font *CNeutrinoFonts::getDynFontExt(int &dx, int &dy, unsigned int f_id, std::string text/*=""*/, int style/*=FONT_STYLE_REGULAR*/)
+CFont *CNeutrinoFonts::getDynFontExt(int &dx, int &dy, unsigned int f_id, std::string text/*=""*/, int style/*=FONT_STYLE_REGULAR*/)
 {
 	if ((dx <= 0) && (dy <= 0))
 		return NULL;
@@ -496,8 +496,8 @@ Font *CNeutrinoFonts::getDynFontExt(int &dx, int &dy, unsigned int f_id, std::st
 		initDynFontExt();
 
 	int dynSize = getDynFontSize(dx, dy, text, style);
-	Font *dynFont = NULL;
-	Font *ret = NULL;
+	CFont *dynFont = NULL;
+	CFont *ret = NULL;
 
 	if (f_id < v_dyn_fonts_ext.size()) {
 		dynFont = g_dynFontRenderer->getFont(fontDescr.name.c_str(), dynFontStyle[style].c_str(), dynSize);
@@ -524,7 +524,7 @@ Font *CNeutrinoFonts::getDynFontExt(int &dx, int &dy, unsigned int f_id, std::st
 	return ret;
 }
 
-Font **CNeutrinoFonts::getDynFontShare(int &dx, int &dy, std::string text, int style)
+CFont **CNeutrinoFonts::getDynFontShare(int &dx, int &dy, std::string text, int style)
 {
 	if ((dx <= 0) && (dy <= 0))
 		return NULL;
@@ -532,11 +532,11 @@ Font **CNeutrinoFonts::getDynFontShare(int &dx, int &dy, std::string text, int s
 		SetupNeutrinoFonts();
 
 	int dynSize = getDynFontSize(dx, dy, text, style);
-	Font *dynFont = NULL;
+	CFont *dynFont = NULL;
 
 	bool fontAvailable = false;
 	unsigned int i;
-	Font **ret = NULL;
+	CFont **ret = NULL;
 	if (!v_share_fonts.empty()) {
 		for (i = 0; i < v_share_fonts.size(); i++) {
 			if ((v_share_fonts[i].size == dynSize) &&

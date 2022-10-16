@@ -71,10 +71,10 @@ lua_Unsigned luaL_checkunsigned (lua_State *L, int i);
 #define lua_unboxpointer(L, i) \
 	(*(void **)(lua_touserdata(L, i)))
 
-class Font;
+class CFont;
 
-typedef std::pair<lua_Integer, Font*> fontmap_pair_t;
-typedef std::map<lua_Integer, Font*> fontmap_t;
+typedef std::pair<lua_Integer, CFont*> fontmap_pair_t;
+typedef std::map<lua_Integer, CFont*> fontmap_t;
 typedef fontmap_t::iterator fontmap_iterator_t;
 
 typedef std::pair<lua_Integer, fb_pixel_t*> screenmap_pair_t;

@@ -95,7 +95,7 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		///footer heigh, default defined by footer object itself
 		int ccw_h_footer;
 		///footer button font
-		Font*	ccw_button_font;
+		CFont*	ccw_button_font;
 
 		///initialze header object
 		void initHeader();
@@ -354,7 +354,7 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		* @param[in]	font_type
 		* 	@li 	expects type Font*
 		*/
-		void setWindowFooterFont(Font* font_type){ccw_button_font = font_type;}
+		void setWindowFooterFont(CFont* font_type){ccw_button_font = font_type;}
 
 		/**
 		* Gets a pointer to the internal left side bar object, use this to get access to left sidebar properities

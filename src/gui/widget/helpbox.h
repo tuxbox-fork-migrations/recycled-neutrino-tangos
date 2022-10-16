@@ -40,10 +40,10 @@ private:
 	//start position of items on page
 	int hbox_y;
 
-	int getLineHeight(int line_height, Font* font_text, bool separator = false);
+	int getLineHeight(int line_height, CFont* font_text, bool separator = false);
 
 	///default font
-	Font* hbox_font;
+	CFont* hbox_font;
 public:
 	/**
 	* Creates a window with pre defined items added with addLine() or
@@ -70,7 +70,7 @@ public:
 			const std::string& Default_Text = std::string(),
 			const int& text_mode = HELPBOX_DEFAULT_TEXT_MODE,
 			const int& line_height = HELPBOX_DEFAULT_LINE_HEIGHT,
-			Font* font_text = NULL,
+			CFont* font_text = NULL,
 			const char* Icon = NEUTRINO_ICON_INFO);
 
 	///show = paint, for compatibility
@@ -93,7 +93,7 @@ public:
 			const int& text_mode 	= HELPBOX_DEFAULT_TEXT_MODE,
 			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
-			Font* font_text = NULL);
+			CFont* font_text = NULL);
 
 	/**Adds an item with pre defined text
 	* @param[in]	text
@@ -111,7 +111,7 @@ public:
 			const int& text_mode 	= HELPBOX_DEFAULT_TEXT_MODE,
 			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
-			Font* font_text = NULL);
+			CFont* font_text = NULL);
 
 	/**Adds an item with pre defined icon and text
 	* @param[in]	icon
@@ -132,7 +132,7 @@ public:
 			const int& text_mode 	= HELPBOX_DEFAULT_TEXT_MODE,
 			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
-			Font* font_text = NULL);
+			CFont* font_text = NULL);
 
 	/**Adds an item with pre defined icon and text
 	* @param[in]	icon
@@ -153,7 +153,7 @@ public:
 			const int& text_mode 	= HELPBOX_DEFAULT_TEXT_MODE,
 			const int& line_height 	= HELPBOX_DEFAULT_LINE_HEIGHT,
 			const int& line_indent 	= HELPBOX_DEFAULT_LINE_INDENT,
-			Font* font_text = NULL);
+			CFont* font_text = NULL);
 
 	///adds a separator as horizontal line, arg 'line_height' defines the space of full separator height, the separator line itself has a defined height of 2px and is centered within line space.
 	///arg 'line_indent' defines begin of line from left border within body object.

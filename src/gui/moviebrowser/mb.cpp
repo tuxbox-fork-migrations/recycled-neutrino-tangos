@@ -1182,7 +1182,7 @@ int CMovieBrowser::paint(void)
 {
 	TRACE("[mb]->%s\n", __func__);
 
-	Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST];
+	CFont* font = g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST];
 	m_movieSelectionHandler = NULL;
 
 	m_pcBrowser = new CListFrame(&m_browserListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE | CListFrame::TITLE,
@@ -2395,7 +2395,7 @@ bool CMovieBrowser::onButtonPressMovieInfoList(neutrino_msg_t msg)
 
 std::string CMovieBrowser::formatDeleteMsg(MI_MOVIE_INFO *movieinfo, int msgFont, const int boxWidth)
 {
-	Font *msgFont_ = g_Font[msgFont];
+	CFont *msgFont_ = g_Font[msgFont];
 	int msgWidth = boxWidth - 20;
 	std::string msg = g_Locale->getText(LOCALE_FILEBROWSER_DODELETE1);
 	msg += "\n";

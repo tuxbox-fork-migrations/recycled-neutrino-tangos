@@ -318,7 +318,7 @@ void CScreenSetup::paintBorderLR()
 
 void CScreenSetup::paintCoords()
 {
-	Font *f = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+	CFont *f = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
 	int w = f->getRenderWidth("EX: 2222") * 5 / 4;	/* half glyph border left and right */
 	int fh = f->getHeight();
 	int h = fh * 4;		/* 4 lines, fonts have enough space around them, no extra border */

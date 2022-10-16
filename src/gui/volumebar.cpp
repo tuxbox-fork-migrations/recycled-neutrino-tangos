@@ -290,7 +290,7 @@ void CVolumeHelper::resetFont()
 	}
 }
 
-void CVolumeHelper::Init(Font* font)
+void CVolumeHelper::Init(CFont* font)
 {
 
 	x  = frameBuffer->getScreenX() + h_spacer;
@@ -303,7 +303,7 @@ void CVolumeHelper::Init(Font* font)
 	initInfoClock(font);
 }
 
-void CVolumeHelper::initInfoClock(Font* font)
+void CVolumeHelper::initInfoClock(CFont* font)
 {
 	if (font == NULL) {
 		int dx = 0;
@@ -382,7 +382,7 @@ int CVolumeHelper::getInfoClockX()
 		return clock_ax;
 }
 
-void CVolumeHelper::refresh(Font* font)
+void CVolumeHelper::refresh(CFont* font)
 {
 	Init(font);
 }

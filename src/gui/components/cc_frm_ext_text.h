@@ -48,7 +48,7 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 		///property: width of text, see also setLabelWidthPercent()
 		int ccx_text_width;
 		///property: font type of both items (label and text), see also setLabelAndText()
-		Font* ccx_font;
+		CFont* ccx_font;
 		///centered y position of label and text
 		int y_text;
 
@@ -68,7 +68,7 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 		///initialize basic variables
 		void initVarExtTextForm(const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& label_text, const std::string& text,
-					Font* font_text,
+					CFont* font_text,
 					CComponentsForm* parent,
 					int shadow_mode,
 					fb_pixel_t label_color,
@@ -83,7 +83,7 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 
 		CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& label_text = "", const std::string& text = "",
-					Font* font_text = NULL,
+					CFont* font_text = NULL,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
@@ -94,7 +94,7 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 
 		CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					neutrino_locale_t l_text = NONEXISTANT_LOCALE, const std::string& text = "",
-					Font* font_text = NULL,
+					CFont* font_text = NULL,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
@@ -105,11 +105,11 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 // 		~CComponentsExtTextForm(); //inherited from CComponentsForm
 
 		///assigns texts for label and text, parameter as string, parameter Font is optional for required font type, default font is dependently from defined item height
-		void setLabelAndText(const std::string& label_text, const std::string& text,  Font* font_text = NULL);
+		void setLabelAndText(const std::string& label_text, const std::string& text,  CFont* font_text = NULL);
 		///assigns texts for label and text, parameter as neutrino_locale_t, parameter Font is optional for required font type, default font is dependently from defined item height
-		void setLabelAndText(const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text,  Font* font_text = NULL);
+		void setLabelAndText(const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text,  CFont* font_text = NULL);
 		///assigns text Font type
-		void setLabelAndTextFont(Font* font);
+		void setLabelAndTextFont(CFont* font);
 
 		///assigns texts for label and text, parameter as struct (cc_locale_ext_txt_t), parameters provide the same properties like setLabelAndText()
 		void setLabelAndTexts(const cc_locale_ext_txt_t& texts);
@@ -149,7 +149,7 @@ class CComponentsExtTextForm : public CComponentsForm, public CCTextScreen
 		void setTextModes(const int& label_mode, const int& text_mode);
 
 		///return current font
-		Font* getFont(){return ccx_font;}
+		CFont* getFont(){return ccx_font;}
 
 		///paint this item/form
 		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);

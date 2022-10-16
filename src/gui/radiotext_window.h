@@ -34,7 +34,7 @@ class CRadioTextGUI : public CComponentsWindow
 	private:
 		std::vector<std::string> v_lines_title;
 		std::vector<std::string> v_lines_desc;
-		Font *font1, *font2;
+		CFont *font1, *font2;
 		typedef std::pair <t_channel_id, t_channel_id> channel_id_pairs; //pair = current id, old id
 		channel_id_pairs channel_id_pair;
 

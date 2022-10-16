@@ -581,7 +581,7 @@ std::string rtrim(std::string &str, const std::string &trimChars)
 
 std::string cutString(const std::string str, int msgFont, const int width)
 {
-	Font *msgFont_ = g_Font[msgFont];
+	CFont *msgFont_ = g_Font[msgFont];
 	std::string ret = str;
 	ret = trim(ret);
 	int sw = msgFont_->getRenderWidth(ret);

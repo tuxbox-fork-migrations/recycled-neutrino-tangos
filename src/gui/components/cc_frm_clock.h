@@ -62,7 +62,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		char cl_timestr[32];
 
 		///object: font render object
-		Font *cl_font;
+		CFont *cl_font;
 		int cl_font_style;
 
 		///text color
@@ -97,7 +97,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 	public:
 
 		CComponentsFrmClock( 	const int& x_pos = 1, const int& y_pos = 1,
-					Font * font = NULL,
+					CFont * font = NULL,
 					const char* format_str = "%H:%M",
 					const char* secformat_str = "%H.%M",
 					bool activ=false,
@@ -121,10 +121,10 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		 * - FONT_STYLE_ITALIC
 		 * (see /.src/driver/neutrinofonts.h)
 		*/
-		void setClockFont(Font * font, const int& style = -1);
+		void setClockFont(CFont * font, const int& style = -1);
 
 		///return pointer of font object
-		Font* getClockFont();
+		CFont* getClockFont();
 
 		///return pointer of timer object
 		CComponentsTimer* getTimer(){return cl_timer;}

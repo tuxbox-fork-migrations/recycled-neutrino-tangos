@@ -586,7 +586,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 
 	weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
 
-	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
+	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? CFont::FULLBG : 0) | CFont::IS_UTF8;
 
 	// show_Data
 	if (CMoviePlayerGui::getInstance().file_prozent > 100)
@@ -2105,7 +2105,7 @@ bool CInfoViewer::hasTimeout()
 	return ret;
 }
 
-void CInfoViewer::ecmInfoBox_show(const char * txt, int w, int h, Font * font)
+void CInfoViewer::ecmInfoBox_show(const char * txt, int w, int h, CFont * font)
 {
 	if (ecmInfoBox != NULL)
 		ecmInfoBox_hide();
@@ -3122,7 +3122,7 @@ int CInfoViewer::parse_ecmInfo(const char * file)
 	int w = 0;
 	int ecm_width = 0;
 	int ecm_height = 0;
-	Font * ecm_font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_ECMINFO];
+	CFont * ecm_font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_ECMINFO];
 	int font_height = ecm_font->getHeight();
 
 	buffer=NULL;

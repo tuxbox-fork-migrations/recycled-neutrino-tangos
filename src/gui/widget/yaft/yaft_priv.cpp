@@ -742,7 +742,7 @@ int YaFT_p::sum(struct parm_t *parm)
 void YaFT_p::draw_line(int line)
 {
 	int pos, col, w, h;
-	Font::fontmodifier mod;
+	CFont::fontmodifier mod;
 	uint32_t pixel;
 	struct color_pair_t col_pair;
 	struct cell_t *cellp;
@@ -755,9 +755,9 @@ void YaFT_p::draw_line(int line)
 	for (col = 0; col < cols; col++) {
 		/* target cell */
 		cellp = &cells[line][col];
-		mod = Font::Regular;
+		mod = CFont::Regular;
 		if (cellp->attribute & attr_mask[ATTR_BOLD])
-			mod = Font::Embolden;
+			mod = CFont::Embolden;
 		/* copy current color_pair (maybe changed) */
 		col_pair = cellp->color_pair;
 
@@ -784,7 +784,7 @@ void YaFT_p::draw_line(int line)
 			continue;
 		int xs = col * CELL_WIDTH;
 		font->RenderString(xs, (line + 1) * CELL_HEIGHT, width - xs, cellp->utf8_str,
-				fb.real_palette[col_pair.fg], mod, Font::IS_UTF8/*, fb.buf, fb.width * sizeof(fb_pixel_t)*/);
+				fb.real_palette[col_pair.fg], mod, CFont::IS_UTF8/*, fb.buf, fb.width * sizeof(fb_pixel_t)*/);
 	}
 	line_dirty[line] = ((mode & MODE_CURSOR) && cursor.y == line) ? true: false;
 }

@@ -73,7 +73,7 @@ class CNeutrinoFonts
 			int size;
 			int style;
 			std::string text;
-			Font* font;
+			CFont* font;
 			bool useDigitOffset;
 		} dyn_font_struct_t;
 
@@ -85,10 +85,10 @@ class CNeutrinoFonts
 
 		void InitDynFonts();
 		void refreshDynFont(int dx, int dy, std::string text, int style, int index, bool isShare);
-		int getFontHeight(Font* fnt);
+		int getFontHeight(CFont* fnt);
 		int getDynFontSize(int dx, int dy, std::string text, int style);
-		Font **getDynFontShare(int &dx, int &dy, std::string text, int style);
-		Font **getDynFontWithID(int &dx, int &dy, std::string text, int style, unsigned int f_id);
+		CFont **getDynFontShare(int &dx, int &dy, std::string text, int style);
+		CFont **getDynFontWithID(int &dx, int &dy, std::string text, int style, unsigned int f_id);
 		void clearDynFontStruct(dyn_font_t* f);
 		void initDynFontExt();
 
@@ -133,10 +133,10 @@ class CNeutrinoFonts
 		void SetupShellFont();
 		std::string getShellTTF();
 		void refreshDynFonts();
-		Font **getDynFont(int &dx, int &dy, std::string text="", int style=FONT_STYLE_REGULAR, int share=FONT_ID_SHARE);
+		CFont **getDynFont(int &dx, int &dy, std::string text="", int style=FONT_STYLE_REGULAR, int share=FONT_ID_SHARE);
 		void setFontUseDigitHeight(bool set=true) {useDigitOffset = set;}
 
-		Font *getDynFontExt(int &dx, int &dy, unsigned int f_id, std::string text="", int style=FONT_STYLE_REGULAR);
+		CFont *getDynFontExt(int &dx, int &dy, unsigned int f_id, std::string text="", int style=FONT_STYLE_REGULAR);
 		void deleteDynFontExtAll();
 };
 

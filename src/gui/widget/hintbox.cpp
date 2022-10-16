@@ -306,10 +306,10 @@ int CHintBox::exec()
 	return res;
 }
 
-void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const std::string& Picon, const fb_pixel_t& color_text, Font* font_text)
+void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const std::string& Picon, const fb_pixel_t& color_text, CFont* font_text)
 {
 	/* set required font and line height */
-	Font* item_font = !font_text ? hb_font : font_text;
+	CFont* item_font = !font_text ? hb_font : font_text;
 
 	/* set picon */
 	string picon = Picon;
@@ -369,7 +369,7 @@ void CHintBox::addHintItem(const std::string& Text, const int& text_mode, const 
 	ReSize();
 }
 
-void CHintBox::setMsgText(const std::string& Text, const uint& hint_id, const int& mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
+void CHintBox::setMsgText(const std::string& Text, const uint& hint_id, const int& mode, CFont* font_text, const fb_pixel_t& color_text, const int& style)
 {
 	uint id = hint_id;
 	if (hint_id+1 > ccw_body->size()){
@@ -380,12 +380,12 @@ void CHintBox::setMsgText(const std::string& Text, const uint& hint_id, const in
 	CComponentsInfoBox	*obj_text = static_cast<CComponentsInfoBox*>(ccw_body->getCCItem(id));
 
 	//set required font and line size
-	Font* font = font_text == NULL ? MSG_FONT : font_text;
+	CFont* font = font_text == NULL ? MSG_FONT : font_text;
 	if (obj_text)
 		obj_text->setText(Text, mode, font, color_text, style);
 }
 
-void CHintBox::setMsgText(const neutrino_locale_t& locale, const uint& hint_id, const int& mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
+void CHintBox::setMsgText(const neutrino_locale_t& locale, const uint& hint_id, const int& mode, CFont* font_text, const fb_pixel_t& color_text, const int& style)
 {
 	setMsgText(g_Locale->getText(locale), hint_id, mode, font_text, color_text, style);
 }
@@ -440,7 +440,7 @@ void CHintBox::scroll_down(const uint& hint_id)
 	Scroll(true, hint_id);
 }
 
-int CHintBox::getMaxWidth(const string& Text, const string& Title, Font *font, const int& minWidth)
+int CHintBox::getMaxWidth(const string& Text, const string& Title, CFont *font, const int& minWidth)
 {
 	int res = max(HINTBOX_MIN_WIDTH, max(minWidth+2*w_indentation, min(CTextBox::getMaxLineWidth(Text, font)+2*w_indentation, (int)frameBuffer->getScreenWidth() - shadow_w)));
 	if (ccw_show_header){

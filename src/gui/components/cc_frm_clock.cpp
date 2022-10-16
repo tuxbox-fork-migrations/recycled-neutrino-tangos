@@ -43,7 +43,7 @@ using namespace std;
 
 CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 						const int& y_pos,
-						Font * font,
+						CFont * font,
 						const char* prformat_str,
 						const char* secformat_str,
 						bool activ,
@@ -396,7 +396,7 @@ void CComponentsFrmClock::paint(const bool &do_save_bg)
 	CComponentsForm::paint(do_save_bg);
 }
 
-void CComponentsFrmClock::setClockFont(Font *font, const int& style)
+void CComponentsFrmClock::setClockFont(CFont *font, const int& style)
 {
 	if (cl_font != font || cl_font_style != style){
 		if (cl_font != font)
@@ -407,7 +407,7 @@ void CComponentsFrmClock::setClockFont(Font *font, const int& style)
 	initCCLockItems();
 }
 
-Font* CComponentsFrmClock::getClockFont()
+CFont* CComponentsFrmClock::getClockFont()
 {
 	return cl_font;
 }

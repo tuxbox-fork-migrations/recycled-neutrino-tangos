@@ -35,7 +35,7 @@
 #include <sigc++/slot.h>
 
 struct gradientData_t;
-class Font;
+class CFont;
 class CComponentsForm;
 class CComponentsScrollBar;
 class CCButtonSelect;
@@ -180,14 +180,14 @@ typedef struct cc_locale_ext_txt_t
 {
 	neutrino_locale_t label_text;
 	neutrino_locale_t text;
-	Font* font;
+	CFont* font;
 } cc_locale_ext_txt_struct_t;
 
 typedef struct cc_string_ext_txt_t
 {
 	std::string label_text;
 	std::string text;
-	Font* font;
+	CFont* font;
 } cc_string_ext_txt_struct_t;
 
 

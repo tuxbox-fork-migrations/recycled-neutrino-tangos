@@ -30,7 +30,7 @@
 #include <string>
 
 class CFrameBuffer;
-class Font;
+class CFont;
 class CBouquetList;
 class ConfigFile;
 struct button_label;
@@ -95,7 +95,7 @@ class EpgPlus
 				int y;
 				int width;
 
-				static Font* font;
+				static CFont* font;
 				CComponentsHeader *head;
 		};
 
@@ -138,7 +138,7 @@ class EpgPlus
 				int width;
 				static int separationLineThickness;
 
-				static Font* font;
+				static CFont* font;
 
 				int startX;
 				int durationX;
@@ -181,7 +181,7 @@ class EpgPlus
 				int width;
 				static int separationLineThickness;
 
-				static Font* font;
+				static CFont* font;
 		};
 
 		typedef std::vector<ChannelEventEntry*> TCChannelEventEntries;
@@ -225,7 +225,7 @@ class EpgPlus
 				int width;
 				static int separationLineThickness;
 
-				static Font* font;
+				static CFont* font;
 
 				TCChannelEventEntries channelEventEntries;
 				CComponentsDetailsLine *detailsLine;
@@ -269,9 +269,9 @@ class EpgPlus
 				int buttonY;
 				int buttonHeight;
 
-				static Font* fontBouquetChannelName;
-				static Font* fontEventDescription;
-				static Font* fontEventInfo1;
+				static CFont* fontBouquetChannelName;
+				static CFont* fontEventDescription;
+				static CFont* fontEventInfo1;
 
 				std::string currentBouquetName;
 				std::string currentChannelName;
@@ -371,9 +371,9 @@ class EpgPlus
 			SizeSetting*	sizeSettings;
 			DurationSetting	durationSetting;
 		};
-		typedef std::map<int, Font*> Fonts;
+		typedef std::map<int, CFont*> Fonts;
 		typedef std::map<int, int> Sizes;
-		static Font * fonts[NumberOfFontSettings];
+		static CFont * fonts[NumberOfFontSettings];
 		static int sizes[NumberOfSizeSettings];
 		*/
 

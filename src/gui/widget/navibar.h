@@ -42,7 +42,7 @@ class CNaviBar : public CComponentsFrmChain
 		CComponentsText 		*nb_lText, *nb_rText;
 		CComponentsShapeSquare 		*nb_topline;
 		CComponentsShapeSquare 		*nb_bottomline;
-		Font				*nb_font;
+		CFont				*nb_font;
 
 		bool nb_lpic_enable;
 		bool nb_rpic_enable;
@@ -148,7 +148,7 @@ class CNaviBar : public CComponentsFrmChain
 		* @param[in]	font
 		* 	@li 	expects type Font*
 		*/
-		void setFont(Font *font) {nb_font = font; initCCItems();}
+		void setFont(CFont *font) {nb_font = font; initCCItems();}
 
 		/**
 		* Sets left text.

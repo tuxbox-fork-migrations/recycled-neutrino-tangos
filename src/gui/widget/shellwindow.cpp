@@ -119,7 +119,7 @@ void CShellWindow::exec()
 		}
 
 		CNeutrinoFonts::getInstance()->SetupShellFont();
-		Font *font = g_ShellFont ? g_ShellFont : g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
+		CFont *font = g_ShellFont ? g_ShellFont : g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
 		int h_shell = frameBuffer->getScreenHeight();
 		int w_shell = frameBuffer->getScreenWidth();
 		unsigned int lines_max = h_shell / font->getHeight();
