@@ -47,8 +47,8 @@ class CBEGlobals
 		int footer_height;
 		int info_height;
 
-		Font *item_font;
-		Font *info_font;
+		CFont *item_font;
+		CFont *info_font;
 
 		int action_icon_width;
 		int status_icon_width;

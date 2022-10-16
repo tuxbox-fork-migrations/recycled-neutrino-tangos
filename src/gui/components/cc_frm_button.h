@@ -80,7 +80,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		///property: text color
 		fb_pixel_t cc_btn_text_col, cc_btn_text_disable_col, cc_btn_text_std_col, cc_btn_text_sel_col;
 		///object: text font
-		Font* cc_btn_font;
+		CFont* cc_btn_font;
 		///object: dynamic font object handler
 		CNeutrinoFonts 	*cc_btn_dy_font;
 
@@ -171,10 +171,10 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		///get loacalized caption id, type = neutrino_locale_t
 		neutrino_locale_t getCaptionLocale(){return cc_btn_text_locale;}
 		///get font type of caption, type as Font*
-		Font* getButtonFont(){return cc_btn_font;}
+		CFont* getButtonFont(){return cc_btn_font;}
 
 		///property: set font for label caption, parameter as font object, value NULL causes usaage of dynamic font
-		void setButtonFont(Font* font){cc_btn_font = font; initCCBtnItems();};
+		void setButtonFont(CFont* font){cc_btn_font = font; initCCBtnItems();};
 
 		///reinitialize items
 		void Refresh(){initCCBtnItems();};

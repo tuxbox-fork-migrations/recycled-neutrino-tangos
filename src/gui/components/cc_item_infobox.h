@@ -73,7 +73,7 @@ class CComponentsInfoBox : public CComponentsText
 					const int& h = 600,
 					std::string info_text = "",
 					const int mode = CTextBox::AUTO_WIDTH,
-					Font* font_text = NULL,
+					CFont* font_text = NULL,
 					CComponentsForm *parent = NULL,
 					int shadow_mode = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENT_TEXT,

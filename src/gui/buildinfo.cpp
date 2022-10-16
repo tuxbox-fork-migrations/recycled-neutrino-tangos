@@ -132,7 +132,7 @@ void CBuildInfo::Scroll(bool scrollDown)
 	}
 }
 
-void CBuildInfo::setFontType(Font* font_text)
+void CBuildInfo::setFontType(CFont* font_text)
 {
 	if (font_text == NULL)
 		return;

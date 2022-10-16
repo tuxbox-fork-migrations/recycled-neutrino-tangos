@@ -171,7 +171,7 @@ class YaFT_p
 	struct fb_var_screeninfo *screeninfo;
 	bool paint;
 	FBFontRenderClass *fr;
-	Font *font;
+	CFont *font;
 	const char *fontstyle;
  public:
 	int fd;                                  /* master of pseudo terminal */

@@ -58,7 +58,7 @@ class CMotorControl : public CMenuTarget
 		int hheight,mheight; // head/menu font height
 		int ypos;
 		int ypos_status;
-		Font* m_font;
+		CFont* m_font;
 		int8_t stepSize;
 		int32_t stepDelay;
 		int stepMode;

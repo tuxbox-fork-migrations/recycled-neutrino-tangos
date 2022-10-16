@@ -78,7 +78,7 @@
 #define MIN_WINDOW_WIDTH  ((g_settings.screen_EndX - g_settings.screen_StartX)>>1)
 #define MIN_WINDOW_HEIGHT CFrameBuffer::getInstance()->scale2Res(40)
 
-CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
+CTextBox::CTextBox(const char * text, CFont* font_text, const int pmode,
 		   const CBox* position, CFBWindow::color_t textBackgroundColor)
 {
 	//TRACE("[CTextBox] new %d\n", __LINE__);
@@ -224,7 +224,7 @@ void CTextBox::setFontUseDigitHeight(bool set/*=true*/)
 	}
 }
 
-void CTextBox::setTextFont(Font* font_text)
+void CTextBox::setTextFont(CFont* font_text)
 {
 	if ((m_pcFontText != font_text) && (font_text != NULL)) {
 		m_pcFontText = font_text;
@@ -727,7 +727,7 @@ void CTextBox::refreshText(void)
 #endif
 		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
 		if (m_bg_painted || (m_old_cText != m_cText))
-			m_pcFontText->RenderString(tx, ty, tw, m_cLineArray[i].c_str(), m_textColor, 0, m_renderMode | ((m_utf8_encoded) ? Font::IS_UTF8 : 0));
+			m_pcFontText->RenderString(tx, ty, tw, m_cLineArray[i].c_str(), m_textColor, 0, m_renderMode | ((m_utf8_encoded) ? CFont::IS_UTF8 : 0));
 		y += m_nFontTextHeight;
 	}
 	m_old_cText = m_cText;
@@ -915,7 +915,7 @@ int CTextBox::getLines()
 	return m_nNrOfLines;
 }
 
-int CTextBox::getMaxLineWidth(const std::string& text, Font* font)
+int CTextBox::getMaxLineWidth(const std::string& text, CFont* font)
 {
 	std::string txt = text;
 	if (txt.find('\n', 0) == std::string::npos){

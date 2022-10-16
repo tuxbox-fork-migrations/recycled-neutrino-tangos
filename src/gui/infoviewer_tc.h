@@ -249,7 +249,7 @@ public:
 	std::string	md5_ecmInfo;
 	bool ecminfo_toggle;
 	void ecmInfoBox_hide();
-	void ecmInfoBox_show(const char * txt, int w, int h, Font * font);
+	void ecmInfoBox_show(const char * txt, int w, int h, CFont * font);
 
 	CInfoViewer();
 	~CInfoViewer();

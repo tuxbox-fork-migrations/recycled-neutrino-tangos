@@ -307,7 +307,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	// set smallest font height
 	if (btn_smallest)
 	{
-		Font* tmp_font = btn_smallest->getButtonFont();
+		CFont* tmp_font = btn_smallest->getButtonFont();
 		for (size_t i = 0; i < l_count; i++){
 			CComponentsButton *btn = static_cast<CComponentsButton*>(btn_container->getCCItem(i));
 			btn->setButtonFont(tmp_font);
@@ -403,7 +403,7 @@ void CComponentsFooter::paintButtons(const int& x_pos,
 				     const struct button_label * const content,
 				     const int& label_width,
 				     const int& context_buttons,
-				     Font* font,
+				     CFont* font,
 				     const bool &do_save_bg)
 {
 	this->setDimensionsAll(x_pos, y_pos, w, h);

@@ -66,7 +66,7 @@ class CHintBox : public CComponentsWindow
 		sigc::slot0<void> sl_tbar_on_timer;
 		bool enable_timeout_bar;
 
-		Font* hb_font;
+		CFont* hb_font;
 
 		///timeout value, see also setTimeOut()
 		int timeout;
@@ -92,7 +92,7 @@ class CHintBox : public CComponentsWindow
 
 		virtual void ReSize();
 		void showTimeOutBar(){initTimeOutBar();}
-		int getMaxWidth(const std::string& Text, const std::string& Title, Font *font, const int& minWidth);
+		int getMaxWidth(const std::string& Text, const std::string& Title, CFont *font, const int& minWidth);
 
 	public:
 		/**CHintBox Constructor
@@ -293,7 +293,7 @@ class CHintBox : public CComponentsWindow
 					const int& text_mode = DEFAULT_HINTBOX_TEXT_MODE,
 					const std::string& Picon = std::string(),
 					const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
-					Font* font_text = NULL);
+					CFont* font_text = NULL);
 
 		/**
 		* Member to add a hint item from specified cc-item type
@@ -335,13 +335,13 @@ class CHintBox : public CComponentsWindow
 		void setMsgText(const std::string& Text,
 				const uint& hint_id = 0,
 				const int& mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER,
-				Font* font_text = NULL,
+				CFont* font_text = NULL,
 				const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
 				const int& style = CComponentsText::FONT_STYLE_REGULAR);
 		void setMsgText(const neutrino_locale_t& locale,
 				const uint& hint_id = 0,
 				const int& mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH | CTextBox::CENTER,
-				Font* font_text = NULL,
+				CFont* font_text = NULL,
 				const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
 				const int& style = CComponentsText::FONT_STYLE_REGULAR);
 };

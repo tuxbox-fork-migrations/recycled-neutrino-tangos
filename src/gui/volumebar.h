@@ -103,21 +103,21 @@ class CVolumeHelper
 		int icon_width, icon_height, digit_width;
 		int h_spacer, v_spacer;
 		int vol_ay, vol_height;
-		Font* clock_font;
+		CFont* clock_font;
 		CFrameBuffer *frameBuffer;
 
 		void resetFont();
-		void Init(Font* font=NULL);
+		void Init(CFont* font=NULL);
 		void initVolBarSize();
 		void initMuteIcon();
-		void initInfoClock(Font* font);
+		void initInfoClock(CFont* font);
 
 	public:
 
 		CVolumeHelper();
 		static CVolumeHelper* getInstance();
 
-		Font** vb_font;
+		CFont** vb_font;
 
 		void getSpacer(int *h, int *v) { *h = h_spacer; *v = v_spacer; }
 		int  getVolIconHeight() {return icon_height;}
@@ -128,7 +128,7 @@ class CVolumeHelper
 		void getTimeDimensions(int *_x, int *_y, int *w, int *h) { *_x = time_ax; *_y = clock_ay; *w = time_dx; *h = clock_dy; }
 		void getVolBarDimensions(int *_y, int *_dy) { *_y = vol_ay; *_dy = vol_height; }
 		void setMuteIconCorrY(int corr) { mute_corrY = corr; }
-		void refresh(Font* font=NULL);
+		void refresh(CFont* font=NULL);
 };
 
 #endif

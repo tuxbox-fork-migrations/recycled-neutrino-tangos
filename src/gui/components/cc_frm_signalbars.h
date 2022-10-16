@@ -64,7 +64,7 @@ class CSignalBar : public CComponentsForm, public CCTextScreen
 		///object: caption for signal name
 		CComponentsLabel 	*sb_lbl;
 		///object: current font
-		Font			*sb_font;
+		CFont			*sb_font;
 		///object: dynamic font object handler
 		CNeutrinoFonts 		*dy_font;
 		///property: text color, see also setTextColor()
@@ -122,7 +122,7 @@ class CSignalBar : public CComponentsForm, public CCTextScreen
 		///assigns the current used frontend, simplified a tuner object, see frontend_c.h
 		virtual void setFrontEnd(CFrontend *frontend_ref){if (sb_frontend != frontend_ref) {sb_lastsig = 0; sb_frontend = frontend_ref;}}
 		///assigns font for caption
-		virtual void setTextFont(Font* font_text){sb_font = font_text;};
+		virtual void setTextFont(CFont* font_text){sb_font = font_text;};
 		///sets the caption color, see also property 'sb_caption_color'
 		virtual void setTextColor(const fb_pixel_t& caption_color){ sb_caption_color = caption_color;};
 		///set active color, see also property 'sb_active_color'

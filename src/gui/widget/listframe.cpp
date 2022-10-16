@@ -79,8 +79,8 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CListFrame::CListFrame(	lf_line_types_t* lines, Font* font_text, const int pmode,
-		const CBox* position, const char* textTitle, Font* font_title)
+CListFrame::CListFrame(	lf_line_types_t* lines, CFont* font_text, const int pmode,
+		const CBox* position, const char* textTitle, CFont* font_title)
 {
 	//TRACE("[CListFrame] new\r\n");
 	initVar();
@@ -493,9 +493,9 @@ void CListFrame::refreshLine(int line)
 	}
 }
 
-void CListFrame::paintRowText(const std::string& text, Font* font, const int& x_pos, const int& y_pos, const int& dx, const int& dy, const fb_pixel_t& col)
+void CListFrame::paintRowText(const std::string& text, CFont* font, const int& x_pos, const int& y_pos, const int& dx, const int& dy, const fb_pixel_t& col)
 {
-	Font *tmp_font = font;
+	CFont *tmp_font = font;
 	int y_tmp = y_pos;
 
 	if (dx < tmp_font->getRenderWidth(text))

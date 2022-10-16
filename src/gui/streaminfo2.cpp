@@ -823,7 +823,7 @@ struct row
 {
 	std::string key;
 	std::string val;
-	Font *f;
+	CFont *f;
 	int col;
 
 	row():

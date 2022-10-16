@@ -112,7 +112,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		///property: caption text color, see also setCaptionColor()
 		fb_pixel_t cch_col_text;
 		///property: caption font, see also setCaptionFont()
-		Font* cch_font, *l_font, *s_font;
+		CFont* cch_font, *l_font, *s_font;
 		///reset font
 		void resetFont();
 
@@ -251,9 +251,9 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		 * 			setCaptionAlignment(),
 		 * 			setCaption()
 		*/
-		void setCaptionFont(Font* font);
+		void setCaptionFont(CFont* font);
 		///returns font object of title caption
-		Font* getCaptionFont(){return cch_font;}
+		CFont* getCaptionFont(){return cch_font;}
 		///set text color for caption
 		void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;}
 		///set max width for caption

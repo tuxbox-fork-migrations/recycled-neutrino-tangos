@@ -1025,7 +1025,7 @@ int CLuaInstance::paintVLineRel(lua_State *L)
 int CLuaInstance::RenderString(lua_State *L)
 {
 	int x, y, w, boxh, center;
-	Font *font = NULL;
+	CFont *font = NULL;
 	lua_Unsigned c;
 	const char *text;
 	int numargs = lua_gettop(L);
@@ -1103,7 +1103,7 @@ int CLuaInstance::RenderString(lua_State *L)
 
 int CLuaInstance::getRenderWidth(lua_State *L)
 {
-	Font *font = NULL;
+	CFont *font = NULL;
 	const char *text;
 	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 
@@ -1154,7 +1154,7 @@ int CLuaInstance::getRenderWidth(lua_State *L)
 
 int CLuaInstance::FontHeight(lua_State *L)
 {
-	Font *font = NULL;
+	CFont *font = NULL;
 	LUA_DEBUG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 
 	CLuaData *W = CheckData(L, 1);
@@ -1248,7 +1248,7 @@ int CLuaInstance::getDynFont(lua_State *L)
 			style = CNeutrinoFonts::FONT_STYLE_REGULAR;
 	}
 
-	Font *f = CNeutrinoFonts::getInstance()->getDynFontExt(dx, dy, fontID, text, style);
+	CFont *f = CNeutrinoFonts::getInstance()->getDynFontExt(dx, dy, fontID, text, style);
 
 	lua_Integer id = fontID + 1;
 	W->fontmap.insert(fontmap_pair_t(id, f));

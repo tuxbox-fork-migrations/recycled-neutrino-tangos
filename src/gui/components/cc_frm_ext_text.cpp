@@ -38,13 +38,13 @@ using namespace std;
 
 CComponentsExtTextForm::CComponentsExtTextForm(CComponentsForm* parent)
 {
-	Font* t_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
+	CFont* t_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
 	initVarExtTextForm(0, 0, DEF_WIDTH, t_font->getHeight(), "", "", t_font, parent, CC_SHADOW_OFF, COL_MENUCONTENTINACTIVE_TEXT, COL_MENUCONTENT_TEXT, COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
 }
 
 CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::string& label_text, const std::string& text,
-						Font* font_text,
+						CFont* font_text,
 						CComponentsForm* parent,
 						int shadow_mode,
 						fb_pixel_t label_color,
@@ -56,7 +56,7 @@ CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_p
 
 CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 						neutrino_locale_t l_text, const std::string& text,
-						Font* font_text,
+						CFont* font_text,
 						CComponentsForm* parent,
 						int shadow_mode,
 						fb_pixel_t label_color,
@@ -69,7 +69,7 @@ CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_p
 
 void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::string& label_text, const std::string& text,
-						Font* font_text,
+						CFont* font_text,
 						CComponentsForm* parent,
 						int shadow_mode,
 						fb_pixel_t label_color,
@@ -162,7 +162,7 @@ void CComponentsExtTextForm::initText()
 }
 
 
-void CComponentsExtTextForm::setLabelAndText(const std::string& label_text, const std::string& text, Font* font_text)
+void CComponentsExtTextForm::setLabelAndText(const std::string& label_text, const std::string& text, CFont* font_text)
 {
 	ccx_label_text 	= label_text;
 	ccx_text 	= text;
@@ -172,7 +172,7 @@ void CComponentsExtTextForm::setLabelAndText(const std::string& label_text, cons
 }
 
 
-void CComponentsExtTextForm::setLabelAndText(const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text, Font* font_text)
+void CComponentsExtTextForm::setLabelAndText(const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text, CFont* font_text)
 {
 	setLabelAndText(g_Locale->getText(locale_label_text), g_Locale->getText(locale_text), font_text);
 }
@@ -187,7 +187,7 @@ void CComponentsExtTextForm::setLabelAndTexts(const cc_locale_ext_txt_t& locale_
 	setLabelAndText(g_Locale->getText(locale_texts.label_text), g_Locale->getText(locale_texts.text), locale_texts.font);
 }
 
-void CComponentsExtTextForm::setLabelAndTextFont(Font* font)
+void CComponentsExtTextForm::setLabelAndTextFont(CFont* font)
 {
 	if (font == NULL)
 		return;

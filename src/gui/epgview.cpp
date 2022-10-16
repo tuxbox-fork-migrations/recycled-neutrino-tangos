@@ -241,7 +241,7 @@ void CEpgData::processTextToArray(std::string text, int screening, bool has_cove
 
 void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 {
-	Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2];
+	CFont* font = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2];
 	std::string cover = tmdb->getCover();
 	int cover_max_width = ox/4; //25%
 	int cover_max_height = sb-(2*OFFSET_INNER_MID);

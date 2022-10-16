@@ -91,7 +91,7 @@ class CListFrame
 		void reSizeMainFrameWidth(int maxTextWidth);
 		void reSizeMainFrameHeight(int maxTextHeight);
 		int  paintListIcon(int x, int y, int line);
-		void paintRowText(const std::string& text, Font* font, const int& x_pos, const int& y_pos, const int& dx, const int& dy, const fb_pixel_t& col);
+		void paintRowText(const std::string& text, CFont* font, const int& x_pos, const int& y_pos, const int& dx, const int& dy, const fb_pixel_t& col);
 
 		/* Variables */
 		lf_line_types_t* m_pLines;
@@ -120,14 +120,14 @@ class CListFrame
 
 		bool m_showSelection;
 		
-		Font* m_pcFontTitle;
+		CFont* m_pcFontTitle;
 		std::string m_textTitle;
 		int m_nFontTitleHeight;
 		
-		Font* m_pcFontList;
+		CFont* m_pcFontList;
 		int m_nFontListHeight;
 		
-		Font* m_pcFontHeaderList;
+		CFont* m_pcFontHeaderList;
 		int m_nFontHeaderListHeight;
 
 		CFrameBuffer * frameBuffer;
@@ -136,11 +136,11 @@ class CListFrame
 		CListFrame();
 		CListFrame(	lf_line_types_t* lines);
 		CListFrame(	lf_line_types_t* lines,
-					Font* font_text,
+					CFont* font_text,
 					const int mode, 
 					const CBox* position,
 					const char* textTitle = NULL,
-					Font* font_title = NULL);
+					CFont* font_title = NULL);
 
 		virtual ~CListFrame();
 

@@ -79,11 +79,11 @@ NEUTRINO_CPP  FBFontRenderClass	*g_fixedFontRenderer;
 NEUTRINO_CPP  FBFontRenderClass	*g_dynFontRenderer;
 NEUTRINO_CPP  FBFontRenderClass	*g_shellFontRenderer;
 
-class Font;
-NEUTRINO_CPP  Font * g_Font[SNeutrinoSettings::FONT_TYPE_COUNT];
-NEUTRINO_CPP  Font * g_FixedFont[SNeutrinoSettings::FONT_TYPE_FIXED_COUNT];
-NEUTRINO_CPP  Font * g_SignalFont;
-NEUTRINO_CPP  Font * g_ShellFont;
+class CFont;
+NEUTRINO_CPP  CFont * g_Font[SNeutrinoSettings::FONT_TYPE_COUNT];
+NEUTRINO_CPP  CFont * g_FixedFont[SNeutrinoSettings::FONT_TYPE_FIXED_COUNT];
+NEUTRINO_CPP  CFont * g_SignalFont;
+NEUTRINO_CPP  CFont * g_ShellFont;
 
 class CRCInput;
 NEUTRINO_CPP  CRCInput		*g_RCInput;

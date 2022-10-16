@@ -1166,7 +1166,7 @@ void CTestMenu::showRecords()
 /* shows entries for proxy settings */
 int CTestMenu::showTestMenu()
 {
-	unsigned int system_rev = cs_get_revision();
+	unsigned int system_rev = 1;
 	
 	//init
 	char rev[255];

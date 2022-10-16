@@ -59,7 +59,7 @@ class CEpgData
 		CComponentsHeader	*header;
 		CNaviBar 		*Bottombox;
 		CProgressBar 		*pb;
-		Font			*font_title;
+		CFont			*font_title;
 		std::string 		epg_date;
 		std::string 		epg_start;
 		std::string 		epg_end;
@@ -108,7 +108,7 @@ class CEpgData
 		std::string epg_title;
 		std::string movie_filename;
 		int showIMDb(bool splash = false);
-		Font *fontIMDb;
+		CFont *fontIMDb;
 
 	public:
 
