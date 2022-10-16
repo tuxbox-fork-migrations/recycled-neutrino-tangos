@@ -12,8 +12,12 @@ SUBDIRS = \
 	libdvbsub \
 	luaclient \
 	libdvbapi \
-	libdvbci \
+	libdvbci
+
+if !BOXTYPE_GENERIC
+SUBDIRS += \
 	libeplayer3
+endif
 
 if ENABLE_UPNP
 SUBDIRS += \

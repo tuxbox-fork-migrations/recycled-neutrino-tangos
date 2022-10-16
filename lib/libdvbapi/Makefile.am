@@ -26,5 +26,13 @@ libdvbapi_a_SOURCES = \
 	video.cpp \
 	audio.cpp \
 	record.cpp \
-	hdmi_cec.cpp \
+	hdmi_cec.cpp
+
+if !BOXTYPE_GENERIC
+libdvbapi_a_SOURCES += \
 	playback_libeplayer3.cpp
+else
+libdvbapi_a_SOURCES += \
+	playback_gst.cpp
+endif
+
