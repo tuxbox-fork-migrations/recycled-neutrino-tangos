@@ -21,7 +21,6 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#define __STDC_CONSTANT_MACROS
 #include <iostream>
 #include <vector>
 #include <deque>
@@ -29,15 +28,16 @@
 #include "neutrinoMessages.h"
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <signal.h>
 
-#include <sys/types.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include "glthread.h"
 #include <GL/glx.h>
 
 #include <system/debug.h>
-
+#include <linux/input.h>
 
 /*static*/ GLThreadObj *gThiz = 0; /* GLUT does not allow for an arbitrary argument to the render func */
 int GLWinID;
@@ -52,6 +52,12 @@ GLThreadObj::GLThreadObj(int x, int y) : mX(x), mY(y), mReInit(true), mShutDown(
 	mState.height = mY;
 	mState.blit = true;
 
+	unlink("/tmp/neutrino.input");
+	mkfifo("/tmp/neutrino.input", 0600);
+	input_fd = open("/tmp/neutrino.input", O_RDWR | O_CLOEXEC | O_NONBLOCK);
+	if (input_fd < 0)
+		printf("%s: could not open /tmp/neutrino.input FIFO: %m\n", __func__);
+
 	initKeys();
 }
 
@@ -62,49 +68,66 @@ GLThreadObj::~GLThreadObj()
 
 void GLThreadObj::initKeys()
 {
-	mSpecialMap[GLUT_KEY_UP]    = RC_up;
-	mSpecialMap[GLUT_KEY_DOWN]  = RC_down;
-	mSpecialMap[GLUT_KEY_LEFT]  = RC_left;
-	mSpecialMap[GLUT_KEY_RIGHT] = RC_right;
+	mSpecialMap[GLUT_KEY_UP]    = KEY_UP;
+	mSpecialMap[GLUT_KEY_DOWN]  = KEY_DOWN;
+	mSpecialMap[GLUT_KEY_LEFT]  = KEY_LEFT;
+	mSpecialMap[GLUT_KEY_RIGHT] = KEY_RIGHT;
 
-	mSpecialMap[GLUT_KEY_F1] = RC_red;
-	mSpecialMap[GLUT_KEY_F2] = RC_green;
-	mSpecialMap[GLUT_KEY_F3] = RC_yellow;
-	mSpecialMap[GLUT_KEY_F4] = RC_blue;
-	
-	mSpecialMap[GLUT_KEY_F5] = RC_play;
-	mSpecialMap[GLUT_KEY_F6] = RC_stop;
-	mSpecialMap[GLUT_KEY_F7] = RC_pause;
-	mSpecialMap[GLUT_KEY_F8] = RC_rewind;
-	mSpecialMap[GLUT_KEY_F9] = RC_forward;
-	mSpecialMap[GLUT_KEY_F10] = RC_loop;
-	mSpecialMap[GLUT_KEY_F11] = RC_record;
-	mSpecialMap[GLUT_KEY_F12] = RC_mode;
+	mSpecialMap[GLUT_KEY_F1]  = KEY_RED;
+	mSpecialMap[GLUT_KEY_F2]  = KEY_GREEN;
+	mSpecialMap[GLUT_KEY_F3]  = KEY_YELLOW;
+	mSpecialMap[GLUT_KEY_F4]  = KEY_BLUE;
 
-	mSpecialMap[GLUT_KEY_PAGE_UP]   = RC_page_up;
-	mSpecialMap[GLUT_KEY_PAGE_DOWN] = RC_page_down;
+	mSpecialMap[GLUT_KEY_F5]  = KEY_RECORD;
+	mSpecialMap[GLUT_KEY_F6]  = KEY_PLAY;
+	mSpecialMap[GLUT_KEY_F7]  = KEY_PAUSE;
+	mSpecialMap[GLUT_KEY_F8]  = KEY_STOP;
 
-	mKeyMap[0x0d] = RC_ok;
-	mKeyMap[0x1b] = RC_home;
-	mKeyMap['i']  = RC_info;
-	mKeyMap['m']  = RC_setup;
+	mSpecialMap[GLUT_KEY_F9]  = KEY_FORWARD;
+	mSpecialMap[GLUT_KEY_F10] = KEY_REWIND;
+	mSpecialMap[GLUT_KEY_F11] = KEY_NEXT;
+	mSpecialMap[GLUT_KEY_F12] = KEY_PREVIOUS;
 
-	mKeyMap['s']  = RC_spkr;
-	mKeyMap['+']  = RC_plus;
-	mKeyMap['-']  = RC_minus;
-	
-	mKeyMap['h']  = RC_info;
+	mSpecialMap[GLUT_KEY_PAGE_UP]   = KEY_PAGEUP;
+	mSpecialMap[GLUT_KEY_PAGE_DOWN] = KEY_PAGEDOWN;
 
-	mKeyMap['0']  = RC_0;
-	mKeyMap['1']  = RC_1;
-	mKeyMap['2']  = RC_2;
-	mKeyMap['3']  = RC_3;
-	mKeyMap['4']  = RC_4;
-	mKeyMap['5']  = RC_5;
-	mKeyMap['6']  = RC_6;
-	mKeyMap['7']  = RC_7;
-	mKeyMap['8']  = RC_8;
-	mKeyMap['9']  = RC_9;
+	mKeyMap[0x0d] = KEY_OK;
+	mKeyMap[0x1b] = KEY_EXIT;
+
+	mKeyMap['0']  = KEY_0;
+	mKeyMap['1']  = KEY_1;
+	mKeyMap['2']  = KEY_2;
+	mKeyMap['3']  = KEY_3;
+	mKeyMap['4']  = KEY_4;
+	mKeyMap['5']  = KEY_5;
+	mKeyMap['6']  = KEY_6;
+	mKeyMap['7']  = KEY_7;
+	mKeyMap['8']  = KEY_8;
+	mKeyMap['9']  = KEY_9;
+
+	mKeyMap['+']  = KEY_VOLUMEUP;
+	mKeyMap['-']  = KEY_VOLUMEDOWN;
+	mKeyMap['.']  = KEY_MUTE;
+	mKeyMap['a']  = KEY_AUDIO;
+	mKeyMap['e']  = KEY_EPG;
+	//     ['f']    is reserved to toggle fullscreen;
+	mKeyMap['g']  = KEY_GAMES;
+	mKeyMap['h']  = KEY_HELP;
+	mKeyMap['i']  = KEY_INFO;
+	mKeyMap['m']  = KEY_MENU;
+	mKeyMap['p']  = KEY_POWER;
+	mKeyMap['r']  = KEY_RADIO;
+	mKeyMap['s']  = KEY_SUBTITLE;
+	mKeyMap['t']  = KEY_TV;
+	mKeyMap['v']  = KEY_VIDEO;
+	mKeyMap['z']  = KEY_SLEEP;
+
+	/* shift keys */
+	mKeyMap['F']  = KEY_FAVORITES;
+	mKeyMap['M']  = KEY_MODE;
+	mKeyMap['S']  = KEY_SAT;
+	mKeyMap['T']  = KEY_TEXT;
+	mKeyMap['W']  = KEY_WWW;
 }
 
 void GLThreadObj::run()
@@ -165,7 +188,7 @@ void GLThreadObj::setupCtx()
 	glutInit(&argc, const_cast<char **>(argv));
 	glutInitWindowSize(mX, mY);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-	glutCreateWindow("neutrino2");
+	glutCreateWindow("Neutrino eVo");
 	
 	//
 	GLWinID = glXGetCurrentDrawable();
@@ -193,6 +216,7 @@ void GLThreadObj::setupOSDBuffer()
 
 void GLThreadObj::setupGLObjects()
 {
+	unsigned char buf[4] = { 0, 0, 0, 0 }; /* 1 black pixel */
 	glGenTextures(1, &mState.osdtex);
 	glGenTextures(1, &mState.displaytex);
 	glBindTexture(GL_TEXTURE_2D, mState.osdtex);
@@ -207,7 +231,15 @@ void GLThreadObj::setupGLObjects()
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
 	glGenBuffers(1, &mState.osdpbo);
+
 	glGenBuffers(1, &mState.displaypbo);
+
+	/* hack to start with black video buffer instead of white */
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, mState.displaypbo);
+	glBufferData(GL_PIXEL_UNPACK_BUFFER, sizeof(buf), buf, GL_STREAM_DRAW_ARB);
+	glBindTexture(GL_TEXTURE_2D, mState.displaytex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_BGRA, GL_UNSIGNED_BYTE, 0);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
 void GLThreadObj::releaseGLObjects()
@@ -225,33 +257,36 @@ void GLThreadObj::rendercb()
 
 void GLThreadObj::keyboardcb(unsigned char key, int /*x*/, int /*y*/)
 {
-	std::map<unsigned char, neutrino_msg_t>::const_iterator i = gThiz->mKeyMap.find(key);
-	if(i != gThiz->mKeyMap.end())
-	{ 
-		/* let's assume globals are thread-safe */
-		if(g_RCInput)
-		{
-			g_RCInput->postMsg(i->second, 0);
-		}
-	}
-
+	printf("GLFB::%s: 0x%x\n", __func__, key);
+	struct input_event ev;
+	std::map<unsigned char, int>::const_iterator i = gThiz->mKeyMap.find(key);
+	if (i == gThiz->mKeyMap.end())
+		return;
+	ev.code  = i->second;
+	ev.value = 1; /* key own */
+	ev.type  = EV_KEY;
+	gettimeofday(&ev.time, NULL);
+	printf("GLFB::%s: pushing 0x%x\n", __func__, ev.code);
+	write(gThiz->input_fd, &ev, sizeof(ev));
+	ev.value = 0; /* neutrino is stupid, so push key up directly after key down */
+	write(gThiz->input_fd, &ev, sizeof(ev));
 }
 
 void GLThreadObj::specialcb(int key, int /*x*/, int /*y*/)
 {
-	std::map<int, neutrino_msg_t>::const_iterator i = gThiz->mSpecialMap.find(key);
-	
-	if(key == GLUT_KEY_F12)
-	{
-		gThiz->mReInit = true;
-	}
-	else if(i != gThiz->mSpecialMap.end())
-	{
-		if(g_RCInput)
-		{
-			g_RCInput->postMsg(i->second, 0);
-		}
-	}
+	printf("GLFB::%s: 0x%x\n", __func__, key);
+	struct input_event ev;
+	std::map<int, int>::const_iterator i = gThiz->mSpecialMap.find(key);
+	if (i == gThiz->mSpecialMap.end())
+		return;
+	ev.code  = i->second;
+	ev.value = 1;
+	ev.type  = EV_KEY;
+	gettimeofday(&ev.time, NULL);
+	printf("GLFB::%s: pushing 0x%x\n", __func__, ev.code);
+	write(gThiz->input_fd, &ev, sizeof(ev));
+	ev.value = 0;
+	write(gThiz->input_fd, &ev, sizeof(ev));
 }
 
 int sleep_us = 30000;
@@ -405,7 +440,7 @@ void GLThreadObj::bltDisplayBuffer()
 	mDisplayBuffer.resize(5*1024*1024);
 
 	//dprintf(DEBUG_NORMAL, "GLThreadObj::bltDisplayBuffer: DisplayBuffer set to %d bytes\n", 5*1024*1024);
-	
+
 	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, mState.displaypbo);
 	glBufferData(GL_PIXEL_UNPACK_BUFFER, mDisplayBuffer.size(), &mDisplayBuffer[0], GL_STREAM_DRAW_ARB);
 

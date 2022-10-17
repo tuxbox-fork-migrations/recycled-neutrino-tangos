@@ -5,6 +5,8 @@ AM_CPPFLAGS += \
     -I$(top_builddir) \
     -I$(srcdir) \
     -I$(top_srcdir)/lib \
+    -I$(top_srcdir)/src \
+	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/libeplayer3/include \
 	-I$(top_srcdir)/lib/libdvbci
 
@@ -34,5 +36,7 @@ libdvbapi_a_SOURCES += \
 else
 libdvbapi_a_SOURCES += \
 	playback_gst.cpp
+AM_LDFLAGS += \
+	@GSTREAMER_CFLAGS@
 endif
 
