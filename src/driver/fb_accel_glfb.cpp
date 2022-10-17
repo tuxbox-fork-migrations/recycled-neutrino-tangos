@@ -33,15 +33,22 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#include <glfb.h>
-extern GLFramebuffer *glfb;
-
 #include <driver/abstime.h>
 #include <system/set_threadname.h>
 #include <gui/color.h>
 #include <gui/color_custom.h>
 
+#include <GL/glew.h>
+#include "glthread.h"
+
 #define LOGTAG "[fb_glfb] "
+
+// resolution
+#define DEFAULT_XRES		1280
+#define DEFAULT_YRES		720
+
+// bitmap
+#define DEFAULT_BPP		32	// 32 bit
 
 CFbAccelGLFB::CFbAccelGLFB()
 {
@@ -50,21 +57,44 @@ CFbAccelGLFB::CFbAccelGLFB()
 
 void CFbAccelGLFB::init(const char *)
 {
+	fprintf(stderr, LOGTAG "init: GL Framebuffer init...\n");
 	int tr = 0xff;
 
 	fd = -1;
-	if (!glfb) {
-		fprintf(stderr, LOGTAG "init: GL Framebuffer is not set up? we are doomed...\n");
-		return;
-	}
-	screeninfo = glfb->getScreenInfo();
-	stride = 4 * screeninfo.xres;
+	screeninfo.bits_per_pixel = DEFAULT_BPP;
+	screeninfo.xres = DEFAULT_XRES;
+	screeninfo.xres_virtual = screeninfo.xres;
+	screeninfo.yres = DEFAULT_YRES;
+	screeninfo.yres_virtual = screeninfo.yres;
+	screeninfo.bits_per_pixel = DEFAULT_BPP;
+	screeninfo.blue.length = 8;
+	screeninfo.blue.offset = 0;
+	screeninfo.green.length = 8;
+	screeninfo.green.offset = 8;
+	screeninfo.red.length = 8;
+	screeninfo.red.offset = 16;
+	screeninfo.transp.length = 8;
+	screeninfo.transp.offset = 24;
+	stride = screeninfo.xres * 4;
 	swidth = screeninfo.xres;
-	available = glfb->getOSDBuffer()->size(); /* allocated in glfb constructor */
-	lbb = lfb = reinterpret_cast<fb_pixel_t*>(glfb->getOSDBuffer()->data());
 
-	memset(lfb, 0, available);
-	setMode(720, 576, 8 * sizeof(fb_pixel_t));
+	if(!mpGLThreadObj)
+	{
+		mpGLThreadObj = new GLThreadObj(screeninfo.xres, screeninfo.yres);
+
+		if(mpGLThreadObj)
+		{
+			// kick off the GL thread for the window
+			mpGLThreadObj->Start();
+			mpGLThreadObj->waitInit();
+		}
+	}
+
+
+	lbb = lfb = reinterpret_cast<fb_pixel_t*>(mpGLThreadObj->getOSDBuffer());
+
+	memset(lfb, 0, screeninfo.xres * screeninfo.yres * 4);
+	setMode(DEFAULT_XRES, DEFAULT_YRES, 8 * sizeof(fb_pixel_t));
 
 	blit_thread = false;
 
@@ -107,6 +137,10 @@ CFbAccelGLFB::~CFbAccelGLFB()
 		blit(); /* wakes up the thread */
 		OpenThreads::Thread::join();
 	}
+
+	active = false; /* keep people/infoclocks from accessing */
+	mpGLThreadObj->shutDown();
+	mpGLThreadObj->join();
 }
 
 void CFbAccelGLFB::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
@@ -156,8 +190,7 @@ void CFbAccelGLFB::blit()
 
 void CFbAccelGLFB::_blit()
 {
-	if (glfb)
-		glfb->blit();
+	mpGLThreadObj->blit();
 }
 
 /* wrong name... */

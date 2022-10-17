@@ -136,13 +136,14 @@ TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
 TUXBOX_APPS_LIB_PKGCONFIG(SWSCALE,libswscale)
 
-if test "$BOXTYPE" = "coolstream"; then
-	TUXBOX_APPS_LIB_PKGCONFIG(BLURAY,libbluray)
+if test "$BOXTYPE" = "generic"; then
+	PKG_CHECK_MODULES(GL, gl)
+	#PKG_CHECK_MODULES(GLUT, glut)
+	PKG_CHECK_MODULES(GLEW, glew)
+	PKG_CHECK_MODULES(GSTREAMER, gstreamer-1.0 gstreamer-audio-1.0 gstreamer-video-1.0 gstreamer-pbutils-1.0)
 fi
 
-if test "$BOXTYPE" = "coolstream" ||
-   test "$BOXTYPE" = "armbox" ||
-   test "$BOXTYPE" = "mipsbox" ||
+if test "$BOXTYPE" = "armbox" ||
    test "$BOXTYPE" = "generic"; then
 	AC_DEFINE(SCREENSHOT, 1, [Define to 1 if the platform supports screenshots])
 fi

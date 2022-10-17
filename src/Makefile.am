@@ -125,7 +125,11 @@ neutrino_LDADD = \
 	-ldl -lblkid \
 	-lz
 
-if !BOXTYPE_GENERIC
+if BOXTYPE_GENERIC
+neutrino_LDADD += \
+	@GSTREAMER_LIBS@ \
+	-lglut -lGL -lGLU -lGLEW
+else
 neutrino_LDADD += \
 	$(top_builddir)/lib/libeplayer3/libeplayer3.a \
 	-lass

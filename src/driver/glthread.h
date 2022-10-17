@@ -62,8 +62,8 @@ class GLThreadObj : public OpenThreads::Thread
 		std::vector<unsigned char> mOSDBuffer; /* silly bounce buffer */
 		std::vector<unsigned char> mDisplayBuffer; /* silly bounce buffer */
 
-		std::map<unsigned char, neutrino_msg_t> mKeyMap;
-		std::map<int, neutrino_msg_t> mSpecialMap;
+		std::map<unsigned char, int> mKeyMap;
+		std::map<int, int> mSpecialMap;
 
 		static void resizecb(int w, int h);
 		void checkReinit(int x, int y);		/* e.g. in case window was resized */
@@ -93,6 +93,7 @@ class GLThreadObj : public OpenThreads::Thread
 
 		void bltOSDBuffer();
 		void bltDisplayBuffer();
+		int input_fd;
 };
 
 #endif

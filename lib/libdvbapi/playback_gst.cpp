@@ -45,9 +45,15 @@ static const char *FILENAME = "[playback.cpp]";
 
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
-#include <gst/mpegts/mpegts.h>
+//#include <gst/mpegts/mpegts.h>
 #include <gst/pbutils/missing-plugins.h>
 #include <gst/video/videooverlay.h>
+
+extern int GLWinID;
+extern int GLxStart;
+extern int GLyStart;
+extern int GLWidth;
+extern int GLHeight;
 
 typedef enum
 {
@@ -79,8 +85,6 @@ static int end_eof = 0;
 #define REC_MAX_APIDS 20
 int real_apids[REC_MAX_APIDS];
 
-extern GLFramebuffer *glfb;
-
 gint match_sinktype(const GValue *velement, const gchar *type)
 {
 	GstElement *element = GST_ELEMENT_CAST(g_value_get_object(velement));
@@ -95,6 +99,7 @@ void resetPids()
 	}
 }
 
+#if 0
 void processMpegTsSection(GstMpegtsSection *section)
 {
 	resetPids();
@@ -114,6 +119,7 @@ void processMpegTsSection(GstMpegtsSection *section)
 		}
 	}
 }
+#endif
 
 void playbinNotifySource(GObject *object, GParamSpec *param_spec, gpointer user_data)
 {
@@ -318,25 +324,21 @@ GstBusSyncReply Gst_bus_call(GstBus *bus, GstMessage *msg, gpointer user_data)
 		}
 		case GST_MESSAGE_ELEMENT:
 		{
-#if 0
-			if (gst_structure_has_name(gst_message_get_structure(msg), "prepare-window-handle"))
+#if 1
+			if (gst_is_video_overlay_prepare_window_handle_message(msg))
 			{
-				// set window id
-				gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(GST_MESSAGE_SRC(msg)), glfb->getWindowID());
-
-				// reshape window
-				gst_video_overlay_set_render_rectangle(GST_VIDEO_OVERLAY(GST_MESSAGE_SRC(msg)), 0, 0, glfb->getOSDWidth(), glfb->getOSDHeight());
-
-				// sync frames
-				gst_video_overlay_expose(GST_VIDEO_OVERLAY(GST_MESSAGE_SRC(msg)));
+				gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(GST_MESSAGE_SRC (msg)), GLWinID);
+				gst_video_overlay_got_window_handle(GST_VIDEO_OVERLAY(GST_MESSAGE_SRC (msg)), GLWinID);
 			}
 #endif
+#if 0
 			GstMpegtsSection *section = gst_message_parse_mpegts_section(msg);
 			if (section)
 			{
 				processMpegTsSection(section);
 				gst_mpegts_section_unref(section);
 			}
+#endif
 		}
 		case GST_MESSAGE_STATE_CHANGED:
 		{
@@ -440,7 +442,9 @@ cPlayback::cPlayback(int num)
 
 	gst_version(&major, &minor, &micro, &nano);
 
+#if 0
 	gst_mpegts_initialize();
+#endif
 
 	pthread_mutex_init(&mutex_tag_ist, NULL);
 
@@ -605,6 +609,8 @@ bool cPlayback::Start(char *filename, int /*vpid*/, int /*vtype*/, int /*apid*/,
 
 	// create gst pipeline
 	m_gst_playbin = gst_element_factory_make("playbin", "playbin");
+	//GstElement * sink = gst_element_factory_make ("glimagesink", "videosink");
+	//g_object_set (G_OBJECT (m_gst_playbin), "video-sink", sink, NULL);
 
 	if (m_gst_playbin)
 	{
@@ -985,9 +991,9 @@ void cPlayback::FindAllPids(int *apids, unsigned int *ac3flags, unsigned int *nu
 				if (GST_IS_TAG_LIST(tags) && gst_tag_list_get_string(tags, GST_TAG_LANGUAGE_CODE, &g_lang))
 				{
 					std::string slang;
-					if (gst_tag_check_language_code(g_lang))
-						slang = gst_tag_get_language_name(g_lang);
-					else
+					//if (gst_tag_check_language_code(g_lang))
+						//slang = gst_tag_get_language_name(g_lang);
+					//else
 						slang = g_lang;
 					if (slang.empty())
 						language[i] = "unk";
