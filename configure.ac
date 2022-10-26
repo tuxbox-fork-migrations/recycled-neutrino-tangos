@@ -418,6 +418,7 @@ data/oled/fonts/Makefile
 data/oled/icons/Makefile
 data/oled/icons/clock/Makefile
 data/oled/themes/Makefile
+data/oled/themes/220x176/Makefile
 data/oled/themes/400x240/Makefile
 data/oled/themes/480x320/Makefile
 data/oled/themes/800x480/Makefile
@@ -500,6 +501,7 @@ src/zapit/src/Makefile
 
 # Oled themes
 AC_CONFIG_FILES([
+data/oled/themes/220x176/Default.otheme
 data/oled/themes/400x240/Default.otheme
 data/oled/themes/480x320/Default.otheme
 data/oled/themes/480x320/Advanced.otheme
