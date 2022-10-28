@@ -999,6 +999,7 @@ glcd.standby_led_clock LED-clock
 glcd.standby_settings Standby-settings
 glcd.standby_simple_clock Simple clock
 glcd.standby_weather Weather in standby mode
+glcd.standby_weather_percent Weather height
 glcd.standby_weather_curr_x_position Weather in standby mode current x-position
 glcd.standby_weather_next_x_position Weather in standby mode next x-position
 glcd.standby_weather_y_position Weather in standby mode y-position
@@ -1008,6 +1009,7 @@ glcd.time_in_standby Time display in standby mode
 glcd.time_x_position Time x-position
 glcd.time_y_position Time y-position
 glcd.volume Volume
+glcd.weather_percent Weather height
 glcd.weather_curr_x_position Weather current x-position
 glcd.weather_next_x_position Weather next x-position
 glcd.weather_y_position Weather y-position

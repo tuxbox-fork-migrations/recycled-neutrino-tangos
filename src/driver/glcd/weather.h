@@ -29,6 +29,6 @@
 #include "glcd.h"
 
 void InitWeather();
-void WeatherUpdateFonts(int m_height = 64);
+void WeatherUpdateFonts();
 void RenderWeather(int cx, int cy, int nx, int ny, bool standby);
 void ShowWeather(bool standby);
