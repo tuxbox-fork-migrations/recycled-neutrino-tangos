@@ -2533,6 +2533,12 @@ void CInfoViewer::showIcon_SubT()
 		have_sub = true;
 
 	showIcons(CInfoViewer::ICON_SUBT, (have_sub) ? NEUTRINO_ICON_SUBT : NEUTRINO_ICON_SUBT_GREY);
+#ifdef ENABLE_GRAPHLCD
+	if (have_sub)
+		cGLCD::lockIcon(cGLCD::SUB);
+	else
+		cGLCD::unlockIcon(cGLCD::SUB);
+#endif
 }
 
 void CInfoViewer::showIcon_DD()
@@ -2547,6 +2553,13 @@ void CInfoViewer::showIcon_DD()
 		dd_icon = g_RemoteControl->has_ac3 ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
 
 	showIcons(CInfoViewer::ICON_DD, dd_icon);
+#ifdef ENABLE_GRAPHLCD
+	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < g_RemoteControl->current_PIDs.APIDs.size()) &&
+			(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
+		cGLCD::lockIcon(cGLCD::DD);
+	else
+		cGLCD::unlockIcon(cGLCD::DD);
+#endif
 }
 
 void CInfoViewer::showIcon_RadioText(bool rt_available)
@@ -2561,6 +2574,12 @@ void CInfoViewer::showIcon_RadioText(bool rt_available)
 		rt_icon = NEUTRINO_ICON_RADIOTEXT_OFF;
 
 	showIcons(CInfoViewer::ICON_RT, rt_icon);
+#ifdef ENABLE_GRAPHLCD
+	if (rt_available)
+		cGLCD::lockIcon(cGLCD::TXT);
+	else
+		cGLCD::unlockIcon(cGLCD::TXT);
+#endif
 }
 
 void CInfoViewer::showIcon_16_9()
@@ -3096,6 +3115,12 @@ void* CInfoViewer::Thread_paint_cam_icons(void)
 			frameBuffer->paintIcon("ci+_green", emu_pic_startx, py);
 		else
 			frameBuffer->paintIcon("ci+_white", emu_pic_startx, py);
+#ifdef ENABLE_GRAPHLCD
+		if (useCI)
+			cGLCD::lockIcon(cGLCD::CAM);
+		else
+			cGLCD::unlockIcon(cGLCD::CAM);
+#endif
 	}
 	pthread_exit(0);
 }
