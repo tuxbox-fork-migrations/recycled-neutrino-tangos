@@ -227,6 +227,7 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 	if (!Data)
 		return false;
 	cGLCD *cglcd = cGLCD::getInstance();
+	cglcd->unlockChannel();
 
 	switch(OptionName)
 	{
@@ -484,6 +485,7 @@ int GLCD_Menu::GLCD_Theme_Settings()
 
 int GLCD_Menu::GLCD_Theme_Position_Settings()
 {
+	cGLCD::getInstance()->SetCfgMode(true);
 	
 	int oled_width = cGLCD::getInstance()->lcd->Width();
 	int oled_height = cGLCD::getInstance()->lcd->Height();
@@ -604,6 +606,7 @@ int GLCD_Menu::GLCD_Theme_Position_Settings()
 	int res = gtps->exec(NULL, "");
 	delete gtps;
 	cGLCD::getInstance()->StandbyMode(false);
+	cGLCD::getInstance()->SetCfgMode(false);
 	return res;
 }
 
