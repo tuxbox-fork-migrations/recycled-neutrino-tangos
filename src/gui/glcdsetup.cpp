@@ -259,75 +259,10 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 		case LOCALE_GLCD_MIRROR_OSD:
 			cglcd->MirrorOSD(*((int *) Data));
 			break;
-		case LOCALE_GLCD_MIRROR_VIDEO:
-		case LOCALE_GLCD_SELECT_FG:
-		case LOCALE_GLCD_SELECT_BG:
-		case LOCALE_GLCD_SELECT_BAR:
-		case LOCALE_GLCD_BRIGHTNESS:
-		case LOCALE_GLCD_BRIGHTNESS_STANDBY:
-		case LOCALE_GLCD_BRIGHTNESS_DIM:
-		case LOCALE_GLCD_BRIGHTNESS_DIM_TIME:
-		case LOCALE_GLCD_SHOW_LOGO:
-		case LOCALE_GLCD_SHOW_PROGRESSBAR:
-		case LOCALE_GLCD_SHOW_DURATION:
-		case LOCALE_GLCD_SHOW_START:
-		case LOCALE_GLCD_SHOW_END:
-		case LOCALE_GLCD_SHOW_TIME:
-		case LOCALE_GLCD_SHOW_WEATHER:
-		case LOCALE_GLCD_SIZE_BAR:
-		case LOCALE_GLCD_BAR_X_POSITION:
-		case LOCALE_GLCD_BAR_Y_POSITION:
-		case LOCALE_GLCD_BAR_WIDTH:
-		case LOCALE_GLCD_SIZE_CHANNEL:
-		case LOCALE_GLCD_CHANNEL_X_POSITION:
-		case LOCALE_GLCD_CHANNEL_Y_POSITION:
-		case LOCALE_GLCD_SIZE_EPG:
-		case LOCALE_GLCD_EPG_X_POSITION:
-		case LOCALE_GLCD_EPG_Y_POSITION:
-		case LOCALE_GLCD_SIZE_DURATION:
-		case LOCALE_GLCD_DURATION_X_POSITION:
-		case LOCALE_GLCD_DURATION_Y_POSITION:
-		case LOCALE_GLCD_SIZE_START:
-		case LOCALE_GLCD_START_X_POSITION:
-		case LOCALE_GLCD_START_Y_POSITION:
-		case LOCALE_GLCD_SIZE_END:
-		case LOCALE_GLCD_END_X_POSITION:
-		case LOCALE_GLCD_END_Y_POSITION:
-		case LOCALE_GLCD_SIZE_LOGO:
-		case LOCALE_GLCD_LOGO_X_POSITION:
-		case LOCALE_GLCD_LOGO_Y_POSITION:
-		case LOCALE_GLCD_SIZE_TIME:
-		case LOCALE_GLCD_TIME_X_POSITION:
-		case LOCALE_GLCD_TIME_Y_POSITION:
-		case LOCALE_GLCD_SCROLL_SPEED:
-		case LOCALE_GLCD_POSITION_SETTINGS:
-		case LOCALE_GLCD_WEATHER_CURR_X_POSITION:
-		case LOCALE_GLCD_WEATHER_NEXT_X_POSITION:
-		case LOCALE_GLCD_WEATHER_Y_POSITION:
+		default:
 			cglcd->Update();
 			break;
-		default:
-			return false;
 	}
-
-	if (
-		   OptionName == LOCALE_GLCD_TIME_IN_STANDBY
-		|| OptionName == LOCALE_GLCD_BRIGHTNESS_STANDBY
-		|| OptionName == LOCALE_GLCD_STANDBY_LED_CLOCK
-		|| OptionName == LOCALE_GLCD_STANDBY_LCD_CLOCK
-		|| OptionName == LOCALE_GLCD_STANDBY_DIGITAL_CLOCK
-		|| OptionName == LOCALE_GLCD_STANDBY_ANALOG_CLOCK
-		|| OptionName == LOCALE_GLCD_STANDBY_WEATHER
-		|| OptionName == LOCALE_GLCD_STANDBY_WEATHER_CURR_X_POSITION
-		|| OptionName == LOCALE_GLCD_STANDBY_WEATHER_NEXT_X_POSITION
-		|| OptionName == LOCALE_GLCD_STANDBY_WEATHER_Y_POSITION
-		|| OptionName == LOCALE_GLCD_DIGITAL_CLOCK_Y_POSITION
-		|| OptionName == LOCALE_GLCD_SIMPLE_CLOCK_Y_POSITION
-		|| OptionName == LOCALE_GLCD_SIZE_SIMPLE_CLOCK
-	)
-		cglcd->StandbyMode(true);
-	else
-		cglcd->StandbyMode(false);
 
 	cglcd->Update();
 	return true;
@@ -374,6 +309,7 @@ int GLCD_Menu::GLCD_Menu_Settings()
 
 int GLCD_Menu::GLCD_Standby_Settings()
 {
+	cGLCD::getInstance()->StandbyMode(true);
 	int oled_width = cGLCD::getInstance()->lcd->Width();
 	int oled_height = cGLCD::getInstance()->lcd->Height();
 
@@ -405,6 +341,8 @@ int GLCD_Menu::GLCD_Standby_Settings()
 	//mc->setHint("", LOCALE_TODO);
 	gss->addItem(mc);
 
+	gss->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_PERCENT,
+				&t.glcd_standby_weather_percent, true, 0, 100, this));
 	gss->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_CURR_X_POSITION,
 				&t.glcd_standby_weather_curr_x_position, true, 0, oled_width, this));
 	gss->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_NEXT_X_POSITION,
@@ -612,6 +550,8 @@ int GLCD_Menu::GLCD_Theme_Position_Settings()
 
 	gtps->addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_WEATHER, &t.glcd_weather,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
+	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_WEATHER_PERCENT,
+				&t.glcd_weather_percent, true, 0, 100, this));
 	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_WEATHER_CURR_X_POSITION,
 				&t.glcd_weather_curr_x_position, true, 0, oled_width, this));
 	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_WEATHER_NEXT_X_POSITION,
