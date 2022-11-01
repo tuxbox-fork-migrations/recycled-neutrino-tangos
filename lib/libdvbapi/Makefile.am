@@ -27,8 +27,7 @@ libdvbapi_a_SOURCES = \
 	dmx.cpp \
 	video.cpp \
 	audio.cpp \
-	record.cpp \
-	hdmi_cec.cpp
+	record.cpp
 
 if !BOXTYPE_GENERIC
 libdvbapi_a_SOURCES += \

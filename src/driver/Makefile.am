@@ -41,7 +41,8 @@ libneutrino_driver_a_SOURCES = \
 	screenshot.cpp \
 	shutdown_count.cpp \
 	streamts.cpp \
-	volume.cpp
+	volume.cpp \
+	hdmi_cec.cpp
 
 if ENABLE_LCD
 AM_CPPFLAGS += -I$(top_srcdir)/lib/liblcddisplay

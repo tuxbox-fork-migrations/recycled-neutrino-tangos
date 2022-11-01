@@ -30,9 +30,8 @@
 #endif
 #include <global.h>
 #include <neutrino.h>
-#include <libdvbapi/video.h>
-#include <libdvbapi/hdmi_cec.h>
 #include <driver/display.h>
+#include <driver/hdmi_cec.h>
 #include <gui/infoclock.h>
 #include <gui/volumebar.h>
 #include <gui/audiomute.h>
@@ -72,7 +71,7 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 	neutrino->setCurrentMuted(newValue);
 #if HAVE_ARM_HARDWARE
 	if (g_settings.hdmi_cec_volume)
-		hdmi_cec::getInstance()->toggle_mute();
+		g_hdmicec->toggle_mute();
 	else
 #endif
 	if (g_settings.volume_external)
