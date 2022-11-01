@@ -38,6 +38,7 @@
 #include <gui/plugins.h>//for relodplugins
 #include <driver/display.h>
 #include <driver/screenshot.h>
+#include <driver/hdmi_cec.h>
 #include <gui/rc_lock.h>
 #include <rcsim.h>
 #include <driver/pictureviewer/pictureviewer.h>
@@ -51,10 +52,7 @@ extern CPictureViewer *g_PicViewer;
 // nhttpd
 #include "neutrinoapi.h"
 #include "controlapi.h"
-#include <libdvbapi/video.h>
 #include <zapit/femanager.h>
-
-extern cVideo * videoDecoder;
 
 extern CPlugins *g_Plugins;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
@@ -596,7 +594,7 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 		{
 			//dont use CEC with standbyoff (TV off) --- use: control/standby?off&cec=off
 			if(g_settings.hdmi_cec_standby && CEC_HDMI_off){
-				videoDecoder->SetCECAutoStandby(0);
+				g_hdmicec->SetCECAutoStandby(0);
 			}
 
 			if(CNeutrinoApp::getInstance()->getMode() != 4)
@@ -611,7 +609,7 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 		{
 			//dont use CEC with with view on (TV on) --- use: control/standby?off&cec=off
 			if(g_settings.hdmi_cec_view_on && CEC_HDMI_off){
-				videoDecoder->SetCECAutoView(0);
+				g_hdmicec->SetCECAutoView(0);
 			}
 
 			NeutrinoAPI->Zapit->setStandby(false);
