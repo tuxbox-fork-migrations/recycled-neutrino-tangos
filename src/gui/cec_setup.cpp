@@ -119,10 +119,10 @@ void CCECSetup::setCECSettings()
 	printf("[neutrino CEC Settings] %s init CEC settings...\n", __FUNCTION__);
 	if (g_hdmicec == NULL)
 		g_hdmicec = new hdmi_cec();
+	g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 	g_hdmicec->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 	g_hdmicec->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
 	g_hdmicec->SetAudioDestination(g_settings.hdmi_cec_volume);
-	g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 }
 
 bool CCECSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
