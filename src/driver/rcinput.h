@@ -230,6 +230,7 @@ class CRCInput
 			RC_audio	= KEY_AUDIO,
 			RC_video	= KEY_VIDEO,
 			RC_tv		= KEY_TV,
+			RC_tv2		= KEY_TV2,
 			RC_radio	= KEY_RADIO,
 			RC_text		= KEY_TEXT,
 #if BOXMODEL_VUPLUS_ALL
@@ -246,6 +247,7 @@ class CRCInput
 			RC_record	= KEY_RECORD,
 			RC_play		= KEY_PLAY,
 			RC_pause	= KEY_PAUSE,
+			RC_pvr		= KEY_PVR,
 			RC_forward	= KEY_FORWARD,
 			RC_rewind	= KEY_REWIND,
 			RC_stop		= KEY_STOP,
