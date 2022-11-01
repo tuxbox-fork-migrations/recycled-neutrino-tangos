@@ -23,7 +23,20 @@
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
 
-#include "video.h"
+
+typedef enum
+{
+	VIDEO_HDMI_CEC_MODE_OFF = 0,
+	VIDEO_HDMI_CEC_MODE_TUNER = 3,
+	VIDEO_HDMI_CEC_MODE_RECORDER = 1
+} VIDEO_HDMI_CEC_MODE;
+
+typedef enum
+{
+	VIDEO_HDMI_CEC_VOL_OFF = 0,
+	VIDEO_HDMI_CEC_VOL_AUDIOSYSTEM = 1,
+	VIDEO_HDMI_CEC_VOL_TV = 2
+} VIDEO_HDMI_CEC_VOL;
 
 struct cec_message
 {
@@ -58,8 +71,6 @@ enum
 class hdmi_cec : public OpenThreads::Thread
 {
 	private:
-		hdmi_cec();
-		static hdmi_cec *hdmi_cec_instance;
 		void run();
 		bool Start();
 		bool Stop();
@@ -83,8 +94,8 @@ class hdmi_cec : public OpenThreads::Thread
 	protected:
 		bool running;
 	public:
+		hdmi_cec();
 		~hdmi_cec();
-		static hdmi_cec *getInstance();
 		bool SetCECMode(VIDEO_HDMI_CEC_MODE);
 		void SetCECAutoView(bool);
 		void SetCECAutoStandby(bool);
