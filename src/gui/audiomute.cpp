@@ -70,7 +70,7 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 #endif
 	neutrino->setCurrentMuted(newValue);
 #if HAVE_ARM_HARDWARE
-	if (g_settings.hdmi_cec_volume)
+	if (g_settings.hdmi_cec_volume && g_hdmicec->isMuted())
 		g_hdmicec->toggle_mute();
 	else
 #endif

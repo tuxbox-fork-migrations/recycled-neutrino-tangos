@@ -2676,10 +2676,6 @@ TIMER_START();
 	if (g_settings.usermenu[3]->title.empty() && !g_settings.usermenu[3]->items.empty())
 		g_settings.usermenu[3]->title = g_Locale->getText(LOCALE_USERMENU_TITLE_BLUE);
 
-	/* start hdmi cec */
-	if (g_hdmicec == NULL)
-		g_hdmicec = new hdmi_cec();
-
 	/* setup GUI */
 	neutrinoFonts = CNeutrinoFonts::getInstance();
 	SetupFonts();
@@ -4149,14 +4145,20 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::STANDBY_ON ) {
 		if( mode != NeutrinoModes::mode_standby ) {
-			standbyMode( true );
+			if (data)
+				standbyModeFromCEC( true );
+			else
+				standbyMode( true );
 		}
 		g_RCInput->clearRCMsg();
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::STANDBY_OFF ) {
 		if( mode == NeutrinoModes::mode_standby ) {
-			standbyMode( false );
+			if (data)
+				standbyModeFromCEC( false );
+			else
+				standbyMode( false );
 		}
 		g_RCInput->clearRCMsg();
 		return messages_return::handled;
@@ -4653,8 +4655,12 @@ void CNeutrinoApp::AVInputMode(bool bOnOff)
 	(void)bOnOff; // avoid compiler warning
 #endif // !HAVE_GENERIC_HARDWARE
 }
+void CNeutrinoApp::standbyModeFromCEC( bool bOnOff )
+{
+	standbyMode(bOnOff, false, true);
+}
 
-void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
+void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby, bool fromcec )
 {
 	//static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
@@ -4697,7 +4703,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		}
 
 		videoDecoder->Standby(true);
-		g_hdmicec->SetCECState(true);
+		if (!fromcec)
+			g_hdmicec->SetCECState(true);
 
 		g_Sectionsd->setServiceChanged(0, false);
 		g_Sectionsd->setPauseScanning(!fromDeepStandby);
@@ -4747,7 +4754,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->ShowText("resume");
 		videoDecoder->Standby(false);
-		g_hdmicec->SetCECState(false);
+		if (!fromcec)
+			g_hdmicec->SetCECState(false);
 		CEpgScan::getInstance()->Stop();
 		CSectionsdClient::CurrentNextInfo dummy;
 		g_InfoViewer->getEPG(0, dummy);
