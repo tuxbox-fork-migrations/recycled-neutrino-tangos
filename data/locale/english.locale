@@ -908,6 +908,7 @@ glcd.align_none none
 glcd.align_right right
 glcd.align_start Event start arrangement
 glcd.align_time Time arrangement
+glcd.background BG Picture
 glcd.bar_width Progressbar width
 glcd.bar_x_position Progressbar x-position
 glcd.bar_y_position Progressbar y-position
@@ -951,6 +952,16 @@ glcd.epg_y_position EPG y-position
 glcd.font Font
 glcd.font_autoresize Auto size
 glcd.head GraphLCD-support
+glcd.icon_cam_x_position Icon CI x-position
+glcd.icon_dd_x_position Icon Audio x-position
+glcd.icon_ecm_x_position Icon Crypt x-position
+glcd.icon_mute_x_position Icon Mute x-position
+glcd.icon_rec_x_position Icon Record x-position
+glcd.icon_timer_x_position Icon Timer x-position
+glcd.icon_ts_x_position Icon Timeshift x-position
+glcd.icon_txt_x_position Icon Radiotext x-position
+glcd.icon_y_percent Icons height
+glcd.icon_y_position Icons y-position
 glcd.logo_x_position Channel logo x-position
 glcd.logo_y_position Channel logo y-position
 glcd.mirror_osd Show OSD-menu on GraphLCD
@@ -988,6 +999,7 @@ glcd.standby_led_clock LED-clock
 glcd.standby_settings Standby-settings
 glcd.standby_simple_clock Simple clock
 glcd.standby_weather Weather in standby mode
+glcd.standby_weather_percent Weather height
 glcd.standby_weather_curr_x_position Weather in standby mode current x-position
 glcd.standby_weather_next_x_position Weather in standby mode next x-position
 glcd.standby_weather_y_position Weather in standby mode y-position
@@ -997,6 +1009,7 @@ glcd.time_in_standby Time display in standby mode
 glcd.time_x_position Time x-position
 glcd.time_y_position Time y-position
 glcd.volume Volume
+glcd.weather_percent Weather height
 glcd.weather_curr_x_position Weather current x-position
 glcd.weather_next_x_position Weather next x-position
 glcd.weather_y_position Weather y-position

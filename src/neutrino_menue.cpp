@@ -49,6 +49,9 @@
 #include "gui/imageinfo.h"
 #include "gui/info_menue.h"
 #include "gui/keybind_setup.h"
+#ifdef ENABLE_GRAPHLCD
+#include <gui/glcdsetup.h>
+#endif
 #ifdef ENABLE_LCD4LINUX
 #include "gui/lcd4l_setup.h"
 #endif
@@ -361,15 +364,23 @@ void CNeutrinoApp::InitMenuSettings()
 	// lcd
 	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_LCD, true, NULL, new CVfdSetup());
 	mf->setHint(NEUTRINO_ICON_HINT_VFD, LOCALE_MENU_HINT_VFD);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM || g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
 
-#ifdef ENABLE_TANGOS
+#ifdef ENABLE_GRAPHLCD
+	mf = new CMenuForwarder(LOCALE_GLCD_HEAD, true, NULL, new GLCD_Menu());
+	mf->setHint(NEUTRINO_ICON_HINT_VFD, LOCALE_MENU_HINT_VFD);
+	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
+#endif
+
 #ifdef ENABLE_LCD4LINUX
 	// lcd4linux
 	mf = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, true, NULL, new CLCD4lSetup());
 	mf->setHint("", LOCALE_MENU_HINT_LCD4L_SUPPORT);
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
 #endif
+
+#ifdef ENABLE_TANGOS
 	// weather
 	mf = new CMenuForwarder(LOCALE_WEATHER_ENABLED, true, NULL, new CWeatherSetup());
 	mf->setHint("", LOCALE_MENU_HINT_WEATHER_ENABLED);

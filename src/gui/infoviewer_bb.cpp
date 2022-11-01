@@ -494,6 +494,12 @@ void CInfoViewerBB::showIcon_SubT()
 		have_sub = true;
 
 	showBBIcons(CInfoViewerBB::ICON_SUBT, (have_sub) ? NEUTRINO_ICON_SUBT : NEUTRINO_ICON_SUBT_GREY);
+#ifdef ENABLE_GRAPHLCD
+	if (have_sub)
+		cGLCD::lockIcon(cGLCD::SUB);
+	else
+		cGLCD::unlockIcon(cGLCD::SUB);
+#endif
 }
 
 void CInfoViewerBB::showIcon_VTXT()
@@ -501,6 +507,12 @@ void CInfoViewerBB::showIcon_VTXT()
 	if (!is_visible)
 		return;
 	showBBIcons(CInfoViewerBB::ICON_VTXT, (g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0) ? NEUTRINO_ICON_VTXT : NEUTRINO_ICON_VTXT_GREY);
+#ifdef ENABLE_GRAPHLCD
+	if (g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0)
+		cGLCD::lockIcon(cGLCD::TXT);
+	else
+		cGLCD::unlockIcon(cGLCD::TXT);
+#endif
 }
 
 void CInfoViewerBB::showIcon_DD()
@@ -515,6 +527,13 @@ void CInfoViewerBB::showIcon_DD()
 		dd_icon = g_RemoteControl->has_ac3 ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
 
 	showBBIcons(CInfoViewerBB::ICON_DD, dd_icon);
+#ifdef ENABLE_GRAPHLCD
+	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < g_RemoteControl->current_PIDs.APIDs.size()) &&
+			(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
+		cGLCD::lockIcon(cGLCD::DD);
+	else
+		cGLCD::unlockIcon(cGLCD::DD);
+#endif
 }
 
 void CInfoViewerBB::showIcon_RadioText(bool rt_available)
@@ -838,6 +857,13 @@ void CInfoViewerBB::paint_ca_icons(int notfirst)
 		showIcon_CA();
 		return;
 	}
+
+#ifdef ENABLE_GRAPHLCD
+		if (fta)
+			cGLCD::unlockIcon(cGLCD::CAM);
+		else
+			cGLCD::lockIcon(cGLCD::CAM);
+#endif
 
 	if(!notfirst) {
 		FILE* fd = fopen (ecm_info_f, "r");

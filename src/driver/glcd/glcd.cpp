@@ -120,6 +120,7 @@ cGLCD::cGLCD()
 	timeout_cnt = 0;
 	locked_countdown = false;
 	time_thread_started = false;
+	config_mode = false;
 
 	cglcd = this;
 
@@ -468,96 +469,120 @@ void cGLCD::Exec()
 				ecmLocked = false;
 		}
 
-		if (recLocked) {
-			drawText(t.glcd_icon_rec_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "rec", &font_smalltext, GLCD::cColor::Red,
-				GLCD::cColor::Transparent, true, 0, 0);
-		} else {
-			drawText(t.glcd_icon_rec_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "rec", &font_smalltext, GLCD::cColor::Gray,
-				GLCD::cColor::Transparent, true, 0, 0);
-		}
-
-		if (muteLocked) {
-			drawText(t.glcd_icon_mute_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "mute", &font_smalltext, GLCD::cColor::Green,
-				GLCD::cColor::Transparent, true, 0, 0);
-		} else {
-			drawText(t.glcd_icon_mute_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "mute", &font_smalltext, GLCD::cColor::Gray,
-				GLCD::cColor::Transparent, true, 0, 0);
-		}
-
-		if (tsLocked) {
-			drawText(t.glcd_icon_ts_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "ts", &font_smalltext, GLCD::cColor::Red,
-				GLCD::cColor::Transparent, true, 0, 0);
-		} else {
-			drawText(t.glcd_icon_ts_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "ts", &font_smalltext, GLCD::cColor::Gray,
-				GLCD::cColor::Transparent, true, 0, 0);
-		}
-
-		if (ecmLocked) {
-			drawText(t.glcd_icon_ecm_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "ecm", &font_smalltext, GLCD::cColor::Green,
-				GLCD::cColor::Transparent, true, 0, 0);
-		} else {
-			drawText(t.glcd_icon_ecm_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "ecm", &font_smalltext, GLCD::cColor::Gray,
-				GLCD::cColor::Transparent, true, 0, 0);
-		}
-
-		if (timerLocked) {
-			drawText(t.glcd_icon_timer_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "timer", &font_smalltext, GLCD::cColor::Green,
-				GLCD::cColor::Transparent, true, 0, 0);
-		} else {
-			drawText(t.glcd_icon_timer_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "timer", &font_smalltext, GLCD::cColor::Gray,
-				GLCD::cColor::Transparent, true, 0, 0);
-		}
-
-		if (ddLocked) {
-			drawText(t.glcd_icon_dd_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "dd", &font_smalltext, GLCD::cColor::Green,
-				GLCD::cColor::Transparent, true, 0, 0);
-		} else {
-			drawText(t.glcd_icon_dd_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "dd", &font_smalltext, GLCD::cColor::Gray,
-				GLCD::cColor::Transparent, true, 0, 0);
-		}
-
-		if (ismediaplayer) {
-			if (subLocked) {
-				drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "sub", &font_smalltext, GLCD::cColor::Green,
+		if (t.glcd_icon_rec_x_position)
+		{
+			if (recLocked) {
+				drawText(t.glcd_icon_rec_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "rec", &font_smalltext, GLCD::cColor::Red,
 					GLCD::cColor::Transparent, true, 0, 0);
 			} else {
-				drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "sub", &font_smalltext, GLCD::cColor::Gray,
-					GLCD::cColor::Transparent, true, 0, 0);
-			}
-		} else {
-			if (txtLocked) {
-				drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "txt", &font_smalltext, GLCD::cColor::Green,
-					GLCD::cColor::Transparent, true, 0, 0);
-			} else {
-				drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "txt", &font_smalltext, GLCD::cColor::Gray,
+				drawText(t.glcd_icon_rec_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "rec", &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
 			}
 		}
 
-		if (camLocked) {
-			drawText(t.glcd_icon_cam_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "cam", &font_smalltext, GLCD::cColor::Green,
-				GLCD::cColor::Transparent, true, 0, 0);
-		} else {
-			drawText(t.glcd_icon_cam_x_position, t.glcd_icons_y_position,
-				bitmap->Width() - 1, SmalltextWidth, "cam", &font_smalltext, GLCD::cColor::Gray,
-				GLCD::cColor::Transparent, true, 0, 0);
+		if (t.glcd_icon_mute_x_position)
+		{
+			if (muteLocked) {
+				drawText(t.glcd_icon_mute_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "mute", &font_smalltext, GLCD::cColor::Green,
+					GLCD::cColor::Transparent, true, 0, 0);
+			} else {
+				drawText(t.glcd_icon_mute_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "mute", &font_smalltext, GLCD::cColor::Gray,
+					GLCD::cColor::Transparent, true, 0, 0);
+			}
+		}
+
+		if (t.glcd_icon_ts_x_position)
+		{
+			if (tsLocked) {
+				drawText(t.glcd_icon_ts_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "ts", &font_smalltext, GLCD::cColor::Red,
+					GLCD::cColor::Transparent, true, 0, 0);
+			} else {
+				drawText(t.glcd_icon_ts_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "ts", &font_smalltext, GLCD::cColor::Gray,
+					GLCD::cColor::Transparent, true, 0, 0);
+			}
+		}
+
+		if (t.glcd_icon_ecm_x_position)
+		{
+			if (ecmLocked) {
+				drawText(t.glcd_icon_ecm_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "ecm", &font_smalltext, GLCD::cColor::Green,
+					GLCD::cColor::Transparent, true, 0, 0);
+			} else {
+				drawText(t.glcd_icon_ecm_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "ecm", &font_smalltext, GLCD::cColor::Gray,
+					GLCD::cColor::Transparent, true, 0, 0);
+			}
+		}
+
+		if (t.glcd_icon_timer_x_position)
+		{
+			if (timerLocked) {
+				drawText(t.glcd_icon_timer_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "timer", &font_smalltext, GLCD::cColor::Yellow,
+					GLCD::cColor::Transparent, true, 0, 0);
+			} else {
+				drawText(t.glcd_icon_timer_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "timer", &font_smalltext, GLCD::cColor::Gray,
+					GLCD::cColor::Transparent, true, 0, 0);
+			}
+		}
+
+		if (t.glcd_icon_dd_x_position)
+		{
+			if (ddLocked) {
+				drawText(t.glcd_icon_dd_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "dd", &font_smalltext, GLCD::cColor::Green,
+					GLCD::cColor::Transparent, true, 0, 0);
+			} else {
+				drawText(t.glcd_icon_dd_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "dd", &font_smalltext, GLCD::cColor::Gray,
+					GLCD::cColor::Transparent, true, 0, 0);
+			}
+		}
+
+		if (t.glcd_icon_txt_x_position)
+		{
+			if (ismediaplayer) {
+				if (subLocked) {
+					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
+						bitmap->Width() - 1, SmalltextWidth, "sub", &font_smalltext, GLCD::cColor::Green,
+						GLCD::cColor::Transparent, true, 0, 0);
+				} else {
+					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
+						bitmap->Width() - 1, SmalltextWidth, "sub", &font_smalltext, GLCD::cColor::Gray,
+						GLCD::cColor::Transparent, true, 0, 0);
+				}
+			} else {
+				if (txtLocked) {
+					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
+						bitmap->Width() - 1, SmalltextWidth, ENABLE_TANGOS ? "rt" : "txt", &font_smalltext, GLCD::cColor::Green,
+						GLCD::cColor::Transparent, true, 0, 0);
+				} else {
+					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
+						bitmap->Width() - 1, SmalltextWidth, ENABLE_TANGOS ? "rt" : "txt", &font_smalltext, GLCD::cColor::Gray,
+						GLCD::cColor::Transparent, true, 0, 0);
+				}
+			}
+		}
+
+		if (t.glcd_icon_cam_x_position)
+		{
+			if (camLocked) {
+				drawText(t.glcd_icon_cam_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "cam", &font_smalltext, GLCD::cColor::Green,
+					GLCD::cColor::Transparent, true, 0, 0);
+			} else {
+				drawText(t.glcd_icon_cam_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, "cam", &font_smalltext, GLCD::cColor::Gray,
+					GLCD::cColor::Transparent, true, 0, 0);
+			}
 		}
 	}
 
@@ -636,7 +661,7 @@ void cGLCD::updateFonts()
 
 	if (!fonts_initialized || (fontsize_smalltext_new != fontsize_smalltext)) {
 		fontsize_smalltext = fontsize_smalltext_new;
-		if (!font_smalltext.LoadFT2(FONTDIR "/oled/terminator.ttf", "UTF-8", fontsize_smalltext)) {
+		if (!font_smalltext.LoadFT2(t.glcd_font, "UTF-8", fontsize_smalltext)) {
 			t.glcd_font = g_settings.font_file;
 			font_smalltext.LoadFT2(t.glcd_font, "UTF-8", fontsize_smalltext);
 		}

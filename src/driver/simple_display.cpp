@@ -45,7 +45,11 @@ static bool timer_icon = false;
 #endif
 
 #if HAVE_ARM_HARDWARE
+#if BOXMODEL_E4HDULTRA
+#define DISPLAY_DEV "/dev/null"
+#else
 #define DISPLAY_DEV "/dev/dbox/oled0"
+#endif // BOXMODEL_E4HDULTRA
 #include <zapit/zapit.h>
 static bool usb_icon = false;
 static bool timer_icon = false;
