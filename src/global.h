@@ -103,6 +103,8 @@ class CRadioText;
 NEUTRINO_CPP CRadioText		*g_Radiotext;
 class CRadioTextGUI;
 NEUTRINO_CPP CRadioTextGUI	*g_RadiotextWin;
+class hdmi_cec;
+NEUTRINO_CPP hdmi_cec		*g_hdmicec;
 
 #ifndef DISABLE_GUI_MOUNT
 #define ENABLE_GUI_MOUNT

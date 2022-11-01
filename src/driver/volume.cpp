@@ -33,14 +33,13 @@
 #include <gui/keybind_setup.h>
 #include <system/debug.h>
 #include <libdvbapi/audio.h>
-#include <libdvbapi/video.h>
-#include <libdvbapi/hdmi_cec.h>
 #include <system/settings.h>
 #include <system/helpers.h>
 #include <daemonc/remotecontrol.h>
 #include <driver/display.h>
 #include <driver/volume.h>
 #include <driver/display.h>
+#include <driver/hdmi_cec.h>
 #include <gui/audiomute.h>
 #include <gui/mediaplayer.h>
 #include <zapit/zapit.h>
@@ -116,7 +115,7 @@ void CVolume::setVolume(const neutrino_msg_t key)
 	uint64_t timeoutEnd = 0;
 #if HAVE_ARM_HARDWARE
 	if (g_settings.hdmi_cec_volume)
-		g_settings.current_volume = hdmi_cec::getInstance()->GetVolume();
+		g_settings.current_volume = g_hdmicec->GetVolume();
 #endif
 	int vol = g_settings.current_volume;
 
@@ -141,9 +140,9 @@ void CVolume::setVolume(const neutrino_msg_t key)
 				}
 				else if (g_settings.hdmi_cec_volume)
 				{
-					(dir > 0) ? hdmi_cec::getInstance()->vol_up() : hdmi_cec::getInstance()->vol_down();
+					(dir > 0) ? g_hdmicec->vol_up() : g_hdmicec->vol_down();
 					do_vol = false;
-					g_settings.current_volume = hdmi_cec::getInstance()->GetVolume();
+					g_settings.current_volume = g_hdmicec->GetVolume();
 					printf("Volume: %d\n", g_settings.current_volume);
 #endif
 				}

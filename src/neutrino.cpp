@@ -64,6 +64,7 @@
 #include <driver/display.h>
 #include <driver/radiotext.h>
 #include <driver/scanepg.h>
+#include <driver/hdmi_cec.h>
 #if HAVE_ARM_HARDWARE
 #include "gui/3dsetup.h"
 #endif
@@ -2675,6 +2676,10 @@ TIMER_START();
 	if (g_settings.usermenu[3]->title.empty() && !g_settings.usermenu[3]->items.empty())
 		g_settings.usermenu[3]->title = g_Locale->getText(LOCALE_USERMENU_TITLE_BLUE);
 
+	/* start hdmi cec */
+	if (g_hdmicec == NULL)
+		g_hdmicec = new hdmi_cec();
+
 	/* setup GUI */
 	neutrinoFonts = CNeutrinoFonts::getInstance();
 	SetupFonts();
@@ -4316,13 +4321,13 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON) {
 		if(g_settings.hdmi_cec_view_on)
-			videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on);
+			g_hdmicec->SetCECAutoView(g_settings.hdmi_cec_view_on);
 
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_STANDBY) {
 		if(g_settings.hdmi_cec_standby)
-			  videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby);
+			  g_hdmicec->SetCECAutoStandby(g_settings.hdmi_cec_standby);
 
 		return messages_return::handled;
 	}
@@ -4568,6 +4573,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 	if( mode == NeutrinoModes::mode_standby ) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		videoDecoder->Standby(false);
+		g_hdmicec->SetCECState(false);
 	}
 
 #ifdef ENABLE_PIP
@@ -4691,6 +4697,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		}
 
 		videoDecoder->Standby(true);
+		g_hdmicec->SetCECState(true);
 
 		g_Sectionsd->setServiceChanged(0, false);
 		g_Sectionsd->setPauseScanning(!fromDeepStandby);
@@ -4740,6 +4747,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->ShowText("resume");
 		videoDecoder->Standby(false);
+		g_hdmicec->SetCECState(false);
 		CEpgScan::getInstance()->Stop();
 		CSectionsdClient::CurrentNextInfo dummy;
 		g_InfoViewer->getEPG(0, dummy);
@@ -4831,6 +4839,7 @@ void CNeutrinoApp::radioMode( bool rezap)
 	if( mode == NeutrinoModes::mode_standby ) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		videoDecoder->Standby(false);
+		g_hdmicec->SetCECState(false);
 	}
 
 #ifdef ENABLE_PIP
@@ -4960,7 +4969,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if (actionKey=="restart")
 	{
-		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+		g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 		ShowHintS(LOCALE_MENU_HINT_SOFT_RESTART, sigc::bind(sigc::mem_fun(*this, &CNeutrinoApp::ExitRun), CNeutrinoApp::EXIT_RESTART), 1, true, NEUTRINO_ICON_LOADER);
 		returnval = menu_return::RETURN_NONE;
 	}
@@ -5210,7 +5219,7 @@ void stop_daemons(bool stopall, bool for_flash)
 	tuxtx_stop_subtitle();
 	printf("zapit shutdown\n");
 	if(!for_flash && !stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby){
-	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+	  	g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 	}
 	if(InfoClock)
 		delete InfoClock;
@@ -5241,6 +5250,7 @@ void stop_video()
 {
 	CFrameBuffer::getInstance()->paintBackground(); // clear osd
 	delete videoDecoder;
+	delete g_hdmicec;
 	delete videoDemux;
 	delete CFrameBuffer::getInstance();
 }
