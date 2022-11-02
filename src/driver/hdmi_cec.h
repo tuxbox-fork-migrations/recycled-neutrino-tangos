@@ -83,7 +83,6 @@ class hdmi_cec : public OpenThreads::Thread
 		void handleCode(long code, bool keypressed);
 		int rc_send(int fd, unsigned int code, unsigned int value);
 		void rc_sync(int fd);
-		bool standby;
 		void send_key(unsigned char key, unsigned char destination);
 		void request_audio_status();
 		bool muted;
@@ -99,6 +98,10 @@ class hdmi_cec : public OpenThreads::Thread
 		bool SetCECMode(VIDEO_HDMI_CEC_MODE);
 		void SetCECAutoView(bool);
 		void SetCECAutoStandby(bool);
+		void SendAnnounce();
+		void SendViewOn();
+		void SendStandBy();
+		void RequestTVPowerStatus();
 		void GetCECAddressInfo();
 		void SendCECMessage(struct cec_message &message, int sleeptime = 250);
 		void SetCECState(bool state);
