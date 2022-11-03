@@ -402,15 +402,14 @@ void hdmi_cec::SendAnnounce()
 	message.initiator = logicalAddress;
 	message.destination = CEC_LOG_ADDR_BROADCAST;
 	message.data[0] = CEC_OPCODE_SET_OSD_NAME;
-	message.data[1] = 0x6e; //n
-	message.data[2] = 0x65; //e
-	message.data[3] = 0x75; //u
-	message.data[4] = 0x74; //t
-	message.data[5] = 0x72; //r
-	message.data[6] = 0x69; //i
-	message.data[7] = 0x6e; //n
-	message.data[8] = 0x6f; //o
+	memcpy(message.data+1, "neutrino", 8);
 	message.length = 9;
+	SendCECMessage(message);
+
+	message.initiator = logicalAddress;
+	message.destination = CEC_OP_PRIM_DEVTYPE_TV;
+	message.data[0] = CEC_OPCODE_GIVE_OSD_NAME;
+	message.length = 1;
 	SendCECMessage(message);
 
 	request_audio_status();
@@ -656,11 +655,20 @@ void hdmi_cec::Receive(int what)
 
 			switch (rxmessage.opcode)
 			{
-				//case CEC_OPCODE_ACTIVE_SOURCE:
+				case CEC_OPCODE_FEATURE_ABORT:
+				{
+					dprintf(DEBUG_NORMAL, GREEN"[CEC] decoded message feature '%s' not supported (%s)\n"NORMAL, ToString((cec_opcode)rxmessage.data[1]), ToString((cec_error_id)rxmessage.data[2]));
+					break;
+				}
+				case CEC_OPCODE_SET_OSD_NAME:
+				{
+					dprintf(DEBUG_NORMAL, GREEN"[CEC] decoded message '%s' \n"NORMAL, (char*)rxmessage.data+1);
+					break;
+				}
 				case CEC_OPCODE_REQUEST_ACTIVE_SOURCE:
 				{
-					txmessage.destination = CEC_LOG_ADDR_BROADCAST; //rxmessage.initiator;
-					txmessage.initiator = logicalAddress; //rxmessage.destination;
+					txmessage.destination = CEC_LOG_ADDR_BROADCAST;
+					txmessage.initiator = logicalAddress;
 					txmessage.data[0] = CEC_MSG_ACTIVE_SOURCE;
 					txmessage.data[1] = physicalAddress[0];
 					txmessage.data[2] = physicalAddress[1];
@@ -845,12 +853,10 @@ void hdmi_cec::request_audio_status()
 void hdmi_cec::vol_up()
 {
 	send_key(CEC_USER_CONTROL_CODE_VOLUME_UP, audio_destination);
-	request_audio_status();
 }
 void hdmi_cec::vol_down()
 {
 	send_key(CEC_USER_CONTROL_CODE_VOLUME_DOWN, audio_destination);
-	request_audio_status();
 }
 void hdmi_cec::toggle_mute()
 {
