@@ -241,6 +241,8 @@ typedef enum cec_power_status
 	CEC_POWER_STATUS_UNKNOWN                     = 0x99
 } cec_power_status;
 
+typedef	unsigned char cec_error_id;
+
 static const char *ToString(const cec_opcode opcode)
 {
 	switch (opcode)
@@ -670,6 +672,24 @@ static const char *ToString(cec_logical_address la)
 		case CECDEVICE_UNREGISTERED:
 		default:
 			return "Unregistered";
+	}
+}
+
+static const char *ToString(cec_error_id reason)
+{
+	switch (reason & 0x0f)
+	{
+		case 0x00:
+			return "unrecognized opcode";
+		case 0x01:
+			return "not in correct mode to response";
+		case 0x02:
+			return "cannot provide source";
+		case 0x03:
+			return "invalid operand";
+		case 0x04:
+		default:
+			return "refused";
 	}
 }
 

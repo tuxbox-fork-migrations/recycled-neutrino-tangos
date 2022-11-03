@@ -112,6 +112,7 @@ class hdmi_cec : public OpenThreads::Thread
 		void toggle_mute();
 		int GetVolume()
 		{
+			request_audio_status();
 			return volume;
 		};
 		bool isMuted()

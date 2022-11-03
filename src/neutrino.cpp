@@ -5258,7 +5258,6 @@ void stop_video()
 {
 	CFrameBuffer::getInstance()->paintBackground(); // clear osd
 	delete videoDecoder;
-	delete g_hdmicec;
 	delete videoDemux;
 	delete CFrameBuffer::getInstance();
 }
