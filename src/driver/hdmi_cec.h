@@ -87,9 +87,9 @@ class hdmi_cec : public OpenThreads::Thread
 		void request_audio_status();
 		bool muted;
 		int volume;
-		bool fallback;
 		bool tv_off;
 		unsigned char audio_destination;
+		char osdname[14];
 	protected:
 		bool running;
 	public:
@@ -103,7 +103,7 @@ class hdmi_cec : public OpenThreads::Thread
 		void SendStandBy();
 		void RequestTVPowerStatus();
 		void GetCECAddressInfo();
-		void SendCECMessage(struct cec_message &message, int sleeptime = 250);
+		void SendCECMessage(struct cec_message &message, int sleeptime = 10);
 		void SetCECState(bool state);
 		void ReportPhysicalAddress();
 		bool standby_cec_activ;
