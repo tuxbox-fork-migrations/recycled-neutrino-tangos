@@ -71,6 +71,7 @@ hdmi_cec::hdmi_cec()
 	audio_destination = CECDEVICE_AUDIOSYSTEM;
 	strcpy (osdname,"neutrino");
 	running = false;
+	active_source = false;
 }
 
 hdmi_cec::~hdmi_cec()
@@ -87,13 +88,13 @@ hdmi_cec::~hdmi_cec()
 	}
 }
 
-bool hdmi_cec::SetCECMode(VIDEO_HDMI_CEC_MODE _deviceType)
+bool hdmi_cec::SetCECMode(VIDEO_HDMI_CEC_MODE cecOnOff)
 {
 	physicalAddress[0] = 0x10;
 	physicalAddress[1] = 0x00;
 	logicalAddress = 1;
 
-	if (_deviceType == VIDEO_HDMI_CEC_MODE_OFF)
+	if (cecOnOff == VIDEO_HDMI_CEC_MODE_OFF)
 	{
 		Stop();
 		dprintf(DEBUG_NORMAL, GREEN"[CEC] switch off %s\n"NORMAL, __func__);
@@ -206,6 +207,7 @@ void hdmi_cec::SetCECState(bool state)
 		{
 #endif
 			SendViewOn();
+			active_source = true;
 #if BOXMODEL_VUPLUS_ALL || BOXMODEL_HISILICON
 			cnt++;
 		}
@@ -285,6 +287,19 @@ void hdmi_cec::SendAnnounce()
 	request_audio_status();
 }
 
+void hdmi_cec::SendActiveSource()
+{
+	struct cec_message message;
+	message.destination = CECDEVICE_BROADCAST;
+	message.initiator = logicalAddress;
+	message.data[0] = CEC_OPCODE_ACTIVE_SOURCE;
+	message.data[1] = physicalAddress[0];
+	message.data[2] = physicalAddress[1];
+	message.length = 3;
+	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby && active_source)
+		SendCECMessage(message);
+}
+
 void hdmi_cec::RequestTVPowerStatus()
 {
 	struct cec_message message;
@@ -339,14 +354,28 @@ long hdmi_cec::translateKey(unsigned char code)
 		case CEC_USER_CONTROL_CODE_CHANNEL_DOWN:
 			key = KEY_CHANNELDOWN;
 			break;
+#if BOXMODEL_HD51 || BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS || BOXMODEL_SF8008 || BOXMODEL_SF8008M || BOXMODEL_USTYM4KPRO || BOXMODEL_H9COMBO || BOXMODEL_H9
+		case CEC_USER_CONTROL_CODE_PLAY:
+		case CEC_USER_CONTROL_CODE_PAUSE:
+			key = KEY_PLAYPAUSE;
+			break;
+#elif BOXMODEL_VUPLUS_ALL
 		case CEC_USER_CONTROL_CODE_PLAY:
 			key = KEY_PLAY;
 			break;
-		case CEC_USER_CONTROL_CODE_STOP:
-			key = KEY_STOP;
+		case CEC_USER_CONTROL_CODE_PAUSE:
+			key = KEY_PLAYPAUSE;
+			break;
+#else
+		case CEC_USER_CONTROL_CODE_PLAY:
+			key = KEY_PLAY;
 			break;
 		case CEC_USER_CONTROL_CODE_PAUSE:
 			key = KEY_PAUSE;
+			break;
+#endif
+		case CEC_USER_CONTROL_CODE_STOP:
+			key = KEY_STOP;
 			break;
 		case CEC_USER_CONTROL_CODE_RECORD:
 			key = KEY_RECORD;
@@ -541,14 +570,7 @@ void hdmi_cec::Receive(int what)
 				}
 				case CEC_OPCODE_REQUEST_ACTIVE_SOURCE:
 				{
-					txmessage.destination = CECDEVICE_BROADCAST;
-					txmessage.initiator = logicalAddress;
-					txmessage.data[0] = CEC_OPCODE_ACTIVE_SOURCE;
-					txmessage.data[1] = physicalAddress[0];
-					txmessage.data[2] = physicalAddress[1];
-					txmessage.length = 3;
-					if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby)
-						SendCECMessage(txmessage);
+					SendActiveSource();
 					break;
 				}
 				case CEC_OPCODE_REPORT_AUDIO_STATUS:
@@ -616,23 +638,17 @@ void hdmi_cec::Receive(int what)
 					if (strcmp(msgpath,phypath) == 0)
 					{
 						dprintf(DEBUG_NORMAL, CYAN"[CEC] received streampath (%s) change to me (%s) -> wake up \n"NORMAL, msgpath, phypath);
-						if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby)
+						if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby && g_settings.hdmi_cec_wakeup)
 							g_RCInput->postMsg(NeutrinoMessages::STANDBY_OFF, (neutrino_msg_data_t)"cec");
-
-						txmessage.destination = CECDEVICE_BROADCAST;
-						txmessage.initiator = logicalAddress;
-						txmessage.data[0] = CEC_OPCODE_ACTIVE_SOURCE;
-						txmessage.data[1] = physicalAddress[0];
-						txmessage.data[2] = physicalAddress[1];
-						txmessage.length = 3;
-						if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby)
-							SendCECMessage(txmessage);
+						active_source = true;
+						SendActiveSource();
 					}
  					else
 					{
 						dprintf(DEBUG_NORMAL, CYAN"[CEC] received streampath (%s) change away from me (%s) -> go to sleep\n"NORMAL, msgpath, phypath);
-						if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby)
+						if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby && g_settings.hdmi_cec_sleep)
 							g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, (neutrino_msg_data_t)"cec");
+						active_source = false;
 					}
 					break;
  				}
