@@ -27,8 +27,7 @@
 typedef enum
 {
 	VIDEO_HDMI_CEC_MODE_OFF = 0,
-	VIDEO_HDMI_CEC_MODE_TUNER = 3,
-	VIDEO_HDMI_CEC_MODE_RECORDER = 1
+	VIDEO_HDMI_CEC_MODE_ON  = 1,
 } VIDEO_HDMI_CEC_MODE;
 
 typedef enum
@@ -88,6 +87,7 @@ class hdmi_cec : public OpenThreads::Thread
 		bool muted;
 		int volume;
 		bool tv_off;
+		bool active_source;
 		unsigned char audio_destination;
 		char osdname[14];
 	protected:
@@ -101,6 +101,7 @@ class hdmi_cec : public OpenThreads::Thread
 		void SendAnnounce();
 		void SendViewOn();
 		void SendStandBy();
+		void SendActiveSource();
 		void RequestTVPowerStatus();
 		void GetCECAddressInfo();
 		void SendCECMessage(struct cec_message &message, int sleeptime = 250);

@@ -417,10 +417,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_SD_RGB_SCART); // default RGB
 	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", (int)ANALOG_SD_YPRPB_CINCH); // default YPBPR
 #endif
-	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0); // default off
-	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 0); // default off
-	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 0); // default off
-	g_settings.hdmi_cec_volume = configfile.getInt32("hdmi_cec_volume", 0);
+	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 1);
+	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 1);
+	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 1);
+	g_settings.hdmi_cec_volume = configfile.getInt32("hdmi_cec_volume", 1);
+	g_settings.hdmi_cec_sleep = configfile.getInt32("hdmi_cec_sleep", 1);
+	g_settings.hdmi_cec_wakeup = configfile.getInt32("hdmi_cec_wakeup", 1);
 #if HAVE_ARM_HARDWARE
 	g_settings.psi_contrast = configfile.getInt32("video_psi_contrast", 128);
 	g_settings.psi_saturation = configfile.getInt32("video_psi_saturation", 128);
@@ -1439,6 +1441,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "hdmi_cec_view_on", g_settings.hdmi_cec_view_on );
 	configfile.setInt32( "hdmi_cec_standby", g_settings.hdmi_cec_standby );
 	configfile.setInt32( "hdmi_cec_volume", g_settings.hdmi_cec_volume );
+	configfile.setInt32( "hdmi_cec_sleep", g_settings.hdmi_cec_sleep );
+	configfile.setInt32( "hdmi_cec_wakeup", g_settings.hdmi_cec_wakeup );
 #if HAVE_ARM_HARDWARE
 	configfile.setInt32( "video_psi_contrast", g_settings.psi_contrast );
 	configfile.setInt32( "video_psi_saturation", g_settings.psi_saturation );
