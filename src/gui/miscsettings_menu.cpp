@@ -784,7 +784,7 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		if (g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF) {
 			g_settings.hdmi_cec_standby = 1;
 			g_settings.hdmi_cec_view_on = 1;
-			g_settings.hdmi_cec_mode = VIDEO_HDMI_CEC_MODE_TUNER;
+			g_settings.hdmi_cec_mode = VIDEO_HDMI_CEC_MODE_ON;
 		}
 		g_hdmicec->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 		g_hdmicec->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
