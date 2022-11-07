@@ -2,7 +2,7 @@
 #define __HDMI_CEC_H__
 
 /*
-	Copyright (C) 2018-2021 TangoCash
+	Copyright (C) 2018-2022 TangoCash
 
 	License: GPLv2
 
@@ -103,7 +103,7 @@ class hdmi_cec : public OpenThreads::Thread
 		void SendStandBy();
 		void RequestTVPowerStatus();
 		void GetCECAddressInfo();
-		void SendCECMessage(struct cec_message &message, int sleeptime = 10);
+		void SendCECMessage(struct cec_message &message, int sleeptime = 250);
 		void SetCECState(bool state);
 		void ReportPhysicalAddress();
 		bool standby_cec_activ;
