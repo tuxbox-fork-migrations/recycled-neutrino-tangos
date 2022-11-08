@@ -54,6 +54,7 @@ function do_init(){
 		case "22":	// mutant hd60
 		case "23":	// mutant hd61
 		case "24":	// axas e4hd
+		case "25":	// protek 4k
 			sel=(sel*1+val*1);
 			break;
 		default:
@@ -155,6 +156,7 @@ select {
 						<option value="22">Mutant | HD60</option>
 						<option value="23">Mutant | HD61</option>
 						<option value="24">AXAS | E4HD 4K Ultra</option>
+						<option value="25">PROTEK 4K UHD</option>
 					</select>
 				</td>
 			</tr>
