@@ -129,7 +129,7 @@ install_DATA += rc_ax_hd51.png \
 		rc_mutant_hd51.png
 endif
 
-if BOXMODEL_E4HDULTRA
+if BOXMODEL_E4HDULTRA || BOXMODEL_PROTEK4K
 install_DATA += rc_axas_e4hd.png
 endif
 
