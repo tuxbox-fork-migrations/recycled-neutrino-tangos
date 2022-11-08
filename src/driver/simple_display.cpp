@@ -45,7 +45,7 @@ static bool timer_icon = false;
 #endif
 
 #if HAVE_ARM_HARDWARE
-#if BOXMODEL_E4HDULTRA
+#if BOXMODEL_E4HDULTRA || BOXMODEL_PROTEK4K
 #define DISPLAY_DEV "/dev/null"
 #else
 #define DISPLAY_DEV "/dev/dbox/oled0"
