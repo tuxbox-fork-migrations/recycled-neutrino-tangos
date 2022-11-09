@@ -226,6 +226,7 @@ struct SNeutrinoGlcdTheme
 
 	int glcd_logo;
 	int glcd_logo_percent;
+	int glcd_logo_width_percent;
 	int glcd_logo_x_position;
 	int glcd_logo_y_position;
 
@@ -284,6 +285,9 @@ struct SNeutrinoGlcdTheme
 	int glcd_weather_curr_x_position;
 	int glcd_weather_next_x_position;
 	int glcd_weather_y_position;
+
+	int glcd_time_in_standby;
+	int glcd_standby_weather;
 
 	int glcd_standby_clock_digital_y_position;
 	int glcd_standby_clock_simple_size;
@@ -946,9 +950,6 @@ struct SNeutrinoSettings
 #ifdef ENABLE_GRAPHLCD
 	// graphlcd
 	int glcd_enable;
-
-	int glcd_time_in_standby;
-	int glcd_standby_weather;
 
 	int glcd_mirror_osd;
 	int glcd_mirror_video;

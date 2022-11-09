@@ -298,6 +298,7 @@ void CGLCDThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32("glcd_channel_y_position", t.glcd_channel_y_position);
 	configfile.setBool("glcd_logo", t.glcd_logo);
 	configfile.setInt32("glcd_logo_percent", t.glcd_logo_percent);
+	configfile.setInt32("glcd_logo_width_percent", t.glcd_logo_width_percent);
     configfile.setInt32("glcd_logo_x_position", t.glcd_logo_x_position);
     configfile.setInt32("glcd_logo_y_position", t.glcd_logo_y_position);
 	configfile.setInt32("glcd_epg_percent", t.glcd_epg_percent);
@@ -347,6 +348,8 @@ void CGLCDThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32("glcd_weather_curr_x_position", t.glcd_weather_curr_x_position);
 	configfile.setInt32("glcd_weather_next_x_position", t.glcd_weather_next_x_position);
 	configfile.setInt32("glcd_weather_y_position", t.glcd_weather_y_position);
+	configfile.setInt32("glcd_time_in_standby", t.glcd_time_in_standby);
+	configfile.setInt32("glcd_standby_weather", t.glcd_standby_weather);
 	configfile.setInt32("glcd_standby_clock_digital_y_position", t.glcd_standby_clock_digital_y_position);
 	configfile.setInt32("glcd_standby_clock_simple_size", t.glcd_standby_clock_simple_size);
 	configfile.setInt32("glcd_standby_clock_simple_y_position", t.glcd_standby_clock_simple_y_position);
@@ -373,6 +376,7 @@ void CGLCDThemes::getTheme(CConfigFile &configfile)
 	t.glcd_channel_y_position = configfile.getInt32("glcd_channel_y_position", 60);
 	t.glcd_logo = configfile.getBool("glcd_logo", true);
 	t.glcd_logo_percent = configfile.getInt32("glcd_logo_percent", 25);
+	t.glcd_logo_width_percent = configfile.getInt32("glcd_logo_width_percent", 99);
 	t.glcd_logo_x_position = configfile.getInt32("glcd_logo_x_position", 0);
 	t.glcd_logo_y_position = configfile.getInt32("glcd_logo_y_position", 60);
 	t.glcd_epg_percent = configfile.getInt32("glcd_epg_percent", 15);
@@ -422,6 +426,8 @@ void CGLCDThemes::getTheme(CConfigFile &configfile)
 	t.glcd_weather_curr_x_position = configfile.getInt32("glcd_weather_curr_x_position", 0);
 	t.glcd_weather_next_x_position = configfile.getInt32("glcd_weather_next_x_position", 0);
 	t.glcd_weather_y_position = configfile.getInt32("glcd_weather_y_position", 0);
+	t.glcd_time_in_standby = configfile.getInt32("glcd_time_in_standby", 1);
+	t.glcd_standby_weather = configfile.getInt32("glcd_standby_weather", 1);
 	t.glcd_standby_clock_digital_y_position = configfile.getInt32("glcd_standby_clock_digital_y_position", 0);
 	t.glcd_standby_clock_simple_size = configfile.getInt32("glcd_standby_clock_simple_size", 0);
 	t.glcd_standby_clock_simple_y_position = configfile.getInt32("glcd_standby_clock_simple_y_position", 0);
