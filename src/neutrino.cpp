@@ -700,10 +700,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 #ifdef ENABLE_GRAPHLCD
 	g_settings.glcd_enable = configfile.getInt32("glcd_enable", strcmp(g_info.hw_caps->boxvendor, "VU+") == 0 || strcmp(g_info.hw_caps->boxvendor, "AXAS") == 0);
-
-	g_settings.glcd_time_in_standby = configfile.getInt32("glcd_time_in_standby", 1);
-	g_settings.glcd_standby_weather = configfile.getInt32("glcd_standby_weather", 1);
-
 	g_settings.glcd_mirror_osd = configfile.getInt32("glcd_mirror_osd", 0);
 	g_settings.glcd_mirror_video = configfile.getInt32("glcd_mirror_video", 0);
 	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", GLCD_DEFAULT_BRIGHTNESS);
@@ -1661,8 +1657,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 #ifdef ENABLE_GRAPHLCD
 	configfile.setInt32("glcd_enable", g_settings.glcd_enable);
-	configfile.setInt32("glcd_time_in_standby", g_settings.glcd_time_in_standby);
-	configfile.setInt32("glcd_standby_weather", g_settings.glcd_standby_weather);
 	configfile.setInt32("glcd_mirror_osd", g_settings.glcd_mirror_osd);
 	configfile.setInt32("glcd_mirror_video", g_settings.glcd_mirror_video);
 	configfile.setInt32("glcd_brightness", g_settings.glcd_brightness);
