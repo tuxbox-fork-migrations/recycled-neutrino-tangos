@@ -1040,6 +1040,7 @@ const char * locale_real_names[] =
 	"glcd.weather_curr_x_position",
 	"glcd.weather_next_x_position",
 	"glcd.weather_y_position",
+	"glcd.width_logo",
 	"hdd_10min",
 	"hdd_1min",
 	"hdd_20min",

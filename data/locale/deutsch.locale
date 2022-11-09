@@ -985,7 +985,7 @@ glcd.size_channel Sender Höhe
 glcd.size_duration Sendungsdauer Höhe
 glcd.size_end Sendungsende Höhe
 glcd.size_epg EPG Höhe
-glcd.size_logo Senderlogo Höhe
+glcd.size_logo Senderlogo max. Höhe %
 glcd.size_simple_clock Einfache Uhr Höhe
 glcd.size_start Sendungsstart Höhe
 glcd.size_time Uhrzeit Höhe
@@ -1013,6 +1013,7 @@ glcd.weather_percent Wetter Höhe
 glcd.weather_curr_x_position Wetter heute x-Position
 glcd.weather_next_x_position Wetter morgen x-Position
 glcd.weather_y_position Wetter y-Position
+glcd.width_logo Senderlogo max. Breite %
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
