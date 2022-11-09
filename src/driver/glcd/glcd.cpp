@@ -113,6 +113,7 @@ cGLCD::cGLCD()
 	percent_epg = 0;
 	percent_bar = 0;
 	percent_logo = 0;
+	percent_logo_width = 0;
 	power_state = 1;
 	Scale = 0;
 	bitmap = NULL;
@@ -229,19 +230,19 @@ void cGLCD::Exec()
 
 	if (doStandbyTime || doStandbyWeather)
 	{
-		if (g_settings.glcd_time_in_standby == CLOCK_ANALOG)
+		if (t.glcd_time_in_standby == CLOCK_ANALOG)
 		{
 			ShowAnalogClock(tm->tm_hour, tm->tm_min, tm->tm_sec, bitmap->Width()/2, bitmap->Height()/2);
 		}
-		else if (g_settings.glcd_time_in_standby == CLOCK_DIGITAL)
+		else if (t.glcd_time_in_standby == CLOCK_DIGITAL)
 		{
 			ShowDigitalClock(tm->tm_hour, tm->tm_min);
 		}
-		else if (g_settings.glcd_time_in_standby > CLOCK_OFF)
+		else if (t.glcd_time_in_standby > CLOCK_OFF)
 		{
-			ShowSimpleClock(strftime("%H:%M", tm), g_settings.glcd_time_in_standby);
+			ShowSimpleClock(strftime("%H:%M", tm), t.glcd_time_in_standby);
 		}
-		if (g_settings.glcd_standby_weather == 1 && g_settings.glcd_time_in_standby != CLOCK_ANALOG)
+		if (t.glcd_standby_weather == 1 && t.glcd_time_in_standby != CLOCK_ANALOG)
 		{
 			ShowWeather(true);
 		}
@@ -326,11 +327,11 @@ void cGLCD::Exec()
 	g_PicViewer->getSize(Logo.c_str(), &icon_start_width, &icon_start_height);
 
 	if (t.glcd_logo && percent_logo &&
-		showImage(channel_id, Channel, t.glcd_channel_x_position, t.glcd_channel_y_position, bitmap->Width(), percent_logo * bitmap->Height()/100, true, false)) {
+		showImage(channel_id, Channel, t.glcd_logo_x_position+(bitmap->Width()-(percent_logo_width * bitmap->Width()/100))/2, t.glcd_logo_y_position, percent_logo_width * bitmap->Width()/100, percent_logo * bitmap->Height()/100, true, false)) {
 		doScrollChannel = false;
 		scrollChannelSkip = 0;
 	} else if (percent_logo && icon_start_width && icon_start_height &&
-		doShowLcdIcon && showImage(Logo, icon_start_width, icon_start_height, t.glcd_channel_x_position, t.glcd_channel_y_position, bitmap->Width(), percent_logo * bitmap->Height()/100, true, false)) {
+		doShowLcdIcon && showImage(Logo, icon_start_width, icon_start_height, t.glcd_logo_x_position, t.glcd_logo_y_position, bitmap->Width(), percent_logo * bitmap->Height()/100, true, false)) {
 		doScrollChannel = false;
 		scrollChannelSkip = 0;
 	} else if (percent_channel) {
@@ -595,6 +596,7 @@ void cGLCD::updateFonts()
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 
 	percent_logo = std::min(t.glcd_logo_percent, 100);
+	percent_logo_width = std::min(t.glcd_logo_width_percent, 100);
 	percent_channel = std::min(t.glcd_channel_percent, 100);
 	percent_epg = std::min(t.glcd_epg_percent, 100);
 	percent_bar = std::min(t.glcd_progressbar_percent, 100);
@@ -811,6 +813,7 @@ void cGLCD::Run(void)
 	struct timespec ts;
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
+	t_channel_id epg_id = -1;
 	channel_id = -1;
 	info_CurrentNext.current_zeit.startzeit = 0;
 	info_CurrentNext.current_zeit.dauer = 0;
@@ -1064,6 +1067,7 @@ void cGLCD::Run(void)
 				{
 					Channel = channelList->getActiveChannelName ();
 					ChannelWidth = font_channel.Width(Channel);
+					epg_id = channelList->getActiveChannel()->getEpgID();
 					Epg = "";
 					EpgWidth = 0;
 					Scale = 0;
@@ -1082,7 +1086,7 @@ void cGLCD::Run(void)
 					info_CurrentNext.current_zeit.dauer = 0;
 				}
 
-				CEitManager::getInstance()->getCurrentNextServiceKey(channel_id & 0xFFFFFFFFFFFFULL, info_CurrentNext);
+				CEitManager::getInstance()->getCurrentNextServiceKey(epg_id & 0xFFFFFFFFFFFFULL, info_CurrentNext);
 				channel_id = new_channel_id;
 
 				if (info_CurrentNext.current_name.compare(Epg))
@@ -1186,16 +1190,17 @@ void cGLCD::Update()
 
 void cGLCD::StandbyMode(bool b)
 {
+	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	if (cglcd)
 	{
-		if (g_settings.glcd_time_in_standby || g_settings.glcd_standby_weather)
+		if (t.glcd_time_in_standby || t.glcd_standby_weather)
 		{
-			if (g_settings.glcd_time_in_standby)
+			if (t.glcd_time_in_standby)
 				cglcd->doStandbyTime = b;
 			else
 				cglcd->doStandbyTime = false;
 
-			if (g_settings.glcd_standby_weather)
+			if (t.glcd_standby_weather)
 				cglcd->doStandbyWeather = b;
 			else
 				cglcd->doStandbyWeather = false;
@@ -1520,7 +1525,7 @@ bool cGLCD::showImage(uint64_t cid, std::string cname, uint32_t dx, uint32_t dy,
 	std::string logo;
 	int sw, sh;
 
-	if (g_PicViewer->GetLogoName(cid, cname, logo, &sw, &sh))
+	if (g_PicViewer->GetLogoName(cid, cname, logo, &sw, &sh, false, true))
 	{
 		return showImage(logo, (uint32_t) sw, (uint32_t) sh, dx, dy, dw, dh, transp, maximize);
 	}
