@@ -247,6 +247,7 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 	EndActivate.Activate(t.glcd_end);
 	ProgressActivate.Activate(t.glcd_progressbar);
 	WeatherActivate.Activate(t.glcd_weather);
+	WeatherSBActivate.Activate(t.glcd_standby_weather);
 
 	switch(OptionName)
 	{
@@ -321,6 +322,8 @@ int GLCD_Menu::GLCD_Menu_Settings()
 int GLCD_Menu::GLCD_Standby_Settings()
 {
 	cGLCD::getInstance()->StandbyMode(true);
+	WeatherSBActivate.Clear();
+	CMenuOptionNumberChooser* nc;
 	int oled_width = cGLCD::getInstance()->lcd->Width();
 	int oled_height = cGLCD::getInstance()->lcd->Height();
 
@@ -352,15 +355,23 @@ int GLCD_Menu::GLCD_Standby_Settings()
 	//mc->setHint("", LOCALE_TODO);
 	gss->addItem(mc);
 
-	gss->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_PERCENT,
-				&t.glcd_standby_weather_percent, t.glcd_standby_weather, 0, 100, this));
-	gss->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_CURR_X_POSITION,
-				&t.glcd_standby_weather_curr_x_position, t.glcd_standby_weather, 0, oled_width, this));
-	gss->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_NEXT_X_POSITION,
-				&t.glcd_standby_weather_next_x_position, t.glcd_standby_weather, 0, oled_width, this));
-	gss->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_Y_POSITION,
-				&t.glcd_standby_weather_y_position, t.glcd_standby_weather, 0, oled_height, this));
-				
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_PERCENT,
+				&t.glcd_standby_weather_percent, t.glcd_standby_weather, 0, 100, this);
+	gss->addItem(nc);
+	WeatherSBActivate.Add(nc);
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_CURR_X_POSITION,
+				&t.glcd_standby_weather_curr_x_position, t.glcd_standby_weather, 0, oled_width, this);
+	gss->addItem(nc);
+	WeatherSBActivate.Add(nc);
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_NEXT_X_POSITION,
+				&t.glcd_standby_weather_next_x_position, t.glcd_standby_weather, 0, oled_width, this);
+	gss->addItem(nc);
+	WeatherSBActivate.Add(nc);
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_Y_POSITION,
+				&t.glcd_standby_weather_y_position, t.glcd_standby_weather, 0, oled_height, this);
+	gss->addItem(nc);
+	WeatherSBActivate.Add(nc);
+
 	int res = gss->exec(NULL, "");
 	delete gss;
 	cGLCD::getInstance()->StandbyMode(false);

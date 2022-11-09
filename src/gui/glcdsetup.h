@@ -49,6 +49,7 @@ class GLCD_Menu : public CMenuTarget, public CChangeObserver
 		CGenericMenuActivate EndActivate;
 		CGenericMenuActivate ProgressActivate;
 		CGenericMenuActivate WeatherActivate;
+		CGenericMenuActivate WeatherSBActivate;
 	public:
 		GLCD_Menu();
 		void hide();
