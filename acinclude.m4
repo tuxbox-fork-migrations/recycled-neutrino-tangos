@@ -427,7 +427,7 @@ AC_ARG_WITH(boxtype,
 AC_ARG_WITH(boxmodel,
 	AS_HELP_STRING([--with-boxmodel], [valid for armbox: hd51, multibox, multiboxse, e4hdultra, protek4k, hd60, hd61, bre2ze4k, osmini4k, osmio4k, osmio4kplus, h7, vusolo4k, vuduo4k, vuduo4kse, vuultimo4k, vuzero4k, vuuno4kse, vuuno4k, sf8008, sf8008m, ustym4kpro, h9combo. h9])
 	[case "${withval}" in
-		hd51|multibox|multiboxse|e4hdultra|hd60|hd61|bre2ze4k|osmini4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|sf8008|sf8008m|ustym4kpro|h9combo|h9)
+		hd51|multibox|multiboxse|e4hdultra|protek4k|hd60|hd61|bre2ze4k|osmini4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|sf8008|sf8008m|ustym4kpro|h9combo|h9)
 			if test "$BOXTYPE" = "armbox"; then
 				BOXMODEL="$withval"
 			else
@@ -504,7 +504,7 @@ elif test "$BOXMODEL" = "h7"; then
 elif test "$BOXMODEL" = "e4hdultra"; then
 	AC_DEFINE(BOXMODEL_E4HDULTRA, 1, [e4hdultra])
 elif test "$BOXMODEL" = "protek4k"; then
-	AC_DEFINE(BOXMODEL_PROTEK4K, 1, protek4k])
+	AC_DEFINE(BOXMODEL_PROTEK4K, 1, [protek4k])
 elif test "$BOXMODEL" = "vusolo4k"; then
 	AC_DEFINE(BOXMODEL_VUSOLO4K, 1, [vusolo4k])
 elif test "$BOXMODEL" = "vuduo4k"; then
