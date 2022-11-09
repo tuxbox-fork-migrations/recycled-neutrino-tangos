@@ -42,6 +42,13 @@ class GLCD_Menu : public CMenuTarget, public CChangeObserver
 		CMenuOptionNumberChooser * cdy;
 		CMenuOptionNumberChooser * csh;
 		CMenuOptionNumberChooser * csy;
+		CGenericMenuActivate ChannelLogoActivate;
+		CGenericMenuActivate TimeActivate;
+		CGenericMenuActivate DurationActivate;
+		CGenericMenuActivate StartActivate;
+		CGenericMenuActivate EndActivate;
+		CGenericMenuActivate ProgressActivate;
+		CGenericMenuActivate WeatherActivate;
 	public:
 		GLCD_Menu();
 		void hide();
@@ -51,7 +58,6 @@ class GLCD_Menu : public CMenuTarget, public CChangeObserver
 		int GLCD_Standby_Settings();
 		int GLCD_Brightness_Settings();
 		int GLCD_Theme_Settings();
-		int GLCD_Theme_Position_Settings();
 };
 #endif // __glcdsetup_h__
 #endif // ENABLE_GRAPHLCD

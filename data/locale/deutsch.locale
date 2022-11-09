@@ -908,7 +908,7 @@ glcd.align_none keine
 glcd.align_right rechts
 glcd.align_start Sendungsstart ausrichten
 glcd.align_time Uhrzeit ausrichten
-glcd.background BG Bild
+glcd.background Hintergrundbild
 glcd.bar_width Fortschrittsbalken Weite
 glcd.bar_x_position Fortschrittsbalken x-Position
 glcd.bar_y_position Fortschrittsbalken y-Position
@@ -938,8 +938,8 @@ glcd.color.red Rot
 glcd.color.teal Teal
 glcd.color.white Weiß
 glcd.color.yellow Gelb
-glcd.channel_x_position Sender x-Position
-glcd.channel_y_position Sender y-Position
+glcd.channel_x_position Sendername x-Position
+glcd.channel_y_position Sendername y-Position
 glcd.digital_clock_y_position Digitaluhr y-Position
 glcd.display Display-Typ
 glcd.duration_x_position Sendungsdauer x-Position
@@ -981,7 +981,7 @@ glcd.show_time Uhrzeit anzeigen
 glcd.show_weather Wetter anzeigen
 glcd.simple_clock_y_position Einfache Uhr y-Position
 glcd.size_bar Fortschrittsbalken Höhe
-glcd.size_channel Sender Höhe
+glcd.size_channel Sendername Höhe
 glcd.size_duration Sendungsdauer Höhe
 glcd.size_end Sendungsende Höhe
 glcd.size_epg EPG Höhe
