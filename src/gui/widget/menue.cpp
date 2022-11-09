@@ -1069,6 +1069,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			}
 			case (CRCInput::RC_left):
 			case (CRCInput::RC_right):
+			case (CRCInput::RC_prev):
+			case (CRCInput::RC_next):
 			case (CRCInput::RC_ok):
 				if (hasItem() && selected > -1 && (int)items.size() > selected) {
 #ifdef ENABLE_GRAPHLCD
@@ -1080,6 +1082,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 					//exec this item...
 					CMenuItem* item = items[selected];
+					if ((msg == CRCInput::RC_prev || msg == CRCInput::RC_next) &&
+						!item->isMenueOptionChooser()) {
+						continue;
+					}
 					if (msg == CRCInput::RC_left && g_settings.menu_left_exit &&
 						!item->isMenueOptionChooser()) {
 						msg = CRCInput::RC_timeout;
@@ -1873,6 +1879,20 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 		else if (*optionValue < lower_bound)
 			*optionValue = lower_bound;
 		res = menu_return::RETURN_REPAINT;
+	} else if (msg == CRCInput::RC_prev || msg == CRCInput::RC_next)
+	{
+		if (msg == CRCInput::RC_next)
+		{
+			(*optionValue) += 10;
+			if ((*optionValue) > upper_bound)
+				*optionValue = upper_bound;
+		}
+		else
+		{
+			(*optionValue) -= 10;
+			if ((*optionValue) < lower_bound)
+				*optionValue = lower_bound;
+		}
 	} else {
 		if (((*optionValue) >= upper_bound) || ((*optionValue) < lower_bound))
 			*optionValue = lower_bound;
