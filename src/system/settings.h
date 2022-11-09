@@ -397,8 +397,10 @@ struct SNeutrinoSettings
 	int video_dbdr;
 	int hdmi_cec_mode;
 	int hdmi_cec_view_on;
+	int hdmi_cec_sleep;
 	int hdmi_cec_standby;
 	int hdmi_cec_volume;
+	int hdmi_cec_wakeup;
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int enabled_auto_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int cpufreq;

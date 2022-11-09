@@ -80,8 +80,7 @@
 #include <cs_api.h>
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-#include <hardware/video.h>
-extern cVideo * videoDecoder;
+#include <driver/hdmi_cec.h>
 #endif
 
 #if 0 //softupdate
@@ -726,7 +725,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			if (restart == CMsgBox::mbrYes)
 			{
 				if(g_settings.hdmi_cec_standby){
-					videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+					g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 				}
 				std::string startup_file("/boot/");
 				startup_file += g_info.hw_caps->startup_file;
