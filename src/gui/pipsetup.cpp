@@ -80,7 +80,20 @@ void CPipSetup::move(int x, int y, bool abs)
 
 	printf("CPipSetup::move: x %d y %d\n", x_coord, y_coord);
 	if (pipVideoDecoder[0] != NULL)
-		pipVideoDecoder[0]->Pig(x_coord, y_coord, width, height, maxw, maxh);
+		pipVideoDecoder[0]->Pig(CNeutrinoApp::getInstance()->pip_recalc_pos_x(x_coord), CNeutrinoApp::getInstance()->pip_recalc_pos_y(y_coord), width, height, maxw, maxh);
+}
+
+void CPipSetup::rotate(int cw)
+{
+	g_settings.pip_rotate_lastpos += cw;
+	if (g_settings.pip_rotate_lastpos < PIP_UP_LEFT)
+		g_settings.pip_rotate_lastpos = PIP_DOWN_LEFT;
+	if (g_settings.pip_rotate_lastpos > PIP_DOWN_LEFT)
+		g_settings.pip_rotate_lastpos = PIP_UP_LEFT;
+
+	printf("CPipSetup::rotate: x %d y %d\n", CNeutrinoApp::getInstance()->pip_recalc_pos_x(x_coord), CNeutrinoApp::getInstance()->pip_recalc_pos_y(y_coord));
+	if (pipVideoDecoder[0] != NULL)
+		pipVideoDecoder[0]->Pig(CNeutrinoApp::getInstance()->pip_recalc_pos_x(x_coord), CNeutrinoApp::getInstance()->pip_recalc_pos_y(y_coord), width, height, maxw, maxh);
 }
 
 // w and h is percent, if not absolute
@@ -120,7 +133,7 @@ void CPipSetup::resize(int w, int h, bool abs)
 
 	printf("CPipSetup::resize: w %d h %d \n", width, height);
 	if (pipVideoDecoder[0] != NULL)
-		pipVideoDecoder[0]->Pig(x_coord, y_coord, width, height, maxw, maxh);
+		pipVideoDecoder[0]->Pig(CNeutrinoApp::getInstance()->pip_recalc_pos_x(x_coord), CNeutrinoApp::getInstance()->pip_recalc_pos_y(y_coord), width, height, maxw, maxh);
 }
 
 int CPipSetup::exec(CMenuTarget *parent, const std::string &)
@@ -188,6 +201,13 @@ int CPipSetup::exec(CMenuTarget *parent, const std::string &)
 			resize(percent, percent);
 			paint();
 		}
+		else if ((msg == (neutrino_msg_t) g_settings.key_pip_rotate_cw) || (msg == (neutrino_msg_t) g_settings.key_pip_rotate_ccw))
+		{
+			clear();
+			int rotate_cw = (msg == (neutrino_msg_t) g_settings.key_pip_rotate_cw) ? 1 : -1;
+			rotate(rotate_cw);
+			paint();
+		}
 		else if (msg >  CRCInput::RC_MaxRC)
 		{
 			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
@@ -212,7 +232,7 @@ void CPipSetup::hide()
 
 void CPipSetup::clear()
 {
-	frameBuffer->paintBackgroundBoxRel(x_coord, y_coord, width, height);
+	frameBuffer->paintBackgroundBoxRel(CNeutrinoApp::getInstance()->pip_recalc_pos_x(x_coord), CNeutrinoApp::getInstance()->pip_recalc_pos_y(y_coord), width, height);
 }
 
 void CPipSetup::paint()
@@ -240,7 +260,7 @@ void CPipSetup::paint()
 
 	if (pipVideoDecoder[0] != NULL)
 		if (pipVideoDecoder[0]->getBlank())
-			frameBuffer->paintBoxRel(x_coord, y_coord, width, height, COL_MENUCONTENT_PLUS_0);
+			frameBuffer->paintBoxRel(CNeutrinoApp::getInstance()->pip_recalc_pos_x(x_coord), CNeutrinoApp::getInstance()->pip_recalc_pos_y(y_coord), width, height, COL_MENUCONTENT_PLUS_0);
 
 	frameBuffer->paintBoxRel(x, y, w, h, COL_MENUCONTENT_PLUS_0);
 
@@ -251,3 +271,4 @@ void CPipSetup::paint()
 }
 
 #endif //#ifdef ENABLE_PIP
+
