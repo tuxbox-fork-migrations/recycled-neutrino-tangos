@@ -1191,6 +1191,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.pip_radio_y = configfile.getInt32("pip_radio_y", g_settings.pip_y);
 	g_settings.pip_radio_width = configfile.getInt32("pip_radio_width", g_settings.pip_width);
 	g_settings.pip_radio_height = configfile.getInt32("pip_radio_height", g_settings.pip_height);
+	g_settings.pip_rotate_lastpos = configfile.getInt32("pip_rotate_lastpos", PIP_ROFF);
 #endif
 
 #if ENABLE_QUADPIP
@@ -1971,6 +1972,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("pip_radio_y", g_settings.pip_radio_y);
 	configfile.setInt32("pip_radio_width", g_settings.pip_radio_width);
 	configfile.setInt32("pip_radio_height", g_settings.pip_radio_height);
+	configfile.setInt32("pip_rotate_lastpos", g_settings.pip_rotate_lastpos);
 #endif
 
 #if ENABLE_QUADPIP
@@ -3208,6 +3210,9 @@ void CNeutrinoApp::RealRun()
 					g_Zapit->stopPip();
 				else
 					StartPip(CZapit::getInstance()->GetCurrentChannelID());
+			}
+			else if (((msg == (neutrino_msg_t) g_settings.key_pip_rotate_cw) || (msg == (neutrino_msg_t) g_settings.key_pip_rotate_ccw)) && g_info.hw_caps->can_pip) {
+				(msg == (neutrino_msg_t) g_settings.key_pip_rotate_cw) ? pip_rotate(1) : pip_rotate(-1);
 			}
 			else if ((msg == (neutrino_msg_t) g_settings.key_pip_close_avinput) && ((g_info.hw_caps->has_SCART_input) || (g_info.hw_caps->has_HDMI_input)) && g_info.hw_caps->can_pip) {
 				//int boxmode = getBoxMode();
@@ -4579,7 +4584,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 #ifdef ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
 	{
-		pipVideoDecoder[0]->Pig(g_settings.pip_x, g_settings.pip_y,
+		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x),pip_recalc_pos_y(g_settings.pip_y),
 			g_settings.pip_width, g_settings.pip_height,
 			frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 		pipVideoDecoder[0]->ShowPig(0);
@@ -4851,7 +4856,7 @@ void CNeutrinoApp::radioMode( bool rezap)
 #ifdef ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
 	{
-		pipVideoDecoder[0]->Pig(g_settings.pip_radio_x, g_settings.pip_radio_y,
+		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_radio_x),pip_recalc_pos_y(g_settings.pip_radio_y),
 			g_settings.pip_radio_width, g_settings.pip_radio_height,
 			frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 		pipVideoDecoder[0]->ShowPig(0);
@@ -4934,7 +4939,7 @@ void CNeutrinoApp::StartAVInputPiP() {
 	pipVideoDemux[0]->Start();
 	pipVideoDecoder[0]->Start(0, 0, 0);
 	pipVideoDecoder[0]->open_AVInput_Device();
-	pipVideoDecoder[0]->Pig(g_settings.pip_x,g_settings.pip_y,g_settings.pip_width,g_settings.pip_height,g_settings.screen_width,g_settings.screen_height);
+	pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x),pip_recalc_pos_y(g_settings.pip_y),g_settings.pip_width,g_settings.pip_height,g_settings.screen_width,g_settings.screen_height);
 	pipVideoDecoder[0]->ShowPig(1);
 	avinput_pip = true;
 }
@@ -5349,6 +5354,8 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_pip_close_avinput = tconfig->getInt32( "key_pip_close_avinput", CRCInput::RC_nokey );
 	g_settings.key_pip_setup = tconfig->getInt32( "key_pip_setup", CRCInput::RC_nokey );
 	g_settings.key_pip_swap = tconfig->getInt32( "key_pip_swap", CRCInput::RC_next );
+	g_settings.key_pip_rotate_cw = tconfig->getInt32( "key_pip_rotate_cw", CRCInput::RC_nokey );
+	g_settings.key_pip_rotate_ccw = tconfig->getInt32( "key_pip_rotate_ccw", CRCInput::RC_nokey );
 #endif
 	g_settings.key_current_transponder = tconfig->getInt32( "key_current_transponder", CRCInput::RC_games );
 
@@ -5451,6 +5458,8 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig->setInt32( "key_pip_close_avinput", g_settings.key_pip_close_avinput );
 	tconfig->setInt32( "key_pip_setup", g_settings.key_pip_setup );
 	tconfig->setInt32( "key_pip_swap", g_settings.key_pip_swap );
+	tconfig->setInt32( "key_pip_rotate_cw", g_settings.key_pip_rotate_cw );
+	tconfig->setInt32( "key_pip_rotate_ccw", g_settings.key_pip_rotate_ccw );
 #endif
 	tconfig->setInt32( "key_current_transponder", g_settings.key_current_transponder );
 
@@ -5677,6 +5686,54 @@ bool CNeutrinoApp::StartPip(const t_channel_id channel_id, int pip)
 			ret = true;
 	}
 	return ret;
+}
+
+int CNeutrinoApp::pip_recalc_pos_x(int x)
+{
+	int new_x = x;
+	switch(g_settings.pip_rotate_lastpos)
+	{
+		case PIP_UP_LEFT:
+		case PIP_DOWN_LEFT:
+			new_x = x;
+			break;
+		case PIP_UP_RIGHT:
+		case PIP_DOWN_RIGHT:
+			new_x = g_settings.screen_width - g_settings.pip_width - x;
+			break;
+	}
+	return new_x;
+}
+
+int CNeutrinoApp::pip_recalc_pos_y(int y)
+{
+	int new_y = y;
+	switch(g_settings.pip_rotate_lastpos)
+	{
+		case PIP_UP_LEFT:
+		case PIP_UP_RIGHT:
+			new_y = y;
+			break;
+		case PIP_DOWN_RIGHT:
+		case PIP_DOWN_LEFT:
+			new_y = g_settings.screen_height - g_settings.pip_height - y;
+			break;
+	}
+	return new_y;
+}
+
+void CNeutrinoApp::pip_rotate(int cw)
+{
+	if (!pipVideoDecoder[0]->getBlank())
+	{
+		g_settings.pip_rotate_lastpos += cw;
+		if (g_settings.pip_rotate_lastpos < PIP_UP_LEFT)
+			g_settings.pip_rotate_lastpos = PIP_DOWN_LEFT;
+		if (g_settings.pip_rotate_lastpos > PIP_DOWN_LEFT)
+			g_settings.pip_rotate_lastpos = PIP_UP_LEFT;
+
+		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x),pip_recalc_pos_y(g_settings.pip_y),g_settings.pip_width,g_settings.pip_height,g_settings.screen_width,g_settings.screen_height);
+	}
 }
 #endif
 
