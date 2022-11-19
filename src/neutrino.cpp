@@ -1191,7 +1191,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.pip_radio_y = configfile.getInt32("pip_radio_y", g_settings.pip_y);
 	g_settings.pip_radio_width = configfile.getInt32("pip_radio_width", g_settings.pip_width);
 	g_settings.pip_radio_height = configfile.getInt32("pip_radio_height", g_settings.pip_height);
-	g_settings.pip_rotate_lastpos = configfile.getInt32("pip_rotate_lastpos", PIP_ROFF);
+	g_settings.pip_rotate_lastpos = configfile.getInt32("pip_rotate_lastpos", PIP_NO_POS);
 #endif
 
 #if ENABLE_QUADPIP
@@ -5701,6 +5701,9 @@ int CNeutrinoApp::pip_recalc_pos_x(int x)
 		case PIP_DOWN_RIGHT:
 			new_x = g_settings.screen_width - g_settings.pip_width - x;
 			break;
+		case PIP_NO_POS:
+		default:
+			break;
 	}
 	return new_x;
 }
@@ -5717,6 +5720,9 @@ int CNeutrinoApp::pip_recalc_pos_y(int y)
 		case PIP_DOWN_RIGHT:
 		case PIP_DOWN_LEFT:
 			new_y = g_settings.screen_height - g_settings.pip_height - y;
+			break;
+		case PIP_NO_POS:
+		default:
 			break;
 	}
 	return new_y;
