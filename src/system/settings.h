@@ -529,7 +529,7 @@ struct SNeutrinoSettings
 		P_MSET_MISC,
 		P_MSET_GRAPHLCD,
 		P_MSET_LCD4LINUX,
-		P_MEST_WEATHER,
+		P_MSET_WEATHER,
 
 		//service menu
 		P_MSER_TUNER,

@@ -384,7 +384,7 @@ void CNeutrinoApp::InitMenuSettings()
 	// weather
 	mf = new CMenuForwarder(LOCALE_WEATHER_ENABLED, true, NULL, new CWeatherSetup());
 	mf->setHint("", LOCALE_MENU_HINT_WEATHER_ENABLED);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MEST_WEATHER]);
+	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_WEATHER]);
 #endif
 
 	// drive settings
