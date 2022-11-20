@@ -75,6 +75,7 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_drives"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_cisettings_settings"	, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},
 	{"personalize_keybindings"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_mediaplayer"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_misc"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_graphlcd"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_lcd4linux"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
