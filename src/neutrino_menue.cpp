@@ -372,21 +372,21 @@ void CNeutrinoApp::InitMenuSettings()
 #ifdef ENABLE_GRAPHLCD
 	mf = new CMenuForwarder(LOCALE_GLCD_HEAD, true, NULL, new GLCD_Menu());
 	mf->setHint(NEUTRINO_ICON_HINT_VFD, LOCALE_MENU_HINT_VFD);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
+	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_GRAPHLCD]);
 #endif
 
 #ifdef ENABLE_LCD4LINUX
 	// lcd4linux
 	mf = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, true, NULL, new CLCD4lSetup());
 	mf->setHint("", LOCALE_MENU_HINT_LCD4L_SUPPORT);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
+	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_LCD4LINUX]);
 #endif
 
 #ifdef ENABLE_TANGOS
 	// weather
 	mf = new CMenuForwarder(LOCALE_WEATHER_ENABLED, true, NULL, new CWeatherSetup());
 	mf->setHint("", LOCALE_MENU_HINT_WEATHER_ENABLED);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_OSD]);
+	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MEST_WEATHER]);
 #endif
 
 	// drive settings
