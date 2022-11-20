@@ -75,8 +75,10 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_drives"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_cisettings_settings"	, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},
 	{"personalize_keybindings"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
-	{"personalize_mediaplayer"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
-	{"personalize_misc"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_misc"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_graphlcd"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_lcd4linux"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_weather"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	
 	//main menu->service menu
 	{"personalize_tuner"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
@@ -87,8 +89,8 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_daemon_control"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_camd_control"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_restart"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
-	{"personalize_reload_plugins"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_restart_tuner"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_reload_plugins"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_infomenu_service"		, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},
 	{"personalize_softupdate"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	
