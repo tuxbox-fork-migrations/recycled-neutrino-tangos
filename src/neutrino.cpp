@@ -415,7 +415,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 1);
 	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 1);
 	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 1);
-	g_settings.hdmi_cec_volume = configfile.getInt32("hdmi_cec_volume", 1);
+	g_settings.hdmi_cec_volume = configfile.getInt32("hdmi_cec_volume", 0);
 	g_settings.hdmi_cec_sleep = configfile.getInt32("hdmi_cec_sleep", 1);
 	g_settings.hdmi_cec_wakeup = configfile.getInt32("hdmi_cec_wakeup", 1);
 #if HAVE_ARM_HARDWARE
@@ -704,7 +704,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.osd_colorsettings_advanced_mode = configfile.getBool("osd_colorsettings_advanced_mode", false);
 
 #ifdef ENABLE_GRAPHLCD
-	g_settings.glcd_enable = configfile.getInt32("glcd_enable", strcmp(g_info.hw_caps->boxvendor, "VU+") == 0 || strcmp(g_info.hw_caps->boxvendor, "AXAS") == 0);
+	g_settings.glcd_enable = configfile.getInt32("glcd_enable", strcmp(g_info.hw_caps->boxvendor, "VU+") == 0 || strcmp(g_info.hw_caps->boxvendor, "AXAS") == 0 || strcmp(g_info.hw_caps->boxvendor, "PROTEK") == 0);
 	g_settings.glcd_mirror_osd = configfile.getInt32("glcd_mirror_osd", 0);
 	g_settings.glcd_mirror_video = configfile.getInt32("glcd_mirror_video", 0);
 	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", GLCD_DEFAULT_BRIGHTNESS);
