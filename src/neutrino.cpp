@@ -4496,6 +4496,8 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	if (exit_code == CNeutrinoApp::EXIT_SHUTDOWN)
 		cGLCD::SetBrightness(0);
 #endif
+	if (exit_code == CNeutrinoApp::EXIT_SHUTDOWN)
+		g_hdmicec->SetCECState(true);
 
 	Cleanup();
 
