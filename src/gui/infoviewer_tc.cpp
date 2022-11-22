@@ -102,7 +102,7 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 extern bool timeset;
 
 CInfoViewer::CInfoViewer ()
-	: fader(g_settings.theme.infobar_alpha)
+	: slider(50, COSDSlider::MID2SIDE)
 {
 	header = NULL;
 	body = rec = NULL;
@@ -560,9 +560,8 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	}
 
 	if(!is_visible)
-		fader.StartFadeIn();
+		slider.StartSlideIn();
 
-	is_visible = true;
 	is_visible = true;
 
 	ChannelName = Channel;
@@ -584,7 +583,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	if (!zap_mode)
 		paintshowButtonBar();
 
-	weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
+	//weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
 
 	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? CFont::FULLBG : 0) | CFont::IS_UTF8;
 
@@ -760,9 +759,8 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		gotTime = timeset;
 
 	if(!is_visible && !calledFromNumZap)
-		fader.StartFadeIn();
+		slider.StartSlideIn();
 
-	is_visible = true;
 	is_visible = true;
 
 	ChannelName = Channel;
@@ -801,7 +799,7 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	if (showButtonBar)
 	{
 		paintshowButtonBar();
-		weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
+		//weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
 	}
 
 	if ((ChanNum) && (g_settings.channellist_show_numbers))
@@ -982,8 +980,7 @@ void CInfoViewer::loop()
 {
 	bool hideIt = true;
 	resetSwitchMode(); //no virtual zap
-	//bool fadeOut = false;
-	timeoutEnd=0;;
+	timeoutEnd=0;
 	setInfobarTimeout();
 
 	int res = messages_return::none;
@@ -1000,7 +997,7 @@ void CInfoViewer::loop()
 
 	while (!(res & (messages_return::cancel_info | messages_return::cancel_all)))
 	{
-		frameBuffer->blit();
+		//frameBuffer->blit();
 		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
 
 		showLivestreamInfo();
@@ -1054,10 +1051,23 @@ void CInfoViewer::loop()
 					res = messages_return::cancel_info;
 				}
 			}
-			else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer()))
+			else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == slider.GetSlideTimer()))
 			{
-				if(fader.FadeDone())
+				if(slider.SlideDone())
 					res = messages_return::cancel_info;
+			}
+			else if ((msg == NeutrinoMessages::EVT_SLIDER) && (data == COSDSlider::AFTER_SLIDEIN))
+			{
+				// after slide in
+				weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
+			}
+			else if ((msg == NeutrinoMessages::EVT_SLIDER) && (data == COSDSlider::BEFORE_SLIDEOUT))
+			{
+				// before slide out
+				if (weather)
+					weather->hide();
+				if (ecminfo_toggle)
+					ecmInfoBox_hide();
 			}
 			else if ((msg == CRCInput::RC_ok) || (msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout))
 			{
@@ -1072,8 +1082,8 @@ void CInfoViewer::loop()
 						hideIt = true;
 					}
 				}
-				if(fader.StartFadeOut())
-					timeoutEnd = CRCInput::calcTimeoutEnd (1);
+				if(slider.StartSlideOut())
+					timeoutEnd = CRCInput::calcTimeoutEnd(2);
 				else
 					res = messages_return::cancel_info;
 			}
@@ -1152,7 +1162,7 @@ void CInfoViewer::loop()
 					if (msg == CRCInput::RC_standby)
 					{
 						g_RCInput->killTimer (sec_timer_id);
-						fader.StopFade();
+						slider.StopSlide();
 					}
 					res = neutrino->handleMsg (msg, data);
 					if (res & messages_return::unhandled)
@@ -1193,7 +1203,7 @@ void CInfoViewer::loop()
 	}
 
 	g_RCInput->killTimer (sec_timer_id);
-	fader.StopFade();
+	slider.StopSlide();
 	if (zap_mode & IV_MODE_VIRTUAL_ZAP)
 	{
 		/* if bouquet cycle set, do virtual over current bouquet */
@@ -1398,10 +1408,10 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	}
 	else if (msg == NeutrinoMessages::EVT_TIMER)
 	{
-		if (data == fader.GetFadeTimer())
+		if (data == slider.GetSlideTimer())
 		{
 			// here, the event can only come if there is another window in the foreground!
-			fader.StopFade();
+			slider.StopSlide();
 			return messages_return::handled;
 		}
 		else if (data == lcdUpdateTimer)
