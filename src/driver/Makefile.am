@@ -40,6 +40,7 @@ libneutrino_driver_a_SOURCES = \
 	screen_max.cpp \
 	screenshot.cpp \
 	shutdown_count.cpp \
+	slide.cpp \
 	streamts.cpp \
 	volume.cpp \
 	hdmi_cec.cpp

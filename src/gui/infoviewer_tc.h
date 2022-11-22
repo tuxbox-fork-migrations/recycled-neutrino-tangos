@@ -43,11 +43,11 @@
 #include <zapit/channel.h>
 #include <gui/components/cc.h>
 #include <gui/weather.h>
-#include <driver/fade.h>
+#include <driver/slide.h>
 #include "widget/menue.h"
 
 class CFrameBuffer;
-class COSDFader;
+class COSDSlide;
 class CInfoViewer : public sigc::trackable
 {
 public:
@@ -110,7 +110,7 @@ private:
 	t_channel_id   current_channel_id;
 	t_channel_id   current_epg_id;
 
-	COSDFader	fader;
+	COSDSlider	slider;
 
 	int info_time_width;
 	int header_height;
