@@ -1,6 +1,6 @@
 EXTRA_DIST = \
 	Default.otheme Default.otheme.in \
-	TangoCash.otheme TangoCash.otheme.in \
+	TangoCash.otheme TangoCash.otheme.in
 
 oledthemesdir = $(THEMESDIR)/oled
 
