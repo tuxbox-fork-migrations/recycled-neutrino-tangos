@@ -303,9 +303,9 @@ int GLCD_Menu::GLCD_Menu_Settings()
 
 	gms->addItem(GenericMenuSeparatorLine);
 
-	gms->addItem(new CMenuForwarder(LOCALE_GLCD_LOGODIR, true, g_settings.glcd_logodir, this, "glcd_logodir", CRCInput::convertDigitToKey(shortcut++)));
+	//gms->addItem(new CMenuForwarder(LOCALE_GLCD_LOGODIR, true, g_settings.glcd_logodir, this, "glcd_logodir", CRCInput::convertDigitToKey(shortcut++)));
 
-	gms->addItem(GenericMenuSeparator);
+	//gms->addItem(GenericMenuSeparator);
 
 	gms->addItem(new CMenuForwarder(LOCALE_GLCD_BRIGHTNESS_SETTINGS, true, NULL, this, "brightness_settings", CRCInput::convertDigitToKey(shortcut++)));
 
