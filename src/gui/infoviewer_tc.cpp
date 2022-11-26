@@ -1059,6 +1059,7 @@ void CInfoViewer::loop()
 			else if ((msg == NeutrinoMessages::EVT_SLIDER) && (data == COSDSlider::AFTER_SLIDEIN))
 			{
 				// after slide in
+				setInfobarTimeout();
 				weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
 			}
 			else if ((msg == NeutrinoMessages::EVT_SLIDER) && (data == COSDSlider::BEFORE_SLIDEOUT))
@@ -1083,7 +1084,7 @@ void CInfoViewer::loop()
 					}
 				}
 				if(slider.StartSlideOut())
-					timeoutEnd = CRCInput::calcTimeoutEnd(2);
+					timeoutEnd = CRCInput::calcTimeoutEnd_MS(slider.GetSlideTime());
 				else
 					res = messages_return::cancel_info;
 			}
