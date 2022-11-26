@@ -473,7 +473,7 @@ hw_caps_t *get_hwcaps(void)
 	caps.has_button_timer = 1;
 	caps.has_button_vformat = 0;
 	caps.has_HDMI = 1;
-	strcpy(caps.startup_file, "");
+	strcpy(caps.startup_file, "STARTUP_LINUX");
 	strcpy(caps.boxvendor, "AirDigital");
 	strcpy(caps.boxname, "Zgemma H9s/H9.2s");
 	strcpy(caps.boxarch, "HI3798M");
@@ -492,6 +492,7 @@ hw_caps_t *get_hwcaps(void)
 	caps.display_has_colon = 0;
 	caps.has_button_timer = 1;
 	caps.has_HDMI = 1;
+	strcpy(caps.startup_file, "STARTUP");
 	strcpy(caps.boxvendor, "AXAS");
 	strcpy(caps.boxname, "E4HD 4K ULTRA");
 	strcpy(caps.boxarch, "BCM7252S");
@@ -510,6 +511,7 @@ hw_caps_t *get_hwcaps(void)
 	caps.display_has_colon = 0;
 	caps.has_button_timer = 1;
 	caps.has_HDMI = 1;
+	strcpy(caps.startup_file, "STARTUP");
 	strcpy(caps.boxvendor, "PROTEK");
 	strcpy(caps.boxname, "PROTEK 4K");
 	strcpy(caps.boxarch, "BCM7252S");
