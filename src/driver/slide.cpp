@@ -34,12 +34,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#define MAX_HEIGHT 576
-#define MAX_WIDTH 720
-#define MIN_HEIGHT 0
-#define STEPSIZE 10
-#define SLIDETIME 2*5000
-
 COSDSlider::COSDSlider(int percent, int mode)
 {
 	slideTimer = 0;
@@ -50,6 +44,8 @@ COSDSlider::COSDSlider(int percent, int mode)
 		slideMax = MAX_WIDTH;
 	else
 		slideMax = MAX_HEIGHT * percent / 100;
+	slideValue = slideMax;
+	setValue(0);
 }
 
 COSDSlider::~COSDSlider()
@@ -64,26 +60,26 @@ void COSDSlider::setValue(int val)
 	if (slideMode == MID2SIDE)
 	{
 		int w = MAX_WIDTH - val;
-		proc_put_hex("/proc/stb/fb/dst_width", w);
-
 		int l = (MAX_WIDTH - w) / 2;
+		proc_put_hex("/proc/stb/fb/dst_width", w);
+		proc_put_hex("/proc/stb/fb/dst_apply", 1);
 		proc_put_hex("/proc/stb/fb/dst_left", l);
 	}
 	else
 	{
 		proc_put_hex("/proc/stb/fb/dst_top", val);
 	}
-
 	proc_put_hex("/proc/stb/fb/dst_apply", 1);
 }
 
 void COSDSlider::StartSlideIn()
 {
+	setValue(slideMax);
+	usleep(5000);
 	slideIn = true;
 	slideOut = false;
 	slideValue = slideMax;
-	setValue(slideMax);
-	slideTimer = g_RCInput->addTimer(SLIDETIME, false);
+	slideTimer = g_RCInput->addTimer(SLIDETIME, false, true);
 }
 
 /* return true if slide out started */
@@ -94,15 +90,17 @@ bool COSDSlider::StartSlideOut()
 	if (slideIn)
 	{
 		g_RCInput->killTimer(slideTimer);
+		slideTimer = 0;
 		slideIn = false;
+		g_RCInput->postMsg(NeutrinoMessages::EVT_SLIDER, AFTER_SLIDEIN);
 	}
 
 	if (!slideOut)
 	{
 		slideOut = true;
 		g_RCInput->postMsg(NeutrinoMessages::EVT_SLIDER, BEFORE_SLIDEOUT);
-		setValue(MIN_HEIGHT);
-		slideTimer = g_RCInput->addTimer(SLIDETIME, false);
+		setValue(0);
+		slideTimer = g_RCInput->addTimer(SLIDETIME, false, true);
 		ret = true;
 	}
 
@@ -114,8 +112,9 @@ void COSDSlider::StopSlide()
 	if (slideIn || slideOut)
 	{
 		g_RCInput->killTimer(slideTimer);
+		slideTimer = 0;
 		//usleep(SLIDETIME * 3);
-		setValue(MIN_HEIGHT);
+		setValue(0);
 		slideIn = slideOut = false;
 	}
 }
@@ -133,6 +132,7 @@ bool COSDSlider::SlideDone()
 		{
 			slideValue = slideMax;
 			g_RCInput->killTimer(slideTimer);
+			slideTimer = 0;
 			ret = true;
 		}
 		else
@@ -142,10 +142,11 @@ bool COSDSlider::SlideDone()
 	{
 		slideValue -= STEPSIZE;
 
-		if (slideValue <= MIN_HEIGHT)
+		if (slideValue <= 0)
 		{
-			slideValue = MIN_HEIGHT;
+			slideValue = 0;
 			g_RCInput->killTimer(slideTimer);
+			slideTimer = 0;
 			slideIn = false;
 			g_RCInput->postMsg(NeutrinoMessages::EVT_SLIDER, AFTER_SLIDEIN);
 		}
