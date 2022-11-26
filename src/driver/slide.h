@@ -24,6 +24,11 @@
 
 #include <inttypes.h>
 
+#define MAX_HEIGHT 576
+#define MAX_WIDTH 720
+#define STEPSIZE 10
+#define SLIDETIME 2*5000
+
 class COSDSlider
 {
 	private:
@@ -46,6 +51,7 @@ class COSDSlider
 		bool SlideDone();
 		bool SlideInDone() { return !slideIn && !slideOut; };
 		uint32_t GetSlideTimer() { return slideTimer; };
+		uint32_t GetSlideTime() { return SLIDETIME; };
 
 		enum
 		{
