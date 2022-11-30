@@ -953,6 +953,7 @@ struct SNeutrinoSettings
 #ifdef ENABLE_GRAPHLCD
 	// graphlcd
 	int glcd_enable;
+	std::string glcd_logodir;
 
 	int glcd_mirror_osd;
 	int glcd_mirror_video;
