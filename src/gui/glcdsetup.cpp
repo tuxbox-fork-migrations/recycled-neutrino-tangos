@@ -223,7 +223,13 @@ int GLCD_Menu::exec(CMenuTarget *parent, const std::string &actionKey)
 	else if (actionKey == "standby_settings")
 	{
 		return GLCD_Standby_Settings();
-    }
+	}
+	else if (actionKey == "glcd_logodir")
+	{
+		const char *action_str = "glcd_logodir";
+		chooserDir(g_settings.glcd_logodir, false, action_str);
+		return menu_return::RETURN_REPAINT;
+	}
 	else
 	{
 		return GLCD_Menu_Settings();
@@ -621,7 +627,7 @@ int GLCD_Menu::GLCD_Theme_Settings()
 	mf = new CMenuDForwarder(LOCALE_GLCD_PROGRESSBAR_COLOR, t.glcd_progressbar, NULL, bar);
 	gts->addItem(mf);
 	ProgressActivate.Add(mf);
-	
+
 	gts->addItem(GenericMenuSeparatorLine);
 
 	// time
