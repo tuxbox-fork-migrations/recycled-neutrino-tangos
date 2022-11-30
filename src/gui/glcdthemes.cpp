@@ -299,8 +299,8 @@ void CGLCDThemes::setTheme(CConfigFile &configfile)
 	configfile.setBool("glcd_logo", t.glcd_logo);
 	configfile.setInt32("glcd_logo_percent", t.glcd_logo_percent);
 	configfile.setInt32("glcd_logo_width_percent", t.glcd_logo_width_percent);
-    configfile.setInt32("glcd_logo_x_position", t.glcd_logo_x_position);
-    configfile.setInt32("glcd_logo_y_position", t.glcd_logo_y_position);
+	configfile.setInt32("glcd_logo_x_position", t.glcd_logo_x_position);
+	configfile.setInt32("glcd_logo_y_position", t.glcd_logo_y_position);
 	configfile.setInt32("glcd_epg_percent", t.glcd_epg_percent);
 	configfile.setInt32("glcd_epg_align", t.glcd_epg_align);
 	configfile.setInt32("glcd_epg_x_position", t.glcd_epg_x_position);
