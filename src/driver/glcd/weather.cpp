@@ -160,7 +160,7 @@ void RenderWeather(bool standby)
 		}
 		if ((current_wtemp != "") && ctx)
 		{
-			//current_wtemp += "°";
+			current_wtemp += "°";
 			WeatherUpdateFonts();
 			if (!standby)
 			{
@@ -183,7 +183,7 @@ void RenderWeather(bool standby)
 		}
 		if ((next_wtemp != "") && ntx)
 		{
-			//next_wtemp += "°";
+			next_wtemp += "°";
 			int offset;
 			WeatherUpdateFonts();
 			if (!standby)

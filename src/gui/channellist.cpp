@@ -1956,9 +1956,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 	bool paintbuttons = false;
 	unsigned int curr = liststart + pos;
 
-#ifdef ENABLE_TANGOS
 	int mode = CNeutrinoApp::getInstance()->GetChannelMode();
-#endif
 
 	if (curr < (*chanlist).size())
 	{
@@ -1997,7 +1995,6 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		paintbuttons = true;
 	}
 
-#ifdef ENABLE_TANGOS
 	if (displayMode != DISPLAY_MODE_NOW)
 	{
 		/*
@@ -2009,7 +2006,6 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		else
 			ecolor = COL_MENUCONTENTINACTIVE_TEXT;
 	}
-#endif
 
 	if (!is_available)
 		color = COL_MENUCONTENTINACTIVE_TEXT;
@@ -2057,11 +2053,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 #endif
 		//set resolution icon
 		const char *res_icon = NULL;
-#ifdef ENABLE_TANGOS
 		if (g_settings.channellist_show_res_icon && mode != LIST_MODE_FAV)
-#else
-		if (g_settings.channellist_show_res_icon)
-#endif
 		{
 			if (chan->isHD())
 				res_icon = NEUTRINO_ICON_MARKER_HD;
@@ -2073,22 +2065,13 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 		//set webtv icon
 		const char *webtv_icon = NULL;
-#ifdef ENABLE_TANGOS
 		if (!chan->getUrl().empty() && mode != LIST_MODE_FAV)
-#else
-		if (!chan->getUrl().empty())
-#endif
 			webtv_icon = NEUTRINO_ICON_MARKER_STREAMING;
 
 		//set scramble icon
 		const char *scramble_icon = NULL;
-#ifdef ENABLE_TANGOS
 		if (chan->scrambled && mode != LIST_MODE_FAV)
 			scramble_icon = NEUTRINO_ICON_SCRAMBLED;
-#else
-		if (chan->scrambled)
-			scramble_icon = NEUTRINO_ICON_MARKER_SCRAMBLED;
-#endif
 
 		//calculate and paint right status icons
 		int icon_w = 0;

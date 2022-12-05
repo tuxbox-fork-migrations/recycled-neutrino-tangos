@@ -599,24 +599,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	}
 	g_settings.timer_followscreenings = configfile.getInt32( "timer_followscreenings", CFollowScreenings::FOLLOWSCREENINGS_ON );
 
-#if ENABLE_TANGOS
 	g_settings.infobar_sat_display   = false; //configfile.getBool("infobar_sat_display"  , false );
 	g_settings.infobar_show_channeldesc   = false; //configfile.getBool("infobar_show_channeldesc"  , false );
-#else
-	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , false );
-	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
-#endif
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
 	g_settings.infobar_buttons_usertitle = configfile.getBool("infobar_buttons_usertitle", false );
 	g_settings.infobar_analogclock = configfile.getInt32("infobar_analogclock", 0);
 	g_settings.infobar_show = configfile.getInt32("infobar_show", configfile.getInt32("infobar_cn", 1));
-#if ENABLE_TANGOS
 	g_settings.infobar_show_channellogo   = 2; //configfile.getInt32("infobar_show_channellogo"  , 2 );
 	g_settings.infobar_progressbar   = 3; //configfile.getInt32("infobar_progressbar"  , 3 ); // between epg
-#else
-	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 2 );
-	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 3 ); // between epg
-#endif
 	g_settings.infobar_casystem_display = configfile.getInt32("infobar_casystem_display", 1 );//discreet ca mode default
 	g_settings.infobar_casystem_dotmatrix = configfile.getInt32("infobar_casystem_dotmatrix", 0 );
 	g_settings.infobar_casystem_frame = configfile.getInt32("infobar_casystem_frame", 1 );
@@ -629,13 +619,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.show_menu_hints = configfile.getBool("show_menu_hints", false);
 	g_settings.infobar_show_sysfs_hdd   = configfile.getBool("infobar_show_sysfs_hdd"  , false );
 	g_settings.show_mute_icon = configfile.getInt32("show_mute_icon" ,0);
-#if ENABLE_TANGOS
 	g_settings.infobar_show_res = 1; //configfile.getInt32("infobar_show_res", 1 );
 	g_settings.infobar_show_dd_available = 1; //configfile.getInt32("infobar_show_dd_available", 1 );
-#else
-	g_settings.infobar_show_res = configfile.getInt32("infobar_show_res", 1 );
-	g_settings.infobar_show_dd_available = configfile.getInt32("infobar_show_dd_available", 1 );
-#endif
 
 	g_settings.infobar_show_tuner = configfile.getInt32("infobar_show_tuner", 1 );
 	g_settings.radiotext_enable = configfile.getBool("radiotext_enable"          , false);
@@ -2132,12 +2117,10 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				CBouquet* webtvBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBTV), false, true);
 				webtvBouquet->channelList->SetChannelList(&webtvList);
 				TVallList->Bouquets.push_back(webtvBouquet);
-#if ENABLE_TANGOS
 				/* "satellite" */
 				webtvBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBTV), false, true);
 				webtvBouquet->channelList->SetChannelList(&webtvList);
 				TVsatList->Bouquets.push_back(webtvBouquet);
-#endif
 				printf("[neutrino] got %d WebTV channels\n", (int)webtvList.size()); fflush(stdout);
 			}
 		}
@@ -2148,12 +2131,10 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				CBouquet* webradioBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBRADIO), false, true);
 				webradioBouquet->channelList->SetChannelList(&webradioList);
 				RADIOallList->Bouquets.push_back(webradioBouquet);
-#if ENABLE_TANGOS
 				/* "satellite" */
 				webradioBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBRADIO), false, true);
 				webradioBouquet->channelList->SetChannelList(&webradioList);
 				RADIOsatList->Bouquets.push_back(webradioBouquet);
-#endif
 				printf("[neutrino] got %d WebRadio channels\n", (int)webradioList.size()); fflush(stdout);
 			}
 		}

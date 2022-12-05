@@ -704,13 +704,6 @@ int COsdSetup::showOsdSetup()
 
 	osd_menu->addItem(GenericMenuSeparatorLine);
 
-#ifndef ENABLE_TANGOS
-	// radiotext
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_RADIOTEXT);
-	osd_menu->addItem(mc);
-#endif
-
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
 	// osd resolution
 	size_t resCount = frameBuffer->osd_resolutions.size();
@@ -1349,24 +1342,15 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(mf);
 #endif
 
-#ifndef ENABLE_TANGOS
-	// resolution
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_RES, &g_settings.infobar_show_res, INFOBAR_SHOW_RES_MODE_OPTIONS, INFOBAR_SHOW_RES_MODE_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_RES);
-	menu_infobar->addItem(mc);
-#endif
-
 	// show on epg change
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW, &g_settings.infobar_show, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_ON_EPG);
 	menu_infobar->addItem(mc);
 
-#if ENABLE_TANGOS
 	// radiotext
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_RADIOTEXT);
 	menu_infobar->addItem(mc);
-#endif
 
 	// buttons usertitle
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_BUTTONS_USERTITLE, &g_settings.infobar_buttons_usertitle, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
@@ -1374,22 +1358,6 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(mc);
 
 	menu_infobar->addItem(GenericMenuSeparator);
-
-#ifndef ENABLE_TANGOS
-	// display options
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_DISP, &g_settings.infobar_show_channellogo, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS_COUNT, true);
-	mc->OnAfterChangeOption.connect(slot_ibar);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_LOGO);
-	menu_infobar->addItem(mc);
-#endif
-
-#ifndef ENABLE_TANGOS
-	// satellite/cable provider
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SAT_DISPLAY, &g_settings.infobar_sat_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->OnAfterChangeOption.connect(slot_ibar);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_SAT);
-	menu_infobar->addItem(mc);
-#endif
 
 	menu_infobar->addItem(GenericMenuSeparator);
 
@@ -1399,13 +1367,6 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->OnAfterChangeOption.connect(slot_ibar);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS);
 	menu_infobar->addItem(mc);
-#ifndef ENABLE_TANGOS
-	// CA system dotmatrix
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DOTMATRIX, &g_settings.infobar_casystem_dotmatrix, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.infobar_casystem_display < 2);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS_DOTMATRIX);
-	menu_infobar->addItem(mc);
-	casystemActivate.Add(mc);
-#endif
 	
 	// CA system frame
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_FRAME, &g_settings.infobar_casystem_frame, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.infobar_casystem_display < 2);
@@ -1413,13 +1374,13 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_CASYS_FRAME);
 	menu_infobar->addItem(mc);
 	casystemActivate.Add(mc);
-#if ENABLE_TANGOS
+
 	// ecm-Info
 	mc = new CMenuOptionChooser(LOCALE_ECMINFO_SHOW, &g_settings.show_ecm_pos, INFOVIEWER_ECMINFO_OPTIONS, INFOVIEWER_ECMINFO_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_ECMINFO);
 	menu_infobar->addItem(mc);
 	menu_infobar->addItem(GenericMenuSeparator);
-#endif
+
 	// flash/hdd statfs
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_SYSFS_HDD, &g_settings.infobar_show_sysfs_hdd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !(g_settings.infobar_casystem_display == 3));
 	mc->OnAfterChangeOption.connect(slot_ibar);
@@ -1450,19 +1411,6 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_TUNER);
 	menu_infobar->addItem(mc);
 
-#ifndef ENABLE_TANGOS
-	// DD icon
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_DD_AVAILABLE, &g_settings.infobar_show_dd_available, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_DD);
-	menu_infobar->addItem(mc);
-
-	menu_infobar->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_PROGRESSBAR));
-	// progressbar position
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION, &g_settings.infobar_progressbar, PROGRESSBAR_INFOBAR_POSITION_OPTIONS, PROGRESSBAR_INFOBAR_POSITION_COUNT, true);
-	mc->OnAfterChangeOption.connect(slot_ibar);
-	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_INFOBAR_POSITION);
-	menu_infobar->addItem(mc);
-#endif
 	// Analog Clock
 	mc = new CMenuOptionChooser(LOCALE_INFOVIEWER_ANALOGCLOCK, &g_settings.infobar_analogclock, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	menu_infobar->addItem(mc);
