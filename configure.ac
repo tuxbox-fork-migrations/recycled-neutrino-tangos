@@ -285,15 +285,6 @@ if test "$enable_mips_acc" = "yes"; then
 	AC_DEFINE(ENABLE_MIPS_ACC,1,[enable mips hardware acceleration])
 fi
 
-AC_ARG_ENABLE(tangos,
-	AS_HELP_STRING(--disable-tangos,disable tangos infoviewer),
-	,[enable_tangos=yes])
-
-AM_CONDITIONAL(ENABLE_TANGOS,test "$enable_tangos" = "yes")
-if test "$enable_tangos" = "yes"; then
-	AC_DEFINE(ENABLE_TANGOS,1,[include tangos infoviewer])
-fi
-
 AC_ARG_ENABLE(extupdate,
 	AS_HELP_STRING([--enable-extupdate], [enable extended update routine @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_EXTUPDATE, 1, [enable extended update routine]))

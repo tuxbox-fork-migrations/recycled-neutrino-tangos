@@ -62,6 +62,7 @@ libneutrino_gui_a_SOURCES = \
 	followscreenings.cpp \
 	imageinfo.cpp \
 	info_menue.cpp \
+	infoviewer.cpp \
 	keybind_setup.cpp \
 	mdb-imdb.cpp \
 	mdb-tmdb.cpp \
@@ -103,19 +104,10 @@ libneutrino_gui_a_SOURCES = \
 	videosettings.cpp \
 	volumebar.cpp \
 	weather.cpp \
+	weather_setup.cpp \
 	webchannels_setup.cpp \
 	xmltv_setup.cpp \
 	zapit_setup.cpp
-
-if ENABLE_TANGOS
-libneutrino_gui_a_SOURCES += \
-	infoviewer_tc.cpp \
-	weather_setup.cpp
-else
-libneutrino_gui_a_SOURCES += \
-	infoviewer.cpp \
-	infoviewer_bb.cpp
-endif
 
 if ENABLE_QUADPIP
 libneutrino_gui_a_SOURCES += \
