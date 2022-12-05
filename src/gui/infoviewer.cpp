@@ -37,7 +37,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "infoviewer_tc.h"
+#include "infoviewer.h"
 
 #include <algorithm>
 #include <time.h>
