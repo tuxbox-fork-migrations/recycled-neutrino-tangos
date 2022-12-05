@@ -569,7 +569,7 @@ void cGLCD::Exec()
 						GLCD::cColor::Transparent, true, 0, 0);
 				}
 			} else {
-				smalltext = ENABLE_TANGOS ? "RT" : "TXT";
+				smalltext = "RT";
 				if (txtLocked) {
 					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
 						bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Green,
