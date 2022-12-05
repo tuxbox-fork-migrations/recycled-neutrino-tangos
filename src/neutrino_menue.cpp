@@ -73,9 +73,7 @@
 #include "gui/timerlist.h"
 #include "gui/update_menue.h"
 #include "gui/streaminfo2.h"
-#ifdef ENABLE_TANGOS
 #include "gui/weather_setup.h"
-#endif
 #ifdef ENABLE_TESTING
 #include "gui/test_menu.h"
 #endif
@@ -380,12 +378,10 @@ void CNeutrinoApp::InitMenuSettings()
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_LCD4LINUX]);
 #endif
 
-#ifdef ENABLE_TANGOS
 	// weather
 	mf = new CMenuForwarder(LOCALE_WEATHER_ENABLED, true, NULL, new CWeatherSetup());
 	mf->setHint("", LOCALE_MENU_HINT_WEATHER_ENABLED);
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_WEATHER]);
-#endif
 
 	// drive settings
 	mf = new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, CHDDMenuHandler::getInstance());
