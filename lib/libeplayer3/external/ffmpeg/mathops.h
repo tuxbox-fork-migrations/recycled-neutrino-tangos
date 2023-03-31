@@ -26,22 +26,18 @@
 #include <libavutil/common.h>
 
 #ifndef NEG_USR32
-#   define NEG_USR32(a,s) (((uint32_t)(a))>>(32-(s)))
+#define NEG_USR32(a,s) (((uint32_t)(a))>>(32-(s)))
 #endif
 
 #ifndef NEG_SSR32
-#   define NEG_SSR32(a,s) (((int32_t)(a))>>(32-(s)))
+#define NEG_SSR32(a,s) (((int32_t)(a))>>(32-(s)))
 #endif
 
 #ifndef sign_extend
 static inline av_const int sign_extend(int val, unsigned bits)
 {
 	unsigned shift = 8 * sizeof(int) - bits;
-	union
-	{
-		unsigned u;
-		int s;
-	} v = { (unsigned) val << shift };
+	union { unsigned u; int s; } v = { (unsigned) val << shift };
 	return v.s >> shift;
 }
 #endif

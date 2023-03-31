@@ -64,7 +64,6 @@ static inline void encode_DC(BW *p, int level, int n)
 {
 	if (level < -255 || level > 255)
 		printf("dc overflow\n");
-
 #if 1
 	level += 256;
 	if (n < 4)
@@ -76,7 +75,6 @@ static inline void encode_DC(BW *p, int level, int n)
 		put_bits(p, uni_DCtab_chrom_len[level], uni_DCtab_chrom_bits[level]);
 	}
 #else
-
 	int size, v;
 	/* find number of bits */
 	size = 0;
@@ -107,9 +105,7 @@ static inline void encode_DC(BW *p, int level, int n)
 		if (size > 8)
 			put_bits(p, 1, 1);
 	}
-
 #endif
-
 }
 
 static inline void encode_escape_3(BW *p, int last, int run, int level)
@@ -272,10 +268,7 @@ esc3:
 			last_non_zero = i;
 		}
 	}
-
 #endif
-
-
 }
 
 static inline void encode_intra_block(BW *bw, M4V_BLOCK *block, int n)
@@ -313,7 +306,6 @@ static inline void encode_inter_8x8_MCBPC(BW *bw, int cbpc)
 	put_bits(bw, vlce_inter_MCBPC_bits[cbpc + 16], vlce_inter_MCBPC_code[cbpc + 16]);
 }
 
-
 // same as H.263
 static inline void encode_cbpy(BW *bw, int cbpy)
 {
@@ -341,7 +333,6 @@ static inline void encode_motion(BW *bw, VLCDEC *mv_x, VLCDEC *mv_y)
 		{
 			put_bits(bw, mv_x->bits_ex - 1, mv_x->value_ex >> 1);
 		}
-
 	}
 	put_vlcdec(bw, mv_y);
 	if (mv_y->bits_ex)
@@ -418,12 +409,14 @@ static inline void encode_mb_intra_internal(BW *bw, M4V_MICROBLOCK *mb, int ifra
 	{
 		if (mb->dquant)
 			cbpc += 4;
+
 		encode_intra_I_MCBPC(bw, cbpc);
 	}
 	else
 	{
 		if (mb->dquant)
 			cbpc += 8;
+
 		encode_intra_P_MCBPC(bw, cbpc);
 	}
 
@@ -433,7 +426,6 @@ static inline void encode_mb_intra_internal(BW *bw, M4V_MICROBLOCK *mb, int ifra
 
 	encode_cbpy(bw, cbpy);
 	encode_dquant(bw, mb->dquant);
-
 
 	for (i = 0; i < 6; i++)
 	{
@@ -488,6 +480,7 @@ static inline int encode_vol_header(BW *p, M4V_VOL *vol)
 
 	if (vol->time_bits != 5)
 		return -1; // for vop_time_increment_resolution = 30
+
 	put_bits(p, 16, 30); // *** vop_time_increment_resolution = 30
 
 	put_bits(p, 1, 1); // marker
@@ -524,7 +517,6 @@ static inline int encode_vop_header(BW *p, M4V_VOP *vop, int time_bits, int vop_
 	put_bits(p, 16, VOP_STARTCODE);
 
 	put_bits(p, 2, vop->picture_type);
-
 
 //	printf("not_code:%d vop_time: %d\n", vop_not_coded, vop->time);
 
@@ -624,7 +616,7 @@ static inline int encode_user_header(BW *p)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void m4v_encode_m4v_header(BW *bw, M4V_VOL *vol, uint32 time)
+void m4v_encode_m4v_header(BW *bw, M4V_VOL *vol, uint32 time __attribute__((unused)))
 {
 	encode_vo_header(bw);
 	encode_vol_header(bw, vol);

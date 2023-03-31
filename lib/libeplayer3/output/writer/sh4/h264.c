@@ -245,6 +245,7 @@ static int32_t writeData(void *_call)
 
 		iov[ic++].iov_base = PesHeader;
 		initialHeader = 0;
+
 		if (initialHeader)
 		{
 			initialHeader = 0;

@@ -18,6 +18,8 @@ SOURCE_FILES += manager/audio.c
 SOURCE_FILES += manager/video.c
 SOURCE_FILES += manager/chapter.c
 SOURCE_FILES += manager/subtitle.c
+SOURCE_FILES += output/graphic_subtitle.c
+SOURCE_FILES += output/output_subtitle.c
 SOURCE_FILES += output/output.c
 SOURCE_FILES += output/writer/common/pes.c
 SOURCE_FILES += output/writer/common/misc.c
@@ -27,18 +29,20 @@ SOURCE_FILES += playback/playback.c
 SOURCE_FILES += external/ffmpeg/src/bitstream.c
 SOURCE_FILES += external/ffmpeg/src/latmenc.c
 SOURCE_FILES += external/ffmpeg/src/mpeg4audio.c
+SOURCE_FILES += external/ffmpeg/src/xiph.c
+SOURCE_FILES += external/plugins/src/png.c
 
 SOURCE_FILES += \
 	output/linuxdvb_mipsel.c \
 	output/writer/mipsel/writer.c \
 	output/writer/mipsel/aac.c \
 	output/writer/mipsel/ac3.c \
+	output/writer/mipsel/bcma.c \
 	output/writer/mipsel/mp3.c \
 	output/writer/mipsel/pcm.c \
 	output/writer/mipsel/lpcm.c \
 	output/writer/mipsel/dts.c \
 	output/writer/mipsel/amr.c \
-	output/writer/mipsel/wma.c \
 	output/writer/mipsel/h265.c \
 	output/writer/mipsel/h264.c \
 	output/writer/mipsel/mjpeg.c \
@@ -51,4 +55,4 @@ SOURCE_FILES += \
 
 libeplayer3_a_SOURCES = $(SOURCE_FILES)
 
-LIBEPLAYER3_LIBS = libeplayer3.a -lpthread -lavformat -lavcodec -lavutil -lswresample
+LIBEPLAYER3_LIBS = libeplayer3.la -lswscale -ldl -lpthread -lavformat -lavcodec -lavutil -lswresample
