@@ -60,8 +60,15 @@ typedef struct
 	uint8_t         *data;
 	uint32_t         len;
 
+	uint8_t         *extradata;
+	uint32_t         extralen;
+
 	int64_t          pts;
+	int64_t          dts;
 	int64_t          durationMS; // duration in miliseconds
+
+	uint32_t         width;
+	uint32_t         height;
 
 	char            *type;
 } SubtitleOut_t;
@@ -86,6 +93,7 @@ typedef struct OutputHandler_s
 	char *Name;
 	Output_t *audio;
 	Output_t *video;
+	Output_t *subtitle;
 	int32_t (* Command)(Context_t *, OutputCmd_t, void *);
 } OutputHandler_t;
 

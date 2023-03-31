@@ -429,7 +429,6 @@ int LinuxDvbContinue(Context_t *context __attribute__((unused)), char *type)
 
 	linuxdvb_printf(10, "exiting\n");
 
-
 	return ret;
 }
 
@@ -489,7 +488,6 @@ int LinuxDvbAudioMute(Context_t *context __attribute__((unused)), char *flag)
 
 	return ret;
 }
-
 
 int LinuxDvbFlush(Context_t *context __attribute__((unused)), char *type)
 {
@@ -618,7 +616,6 @@ int LinuxDvbFastForward(Context_t *context, char *type)
 	return ret;
 }
 #endif
-
 
 int LinuxDvbReverse(Context_t *context __attribute__((unused)), char *type __attribute__((unused)))
 {
@@ -936,7 +933,6 @@ int LinuxDvbSwitch(Context_t *context, char *type)
 		}
 
 		releaseLinuxDVBMutex();
-
 	}
 
 	linuxdvb_printf(10, "exiting\n");
@@ -1230,6 +1226,7 @@ static int Command(void *_context, OutputCmd_t command, void *argument)
 		}
 		case OUTPUT_CLEAR:
 		{
+			reset(context);
 			ret = LinuxDvbClear(context, (char *)argument);
 			reset(context);
 			sCURRENT_PTS = 0;

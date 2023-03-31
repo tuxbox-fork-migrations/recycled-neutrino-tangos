@@ -53,10 +53,10 @@ static int64_t update_max_injected_pts(int64_t pts)
 {
 	if (pts > 0 && pts != INVALID_PTS_VALUE)
 	{
-		//if (maxInjectedPTS == INVALID_PTS_VALUE || pts > maxInjectedPTS)
-		//{
-		maxInjectedPTS = pts;
-		//}
+		if (maxInjectedPTS == INVALID_PTS_VALUE || pts > maxInjectedPTS || 0 == PlaybackDieNow(0))
+		{
+			maxInjectedPTS = pts;
+		}
 	}
 	return maxInjectedPTS;
 }
@@ -337,7 +337,9 @@ static void ffmpeg_filler(Context_t *context, int32_t id, int32_t *inpause, int3
 		{
 			if (flag == 1 && hasfillerThreadStarted[id] == 2)
 				break;
+
 			len = ffmpeg_read_org(avContextTab[0]->pb->opaque, buf, size);
+
 			if (flag == 1 && hasfillerThreadStarted[id] == 2)
 				break;
 
