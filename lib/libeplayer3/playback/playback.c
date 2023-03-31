@@ -246,8 +246,6 @@ static int PlaybackClose(Context_t *context)
 		context->manager->audio->Command(context, MANAGER_DEL, NULL);
 	if (context->manager->video)
 		context->manager->video->Command(context, MANAGER_DEL, NULL);
-	if (context->manager->subtitle)
-		context->manager->subtitle->Command(context, MANAGER_DEL, NULL);
 	if (context->manager->chapter)
 		context->manager->chapter->Command(context, MANAGER_DEL, NULL);
 
@@ -425,6 +423,8 @@ static int32_t PlaybackStop(Context_t *context)
 
 	PlaybackDieNow(1);
 
+	context->playback->stamp = (void *) -1;
+
 	if (context && context->playback && context->playback->isPlaying)
 	{
 		context->playback->isPaused     = 0;
@@ -480,6 +480,7 @@ static int32_t PlaybackTerminate(Context_t *context)
 		}
 
 		ret = context->container->selectedContainer->Command(context, CONTAINER_STOP, NULL);
+
 		if (context && context->playback)
 		{
 			context->playback->isPaused     = 0;
@@ -489,6 +490,7 @@ static int32_t PlaybackTerminate(Context_t *context)
 			context->playback->SlowMotion   = 0;
 			context->playback->Speed        = 0;
 		}
+
 		if (context && context->output)
 			context->output->Command(context, OUTPUT_STOP, NULL);
 	}
@@ -649,12 +651,20 @@ static int32_t PlaybackSlowMotion(Context_t *context, int *speed)
 static int32_t PlaybackSeek(Context_t *context, int64_t *pos, uint8_t absolute)
 {
 	int32_t ret = cERR_PLAYBACK_NO_ERROR;
+	static uint32_t stamp = 0;
 
 	playback_printf(10, "pos: %" PRIu64 "\n", *pos);
 
 	if (context->playback->isPlaying && !context->playback->isForwarding && !context->playback->BackWard && !context->playback->SlowMotion && !context->playback->isPaused)
 	{
 		context->playback->isSeeking = 1;
+		/* We changing current stamp, so all frames with old stamps will be skipped
+		 * Without this there could be situation when the ffmpeg thread is
+		 * in the av_read_frame(), so, even if we flushed data,  still
+		 * data from the old position were written
+		 */
+		stamp += 1;
+		context->playback->stamp = (void *)stamp;
 		context->output->Command(context, OUTPUT_CLEAR, NULL);
 		if (absolute)
 		{
@@ -797,9 +807,11 @@ static int32_t PlaybackSwitchAudio(Context_t *context, int32_t *track)
 	return ret;
 }
 
-static int PlaybackSwitchSubtitle(Context_t *context, int *track)
+static int32_t PlaybackSwitchSubtitle(Context_t *context, int32_t *track)
 {
-	int ret = cERR_PLAYBACK_NO_ERROR;
+	int32_t ret = cERR_PLAYBACK_NO_ERROR;
+	int32_t curtrackid = -1;
+	int32_t nextrackid = -1;
 
 	playback_printf(10, "Track: %d\n", *track);
 
@@ -807,14 +819,22 @@ static int PlaybackSwitchSubtitle(Context_t *context, int *track)
 	{
 		if (context->manager && context->manager->subtitle)
 		{
-			int trackid;
+			context->manager->subtitle->Command(context, MANAGER_GET, &curtrackid);
+			context->manager->subtitle->Command(context, MANAGER_SET, track);
+			context->manager->subtitle->Command(context, MANAGER_GET, &nextrackid);
 
-			if (context->manager->subtitle->Command(context, MANAGER_SET, track) < 0)
+			if (curtrackid != nextrackid && nextrackid > -1)
 			{
-				playback_err("manager set track failed\n");
-			}
+				if (context->output && context->output->subtitle)
+				{
+					context->output->subtitle->Command(context, OUTPUT_SWITCH, (void *)"subtitle");
+				}
 
-			context->manager->subtitle->Command(context, MANAGER_GET, &trackid);
+				if (context->container && context->container->selectedContainer)
+				{
+					context->container->selectedContainer->Command(context, CONTAINER_SWITCH_SUBTITLE, &nextrackid);
+				}
+			}
 		}
 		else
 		{
@@ -1007,4 +1027,6 @@ PlaybackHandler_t PlaybackHandler =
 	0,          //noprobe
 	0,          //isLoopMode
 	0,          //isTSLiveMode
+	4000,       //httpTimeout
+	NULL        //stamp
 };

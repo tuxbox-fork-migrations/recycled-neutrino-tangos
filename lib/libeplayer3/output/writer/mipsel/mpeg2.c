@@ -65,7 +65,6 @@ static bool must_send_header = true;
 static uint8_t *private_data = NULL;
 static uint32_t private_size = 0;
 
-
 /* ***************************** */
 /* Prototypes                    */
 /* ***************************** */
@@ -118,29 +117,38 @@ static int writeData(WriterAVCallData_t *call)
 		{
 			if (pos >= data_len)
 				break;
+
 			pos += 7;
+
 			if (pos >= data_len)
 				break;
+
 			sheader_data_len = 12;
+
 			if (data[pos] & 2)
 			{
 				// intra matrix
 				pos += 64;
+
 				if (pos >= data_len)
 					break;
 				sheader_data_len += 64;
 			}
+
 			if (data[pos] & 1)
 			{
 				// non intra matrix
 				pos += 64;
+
 				if (pos >= data_len)
 					break;
 				sheader_data_len += 64;
 			}
 			pos += 1;
+
 			if (pos + 3 >= data_len)
 				break;
+
 			if (!memcmp(&data[pos], "\x00\x00\x01\xb5", 4))
 			{
 				// extended start code
@@ -157,11 +165,14 @@ static int writeData(WriterAVCallData_t *call)
 					}
 				}
 				while (memcmp(&data[pos], "\x00\x00\x01", 3));
+
 				if (!ok)
 					break;
 			}
+
 			if (pos + 3 >= data_len)
 				break;
+
 			if (!memcmp(&data[pos], "\x00\x00\x01\xb2", 4))
 			{
 				// private data
@@ -178,6 +189,7 @@ static int writeData(WriterAVCallData_t *call)
 					}
 				}
 				while (memcmp(&data[pos], "\x00\x00\x01", 3));
+
 				if (!ok)
 					break;
 			}
@@ -249,9 +261,9 @@ static int writeData(WriterAVCallData_t *call)
 	UpdatePesHeaderPayloadSize(PesHeader, data_len + iov[0].iov_len - 6);
 	if (iov[0].iov_len != (unsigned)WriteExt(call->WriteV, call->fd, iov[0].iov_base, iov[0].iov_len))
 		return -1;
+
 	if (iov[1].iov_len != (unsigned)WriteExt(call->WriteV, call->fd, iov[1].iov_base, iov[1].iov_len))
 		return -1;
-
 	return 1;
 }
 

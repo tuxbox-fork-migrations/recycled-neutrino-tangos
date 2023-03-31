@@ -123,6 +123,7 @@ static int writeData(WriterAVCallData_t *call)
 		}
 
 		unsigned int codec_size = call->private_size;
+
 		if (codec_size > 4)
 			codec_size = 4;
 
@@ -136,8 +137,10 @@ static int writeData(WriterAVCallData_t *call)
 		/* height */
 		*(data++) = (call->Height >> 8) & 0xff;
 		*(data++) = call->Height & 0xff;
+
 		if (call->private_data && codec_size)
 			memcpy(data, call->private_data, codec_size);
+
 		if (STB_DREAMBOX == GetSTBType() || 0 != ioctl(call->fd, VIDEO_SET_CODEC_DATA, &videocodecdata))
 		{
 			iov[ic].iov_base  = videocodecdata.data;

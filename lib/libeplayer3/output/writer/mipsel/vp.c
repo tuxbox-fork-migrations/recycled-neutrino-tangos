@@ -152,6 +152,7 @@ static int writeData(WriterAVCallData_t *call, bool is_vp6, bool is_vp9)
 		// pes header
 		if (pes_header_len != (unsigned)WriteExt(call->WriteV, call->fd, PesHeader, pes_header_len))
 			return -1;
+
 		if (bytes != WriteExt(call->WriteV, call->fd, call->data, bytes))
 			return -1;
 
@@ -163,11 +164,6 @@ static int writeData(WriterAVCallData_t *call, bool is_vp6, bool is_vp9)
 			int wr = 0x8000;
 			if (wr > left)
 				wr = left;
-
-			//gst_buffer_unmap(self->pesheader_buffer, &pesheadermap);
-			//gst_buffer_map(self->pesheader_buffer, &pesheadermap, GST_MAP_WRITE);
-			//pes_header = pesheadermap.data;
-
 			//PesHeader[0] = 0x00;
 			//PesHeader[1] = 0x00;
 			//PesHeader[2] = 0x01;
@@ -181,17 +177,13 @@ static int writeData(WriterAVCallData_t *call, bool is_vp6, bool is_vp9)
 
 			if (pes_header_len != (unsigned)WriteExt(call->WriteV, call->fd, PesHeader, pes_header_len))
 				return -1;
+
 			if (wr != WriteExt(call->WriteV, call->fd, call->data + offs, wr))
 				return -1;
 
 			bytes += wr;
 			offs += wr;
 		}
-
-		//gst_buffer_unmap(self->pesheader_buffer, &pesheadermap);
-		//gst_buffer_map(self->pesheader_buffer, &pesheadermap, GST_MAP_WRITE);
-		//pes_header = pesheadermap.data;
-
 		//PesHeader[0] = 0x00;
 		//PesHeader[1] = 0x00;
 		//PesHeader[2] = 0x01;
@@ -218,7 +210,6 @@ static int writeData(WriterAVCallData_t *call, bool is_vp6, bool is_vp9)
 
 		return 1;
 	}
-
 	//return call->WriteV(call->fd, iov, 2);
 }
 
