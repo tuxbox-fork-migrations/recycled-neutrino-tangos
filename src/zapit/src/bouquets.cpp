@@ -51,6 +51,7 @@
 
 #define M3U_START_MARKER        "#EXTM3U"
 #define M3U_START_EPG_MARKER    "tvg-url="
+#define M3U_START_EPG_XMARKER   "x-tvg-url="
 #define M3U_INFO_MARKER         "#EXTINF"
 #define TVG_INFO_ID_MARKER      "tvg-id="
 #define TVG_INFO_NAME_MARKER    "tvg-name="
@@ -892,7 +893,7 @@ void CBouquetManager::loadWebchannels(int mode)
 
 			if (strcasecmp("xml", extension.c_str()) == 0)
 				xml = true;
-			if (strcasecmp("m3u", extension.c_str()) == 0)
+			if ((strcasecmp("m3u", extension.c_str()) == 0) || (strcasecmp("m3u8", extension.c_str()) == 0))
 				m3u = true;
 			if (strcasecmp("tv", extension.c_str()) == 0)
 				e2tv = true;
@@ -1033,6 +1034,10 @@ void CBouquetManager::loadWebchannels(int mode)
 					{
 						epg_url = "";
 						epg_url = ReadMarkerValue(strLine, M3U_START_EPG_MARKER);
+						if (epg_url.empty())
+						{
+							epg_url = ReadMarkerValue(strLine, M3U_START_EPG_XMARKER);
+						}
 						//printf("tvg-url: %s\n", epg_url.c_str());
 						if (!epg_url.empty())
 						{
