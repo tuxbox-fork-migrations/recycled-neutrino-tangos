@@ -74,6 +74,9 @@ void COSDSlider::setValue(int val)
 
 void COSDSlider::StartSlideIn()
 {
+	if(!g_settings.widget_fade)
+		return;
+
 	setValue(slideMax);
 	usleep(5000);
 	slideIn = true;
