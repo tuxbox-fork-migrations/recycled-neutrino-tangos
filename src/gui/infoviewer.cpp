@@ -564,6 +564,9 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 
 	is_visible = true;
 
+	if(!g_settings.widget_fade)
+		weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
+
 	ChannelName = Channel;
 	t_channel_id old_channel_id = current_channel_id;
 	current_channel_id = Channel_Id;
@@ -762,6 +765,9 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 		slider.StartSlideIn();
 
 	is_visible = true;
+
+	if(!g_settings.widget_fade)
+		weather->show(BoxStartX, g_settings.screen_StartY + OFFSET_INNER_MID);
 
 	ChannelName = Channel;
 	bool new_chan = false;
@@ -1205,6 +1211,13 @@ void CInfoViewer::loop()
 
 	g_RCInput->killTimer (sec_timer_id);
 	slider.StopSlide();
+	if(!g_settings.widget_fade)
+	{
+		if (weather)
+			weather->hide();
+		if (ecminfo_toggle)
+			ecmInfoBox_hide();
+	}
 	if (zap_mode & IV_MODE_VIRTUAL_ZAP)
 	{
 		/* if bouquet cycle set, do virtual over current bouquet */
