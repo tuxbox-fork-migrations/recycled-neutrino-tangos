@@ -386,8 +386,8 @@ colormenu.clock_textcolor Kolor zegarka
 colormenu.contrast_fonts Kontrast fontów
 colormenu.fade Zanikanie menu
 colormenu.font Font OSD
-colormenu.font_sub Wybierz font napisów
-colormenu.font_ttx Font teletekstu
+colormenu.font Wielkość czcionki
+colormenu.font_ttx Wybierz czionkę dla Telegazety 
 colormenu.hd_preset HD (LCD/PDP)
 colormenu.menucolors Kolory menu
 colormenu.osd_preset Rodzaj TV
@@ -725,7 +725,7 @@ favorites.menueadd Dodaj kanał do ulubionych
 favorites.nobouquets Funkcja jest dostępna wyłącznie przy włączonych bukietach.
 filebrowser.add Dodaj
 filebrowser.delete Usuń 
-filebrowser.denydirectoryleave Katalog startowy jako główny
+filebrowser.denydirectoryleave Montuj jako główny katalog
 filebrowser.dodelete1 Usuń
 filebrowser.dodelete2 Usuń 
 filebrowser.filter.active Włącz filtr
@@ -775,19 +775,19 @@ flashupdate.erasefailed Kasowanie flash-a nie udało się
 flashupdate.erasing Kasuję pamięć flash
 flashupdate.experimentalimage  Wybrano nową wersję oprogramowanie. Należy wziąć pod uwagę, że wersja ta nie\nzostała sprawdzona, a tuner może nie działać po wykonaniu\naktualizacji.\n\nCzy na pewno chcesz zainstalować tę wersję?
 flashupdate.expertfunctions Funkcje zaawansowane
-flashupdate.fileis0bytes the filesize is 0 Bytes
+flashupdate.fileis0bytes Wielkość pliku wynosi 0 bajtów
 flashupdate.fileselector Wybór plików
-flashupdate.flashreadyreboot The image was successfully flashed.\nThe box will be rebooted now.
-flashupdate.getinfofile getting versioninfo
-flashupdate.getinfofileerror can't get versioninfo
-flashupdate.getupdatefile getting update
-flashupdate.getupdatefileerror Can't get update!
-flashupdate.globalprogress Global Progress:
-flashupdate.head Software Update
+flashupdate.flashreadyreboot Programowanie powiodło się.\nTuner zostanie uruchomiony ponownie.
+flashupdate.getinfofile Trwa sprawdzanie wersji
+flashupdate.getinfofileerror Nie można sprawdzić wersji
+flashupdate.getupdatefile Wykonaj aktualizację
+flashupdate.getupdatefileerror Nie można wykonać aktualizacji
+flashupdate.globalprogress Postęp:
+flashupdate.head Aktualizacja
 flashupdate.install_image Flash downloaded image?
 flashupdate.install_package Install downloadad pack?
-flashupdate.md5check checking image
-flashupdate.md5sumerror image has errors
+flashupdate.md5check Sprawdzanie pobranego oprogramowania
+flashupdate.md5sumerror Nieprawidłowe oprogramowanie
 flashupdate.menu_apply_kernel Flashing kernel
 flashupdate.menu_apply_settings Allow apply settings
 flashupdate.mkfs_create_image Create backup
@@ -807,31 +807,31 @@ flashupdate.new_found New image found !
 flashupdate.new_notfound No new images found
 flashupdate.ng_noflash System na USB, aktualizacja przerwana!
 flashupdate.noversion Version checks are currently only supported when updating over the web.\nAre you sure that you wish to install this image?
-flashupdate.programmingflash programming flash
-flashupdate.proxypassword Password
-flashupdate.proxypassword_hint1 enter the proxyserver password
-flashupdate.proxypassword_hint2 a empty entry means no proxy-auth
-flashupdate.proxyserver Hostname
-flashupdate.proxyserver_hint1 enter proxyserver name or ip, use host:port
-flashupdate.proxyserver_hint2 a empty entry means no proxy
-flashupdate.proxyserver_sep Proxyserver
-flashupdate.proxyusername Username
-flashupdate.proxyusername_hint1 enter the proxyserver username
-flashupdate.proxyusername_hint2 a empty entry means no proxy-auth
+flashupdate.programmingflash Programowanie pamięci flash
+flashupdate.proxypassword Hasło
+flashupdate.proxypassword_hint1 Wpisz hasło serwera proxy
+flashupdate.proxypassword_hint2 Pusty wpis oznacza brak hasła
+flashupdate.proxyserver Nazwa serwera proxy
+flashupdate.proxyserver_hint1 Wpisz nazwę serwera proxy lub IP (host:port)
+flashupdate.proxyserver_hint2 Pusty wpis oznacza brak serwera proxy
+flashupdate.proxyserver_sep Serwer proxy
+flashupdate.proxyusername Nazwa użytkownika
+flashupdate.proxyusername_hint1 Wpisz nazwę użytkownika serwera proxy
+flashupdate.proxyusername_hint2 Pusty wpis oznacza brak autoryzacji
 flashupdate.read_directory_not_exist The backup directory %s \ndoes not exist!
 flashupdate.read_no_available_space The maximum available space in %s \nis %d KB, but there are %d KB required.\n \nThe operation is canceled, please choose another medium!
 flashupdate.read_volume_error The size of the volume %s \ncan not be determined!
-flashupdate.readflash Read whole image
-flashupdate.readflashmtd Read one partition
-flashupdate.ready ready
-flashupdate.reallyflashmtd Na pewno chcesz zrobić flash?\n\nW przypadku błedu lub złego oprogramowania\tuner nie wstanie. \n\nImagename: %s\nTarget: %s
-flashupdate.savesuccess The image was successfully saved \nunder %s.
-flashupdate.selectimage Available Images/Files
+flashupdate.readflash odczytaj cały obraz z pamięci flash
+flashupdate.readflashmtd odczytaj pojedynczą partycję
+flashupdate.ready Gotowe.
+flashupdate.reallyflashmtd Czy na pewno chcesz wykonać programowanie?\n\nW przypadku wystąpienia błędu lub nieprawidłowego obrazu\n box nie wystartuje.\n\nNazwa obrazu: %s\nCel: %s
+flashupdate.savesuccess Obraz został zapisany pomyślnie\npod nazwą %s.
+flashupdate.selectimage Dostępne obrazy/pliki
 flashupdate.settings Update settings
 flashupdate.start_ofgwrite Starte ofgwrite ...
 flashupdate.start_selected_partition Starte ausgewählte Partition?
-flashupdate.titlereadflash Czytam Flash
-flashupdate.titlewriteflash Wgrywam Flash
+flashupdate.titlereadflash Odczyt pamięci flash
+flashupdate.titlewriteflash Zapis pamięci flash
 flashupdate.type_addon Rozszerzenia
 flashupdate.type_beta Beta
 flashupdate.type_locale Język
@@ -847,13 +847,13 @@ flashupdate.update_with_settings_processed Image is being processed...
 flashupdate.update_with_settings_skipped Folder [%s] can not be saved. Entry is skipped.
 flashupdate.update_with_settings_successfully Setting takeover successfully.\nThe image can now be flashed.
 flashupdate.update_with_settings_warning Flash Warning!\n \nNew Image only has %ld KB (out of %ld KB) left. Probably not\nenough space to complete this operation...\n \nDo you really want to proceed?
-flashupdate.updatemode Updatemode
-flashupdate.updatemode_internet internet
-flashupdate.updatemode_manual from local update directory
-flashupdate.url_file config file
-flashupdate.versioncheck checking version
-flashupdate.writeflash Write whole image
-flashupdate.writeflashmtd Write one partition
+flashupdate.updatemode Rodzaj aktualizacji
+flashupdate.updatemode_internet Internet
+flashupdate.updatemode_manual ręczny (ftp)
+flashupdate.url_file Plik konfiguracyjny
+flashupdate.versioncheck Sprawdź wersję
+flashupdate.writeflash wgraj cały obraz do pamięci flash
+flashupdate.writeflashmtd wgraj pojedynczą partycję
 flashupdate.wrongbase Twoja wersja jest inna.\nKontynuować?
 fontmenu.channellist Lista kanałów
 fontmenu.epg EPG
@@ -1133,7 +1133,7 @@ keybindingmenu.navigation Nawigacja
 keybindingmenu.pagedown Następna strona
 keybindingmenu.pageup Poprzednia strona
 keybindingmenu.poweroff Wyłącznik
-keybindingmenu.quickzap Zmiana kanałów
+keybindingmenu.quickzap Szybkie przełączanie kanałów
 keybindingmenu.remotecontrol_hardware Sprzęt
 keybindingmenu.remotecontrol_hardware_coolstream CST
 keybindingmenu.remotecontrol_hardware_dbox d-box Nokia (stary)
@@ -2136,7 +2136,7 @@ moviecut.cancel Cancel movie editing?
 movieplayer.bookmark Zakładki
 movieplayer.bookmarkname Nazwa zakładki
 movieplayer.bookmarkname_hint1 Podaj nazwę nowej zakładki
-movieplayer.bookmarkname_hint2 
+movieplayer.bookmarkname_hint2 Podaj nazwę nowej zakładki
 movieplayer.chapters Rozdziały
 movieplayer.display_playtime czas nagrania na VFD
 movieplayer.fileplayback_audio Odtwarzanie muzyki
@@ -2389,7 +2389,7 @@ pictureviewer.help4 Wyłączenie skalowania
 pictureviewer.help5 Funkcje przycisków w menu
 pictureviewer.help6 Poprzedni obraz
 pictureviewer.help7 Następny obraz
-pictureviewer.help8 exit
+pictureviewer.help8 Wyjście
 pictureviewer.help9 Tryb pokazu
 pictureviewer.resize.color_average zaawansowane
 pictureviewer.resize.none brak
@@ -2589,7 +2589,7 @@ scants.failed Wyszukiwanie kanałów nie powiodło się!
 scants.finished Wyszukiwanie kanałów powiodło się.
 scants.freqdata Częstotliwość:
 scants.head Wyszukiwanie kanałów
-scants.numberofdataservices Data
+scants.numberofdataservices Dane
 scants.numberofradioservices Radio
 scants.numberoftotalservices Ogółem
 scants.numberoftvservices TV
@@ -2674,10 +2674,10 @@ sleeptimerbox.hint2 Po upływie tego czasu, odbiornik zostanie wyłączony.
 sleeptimerbox.hint3 The STB will shutdown, if remote not used.
 sleeptimerbox.title Wyłącznik czasowy
 sleeptimerbox.title2 Timer bezczynności
-streaminfo.aratio Proporcje
-streaminfo.aratio_unknown Proporcje: nieznane
+streaminfo.aratio Format obrazu
+streaminfo.aratio_unknown Format obrazu: nieznany
 streaminfo.audiotype Format dźwięku
-streaminfo.audiotype_unknown nieznany
+streaminfo.audiotype_unknown Format dźwięku: nieznany
 streaminfo.average_bitrate Average
 streaminfo.bitrate Szybkość transmisji:
 streaminfo.casystems Systemy kontroli dostępu CA
