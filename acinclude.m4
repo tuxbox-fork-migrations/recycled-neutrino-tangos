@@ -471,8 +471,8 @@ AM_CONDITIONAL(BOXMODEL_VUZERO4K, test "$BOXMODEL" = "vuzero4k")
 
 AM_CONDITIONAL(BOXMODEL_SF8008, test "$BOXMODEL" = "sf8008")
 AM_CONDITIONAL(BOXMODEL_SF8008M, test "$BOXMODEL" = "sf8008m")
-AM_CONDITIONAL(BOXMODEL_ustym4kpro, test "$BOXMODEL" = "ustym4kpro")
-AM_CONDITIONAL(BOXMODEL_ustym4ks2ottx, test "$BOXMODEL" = "ustym4ks2ottx")
+AM_CONDITIONAL(BOXMODEL_USTYM4KPRO, test "$BOXMODEL" = "ustym4kpro")
+AM_CONDITIONAL(BOXMODEL_USTYM4KS2OTTX, test "$BOXMODEL" = "ustym4ks2ottx")
 AM_CONDITIONAL(BOXMODEL_H9COMBO, test "$BOXMODEL" = "h9combo")
 AM_CONDITIONAL(BOXMODEL_H9, test "$BOXMODEL" = "h9")
 
@@ -531,9 +531,9 @@ elif test "$BOXMODEL" = "sf8008"; then
 elif test "$BOXMODEL" = "sf8008m"; then
 	AC_DEFINE(BOXMODEL_SF8008M, 1, [sf8008m])
 elif test "$BOXMODEL" = "ustym4kpro"; then
-	AC_DEFINE(BOXMODEL_ustym4kpro, 1, [ustym4kpro])
+	AC_DEFINE(BOXMODEL_USTYM4KPRO, 1, [ustym4kpro])
 elif test "$BOXMODEL" = "ustym4ks2ottx"; then
-	AC_DEFINE(BOXMODEL_ustym4ks2ottx, 1, [ustym4ks2ottx])
+	AC_DEFINE(BOXMODEL_USTYM4KS2OTTX, 1, [ustym4ks2ottx])
 elif test "$BOXMODEL" = "h9combo"; then
 	AC_DEFINE(BOXMODEL_H9COMBO, 1, [h9combo])
 elif test "$BOXMODEL" = "h9"; then
