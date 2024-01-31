@@ -53,6 +53,7 @@ function do_init(){
 		case "21":	// sf8008
 		case "22":	// sf8008m
 		case "23":	// ustym4kpro
+		case "24":	// ustym4ks2ottx
 			sel=(sel*1+val*1);
 			break;
 		default:
@@ -153,6 +154,7 @@ select {
 						<option value="21">OCTAGON | SF8008</option>
 						<option value="22">OCTAGON | SF8008M</option>
 						<option value="23">UCLAN | Ustym 4K Pro</option>
+						<option value="23">UCLAN | Ustym 4K S2 OTT X</option>
 					</select>
 				</td>
 			</tr>

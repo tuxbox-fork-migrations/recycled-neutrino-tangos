@@ -1349,7 +1349,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				 * CLOCK_MONOTONIC, which is supposed to not change with settimeofday.
 				 * Everything would be much easier if we could use the post-kernel 3.4
 				 * EVIOCSCLOCKID ioctl :-) */
-#if BOXMODEL_SF8008 || BOXMODEL_SF8008M || BOXMODEL_USTYM4KPRO
+#if BOXMODEL_SF8008 || BOXMODEL_SF8008M || BOXMODEL_USTYM4KPRO || BOXMODEL_USTYM4KS2OTTX
 				if (ev.type == EV_MSC)
 					continue;
 #endif

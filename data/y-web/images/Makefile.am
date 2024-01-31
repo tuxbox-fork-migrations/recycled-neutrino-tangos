@@ -151,6 +151,10 @@ if BOXMODEL_USTYM4KPRO
 install_DATA += rc_ustym4kpro.png
 endif
 
+if BOXMODEL_USTYM4KS2OTTX
+install_DATA += rc_ustym4kpro.png
+endif
+
 # file manager
 install_DATA +=	chmod.png \
 		copy.gif \
