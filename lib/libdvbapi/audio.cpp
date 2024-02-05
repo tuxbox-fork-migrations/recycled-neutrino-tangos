@@ -181,9 +181,11 @@ int map_volume(const int volume)
 	if (vol > 100)
 		vol = 100;
 
+#if !BOXMODEL_SF8008 && !BOXMODEL_SF8008M && !BOXMODEL_USTYM4KPRO && !BOXMODEL_USTYM4KS2OTTX
 	// convert to -1dB steps
 	vol = 63 - vol * 63 / 100;
 	// now range is 63..0, where 0 is loudest
+#endif
 
 #if BOXMODEL_VUPLUS_ALL
 	if (vol == 63)
