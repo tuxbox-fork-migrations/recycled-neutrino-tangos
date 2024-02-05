@@ -2,7 +2,8 @@ installdir = $(ICONSDIR)
 
 install_DATA = \
 	deutsch.png \
-	english.png
+	english.png \
+	polski.png
 
 unmaintained = \
 	unmaintained/bayrisch.png \
@@ -12,7 +13,6 @@ unmaintained = \
 	unmaintained/czech.png \
 	unmaintained/francais.png \
 	unmaintained/italiano.png \
-	unmaintained/polski.png \
 	unmaintained/portugues.png \
 	unmaintained/russkij.png \
 	unmaintained/suomi.png \

@@ -540,8 +540,8 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~Mutant HD61~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
 		{=if-equal:{=var-get:boxtype=}~AXAS E4HD 4K ULTRA~	{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
 		{=if-equal:{=var-get:boxtype=}~PROTEK 4K UHD~	{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
-		{=if-equal:{=var-get:boxtype=}~ZGEMMA H9~		{=include-block:Y_Blocks.txt;rc_zgemma_h9=}~
-		{=if-equal:{=var-get:boxtype=}~ZGEMMA H9 COMBO~		{=include-block:Y_Blocks.txt;rc_zgemma_h9combo=}~
+		{=if-equal:{=var-get:boxtype=}~ZGEMMA H9~		{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
+		{=if-equal:{=var-get:boxtype=}~ZGEMMA H9 COMBO~		{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
 		{=if-equal:{=var-get:boxtype=}~OCTAGON SF8008~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
 		{=if-equal:{=var-get:boxtype=}~OCTAGON SF8008M~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
 		{=if-equal:{=var-get:boxtype=}~UCLAN USTYM 4K PRO~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
@@ -567,8 +567,8 @@ start-block~remote
 	{=if-equal:{=var-get:yfbtype=}~16~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
 	{=if-equal:{=var-get:yfbtype=}~17~	{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
 	{=if-equal:{=var-get:yfbtype=}~18~	{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
-	{=if-equal:{=var-get:yfbtype=}~19~	{=include-block:Y_Blocks.txt;rc_zgemma_h9=}~
-	{=if-equal:{=var-get:yfbtype=}~20~	{=include-block:Y_Blocks.txt;rc_zgemma_h9combo=}~
+	{=if-equal:{=var-get:yfbtype=}~19~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
+	{=if-equal:{=var-get:yfbtype=}~20~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
 	{=if-equal:{=var-get:yfbtype=}~21~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
 	{=if-equal:{=var-get:yfbtype=}~22~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
 	{=if-equal:{=var-get:yfbtype=}~23~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
@@ -806,7 +806,8 @@ start-block~rc_vuplus
 end-block~rc_vuplus
 
 # ------ Remote Air Digital Zgemma H7
-start-block~map_rc_zgemma_h7
+start-block~rc_zgemma_h7
+<img src="images/rc_zgemma_h7.png" usemap="#rc"/>
 <map name="rc" id="rc">
 <area shape="rect" coords="58,46,25,23" alt="KEY_POWER" href="javascript:rcsim('KEY_POWER')" />
 <area shape="rect" coords="134,22,171,46" alt="KEY_MUTE" href="javascript:rcsim('KEY_MUTE')" />
@@ -859,27 +860,7 @@ start-block~map_rc_zgemma_h7
 <area shape="rect" coords="26,568,67,593" alt="KEY_PREVIOUSSONG" href="javascript:rcsim('KEY_PREVIOUSSONG')" />
 <area shape="rect" coords="77,568,118,593" alt="KEY_NEXTSONG" href="javascript:rcsim('KEY_NEXTSONG')" />
 </map>
-end-block~map_rc_zgemma_h7
-
-# ------ Remote Air Digital Zgemma H7
-start-block~rc_zgemma_h7
-<img src="images/rc_zgemma_h7.png" usemap="#rc"/>
-{=include-block:Y_Blocks.txt;map_rc_zgemma_h7=}
 end-block~rc_zgemma_h7
-
-# ------ Remote Air Digital Zgemma H9
-start-block~rc_zgemma_h9
-{=var-set:rcu=rc_zgemma_h7=}
-<img src="images/rc_zgemma_h7.png" usemap="#rc"/>
-{=include-block:Y_Blocks.txt;map_rc_zgemma_h7=}
-end-block~rc_zgemma_h9
-
-# ------ Remote Air Digital Zgemma H9 Combo
-start-block~rc_zgemma_h9combo
-{=var-set:rcu=rc_zgemma_h7=}
-<img src="images/rc_zgemma_h7.png" usemap="#rc"/>
-{=include-block:Y_Blocks.txt;map_rc_zgemma_h7=}
-end-block~rc_zgemma_h9combo
 
 # --- Remote Axas E2 HD Ultra
 start-block~rc_axas_e4hd

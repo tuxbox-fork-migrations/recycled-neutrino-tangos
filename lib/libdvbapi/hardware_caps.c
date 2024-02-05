@@ -436,6 +436,24 @@ hw_caps_t *get_hwcaps(void)
 	strcpy(caps.boxname, "Ustym 4K Pro");
 	strcpy(caps.boxarch, "HI3798M");
 #endif
+#if BOXMODEL_USTYM4KS2OTTX
+	initialized = 1;
+	caps.has_CI = 0;
+	caps.can_cec = 1;
+	caps.can_shutdown = 1;
+	caps.display_xres = 4;
+	caps.display_type = HW_DISPLAY_LED_NUM;
+	caps.display_can_deepstandby = 0;
+	caps.display_can_set_brightness = 1;
+	caps.display_has_statusline = 0;
+	caps.display_has_colon = 1;
+	caps.has_button_timer = 1;
+	caps.has_HDMI = 1;
+	strcpy(caps.startup_file, "STARTUP");
+	strcpy(caps.boxvendor, "Uclan");
+	strcpy(caps.boxname, "Ustym 4K S2 OTT X");
+	strcpy(caps.boxarch, "Hi3798MV300H");
+#endif
 #if BOXMODEL_H9COMBO
 	initialized = 1;
 	caps.has_CI = 1;
