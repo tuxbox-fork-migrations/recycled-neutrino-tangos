@@ -244,8 +244,12 @@ void CFrontend::getFEInfo(void)
 #if BOXMODEL_VUPLUS_ALL
 				sprintf(info.name,"%s", line.substr(line.find_first_of(":") + 9).c_str());
 #else
+#if BOXMODEL_GBUE4K
+				sprintf(info.name,"%s", line.substr(line.find_first_of(":") + 8).c_str());
+#else
 				std::string tmp = info.name;
 				sprintf(info.name,"%s (%s)", tmp.c_str(), line.substr(line.find_first_of(":") + 2).c_str());
+#endif
 #endif
 				break;
 			}

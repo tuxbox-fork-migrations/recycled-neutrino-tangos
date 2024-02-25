@@ -39,8 +39,13 @@
 #define MAX_FE          16
 #define MAX_ADAPTERS    4
 #else
+#if BOXMODEL_GBUE4K
+#define MAX_FE          10
+#define MAX_ADAPTERS    4
+#else
 #define MAX_FE          4
 #define MAX_ADAPTERS    4
+#endif
 #endif
 #endif
 //#define DYNAMIC_DEMUX
