@@ -480,7 +480,7 @@ AM_CONDITIONAL(BOXMODEL_GBUE4K, test "$BOXMODEL" = "gbue4k")
 AM_CONDITIONAL(BOXMODEL_VUPLUS_ALL, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuduo4kse" -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuzero4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k")
 AM_CONDITIONAL(BOXMODEL_VUPLUS_ARM, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuduo4kse" -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuzero4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k")
 
-AM_CONDITIONAL(BOXMODEL_HISILICON, test "$BOXMODEL" = "hd60" -o "$BOXMODEL" = "hd61" -o "$BOXMODEL" = "multibox" -o "$BOXMODEL" = "multiboxse" -o "$BOXMODEL" = "sf8008" -o "$BOXMODEL" = "sf8008m" -o "$BOXMODEL" = "ustym4kpro" -o "$BOXMODEL" = "ustym4ks2ottx" -o "$BOXMODEL" = "h9combo"  -o "$BOXMODEL" = "gbue4k")
+AM_CONDITIONAL(BOXMODEL_HISILICON, test "$BOXMODEL" = "hd60" -o "$BOXMODEL" = "hd61" -o "$BOXMODEL" = "multibox" -o "$BOXMODEL" = "multiboxse" -o "$BOXMODEL" = "sf8008" -o "$BOXMODEL" = "sf8008m" -o "$BOXMODEL" = "ustym4kpro" -o "$BOXMODEL" = "ustym4ks2ottx" -o "$BOXMODEL" = "h9combo")
 
 if test "$BOXTYPE" = "generic"; then
 	AC_DEFINE(HAVE_GENERIC_HARDWARE, 1, [building for a generic device like a standard PC])
@@ -551,9 +551,9 @@ case "$BOXMODEL" in
 esac
 
 # vuplus enable quadpip
-AM_CONDITIONAL(ENABLE_QUADPIP, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuduo4kse" -o "$BOXMODEL" = "vuuno4kse"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuuno4k" -o "$BOXMODEL" = "vuuno4kse")
+AM_CONDITIONAL(ENABLE_QUADPIP, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuduo4kse" -o "$BOXMODEL" = "vuuno4kse"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuuno4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "gbue4k")
 case "$BOXMODEL" in
-	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse)
+	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse|gbue4k)
 		AC_DEFINE(ENABLE_QUADPIP, 1, [enable quad picture in picture support])
 	;;
 esac
