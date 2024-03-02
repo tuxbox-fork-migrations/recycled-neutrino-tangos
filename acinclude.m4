@@ -550,7 +550,7 @@ case "$BOXMODEL" in
 	;;
 esac
 
-# vuplus enable quadpip
+# vuplus & gigablue uhd ue 4k enable quadpip
 AM_CONDITIONAL(ENABLE_QUADPIP, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuduo4kse" -o "$BOXMODEL" = "vuuno4kse"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuuno4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "gbue4k")
 case "$BOXMODEL" in
 	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse|gbue4k)

@@ -144,7 +144,6 @@ typedef enum
 	, TUNER_H
 	, TUNER_I
 	, TUNER_J
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
 	, TUNER_K
 	, TUNER_L
 	, TUNER_M
@@ -160,7 +159,6 @@ typedef enum
 	, TUNER_V
 	, TUNER_W
 	, TUNER_X
-#endif
 #endif
 #endif
 } source_t;

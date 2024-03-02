@@ -882,7 +882,7 @@ void cVideo::QuadPiP(bool active, int _x, int _y, int _w, int _h)
 	int _a = 1;
 	if (active)
 	{
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K || BOXMODEL_GBUE4K
 		proc_put("/proc/stb/video/decodermode", "mosaic", strlen("mosaic"));
 #endif
 		for (unsigned int i = 0; i < 4; i++)
@@ -914,7 +914,7 @@ void cVideo::QuadPiP(bool active, int _x, int _y, int _w, int _h)
 			sprintf(buffer, "%x", _a);
 			proc_put(VMPEG_dst_apply[i], buffer, strlen(buffer));
 		}
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K || BOXMODEL_GBUE4K
 		proc_put("/proc/stb/video/decodermode", "normal", strlen("normal"));
 #endif
 	}

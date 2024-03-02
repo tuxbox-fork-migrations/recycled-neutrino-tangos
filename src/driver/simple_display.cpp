@@ -48,11 +48,15 @@ static bool timer_icon = false;
 #if BOXMODEL_E4HDULTRA || BOXMODEL_PROTEK4K
 #define DISPLAY_DEV "/dev/null"
 #else
+#if BOXMODEL_GBUE4K
+#define DISPLAY_DEV "/dev/lcd0"
+#else
 #define DISPLAY_DEV "/dev/dbox/oled0"
 #endif // BOXMODEL_E4HDULTRA
 #include <zapit/zapit.h>
 static bool usb_icon = false;
 static bool timer_icon = false;
+#endif
 #endif
 
 static char volume = 0;
@@ -78,9 +82,9 @@ static inline int dev_open()
 static void replace_umlauts(std::string &s)
 {
 	/* this is crude, it just replaces ÄÖÜ with AOU since the display can't show them anyway */
-	/*                       Ä           ä           Ö           ö           Ü           ü   */
-	char tofind[][3] = { "\xc3\x84", "\xc3\xa4", "\xc3\x96", "\xc3\xb6", "\xc3\x9c", "\xc3\xbc" };
-	char toreplace[] = { "AaOoUu" };
+	/*                       Ä           ä           Ö           ö           Ü           ü            Ą           Ć          Ę           Ł           Ń           Ó           Ś           Ż           Ź           ą           ć           ę           ł           ń           ó           ś            ż          ź      */
+	char tofind[][3] = { "\xc3\x84", "\xc3\xa4", "\xc3\x96", "\xc3\xb6", "\xc3\x9c", "\xc3\xbc", "\xc4\x84", "\xc4\x86", "\xc4\x98", "\xc5\x81", "\xc5\x83", "\xc3\x93", "\xc5\x9a", "\xc5\xb9", "\xc5\xbb", "\xc4\x85", "\xc4\x87", "\xc4\x99", "\xc5\x82", "\xc5\x84", "\xc3\xb3", "\xc5\x9b", "\xc5\xba", "\xc5\xbc" };
+	char toreplace[] = { "AaOoUuACELNOSZZacelnoszz" };
 	char repl[2];
 	repl[1] = '\0';
 	int i = 0;

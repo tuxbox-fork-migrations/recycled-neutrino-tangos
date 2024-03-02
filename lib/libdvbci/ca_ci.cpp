@@ -889,7 +889,6 @@ void cCA::setSource(eDVBCISlot *slot)
 			case TUNER_J:
 				fprintf(ci, "J");
 				break;
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K
 			case TUNER_K:
 				fprintf(ci, "K");
 				break;
@@ -935,7 +934,6 @@ void cCA::setSource(eDVBCISlot *slot)
 				break;
 #endif
 #endif
-#endif
 		}
 		fclose(ci);
 	}
@@ -953,14 +951,10 @@ void cCA::setInputs()
 #if BOXMODEL_VUULTIMO4K
 	for (int number = 0; number < 24; number++) // tuner A to X, input 0 to 23
 #else
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K || BOXMODEL_GBUE4K
 	for (int number = 0; number < 16; number++) // tuner A to P, input 0 to 15
 #else
-#if BOXMODEL_GBUE4K
-	for (int number = 0; number < 10; number++) // tuner A to J, input 0 to 9
-#else
 	for (int number = 0; number < 4; number++) // tuner A to D, input 0 to 3
-#endif
 #endif
 #endif
 	{
@@ -1042,7 +1036,6 @@ void cCA::setInputSource(eDVBCISlot *slot, bool ci)
 				case TUNER_J:
 					fprintf(input, "J");
 					break;
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
 				case TUNER_K:
 					fprintf(input, "K");
 					break;
@@ -1086,7 +1079,6 @@ void cCA::setInputSource(eDVBCISlot *slot, bool ci)
 				case TUNER_X:
 					fprintf(input, "X");
 					break;
-#endif
 #endif
 #endif
 			}

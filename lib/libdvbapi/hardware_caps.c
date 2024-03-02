@@ -538,7 +538,6 @@ hw_caps_t *get_hwcaps(void)
 	initialized = 1;
 	caps.has_CI = 1;
 	caps.can_cec = 1;
-	caps.can_cpufreq = 0;
 	caps.can_shutdown = 1;
 	caps.display_xres = 220;
 	caps.display_yres = 176;
@@ -548,7 +547,6 @@ hw_caps_t *get_hwcaps(void)
 	caps.display_has_statusline = 0;
 	caps.display_has_colon = 0;
 	caps.has_button_timer = 1;
-	caps.has_button_vformat = 0;
 	caps.has_HDMI = 1;
 	strcpy(caps.startup_file, "STARTUP");
 	strcpy(caps.boxvendor, "GIGABLUE");
