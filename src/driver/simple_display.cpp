@@ -52,11 +52,11 @@ static bool timer_icon = false;
 #define DISPLAY_DEV "/dev/lcd0"
 #else
 #define DISPLAY_DEV "/dev/dbox/oled0"
+#endif
 #endif // BOXMODEL_E4HDULTRA
 #include <zapit/zapit.h>
 static bool usb_icon = false;
 static bool timer_icon = false;
-#endif
 #endif
 
 static char volume = 0;
