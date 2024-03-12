@@ -414,7 +414,7 @@ AC_ARG_WITH(boxtype,
 		generic|armbox)
 			BOXTYPE="$withval"
 		;;
-		hd51|multibox|multiboxse|e4hdultra|protek4k|hd60|hd61|bre2ze4k|osmini4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|sf8008|sf8008m|ustym4kpro|ustym4ks2ottx|h9combo|h9)
+		hd51|multibox|multiboxse|e4hdultra|protek4k|hd60|hd61|bre2ze4k|osmini4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|sf8008|sf8008m|ustym4kpro|ustym4ks2ottx|h9combo|h9|gbue4k)
 			BOXTYPE="armbox"
 			BOXMODEL="$withval"
 		;;
@@ -425,9 +425,9 @@ AC_ARG_WITH(boxtype,
 	[BOXTYPE="generic"])
 
 AC_ARG_WITH(boxmodel,
-	AS_HELP_STRING([--with-boxmodel], [valid for armbox: hd51, multibox, multiboxse, e4hdultra, protek4k, hd60, hd61, bre2ze4k, osmini4k, osmio4k, osmio4kplus, h7, vusolo4k, vuduo4k, vuduo4kse, vuultimo4k, vuzero4k, vuuno4kse, vuuno4k, sf8008, sf8008m, ustym4kpro, ustym4ks2ottx, h9combo, h9])
+	AS_HELP_STRING([--with-boxmodel], [valid for armbox: hd51, multibox, multiboxse, e4hdultra, protek4k, hd60, hd61, bre2ze4k, osmini4k, osmio4k, osmio4kplus, h7, vusolo4k, vuduo4k, vuduo4kse, vuultimo4k, vuzero4k, vuuno4kse, vuuno4k, sf8008, sf8008m, ustym4kpro, ustym4ks2ottx, h9combo, h9, gbue4k])
 	[case "${withval}" in
-		hd51|multibox|multiboxse|e4hdultra|protek4k|hd60|hd61|bre2ze4k|osmini4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|sf8008|sf8008m|ustym4kpro|ustym4ks2ottx|h9combo|h9)
+		hd51|multibox|multiboxse|e4hdultra|protek4k|hd60|hd61|bre2ze4k|osmini4k|osmio4k|osmio4kplus|h7|vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|sf8008|sf8008m|ustym4kpro|ustym4ks2ottx|h9combo|h9|gbue4k)
 			if test "$BOXTYPE" = "armbox"; then
 				BOXMODEL="$withval"
 			else
@@ -475,11 +475,12 @@ AM_CONDITIONAL(BOXMODEL_USTYM4KPRO, test "$BOXMODEL" = "ustym4kpro")
 AM_CONDITIONAL(BOXMODEL_USTYM4KS2OTTX, test "$BOXMODEL" = "ustym4ks2ottx")
 AM_CONDITIONAL(BOXMODEL_H9COMBO, test "$BOXMODEL" = "h9combo")
 AM_CONDITIONAL(BOXMODEL_H9, test "$BOXMODEL" = "h9")
+AM_CONDITIONAL(BOXMODEL_GBUE4K, test "$BOXMODEL" = "gbue4k")
 
 AM_CONDITIONAL(BOXMODEL_VUPLUS_ALL, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuduo4kse" -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuzero4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k")
 AM_CONDITIONAL(BOXMODEL_VUPLUS_ARM, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuduo4kse" -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuzero4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k")
 
-AM_CONDITIONAL(BOXMODEL_HISILICON, test "$BOXMODEL" = "hd60" -o "$BOXMODEL" = "hd61" -o "$BOXMODEL" = "multibox" -o "$BOXMODEL" = "multiboxse" -o "$BOXMODEL" = "sf8008" -o "$BOXMODEL" = "sf8008m" -o "$BOXMODEL" = "ustym4kpro" -o "$BOXMODEL" = "ustym4ks2ottx" -o "$BOXMODEL" = "h9combo" -o "$BOXMODEL" = "h9")
+AM_CONDITIONAL(BOXMODEL_HISILICON, test "$BOXMODEL" = "hd60" -o "$BOXMODEL" = "hd61" -o "$BOXMODEL" = "multibox" -o "$BOXMODEL" = "multiboxse" -o "$BOXMODEL" = "sf8008" -o "$BOXMODEL" = "sf8008m" -o "$BOXMODEL" = "ustym4kpro" -o "$BOXMODEL" = "ustym4ks2ottx" -o "$BOXMODEL" = "h9combo")
 
 if test "$BOXTYPE" = "generic"; then
 	AC_DEFINE(HAVE_GENERIC_HARDWARE, 1, [building for a generic device like a standard PC])
@@ -538,19 +539,21 @@ elif test "$BOXMODEL" = "h9combo"; then
 	AC_DEFINE(BOXMODEL_H9COMBO, 1, [h9combo])
 elif test "$BOXMODEL" = "h9"; then
 	AC_DEFINE(BOXMODEL_H9, 1, [h9])
+elif test "$BOXMODEL" = "gbue4k"; then
+	AC_DEFINE(BOXMODEL_GBUE4K, 1, [gbue4k])
 fi
 
 # Support Boxmodel with OSD-Resolution
 case "$BOXMODEL" in
-	bre2ze4k|hd51|multibox|multiboxse|e4hdultra|protek4k|hd60|hd61|vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|h7|osmini4k|osmio4k|osmio4kplus|sf8008|sf8008m|ustym4kpro|ustym4ks2ottx|h9combo|h9)
+	bre2ze4k|hd51|multibox|multiboxse|e4hdultra|protek4k|hd60|hd61|vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuzero4k|vuuno4kse|vuuno4k|h7|osmini4k|osmio4k|osmio4kplus|sf8008|sf8008m|ustym4kpro|ustym4ks2ottx|h9combo|h9|gbue4k)
 		AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable to change osd resolution])
 	;;
 esac
 
-# vuplus enable quadpip
-AM_CONDITIONAL(ENABLE_QUADPIP, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuduo4kse" -o "$BOXMODEL" = "vuuno4kse"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuuno4k" -o "$BOXMODEL" = "vuuno4kse")
+# vuplus & gigablue uhd ue 4k enable quadpip
+AM_CONDITIONAL(ENABLE_QUADPIP, test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuduo4kse" -o "$BOXMODEL" = "vuuno4kse"  -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuuno4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "gbue4k")
 case "$BOXMODEL" in
-	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse)
+	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse|gbue4k)
 		AC_DEFINE(ENABLE_QUADPIP, 1, [enable quad picture in picture support])
 	;;
 esac
