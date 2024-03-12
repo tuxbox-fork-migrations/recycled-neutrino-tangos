@@ -76,10 +76,14 @@ static const char *DMX_T[] =
 #if BOXMODEL_VUULTIMO4K
 #define NUM_DEMUX 24
 #else
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K 
 #define NUM_DEMUX 16
 #else
+#if BOXMODEL_GBUE4K
+#define NUM_DEMUX 18
+#else
 #define NUM_DEMUX 4
+#endif
 #endif
 #endif
 /* the current source of each cDemux unit */
@@ -89,7 +93,11 @@ static int dmx_source[NUM_DEMUX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
 static int dmx_source[NUM_DEMUX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 #else
+#if BOXMODEL_GBUE4K
+static int dmx_source[NUM_DEMUX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+#else
 static int dmx_source[NUM_DEMUX] = { 0, 0, 0, 0 };
+#endif
 #endif
 #endif
 
@@ -107,7 +115,11 @@ static char *devname(int adapter, int demux)
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
 #define NUM_DEMUXDEV 16
 #else
+#if BOXMODEL_GBUE4K
+#define NUM_DEMUXDEV 18
+#else
 #define NUM_DEMUXDEV 8
+#endif
 #endif
 #endif
 
@@ -118,7 +130,11 @@ static bool init[NUM_DEMUXDEV] = { false, false, false, false, false, false, fal
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
 static bool init[NUM_DEMUXDEV] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 #else
+#if BOXMODEL_GBUE4K
+static bool init[NUM_DEMUXDEV] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+#else
 static bool init[NUM_DEMUXDEV] = { false, false, false, false, false, false, false, false };
+#endif
 #endif
 #endif
 

@@ -72,8 +72,12 @@ extern char zapit_long[21];
 //static int all_usals = 1;
 //sat_iterator_t sit;
 
-#if BOXMODEL_VUPLUS_ALL
+#if BOXMODEL_VUPLUS_ALL 
 static const char * tuner_desc[24] = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
+#else
+#if BOXMODEL_GBUE4K
+static const char * tuner_desc[10] = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
+#endif
 #endif
 
 #define SCANTS_BOUQUET_OPTION_COUNT 3
