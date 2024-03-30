@@ -179,7 +179,7 @@ printf("[dvb-sub] start, stopped %d pid %x\n", dvbsub_stopped, dvbsub_pid);
 		pthread_mutex_lock(&readerMutex);
 		pthread_cond_broadcast(&readerCond);
 		pthread_mutex_unlock(&readerMutex);
-		printf("[dvb-sub] started with pid 0x%x\n", pid);
+		printf("[dvb-sub] started with pid 0x%x\n", dvbsub_pid);
 	}
 
 	return 1;
@@ -226,9 +226,18 @@ void dvbsub_setpid(int pid)
 	pid_change_req = 1;
 	dvbsub_stopped = 0;
 
+#if HAVE_ARM_HARDWARE
+	if (isEplayer == false)
+	{
+		pthread_mutex_lock(&readerMutex);
+		pthread_cond_broadcast(&readerCond);
+		pthread_mutex_unlock(&readerMutex);
+	}
+#else
 	pthread_mutex_lock(&readerMutex);
 	pthread_cond_broadcast(&readerCond);
 	pthread_mutex_unlock(&readerMutex);
+#endif
 }
 
 int dvbsub_close()
@@ -611,8 +620,9 @@ static void* reader_thread(void * /*arg*/)
 
 #if HAVE_ARM_HARDWARE
 		if (isEplayer) {
-			poll(pfds, 1, -1);
-			while (0 > read(pfds[0].fd, _tmp, sizeof(tmp)));
+			usleep(1000000);
+			//poll(pfds, 1, -1);
+			//while (0 > read(pfds[0].fd, _tmp, sizeof(tmp)));
 			continue;
 		}
 #endif

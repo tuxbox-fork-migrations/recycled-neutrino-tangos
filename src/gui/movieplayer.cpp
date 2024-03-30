@@ -2095,9 +2095,11 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 	printf("%s: stopping, this %p thread %p\n", __func__, this, CMoviePlayerGui::bgPlayThread);fflush(stdout);
 	if (filelist_it == filelist.end())
 		FileTimeOSD->kill();
-#if 0
-	clearSubtitle();
-#endif
+
+	/* stop subtitle playback if running */
+	playback->SetSubtitlePid(0);
+	playback->SetTeletextPid(0);
+	dvbsub_stop();
 
 	playback->SetSpeed(1);
 	playback->Close();

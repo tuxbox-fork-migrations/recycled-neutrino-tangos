@@ -1152,6 +1152,8 @@ void CMovieBrowser::hide(void)
 	if (m_pcFilter != NULL)
 		m_currentFilterSelection = m_pcFilter->getSelectedLine();
 
+	CNeutrinoApp::getInstance()->StartSubtitles();
+
 	delete m_pcFilter;
 	m_pcFilter = NULL;
 
@@ -1181,6 +1183,8 @@ void CMovieBrowser::hide(void)
 int CMovieBrowser::paint(void)
 {
 	TRACE("[mb]->%s\n", __func__);
+
+	CNeutrinoApp::getInstance()->StopSubtitles();
 
 	CFont* font = g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST];
 	m_movieSelectionHandler = NULL;
