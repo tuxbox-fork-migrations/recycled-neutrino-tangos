@@ -168,8 +168,10 @@ printf("[dvb-sub] start, stopped %d pid %x\n", dvbsub_stopped, dvbsub_pid);
 			std::map<int,ASS_Track*>::iterator it = ass_map.find(dvbsub_pid);
 			if (it != ass_map.end())
 				ass_track = it->second;
-			else
+			else {
 				ass_track = NULL; //FIXME
+				printf("[dvb-sub] ass_track not found for pid %x\n", dvbsub_pid);
+			}
 		}
 #endif
 		dvbsub_stopped = 0;
