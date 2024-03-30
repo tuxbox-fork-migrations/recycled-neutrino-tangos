@@ -517,6 +517,7 @@ int CSubtitleChangeExec::exec(CMenuTarget * /*parent*/, const std::string &actio
 		{
 			playback->SetSubtitlePid(0);
 			playback->SetTeletextPid(0);
+			dvbsub_stop();
 			mp->setCurrentTTXSub("");
 		}
 		return menu_return::RETURN_EXIT;
