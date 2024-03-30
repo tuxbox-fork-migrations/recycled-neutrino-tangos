@@ -426,7 +426,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 
 	/* send response to http client */
 	if (!strncmp(cbuf, "GET /", 5)) {
-		fprintf(fp, "HTTP/1.1 200 OK\r\nServer: streamts (%s)\r\n\r\n", "ts" /*&argv[1][1]*/);
+		fprintf(fp, "HTTP/1.1 200 OK\r\nServer: streamts (%s)\r\nAccess-Control-Allow-Origin: *\r\n\r\n", "ts" /*&argv[1][1]*/);
 		fflush(fp);
 		bp += 5;
 	} else {
