@@ -78,6 +78,7 @@ class CWeather
 		std::vector<forecast_data> v_forecast;
 		CComponentsForm *form;
 		std::string key;
+		std::string api;
 		bool GetWeatherDetails();
 		time_t last_time;
 		std::string getDirectionString(int degree);
@@ -86,6 +87,7 @@ class CWeather
 		static CWeather *getInstance();
 		CWeather();
 		~CWeather();
+		void updateApi();
 		bool checkUpdate(bool forceUpdate = false);
 		void setCoords(std::string new_coords, std::string new_city = "Unknown");
 		bool FindCoords(std::string postalcode, std::string country = "DE");
