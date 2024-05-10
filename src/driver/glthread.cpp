@@ -199,6 +199,16 @@ void GLThreadObj::setupCtx()
 	//
 }
 
+void GLThreadObj::SwitchTo(int width, int height)
+{
+	mState.width = width;
+	mX = width;
+	mState.height = height;
+	mY = height;
+	setupOSDBuffer();
+	mReInit = true;
+}
+
 void GLThreadObj::setupOSDBuffer()
 {	
 	/* 
@@ -312,6 +322,7 @@ void GLThreadObj::render()
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		glEnable(GL_BLEND);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mState.width, mState.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, 0);
 		glEnable(GL_TEXTURE_2D);
 		glDisable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -350,7 +361,7 @@ void GLThreadObj::render()
 	GLuint err = glGetError();
 	if(err != 0)
 	{
-		dprintf(DEBUG_NORMAL, "GLThreadObj::render: GLError:%d 0x%04x\n", err, err);
+		//dprintf(DEBUG_NORMAL, "GLThreadObj::render: GLError:%d 0x%04x\n", err, err);
 	}
 
 	// simply limit to 30 Hz, if anyone wants to do this properly, feel free

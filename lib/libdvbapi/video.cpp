@@ -741,6 +741,9 @@ int cVideo::SetVideoSystem(int video_system, bool remember)
 
 int cVideo::GetVideoSystem(void)
 {
+#if HAVE_GENERIC_HARDWARE
+	return VIDEO_STD_1080I50;
+#endif
 	char current[32];
 	proc_get("/proc/stb/video/videomode", current, 32);
 	for (int i = 0; vid_modes[i]; i++)

@@ -51,6 +51,7 @@ class GLThreadObj : public OpenThreads::Thread
 		void clear();
 		
 		void blit() { mState.blit = true; }
+		void SwitchTo(int width, int height);
 
 	private:
 		int mX;				/* window size */
