@@ -35,6 +35,7 @@
 
 #include <driver/abstime.h>
 #include <system/set_threadname.h>
+#include <gui/osd_helpers.h>
 #include <gui/color.h>
 #include <gui/color_custom.h>
 
@@ -44,8 +45,8 @@
 #define LOGTAG "[fb_glfb] "
 
 // resolution
-#define DEFAULT_XRES		1280
-#define DEFAULT_YRES		720
+#define DEFAULT_XRES		1920
+#define DEFAULT_YRES		1080
 
 // bitmap
 #define DEFAULT_BPP		32	// 32 bit
@@ -194,23 +195,48 @@ void CFbAccelGLFB::_blit()
 }
 
 /* wrong name... */
-int CFbAccelGLFB::setMode(unsigned int, unsigned int, unsigned int)
+int CFbAccelGLFB::setMode(unsigned int xres, unsigned int yres, unsigned int )
 {
-	xRes = screeninfo.xres;
-	yRes = screeninfo.yres;
+	xRes = xres;
+	yRes = yres;
 	bpp  = screeninfo.bits_per_pixel;
-	int needmem = stride * yRes * 2;
-	if (available >= needmem)
-	{
-		backbuffer = lfb + swidth * yRes;
-		return 0;
-	}
-	fprintf(stderr, LOGTAG "not enough FB memory (have %d, need %d)\n", available, needmem);
-	backbuffer = lfb; /* will not work well, but avoid crashes */
+	screeninfo.xres = xRes;
+	screeninfo.xres_virtual = screeninfo.xres;
+	screeninfo.yres = yRes;
+	screeninfo.yres_virtual = screeninfo.yres;
+	mpGLThreadObj->SwitchTo(xres,yres);
+	lbb = lfb = reinterpret_cast<fb_pixel_t*>(mpGLThreadObj->getOSDBuffer());
+	memset(lbb, 0, screeninfo.xres * screeninfo.yres * 4);
+	memset(lfb, 0, screeninfo.xres * screeninfo.yres * 4);
+	stride = screeninfo.xres * 4;
+	swidth = screeninfo.xres;
 	return 0;
 }
 
 fb_pixel_t * CFbAccelGLFB::getBackBufferPointer() const
 {
 	return backbuffer;
+}
+
+void CFbAccelGLFB::setOsdResolutions()
+{
+	osd_resolution_t res;
+	osd_resolutions.clear();
+	res.xRes = 1280;
+	res.yRes = 720;
+	res.bpp  = 32;
+	res.mode = OSDMODE_720;
+	osd_resolutions.push_back(res);
+	res.xRes = 1920;
+	res.yRes = 1080;
+	res.bpp  = 32;
+	res.mode = OSDMODE_1080;
+	osd_resolutions.push_back(res);
+}
+
+int CFbAccelGLFB::scale2Res(int size)
+{
+	if (screeninfo.xres == 1920)
+		size += size/2;
+	return size;
 }
