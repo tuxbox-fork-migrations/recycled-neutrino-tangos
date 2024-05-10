@@ -66,9 +66,6 @@ libneutrino_driver_a_SOURCES += \
 	fb_accel.cpp \
 	fb_accel_glfb.cpp \
 	simple_display.cpp
-
-AM_CPPFLAGS += \
-	@GSTREAMER_CFLAGS@
 endif
 
 if BOXTYPE_ARMBOX
