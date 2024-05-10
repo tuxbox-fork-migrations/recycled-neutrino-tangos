@@ -127,7 +127,6 @@ neutrino_LDADD = \
 
 if BOXTYPE_GENERIC
 neutrino_LDADD += \
-	@GSTREAMER_LIBS@ \
 	-lglut -lGL -lGLU -lGLEW
 else
 neutrino_LDADD += \

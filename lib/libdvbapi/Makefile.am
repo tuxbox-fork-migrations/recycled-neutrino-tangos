@@ -34,8 +34,6 @@ libdvbapi_a_SOURCES += \
 	playback_libeplayer3.cpp
 else
 libdvbapi_a_SOURCES += \
-	playback_gst.cpp
-AM_LDFLAGS += \
-	@GSTREAMER_CFLAGS@
+	playback_pc.cpp
 endif
 

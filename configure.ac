@@ -140,7 +140,6 @@ if test "$BOXTYPE" = "generic"; then
 	PKG_CHECK_MODULES(GL, gl)
 	#PKG_CHECK_MODULES(GLUT, glut)
 	PKG_CHECK_MODULES(GLEW, glew)
-	PKG_CHECK_MODULES(GSTREAMER, gstreamer-1.0 gstreamer-audio-1.0 gstreamer-video-1.0 gstreamer-pbutils-1.0)
 fi
 
 if test "$BOXTYPE" = "armbox" ||
