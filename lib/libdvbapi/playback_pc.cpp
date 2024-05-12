@@ -13,7 +13,7 @@ bool cPlayback::Open(playmode_t)
 void cPlayback::Close(void)
 {
 	char cmd[64] = {0};
-	snprintf(cmd, sizeof(cmd), "killall mpv &");
+	snprintf(cmd, sizeof(cmd), "killall -9 mpv");
 	printf("[3]###########[%s]##############\n", cmd);
 	system(cmd);
 }
@@ -25,28 +25,18 @@ bool cPlayback::Start(std::string filename, std::string headers)
 
 bool cPlayback::Start(char *filename, int vpid, int vtype, int apid, int ac3, int duration, std::string /*headers*/)
 {
-	static std::string tmp_filename = "";
-	static unsigned int cnt = 0;
-
 	printf("%s:%s - filename=%s vpid=%u vtype=%d apid=%u ac3=%d duration=%i\n",
 		FILENAME, __func__, filename, vpid, vtype, apid, ac3, duration);
 
 	char cmd[1024] = {0};
-	std::string tmp = filename;
 
-	if (tmp_filename != tmp)
-	{
-		snprintf(cmd, sizeof(cmd), "mpv '%s' &", filename);
-		printf("[2]###########[%s]##############\n", cmd);
-		system(cmd);
-		tmp_filename = filename;
-		cnt = 0;
-	}
-	else
-	{
-		printf("REPEAT %i ########################%s#####################\n", cnt++, filename);
-		return false;
-	}
+	snprintf(cmd, sizeof(cmd), "killall -9 mpv");
+	printf("[3]###########[%s]##############\n", cmd);
+	system(cmd);
+
+	snprintf(cmd, sizeof(cmd), "(sleep 1; mpv '%s') &", filename);
+	printf("[2]###########[%s]##############\n", cmd);
+	system(cmd);
 
 	return true;
 }
