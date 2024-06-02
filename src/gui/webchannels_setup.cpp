@@ -267,6 +267,10 @@ int CWebChannelsSetup::Show()
 	{
 		std::vector <hint_message_data_t> hints;
 		hints.push_back({sigc::bind(sigc::mem_fun(this, &CWebChannelsSetup::webchannels_init), m), g_Locale->getText(LOCALE_SERVICEMENU_RELOAD_HINT), NONEXISTANT_LOCALE, 2, true, NEUTRINO_ICON_LOADER});
+		if (webradio)
+			hints.push_back({sigc::bind(sigc::mem_fun(CZapit::getInstance(), &CZapit::SetWebRadioXML), &g_settings.webradio_xml),  g_Locale->getText(LOCALE_SERVICEMENU_RELOAD_HINT), NONEXISTANT_LOCALE, 2, true, NEUTRINO_ICON_LOADER});
+		else
+			hints.push_back({sigc::bind(sigc::mem_fun(CZapit::getInstance(), &CZapit::SetWebTVXML), &g_settings.webtv_xml),  g_Locale->getText(LOCALE_SERVICEMENU_RELOAD_HINT), NONEXISTANT_LOCALE, 2, true, NEUTRINO_ICON_LOADER});
 		hints.push_back({sigc::mem_fun(g_Zapit, &CZapitClient::reinitChannels),  g_Locale->getText(LOCALE_SERVICEMENU_RELOAD_HINT), NONEXISTANT_LOCALE, 2, true, NEUTRINO_ICON_LOADER});
 		hints.push_back({sigc::hide_return(sigc::mem_fun(CNeutrinoApp::getInstance(), &CNeutrinoApp::xmltv_xml_auto_readepg)),  g_Locale->getText(LOCALE_SERVICEMENU_RELOAD_HINT), NONEXISTANT_LOCALE, 2, true, NEUTRINO_ICON_LOADER});
 		ShowHintS(hints);
